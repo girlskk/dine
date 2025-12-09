@@ -1,0 +1,25 @@
+# Mac os
+.DS_Store
+
+# IDE
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Build
+build
+
+# Deploy
+deploy
+
+# ENV
+*.env
+
+# Markdown
+*.md
+
+# Makefile
+Makefile

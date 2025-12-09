@@ -1,0 +1,22 @@
+# 变量
+variables:
+  PROJECT_NAME: "dine"
+  PROJECT_VERSION: "v0.0.1"
+  REGISTRY_DOMAIN: "harbor.ant-lord.com"
+  REGISTRY_NAMESPACE: "dine"
+  REGISTRY_URI: $REGISTRY_DOMAIN/$REGISTRY_NAMESPACE/$PROJECT_NAME
+# 缓存
+cache:
+  paths:
+    - pkg/mod/
+# 阶段
+stages:
+  - build
+  - migrate
+  - deploy
+# 引入
+include:
+  - local: .gitlab/*.gitlab-ci.yml
+
+before_script:
+  - echo "开始构建，当前分支为：$CI_COMMIT_REF_SLUG，当前运行目录为：" $(pwd)

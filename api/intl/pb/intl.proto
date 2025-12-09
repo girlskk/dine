@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package api.intl;
+
+import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/decimal.proto";
+
+option go_package = "gitlab.jiguang.dev/pos-dine/dine/api/intl/pb;pb";
+
+service Intl {
+  rpc Ping (PingRequest) returns (PingReply) {}
+  rpc OrderCartAddItem (OrderCartAddItemRequest) returns (OrderCartAddItemReply) {}
+  rpc OrderCartRemoveItem (OrderCartRemoveItemRequest) returns (OrderCartRemoveItemReply) {}
+  rpc OrderCartGetByTableId (OrderCartGetByTableIdRequest) returns (OrderCartGetByTableIdReply) {}
+  rpc GetFrontendUserByToken (GetFrontendUserByTokenRequest) returns (FrontendUser) {}
+  rpc GetTableInfo (GetTableInfoRequest) returns (GetTableInfoReply) {}
+}
+
+message PingRequest {
+  string ping = 1 [(validate.rules).string = {min_len: 1}];
+}
+
+message PingReply {
+  string message = 1;
+}
+
+message OrderCartAddItemRequest {
+  int64 table_id = 1 [(validate.rules).int64 = {gt: 0}];
+  int64 product_id = 2 [(validate.rules).int64 = {gt: 0}];
+  int64 product_spec_id = 3 [(validate.rules).int64 = {gt: 0, ignore_empty: true}];
+  int64 attr_id = 4 [(validate.rules).int64 = {gt: 0, ignore_empty: true}];
+  int64 recipe_id = 5 [(validate.rules).int64 = {gt: 0, ignore_empty: true}];
+}
+
+// 购物车商品项
+message OrderCartItem {
+  int64 id = 1;
+  int64 table_id = 2;
+  int64 product_id = 3;
+  string name = 4;
+  google.type.Decimal price = 5; // 商品实际单价
+  repeated string images = 6;
+  int64 product_spec_id = 7;  // 商品规格id
+  string spec_name = 8;
+  int64 attr_id = 9;
+  string attr_name = 10;
+  int64 recipe_id = 11;
+  string recipe_name = 12;
+  int64 category_id = 13;
+  string category_name = 14;
+  google.type.Decimal quantity = 15;
+  repeated SetMealDetail set_meal_details = 16; // 套餐详情
+  google.protobuf.Timestamp created_at = 17;
+  google.protobuf.Timestamp updated_at = 18;
+}
+
+message OrderCartRemoveItemRequest {
+  int64 item_id = 1 [(validate.rules).int64 = {gt: 0}]; // 购物车商品项ID
+  int64 table_id = 2 [(validate.rules).int64 = {gt: 0}]; // 餐桌ID
+}
+
+message OrderCartGetByTableIdRequest {
+  int64 table_id = 1 [(validate.rules).int64 = {gt: 0}];
+}
+
+message OrderCartGetByTableIdReply {
+  repeated OrderCartItem items = 1;
+}
+
+message OrderCartAddItemReply {
+  repeated OrderCartItem items = 1;
+}
+
+message OrderCartRemoveItemReply {
+  repeated OrderCartItem items = 1;
+}
+
+// 套餐详情
+message SetMealDetail {
+  int64 id = 1;
+  int64 product_id = 2;                 // 商品ID
+  string product_name = 3;              // 商品名称
+  google.type.Decimal quantity = 4;     // 数量
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message GetFrontendUserByTokenRequest {
+	string token = 1 [(validate.rules).string = {min_len: 1}];
+}
+
+// 前端用户
+message FrontendUser {
+	int64 id = 1;
+	string username = 2;
+	string nickname = 3;
+	int64 store_id = 4;
+}
+
+message GetTableInfoRequest {
+	int64 table_id = 1 [(validate.rules).int64 = {gt: 0}];
+}
+
+message GetTableInfoReply {
+	int64 id = 1;
+  int64 store_id = 2;
+  repeated OrderCartItem items = 3;
+  string order_no = 4;
+}

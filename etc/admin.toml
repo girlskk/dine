@@ -1,0 +1,39 @@
+[App]
+RunMode = "dev"
+
+[HTTP]
+Port = "8080"
+RequestTimeout = 15
+
+[Database]
+AutoMigrate = false
+Debug = true
+Host = "127.0.0.1"
+Port = "3306"
+User = "root"
+Password = "changepassword"
+Name = "dine"
+TimeZone = "Asia/Shanghai"
+MaxLifetime = 3600
+MaxOpenConns = 150
+MaxIdleConns = 50
+
+[Alert]
+AppName = "admin"
+AccessToken = "access_token"
+Secret = "secret"
+Ats = ["123456", "7891011"]
+
+[Auth]
+Expire = 86400
+Secret = "secret"
+
+[Oss]
+Region = "cn-shanghai"
+Bucket = "bucket"
+Dir = "dine"
+AccessKeyID = "access_key_id"
+AccessKeySecret = "access_key_secret"
+RoleARN = "role_arn"
+SessionName = "dine-admin"
+Expiration = 3600

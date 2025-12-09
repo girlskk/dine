@@ -1,0 +1,10 @@
+# Mac os
+.DS_Store
+
+# IDE
+.vscode
+.idea
+
+# Air
+testdata/
+tmp/

@@ -1,0 +1,54 @@
+[App]
+RunMode = "dev"
+
+[RPC]
+Port = "50051"
+RequestTimeout = 15
+
+[Database]
+AutoMigrate = true
+Debug = true
+Host = "127.0.0.1"
+Port = "3306"
+User = "root"
+Password = ""
+Name = "dine"
+TimeZone = "Asia/Shanghai"
+MaxLifetime = 3600
+MaxOpenConns = 150
+MaxIdleConns = 50
+
+[Redis]
+Addr = "127.0.0.1:6379"
+Username = ""
+Password = ""
+DB = 0
+
+[Alert]
+AppName = "intl"
+AccessToken = "access_token"
+Secret = "secret"
+Ats = ["123456", "7891011"]
+
+[Huifu]
+ProductId          = "product_id"
+SysId              = "sys_id"
+RsaMerchPrivateKey = "rsa_merch_private_key"
+RsaHuifuPublicKey  = "rsa_huifu_public_key"
+
+[Zxh]
+BaseURL = "http://localhost"
+
+[Oss]
+Region = "cn-shanghai"
+Bucket = "bucket"
+Dir = "dine"
+AccessKeyID = "access_key_id"
+AccessKeySecret = "access_key_secret"
+RoleARN = "role_arn"
+SessionName = "dine-intl"
+Expiration = 3600
+
+[Auth]
+Expire = 86400
+Secret = "secret"

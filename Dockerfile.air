@@ -1,0 +1,15 @@
+FROM golang:latest
+
+# 设置Go环境
+RUN go env -w GO111MODULE=on && go env -w GOPROXY=https://goproxy.cn,direct
+
+WORKDIR /app
+
+# 安装Air
+RUN go install github.com/air-verse/air@latest
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+# 设置启动命令（不依赖预构建的应用程序）
+ENTRYPOINT ["air"]
