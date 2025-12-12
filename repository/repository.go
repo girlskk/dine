@@ -17,6 +17,7 @@ type Repository struct {
 	hooks             []func()
 	mu                sync.Mutex
 	client            *ent.Client
+	adminUserRepo     *AdminUserRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -89,4 +90,13 @@ func withTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) 
 		return fmt.Errorf("committing transaction: %w", err)
 	}
 	return nil
+}
+
+func (repo *Repository) AdminUserRepo() domain.AdminUserRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.adminUserRepo == nil {
+		repo.adminUserRepo = NewAdminUserRepository(repo.client)
+	}
+	return repo.adminUserRepo
 }

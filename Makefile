@@ -48,3 +48,30 @@ ent_clean:
 .PHONY: gen
 gen:
 	go generate ./...
+
+
+
+# 启动服务 - 使用 air 进行热重载开发
+.PHONY: run-admin
+run-admin:
+	air -c ./.air/admin.toml
+
+.PHONY: run-backend
+run-backend:
+	air -c ./.air/backend.toml
+
+.PHONY: run-frontend
+run-frontend:
+	air -c ./.air/frontend.toml
+
+.PHONY: run-customer
+run-customer:
+	air -c ./.air/customer.toml
+
+.PHONY: run-intl
+run-intl:
+	air -c ./.air/intl.toml
+
+.PHONY: run-scheduler
+run-scheduler:
+	air -c ./.air/scheduler.toml

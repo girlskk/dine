@@ -7,6 +7,7 @@ type DataStore interface {
 	Atomic(ctx context.Context, fn func(ctx context.Context, ds DataStore) error) error
 	IsTransactionActive() bool
 	AddHook(hook func())
+	AdminUserRepo() AdminUserRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

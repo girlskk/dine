@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin"
-
+	"gitlab.jiguang.dev/pos-dine/dine/api/admin/handler"
+	mid "gitlab.jiguang.dev/pos-dine/dine/api/admin/middleware"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/middleware"
@@ -27,9 +28,17 @@ var Module = fx.Module(
 		asMiddleware(middleware.NewPopulateRequestID),
 		asMiddleware(middleware.NewPopulateLogger),
 		asMiddleware(middleware.NewLogger),
+		fx.Annotate(
+			mid.NewAuth,
+			fx.As(new(ugin.Middleware)),
+			fx.ParamTags(`group:"handlers"`),
+			fx.ResultTags(`group:"middlewares"`),
+		),
 	),
 	// handler
-	fx.Provide(),
+	fx.Provide(
+		asHandler(handler.NewUserHandler),
+	),
 )
 
 func asHandler(f any) any {
