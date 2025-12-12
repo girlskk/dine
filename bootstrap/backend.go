@@ -6,6 +6,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/db"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb"
+	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ali/oss"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/huifu"
@@ -22,6 +23,7 @@ type BackendConfig struct {
 	Alert    alert.Config
 	Auth     domain.AuthConfig
 	Huifu    huifu.MerchSysConfig
+	Tracing  tracing.Config
 	Oss      oss.Config
 }
 

@@ -24,6 +24,7 @@ var middlewares = []string{
 	"TimeLimiter",
 	"PopulateRequestID",
 	"PopulateLogger",
+	"Observability",
 	"Logger",
 	"ErrorHandling",
 	"Auth",

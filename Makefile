@@ -1,4 +1,4 @@
-DB_DSN=mysql://root:pass@:33061/dine1
+DB_DSN=mysql://root:pass@:33061/dine
 #DB_DSN=mysql://dine:6fFh2M44cEKv@rm-uf66l9d6gm5553v665o.mysql.rds.aliyuncs.com:3306/dine
 ENT_DIR=.
 
@@ -48,7 +48,6 @@ ent_clean:
 .PHONY: gen
 gen:
 	go generate ./...
-
 
 
 # 启动服务 - 使用 air 进行热重载开发

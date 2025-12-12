@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/opentracing/opentracing-go"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -28,7 +27,7 @@ func NewAdminUserInteractor(authConfig domain.AuthConfig, ds domain.DataStore) *
 }
 
 func (interactor *AdminUserInteractor) Login(ctx context.Context, username, password string) (token string, expAt time.Time, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AdminUserInteractor.Login")
+	span, ctx := util.StartSpan(ctx, "usecase", "AdminUserInteractor.Login")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -61,10 +60,11 @@ func (interactor *AdminUserInteractor) Login(ctx context.Context, username, pass
 func (interactor *AdminUserInteractor) Logout(ctx context.Context) error { return nil }
 
 func (interactor *AdminUserInteractor) Authenticate(ctx context.Context, token string) (user *domain.AdminUser, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AdminUserInteractor.Authenticate")
+	span, ctx := util.StartSpan(ctx, "usecase", "AdminUserInteractor.Authenticate")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+
 	logger := logging.FromContext(ctx).Named("AdminUserInteractor.Authenticate")
 
 	claims := &AuthToken{}

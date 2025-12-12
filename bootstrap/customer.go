@@ -6,6 +6,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/db"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb"
+	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/wechat"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ali/oss"
@@ -25,6 +26,7 @@ type CustomerConfig struct {
 	Auth     domain.AuthConfig
 	Huifu    huifu.MerchSysConfig
 	Oss      oss.Config
+	Tracing  tracing.Config
 }
 
 func NewCustomerConfig(files []string) (cfg CustomerConfig, err error) {

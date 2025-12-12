@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/opentracing/opentracing-go"
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
@@ -49,8 +48,6 @@ func (h *UserHandler) NoAuths() []string {
 func (h *UserHandler) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		span, ctx := opentracing.StartSpanFromContext(ctx, "UserHandler.Login")
-		defer span.Finish()
 		logger := logging.FromContext(ctx).Named("UserHandler.Login")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
@@ -97,8 +94,6 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 func (h *UserHandler) Logout() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		span, ctx := opentracing.StartSpanFromContext(ctx, "UserHandler.Login")
-		defer span.Finish()
 		logger := logging.FromContext(ctx).Named("UserHandler.Login")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
@@ -124,8 +119,6 @@ func (h *UserHandler) Logout() gin.HandlerFunc {
 func (h *UserHandler) Info() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		span, ctx := opentracing.StartSpanFromContext(ctx, "UserHandler.Info")
-		defer span.Finish()
 		logger := logging.FromContext(ctx).Named("UserHandler.Info")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)

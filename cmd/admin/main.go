@@ -16,6 +16,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver/httpserverfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
+	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing/tracingfx"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/domainservicefx"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/eventbus/eventbusfx"
@@ -24,6 +25,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 	"gitlab.jiguang.dev/pos-dine/dine/repository/repositoryfx"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/usecasefx"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -71,6 +73,7 @@ func main() {
 			oss.New,
 		),
 		dbfx.Module,
+		tracingfx.Module,
 		eventbusfx.Module,
 		repositoryfx.Module,
 		usecasefx.Module,
@@ -82,5 +85,6 @@ func main() {
 		rdbfx.Module,
 		asynqfx.ClientModule,
 		fx.Invoke(func(*http.Server) {}),
+		fx.Invoke(func(tp trace.TracerProvider) {}),
 	).Run()
 }

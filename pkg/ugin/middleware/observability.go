@@ -2,18 +2,26 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/ext"
+	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/utracing"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Observability struct {
-	skippers []SkipperFunc
+	skippers    []SkipperFunc
+	serviceName string
+	otelHandler gin.HandlerFunc // 缓存 otelgin 中间件
 }
 
-func NewObservability(skippers ...SkipperFunc) *Observability {
-	return &Observability{skippers: skippers}
+func NewObservability(conf tracing.Config, skippers ...SkipperFunc) *Observability {
+	return &Observability{
+		serviceName: conf.ServiceName,
+		skippers:    skippers,
+		otelHandler: otelgin.Middleware(conf.ServiceName),
+	}
 }
 
 func (o *Observability) Name() string {
@@ -27,22 +35,19 @@ func (o *Observability) Middleware() gin.HandlerFunc {
 			return
 		}
 
-		r := c.Request
-		ctx := r.Context()
+		o.otelHandler(c)
 
-		tracer := opentracing.GlobalTracer()
-		spanCtx, _ := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))
-		span := tracer.StartSpan(r.URL.Path, ext.RPCServerOption(spanCtx))
-		defer span.Finish()
-
-		if id := utracing.RequestIDFromContext(ctx); id != "" {
-			span.SetTag("request_id", id)
+		// 获取 span 并添加自定义属性
+		span := trace.SpanFromContext(c.Request.Context())
+		if span.IsRecording() {
+			if id := utracing.RequestIDFromContext(c.Request.Context()); id != "" {
+				span.SetAttributes(attribute.String("request_id", id))
+			}
+			span.SetAttributes(
+				attribute.String("build_version", buildinfo.Version),
+				attribute.String("build_at", buildinfo.BuildAt),
+			)
 		}
-		span.SetTag("build_version", buildinfo.Version)
-		span.SetTag("build_at", buildinfo.BuildAt)
-
-		ctx = opentracing.ContextWithSpan(ctx, span)
-		c.Request = r.Clone(ctx)
 
 		c.Next()
 	}

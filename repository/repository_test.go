@@ -35,7 +35,7 @@ func (suite *RepositoryTestSuite) initDB() {
 func connectDB(t *testing.T, opts []enttest.Option) *ent.Client {
 	// 使用本地真实数据库测试
 	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True",
-	// 	"root", "pass", "127.0.0.1", "33061", "dine1")
+	// 	"root", "pass", "127.0.0.1", "33061", "dine")
 	// client, err := ent.Open("mysql", dsn)
 	// if err != nil {
 	// 	t.Fatalf("failed opening connection to mysql: %v", err)

@@ -20,6 +20,19 @@ services:
       - redisdata:/data
     restart: always
 
+  # jaeger链路追踪 — Jaeger for tracing
+  jaeger:
+    image: jaegertracing/jaeger:latest
+    restart: always
+    ports:
+      - "16686:16686"      # Jaeger UI
+      - "4317:4317"        # OTLP gRPC 接收器
+      - "4318:4318"        # OTLP HTTP 接收器
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Shanghai
+
+
   # frontend:
   #   build:
   #     context: .

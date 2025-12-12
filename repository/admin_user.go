@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/opentracing/opentracing-go"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
@@ -25,7 +24,7 @@ func NewAdminUserRepository(client *ent.Client) *AdminUserRepository {
 }
 
 func (repo *AdminUserRepository) FindByUsername(ctx context.Context, username string) (u *domain.AdminUser, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AdminUserRepository.FindByUsername")
+	span, ctx := util.StartSpan(ctx, "repository", "AdminUserRepository.FindByUsername")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -47,7 +46,7 @@ func (repo *AdminUserRepository) FindByUsername(ctx context.Context, username st
 }
 
 func (repo *AdminUserRepository) Find(ctx context.Context, id uuid.UUID) (u *domain.AdminUser, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AdminUserRepository.Find")
+	span, ctx := util.StartSpan(ctx, "repository", "AdminUserRepository.Find")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -69,7 +68,7 @@ func (repo *AdminUserRepository) Find(ctx context.Context, id uuid.UUID) (u *dom
 }
 
 func (repo *AdminUserRepository) Create(ctx context.Context, user *domain.AdminUser) (err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AdminUserRepository.Create")
+	span, ctx := util.StartSpan(ctx, "repository", "AdminUserRepository.Create")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -92,7 +91,7 @@ func (repo *AdminUserRepository) Create(ctx context.Context, user *domain.AdminU
 }
 
 func (repo *AdminUserRepository) Update(ctx context.Context, user *domain.AdminUser) (err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AdminUserRepository.Update")
+	span, ctx := util.StartSpan(ctx, "repository", "AdminUserRepository.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -117,7 +116,7 @@ func (repo *AdminUserRepository) Update(ctx context.Context, user *domain.AdminU
 }
 
 func (repo *AdminUserRepository) Delete(ctx context.Context, id uuid.UUID) (err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AdminUserRepository.Delete")
+	span, ctx := util.StartSpan(ctx, "repository", "AdminUserRepository.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

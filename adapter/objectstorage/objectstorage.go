@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/opentracing/opentracing-go"
 	"github.com/samber/lo"
 	"github.com/xuri/excelize/v2"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -39,7 +38,7 @@ func (s *Storage) PutObject(
 	reader io.Reader,
 	optFns ...func(*domain.ObjectStorageOption),
 ) (url string, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Storage.PutObject")
+	span, ctx := util.StartSpan(ctx, "adapter", "Storage.PutObject")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -84,7 +83,7 @@ func (s *Storage) ExportExcel(
 	headers []string,
 	contents [][]string,
 ) (url string, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Storage.ExportExcel")
+	span, ctx := util.StartSpan(ctx, "adapter", "Storage.ExportExcel")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -148,7 +147,7 @@ func (s *Storage) ExportExcelWithBlankMerge(
 	headers []string,
 	contents [][]string,
 ) (url string, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Storage.ExportExcelWithBlankMerge")
+	span, ctx := util.StartSpan(ctx, "adapter", "Storage.ExportExcelWithBlankMerge")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

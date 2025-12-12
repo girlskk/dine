@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
-	"github.com/opentracing/opentracing-go"
 	goredislib "github.com/redis/go-redis/v9"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -67,7 +66,7 @@ type redlockMutex struct {
 }
 
 func (m *redlockMutex) Lock(ctx context.Context) (err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "RedlockMutex.Lock")
+	span, ctx := util.StartSpan(ctx, "adapter", "RedlockMutex.Lock")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -79,7 +78,7 @@ func (m *redlockMutex) Lock(ctx context.Context) (err error) {
 }
 
 func (m *redlockMutex) TryLock(ctx context.Context) (err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "RedlockMutex.TryLock")
+	span, ctx := util.StartSpan(ctx, "adapter", "RedlockMutex.TryLock")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -91,7 +90,7 @@ func (m *redlockMutex) TryLock(ctx context.Context) (err error) {
 }
 
 func (m *redlockMutex) Unlock(ctx context.Context) (ok bool, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "RedlockMutex.Unlock")
+	span, _ := util.StartSpan(ctx, "adapter", "RedlockMutex.Unlock")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
