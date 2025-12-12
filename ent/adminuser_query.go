@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -84,8 +85,8 @@ func (auq *AdminUserQuery) FirstX(ctx context.Context) *AdminUser {
 
 // FirstID returns the first AdminUser ID from the query.
 // Returns a *NotFoundError when no AdminUser ID was found.
-func (auq *AdminUserQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (auq *AdminUserQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = auq.Limit(1).IDs(setContextOp(ctx, auq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -97,7 +98,7 @@ func (auq *AdminUserQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (auq *AdminUserQuery) FirstIDX(ctx context.Context) int {
+func (auq *AdminUserQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := auq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -135,8 +136,8 @@ func (auq *AdminUserQuery) OnlyX(ctx context.Context) *AdminUser {
 // OnlyID is like Only, but returns the only AdminUser ID in the query.
 // Returns a *NotSingularError when more than one AdminUser ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (auq *AdminUserQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (auq *AdminUserQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = auq.Limit(2).IDs(setContextOp(ctx, auq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -152,7 +153,7 @@ func (auq *AdminUserQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (auq *AdminUserQuery) OnlyIDX(ctx context.Context) int {
+func (auq *AdminUserQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := auq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -180,7 +181,7 @@ func (auq *AdminUserQuery) AllX(ctx context.Context) []*AdminUser {
 }
 
 // IDs executes the query and returns a list of AdminUser IDs.
-func (auq *AdminUserQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (auq *AdminUserQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if auq.ctx.Unique == nil && auq.path != nil {
 		auq.Unique(true)
 	}
@@ -192,7 +193,7 @@ func (auq *AdminUserQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (auq *AdminUserQuery) IDsX(ctx context.Context) []int {
+func (auq *AdminUserQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := auq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -374,7 +375,7 @@ func (auq *AdminUserQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (auq *AdminUserQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(adminuser.Table, adminuser.Columns, sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(adminuser.Table, adminuser.Columns, sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID))
 	_spec.From = auq.sql
 	if unique := auq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

@@ -2,23 +2,15 @@ package schedulerfx
 
 import (
 	"gitlab.jiguang.dev/pos-dine/dine/scheduler"
-	"gitlab.jiguang.dev/pos-dine/dine/scheduler/periodic"
-	"gitlab.jiguang.dev/pos-dine/dine/scheduler/task"
 	"go.uber.org/fx"
 )
 
 var Module = fx.Module(
 	"scheduler",
 	// provide handlers
-	fx.Provide(
-		asHandler(task.NewPaymentCallbackTask),
-		asHandler(task.NewFinanceBillTask),
-		asHandler(task.NewDataExportTask),
-	),
+	fx.Provide(),
 	// provide periodic tasks
-	fx.Provide(
-		asPeriodic(periodic.NewFinanceBill),
-	),
+	fx.Provide(),
 )
 
 func asHandler(f any) any {

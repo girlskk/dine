@@ -4,8 +4,6 @@ import (
 	"net/http"
 
 	"gitlab.jiguang.dev/pos-dine/dine/api/customer"
-	"gitlab.jiguang.dev/pos-dine/dine/api/customer/handler"
-	mid "gitlab.jiguang.dev/pos-dine/dine/api/customer/middleware"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/middleware"
@@ -28,19 +26,9 @@ var Module = fx.Module(
 		asMiddleware(middleware.NewPopulateRequestID),
 		asMiddleware(middleware.NewPopulateLogger),
 		asMiddleware(middleware.NewLogger),
-		fx.Annotate(
-			mid.NewAuth,
-			fx.As(new(ugin.Middleware)),
-			fx.ParamTags(`group:"handlers"`),
-			fx.ResultTags(`group:"middlewares"`),
-		),
 	),
 	// handler
-	fx.Provide(
-		asHandler(handler.NewCustomerHandler),
-		asHandler(handler.NewProductHandler),
-		asHandler(handler.NewOrderHandler),
-	),
+	fx.Provide(),
 )
 
 func asHandler(f any) any {

@@ -1,4 +1,4 @@
-DB_DSN=mysql://root:pass@:33061/dine
+DB_DSN=mysql://root:pass@:33061/dine1
 #DB_DSN=mysql://dine:6fFh2M44cEKv@rm-uf66l9d6gm5553v665o.mysql.rds.aliyuncs.com:3306/dine
 ENT_DIR=.
 
@@ -22,6 +22,7 @@ schema_generate:
 .PHONY: ent_generate
 ent_generate:
 	cd $(ENT_DIR) && go generate ./ent
+
 
 # 创建一个 ent schema
 # make schema_create name=SetMealDetail

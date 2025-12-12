@@ -34,6 +34,7 @@ func (AdminUser) Edges() []ent.Edge {
 
 func (AdminUser) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
 		schematype.SoftDeleteMixin{},
 	}

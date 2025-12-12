@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -71,6 +72,8 @@ var (
 	UsernameValidator func(string) error
 	// HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	HashedPasswordValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the AdminUser queries.

@@ -13,36 +13,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/attr"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/customer"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/dataexport"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/dinetable"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/frontenduser"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/ordercart"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/orderfinancelog"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/orderitem"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/orderitemsetmealdetail"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/orderlog"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/payment"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentcallback"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/pointsettlement"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/recipe"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/reconciliationrecord"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/spec"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/storeaccount"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/storeaccounttransaction"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/storefinance"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/storeinfo"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/storewithdraw"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/tablearea"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/unit"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -103,37 +73,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			adminuser.Table:               adminuser.ValidColumn,
-			attr.Table:                    attr.ValidColumn,
-			backenduser.Table:             backenduser.ValidColumn,
-			category.Table:                category.ValidColumn,
-			customer.Table:                customer.ValidColumn,
-			dataexport.Table:              dataexport.ValidColumn,
-			dinetable.Table:               dinetable.ValidColumn,
-			frontenduser.Table:            frontenduser.ValidColumn,
-			order.Table:                   order.ValidColumn,
-			ordercart.Table:               ordercart.ValidColumn,
-			orderfinancelog.Table:         orderfinancelog.ValidColumn,
-			orderitem.Table:               orderitem.ValidColumn,
-			orderitemsetmealdetail.Table:  orderitemsetmealdetail.ValidColumn,
-			orderlog.Table:                orderlog.ValidColumn,
-			payment.Table:                 payment.ValidColumn,
-			paymentcallback.Table:         paymentcallback.ValidColumn,
-			pointsettlement.Table:         pointsettlement.ValidColumn,
-			product.Table:                 product.ValidColumn,
-			productspec.Table:             productspec.ValidColumn,
-			recipe.Table:                  recipe.ValidColumn,
-			reconciliationrecord.Table:    reconciliationrecord.ValidColumn,
-			setmealdetail.Table:           setmealdetail.ValidColumn,
-			spec.Table:                    spec.ValidColumn,
-			store.Table:                   store.ValidColumn,
-			storeaccount.Table:            storeaccount.ValidColumn,
-			storeaccounttransaction.Table: storeaccounttransaction.ValidColumn,
-			storefinance.Table:            storefinance.ValidColumn,
-			storeinfo.Table:               storeinfo.ValidColumn,
-			storewithdraw.Table:           storewithdraw.ValidColumn,
-			tablearea.Table:               tablearea.ValidColumn,
-			unit.Table:                    unit.ValidColumn,
+			adminuser.Table: adminuser.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

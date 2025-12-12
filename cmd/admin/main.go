@@ -16,14 +16,11 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver/httpserverfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
-	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/zxh"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/domainservicefx"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/eventbus/eventbusfx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ali/oss"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/sequence"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 	"gitlab.jiguang.dev/pos-dine/dine/repository/repositoryfx"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/usecasefx"
@@ -70,12 +67,7 @@ func main() {
 				func() []string { return []string(configFiles) },
 				fx.ResultTags(`name:"config_files"`),
 			),
-			fx.Annotate(
-				sequence.NewDailySequence,
-				fx.As(new(domain.DailySequence)),
-			),
 			huifu.New,
-			zxh.New,
 			oss.New,
 		),
 		dbfx.Module,

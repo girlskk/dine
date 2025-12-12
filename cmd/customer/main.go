@@ -17,7 +17,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/wechat"
-	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/zxh"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/domainservicefx"
@@ -77,7 +76,6 @@ func main() {
 			),
 			oss.New,
 			huifu.New,
-			zxh.New,
 			wechat.NewMiniProgram,
 		),
 		dbfx.Module,

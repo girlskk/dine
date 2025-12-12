@@ -16,7 +16,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rpcserver/rpcserverfx"
-	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/zxh"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/domainservicefx"
@@ -75,7 +74,6 @@ func main() {
 				fx.As(new(domain.DailySequence)),
 			),
 			huifu.New,
-			zxh.New,
 			oss.New,
 		),
 		dbfx.Module,

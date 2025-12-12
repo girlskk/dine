@@ -14,66 +14,6 @@ type Tx struct {
 	config
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
-	// Attr is the client for interacting with the Attr builders.
-	Attr *AttrClient
-	// BackendUser is the client for interacting with the BackendUser builders.
-	BackendUser *BackendUserClient
-	// Category is the client for interacting with the Category builders.
-	Category *CategoryClient
-	// Customer is the client for interacting with the Customer builders.
-	Customer *CustomerClient
-	// DataExport is the client for interacting with the DataExport builders.
-	DataExport *DataExportClient
-	// DineTable is the client for interacting with the DineTable builders.
-	DineTable *DineTableClient
-	// FrontendUser is the client for interacting with the FrontendUser builders.
-	FrontendUser *FrontendUserClient
-	// Order is the client for interacting with the Order builders.
-	Order *OrderClient
-	// OrderCart is the client for interacting with the OrderCart builders.
-	OrderCart *OrderCartClient
-	// OrderFinanceLog is the client for interacting with the OrderFinanceLog builders.
-	OrderFinanceLog *OrderFinanceLogClient
-	// OrderItem is the client for interacting with the OrderItem builders.
-	OrderItem *OrderItemClient
-	// OrderItemSetMealDetail is the client for interacting with the OrderItemSetMealDetail builders.
-	OrderItemSetMealDetail *OrderItemSetMealDetailClient
-	// OrderLog is the client for interacting with the OrderLog builders.
-	OrderLog *OrderLogClient
-	// Payment is the client for interacting with the Payment builders.
-	Payment *PaymentClient
-	// PaymentCallback is the client for interacting with the PaymentCallback builders.
-	PaymentCallback *PaymentCallbackClient
-	// PointSettlement is the client for interacting with the PointSettlement builders.
-	PointSettlement *PointSettlementClient
-	// Product is the client for interacting with the Product builders.
-	Product *ProductClient
-	// ProductSpec is the client for interacting with the ProductSpec builders.
-	ProductSpec *ProductSpecClient
-	// Recipe is the client for interacting with the Recipe builders.
-	Recipe *RecipeClient
-	// ReconciliationRecord is the client for interacting with the ReconciliationRecord builders.
-	ReconciliationRecord *ReconciliationRecordClient
-	// SetMealDetail is the client for interacting with the SetMealDetail builders.
-	SetMealDetail *SetMealDetailClient
-	// Spec is the client for interacting with the Spec builders.
-	Spec *SpecClient
-	// Store is the client for interacting with the Store builders.
-	Store *StoreClient
-	// StoreAccount is the client for interacting with the StoreAccount builders.
-	StoreAccount *StoreAccountClient
-	// StoreAccountTransaction is the client for interacting with the StoreAccountTransaction builders.
-	StoreAccountTransaction *StoreAccountTransactionClient
-	// StoreFinance is the client for interacting with the StoreFinance builders.
-	StoreFinance *StoreFinanceClient
-	// StoreInfo is the client for interacting with the StoreInfo builders.
-	StoreInfo *StoreInfoClient
-	// StoreWithdraw is the client for interacting with the StoreWithdraw builders.
-	StoreWithdraw *StoreWithdrawClient
-	// TableArea is the client for interacting with the TableArea builders.
-	TableArea *TableAreaClient
-	// Unit is the client for interacting with the Unit builders.
-	Unit *UnitClient
 
 	// lazily loaded.
 	client     *Client
@@ -206,36 +146,6 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AdminUser = NewAdminUserClient(tx.config)
-	tx.Attr = NewAttrClient(tx.config)
-	tx.BackendUser = NewBackendUserClient(tx.config)
-	tx.Category = NewCategoryClient(tx.config)
-	tx.Customer = NewCustomerClient(tx.config)
-	tx.DataExport = NewDataExportClient(tx.config)
-	tx.DineTable = NewDineTableClient(tx.config)
-	tx.FrontendUser = NewFrontendUserClient(tx.config)
-	tx.Order = NewOrderClient(tx.config)
-	tx.OrderCart = NewOrderCartClient(tx.config)
-	tx.OrderFinanceLog = NewOrderFinanceLogClient(tx.config)
-	tx.OrderItem = NewOrderItemClient(tx.config)
-	tx.OrderItemSetMealDetail = NewOrderItemSetMealDetailClient(tx.config)
-	tx.OrderLog = NewOrderLogClient(tx.config)
-	tx.Payment = NewPaymentClient(tx.config)
-	tx.PaymentCallback = NewPaymentCallbackClient(tx.config)
-	tx.PointSettlement = NewPointSettlementClient(tx.config)
-	tx.Product = NewProductClient(tx.config)
-	tx.ProductSpec = NewProductSpecClient(tx.config)
-	tx.Recipe = NewRecipeClient(tx.config)
-	tx.ReconciliationRecord = NewReconciliationRecordClient(tx.config)
-	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
-	tx.Spec = NewSpecClient(tx.config)
-	tx.Store = NewStoreClient(tx.config)
-	tx.StoreAccount = NewStoreAccountClient(tx.config)
-	tx.StoreAccountTransaction = NewStoreAccountTransactionClient(tx.config)
-	tx.StoreFinance = NewStoreFinanceClient(tx.config)
-	tx.StoreInfo = NewStoreInfoClient(tx.config)
-	tx.StoreWithdraw = NewStoreWithdrawClient(tx.config)
-	tx.TableArea = NewTableAreaClient(tx.config)
-	tx.Unit = NewUnitClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
