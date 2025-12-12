@@ -3,8 +3,7 @@ syntax = "proto3";
 package api.intl;
 
 import "validate/validate.proto";
-import "google/protobuf/timestamp.proto";
-import "google/type/decimal.proto";
+
 
 option go_package = "gitlab.jiguang.dev/pos-dine/dine/api/intl/pb;pb";
 

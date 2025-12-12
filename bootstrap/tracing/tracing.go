@@ -34,12 +34,10 @@ func New(lc fx.Lifecycle, conf Config) (trace.TracerProvider, error) {
 	if conf.Disabled {
 		return noop.NewTracerProvider(), nil
 	}
-	fmt.Printf("Initializing tracing: ServiceName=%s, Endpoint=%s\n", conf.ServiceName, conf.OTLPEndpoint)
 	// 创建 OTLP HTTP exporter
 	// OTLPEndpoint 可以是：
 	// - "http://localhost:4318" (OTLP HTTP)
 	// - "http://localhost:4317" (OTLP gRPC，需要使用 otlptracegrpc)
-	// - "http://localhost:14268/api/traces" (Jaeger 的 OTLP 端点)
 	ctx := context.Background()
 	exp, err := otlptracehttp.New(ctx,
 		otlptracehttp.WithEndpoint(conf.OTLPEndpoint),
