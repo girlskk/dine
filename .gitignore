@@ -1,6 +1,6 @@
 # Mac os
 .DS_Store
-
+logs/
 # IDE
 .vscode
 .idea
