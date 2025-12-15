@@ -1,14 +1,12 @@
 package handler
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
-	uerr "gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/errors"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
 )
 
@@ -54,23 +52,12 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 
 		var req types.LoginReq
 		if err := c.ShouldBind(&req); err != nil {
-			c.Error(uerr.BadRequest(err.Error()))
+			c.Error(errorx.Fail(e.BadRequest, err))
 			return
 		}
 
 		token, expAt, err := h.UserInteractor.Login(ctx, req.Username, req.Password)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(uerr.BadRequest("用户名或密码错误"))
-				return
-			}
-
-			if errors.Is(err, domain.ErrMismatchedHashAndPassword) {
-				c.Error(uerr.BadRequest("用户名或密码错误"))
-				return
-			}
-
-			err = fmt.Errorf("failed to authenticate user: %w", err)
 			c.Error(err)
 			return
 		}

@@ -10,6 +10,8 @@ import (
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	goredislib "github.com/redis/go-redis/v9"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -72,7 +74,7 @@ func (m *redlockMutex) Lock(ctx context.Context) (err error) {
 	}()
 
 	if err = m.Mutex.LockContext(ctx); err != nil && (isErrTaken(err) || isErrNodeTaken(err)) {
-		return domain.AlreadyTakenError(err)
+		return errorx.Fail(e.Conflict, err)
 	}
 	return
 }
@@ -84,7 +86,7 @@ func (m *redlockMutex) TryLock(ctx context.Context) (err error) {
 	}()
 
 	if err := m.Mutex.TryLockContext(ctx); err != nil && (isErrTaken(err) || isErrNodeTaken(err)) {
-		return domain.AlreadyTakenError(err)
+		return errorx.Fail(e.Conflict, err)
 	}
 	return
 }

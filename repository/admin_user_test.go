@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -9,6 +10,8 @@ import (
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -76,7 +79,7 @@ func (s *AdminUserTestSuite) TestAdminUser_Create() {
 		err := s.repo.Create(s.ctx, user1)
 		require.NoError(t, err)
 
-		// 尝试创建相同用户名的用户（如果有唯一约束）
+		// 尝试创建相同用户名的用户（唯一约束冲突）
 		user2 := &domain.AdminUser{
 			ID:             uuid.New(),
 			Username:       "duplicate",
@@ -84,8 +87,12 @@ func (s *AdminUserTestSuite) TestAdminUser_Create() {
 			Nickname:       "用户2",
 		}
 		err = s.repo.Create(s.ctx, user2)
-		// 根据实际约束，可能是 ConflictError 或其他错误
 		require.Error(t, err)
+
+		// 验证是 Conflict 错误
+		var apiErr *errorx.Error
+		require.True(t, errors.As(err, &apiErr))
+		require.Equal(t, e.Conflict, apiErr.Code)
 	})
 }
 
@@ -104,7 +111,11 @@ func (s *AdminUserTestSuite) TestAdminUser_Find() {
 		nonExistentID := uuid.New()
 		_, err := s.repo.Find(s.ctx, nonExistentID)
 		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
+
+		// 验证是 NotFound 错误
+		var apiErr *errorx.Error
+		require.True(t, errors.As(err, &apiErr))
+		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -122,7 +133,11 @@ func (s *AdminUserTestSuite) TestAdminUser_FindByUsername() {
 	s.T().Run("不存在的用户名", func(t *testing.T) {
 		_, err := s.repo.FindByUsername(s.ctx, "nonexistent")
 		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
+
+		// 验证是 NotFound 错误
+		var apiErr *errorx.Error
+		require.True(t, errors.As(err, &apiErr))
+		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -158,7 +173,11 @@ func (s *AdminUserTestSuite) TestAdminUser_Update() {
 
 		err := s.repo.Update(s.ctx, user)
 		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
+
+		// 验证是 NotFound 错误
+		var apiErr *errorx.Error
+		require.True(t, errors.As(err, &apiErr))
+		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -180,7 +199,11 @@ func (s *AdminUserTestSuite) TestAdminUser_Delete() {
 		nonExistentID := uuid.New()
 		err := s.repo.Delete(s.ctx, nonExistentID)
 		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
+
+		// 验证是 NotFound 错误
+		var apiErr *errorx.Error
+		require.True(t, errors.As(err, &apiErr))
+		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -223,6 +246,10 @@ func (s *AdminUserTestSuite) TestAdminUser_Integration() {
 		// Verify delete
 		_, err = s.repo.Find(s.ctx, user.ID)
 		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
+
+		// 验证是 NotFound 错误
+		var apiErr *errorx.Error
+		require.True(t, errors.As(err, &apiErr))
+		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }

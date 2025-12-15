@@ -11,6 +11,7 @@ import (
 
 var (
 	ErrMismatchedHashAndPassword = errors.New("mismatched hash and password")
+	ErrUserAlreadyExists         = errors.New("user already exists")
 )
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/admin_user_repository.go -package=mock . AdminUserRepository
@@ -45,12 +46,11 @@ func (u *AdminUser) SetPassword(password string) error {
 	return nil
 }
 
-func (u *AdminUser) CheckPassword(password string) error {
+func (u *AdminUser) CheckPassword(password string) bool {
 	if err := util.CheckPassword(password, u.HashedPassword); err != nil {
-		return ErrMismatchedHashAndPassword
+		return false
 	}
-
-	return nil
+	return true
 }
 
 type (

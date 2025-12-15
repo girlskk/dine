@@ -6,8 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/alert"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
-	uerr "gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/errors"
 )
 
 type ErrorHandling struct {
@@ -32,24 +33,26 @@ func (m *ErrorHandling) Middleware() gin.HandlerFunc {
 		}
 
 		err := ginErr.Err
-
-		var apiErr *uerr.BizError
+		// 判断是否为 errorx.Error 类型
+		var apiErr *errorx.Error
 		ok := errors.As(err, &apiErr)
 		if !ok {
-			apiErr = uerr.NewBizError(uerr.CodeUnknownError, "服务异常")
+			// 如果不是 errorx.Error，转换为 UnknownError
+			apiErr = errorx.Fail(e.UnknownError, err)
 		}
 
-		if apiErr.Code == uerr.CodeUnknownError {
+		// 获取对应的 HTTP 状态码
+		statusCode := apiErr.HTTPStatusCode()
+
+		// 如果是系统级别错误（5xx），记录日志并发送告警
+		if statusCode >= http.StatusInternalServerError {
 			ctx := c.Request.Context()
 			logger := logging.FromContext(ctx).Named("middleware.ErrorHandling")
-			logger.Errorw("http handle internal error", "error", err)
+			logger.Errorw("http handle internal error", "error", err, "code", apiErr.Code)
 
 			go m.alert.Notify(ctx, err.Error())
-
-			c.AbortWithStatusJSON(http.StatusInternalServerError, apiErr)
-			return
 		}
-
-		c.JSON(http.StatusOK, apiErr)
+		// 使用对应的 HTTP 状态码返回错误
+		c.AbortWithStatusJSON(statusCode, apiErr)
 	}
 }
