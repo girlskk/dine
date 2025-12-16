@@ -23,6 +23,7 @@ require (
 	github.com/jinzhu/configor v1.2.2
 	github.com/jonboulle/clockwork v0.5.0
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/redis/go-redis/v9 v9.7.1
@@ -51,7 +52,7 @@ require (
 require (
 	ariga.io/atlas v0.35.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/BurntSushi/toml v1.2.0 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/alibabacloud-go/debug v1.0.1 // indirect

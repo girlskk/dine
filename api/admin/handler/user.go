@@ -1,11 +1,16 @@
 package handler
 
 import (
+	"errors"
+	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
 )
@@ -52,12 +57,28 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 
 		var req types.LoginReq
 		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.Fail(e.BadRequest, err))
+			c.Error(errorx.New(http.StatusBadRequest, errcode.BadRequest, err))
 			return
 		}
 
 		token, expAt, err := h.UserInteractor.Login(ctx, req.Username, req.Password)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				// 自定义错误，手动翻译
+				translated := i18n.Translate(ctx, "USER_NOT_FOUND", map[string]any{
+					"Username": req.Username,
+				})
+				c.Error(errorx.New(http.StatusBadRequest, errcode.BadRequest, err).WithMessage(translated))
+				return
+			}
+
+			if errors.Is(err, domain.ErrMismatchedHashAndPassword) {
+				// 默认错误，使用errcode
+				c.Error(errorx.New(http.StatusBadRequest, errcode.BadRequest, err))
+				return
+			}
+
+			err = fmt.Errorf("failed to authenticate user: %w", err)
 			c.Error(err)
 			return
 		}

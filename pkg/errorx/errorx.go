@@ -1,21 +1,25 @@
 package errorx
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime"
 
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 )
 
 // 错误类型定义
 type Error struct {
-	Code       int    `json:"code"`    // 业务错误代码
-	HTTPStatus int    `json:"-"`       // HTTP 状态码（不序列化到 JSON）
-	Message    string `json:"message"` // 错误消息
-	Func       string `json:"-"`       // 函数名（仅系统错误）
-	Position   string `json:"-"`       // 错误发生的位置（仅系统错误）
+	Code       errcode.ErrCode `json:"code"`    // 业务错误代码
+	HTTPStatus int             `json:"-"`       // HTTP 状态码
+	Message    string          `json:"message"` // 错误消息
+	// debug 模式显示的信息
+	Err      error  `json:"err,omitempty"`      // 底层错误
+	Func     string `json:"func,omitempty"`     // 函数名
+	Position string `json:"position,omitempty"` // 错误发生的位置
+
+	debug bool `json:"-"` // 是否为 debug 模式
 }
 
 // Error 实现 Error 接口
@@ -23,97 +27,48 @@ func (e *Error) Error() string {
 	return e.Message
 }
 
+// Unwrap 实现 errors.Unwrap，用于错误链
+func (e *Error) Unwrap() error {
+	return e.Err
+}
+
 // HTTPStatusCode 返回对应的 HTTP 状态码
 func (e *Error) HTTPStatusCode() int {
-	if e.HTTPStatus != 0 {
-		return e.HTTPStatus
-	}
-	// 根据业务错误码自动映射 HTTP 状态码
-	return mapCodeToHTTPStatus(e.Code)
+	return e.HTTPStatus
 }
 
-// Fail 错误处理函数
-func Fail(code int, err error) *Error {
-	// 判断 err 是否为自定义错误类型 *Error
-	var customErr *Error
-	if errors.As(err, &customErr) {
-		return customErr
-	}
+// New 创建新的错误
+// httpStatus: HTTP 状态码
+// code: 业务错误码（英文短语）
+// err: 底层错误（可选，nil 时使用 code 作为默认消息）
+func New(httpStatus int, code errcode.ErrCode, err error) *Error {
+	message := string(code)
 
-	// 如果只传入错误码，返回默认错误对象；否则返回自定义错误对象
-	var message string
-	if err == nil {
-		message = e.GetMsg(code)
-	} else {
-		message = err.Error()
-	}
-
-	customErr = newError(code, message)
-
-	// 如果是系统级别错误，需要返回调用堆栈信息
-	if code >= e.InternalError {
-		return customErr.caller(2)
-	}
-	return customErr
-}
-
-// FailWithStatus 创建错误并指定 HTTP 状态码（用于特殊场景覆盖默认映射）
-func FailWithStatus(code int, httpStatus int, err error) *Error {
-	var message string
-	if err == nil {
-		message = e.GetMsg(code)
-	} else {
-		message = err.Error()
-	}
-
-	customErr := &Error{
+	e := &Error{
 		Code:       code,
 		HTTPStatus: httpStatus,
 		Message:    message,
+		Err:        err,
 	}
 
-	// 如果是系统级别错误，需要返回调用堆栈信息
-	if code >= e.InternalError {
-		return customErr.caller(2)
+	// 如果是系统级别错误（5xx），记录堆栈信息
+	if httpStatus >= http.StatusInternalServerError {
+		e.caller(2)
 	}
-	return customErr
+
+	return e
 }
 
-// Failf 使用格式化字符串创建错误
-func Failf(code int, format string, args ...any) *Error {
-	message := fmt.Errorf(format, args...).Error()
-	customErr := newError(code, message)
-
-	// 如果是系统级别错误，需要返回调用堆栈信息
-	if code >= e.InternalError {
-		return customErr.caller(2)
-	}
-	return customErr
+// WithMessage 链式设置自定义错误消息
+func (e *Error) WithMessage(message string) *Error {
+	e.Message = message
+	return e
 }
 
-// FailWithStatusf 使用格式化字符串创建错误并指定 HTTP 状态码
-func FailWithStatusf(code int, httpStatus int, format string, args ...any) *Error {
-	message := fmt.Errorf(format, args...).Error()
-	customErr := &Error{
-		Code:       code,
-		HTTPStatus: httpStatus,
-		Message:    message,
-	}
-
-	// 如果是系统级别错误，需要返回调用堆栈信息
-	if code >= e.InternalError {
-		return customErr.caller(2)
-	}
-	return customErr
-}
-
-// IsCode 检查错误是否为指定的错误码
-func IsCode(err error, code int) bool {
-	var apiErr *Error
-	if !errors.As(err, &apiErr) {
-		return false
-	}
-	return apiErr.Code == code
+// WithDebug 设置 debug 模式，debug 模式下会在 JSON 中返回底层错误和堆栈信息
+func (e *Error) WithDebug(debug bool) *Error {
+	e.debug = debug
+	return e
 }
 
 // 获取调用堆栈信息
@@ -127,39 +82,36 @@ func (e *Error) caller(skip ...int) *Error {
 	return e
 }
 
-// 创建自定义错误对象
-func newError(code int, message string) *Error {
-	return &Error{
-		Code:       code,
-		HTTPStatus: mapCodeToHTTPStatus(code),
-		Message:    message,
-	}
+// ShouldTranslate 检查是否需要翻译（Message 等于 Code 的字符串形式时返回 true）
+func (e *Error) ShouldTranslate() bool {
+	return e.Message == string(e.Code)
 }
 
-// mapCodeToHTTPStatus 根据业务错误码映射到 HTTP 状态码
-func mapCodeToHTTPStatus(code int) int {
-	switch {
-	case code == 0:
-		return http.StatusOK
-	case code >= 40000 && code < 41000:
-		// 40xxx -> 400 Bad Request
-		return http.StatusBadRequest
-	case code >= 41000 && code < 43000:
-		// 41xxx -> 401 Unauthorized
-		return http.StatusUnauthorized
-	case code >= 43000 && code < 44000:
-		// 43xxx -> 403 Forbidden
-		return http.StatusForbidden
-	case code >= 44000 && code < 50000:
-		// 44xxx -> 404 Not Found
-		return http.StatusNotFound
-	case code >= 49000 && code < 50000:
-		// 49xxx -> 409 Conflict
-		return http.StatusConflict
-	case code >= 50000 && code < 60000:
-		// 50xxx -> 500 Internal Server Error
-		return http.StatusInternalServerError
-	default:
-		return http.StatusInternalServerError
+// MarshalJSON 自定义 JSON 序列化，根据 debug 模式决定是否返回底层错误
+func (e *Error) MarshalJSON() ([]byte, error) {
+	type Alias Error
+	aux := &struct {
+		*Alias
+		Err      *string `json:"err,omitempty"`
+		Func     *string `json:"func,omitempty"`
+		Position *string `json:"position,omitempty"`
+	}{
+		Alias: (*Alias)(e),
 	}
+
+	// 只有在 debug 模式下才序列化底层错误和堆栈信息
+	if e.debug {
+		if e.Err != nil {
+			errMsg := e.Err.Error()
+			aux.Err = &errMsg
+		}
+		if e.Func != "" {
+			aux.Func = &e.Func
+		}
+		if e.Position != "" {
+			aux.Position = &e.Position
+		}
+	}
+
+	return json.Marshal(aux)
 }

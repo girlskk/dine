@@ -27,7 +27,8 @@ var middlewares = []string{
 	"Observability",
 	"Logger",
 	"ErrorHandling",
-	// "Auth",
+	"Locale",
+	"Auth",
 }
 
 type Params struct {

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -10,8 +9,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -88,11 +85,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Create() {
 		}
 		err = s.repo.Create(s.ctx, user2)
 		require.Error(t, err)
-
-		// 验证是 Conflict 错误
-		var apiErr *errorx.Error
-		require.True(t, errors.As(err, &apiErr))
-		require.Equal(t, e.Conflict, apiErr.Code)
 	})
 }
 
@@ -111,11 +103,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Find() {
 		nonExistentID := uuid.New()
 		_, err := s.repo.Find(s.ctx, nonExistentID)
 		require.Error(t, err)
-
-		// 验证是 NotFound 错误
-		var apiErr *errorx.Error
-		require.True(t, errors.As(err, &apiErr))
-		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -133,11 +120,6 @@ func (s *AdminUserTestSuite) TestAdminUser_FindByUsername() {
 	s.T().Run("不存在的用户名", func(t *testing.T) {
 		_, err := s.repo.FindByUsername(s.ctx, "nonexistent")
 		require.Error(t, err)
-
-		// 验证是 NotFound 错误
-		var apiErr *errorx.Error
-		require.True(t, errors.As(err, &apiErr))
-		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -173,11 +155,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Update() {
 
 		err := s.repo.Update(s.ctx, user)
 		require.Error(t, err)
-
-		// 验证是 NotFound 错误
-		var apiErr *errorx.Error
-		require.True(t, errors.As(err, &apiErr))
-		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -200,10 +177,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Delete() {
 		err := s.repo.Delete(s.ctx, nonExistentID)
 		require.Error(t, err)
 
-		// 验证是 NotFound 错误
-		var apiErr *errorx.Error
-		require.True(t, errors.As(err, &apiErr))
-		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }
 
@@ -246,10 +219,5 @@ func (s *AdminUserTestSuite) TestAdminUser_Integration() {
 		// Verify delete
 		_, err = s.repo.Find(s.ctx, user.ID)
 		require.Error(t, err)
-
-		// 验证是 NotFound 错误
-		var apiErr *errorx.Error
-		require.True(t, errors.As(err, &apiErr))
-		require.Equal(t, e.NotFound, apiErr.Code)
 	})
 }

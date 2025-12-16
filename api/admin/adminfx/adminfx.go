@@ -27,6 +27,7 @@ var Module = fx.Module(
 		asMiddleware(func(c httpserver.Config) *middleware.TimeLimiter { return middleware.NewTimeLimiter(c.RequestTimeout) }),
 		asMiddleware(middleware.NewPopulateRequestID),
 		asMiddleware(middleware.NewPopulateLogger),
+		asMiddleware(mid.NewLocale),
 		fx.Annotate(
 			middleware.NewObservability,
 			fx.As(new(ugin.Middleware)),

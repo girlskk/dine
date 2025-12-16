@@ -2,13 +2,12 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -36,7 +35,7 @@ func (repo *AdminUserRepository) FindByUsername(ctx context.Context, username st
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			err = errorx.Fail(e.NotFound, err)
+			err = domain.NotFoundError(err)
 		}
 		return
 	}
@@ -58,7 +57,7 @@ func (repo *AdminUserRepository) Find(ctx context.Context, id uuid.UUID) (u *dom
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			err = errorx.Fail(e.NotFound, err)
+			err = domain.NotFoundError(err)
 		}
 		return
 	}
@@ -82,10 +81,9 @@ func (repo *AdminUserRepository) Create(ctx context.Context, user *domain.AdminU
 
 	if err != nil {
 		if ent.IsConstraintError(err) {
-			err = errorx.Fail(e.Conflict, domain.ErrUserAlreadyExists)
-		} else {
-			err = errorx.Failf(e.InternalError, "failed to create user: %w", err)
+			err = domain.ConflictError(err)
 		}
+		err = fmt.Errorf("failed to create user: %w", err)
 		return
 	}
 
@@ -104,11 +102,13 @@ func (repo *AdminUserRepository) Update(ctx context.Context, user *domain.AdminU
 		SetNickname(user.Nickname).
 		Save(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			err = errorx.Fail(e.NotFound, err)
-		} else {
-			err = errorx.Failf(e.InternalError, "failed to update user: %w", err)
+		if ent.IsConstraintError(err) {
+			err = domain.ConflictError(err)
 		}
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(err)
+		}
+		err = fmt.Errorf("failed to update user: %w", err)
 		return
 	}
 
@@ -124,10 +124,9 @@ func (repo *AdminUserRepository) Delete(ctx context.Context, id uuid.UUID) (err 
 	err = repo.Client.AdminUser.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			err = errorx.Fail(e.NotFound, err)
-		} else {
-			err = errorx.Failf(e.InternalError, "failed to delete user: %w", err)
+			err = domain.NotFoundError(err)
 		}
+		err = fmt.Errorf("failed to delete user: %w", err)
 		return
 	}
 	return nil

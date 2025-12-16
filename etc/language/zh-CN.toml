@@ -1,0 +1,30 @@
+# 错误码翻译
+[INVALID_PARAMS]
+other = "请求参数错误"
+
+[BAD_REQUEST]
+other = "请求错误"
+
+[UNAUTHORIZED]
+other = "未授权"
+
+[FORBIDDEN]
+other = "禁止访问"
+
+[NOT_FOUND]
+other = "资源不存在"
+
+[CONFLICT]
+other = "资源冲突"
+
+[INTERNAL_ERROR]
+other = "系统内部错误"
+
+[UNKNOWN_ERROR]
+other = "未知错误"
+
+# 自定义消息翻译（支持参数化）
+
+[USER_NOT_FOUND]
+other = "用户 {{.Username}} 不存在"
+

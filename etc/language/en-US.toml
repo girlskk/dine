@@ -1,0 +1,29 @@
+# Error code translations
+[INVALID_PARAMS]
+other = "Invalid parameters"
+
+[BAD_REQUEST]
+other = "Bad request"
+
+[UNAUTHORIZED]
+other = "Unauthorized"
+
+[FORBIDDEN]
+other = "Forbidden"
+
+[NOT_FOUND]
+other = "Resource not found"
+
+[CONFLICT]
+other = "Resource conflict"
+
+[INTERNAL_ERROR]
+other = "Internal server error"
+
+[UNKNOWN_ERROR]
+other = "Unknown error"
+
+# Custom message translations (with parameters)
+
+[USER_NOT_FOUND]
+other = "User {{.Username}} does not exist"

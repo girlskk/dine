@@ -5,18 +5,21 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/alert"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 )
 
 type ErrorHandling struct {
-	alert alert.Alert
+	alert     alert.Alert
+	appConfig domain.AppConfig
 }
 
-func NewErrorHandling(alert alert.Alert) *ErrorHandling {
-	return &ErrorHandling{alert: alert}
+func NewErrorHandling(alert alert.Alert, appConfig domain.AppConfig) *ErrorHandling {
+	return &ErrorHandling{alert: alert, appConfig: appConfig}
 }
 
 func (m *ErrorHandling) Name() string {
@@ -38,11 +41,26 @@ func (m *ErrorHandling) Middleware() gin.HandlerFunc {
 		ok := errors.As(err, &apiErr)
 		if !ok {
 			// 如果不是 errorx.Error，转换为 UnknownError
-			apiErr = errorx.Fail(e.UnknownError, err)
+			apiErr = errorx.New(http.StatusInternalServerError, errcode.UnknownError, err)
+		}
+
+		// 如果 Message 等于 Code 的字符串形式，说明需要翻译
+		if apiErr.ShouldTranslate() {
+			ctx := c.Request.Context()
+			// 使用 i18n 翻译错误码
+			translated := i18n.Translate(ctx, string(apiErr.Code), nil)
+			if translated != string(apiErr.Code) {
+				// 翻译成功，更新 Message
+				apiErr.Message = translated
+			}
 		}
 
 		// 获取对应的 HTTP 状态码
 		statusCode := apiErr.HTTPStatusCode()
+
+		// 如果 debug 模式，则返回底层错误和堆栈信息
+		isDebug := m.appConfig.RunMode == domain.RunModeDev
+		apiErr.WithDebug(isDebug)
 
 		// 如果是系统级别错误（5xx），记录日志并发送告警
 		if statusCode >= http.StatusInternalServerError {

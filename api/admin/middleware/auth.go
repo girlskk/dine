@@ -1,14 +1,14 @@
 package middleware
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/middleware"
 )
@@ -58,10 +58,12 @@ func (u *Auth) Middleware() gin.HandlerFunc {
 
 		u, err := u.userInteractor.Authenticate(ctx, token)
 		if err != nil {
-			if errorx.IsCode(err, e.Unauthorized) {
+			if errors.Is(err, domain.ErrTokenInvalid) {
 				c.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}
+
+			err = fmt.Errorf("failed to authenticate user: %w", err)
 			c.Error(err)
 			c.Abort()
 			return

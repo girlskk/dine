@@ -3,12 +3,11 @@ package userauth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/e"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -35,10 +34,10 @@ func (interactor *AdminUserInteractor) Login(ctx context.Context, username, pass
 
 	user, err := interactor.DS.AdminUserRepo().FindByUsername(ctx, username)
 	if err != nil {
+		err = fmt.Errorf("failed to find user by username: %w", err)
 		return
 	}
-	if !user.CheckPassword(password) {
-		err = errorx.Fail(e.BadRequest, domain.ErrMismatchedHashAndPassword)
+	if err = user.CheckPassword(password); err != nil {
 		return
 	}
 
@@ -52,7 +51,7 @@ func (interactor *AdminUserInteractor) Login(ctx context.Context, username, pass
 
 	token, err = claims.SignedString([]byte(interactor.AuthConfig.Secret))
 	if err != nil {
-		err = errorx.Failf(e.InternalError, "failed to sign token: %w", err)
+		err = fmt.Errorf("failed to sign token: %w", err)
 		return
 	}
 
@@ -77,22 +76,22 @@ func (interactor *AdminUserInteractor) Authenticate(ctx context.Context, token s
 		if !errors.Is(err, jwt.ErrTokenNotValidYet) && !errors.Is(err, jwt.ErrTokenExpired) {
 			logger.Errorw("failed to parse token", "error", err)
 		}
-		err = errorx.Fail(e.Unauthorized, domain.ErrTokenInvalid)
+		err = domain.ErrTokenInvalid
 		return
 	}
 
 	if !tokenInfo.Valid {
-		err = errorx.Fail(e.Unauthorized, domain.ErrTokenInvalid)
+		err = domain.ErrTokenInvalid
 		return
 	}
 
 	user, err = interactor.DS.AdminUserRepo().Find(ctx, claims.ID)
 	if err != nil {
-		if errors.Is(err, errorx.Fail(e.NotFound, err)) {
-			err = errorx.Fail(e.Unauthorized, domain.ErrTokenInvalid)
+		if domain.IsNotFound(err) {
+			err = domain.ErrTokenInvalid
 			return
 		}
-		err = errorx.Failf(e.InternalError, "failed to find user[%d]: %w", claims.ID, err)
+		err = fmt.Errorf("failed to find user[%d]: %w", claims.ID, err)
 		return
 	}
 
