@@ -57,7 +57,7 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 
 		var req types.LoginReq
 		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.BadRequest, err))
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
@@ -65,16 +65,16 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 		if err != nil {
 			if domain.IsNotFound(err) {
 				// 自定义错误，手动翻译
-				translated := i18n.Translate(ctx, "USER_NOT_FOUND", map[string]any{
+				translated := i18n.Translate(ctx, errcode.UserNotFound.String(), map[string]any{
 					"Username": req.Username,
 				})
-				c.Error(errorx.New(http.StatusBadRequest, errcode.BadRequest, err).WithMessage(translated))
+				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err).WithMessage(translated))
 				return
 			}
 
 			if errors.Is(err, domain.ErrMismatchedHashAndPassword) {
 				// 默认错误，使用errcode
-				c.Error(errorx.New(http.StatusBadRequest, errcode.BadRequest, err))
+				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err))
 				return
 			}
 

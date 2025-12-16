@@ -48,8 +48,8 @@ func (m *ErrorHandling) Middleware() gin.HandlerFunc {
 		if apiErr.ShouldTranslate() {
 			ctx := c.Request.Context()
 			// 使用 i18n 翻译错误码
-			translated := i18n.Translate(ctx, string(apiErr.Code), nil)
-			if translated != string(apiErr.Code) {
+			translated := i18n.Translate(ctx, apiErr.Code.String(), nil)
+			if translated != apiErr.Code.String() {
 				// 翻译成功，更新 Message
 				apiErr.Message = translated
 			}

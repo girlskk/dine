@@ -11,7 +11,7 @@ var (
 	ErrUserExists   = errors.New("用户名已存在")
 )
 
-// 业务错误
+// 业务参数错误
 type paramsError struct {
 	err error
 }

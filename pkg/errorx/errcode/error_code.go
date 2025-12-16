@@ -3,6 +3,10 @@ package errcode
 // 业务错误码
 type ErrCode string
 
+func (ec ErrCode) String() string {
+	return string(ec)
+}
+
 const (
 	Success ErrCode = "SUCCESS" // Success 表示成功
 	// 请求错误
@@ -19,4 +23,6 @@ const (
 	// 系统错误
 	InternalError ErrCode = "INTERNAL_ERROR" // 系统内部错误
 	UnknownError  ErrCode = "UNKNOWN_ERROR"  // 未知错误
+
+	UserNotFound ErrCode = "USER_NOT_FOUND" // 用户不存在
 )
