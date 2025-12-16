@@ -9,11 +9,4 @@ logs/
 testdata/
 tmp/
 
-
-# Ent
-ent/
-!ent/schema/
-!ent/schema/**/*
-!ent/generate.go
-
 domain/mock/
