@@ -21,6 +21,54 @@ func (f AdminUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdminUserMutation", m)
 }
 
+// The MerchantFunc type is an adapter to allow the use of ordinary
+// function as Merchant mutator.
+type MerchantFunc func(context.Context, *ent.MerchantMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MerchantFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MerchantMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MerchantMutation", m)
+}
+
+// The MerchantBusinessTypeFunc type is an adapter to allow the use of ordinary
+// function as MerchantBusinessType mutator.
+type MerchantBusinessTypeFunc func(context.Context, *ent.MerchantBusinessTypeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MerchantBusinessTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MerchantBusinessTypeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MerchantBusinessTypeMutation", m)
+}
+
+// The MerchantRenewalFunc type is an adapter to allow the use of ordinary
+// function as MerchantRenewal mutator.
+type MerchantRenewalFunc func(context.Context, *ent.MerchantRenewalMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MerchantRenewalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MerchantRenewalMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MerchantRenewalMutation", m)
+}
+
+// The StoreFunc type is an adapter to allow the use of ordinary
+// function as Store mutator.
+type StoreFunc func(context.Context, *ent.StoreMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f StoreFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.StoreMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StoreMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

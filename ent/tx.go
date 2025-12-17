@@ -14,6 +14,14 @@ type Tx struct {
 	config
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
+	// Merchant is the client for interacting with the Merchant builders.
+	Merchant *MerchantClient
+	// MerchantBusinessType is the client for interacting with the MerchantBusinessType builders.
+	MerchantBusinessType *MerchantBusinessTypeClient
+	// MerchantRenewal is the client for interacting with the MerchantRenewal builders.
+	MerchantRenewal *MerchantRenewalClient
+	// Store is the client for interacting with the Store builders.
+	Store *StoreClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +154,10 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AdminUser = NewAdminUserClient(tx.config)
+	tx.Merchant = NewMerchantClient(tx.config)
+	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
+	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
+	tx.Store = NewStoreClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

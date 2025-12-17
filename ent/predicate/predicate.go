@@ -8,3 +8,15 @@ import (
 
 // AdminUser is the predicate function for adminuser builders.
 type AdminUser func(*sql.Selector)
+
+// Merchant is the predicate function for merchant builders.
+type Merchant func(*sql.Selector)
+
+// MerchantBusinessType is the predicate function for merchantbusinesstype builders.
+type MerchantBusinessType func(*sql.Selector)
+
+// MerchantRenewal is the predicate function for merchantrenewal builders.
+type MerchantRenewal func(*sql.Selector)
+
+// Store is the predicate function for store builders.
+type Store func(*sql.Selector)
