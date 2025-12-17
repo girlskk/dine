@@ -13,11 +13,15 @@ import (
 var _ domain.DataStore = (*Repository)(nil)
 
 type Repository struct {
-	transactionActive bool
-	hooks             []func()
-	mu                sync.Mutex
-	client            *ent.Client
-	adminUserRepo     *AdminUserRepository
+	transactionActive        bool
+	hooks                    []func()
+	mu                       sync.Mutex
+	client                   *ent.Client
+	adminUserRepo            *AdminUserRepository
+	merchantRepo             *MerchantRepository
+	storeRepo                *StoreRepository
+	merchantRenewalRepo      *MerchantRenewalRepository
+	merchantBusinessTypeRepo *MerchantBusinessTypeRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -99,4 +103,40 @@ func (repo *Repository) AdminUserRepo() domain.AdminUserRepository {
 		repo.adminUserRepo = NewAdminUserRepository(repo.client)
 	}
 	return repo.adminUserRepo
+}
+
+func (repo *Repository) MerchantRepo() domain.MerchantRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantRepo == nil {
+		repo.merchantRepo = NewMerchantRepository(repo.client)
+	}
+	return repo.merchantRepo
+}
+
+func (repo *Repository) StoreRepo() domain.StoreRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.storeRepo == nil {
+		repo.storeRepo = NewStoreRepository(repo.client)
+	}
+	return repo.storeRepo
+}
+
+func (repo *Repository) MerchantRenewalRepo() domain.MerchantRenewalRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantRenewalRepo == nil {
+		repo.merchantRenewalRepo = NewMerchantRenewalRepository(repo.client)
+	}
+	return repo.merchantRenewalRepo
+}
+
+func (repo *Repository) MerchantBusinessTypeRepo() domain.MerchantBusinessTypeRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantBusinessTypeRepo == nil {
+		repo.merchantBusinessTypeRepo = NewMerchantBusinessTypeRepository(repo.client)
+	}
+	return repo.merchantBusinessTypeRepo
 }
