@@ -14,7 +14,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 type CategoryHandler struct {
@@ -303,53 +302,13 @@ func (h *CategoryHandler) Delete() gin.HandlerFunc {
 	}
 }
 
-// // GetByID
-// //
-// //	@Tags		商品分类
-// //	@Security	BearerAuth
-// //	@Summary	获取商品分类详情
-// //	@Accept		json
-// //	@Produce	json
-// //	@Param		id		path		string				true	"分类ID"
-// //	@Success	200		{object}	types.CategoryResp	"成功"
-// //	@Router		/category/{id} [get]
-// func (h *CategoryHandler) GetByID() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := c.Request.Context()
-// 		logger := logging.FromContext(ctx).Named("CategoryHandler.GetByID")
-// 		ctx = logging.NewContext(ctx, logger)
-// 		c.Request = c.Request.Clone(ctx)
-
-// 		idStr := c.Param("id")
-// 		id, err := uuid.Parse(idStr)
-// 		if err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
-// 			return
-// 		}
-
-// 		category, err := h.CategoryInteractor.GetByID(ctx, id)
-// 		if err != nil {
-// 			if domain.IsNotFound(err) {
-// 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-// 				return
-// 			}
-// 			err = fmt.Errorf("failed to get category: %w", err)
-// 			c.Error(err)
-// 			return
-// 		}
-
-// 		response.Ok(c, convertCategoryToResp(category))
-// 	}
-// }
-
 // List
 //
 //	@Tags		商品分类
 //	@Security	BearerAuth
 //	@Summary	获取商品分类列表
-//	@Param		data	body		types.CategoryPagedListReq		true	"请求参数"
-//	@Success	200		{object}	domain.CategoryPagedListResp	"成功"
-//	@Router		/category [get]
+//	@Success	200	{array}	domain.Categories	"成功"
+//	@Router		/product/category [get]
 func (h *CategoryHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -357,21 +316,13 @@ func (h *CategoryHandler) List() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		var req types.CategoryPagedListReq
-		if err := c.ShouldBindQuery(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-
 		user := domain.FromBackendUserContext(ctx)
-		page := upagination.New(req.Page, req.Size)
+
 		params := domain.CategorySearchParams{
 			MerchantID: user.MerchantID,
-			Name:       req.Name,
-			ID:         req.ID,
 		}
 
-		res, err := h.CategoryInteractor.PagedListBySearch(ctx, page, params)
+		res, err := h.CategoryInteractor.ListBySearch(ctx, params)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
@@ -385,31 +336,3 @@ func (h *CategoryHandler) List() gin.HandlerFunc {
 		response.Ok(c, res)
 	}
 }
-
-// func convertCategoryToResp(category *domain.Category) types.CategoryResp {
-// 	res := types.CategoryResp{
-// 		ID:           category.ID,
-// 		Name:         category.Name,
-// 		StoreID:      category.StoreID,
-// 		ParentID:     category.ParentID,
-// 		TaxRateID:    category.TaxRateID,
-// 		DepartmentID: category.DepartmentID,
-// 		ProductCount: category.ProductCount,
-// 		CreatedAt:    category.CreatedAt.Format(time.RFC3339),
-// 		UpdatedAt:    category.UpdatedAt.Format(time.RFC3339),
-// 	}
-
-// 	if category.Parent != nil {
-// 		parentResp := convertCategoryToResp(category.Parent)
-// 		res.Parent = &parentResp
-// 	}
-
-// 	if len(category.Children) > 0 {
-// 		res.Children = make([]types.CategoryResp, 0, len(category.Children))
-// 		for _, child := range category.Children {
-// 			res.Children = append(res.Children, convertCategoryToResp(child))
-// 		}
-// 	}
-
-// 	return res
-// }

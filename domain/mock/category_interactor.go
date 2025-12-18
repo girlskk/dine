@@ -11,7 +11,6 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
-	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockCategoryInteractor is a mock of CategoryInteractor interface.
@@ -79,17 +78,17 @@ func (mr *MockCategoryInteractorMockRecorder) Delete(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCategoryInteractor)(nil).Delete), arg0, arg1)
 }
 
-// PagedListBySearch mocks base method.
-func (m *MockCategoryInteractor) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.CategorySearchParams) (*domain.CategorySearchRes, error) {
+// ListBySearch mocks base method.
+func (m *MockCategoryInteractor) ListBySearch(arg0 context.Context, arg1 domain.CategorySearchParams) (domain.Categories, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PagedListBySearch", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*domain.CategorySearchRes)
+	ret := m.ctrl.Call(m, "ListBySearch", arg0, arg1)
+	ret0, _ := ret[0].(domain.Categories)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// PagedListBySearch indicates an expected call of PagedListBySearch.
-func (mr *MockCategoryInteractorMockRecorder) PagedListBySearch(arg0, arg1, arg2 interface{}) *gomock.Call {
+// ListBySearch indicates an expected call of ListBySearch.
+func (mr *MockCategoryInteractorMockRecorder) ListBySearch(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListBySearch", reflect.TypeOf((*MockCategoryInteractor)(nil).PagedListBySearch), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockCategoryInteractor)(nil).ListBySearch), arg0, arg1)
 }

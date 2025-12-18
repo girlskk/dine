@@ -7,7 +7,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -210,12 +209,11 @@ func (repo *CategoryRepository) CountChildrenByParentID(ctx context.Context, par
 	return count, nil
 }
 
-func (repo *CategoryRepository) PagedListBySearch(
+func (repo *CategoryRepository) ListBySearch(
 	ctx context.Context,
-	page *upagination.Pagination,
 	params domain.CategorySearchParams,
-) (res *domain.CategorySearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.PagedListBySearch")
+) (res domain.Categories, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -228,12 +226,6 @@ func (repo *CategoryRepository) PagedListBySearch(
 	if params.MerchantID != uuid.Nil {
 		query.Where(category.MerchantID(params.MerchantID))
 	}
-	if params.ID != uuid.Nil {
-		query.Where(category.ID(params.ID))
-	}
-	if params.Name != "" {
-		query.Where(category.NameContains(params.Name))
-	}
 
 	// 预加载子分类
 	query.WithChildren(func(q *ent.CategoryQuery) {
@@ -243,18 +235,10 @@ func (repo *CategoryRepository) PagedListBySearch(
 		)
 	})
 
-	total, err := query.Clone().Count(ctx)
-	if err != nil {
-		return nil, err
-	}
-	page.Total = total
-
 	entCats, err := query.Order(
 		category.BySortOrder(),
 		ent.Desc(category.FieldCreatedAt),
 	).
-		Offset(page.Offset()).
-		Limit(page.Size).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -265,10 +249,7 @@ func (repo *CategoryRepository) PagedListBySearch(
 		items = append(items, convertCategoryToDomainWithChildren(c))
 	}
 
-	return &domain.CategorySearchRes{
-		Pagination: page,
-		Items:      items,
-	}, nil
+	return items, nil
 }
 
 func convertCategoryToDomain(ec *ent.Category) *domain.Category {

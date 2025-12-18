@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -20,13 +19,11 @@ func NewCategoryInteractor(ds domain.DataStore) *CategoryInteractor {
 	}
 }
 
-func (i *CategoryInteractor) PagedListBySearch(ctx context.Context,
-	page *upagination.Pagination, params domain.CategorySearchParams,
-) (res *domain.CategorySearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "CategoryInteractor.PagedListBySearch")
+func (i *CategoryInteractor) ListBySearch(ctx context.Context, params domain.CategorySearchParams) (res domain.Categories, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "CategoryInteractor.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
-	return i.DS.CategoryRepo().PagedListBySearch(ctx, page, params)
+	return i.DS.CategoryRepo().ListBySearch(ctx, params)
 }

@@ -18,11 +18,3 @@ type CategoryCreateChildReq struct {
 	InheritStall   bool       `json:"inherit_stall"`                   // 是否继承父分类的出品部门ID
 	StallID        *uuid.UUID `json:"stall_id"`                        // 出品部门ID
 }
-
-// CategoryPagedListReq 分页查询商品分类列表请求
-type CategoryPagedListReq struct {
-	Page int       `json:"page"`
-	Size int       `json:"size"`
-	Name string    `json:"name"`
-	ID   uuid.UUID `json:"id"`
-}
