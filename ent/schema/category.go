@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"math"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -37,7 +39,7 @@ func (Category) Fields() []ent.Field {
 		field.Bool("inherit_stall").Default(false).Comment("是否继承父分类的出品部门ID（仅二级分类有效）"),
 		field.UUID("stall_id", uuid.UUID{}).Optional().Comment("出品部门ID，可选，二级分类可继承父分类"),
 		field.Int("product_count").Default(0).Comment("关联的商品数量"),
-		field.Int("sort_order").Default(0).Comment("排序，值越小越靠前"),
+		field.Int("sort_order").Default(math.MaxInt16).Comment("排序，值越小越靠前"),
 	}
 }
 

@@ -79,7 +79,7 @@ var (
 		{Name: "inherit_stall", Type: field.TypeBool, Default: false},
 		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
-		{Name: "sort_order", Type: field.TypeInt, Default: 0},
+		{Name: "sort_order", Type: field.TypeInt, Default: 32767},
 		{Name: "parent_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// CategoriesTable holds the schema information for the "categories" table.

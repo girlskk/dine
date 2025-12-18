@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 var (
@@ -29,6 +30,7 @@ type CategoryRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params CategoryExistsParams) (bool, error)
 	CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (int, error)
+	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params CategorySearchParams) (*CategorySearchRes, error)
 }
 
 // CategoryInteractor 商品分类用例接口
@@ -38,6 +40,7 @@ type CategoryInteractor interface {
 	CreateRoot(ctx context.Context, category *Category) error
 	CreateChild(ctx context.Context, category *Category) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params CategorySearchParams) (*CategorySearchRes, error)
 	// Update(ctx context.Context, category *Category) (*Category, error)
 }
 
@@ -81,4 +84,16 @@ type CategoryExistsParams struct {
 	Name       string
 	ParentID   uuid.UUID
 	IsRoot     bool
+}
+
+// CategorySearchParams 查询参数
+type CategorySearchParams struct {
+	MerchantID uuid.UUID
+	ID         uuid.UUID
+	Name       string
+}
+
+type CategorySearchRes struct {
+	*upagination.Pagination
+	Items Categories `json:"items"`
 }

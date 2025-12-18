@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -31,14 +32,14 @@ func (s *CategoryTestSuite) SetupTest() {
 }
 
 func (s *CategoryTestSuite) createTestCategory(parentID uuid.UUID) *ent.Category {
-	storeID := uuid.New()
+	merchantID := uuid.New()
 	taxRateID := uuid.New()
 	stallID := uuid.New()
 
 	builder := s.client.Category.Create().
 		SetID(uuid.New()).
 		SetName("测试分类").
-		SetStoreID(storeID).
+		SetMerchantID(merchantID).
 		SetInheritTaxRate(false).
 		SetInheritStall(false).
 		SetSortOrder(0)
@@ -239,5 +240,26 @@ func (s *CategoryTestSuite) TestCategory_Update() {
 
 		err := s.repo.Update(s.ctx, cat)
 		require.Error(t, err)
+	})
+}
+
+func (s *CategoryTestSuite) TestCategory_PagedListBySearch() {
+	// category := s.createTestRootCategory()
+
+	category := &domain.Category{
+		MerchantID: uuid.MustParse("7be077b2-aa93-4da0-9bd3-8a36606adf4a"),
+	}
+
+	s.T().Run("正常查询", func(t *testing.T) {
+		page := upagination.New(1, 10)
+		params := domain.CategorySearchParams{
+			MerchantID: category.MerchantID,
+		}
+		res, err := s.repo.PagedListBySearch(s.ctx, page, params)
+		require.NoError(t, err)
+		// require.Equal(t, 1, len(res.Items))
+		// require.Equal(t, category.ID, res.Items[0].ID)
+
+		util.PrettyJson(res)
 	})
 }
