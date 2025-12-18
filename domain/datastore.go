@@ -8,6 +8,8 @@ type DataStore interface {
 	IsTransactionActive() bool
 	AddHook(hook func())
 	AdminUserRepo() AdminUserRepository
+	CategoryRepo() CategoryRepository
+	BackendUserRepo() BackendUserRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

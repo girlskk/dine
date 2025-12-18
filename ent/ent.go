@@ -13,6 +13,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -73,7 +75,9 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			adminuser.Table: adminuser.ValidColumn,
+			adminuser.Table:   adminuser.ValidColumn,
+			backenduser.Table: backenduser.ValidColumn,
+			category.Table:    category.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

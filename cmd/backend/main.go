@@ -15,6 +15,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/db/dbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver/httpserverfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
+	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/i18n/i18nfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing/tracingfx"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
@@ -89,6 +90,7 @@ func main() {
 		eventbusfx.Module,
 		domainservicefx.Module,
 		asynqfx.ClientModule,
+		i18nfx.Module,
 		fx.Invoke(func(*http.Server) {}),
 		fx.Invoke(func(tp trace.TracerProvider) {}),
 	).Run()

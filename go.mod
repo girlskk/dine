@@ -16,6 +16,7 @@ require (
 	github.com/go-redsync/redsync/v4 v4.13.0
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/gookit/event v1.1.2
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
@@ -85,7 +86,6 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.19.0 // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

@@ -11,6 +11,40 @@ definitions:
         description: 用户名
         type: string
     type: object
+  domain.ObjectStorageScene:
+    enum:
+    - store
+    - product
+    - order/list_export
+    - reconciliation/list_export
+    - reconciliation/detail_export
+    - point_settlement/list_export
+    - point_settlement/detail_export
+    type: string
+    x-enum-comments:
+      ObjectStorageSceneOrderListExport: 订单列表导出
+      ObjectStorageScenePointSettlementDetailExport: 积分结算单明细导出
+      ObjectStorageScenePointSettlementListExport: 积分结算单导出
+      ObjectStorageSceneProduct: 商品
+      ObjectStorageSceneReconciliationDetailExport: 财务对账单明细导出
+      ObjectStorageSceneReconciliationListExport: 财务对账单导出
+      ObjectStorageSceneStore: 门店
+    x-enum-descriptions:
+    - 门店
+    - 商品
+    - 订单列表导出
+    - 财务对账单导出
+    - 财务对账单明细导出
+    - 积分结算单导出
+    - 积分结算单明细导出
+    x-enum-varnames:
+    - ObjectStorageSceneStore
+    - ObjectStorageSceneProduct
+    - ObjectStorageSceneOrderListExport
+    - ObjectStorageSceneReconciliationListExport
+    - ObjectStorageSceneReconciliationDetailExport
+    - ObjectStorageScenePointSettlementListExport
+    - ObjectStorageScenePointSettlementDetailExport
   types.LoginReq:
     properties:
       password:
@@ -28,12 +62,77 @@ definitions:
       token:
         type: string
     type: object
+  types.OssTokenReq:
+    properties:
+      filename:
+        description: 文件名
+        type: string
+      for_download:
+        description: 是否用于下载
+        type: boolean
+      scene:
+        allOf:
+        - $ref: '#/definitions/domain.ObjectStorageScene'
+        description: '业务场景，store：门店相关 product: 商品相关'
+        enum:
+        - store
+        - product
+    required:
+    - filename
+    - scene
+    type: object
+  types.OssTokenResp:
+    properties:
+      content_disposition:
+        type: string
+      dir:
+        type: string
+      host:
+        type: string
+      key:
+        type: string
+      policy:
+        type: string
+      security_token:
+        type: string
+      signature:
+        type: string
+      x_oss_credential:
+        type: string
+      x_oss_date:
+        type: string
+      x_oss_signature_version:
+        type: string
+    type: object
 info:
   contact: {}
   description: 供总后台调用.
   title: 总后台 API
   version: "1.0"
 paths:
+  /oss/token:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.OssTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.OssTokenResp'
+      security:
+      - BearerAuth: []
+      summary: 获取OSS Token
+      tags:
+      - 阿里OSS
   /user/info:
     post:
       consumes:
