@@ -39,8 +39,8 @@ type CategoryInteractor interface {
 	CreateRoot(ctx context.Context, category *Category) error
 	CreateChild(ctx context.Context, category *Category) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, category *Category) error
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
-	// Update(ctx context.Context, category *Category) (*Category, error)
 }
 
 // Category 商品分类实体
@@ -83,6 +83,7 @@ type CategoryExistsParams struct {
 	Name       string
 	ParentID   uuid.UUID
 	IsRoot     bool
+	ExcludeID  uuid.UUID // 排除的ID（用于更新时检查名称唯一性）
 }
 
 // CategorySearchParams 查询参数

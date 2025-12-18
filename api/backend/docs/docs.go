@@ -108,6 +108,46 @@ const docTemplate = `{
             }
         },
         "/product/category/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "更新商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateCategoryReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -548,6 +588,32 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "x_oss_signature_version": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.UpdateCategoryReq": {
+            "type": "object",
+            "properties": {
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID（仅子分类有效）",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID（仅子分类有效）",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
                     "type": "string"
                 }
             }

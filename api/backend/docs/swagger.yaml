@@ -204,6 +204,25 @@ definitions:
       x_oss_signature_version:
         type: string
     type: object
+  types.UpdateCategoryReq:
+    properties:
+      inherit_stall:
+        description: 是否继承父分类的出品部门ID（仅子分类有效）
+        type: boolean
+      inherit_tax_rate:
+        description: 是否继承父分类的税率ID（仅子分类有效）
+        type: boolean
+      name:
+        description: 分类名称
+        maxLength: 255
+        type: string
+      stall_id:
+        description: 出品部门ID
+        type: string
+      tax_rate_id:
+        description: 税率ID
+        type: string
+    type: object
 info:
   contact: {}
   description: 供门店后台调用.
@@ -304,6 +323,31 @@ paths:
       security:
       - BearerAuth: []
       summary: 创建二级商品分类
+      tags:
+      - 商品分类
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.UpdateCategoryReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新商品分类
       tags:
       - 商品分类
   /user/info:

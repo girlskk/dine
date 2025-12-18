@@ -30,9 +30,9 @@ func (h *CategoryHandler) Routes(r gin.IRouter) {
 	r = r.Group("product/category")
 	r.POST("", h.CreateRoot())
 	r.POST("/:id", h.CreateChild())
+	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("", h.List())
-	// r.PUT("/:id", h.Update())
 }
 
 func (h *CategoryHandler) NoAuths() []string {
@@ -195,64 +195,76 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 	}
 }
 
-// // Update
-// //
-// //	@Tags		商品分类
-// //	@Security	BearerAuth
-// //	@Summary	更新商品分类
-// //	@Accept		json
-// //	@Produce	json
-// //	@Param		id		path		string					true	"分类ID"
-// //	@Param		data	body		types.UpdateCategoryReq	true	"请求信息"
-// //	@Success	200		{object}	types.CategoryResp		"成功"
-// //	@Router		/category/{id} [put]
-// func (h *CategoryHandler) Update() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := c.Request.Context()
-// 		logger := logging.FromContext(ctx).Named("CategoryHandler.Update")
-// 		ctx = logging.NewContext(ctx, logger)
-// 		c.Request = c.Request.Clone(ctx)
+// Update
+//
+//	@Tags		商品分类
+//	@Security	BearerAuth
+//	@Summary	更新商品分类
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path	string					true	"分类ID"
+//	@Param		data	body	types.UpdateCategoryReq	true	"请求信息"
+//	@Success	200
+//	@Router		/product/category/{id} [put]
+func (h *CategoryHandler) Update() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("CategoryHandler.Update")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
 
-// 		idStr := c.Param("id")
-// 		id, err := uuid.Parse(idStr)
-// 		if err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
-// 			return
-// 		}
+		// 从路径参数获取分类ID
+		idStr := c.Param("id")
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
+			return
+		}
 
-// 		var req types.UpdateCategoryReq
-// 		if err := c.ShouldBind(&req); err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-// 			return
-// 		}
+		var req types.UpdateCategoryReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
 
-// 		category, err := h.CategoryInteractor.Update(ctx, domain.CategoryUpdateParams{
-// 			ID:           id,
-// 			Name:         req.Name,
-// 			TaxRateID:    req.TaxRateID,
-// 			DepartmentID: req.DepartmentID,
-// 		})
-// 		if err != nil {
-// 			if domain.IsParamsError(err) {
-// 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-// 				return
-// 			}
-// 			if domain.IsConflict(err) {
-// 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-// 				return
-// 			}
-// 			if domain.IsNotFound(err) {
-// 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-// 				return
-// 			}
-// 			err = fmt.Errorf("failed to update category: %w", err)
-// 			c.Error(err)
-// 			return
-// 		}
+		// 将请求数据映射到 domain.Category
+		category := &domain.Category{
+			ID:             id,
+			Name:           req.Name,
+			InheritTaxRate: req.InheritTaxRate,
+			InheritStall:   req.InheritStall,
+		}
 
-// 		response.Ok(c, convertCategoryToResp(category))
-// 	}
-// }
+		// 如果设置了税率ID，则不继承
+		if req.TaxRateID != nil {
+			category.TaxRateID = *req.TaxRateID
+			category.InheritTaxRate = false
+		}
+
+		// 如果设置了出品部门ID，则不继承
+		if req.StallID != nil {
+			category.StallID = *req.StallID
+			category.InheritStall = false
+		}
+
+		err = h.CategoryInteractor.Update(ctx, category)
+		if err != nil {
+			if errors.Is(err, domain.ErrCategoryNameExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to update category: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
 
 // Delete
 //

@@ -92,3 +92,17 @@ func (mr *MockCategoryInteractorMockRecorder) ListBySearch(arg0, arg1 interface{
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockCategoryInteractor)(nil).ListBySearch), arg0, arg1)
 }
+
+// Update mocks base method.
+func (m *MockCategoryInteractor) Update(arg0 context.Context, arg1 *domain.Category) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockCategoryInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCategoryInteractor)(nil).Update), arg0, arg1)
+}

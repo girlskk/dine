@@ -190,6 +190,10 @@ func (repo *CategoryRepository) Exists(ctx context.Context, params domain.Catego
 	if params.Name != "" {
 		query.Where(category.Name(params.Name))
 	}
+	// 排除指定的ID（用于更新时检查名称唯一性）
+	if params.ExcludeID != uuid.Nil {
+		query.Where(category.IDNEQ(params.ExcludeID))
+	}
 	return query.Exist(ctx)
 }
 
