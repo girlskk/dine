@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -116,16 +117,6 @@ func Description(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldDescription, v))
 }
 
-// LoginAccount applies equality check predicate on the "login_account" field. It's identical to LoginAccountEQ.
-func LoginAccount(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldLoginAccount, v))
-}
-
-// LoginPassword applies equality check predicate on the "login_password" field. It's identical to LoginPasswordEQ.
-func LoginPassword(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldLoginPassword, v))
-}
-
 // CountryID applies equality check predicate on the "country_id" field. It's identical to CountryIDEQ.
 func CountryID(v int) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldCountryID, v))
@@ -179,6 +170,11 @@ func Lng(v string) predicate.Merchant {
 // Lat applies equality check predicate on the "lat" field. It's identical to LatEQ.
 func Lat(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldLat, v))
+}
+
+// AdminUserID applies equality check predicate on the "admin_user_id" field. It's identical to AdminUserIDEQ.
+func AdminUserID(v uuid.UUID) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEQ(FieldAdminUserID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -886,136 +882,6 @@ func StatusNotIn(vs ...domain.MerchantStatus) predicate.Merchant {
 	return predicate.Merchant(sql.FieldNotIn(FieldStatus, v...))
 }
 
-// LoginAccountEQ applies the EQ predicate on the "login_account" field.
-func LoginAccountEQ(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldLoginAccount, v))
-}
-
-// LoginAccountNEQ applies the NEQ predicate on the "login_account" field.
-func LoginAccountNEQ(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldLoginAccount, v))
-}
-
-// LoginAccountIn applies the In predicate on the "login_account" field.
-func LoginAccountIn(vs ...string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldLoginAccount, vs...))
-}
-
-// LoginAccountNotIn applies the NotIn predicate on the "login_account" field.
-func LoginAccountNotIn(vs ...string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldLoginAccount, vs...))
-}
-
-// LoginAccountGT applies the GT predicate on the "login_account" field.
-func LoginAccountGT(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldGT(FieldLoginAccount, v))
-}
-
-// LoginAccountGTE applies the GTE predicate on the "login_account" field.
-func LoginAccountGTE(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldGTE(FieldLoginAccount, v))
-}
-
-// LoginAccountLT applies the LT predicate on the "login_account" field.
-func LoginAccountLT(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldLT(FieldLoginAccount, v))
-}
-
-// LoginAccountLTE applies the LTE predicate on the "login_account" field.
-func LoginAccountLTE(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldLTE(FieldLoginAccount, v))
-}
-
-// LoginAccountContains applies the Contains predicate on the "login_account" field.
-func LoginAccountContains(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldContains(FieldLoginAccount, v))
-}
-
-// LoginAccountHasPrefix applies the HasPrefix predicate on the "login_account" field.
-func LoginAccountHasPrefix(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldHasPrefix(FieldLoginAccount, v))
-}
-
-// LoginAccountHasSuffix applies the HasSuffix predicate on the "login_account" field.
-func LoginAccountHasSuffix(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldHasSuffix(FieldLoginAccount, v))
-}
-
-// LoginAccountEqualFold applies the EqualFold predicate on the "login_account" field.
-func LoginAccountEqualFold(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEqualFold(FieldLoginAccount, v))
-}
-
-// LoginAccountContainsFold applies the ContainsFold predicate on the "login_account" field.
-func LoginAccountContainsFold(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldContainsFold(FieldLoginAccount, v))
-}
-
-// LoginPasswordEQ applies the EQ predicate on the "login_password" field.
-func LoginPasswordEQ(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldLoginPassword, v))
-}
-
-// LoginPasswordNEQ applies the NEQ predicate on the "login_password" field.
-func LoginPasswordNEQ(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldLoginPassword, v))
-}
-
-// LoginPasswordIn applies the In predicate on the "login_password" field.
-func LoginPasswordIn(vs ...string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldLoginPassword, vs...))
-}
-
-// LoginPasswordNotIn applies the NotIn predicate on the "login_password" field.
-func LoginPasswordNotIn(vs ...string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldLoginPassword, vs...))
-}
-
-// LoginPasswordGT applies the GT predicate on the "login_password" field.
-func LoginPasswordGT(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldGT(FieldLoginPassword, v))
-}
-
-// LoginPasswordGTE applies the GTE predicate on the "login_password" field.
-func LoginPasswordGTE(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldGTE(FieldLoginPassword, v))
-}
-
-// LoginPasswordLT applies the LT predicate on the "login_password" field.
-func LoginPasswordLT(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldLT(FieldLoginPassword, v))
-}
-
-// LoginPasswordLTE applies the LTE predicate on the "login_password" field.
-func LoginPasswordLTE(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldLTE(FieldLoginPassword, v))
-}
-
-// LoginPasswordContains applies the Contains predicate on the "login_password" field.
-func LoginPasswordContains(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldContains(FieldLoginPassword, v))
-}
-
-// LoginPasswordHasPrefix applies the HasPrefix predicate on the "login_password" field.
-func LoginPasswordHasPrefix(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldHasPrefix(FieldLoginPassword, v))
-}
-
-// LoginPasswordHasSuffix applies the HasSuffix predicate on the "login_password" field.
-func LoginPasswordHasSuffix(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldHasSuffix(FieldLoginPassword, v))
-}
-
-// LoginPasswordEqualFold applies the EqualFold predicate on the "login_password" field.
-func LoginPasswordEqualFold(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEqualFold(FieldLoginPassword, v))
-}
-
-// LoginPasswordContainsFold applies the ContainsFold predicate on the "login_password" field.
-func LoginPasswordContainsFold(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldContainsFold(FieldLoginPassword, v))
-}
-
 // CountryIDEQ applies the EQ predicate on the "country_id" field.
 func CountryIDEQ(v int) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldCountryID, v))
@@ -1631,6 +1497,26 @@ func LatContainsFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldContainsFold(FieldLat, v))
 }
 
+// AdminUserIDEQ applies the EQ predicate on the "admin_user_id" field.
+func AdminUserIDEQ(v uuid.UUID) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEQ(FieldAdminUserID, v))
+}
+
+// AdminUserIDNEQ applies the NEQ predicate on the "admin_user_id" field.
+func AdminUserIDNEQ(v uuid.UUID) predicate.Merchant {
+	return predicate.Merchant(sql.FieldNEQ(FieldAdminUserID, v))
+}
+
+// AdminUserIDIn applies the In predicate on the "admin_user_id" field.
+func AdminUserIDIn(vs ...uuid.UUID) predicate.Merchant {
+	return predicate.Merchant(sql.FieldIn(FieldAdminUserID, vs...))
+}
+
+// AdminUserIDNotIn applies the NotIn predicate on the "admin_user_id" field.
+func AdminUserIDNotIn(vs ...uuid.UUID) predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotIn(FieldAdminUserID, vs...))
+}
+
 // HasStores applies the HasEdge predicate on the "stores" edge.
 func HasStores() predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
@@ -1692,6 +1578,29 @@ func HasMerchantBusinessType() predicate.Merchant {
 func HasMerchantBusinessTypeWith(preds ...predicate.MerchantBusinessType) predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
 		step := newMerchantBusinessTypeStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAdminUser applies the HasEdge predicate on the "admin_user" edge.
+func HasAdminUser() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAdminUserWith applies the HasEdge predicate on the "admin_user" edge with a given conditions (other predicates).
+func HasAdminUserWith(preds ...predicate.AdminUser) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newAdminUserStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

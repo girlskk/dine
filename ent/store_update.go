@@ -632,6 +632,9 @@ func (su *StoreUpdate) check() error {
 	if su.mutation.MerchantCleared() && len(su.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
 	}
+	if su.mutation.AdminUserCleared() && len(su.mutation.AdminUserIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
+	}
 	return nil
 }
 
@@ -1394,6 +1397,9 @@ func (suo *StoreUpdateOne) check() error {
 	}
 	if suo.mutation.MerchantCleared() && len(suo.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
+	}
+	if suo.mutation.AdminUserCleared() && len(suo.mutation.AdminUserIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
 	}
 	return nil
 }

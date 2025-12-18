@@ -79,8 +79,12 @@ const (
 	FieldLng = "lng"
 	// FieldLat holds the string denoting the lat field in the database.
 	FieldLat = "lat"
+	// FieldAdminUserID holds the string denoting the admin_user_id field in the database.
+	FieldAdminUserID = "admin_user_id"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
+	// EdgeAdminUser holds the string denoting the admin_user edge name in mutations.
+	EdgeAdminUser = "admin_user"
 	// Table holds the table name of the store in the database.
 	Table = "stores"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -90,6 +94,13 @@ const (
 	MerchantInverseTable = "merchants"
 	// MerchantColumn is the table column denoting the merchant relation/edge.
 	MerchantColumn = "merchant_id"
+	// AdminUserTable is the table that holds the admin_user relation/edge.
+	AdminUserTable = "stores"
+	// AdminUserInverseTable is the table name for the AdminUser entity.
+	// It exists in this package in order to avoid circular dependency with the "adminuser" package.
+	AdminUserInverseTable = "admin_users"
+	// AdminUserColumn is the table column denoting the admin_user relation/edge.
+	AdminUserColumn = "admin_user_id"
 )
 
 // Columns holds all SQL columns for store fields.
@@ -126,6 +137,7 @@ var Columns = []string{
 	FieldAddress,
 	FieldLng,
 	FieldLat,
+	FieldAdminUserID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -429,10 +441,22 @@ func ByLat(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLat, opts...).ToFunc()
 }
 
+// ByAdminUserID orders the results by the admin_user_id field.
+func ByAdminUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAdminUserID, opts...).ToFunc()
+}
+
 // ByMerchantField orders the results by merchant field.
 func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByAdminUserField orders the results by admin_user field.
+func ByAdminUserField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAdminUserStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newMerchantStep() *sqlgraph.Step {
@@ -440,5 +464,12 @@ func newMerchantStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
+	)
+}
+func newAdminUserStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AdminUserInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
 	)
 }

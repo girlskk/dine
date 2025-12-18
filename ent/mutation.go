@@ -50,7 +50,14 @@ type AdminUserMutation struct {
 	username        *string
 	hashed_password *string
 	nickname        *string
+	account_type    *domain.AdminUserAccountType
 	clearedFields   map[string]struct{}
+	merchant        map[int]struct{}
+	removedmerchant map[int]struct{}
+	clearedmerchant bool
+	store           map[int]struct{}
+	removedstore    map[int]struct{}
+	clearedstore    bool
 	done            bool
 	oldValue        func(context.Context) (*AdminUser, error)
 	predicates      []predicate.AdminUser
@@ -396,6 +403,150 @@ func (m *AdminUserMutation) ResetNickname() {
 	m.nickname = nil
 }
 
+// SetAccountType sets the "account_type" field.
+func (m *AdminUserMutation) SetAccountType(duat domain.AdminUserAccountType) {
+	m.account_type = &duat
+}
+
+// AccountType returns the value of the "account_type" field in the mutation.
+func (m *AdminUserMutation) AccountType() (r domain.AdminUserAccountType, exists bool) {
+	v := m.account_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountType returns the old "account_type" field's value of the AdminUser entity.
+// If the AdminUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AdminUserMutation) OldAccountType(ctx context.Context) (v domain.AdminUserAccountType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountType: %w", err)
+	}
+	return oldValue.AccountType, nil
+}
+
+// ResetAccountType resets all changes to the "account_type" field.
+func (m *AdminUserMutation) ResetAccountType() {
+	m.account_type = nil
+}
+
+// AddMerchantIDs adds the "merchant" edge to the Merchant entity by ids.
+func (m *AdminUserMutation) AddMerchantIDs(ids ...int) {
+	if m.merchant == nil {
+		m.merchant = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.merchant[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMerchant clears the "merchant" edge to the Merchant entity.
+func (m *AdminUserMutation) ClearMerchant() {
+	m.clearedmerchant = true
+}
+
+// MerchantCleared reports if the "merchant" edge to the Merchant entity was cleared.
+func (m *AdminUserMutation) MerchantCleared() bool {
+	return m.clearedmerchant
+}
+
+// RemoveMerchantIDs removes the "merchant" edge to the Merchant entity by IDs.
+func (m *AdminUserMutation) RemoveMerchantIDs(ids ...int) {
+	if m.removedmerchant == nil {
+		m.removedmerchant = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.merchant, ids[i])
+		m.removedmerchant[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMerchant returns the removed IDs of the "merchant" edge to the Merchant entity.
+func (m *AdminUserMutation) RemovedMerchantIDs() (ids []int) {
+	for id := range m.removedmerchant {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MerchantIDs returns the "merchant" edge IDs in the mutation.
+func (m *AdminUserMutation) MerchantIDs() (ids []int) {
+	for id := range m.merchant {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMerchant resets all changes to the "merchant" edge.
+func (m *AdminUserMutation) ResetMerchant() {
+	m.merchant = nil
+	m.clearedmerchant = false
+	m.removedmerchant = nil
+}
+
+// AddStoreIDs adds the "store" edge to the Store entity by ids.
+func (m *AdminUserMutation) AddStoreIDs(ids ...int) {
+	if m.store == nil {
+		m.store = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.store[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStore clears the "store" edge to the Store entity.
+func (m *AdminUserMutation) ClearStore() {
+	m.clearedstore = true
+}
+
+// StoreCleared reports if the "store" edge to the Store entity was cleared.
+func (m *AdminUserMutation) StoreCleared() bool {
+	return m.clearedstore
+}
+
+// RemoveStoreIDs removes the "store" edge to the Store entity by IDs.
+func (m *AdminUserMutation) RemoveStoreIDs(ids ...int) {
+	if m.removedstore == nil {
+		m.removedstore = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.store, ids[i])
+		m.removedstore[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStore returns the removed IDs of the "store" edge to the Store entity.
+func (m *AdminUserMutation) RemovedStoreIDs() (ids []int) {
+	for id := range m.removedstore {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StoreIDs returns the "store" edge IDs in the mutation.
+func (m *AdminUserMutation) StoreIDs() (ids []int) {
+	for id := range m.store {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStore resets all changes to the "store" edge.
+func (m *AdminUserMutation) ResetStore() {
+	m.store = nil
+	m.clearedstore = false
+	m.removedstore = nil
+}
+
 // Where appends a list predicates to the AdminUserMutation builder.
 func (m *AdminUserMutation) Where(ps ...predicate.AdminUser) {
 	m.predicates = append(m.predicates, ps...)
@@ -430,7 +581,7 @@ func (m *AdminUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AdminUserMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, adminuser.FieldCreatedAt)
 	}
@@ -448,6 +599,9 @@ func (m *AdminUserMutation) Fields() []string {
 	}
 	if m.nickname != nil {
 		fields = append(fields, adminuser.FieldNickname)
+	}
+	if m.account_type != nil {
+		fields = append(fields, adminuser.FieldAccountType)
 	}
 	return fields
 }
@@ -469,6 +623,8 @@ func (m *AdminUserMutation) Field(name string) (ent.Value, bool) {
 		return m.HashedPassword()
 	case adminuser.FieldNickname:
 		return m.Nickname()
+	case adminuser.FieldAccountType:
+		return m.AccountType()
 	}
 	return nil, false
 }
@@ -490,6 +646,8 @@ func (m *AdminUserMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldHashedPassword(ctx)
 	case adminuser.FieldNickname:
 		return m.OldNickname(ctx)
+	case adminuser.FieldAccountType:
+		return m.OldAccountType(ctx)
 	}
 	return nil, fmt.Errorf("unknown AdminUser field %s", name)
 }
@@ -540,6 +698,13 @@ func (m *AdminUserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNickname(v)
+		return nil
+	case adminuser.FieldAccountType:
+		v, ok := value.(domain.AdminUserAccountType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown AdminUser field %s", name)
@@ -623,55 +788,120 @@ func (m *AdminUserMutation) ResetField(name string) error {
 	case adminuser.FieldNickname:
 		m.ResetNickname()
 		return nil
+	case adminuser.FieldAccountType:
+		m.ResetAccountType()
+		return nil
 	}
 	return fmt.Errorf("unknown AdminUser field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AdminUserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.merchant != nil {
+		edges = append(edges, adminuser.EdgeMerchant)
+	}
+	if m.store != nil {
+		edges = append(edges, adminuser.EdgeStore)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *AdminUserMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case adminuser.EdgeMerchant:
+		ids := make([]ent.Value, 0, len(m.merchant))
+		for id := range m.merchant {
+			ids = append(ids, id)
+		}
+		return ids
+	case adminuser.EdgeStore:
+		ids := make([]ent.Value, 0, len(m.store))
+		for id := range m.store {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AdminUserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.removedmerchant != nil {
+		edges = append(edges, adminuser.EdgeMerchant)
+	}
+	if m.removedstore != nil {
+		edges = append(edges, adminuser.EdgeStore)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *AdminUserMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case adminuser.EdgeMerchant:
+		ids := make([]ent.Value, 0, len(m.removedmerchant))
+		for id := range m.removedmerchant {
+			ids = append(ids, id)
+		}
+		return ids
+	case adminuser.EdgeStore:
+		ids := make([]ent.Value, 0, len(m.removedstore))
+		for id := range m.removedstore {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AdminUserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.clearedmerchant {
+		edges = append(edges, adminuser.EdgeMerchant)
+	}
+	if m.clearedstore {
+		edges = append(edges, adminuser.EdgeStore)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *AdminUserMutation) EdgeCleared(name string) bool {
+	switch name {
+	case adminuser.EdgeMerchant:
+		return m.clearedmerchant
+	case adminuser.EdgeStore:
+		return m.clearedstore
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *AdminUserMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown AdminUser unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *AdminUserMutation) ResetEdge(name string) error {
+	switch name {
+	case adminuser.EdgeMerchant:
+		m.ResetMerchant()
+		return nil
+	case adminuser.EdgeStore:
+		m.ResetStore()
+		return nil
+	}
 	return fmt.Errorf("unknown AdminUser edge %s", name)
 }
 
@@ -695,8 +925,6 @@ type MerchantMutation struct {
 	merchant_logo                 *string
 	description                   *string
 	status                        *domain.MerchantStatus
-	login_account                 *string
-	login_password                *string
 	country_id                    *int
 	addcountry_id                 *int
 	province_id                   *int
@@ -721,6 +949,8 @@ type MerchantMutation struct {
 	clearedmerchant_renewals      bool
 	merchant_business_type        *int
 	clearedmerchant_business_type bool
+	admin_user                    *uuid.UUID
+	clearedadmin_user             bool
 	done                          bool
 	oldValue                      func(context.Context) (*Merchant, error)
 	predicates                    []predicate.Merchant
@@ -1361,78 +1591,6 @@ func (m *MerchantMutation) ResetStatus() {
 	m.status = nil
 }
 
-// SetLoginAccount sets the "login_account" field.
-func (m *MerchantMutation) SetLoginAccount(s string) {
-	m.login_account = &s
-}
-
-// LoginAccount returns the value of the "login_account" field in the mutation.
-func (m *MerchantMutation) LoginAccount() (r string, exists bool) {
-	v := m.login_account
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLoginAccount returns the old "login_account" field's value of the Merchant entity.
-// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldLoginAccount(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLoginAccount is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLoginAccount requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLoginAccount: %w", err)
-	}
-	return oldValue.LoginAccount, nil
-}
-
-// ResetLoginAccount resets all changes to the "login_account" field.
-func (m *MerchantMutation) ResetLoginAccount() {
-	m.login_account = nil
-}
-
-// SetLoginPassword sets the "login_password" field.
-func (m *MerchantMutation) SetLoginPassword(s string) {
-	m.login_password = &s
-}
-
-// LoginPassword returns the value of the "login_password" field in the mutation.
-func (m *MerchantMutation) LoginPassword() (r string, exists bool) {
-	v := m.login_password
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLoginPassword returns the old "login_password" field's value of the Merchant entity.
-// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldLoginPassword(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLoginPassword is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLoginPassword requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLoginPassword: %w", err)
-	}
-	return oldValue.LoginPassword, nil
-}
-
-// ResetLoginPassword resets all changes to the "login_password" field.
-func (m *MerchantMutation) ResetLoginPassword() {
-	m.login_password = nil
-}
-
 // SetCountryID sets the "country_id" field.
 func (m *MerchantMutation) SetCountryID(i int) {
 	m.country_id = &i
@@ -1909,6 +2067,42 @@ func (m *MerchantMutation) ResetLat() {
 	m.lat = nil
 }
 
+// SetAdminUserID sets the "admin_user_id" field.
+func (m *MerchantMutation) SetAdminUserID(u uuid.UUID) {
+	m.admin_user = &u
+}
+
+// AdminUserID returns the value of the "admin_user_id" field in the mutation.
+func (m *MerchantMutation) AdminUserID() (r uuid.UUID, exists bool) {
+	v := m.admin_user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAdminUserID returns the old "admin_user_id" field's value of the Merchant entity.
+// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MerchantMutation) OldAdminUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAdminUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAdminUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAdminUserID: %w", err)
+	}
+	return oldValue.AdminUserID, nil
+}
+
+// ResetAdminUserID resets all changes to the "admin_user_id" field.
+func (m *MerchantMutation) ResetAdminUserID() {
+	m.admin_user = nil
+}
+
 // AddStoreIDs adds the "stores" edge to the Store entity by ids.
 func (m *MerchantMutation) AddStoreIDs(ids ...int) {
 	if m.stores == nil {
@@ -2057,6 +2251,33 @@ func (m *MerchantMutation) ResetMerchantBusinessType() {
 	m.clearedmerchant_business_type = false
 }
 
+// ClearAdminUser clears the "admin_user" edge to the AdminUser entity.
+func (m *MerchantMutation) ClearAdminUser() {
+	m.clearedadmin_user = true
+	m.clearedFields[merchant.FieldAdminUserID] = struct{}{}
+}
+
+// AdminUserCleared reports if the "admin_user" edge to the AdminUser entity was cleared.
+func (m *MerchantMutation) AdminUserCleared() bool {
+	return m.clearedadmin_user
+}
+
+// AdminUserIDs returns the "admin_user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AdminUserID instead. It exists only for internal usage by the builders.
+func (m *MerchantMutation) AdminUserIDs() (ids []uuid.UUID) {
+	if id := m.admin_user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAdminUser resets all changes to the "admin_user" edge.
+func (m *MerchantMutation) ResetAdminUser() {
+	m.admin_user = nil
+	m.clearedadmin_user = false
+}
+
 // Where appends a list predicates to the MerchantMutation builder.
 func (m *MerchantMutation) Where(ps ...predicate.Merchant) {
 	m.predicates = append(m.predicates, ps...)
@@ -2091,7 +2312,7 @@ func (m *MerchantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MerchantMutation) Fields() []string {
-	fields := make([]string, 0, 27)
+	fields := make([]string, 0, 26)
 	if m.created_at != nil {
 		fields = append(fields, merchant.FieldCreatedAt)
 	}
@@ -2134,12 +2355,6 @@ func (m *MerchantMutation) Fields() []string {
 	if m.status != nil {
 		fields = append(fields, merchant.FieldStatus)
 	}
-	if m.login_account != nil {
-		fields = append(fields, merchant.FieldLoginAccount)
-	}
-	if m.login_password != nil {
-		fields = append(fields, merchant.FieldLoginPassword)
-	}
 	if m.country_id != nil {
 		fields = append(fields, merchant.FieldCountryID)
 	}
@@ -2172,6 +2387,9 @@ func (m *MerchantMutation) Fields() []string {
 	}
 	if m.lat != nil {
 		fields = append(fields, merchant.FieldLat)
+	}
+	if m.admin_user != nil {
+		fields = append(fields, merchant.FieldAdminUserID)
 	}
 	return fields
 }
@@ -2209,10 +2427,6 @@ func (m *MerchantMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case merchant.FieldStatus:
 		return m.Status()
-	case merchant.FieldLoginAccount:
-		return m.LoginAccount()
-	case merchant.FieldLoginPassword:
-		return m.LoginPassword()
 	case merchant.FieldCountryID:
 		return m.CountryID()
 	case merchant.FieldProvinceID:
@@ -2235,6 +2449,8 @@ func (m *MerchantMutation) Field(name string) (ent.Value, bool) {
 		return m.Lng()
 	case merchant.FieldLat:
 		return m.Lat()
+	case merchant.FieldAdminUserID:
+		return m.AdminUserID()
 	}
 	return nil, false
 }
@@ -2272,10 +2488,6 @@ func (m *MerchantMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldDescription(ctx)
 	case merchant.FieldStatus:
 		return m.OldStatus(ctx)
-	case merchant.FieldLoginAccount:
-		return m.OldLoginAccount(ctx)
-	case merchant.FieldLoginPassword:
-		return m.OldLoginPassword(ctx)
 	case merchant.FieldCountryID:
 		return m.OldCountryID(ctx)
 	case merchant.FieldProvinceID:
@@ -2298,6 +2510,8 @@ func (m *MerchantMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldLng(ctx)
 	case merchant.FieldLat:
 		return m.OldLat(ctx)
+	case merchant.FieldAdminUserID:
+		return m.OldAdminUserID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Merchant field %s", name)
 }
@@ -2405,20 +2619,6 @@ func (m *MerchantMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
-	case merchant.FieldLoginAccount:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLoginAccount(v)
-		return nil
-	case merchant.FieldLoginPassword:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLoginPassword(v)
-		return nil
 	case merchant.FieldCountryID:
 		v, ok := value.(int)
 		if !ok {
@@ -2495,6 +2695,13 @@ func (m *MerchantMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLat(v)
+		return nil
+	case merchant.FieldAdminUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAdminUserID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant field %s", name)
@@ -2659,12 +2866,6 @@ func (m *MerchantMutation) ResetField(name string) error {
 	case merchant.FieldStatus:
 		m.ResetStatus()
 		return nil
-	case merchant.FieldLoginAccount:
-		m.ResetLoginAccount()
-		return nil
-	case merchant.FieldLoginPassword:
-		m.ResetLoginPassword()
-		return nil
 	case merchant.FieldCountryID:
 		m.ResetCountryID()
 		return nil
@@ -2698,13 +2899,16 @@ func (m *MerchantMutation) ResetField(name string) error {
 	case merchant.FieldLat:
 		m.ResetLat()
 		return nil
+	case merchant.FieldAdminUserID:
+		m.ResetAdminUserID()
+		return nil
 	}
 	return fmt.Errorf("unknown Merchant field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MerchantMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.stores != nil {
 		edges = append(edges, merchant.EdgeStores)
 	}
@@ -2713,6 +2917,9 @@ func (m *MerchantMutation) AddedEdges() []string {
 	}
 	if m.merchant_business_type != nil {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
+	}
+	if m.admin_user != nil {
+		edges = append(edges, merchant.EdgeAdminUser)
 	}
 	return edges
 }
@@ -2737,13 +2944,17 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 		if id := m.merchant_business_type; id != nil {
 			return []ent.Value{*id}
 		}
+	case merchant.EdgeAdminUser:
+		if id := m.admin_user; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MerchantMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedstores != nil {
 		edges = append(edges, merchant.EdgeStores)
 	}
@@ -2775,7 +2986,7 @@ func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MerchantMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedstores {
 		edges = append(edges, merchant.EdgeStores)
 	}
@@ -2784,6 +2995,9 @@ func (m *MerchantMutation) ClearedEdges() []string {
 	}
 	if m.clearedmerchant_business_type {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
+	}
+	if m.clearedadmin_user {
+		edges = append(edges, merchant.EdgeAdminUser)
 	}
 	return edges
 }
@@ -2798,6 +3012,8 @@ func (m *MerchantMutation) EdgeCleared(name string) bool {
 		return m.clearedmerchant_renewals
 	case merchant.EdgeMerchantBusinessType:
 		return m.clearedmerchant_business_type
+	case merchant.EdgeAdminUser:
+		return m.clearedadmin_user
 	}
 	return false
 }
@@ -2808,6 +3024,9 @@ func (m *MerchantMutation) ClearEdge(name string) error {
 	switch name {
 	case merchant.EdgeMerchantBusinessType:
 		m.ClearMerchantBusinessType()
+		return nil
+	case merchant.EdgeAdminUser:
+		m.ClearAdminUser()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant unique edge %s", name)
@@ -2825,6 +3044,9 @@ func (m *MerchantMutation) ResetEdge(name string) error {
 		return nil
 	case merchant.EdgeMerchantBusinessType:
 		m.ResetMerchantBusinessType()
+		return nil
+	case merchant.EdgeAdminUser:
+		m.ResetAdminUser()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant edge %s", name)
@@ -4088,6 +4310,8 @@ type StoreMutation struct {
 	clearedFields              map[string]struct{}
 	merchant                   *int
 	clearedmerchant            bool
+	admin_user                 *uuid.UUID
+	clearedadmin_user          bool
 	done                       bool
 	oldValue                   func(context.Context) (*Store, error)
 	predicates                 []predicate.Store
@@ -5427,6 +5651,42 @@ func (m *StoreMutation) ResetLat() {
 	m.lat = nil
 }
 
+// SetAdminUserID sets the "admin_user_id" field.
+func (m *StoreMutation) SetAdminUserID(u uuid.UUID) {
+	m.admin_user = &u
+}
+
+// AdminUserID returns the value of the "admin_user_id" field in the mutation.
+func (m *StoreMutation) AdminUserID() (r uuid.UUID, exists bool) {
+	v := m.admin_user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAdminUserID returns the old "admin_user_id" field's value of the Store entity.
+// If the Store object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StoreMutation) OldAdminUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAdminUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAdminUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAdminUserID: %w", err)
+	}
+	return oldValue.AdminUserID, nil
+}
+
+// ResetAdminUserID resets all changes to the "admin_user_id" field.
+func (m *StoreMutation) ResetAdminUserID() {
+	m.admin_user = nil
+}
+
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
 func (m *StoreMutation) ClearMerchant() {
 	m.clearedmerchant = true
@@ -5452,6 +5712,33 @@ func (m *StoreMutation) MerchantIDs() (ids []int) {
 func (m *StoreMutation) ResetMerchant() {
 	m.merchant = nil
 	m.clearedmerchant = false
+}
+
+// ClearAdminUser clears the "admin_user" edge to the AdminUser entity.
+func (m *StoreMutation) ClearAdminUser() {
+	m.clearedadmin_user = true
+	m.clearedFields[store.FieldAdminUserID] = struct{}{}
+}
+
+// AdminUserCleared reports if the "admin_user" edge to the AdminUser entity was cleared.
+func (m *StoreMutation) AdminUserCleared() bool {
+	return m.clearedadmin_user
+}
+
+// AdminUserIDs returns the "admin_user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AdminUserID instead. It exists only for internal usage by the builders.
+func (m *StoreMutation) AdminUserIDs() (ids []uuid.UUID) {
+	if id := m.admin_user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAdminUser resets all changes to the "admin_user" edge.
+func (m *StoreMutation) ResetAdminUser() {
+	m.admin_user = nil
+	m.clearedadmin_user = false
 }
 
 // Where appends a list predicates to the StoreMutation builder.
@@ -5488,7 +5775,7 @@ func (m *StoreMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StoreMutation) Fields() []string {
-	fields := make([]string, 0, 31)
+	fields := make([]string, 0, 32)
 	if m.created_at != nil {
 		fields = append(fields, store.FieldCreatedAt)
 	}
@@ -5582,6 +5869,9 @@ func (m *StoreMutation) Fields() []string {
 	if m.lat != nil {
 		fields = append(fields, store.FieldLat)
 	}
+	if m.admin_user != nil {
+		fields = append(fields, store.FieldAdminUserID)
+	}
 	return fields
 }
 
@@ -5652,6 +5942,8 @@ func (m *StoreMutation) Field(name string) (ent.Value, bool) {
 		return m.Lng()
 	case store.FieldLat:
 		return m.Lat()
+	case store.FieldAdminUserID:
+		return m.AdminUserID()
 	}
 	return nil, false
 }
@@ -5723,6 +6015,8 @@ func (m *StoreMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldLng(ctx)
 	case store.FieldLat:
 		return m.OldLat(ctx)
+	case store.FieldAdminUserID:
+		return m.OldAdminUserID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Store field %s", name)
 }
@@ -5949,6 +6243,13 @@ func (m *StoreMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLat(v)
 		return nil
+	case store.FieldAdminUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAdminUserID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Store field %s", name)
 }
@@ -6166,15 +6467,21 @@ func (m *StoreMutation) ResetField(name string) error {
 	case store.FieldLat:
 		m.ResetLat()
 		return nil
+	case store.FieldAdminUserID:
+		m.ResetAdminUserID()
+		return nil
 	}
 	return fmt.Errorf("unknown Store field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StoreMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.merchant != nil {
 		edges = append(edges, store.EdgeMerchant)
+	}
+	if m.admin_user != nil {
+		edges = append(edges, store.EdgeAdminUser)
 	}
 	return edges
 }
@@ -6187,13 +6494,17 @@ func (m *StoreMutation) AddedIDs(name string) []ent.Value {
 		if id := m.merchant; id != nil {
 			return []ent.Value{*id}
 		}
+	case store.EdgeAdminUser:
+		if id := m.admin_user; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StoreMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -6205,9 +6516,12 @@ func (m *StoreMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StoreMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedmerchant {
 		edges = append(edges, store.EdgeMerchant)
+	}
+	if m.clearedadmin_user {
+		edges = append(edges, store.EdgeAdminUser)
 	}
 	return edges
 }
@@ -6218,6 +6532,8 @@ func (m *StoreMutation) EdgeCleared(name string) bool {
 	switch name {
 	case store.EdgeMerchant:
 		return m.clearedmerchant
+	case store.EdgeAdminUser:
+		return m.clearedadmin_user
 	}
 	return false
 }
@@ -6229,6 +6545,9 @@ func (m *StoreMutation) ClearEdge(name string) error {
 	case store.EdgeMerchant:
 		m.ClearMerchant()
 		return nil
+	case store.EdgeAdminUser:
+		m.ClearAdminUser()
+		return nil
 	}
 	return fmt.Errorf("unknown Store unique edge %s", name)
 }
@@ -6239,6 +6558,9 @@ func (m *StoreMutation) ResetEdge(name string) error {
 	switch name {
 	case store.EdgeMerchant:
 		m.ResetMerchant()
+		return nil
+	case store.EdgeAdminUser:
+		m.ResetAdminUser()
 		return nil
 	}
 	return fmt.Errorf("unknown Store edge %s", name)

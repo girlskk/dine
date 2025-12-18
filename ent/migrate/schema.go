@@ -17,6 +17,7 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
+		{Name: "account_type", Type: field.TypeString, Default: "normal"},
 	}
 	// AdminUsersTable holds the schema information for the "admin_users" table.
 	AdminUsersTable = &schema.Table{
@@ -52,8 +53,6 @@ var (
 		{Name: "merchant_logo", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "description", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "expired", "disabled"}},
-		{Name: "login_account", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "login_password", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "country_id", Type: field.TypeInt, Default: 0},
 		{Name: "province_id", Type: field.TypeInt, Default: 0},
 		{Name: "city_id", Type: field.TypeInt, Default: 0},
@@ -65,6 +64,7 @@ var (
 		{Name: "address", Type: field.TypeString, Default: ""},
 		{Name: "lng", Type: field.TypeString, Default: ""},
 		{Name: "lat", Type: field.TypeString, Default: ""},
+		{Name: "admin_user_id", Type: field.TypeUUID},
 		{Name: "business_type_id", Type: field.TypeInt, Default: 0},
 	}
 	// MerchantsTable holds the schema information for the "merchants" table.
@@ -74,8 +74,14 @@ var (
 		PrimaryKey: []*schema.Column{MerchantsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
+				Symbol:     "merchants_admin_users_merchant",
+				Columns:    []*schema.Column{MerchantsColumns[25]},
+				RefColumns: []*schema.Column{AdminUsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
 				Symbol:     "merchants_merchant_business_types_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[27]},
+				Columns:    []*schema.Column{MerchantsColumns[26]},
 				RefColumns: []*schema.Column{MerchantBusinessTypesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -158,6 +164,7 @@ var (
 		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "lat", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "admin_user_id", Type: field.TypeUUID},
 		{Name: "merchant_id", Type: field.TypeInt},
 	}
 	// StoresTable holds the schema information for the "stores" table.
@@ -167,8 +174,14 @@ var (
 		PrimaryKey: []*schema.Column{StoresColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "stores_merchants_stores",
+				Symbol:     "stores_admin_users_store",
 				Columns:    []*schema.Column{StoresColumns[31]},
+				RefColumns: []*schema.Column{AdminUsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "stores_merchants_stores",
+				Columns:    []*schema.Column{StoresColumns[32]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -192,7 +205,9 @@ var (
 )
 
 func init() {
-	MerchantsTable.ForeignKeys[0].RefTable = MerchantBusinessTypesTable
+	MerchantsTable.ForeignKeys[0].RefTable = AdminUsersTable
+	MerchantsTable.ForeignKeys[1].RefTable = MerchantBusinessTypesTable
 	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
-	StoresTable.ForeignKeys[0].RefTable = MerchantsTable
+	StoresTable.ForeignKeys[0].RefTable = AdminUsersTable
+	StoresTable.ForeignKeys[1].RefTable = MerchantsTable
 }

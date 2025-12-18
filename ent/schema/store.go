@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
@@ -140,6 +141,9 @@ func (Store) Fields() []ent.Field {
 			Default("").
 			MaxLen(50).
 			Comment("纬度"),
+		field.UUID("admin_user_id", uuid.UUID{}).
+			Immutable().
+			Comment("登陆账号 ID"),
 	}
 }
 
@@ -149,6 +153,12 @@ func (Store) Edges() []ent.Edge {
 		edge.From("merchant", Merchant.Type).
 			Ref("stores").
 			Field("merchant_id").
+			Unique().
+			Immutable().
+			Required(),
+		edge.From("admin_user", AdminUser.Type).
+			Ref("store").
+			Field("admin_user_id").
 			Unique().
 			Immutable().
 			Required(),

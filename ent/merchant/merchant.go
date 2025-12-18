@@ -45,10 +45,6 @@ const (
 	FieldDescription = "description"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldLoginAccount holds the string denoting the login_account field in the database.
-	FieldLoginAccount = "login_account"
-	// FieldLoginPassword holds the string denoting the login_password field in the database.
-	FieldLoginPassword = "login_password"
 	// FieldCountryID holds the string denoting the country_id field in the database.
 	FieldCountryID = "country_id"
 	// FieldProvinceID holds the string denoting the province_id field in the database.
@@ -71,12 +67,16 @@ const (
 	FieldLng = "lng"
 	// FieldLat holds the string denoting the lat field in the database.
 	FieldLat = "lat"
+	// FieldAdminUserID holds the string denoting the admin_user_id field in the database.
+	FieldAdminUserID = "admin_user_id"
 	// EdgeStores holds the string denoting the stores edge name in mutations.
 	EdgeStores = "stores"
 	// EdgeMerchantRenewals holds the string denoting the merchant_renewals edge name in mutations.
 	EdgeMerchantRenewals = "merchant_renewals"
 	// EdgeMerchantBusinessType holds the string denoting the merchant_business_type edge name in mutations.
 	EdgeMerchantBusinessType = "merchant_business_type"
+	// EdgeAdminUser holds the string denoting the admin_user edge name in mutations.
+	EdgeAdminUser = "admin_user"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
 	// StoresTable is the table that holds the stores relation/edge.
@@ -100,6 +100,13 @@ const (
 	MerchantBusinessTypeInverseTable = "merchant_business_types"
 	// MerchantBusinessTypeColumn is the table column denoting the merchant_business_type relation/edge.
 	MerchantBusinessTypeColumn = "business_type_id"
+	// AdminUserTable is the table that holds the admin_user relation/edge.
+	AdminUserTable = "merchants"
+	// AdminUserInverseTable is the table name for the AdminUser entity.
+	// It exists in this package in order to avoid circular dependency with the "adminuser" package.
+	AdminUserInverseTable = "admin_users"
+	// AdminUserColumn is the table column denoting the admin_user relation/edge.
+	AdminUserColumn = "admin_user_id"
 )
 
 // Columns holds all SQL columns for merchant fields.
@@ -119,8 +126,6 @@ var Columns = []string{
 	FieldMerchantLogo,
 	FieldDescription,
 	FieldStatus,
-	FieldLoginAccount,
-	FieldLoginPassword,
 	FieldCountryID,
 	FieldProvinceID,
 	FieldCityID,
@@ -132,6 +137,7 @@ var Columns = []string{
 	FieldAddress,
 	FieldLng,
 	FieldLat,
+	FieldAdminUserID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -190,14 +196,6 @@ var (
 	DefaultDescription string
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
-	// DefaultLoginAccount holds the default value on creation for the "login_account" field.
-	DefaultLoginAccount string
-	// LoginAccountValidator is a validator for the "login_account" field. It is called by the builders before save.
-	LoginAccountValidator func(string) error
-	// DefaultLoginPassword holds the default value on creation for the "login_password" field.
-	DefaultLoginPassword string
-	// LoginPasswordValidator is a validator for the "login_password" field. It is called by the builders before save.
-	LoginPasswordValidator func(string) error
 	// DefaultCountryID holds the default value on creation for the "country_id" field.
 	DefaultCountryID int
 	// DefaultProvinceID holds the default value on creation for the "province_id" field.
@@ -334,16 +332,6 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByLoginAccount orders the results by the login_account field.
-func ByLoginAccount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLoginAccount, opts...).ToFunc()
-}
-
-// ByLoginPassword orders the results by the login_password field.
-func ByLoginPassword(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLoginPassword, opts...).ToFunc()
-}
-
 // ByCountryID orders the results by the country_id field.
 func ByCountryID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCountryID, opts...).ToFunc()
@@ -399,6 +387,11 @@ func ByLat(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLat, opts...).ToFunc()
 }
 
+// ByAdminUserID orders the results by the admin_user_id field.
+func ByAdminUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAdminUserID, opts...).ToFunc()
+}
+
 // ByStoresCount orders the results by stores count.
 func ByStoresCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -433,6 +426,13 @@ func ByMerchantBusinessTypeField(field string, opts ...sql.OrderTermOption) Orde
 		sqlgraph.OrderByNeighborTerms(s, newMerchantBusinessTypeStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByAdminUserField orders the results by admin_user field.
+func ByAdminUserField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAdminUserStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newStoresStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -452,5 +452,12 @@ func newMerchantBusinessTypeStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantBusinessTypeInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MerchantBusinessTypeTable, MerchantBusinessTypeColumn),
+	)
+}
+func newAdminUserStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AdminUserInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
 	)
 }

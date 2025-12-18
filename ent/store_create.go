@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
@@ -434,9 +436,20 @@ func (sc *StoreCreate) SetNillableLat(s *string) *StoreCreate {
 	return sc
 }
 
+// SetAdminUserID sets the "admin_user_id" field.
+func (sc *StoreCreate) SetAdminUserID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetAdminUserID(u)
+	return sc
+}
+
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (sc *StoreCreate) SetMerchant(m *Merchant) *StoreCreate {
 	return sc.SetMerchantID(m.ID)
+}
+
+// SetAdminUser sets the "admin_user" edge to the AdminUser entity.
+func (sc *StoreCreate) SetAdminUser(a *AdminUser) *StoreCreate {
+	return sc.SetAdminUserID(a.ID)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -802,8 +815,14 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "lat", err: fmt.Errorf(`ent: validator failed for field "Store.lat": %w`, err)}
 		}
 	}
+	if _, ok := sc.mutation.AdminUserID(); !ok {
+		return &ValidationError{Name: "admin_user_id", err: errors.New(`ent: missing required field "Store.admin_user_id"`)}
+	}
 	if len(sc.mutation.MerchantIDs()) == 0 {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "Store.merchant"`)}
+	}
+	if len(sc.mutation.AdminUserIDs()) == 0 {
+		return &ValidationError{Name: "admin_user", err: errors.New(`ent: missing required edge "Store.admin_user"`)}
 	}
 	return nil
 }
@@ -967,6 +986,23 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.MerchantID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.AdminUserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.AdminUserTable,
+			Columns: []string{store.AdminUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.AdminUserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -1421,6 +1457,9 @@ func (u *StoreUpsertOne) UpdateNewValues() *StoreUpsertOne {
 		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(store.FieldMerchantID)
+		}
+		if _, exists := u.create.mutation.AdminUserID(); exists {
+			s.SetIgnore(store.FieldAdminUserID)
 		}
 	}))
 	return u
@@ -2082,6 +2121,9 @@ func (u *StoreUpsertBulk) UpdateNewValues() *StoreUpsertBulk {
 			}
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(store.FieldMerchantID)
+			}
+			if _, exists := b.mutation.AdminUserID(); exists {
+				s.SetIgnore(store.FieldAdminUserID)
 			}
 		}
 	}))

@@ -13,7 +13,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // AdminUserCreate is the builder for creating a AdminUser entity.
@@ -84,6 +87,20 @@ func (auc *AdminUserCreate) SetNickname(s string) *AdminUserCreate {
 	return auc
 }
 
+// SetAccountType sets the "account_type" field.
+func (auc *AdminUserCreate) SetAccountType(duat domain.AdminUserAccountType) *AdminUserCreate {
+	auc.mutation.SetAccountType(duat)
+	return auc
+}
+
+// SetNillableAccountType sets the "account_type" field if the given value is not nil.
+func (auc *AdminUserCreate) SetNillableAccountType(duat *domain.AdminUserAccountType) *AdminUserCreate {
+	if duat != nil {
+		auc.SetAccountType(*duat)
+	}
+	return auc
+}
+
 // SetID sets the "id" field.
 func (auc *AdminUserCreate) SetID(u uuid.UUID) *AdminUserCreate {
 	auc.mutation.SetID(u)
@@ -96,6 +113,36 @@ func (auc *AdminUserCreate) SetNillableID(u *uuid.UUID) *AdminUserCreate {
 		auc.SetID(*u)
 	}
 	return auc
+}
+
+// AddMerchantIDs adds the "merchant" edge to the Merchant entity by IDs.
+func (auc *AdminUserCreate) AddMerchantIDs(ids ...int) *AdminUserCreate {
+	auc.mutation.AddMerchantIDs(ids...)
+	return auc
+}
+
+// AddMerchant adds the "merchant" edges to the Merchant entity.
+func (auc *AdminUserCreate) AddMerchant(m ...*Merchant) *AdminUserCreate {
+	ids := make([]int, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return auc.AddMerchantIDs(ids...)
+}
+
+// AddStoreIDs adds the "store" edge to the Store entity by IDs.
+func (auc *AdminUserCreate) AddStoreIDs(ids ...int) *AdminUserCreate {
+	auc.mutation.AddStoreIDs(ids...)
+	return auc
+}
+
+// AddStore adds the "store" edges to the Store entity.
+func (auc *AdminUserCreate) AddStore(s ...*Store) *AdminUserCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return auc.AddStoreIDs(ids...)
 }
 
 // Mutation returns the AdminUserMutation object of the builder.
@@ -153,6 +200,10 @@ func (auc *AdminUserCreate) defaults() error {
 		v := adminuser.DefaultDeletedAt
 		auc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := auc.mutation.AccountType(); !ok {
+		v := adminuser.DefaultAccountType
+		auc.mutation.SetAccountType(v)
+	}
 	if _, ok := auc.mutation.ID(); !ok {
 		if adminuser.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized adminuser.DefaultID (forgotten import ent/runtime?)")
@@ -192,6 +243,14 @@ func (auc *AdminUserCreate) check() error {
 	}
 	if _, ok := auc.mutation.Nickname(); !ok {
 		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "AdminUser.nickname"`)}
+	}
+	if _, ok := auc.mutation.AccountType(); !ok {
+		return &ValidationError{Name: "account_type", err: errors.New(`ent: missing required field "AdminUser.account_type"`)}
+	}
+	if v, ok := auc.mutation.AccountType(); ok {
+		if err := adminuser.AccountTypeValidator(string(v)); err != nil {
+			return &ValidationError{Name: "account_type", err: fmt.Errorf(`ent: validator failed for field "AdminUser.account_type": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -252,6 +311,42 @@ func (auc *AdminUserCreate) createSpec() (*AdminUser, *sqlgraph.CreateSpec) {
 	if value, ok := auc.mutation.Nickname(); ok {
 		_spec.SetField(adminuser.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
+	}
+	if value, ok := auc.mutation.AccountType(); ok {
+		_spec.SetField(adminuser.FieldAccountType, field.TypeString, value)
+		_node.AccountType = value
+	}
+	if nodes := auc.mutation.MerchantIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   adminuser.MerchantTable,
+			Columns: []string{adminuser.MerchantColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := auc.mutation.StoreIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   adminuser.StoreTable,
+			Columns: []string{adminuser.StoreColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -390,6 +485,9 @@ func (u *AdminUserUpsertOne) UpdateNewValues() *AdminUserUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(adminuser.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.AccountType(); exists {
+			s.SetIgnore(adminuser.FieldAccountType)
 		}
 	}))
 	return u
@@ -684,6 +782,9 @@ func (u *AdminUserUpsertBulk) UpdateNewValues() *AdminUserUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(adminuser.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.AccountType(); exists {
+				s.SetIgnore(adminuser.FieldAccountType)
 			}
 		}
 	}))

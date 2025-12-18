@@ -9,7 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 )
@@ -47,10 +49,6 @@ type Merchant struct {
 	Description string `json:"description,omitempty"`
 	// 状态: 正常,停用,过期
 	Status domain.MerchantStatus `json:"status,omitempty"`
-	// 登录账号
-	LoginAccount string `json:"login_account,omitempty"`
-	// 登录密码(加密存储)
-	LoginPassword string `json:"login_password,omitempty"`
 	// 国家/地区id
 	CountryID int `json:"country_id,omitempty"`
 	// 省份 id
@@ -73,6 +71,8 @@ type Merchant struct {
 	Lng string `json:"lng,omitempty"`
 	// 纬度
 	Lat string `json:"lat,omitempty"`
+	// 登陆账号 ID
+	AdminUserID uuid.UUID `json:"admin_user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MerchantQuery when eager-loading is set.
 	Edges        MerchantEdges `json:"edges"`
@@ -87,9 +87,11 @@ type MerchantEdges struct {
 	MerchantRenewals []*MerchantRenewal `json:"merchant_renewals,omitempty"`
 	// MerchantBusinessType holds the value of the merchant_business_type edge.
 	MerchantBusinessType *MerchantBusinessType `json:"merchant_business_type,omitempty"`
+	// AdminUser holds the value of the admin_user edge.
+	AdminUser *AdminUser `json:"admin_user,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // StoresOrErr returns the Stores value or an error if the edge
@@ -121,6 +123,17 @@ func (e MerchantEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error
 	return nil, &NotLoadedError{edge: "merchant_business_type"}
 }
 
+// AdminUserOrErr returns the AdminUser value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MerchantEdges) AdminUserOrErr() (*AdminUser, error) {
+	if e.AdminUser != nil {
+		return e.AdminUser, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: adminuser.Label}
+	}
+	return nil, &NotLoadedError{edge: "admin_user"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Merchant) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -128,10 +141,12 @@ func (*Merchant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case merchant.FieldID, merchant.FieldDeletedAt, merchant.FieldBusinessTypeID, merchant.FieldCountryID, merchant.FieldProvinceID, merchant.FieldCityID, merchant.FieldDistrictID:
 			values[i] = new(sql.NullInt64)
-		case merchant.FieldMerchantCode, merchant.FieldMerchantName, merchant.FieldMerchantShortName, merchant.FieldMerchantType, merchant.FieldBrandName, merchant.FieldAdminPhoneNumber, merchant.FieldMerchantLogo, merchant.FieldDescription, merchant.FieldStatus, merchant.FieldLoginAccount, merchant.FieldLoginPassword, merchant.FieldCountryName, merchant.FieldProvinceName, merchant.FieldCityName, merchant.FieldDistrictName, merchant.FieldAddress, merchant.FieldLng, merchant.FieldLat:
+		case merchant.FieldMerchantCode, merchant.FieldMerchantName, merchant.FieldMerchantShortName, merchant.FieldMerchantType, merchant.FieldBrandName, merchant.FieldAdminPhoneNumber, merchant.FieldMerchantLogo, merchant.FieldDescription, merchant.FieldStatus, merchant.FieldCountryName, merchant.FieldProvinceName, merchant.FieldCityName, merchant.FieldDistrictName, merchant.FieldAddress, merchant.FieldLng, merchant.FieldLat:
 			values[i] = new(sql.NullString)
 		case merchant.FieldCreatedAt, merchant.FieldUpdatedAt, merchant.FieldExpireUtc:
 			values[i] = new(sql.NullTime)
+		case merchant.FieldAdminUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -238,18 +253,6 @@ func (m *Merchant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.Status = domain.MerchantStatus(value.String)
 			}
-		case merchant.FieldLoginAccount:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field login_account", values[i])
-			} else if value.Valid {
-				m.LoginAccount = value.String
-			}
-		case merchant.FieldLoginPassword:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field login_password", values[i])
-			} else if value.Valid {
-				m.LoginPassword = value.String
-			}
 		case merchant.FieldCountryID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field country_id", values[i])
@@ -316,6 +319,12 @@ func (m *Merchant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.Lat = value.String
 			}
+		case merchant.FieldAdminUserID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field admin_user_id", values[i])
+			} else if value != nil {
+				m.AdminUserID = *value
+			}
 		default:
 			m.selectValues.Set(columns[i], values[i])
 		}
@@ -342,6 +351,11 @@ func (m *Merchant) QueryMerchantRenewals() *MerchantRenewalQuery {
 // QueryMerchantBusinessType queries the "merchant_business_type" edge of the Merchant entity.
 func (m *Merchant) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
 	return NewMerchantClient(m.config).QueryMerchantBusinessType(m)
+}
+
+// QueryAdminUser queries the "admin_user" edge of the Merchant entity.
+func (m *Merchant) QueryAdminUser() *AdminUserQuery {
+	return NewMerchantClient(m.config).QueryAdminUser(m)
 }
 
 // Update returns a builder for updating this Merchant.
@@ -411,12 +425,6 @@ func (m *Merchant) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", m.Status))
 	builder.WriteString(", ")
-	builder.WriteString("login_account=")
-	builder.WriteString(m.LoginAccount)
-	builder.WriteString(", ")
-	builder.WriteString("login_password=")
-	builder.WriteString(m.LoginPassword)
-	builder.WriteString(", ")
 	builder.WriteString("country_id=")
 	builder.WriteString(fmt.Sprintf("%v", m.CountryID))
 	builder.WriteString(", ")
@@ -449,6 +457,9 @@ func (m *Merchant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("lat=")
 	builder.WriteString(m.Lat)
+	builder.WriteString(", ")
+	builder.WriteString("admin_user_id=")
+	builder.WriteString(fmt.Sprintf("%v", m.AdminUserID))
 	builder.WriteByte(')')
 	return builder.String()
 }

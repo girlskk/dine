@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
@@ -62,16 +63,6 @@ func (Merchant) Fields() []ent.Field {
 		field.Enum("status").
 			GoType(domain.MerchantStatus("")).
 			Comment("状态: 正常,停用,过期"),
-		field.String("login_account").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("登录账号"),
-		field.String("login_password").
-			NotEmpty().
-			Default("").
-			MaxLen(255).
-			Comment("登录密码(加密存储)"),
 
 		// 地区信息
 		field.Int("country_id").
@@ -118,6 +109,9 @@ func (Merchant) Fields() []ent.Field {
 			NotEmpty().
 			Default("").
 			Comment("纬度"),
+		field.UUID("admin_user_id", uuid.UUID{}).
+			Immutable().
+			Comment("登陆账号 ID"),
 	}
 }
 
@@ -130,6 +124,12 @@ func (Merchant) Edges() []ent.Edge {
 			Ref("merchants").
 			Field("business_type_id").
 			Unique().
+			Required(),
+		edge.From("admin_user", AdminUser.Type).
+			Ref("merchant").
+			Field("admin_user_id").
+			Unique().
+			Immutable().
 			Required(),
 	}
 }

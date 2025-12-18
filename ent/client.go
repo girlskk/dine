@@ -346,6 +346,38 @@ func (c *AdminUserClient) GetX(ctx context.Context, id uuid.UUID) *AdminUser {
 	return obj
 }
 
+// QueryMerchant queries the merchant edge of a AdminUser.
+func (c *AdminUserClient) QueryMerchant(au *AdminUser) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := au.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adminuser.Table, adminuser.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, adminuser.MerchantTable, adminuser.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(au.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a AdminUser.
+func (c *AdminUserClient) QueryStore(au *AdminUser) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := au.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adminuser.Table, adminuser.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, adminuser.StoreTable, adminuser.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(au.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AdminUserClient) Hooks() []Hook {
 	hooks := c.hooks.AdminUser
@@ -522,6 +554,22 @@ func (c *MerchantClient) QueryMerchantBusinessType(m *Merchant) *MerchantBusines
 			sqlgraph.From(merchant.Table, merchant.FieldID, id),
 			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, merchant.MerchantBusinessTypeTable, merchant.MerchantBusinessTypeColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAdminUser queries the admin_user edge of a Merchant.
+func (c *MerchantClient) QueryAdminUser(m *Merchant) *AdminUserQuery {
+	query := (&AdminUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(adminuser.Table, adminuser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, merchant.AdminUserTable, merchant.AdminUserColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -971,6 +1019,22 @@ func (c *StoreClient) QueryMerchant(s *Store) *MerchantQuery {
 			sqlgraph.From(store.Table, store.FieldID, id),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, store.MerchantTable, store.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAdminUser queries the admin_user edge of a Store.
+func (c *StoreClient) QueryAdminUser(s *Store) *AdminUserQuery {
+	query := (&AdminUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(adminuser.Table, adminuser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, store.AdminUserTable, store.AdminUserColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

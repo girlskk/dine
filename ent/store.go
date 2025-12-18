@@ -9,7 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
@@ -81,6 +83,8 @@ type Store struct {
 	Lng string `json:"lng,omitempty"`
 	// 纬度
 	Lat string `json:"lat,omitempty"`
+	// 登陆账号 ID
+	AdminUserID uuid.UUID `json:"admin_user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the StoreQuery when eager-loading is set.
 	Edges        StoreEdges `json:"edges"`
@@ -91,9 +95,11 @@ type Store struct {
 type StoreEdges struct {
 	// Merchant holds the value of the merchant edge.
 	Merchant *Merchant `json:"merchant,omitempty"`
+	// AdminUser holds the value of the admin_user edge.
+	AdminUser *AdminUser `json:"admin_user,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -107,6 +113,17 @@ func (e StoreEdges) MerchantOrErr() (*Merchant, error) {
 	return nil, &NotLoadedError{edge: "merchant"}
 }
 
+// AdminUserOrErr returns the AdminUser value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StoreEdges) AdminUserOrErr() (*AdminUser, error) {
+	if e.AdminUser != nil {
+		return e.AdminUser, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: adminuser.Label}
+	}
+	return nil, &NotLoadedError{edge: "admin_user"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Store) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -118,6 +135,8 @@ func (*Store) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case store.FieldCreatedAt, store.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case store.FieldAdminUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -325,6 +344,12 @@ func (s *Store) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Lat = value.String
 			}
+		case store.FieldAdminUserID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field admin_user_id", values[i])
+			} else if value != nil {
+				s.AdminUserID = *value
+			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -341,6 +366,11 @@ func (s *Store) Value(name string) (ent.Value, error) {
 // QueryMerchant queries the "merchant" edge of the Store entity.
 func (s *Store) QueryMerchant() *MerchantQuery {
 	return NewStoreClient(s.config).QueryMerchant(s)
+}
+
+// QueryAdminUser queries the "admin_user" edge of the Store entity.
+func (s *Store) QueryAdminUser() *AdminUserQuery {
+	return NewStoreClient(s.config).QueryAdminUser(s)
 }
 
 // Update returns a builder for updating this Store.
@@ -458,6 +488,9 @@ func (s *Store) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("lat=")
 	builder.WriteString(s.Lat)
+	builder.WriteString(", ")
+	builder.WriteString("admin_user_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.AdminUserID))
 	builder.WriteByte(')')
 	return builder.String()
 }

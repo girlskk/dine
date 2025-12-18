@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -199,6 +200,11 @@ func Lng(v string) predicate.Store {
 // Lat applies equality check predicate on the "lat" field. It's identical to LatEQ.
 func Lat(v string) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldLat, v))
+}
+
+// AdminUserID applies equality check predicate on the "admin_user_id" field. It's identical to AdminUserIDEQ.
+func AdminUserID(v uuid.UUID) predicate.Store {
+	return predicate.Store(sql.FieldEQ(FieldAdminUserID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -1901,6 +1907,26 @@ func LatContainsFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldContainsFold(FieldLat, v))
 }
 
+// AdminUserIDEQ applies the EQ predicate on the "admin_user_id" field.
+func AdminUserIDEQ(v uuid.UUID) predicate.Store {
+	return predicate.Store(sql.FieldEQ(FieldAdminUserID, v))
+}
+
+// AdminUserIDNEQ applies the NEQ predicate on the "admin_user_id" field.
+func AdminUserIDNEQ(v uuid.UUID) predicate.Store {
+	return predicate.Store(sql.FieldNEQ(FieldAdminUserID, v))
+}
+
+// AdminUserIDIn applies the In predicate on the "admin_user_id" field.
+func AdminUserIDIn(vs ...uuid.UUID) predicate.Store {
+	return predicate.Store(sql.FieldIn(FieldAdminUserID, vs...))
+}
+
+// AdminUserIDNotIn applies the NotIn predicate on the "admin_user_id" field.
+func AdminUserIDNotIn(vs ...uuid.UUID) predicate.Store {
+	return predicate.Store(sql.FieldNotIn(FieldAdminUserID, vs...))
+}
+
 // HasMerchant applies the HasEdge predicate on the "merchant" edge.
 func HasMerchant() predicate.Store {
 	return predicate.Store(func(s *sql.Selector) {
@@ -1916,6 +1942,29 @@ func HasMerchant() predicate.Store {
 func HasMerchantWith(preds ...predicate.Merchant) predicate.Store {
 	return predicate.Store(func(s *sql.Selector) {
 		step := newMerchantStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAdminUser applies the HasEdge predicate on the "admin_user" edge.
+func HasAdminUser() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAdminUserWith applies the HasEdge predicate on the "admin_user" edge with a given conditions (other predicates).
+func HasAdminUserWith(preds ...predicate.AdminUser) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newAdminUserStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

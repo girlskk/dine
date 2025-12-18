@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -67,6 +68,12 @@ func init() {
 	adminuserDescHashedPassword := adminuserFields[1].Descriptor()
 	// adminuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	adminuser.HashedPasswordValidator = adminuserDescHashedPassword.Validators[0].(func(string) error)
+	// adminuserDescAccountType is the schema descriptor for account_type field.
+	adminuserDescAccountType := adminuserFields[3].Descriptor()
+	// adminuser.DefaultAccountType holds the default value on creation for the account_type field.
+	adminuser.DefaultAccountType = domain.AdminUserAccountType(adminuserDescAccountType.Default.(string))
+	// adminuser.AccountTypeValidator is a validator for the "account_type" field. It is called by the builders before save.
+	adminuser.AccountTypeValidator = adminuserDescAccountType.Validators[0].(func(string) error)
 	// adminuserDescID is the schema descriptor for id field.
 	adminuserDescID := adminuserMixinFields0[0].Descriptor()
 	// adminuser.DefaultID holds the default value on creation for the id field.
@@ -198,64 +205,24 @@ func init() {
 			return nil
 		}
 	}()
-	// merchantDescLoginAccount is the schema descriptor for login_account field.
-	merchantDescLoginAccount := merchantFields[11].Descriptor()
-	// merchant.DefaultLoginAccount holds the default value on creation for the login_account field.
-	merchant.DefaultLoginAccount = merchantDescLoginAccount.Default.(string)
-	// merchant.LoginAccountValidator is a validator for the "login_account" field. It is called by the builders before save.
-	merchant.LoginAccountValidator = func() func(string) error {
-		validators := merchantDescLoginAccount.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(login_account string) error {
-			for _, fn := range fns {
-				if err := fn(login_account); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// merchantDescLoginPassword is the schema descriptor for login_password field.
-	merchantDescLoginPassword := merchantFields[12].Descriptor()
-	// merchant.DefaultLoginPassword holds the default value on creation for the login_password field.
-	merchant.DefaultLoginPassword = merchantDescLoginPassword.Default.(string)
-	// merchant.LoginPasswordValidator is a validator for the "login_password" field. It is called by the builders before save.
-	merchant.LoginPasswordValidator = func() func(string) error {
-		validators := merchantDescLoginPassword.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(login_password string) error {
-			for _, fn := range fns {
-				if err := fn(login_password); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// merchantDescCountryID is the schema descriptor for country_id field.
-	merchantDescCountryID := merchantFields[13].Descriptor()
+	merchantDescCountryID := merchantFields[11].Descriptor()
 	// merchant.DefaultCountryID holds the default value on creation for the country_id field.
 	merchant.DefaultCountryID = merchantDescCountryID.Default.(int)
 	// merchantDescProvinceID is the schema descriptor for province_id field.
-	merchantDescProvinceID := merchantFields[14].Descriptor()
+	merchantDescProvinceID := merchantFields[12].Descriptor()
 	// merchant.DefaultProvinceID holds the default value on creation for the province_id field.
 	merchant.DefaultProvinceID = merchantDescProvinceID.Default.(int)
 	// merchantDescCityID is the schema descriptor for city_id field.
-	merchantDescCityID := merchantFields[15].Descriptor()
+	merchantDescCityID := merchantFields[13].Descriptor()
 	// merchant.DefaultCityID holds the default value on creation for the city_id field.
 	merchant.DefaultCityID = merchantDescCityID.Default.(int)
 	// merchantDescDistrictID is the schema descriptor for district_id field.
-	merchantDescDistrictID := merchantFields[16].Descriptor()
+	merchantDescDistrictID := merchantFields[14].Descriptor()
 	// merchant.DefaultDistrictID holds the default value on creation for the district_id field.
 	merchant.DefaultDistrictID = merchantDescDistrictID.Default.(int)
 	// merchantDescCountryName is the schema descriptor for country_name field.
-	merchantDescCountryName := merchantFields[17].Descriptor()
+	merchantDescCountryName := merchantFields[15].Descriptor()
 	// merchant.DefaultCountryName holds the default value on creation for the country_name field.
 	merchant.DefaultCountryName = merchantDescCountryName.Default.(string)
 	// merchant.CountryNameValidator is a validator for the "country_name" field. It is called by the builders before save.
@@ -275,7 +242,7 @@ func init() {
 		}
 	}()
 	// merchantDescProvinceName is the schema descriptor for province_name field.
-	merchantDescProvinceName := merchantFields[18].Descriptor()
+	merchantDescProvinceName := merchantFields[16].Descriptor()
 	// merchant.DefaultProvinceName holds the default value on creation for the province_name field.
 	merchant.DefaultProvinceName = merchantDescProvinceName.Default.(string)
 	// merchant.ProvinceNameValidator is a validator for the "province_name" field. It is called by the builders before save.
@@ -295,7 +262,7 @@ func init() {
 		}
 	}()
 	// merchantDescCityName is the schema descriptor for city_name field.
-	merchantDescCityName := merchantFields[19].Descriptor()
+	merchantDescCityName := merchantFields[17].Descriptor()
 	// merchant.DefaultCityName holds the default value on creation for the city_name field.
 	merchant.DefaultCityName = merchantDescCityName.Default.(string)
 	// merchant.CityNameValidator is a validator for the "city_name" field. It is called by the builders before save.
@@ -315,7 +282,7 @@ func init() {
 		}
 	}()
 	// merchantDescDistrictName is the schema descriptor for district_name field.
-	merchantDescDistrictName := merchantFields[20].Descriptor()
+	merchantDescDistrictName := merchantFields[18].Descriptor()
 	// merchant.DefaultDistrictName holds the default value on creation for the district_name field.
 	merchant.DefaultDistrictName = merchantDescDistrictName.Default.(string)
 	// merchant.DistrictNameValidator is a validator for the "district_name" field. It is called by the builders before save.
@@ -335,19 +302,19 @@ func init() {
 		}
 	}()
 	// merchantDescAddress is the schema descriptor for address field.
-	merchantDescAddress := merchantFields[21].Descriptor()
+	merchantDescAddress := merchantFields[19].Descriptor()
 	// merchant.DefaultAddress holds the default value on creation for the address field.
 	merchant.DefaultAddress = merchantDescAddress.Default.(string)
 	// merchant.AddressValidator is a validator for the "address" field. It is called by the builders before save.
 	merchant.AddressValidator = merchantDescAddress.Validators[0].(func(string) error)
 	// merchantDescLng is the schema descriptor for lng field.
-	merchantDescLng := merchantFields[22].Descriptor()
+	merchantDescLng := merchantFields[20].Descriptor()
 	// merchant.DefaultLng holds the default value on creation for the lng field.
 	merchant.DefaultLng = merchantDescLng.Default.(string)
 	// merchant.LngValidator is a validator for the "lng" field. It is called by the builders before save.
 	merchant.LngValidator = merchantDescLng.Validators[0].(func(string) error)
 	// merchantDescLat is the schema descriptor for lat field.
-	merchantDescLat := merchantFields[23].Descriptor()
+	merchantDescLat := merchantFields[21].Descriptor()
 	// merchant.DefaultLat holds the default value on creation for the lat field.
 	merchant.DefaultLat = merchantDescLat.Default.(string)
 	// merchant.LatValidator is a validator for the "lat" field. It is called by the builders before save.

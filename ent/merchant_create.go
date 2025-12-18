@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -206,34 +208,6 @@ func (mc *MerchantCreate) SetStatus(ds domain.MerchantStatus) *MerchantCreate {
 	return mc
 }
 
-// SetLoginAccount sets the "login_account" field.
-func (mc *MerchantCreate) SetLoginAccount(s string) *MerchantCreate {
-	mc.mutation.SetLoginAccount(s)
-	return mc
-}
-
-// SetNillableLoginAccount sets the "login_account" field if the given value is not nil.
-func (mc *MerchantCreate) SetNillableLoginAccount(s *string) *MerchantCreate {
-	if s != nil {
-		mc.SetLoginAccount(*s)
-	}
-	return mc
-}
-
-// SetLoginPassword sets the "login_password" field.
-func (mc *MerchantCreate) SetLoginPassword(s string) *MerchantCreate {
-	mc.mutation.SetLoginPassword(s)
-	return mc
-}
-
-// SetNillableLoginPassword sets the "login_password" field if the given value is not nil.
-func (mc *MerchantCreate) SetNillableLoginPassword(s *string) *MerchantCreate {
-	if s != nil {
-		mc.SetLoginPassword(*s)
-	}
-	return mc
-}
-
 // SetCountryID sets the "country_id" field.
 func (mc *MerchantCreate) SetCountryID(i int) *MerchantCreate {
 	mc.mutation.SetCountryID(i)
@@ -388,6 +362,12 @@ func (mc *MerchantCreate) SetNillableLat(s *string) *MerchantCreate {
 	return mc
 }
 
+// SetAdminUserID sets the "admin_user_id" field.
+func (mc *MerchantCreate) SetAdminUserID(u uuid.UUID) *MerchantCreate {
+	mc.mutation.SetAdminUserID(u)
+	return mc
+}
+
 // AddStoreIDs adds the "stores" edge to the Store entity by IDs.
 func (mc *MerchantCreate) AddStoreIDs(ids ...int) *MerchantCreate {
 	mc.mutation.AddStoreIDs(ids...)
@@ -427,6 +407,11 @@ func (mc *MerchantCreate) SetMerchantBusinessTypeID(id int) *MerchantCreate {
 // SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
 func (mc *MerchantCreate) SetMerchantBusinessType(m *MerchantBusinessType) *MerchantCreate {
 	return mc.SetMerchantBusinessTypeID(m.ID)
+}
+
+// SetAdminUser sets the "admin_user" edge to the AdminUser entity.
+func (mc *MerchantCreate) SetAdminUser(a *AdminUser) *MerchantCreate {
+	return mc.SetAdminUserID(a.ID)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -515,14 +500,6 @@ func (mc *MerchantCreate) defaults() error {
 	if _, ok := mc.mutation.Description(); !ok {
 		v := merchant.DefaultDescription
 		mc.mutation.SetDescription(v)
-	}
-	if _, ok := mc.mutation.LoginAccount(); !ok {
-		v := merchant.DefaultLoginAccount
-		mc.mutation.SetLoginAccount(v)
-	}
-	if _, ok := mc.mutation.LoginPassword(); !ok {
-		v := merchant.DefaultLoginPassword
-		mc.mutation.SetLoginPassword(v)
 	}
 	if _, ok := mc.mutation.CountryID(); !ok {
 		v := merchant.DefaultCountryID
@@ -657,22 +634,6 @@ func (mc *MerchantCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Merchant.status": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.LoginAccount(); !ok {
-		return &ValidationError{Name: "login_account", err: errors.New(`ent: missing required field "Merchant.login_account"`)}
-	}
-	if v, ok := mc.mutation.LoginAccount(); ok {
-		if err := merchant.LoginAccountValidator(v); err != nil {
-			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Merchant.login_account": %w`, err)}
-		}
-	}
-	if _, ok := mc.mutation.LoginPassword(); !ok {
-		return &ValidationError{Name: "login_password", err: errors.New(`ent: missing required field "Merchant.login_password"`)}
-	}
-	if v, ok := mc.mutation.LoginPassword(); ok {
-		if err := merchant.LoginPasswordValidator(v); err != nil {
-			return &ValidationError{Name: "login_password", err: fmt.Errorf(`ent: validator failed for field "Merchant.login_password": %w`, err)}
-		}
-	}
 	if _, ok := mc.mutation.CountryID(); !ok {
 		return &ValidationError{Name: "country_id", err: errors.New(`ent: missing required field "Merchant.country_id"`)}
 	}
@@ -741,8 +702,14 @@ func (mc *MerchantCreate) check() error {
 			return &ValidationError{Name: "lat", err: fmt.Errorf(`ent: validator failed for field "Merchant.lat": %w`, err)}
 		}
 	}
+	if _, ok := mc.mutation.AdminUserID(); !ok {
+		return &ValidationError{Name: "admin_user_id", err: errors.New(`ent: missing required field "Merchant.admin_user_id"`)}
+	}
 	if len(mc.mutation.MerchantBusinessTypeIDs()) == 0 {
 		return &ValidationError{Name: "merchant_business_type", err: errors.New(`ent: missing required edge "Merchant.merchant_business_type"`)}
+	}
+	if len(mc.mutation.AdminUserIDs()) == 0 {
+		return &ValidationError{Name: "admin_user", err: errors.New(`ent: missing required edge "Merchant.admin_user"`)}
 	}
 	return nil
 }
@@ -822,14 +789,6 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.Status(); ok {
 		_spec.SetField(merchant.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
-	}
-	if value, ok := mc.mutation.LoginAccount(); ok {
-		_spec.SetField(merchant.FieldLoginAccount, field.TypeString, value)
-		_node.LoginAccount = value
-	}
-	if value, ok := mc.mutation.LoginPassword(); ok {
-		_spec.SetField(merchant.FieldLoginPassword, field.TypeString, value)
-		_node.LoginPassword = value
 	}
 	if value, ok := mc.mutation.CountryID(); ok {
 		_spec.SetField(merchant.FieldCountryID, field.TypeInt, value)
@@ -922,6 +881,23 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BusinessTypeID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.AdminUserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   merchant.AdminUserTable,
+			Columns: []string{merchant.AdminUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.AdminUserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -1144,30 +1120,6 @@ func (u *MerchantUpsert) UpdateStatus() *MerchantUpsert {
 	return u
 }
 
-// SetLoginAccount sets the "login_account" field.
-func (u *MerchantUpsert) SetLoginAccount(v string) *MerchantUpsert {
-	u.Set(merchant.FieldLoginAccount, v)
-	return u
-}
-
-// UpdateLoginAccount sets the "login_account" field to the value that was provided on create.
-func (u *MerchantUpsert) UpdateLoginAccount() *MerchantUpsert {
-	u.SetExcluded(merchant.FieldLoginAccount)
-	return u
-}
-
-// SetLoginPassword sets the "login_password" field.
-func (u *MerchantUpsert) SetLoginPassword(v string) *MerchantUpsert {
-	u.Set(merchant.FieldLoginPassword, v)
-	return u
-}
-
-// UpdateLoginPassword sets the "login_password" field to the value that was provided on create.
-func (u *MerchantUpsert) UpdateLoginPassword() *MerchantUpsert {
-	u.SetExcluded(merchant.FieldLoginPassword)
-	return u
-}
-
 // SetCountryID sets the "country_id" field.
 func (u *MerchantUpsert) SetCountryID(v int) *MerchantUpsert {
 	u.Set(merchant.FieldCountryID, v)
@@ -1337,6 +1289,9 @@ func (u *MerchantUpsertOne) UpdateNewValues() *MerchantUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(merchant.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.AdminUserID(); exists {
+			s.SetIgnore(merchant.FieldAdminUserID)
 		}
 	}))
 	return u
@@ -1562,34 +1517,6 @@ func (u *MerchantUpsertOne) SetStatus(v domain.MerchantStatus) *MerchantUpsertOn
 func (u *MerchantUpsertOne) UpdateStatus() *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateStatus()
-	})
-}
-
-// SetLoginAccount sets the "login_account" field.
-func (u *MerchantUpsertOne) SetLoginAccount(v string) *MerchantUpsertOne {
-	return u.Update(func(s *MerchantUpsert) {
-		s.SetLoginAccount(v)
-	})
-}
-
-// UpdateLoginAccount sets the "login_account" field to the value that was provided on create.
-func (u *MerchantUpsertOne) UpdateLoginAccount() *MerchantUpsertOne {
-	return u.Update(func(s *MerchantUpsert) {
-		s.UpdateLoginAccount()
-	})
-}
-
-// SetLoginPassword sets the "login_password" field.
-func (u *MerchantUpsertOne) SetLoginPassword(v string) *MerchantUpsertOne {
-	return u.Update(func(s *MerchantUpsert) {
-		s.SetLoginPassword(v)
-	})
-}
-
-// UpdateLoginPassword sets the "login_password" field to the value that was provided on create.
-func (u *MerchantUpsertOne) UpdateLoginPassword() *MerchantUpsertOne {
-	return u.Update(func(s *MerchantUpsert) {
-		s.UpdateLoginPassword()
 	})
 }
 
@@ -1954,6 +1881,9 @@ func (u *MerchantUpsertBulk) UpdateNewValues() *MerchantUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(merchant.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.AdminUserID(); exists {
+				s.SetIgnore(merchant.FieldAdminUserID)
+			}
 		}
 	}))
 	return u
@@ -2179,34 +2109,6 @@ func (u *MerchantUpsertBulk) SetStatus(v domain.MerchantStatus) *MerchantUpsertB
 func (u *MerchantUpsertBulk) UpdateStatus() *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateStatus()
-	})
-}
-
-// SetLoginAccount sets the "login_account" field.
-func (u *MerchantUpsertBulk) SetLoginAccount(v string) *MerchantUpsertBulk {
-	return u.Update(func(s *MerchantUpsert) {
-		s.SetLoginAccount(v)
-	})
-}
-
-// UpdateLoginAccount sets the "login_account" field to the value that was provided on create.
-func (u *MerchantUpsertBulk) UpdateLoginAccount() *MerchantUpsertBulk {
-	return u.Update(func(s *MerchantUpsert) {
-		s.UpdateLoginAccount()
-	})
-}
-
-// SetLoginPassword sets the "login_password" field.
-func (u *MerchantUpsertBulk) SetLoginPassword(v string) *MerchantUpsertBulk {
-	return u.Update(func(s *MerchantUpsert) {
-		s.SetLoginPassword(v)
-	})
-}
-
-// UpdateLoginPassword sets the "login_password" field to the value that was provided on create.
-func (u *MerchantUpsertBulk) UpdateLoginPassword() *MerchantUpsertBulk {
-	return u.Update(func(s *MerchantUpsert) {
-		s.UpdateLoginPassword()
 	})
 }
 

@@ -12,6 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -20,12 +22,13 @@ import (
 // StoreQuery is the builder for querying Store entities.
 type StoreQuery struct {
 	config
-	ctx          *QueryContext
-	order        []store.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Store
-	withMerchant *MerchantQuery
-	modifiers    []func(*sql.Selector)
+	ctx           *QueryContext
+	order         []store.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Store
+	withMerchant  *MerchantQuery
+	withAdminUser *AdminUserQuery
+	modifiers     []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,6 +80,28 @@ func (sq *StoreQuery) QueryMerchant() *MerchantQuery {
 			sqlgraph.From(store.Table, store.FieldID, selector),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, store.MerchantTable, store.MerchantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAdminUser chains the current query on the "admin_user" edge.
+func (sq *StoreQuery) QueryAdminUser() *AdminUserQuery {
+	query := (&AdminUserClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(adminuser.Table, adminuser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, store.AdminUserTable, store.AdminUserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -271,12 +296,13 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		return nil
 	}
 	return &StoreQuery{
-		config:       sq.config,
-		ctx:          sq.ctx.Clone(),
-		order:        append([]store.OrderOption{}, sq.order...),
-		inters:       append([]Interceptor{}, sq.inters...),
-		predicates:   append([]predicate.Store{}, sq.predicates...),
-		withMerchant: sq.withMerchant.Clone(),
+		config:        sq.config,
+		ctx:           sq.ctx.Clone(),
+		order:         append([]store.OrderOption{}, sq.order...),
+		inters:        append([]Interceptor{}, sq.inters...),
+		predicates:    append([]predicate.Store{}, sq.predicates...),
+		withMerchant:  sq.withMerchant.Clone(),
+		withAdminUser: sq.withAdminUser.Clone(),
 		// clone intermediate query.
 		sql:       sq.sql.Clone(),
 		path:      sq.path,
@@ -292,6 +318,17 @@ func (sq *StoreQuery) WithMerchant(opts ...func(*MerchantQuery)) *StoreQuery {
 		opt(query)
 	}
 	sq.withMerchant = query
+	return sq
+}
+
+// WithAdminUser tells the query-builder to eager-load the nodes that are connected to
+// the "admin_user" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithAdminUser(opts ...func(*AdminUserQuery)) *StoreQuery {
+	query := (&AdminUserClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withAdminUser = query
 	return sq
 }
 
@@ -373,8 +410,9 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			sq.withMerchant != nil,
+			sq.withAdminUser != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -404,6 +442,12 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			return nil, err
 		}
 	}
+	if query := sq.withAdminUser; query != nil {
+		if err := sq.loadAdminUser(ctx, query, nodes, nil,
+			func(n *Store, e *AdminUser) { n.Edges.AdminUser = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -429,6 +473,35 @@ func (sq *StoreQuery) loadMerchant(ctx context.Context, query *MerchantQuery, no
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "merchant_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (sq *StoreQuery) loadAdminUser(ctx context.Context, query *AdminUserQuery, nodes []*Store, init func(*Store), assign func(*Store, *AdminUser)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Store)
+	for i := range nodes {
+		fk := nodes[i].AdminUserID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(adminuser.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "admin_user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -467,6 +540,9 @@ func (sq *StoreQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if sq.withMerchant != nil {
 			_spec.Node.AddColumnOnce(store.FieldMerchantID)
+		}
+		if sq.withAdminUser != nil {
+			_spec.Node.AddColumnOnce(store.FieldAdminUserID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

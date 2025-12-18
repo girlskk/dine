@@ -19,47 +19,6 @@ type StoreRepository struct {
 	Client *ent.Client
 }
 
-func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams *domain.ExistsStoreParams) (exists bool, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.ExistsStore")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
-
-	if existsStoreParams == nil {
-		err = fmt.Errorf("existsStoreParams is nil")
-		return
-	}
-
-	query := repo.Client.Store.Query().
-		Where(store.StoreNameEQ(existsStoreParams.StoreName))
-	if existsStoreParams.NotID > 0 {
-		query = query.Where(store.IDNEQ(existsStoreParams.NotID))
-	}
-
-	exists, err = query.Exist(ctx)
-	if err != nil {
-		err = fmt.Errorf("failed to check store existence: %w", err)
-		return
-	}
-
-	return
-}
-
-func (repo *StoreRepository) FindByID(ctx context.Context, id int) (domainStore *domain.Store, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.FindByID")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
-
-	em, err := repo.Client.Store.Query().
-		Where(store.ID(id)).
-		Only(ctx)
-	if ent.IsNotFound(err) {
-		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
-	}
-	return convertStore(em), nil
-}
-
 func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Store) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.Create")
 	defer func() {
@@ -172,6 +131,21 @@ func (repo *StoreRepository) Delete(ctx context.Context, id int) (err error) {
 	return
 }
 
+func (repo *StoreRepository) FindByID(ctx context.Context, id int) (domainStore *domain.Store, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.FindByID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	em, err := repo.Client.Store.Query().
+		Where(store.ID(id)).
+		Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
+	}
+	return convertStore(em), nil
+}
+
 func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.Pagination, filter *domain.StoreListFilter, orderBys ...domain.StoreListOrderBy) (domainStores []*domain.Store, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.GetStores")
 	defer func() {
@@ -207,6 +181,32 @@ func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.P
 	domainStores = lo.Map(stores, func(store *ent.Store, _ int) *domain.Store {
 		return convertStore(store)
 	})
+	return
+}
+
+func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams *domain.ExistsStoreParams) (exists bool, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.ExistsStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if existsStoreParams == nil {
+		err = fmt.Errorf("existsStoreParams is nil")
+		return
+	}
+
+	query := repo.Client.Store.Query().
+		Where(store.StoreNameEQ(existsStoreParams.StoreName))
+	if existsStoreParams.NotID > 0 {
+		query = query.Where(store.IDNEQ(existsStoreParams.NotID))
+	}
+
+	exists, err = query.Exist(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to check store existence: %w", err)
+		return
+	}
+
 	return
 }
 

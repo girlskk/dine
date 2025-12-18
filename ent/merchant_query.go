@@ -13,6 +13,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -30,6 +32,7 @@ type MerchantQuery struct {
 	withStores               *StoreQuery
 	withMerchantRenewals     *MerchantRenewalQuery
 	withMerchantBusinessType *MerchantBusinessTypeQuery
+	withAdminUser            *AdminUserQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -126,6 +129,28 @@ func (mq *MerchantQuery) QueryMerchantBusinessType() *MerchantBusinessTypeQuery 
 			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
 			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, merchant.MerchantBusinessTypeTable, merchant.MerchantBusinessTypeColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAdminUser chains the current query on the "admin_user" edge.
+func (mq *MerchantQuery) QueryAdminUser() *AdminUserQuery {
+	query := (&AdminUserClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(adminuser.Table, adminuser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, merchant.AdminUserTable, merchant.AdminUserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -328,6 +353,7 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		withStores:               mq.withStores.Clone(),
 		withMerchantRenewals:     mq.withMerchantRenewals.Clone(),
 		withMerchantBusinessType: mq.withMerchantBusinessType.Clone(),
+		withAdminUser:            mq.withAdminUser.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
 		path:      mq.path,
@@ -365,6 +391,17 @@ func (mq *MerchantQuery) WithMerchantBusinessType(opts ...func(*MerchantBusiness
 		opt(query)
 	}
 	mq.withMerchantBusinessType = query
+	return mq
+}
+
+// WithAdminUser tells the query-builder to eager-load the nodes that are connected to
+// the "admin_user" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithAdminUser(opts ...func(*AdminUserQuery)) *MerchantQuery {
+	query := (&AdminUserClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withAdminUser = query
 	return mq
 }
 
@@ -446,10 +483,11 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			mq.withStores != nil,
 			mq.withMerchantRenewals != nil,
 			mq.withMerchantBusinessType != nil,
+			mq.withAdminUser != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -490,6 +528,12 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	if query := mq.withMerchantBusinessType; query != nil {
 		if err := mq.loadMerchantBusinessType(ctx, query, nodes, nil,
 			func(n *Merchant, e *MerchantBusinessType) { n.Edges.MerchantBusinessType = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withAdminUser; query != nil {
+		if err := mq.loadAdminUser(ctx, query, nodes, nil,
+			func(n *Merchant, e *AdminUser) { n.Edges.AdminUser = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -585,6 +629,35 @@ func (mq *MerchantQuery) loadMerchantBusinessType(ctx context.Context, query *Me
 	}
 	return nil
 }
+func (mq *MerchantQuery) loadAdminUser(ctx context.Context, query *AdminUserQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *AdminUser)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Merchant)
+	for i := range nodes {
+		fk := nodes[i].AdminUserID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(adminuser.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "admin_user_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (mq *MerchantQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
@@ -616,6 +689,9 @@ func (mq *MerchantQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if mq.withMerchantBusinessType != nil {
 			_spec.Node.AddColumnOnce(merchant.FieldBusinessTypeID)
+		}
+		if mq.withAdminUser != nil {
+			_spec.Node.AddColumnOnce(merchant.FieldAdminUserID)
 		}
 	}
 	if ps := mq.predicates; len(ps) > 0 {

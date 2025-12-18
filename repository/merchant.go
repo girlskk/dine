@@ -26,22 +26,7 @@ func NewMerchantRepository(client *ent.Client) *MerchantRepository {
 	}
 }
 
-func (repo *MerchantRepository) FindByID(ctx context.Context, id int) (domainMerchant *domain.Merchant, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.FindByID")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
-
-	em, err := repo.Client.Merchant.Query().
-		Where(merchant.ID(id)).
-		Only(ctx)
-	if ent.IsNotFound(err) {
-		return nil, domain.NotFoundError(domain.ErrMerchantNotExists)
-	}
-	return convertMerchant(em), nil
-}
-
-func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *domain.Merchant) (err error) {
+func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *domain.Merchant) (id int, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.Create")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -63,8 +48,6 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status).
-		SetLoginAccount(domainMerchant.LoginAccount).
-		SetLoginPassword(domainMerchant.LoginPassword).
 		SetCountryID(domainMerchant.CountryID).
 		SetProvinceID(domainMerchant.ProvinceID).
 		SetCityID(domainMerchant.CityID).
@@ -76,6 +59,7 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetAddress(domainMerchant.Address).
 		SetLng(domainMerchant.Lng).
 		SetLat(domainMerchant.Lat).
+		SetAdminUserID(domainMerchant.AdminUserID).
 		Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create merchant: %w", err)
@@ -107,8 +91,6 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status).
-		SetLoginAccount(domainMerchant.LoginAccount).
-		SetLoginPassword(domainMerchant.LoginPassword).
 		SetCountryID(domainMerchant.CountryID).
 		SetProvinceID(domainMerchant.ProvinceID).
 		SetCityID(domainMerchant.CityID).
@@ -147,6 +129,21 @@ func (repo *MerchantRepository) Delete(ctx context.Context, id int) (err error) 
 	}
 
 	return
+}
+
+func (repo *MerchantRepository) FindByID(ctx context.Context, id int) (domainMerchant *domain.Merchant, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.FindByID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	em, err := repo.Client.Merchant.Query().
+		Where(merchant.ID(id)).
+		Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, domain.NotFoundError(domain.ErrMerchantNotExists)
+	}
+	return convertMerchant(em), nil
 }
 
 func (repo *MerchantRepository) GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *domain.MerchantListFilter, orderBys ...domain.MerchantListOrderBy) (domainMerchants []*domain.Merchant, total int, err error) {
@@ -237,65 +234,6 @@ func (repo *MerchantRepository) CountMerchant(ctx context.Context) (merchantCoun
 	return
 }
 
-func (repo *MerchantRepository) CreateMerchantAndStore(ctx context.Context, domainMerchant *domain.Merchant, domainStore *domain.Store) (err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.CreateMerchantAndStore")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
-
-	if domainMerchant == nil {
-		err = fmt.Errorf("domainMerchant is nil")
-		return
-	}
-	if domainStore == nil {
-		err = fmt.Errorf("domainStore is nil")
-		return
-	}
-	repoTx := New(repo.Client)
-	err = repoTx.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		err := ds.MerchantRepo().Create(ctx, domainMerchant)
-		if err != nil {
-			return err
-		}
-		err = ds.StoreRepo().Create(ctx, domainStore)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	return
-}
-
-func (repo *MerchantRepository) MerchantRenewal(ctx context.Context, merchantRenewal *domain.MerchantRenewal) (err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.MerchantRenewal")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
-
-	if merchantRenewal == nil {
-		err = fmt.Errorf("merchantRenewal is nil")
-		return
-	}
-	repoTx := New(repo.Client)
-	err = repoTx.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		err := ds.MerchantRenewalRepo().Create(ctx, merchantRenewal)
-		if err != nil {
-			return err
-		}
-		m, err := ds.MerchantRepo().FindByID(ctx, merchantRenewal.MerchantID)
-		if err != nil {
-			return err
-		}
-		m.ExpireUTC = sumRenewalDuration(*m.ExpireUTC, merchantRenewal.PurchaseDuration, merchantRenewal.PurchaseDurationUnit)
-		err = ds.MerchantRepo().Update(ctx, m)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	return
-}
-
 func (repo *MerchantRepository) ExistMerchant(ctx context.Context, merchantExistsParams *domain.MerchantExistsParams) (exist bool, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.ExistMerchant")
 	defer func() {
@@ -380,8 +318,6 @@ func convertMerchant(em *ent.Merchant) *domain.Merchant {
 		MerchantLogo:      em.MerchantLogo,
 		Description:       em.Description,
 		Status:            em.Status,
-		LoginAccount:      em.LoginAccount,
-		LoginPassword:     em.LoginPassword,
 		CountryID:         em.CountryID,
 		ProvinceID:        em.ProvinceID,
 		CityID:            em.CityID,
@@ -393,23 +329,8 @@ func convertMerchant(em *ent.Merchant) *domain.Merchant {
 		Address:           em.Address,
 		Lng:               em.Lng,
 		Lat:               em.Lat,
+		AdminUserID:       em.AdminUserID,
 		CreatedAt:         em.CreatedAt,
 		UpdatedAt:         em.UpdatedAt,
 	}
-}
-
-func sumRenewalDuration(oldTime time.Time, d int, durationUnit domain.PurchaseDurationUnit) *time.Time {
-	newTime := oldTime
-	switch durationUnit {
-	case domain.PurchaseDurationUnitDay:
-		newTime = oldTime.AddDate(0, 0, d)
-	case domain.PurchaseDurationUnitMonth:
-		newTime = oldTime.AddDate(0, d, 0)
-	case domain.PurchaseDurationUnitYear:
-		newTime = oldTime.AddDate(d, 0, 0)
-	case domain.PurchaseDurationUnitWeek:
-		newTime = oldTime.AddDate(0, 0, d*7)
-	default:
-	}
-	return &newTime
 }

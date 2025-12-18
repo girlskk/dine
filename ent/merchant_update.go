@@ -220,34 +220,6 @@ func (mu *MerchantUpdate) SetNillableStatus(ds *domain.MerchantStatus) *Merchant
 	return mu
 }
 
-// SetLoginAccount sets the "login_account" field.
-func (mu *MerchantUpdate) SetLoginAccount(s string) *MerchantUpdate {
-	mu.mutation.SetLoginAccount(s)
-	return mu
-}
-
-// SetNillableLoginAccount sets the "login_account" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableLoginAccount(s *string) *MerchantUpdate {
-	if s != nil {
-		mu.SetLoginAccount(*s)
-	}
-	return mu
-}
-
-// SetLoginPassword sets the "login_password" field.
-func (mu *MerchantUpdate) SetLoginPassword(s string) *MerchantUpdate {
-	mu.mutation.SetLoginPassword(s)
-	return mu
-}
-
-// SetNillableLoginPassword sets the "login_password" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableLoginPassword(s *string) *MerchantUpdate {
-	if s != nil {
-		mu.SetLoginPassword(*s)
-	}
-	return mu
-}
-
 // SetCountryID sets the "country_id" field.
 func (mu *MerchantUpdate) SetCountryID(i int) *MerchantUpdate {
 	mu.mutation.ResetCountryID()
@@ -613,16 +585,6 @@ func (mu *MerchantUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Merchant.status": %w`, err)}
 		}
 	}
-	if v, ok := mu.mutation.LoginAccount(); ok {
-		if err := merchant.LoginAccountValidator(v); err != nil {
-			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Merchant.login_account": %w`, err)}
-		}
-	}
-	if v, ok := mu.mutation.LoginPassword(); ok {
-		if err := merchant.LoginPasswordValidator(v); err != nil {
-			return &ValidationError{Name: "login_password", err: fmt.Errorf(`ent: validator failed for field "Merchant.login_password": %w`, err)}
-		}
-	}
 	if v, ok := mu.mutation.CountryName(); ok {
 		if err := merchant.CountryNameValidator(v); err != nil {
 			return &ValidationError{Name: "country_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.country_name": %w`, err)}
@@ -660,6 +622,9 @@ func (mu *MerchantUpdate) check() error {
 	}
 	if mu.mutation.MerchantBusinessTypeCleared() && len(mu.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Merchant.merchant_business_type"`)
+	}
+	if mu.mutation.AdminUserCleared() && len(mu.mutation.AdminUserIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Merchant.admin_user"`)
 	}
 	return nil
 }
@@ -723,12 +688,6 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := mu.mutation.Status(); ok {
 		_spec.SetField(merchant.FieldStatus, field.TypeEnum, value)
-	}
-	if value, ok := mu.mutation.LoginAccount(); ok {
-		_spec.SetField(merchant.FieldLoginAccount, field.TypeString, value)
-	}
-	if value, ok := mu.mutation.LoginPassword(); ok {
-		_spec.SetField(merchant.FieldLoginPassword, field.TypeString, value)
 	}
 	if value, ok := mu.mutation.CountryID(); ok {
 		_spec.SetField(merchant.FieldCountryID, field.TypeInt, value)
@@ -1099,34 +1058,6 @@ func (muo *MerchantUpdateOne) SetStatus(ds domain.MerchantStatus) *MerchantUpdat
 func (muo *MerchantUpdateOne) SetNillableStatus(ds *domain.MerchantStatus) *MerchantUpdateOne {
 	if ds != nil {
 		muo.SetStatus(*ds)
-	}
-	return muo
-}
-
-// SetLoginAccount sets the "login_account" field.
-func (muo *MerchantUpdateOne) SetLoginAccount(s string) *MerchantUpdateOne {
-	muo.mutation.SetLoginAccount(s)
-	return muo
-}
-
-// SetNillableLoginAccount sets the "login_account" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableLoginAccount(s *string) *MerchantUpdateOne {
-	if s != nil {
-		muo.SetLoginAccount(*s)
-	}
-	return muo
-}
-
-// SetLoginPassword sets the "login_password" field.
-func (muo *MerchantUpdateOne) SetLoginPassword(s string) *MerchantUpdateOne {
-	muo.mutation.SetLoginPassword(s)
-	return muo
-}
-
-// SetNillableLoginPassword sets the "login_password" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableLoginPassword(s *string) *MerchantUpdateOne {
-	if s != nil {
-		muo.SetLoginPassword(*s)
 	}
 	return muo
 }
@@ -1509,16 +1440,6 @@ func (muo *MerchantUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Merchant.status": %w`, err)}
 		}
 	}
-	if v, ok := muo.mutation.LoginAccount(); ok {
-		if err := merchant.LoginAccountValidator(v); err != nil {
-			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Merchant.login_account": %w`, err)}
-		}
-	}
-	if v, ok := muo.mutation.LoginPassword(); ok {
-		if err := merchant.LoginPasswordValidator(v); err != nil {
-			return &ValidationError{Name: "login_password", err: fmt.Errorf(`ent: validator failed for field "Merchant.login_password": %w`, err)}
-		}
-	}
 	if v, ok := muo.mutation.CountryName(); ok {
 		if err := merchant.CountryNameValidator(v); err != nil {
 			return &ValidationError{Name: "country_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.country_name": %w`, err)}
@@ -1556,6 +1477,9 @@ func (muo *MerchantUpdateOne) check() error {
 	}
 	if muo.mutation.MerchantBusinessTypeCleared() && len(muo.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Merchant.merchant_business_type"`)
+	}
+	if muo.mutation.AdminUserCleared() && len(muo.mutation.AdminUserIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Merchant.admin_user"`)
 	}
 	return nil
 }
@@ -1636,12 +1560,6 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	}
 	if value, ok := muo.mutation.Status(); ok {
 		_spec.SetField(merchant.FieldStatus, field.TypeEnum, value)
-	}
-	if value, ok := muo.mutation.LoginAccount(); ok {
-		_spec.SetField(merchant.FieldLoginAccount, field.TypeString, value)
-	}
-	if value, ok := muo.mutation.LoginPassword(); ok {
-		_spec.SetField(merchant.FieldLoginPassword, field.TypeString, value)
 	}
 	if value, ok := muo.mutation.CountryID(); ok {
 		_spec.SetField(merchant.FieldCountryID, field.TypeInt, value)
