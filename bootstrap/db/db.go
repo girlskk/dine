@@ -51,6 +51,7 @@ func NewClient(lc fx.Lifecycle, c Config, db *sql.DB) (*ent.Client, error) {
 					ctx,
 					migrate.WithDropIndex(true),
 					migrate.WithDropColumn(true),
+					migrate.WithForeignKeys(false), // Disable foreign keys.
 				)
 			}
 

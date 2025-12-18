@@ -9,6 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -97,6 +99,60 @@ func (f TraverseAdminUser) Traverse(ctx context.Context, q ent.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.AdminUserQuery", q)
+}
+
+// The BackendUserFunc type is an adapter to allow the use of ordinary function as a Querier.
+type BackendUserFunc func(context.Context, *ent.BackendUserQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f BackendUserFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.BackendUserQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.BackendUserQuery", q)
+}
+
+// The TraverseBackendUser type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseBackendUser func(context.Context, *ent.BackendUserQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseBackendUser) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseBackendUser) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.BackendUserQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.BackendUserQuery", q)
+}
+
+// The CategoryFunc type is an adapter to allow the use of ordinary function as a Querier.
+type CategoryFunc func(context.Context, *ent.CategoryQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f CategoryFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.CategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.CategoryQuery", q)
+}
+
+// The TraverseCategory type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseCategory func(context.Context, *ent.CategoryQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseCategory) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseCategory) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.CategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.CategoryQuery", q)
 }
 
 // The MerchantFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -212,6 +268,10 @@ func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
 	case *ent.AdminUserQuery:
 		return &query[*ent.AdminUserQuery, predicate.AdminUser, adminuser.OrderOption]{typ: ent.TypeAdminUser, tq: q}, nil
+	case *ent.BackendUserQuery:
+		return &query[*ent.BackendUserQuery, predicate.BackendUser, backenduser.OrderOption]{typ: ent.TypeBackendUser, tq: q}, nil
+	case *ent.CategoryQuery:
+		return &query[*ent.CategoryQuery, predicate.Category, category.OrderOption]{typ: ent.TypeCategory, tq: q}, nil
 	case *ent.MerchantQuery:
 		return &query[*ent.MerchantQuery, predicate.Merchant, merchant.OrderOption]{typ: ent.TypeMerchant, tq: q}, nil
 	case *ent.MerchantBusinessTypeQuery:

@@ -18,6 +18,8 @@ type Repository struct {
 	mu                       sync.Mutex
 	client                   *ent.Client
 	adminUserRepo            *AdminUserRepository
+	categoryRepo             *CategoryRepository
+	backendUserRepo          *BackendUserRepository
 	merchantRepo             *MerchantRepository
 	storeRepo                *StoreRepository
 	merchantRenewalRepo      *MerchantRenewalRepository
@@ -103,6 +105,24 @@ func (repo *Repository) AdminUserRepo() domain.AdminUserRepository {
 		repo.adminUserRepo = NewAdminUserRepository(repo.client)
 	}
 	return repo.adminUserRepo
+}
+
+func (repo *Repository) CategoryRepo() domain.CategoryRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.categoryRepo == nil {
+		repo.categoryRepo = NewCategoryRepository(repo.client)
+	}
+	return repo.categoryRepo
+}
+
+func (repo *Repository) BackendUserRepo() domain.BackendUserRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.backendUserRepo == nil {
+		repo.backendUserRepo = NewBackendUserRepository(repo.client)
+	}
+	return repo.backendUserRepo
 }
 
 func (repo *Repository) MerchantRepo() domain.MerchantRepository {

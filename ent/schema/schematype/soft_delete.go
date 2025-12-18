@@ -2,18 +2,13 @@ package schematype
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
-
-	gen "gitlab.jiguang.dev/pos-dine/dine/ent"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/hook"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/intercept"
+	//"gitlab.jiguang.dev/pos-dine/dine/ent/intercept"
 )
 
 // SoftDeleteMixin implements the soft delete pattern for schemas.
@@ -43,49 +38,49 @@ func SkipSoftDelete(parent context.Context) context.Context {
 	return context.WithValue(parent, softDeleteKey{}, true)
 }
 
-// Interceptors of the SoftDeleteMixin.
-func (d SoftDeleteMixin) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		intercept.TraverseFunc(func(ctx context.Context, q intercept.Query) error {
-			// Skip soft-delete, means include soft-deleted entities.
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-			d.P(q)
-			return nil
-		}),
-	}
-}
+//// Interceptors of the SoftDeleteMixin.
+//func (d SoftDeleteMixin) Interceptors() []ent.Interceptor {
+//	return []ent.Interceptor{
+//		intercept.TraverseFunc(func(ctx context.Context, q intercept.Query) error {
+//			// Skip soft-delete, means include soft-deleted entities.
+//			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+//				return nil
+//			}
+//			d.P(q)
+//			return nil
+//		}),
+//	}
+//}
 
 // Hooks of the SoftDeleteMixin.
-func (d SoftDeleteMixin) Hooks() []ent.Hook {
-	return []ent.Hook{
-		hook.On(
-			func(next ent.Mutator) ent.Mutator {
-				return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-					// Skip soft-delete, means delete the entity permanently.
-					if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-						return next.Mutate(ctx, m)
-					}
-					mx, ok := m.(interface {
-						SetOp(ent.Op)
-						Client() *gen.Client
-						SetDeletedAt(int64)
-						WhereP(...func(*sql.Selector))
-					})
-					if !ok {
-						return nil, fmt.Errorf("unexpected mutation type %T", m)
-					}
-					d.P(mx)
-					mx.SetOp(ent.OpUpdate)
-					mx.SetDeletedAt(time.Now().Unix())
-					return mx.Client().Mutate(ctx, m)
-				})
-			},
-			ent.OpDeleteOne|ent.OpDelete,
-		),
-	}
-}
+//func (d SoftDeleteMixin) Hooks() []ent.Hook {
+//	return []ent.Hook{
+//		hook.On(
+//			func(next ent.Mutator) ent.Mutator {
+//				return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+//					// Skip soft-delete, means delete the entity permanently.
+//					if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+//						return next.Mutate(ctx, m)
+//					}
+//					mx, ok := m.(interface {
+//						SetOp(ent.Op)
+//						Client() *gen.Client
+//						SetDeletedAt(int64)
+//						WhereP(...func(*sql.Selector))
+//					})
+//					if !ok {
+//						return nil, fmt.Errorf("unexpected mutation type %T", m)
+//					}
+//					d.P(mx)
+//					mx.SetOp(ent.OpUpdate)
+//					mx.SetDeletedAt(time.Now().Unix())
+//					return mx.Client().Mutate(ctx, m)
+//				})
+//			},
+//			ent.OpDeleteOne|ent.OpDelete,
+//		),
+//	}
+//}
 
 // P adds a storage-level predicate to the queries and mutations.
 func (d SoftDeleteMixin) P(w interface{ WhereP(...func(*sql.Selector)) }) {

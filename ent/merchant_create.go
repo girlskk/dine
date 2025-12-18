@@ -421,9 +421,7 @@ func (mc *MerchantCreate) Mutation() *MerchantMutation {
 
 // Save creates the Merchant in the database.
 func (mc *MerchantCreate) Save(ctx context.Context) (*Merchant, error) {
-	if err := mc.defaults(); err != nil {
-		return nil, err
-	}
+	mc.defaults()
 	return withHooks(ctx, mc.sqlSave, mc.mutation, mc.hooks)
 }
 
@@ -450,18 +448,12 @@ func (mc *MerchantCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mc *MerchantCreate) defaults() error {
+func (mc *MerchantCreate) defaults() {
 	if _, ok := mc.mutation.CreatedAt(); !ok {
-		if merchant.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized merchant.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := merchant.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := mc.mutation.UpdatedAt(); !ok {
-		if merchant.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized merchant.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := merchant.DefaultUpdatedAt()
 		mc.mutation.SetUpdatedAt(v)
 	}
@@ -545,7 +537,6 @@ func (mc *MerchantCreate) defaults() error {
 		v := merchant.DefaultLat
 		mc.mutation.SetLat(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

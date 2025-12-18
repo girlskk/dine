@@ -477,9 +477,7 @@ func (su *StoreUpdate) Mutation() *StoreMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (su *StoreUpdate) Save(ctx context.Context) (int, error) {
-	if err := su.defaults(); err != nil {
-		return 0, err
-	}
+	su.defaults()
 	return withHooks(ctx, su.sqlSave, su.mutation, su.hooks)
 }
 
@@ -506,15 +504,11 @@ func (su *StoreUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (su *StoreUpdate) defaults() error {
+func (su *StoreUpdate) defaults() {
 	if _, ok := su.mutation.UpdatedAt(); !ok {
-		if store.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized store.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := store.UpdateDefaultUpdatedAt()
 		su.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -1243,9 +1237,7 @@ func (suo *StoreUpdateOne) Select(field string, fields ...string) *StoreUpdateOn
 
 // Save executes the query and returns the updated Store entity.
 func (suo *StoreUpdateOne) Save(ctx context.Context) (*Store, error) {
-	if err := suo.defaults(); err != nil {
-		return nil, err
-	}
+	suo.defaults()
 	return withHooks(ctx, suo.sqlSave, suo.mutation, suo.hooks)
 }
 
@@ -1272,15 +1264,11 @@ func (suo *StoreUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (suo *StoreUpdateOne) defaults() error {
+func (suo *StoreUpdateOne) defaults() {
 	if _, ok := suo.mutation.UpdatedAt(); !ok {
-		if store.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized store.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := store.UpdateDefaultUpdatedAt()
 		suo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

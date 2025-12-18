@@ -27,6 +27,7 @@ var middlewares = []string{
 	"Observability",
 	"Logger",
 	"ErrorHandling",
+	"Locale",
 	"Auth",
 }
 

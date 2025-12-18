@@ -152,9 +152,7 @@ func (auc *AdminUserCreate) Mutation() *AdminUserMutation {
 
 // Save creates the AdminUser in the database.
 func (auc *AdminUserCreate) Save(ctx context.Context) (*AdminUser, error) {
-	if err := auc.defaults(); err != nil {
-		return nil, err
-	}
+	auc.defaults()
 	return withHooks(ctx, auc.sqlSave, auc.mutation, auc.hooks)
 }
 
@@ -181,18 +179,12 @@ func (auc *AdminUserCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (auc *AdminUserCreate) defaults() error {
+func (auc *AdminUserCreate) defaults() {
 	if _, ok := auc.mutation.CreatedAt(); !ok {
-		if adminuser.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized adminuser.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := adminuser.DefaultCreatedAt()
 		auc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := auc.mutation.UpdatedAt(); !ok {
-		if adminuser.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized adminuser.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := adminuser.DefaultUpdatedAt()
 		auc.mutation.SetUpdatedAt(v)
 	}
@@ -205,13 +197,9 @@ func (auc *AdminUserCreate) defaults() error {
 		auc.mutation.SetAccountType(v)
 	}
 	if _, ok := auc.mutation.ID(); !ok {
-		if adminuser.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized adminuser.DefaultID (forgotten import ent/runtime?)")
-		}
 		v := adminuser.DefaultID()
 		auc.mutation.SetID(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

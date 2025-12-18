@@ -9,6 +9,12 @@ import (
 // AdminUser is the predicate function for adminuser builders.
 type AdminUser func(*sql.Selector)
 
+// BackendUser is the predicate function for backenduser builders.
+type BackendUser func(*sql.Selector)
+
+// Category is the predicate function for category builders.
+type Category func(*sql.Selector)
+
 // Merchant is the predicate function for merchant builders.
 type Merchant func(*sql.Selector)
 

@@ -498,9 +498,7 @@ func (mu *MerchantUpdate) ClearMerchantBusinessType() *MerchantUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (mu *MerchantUpdate) Save(ctx context.Context) (int, error) {
-	if err := mu.defaults(); err != nil {
-		return 0, err
-	}
+	mu.defaults()
 	return withHooks(ctx, mu.sqlSave, mu.mutation, mu.hooks)
 }
 
@@ -527,15 +525,11 @@ func (mu *MerchantUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mu *MerchantUpdate) defaults() error {
+func (mu *MerchantUpdate) defaults() {
 	if _, ok := mu.mutation.UpdatedAt(); !ok {
-		if merchant.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized merchant.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := merchant.UpdateDefaultUpdatedAt()
 		mu.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -1353,9 +1347,7 @@ func (muo *MerchantUpdateOne) Select(field string, fields ...string) *MerchantUp
 
 // Save executes the query and returns the updated Merchant entity.
 func (muo *MerchantUpdateOne) Save(ctx context.Context) (*Merchant, error) {
-	if err := muo.defaults(); err != nil {
-		return nil, err
-	}
+	muo.defaults()
 	return withHooks(ctx, muo.sqlSave, muo.mutation, muo.hooks)
 }
 
@@ -1382,15 +1374,11 @@ func (muo *MerchantUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (muo *MerchantUpdateOne) defaults() error {
+func (muo *MerchantUpdateOne) defaults() {
 	if _, ok := muo.mutation.UpdatedAt(); !ok {
-		if merchant.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized merchant.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := merchant.UpdateDefaultUpdatedAt()
 		muo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

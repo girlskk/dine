@@ -8,6 +8,8 @@ type DataStore interface {
 	IsTransactionActive() bool
 	AddHook(hook func())
 	AdminUserRepo() AdminUserRepository
+	CategoryRepo() CategoryRepository
+	BackendUserRepo() BackendUserRepository
 	MerchantRepo() MerchantRepository
 	StoreRepo() StoreRepository
 	MerchantRenewalRepo() MerchantRenewalRepository

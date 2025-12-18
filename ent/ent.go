@@ -13,6 +13,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -78,6 +80,8 @@ func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			adminuser.Table:            adminuser.ValidColumn,
+			backenduser.Table:          backenduser.ValidColumn,
+			category.Table:             category.ValidColumn,
 			merchant.Table:             merchant.ValidColumn,
 			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,
 			merchantrenewal.Table:      merchantrenewal.ValidColumn,

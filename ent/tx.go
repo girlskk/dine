@@ -14,6 +14,10 @@ type Tx struct {
 	config
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
+	// BackendUser is the client for interacting with the BackendUser builders.
+	BackendUser *BackendUserClient
+	// Category is the client for interacting with the Category builders.
+	Category *CategoryClient
 	// Merchant is the client for interacting with the Merchant builders.
 	Merchant *MerchantClient
 	// MerchantBusinessType is the client for interacting with the MerchantBusinessType builders.
@@ -154,6 +158,8 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AdminUser = NewAdminUserClient(tx.config)
+	tx.BackendUser = NewBackendUserClient(tx.config)
+	tx.Category = NewCategoryClient(tx.config)
 	tx.Merchant = NewMerchantClient(tx.config)
 	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)

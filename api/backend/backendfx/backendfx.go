@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"gitlab.jiguang.dev/pos-dine/dine/api/backend"
+	"gitlab.jiguang.dev/pos-dine/dine/api/backend/handler"
+	mid "gitlab.jiguang.dev/pos-dine/dine/api/backend/middleware"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/middleware"
@@ -25,16 +27,27 @@ var Module = fx.Module(
 		asMiddleware(func(c httpserver.Config) *middleware.TimeLimiter { return middleware.NewTimeLimiter(c.RequestTimeout) }),
 		asMiddleware(middleware.NewPopulateRequestID),
 		asMiddleware(middleware.NewPopulateLogger),
+		asMiddleware(middleware.NewLocale),
 		fx.Annotate(
 			middleware.NewObservability,
 			fx.As(new(ugin.Middleware)),
 			fx.ResultTags(`group:"middlewares"`),
 		),
 		asMiddleware(middleware.NewLogger),
+
+		fx.Annotate(
+			mid.NewAuth,
+			fx.As(new(ugin.Middleware)),
+			fx.ParamTags(`group:"handlers"`),
+			fx.ResultTags(`group:"middlewares"`),
+		),
 	),
 
 	// handler
-	fx.Provide(),
+	fx.Provide(
+		asHandler(handler.NewUserHandler),
+		asHandler(handler.NewCategoryHandler),
+	),
 )
 
 func asHandler(f any) any {

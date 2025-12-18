@@ -37,6 +37,83 @@ var (
 			},
 		},
 	}
+	// BackendUsersColumns holds the columns for the "backend_users" table.
+	BackendUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "username", Type: field.TypeString, Size: 100},
+		{Name: "hashed_password", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString},
+		{Name: "merchant_id", Type: field.TypeUUID},
+	}
+	// BackendUsersTable holds the schema information for the "backend_users" table.
+	BackendUsersTable = &schema.Table{
+		Name:       "backend_users",
+		Columns:    BackendUsersColumns,
+		PrimaryKey: []*schema.Column{BackendUsersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "backenduser_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{BackendUsersColumns[3]},
+			},
+			{
+				Name:    "backenduser_username_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{BackendUsersColumns[4], BackendUsersColumns[3]},
+			},
+		},
+	}
+	// CategoriesColumns holds the columns for the "categories" table.
+	CategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "inherit_tax_rate", Type: field.TypeBool, Default: false},
+		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "inherit_stall", Type: field.TypeBool, Default: false},
+		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+		{Name: "sort_order", Type: field.TypeInt, Default: 0},
+		{Name: "parent_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// CategoriesTable holds the schema information for the "categories" table.
+	CategoriesTable = &schema.Table{
+		Name:       "categories",
+		Columns:    CategoriesColumns,
+		PrimaryKey: []*schema.Column{CategoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "categories_categories_children",
+				Columns:    []*schema.Column{CategoriesColumns[13]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "category_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{CategoriesColumns[3]},
+			},
+			{
+				Name:    "category_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{CategoriesColumns[5]},
+			},
+			{
+				Name:    "category_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{CategoriesColumns[6]},
+			},
+		},
+	}
 	// MerchantsColumns holds the columns for the "merchants" table.
 	MerchantsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -197,6 +274,8 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AdminUsersTable,
+		BackendUsersTable,
+		CategoriesTable,
 		MerchantsTable,
 		MerchantBusinessTypesTable,
 		MerchantRenewalsTable,
@@ -205,6 +284,7 @@ var (
 )
 
 func init() {
+	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
 	MerchantsTable.ForeignKeys[0].RefTable = AdminUsersTable
 	MerchantsTable.ForeignKeys[1].RefTable = MerchantBusinessTypesTable
 	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
