@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -51,8 +50,6 @@ func (m *ErrorHandling) Middleware() gin.HandlerFunc {
 			// 使用 i18n 翻译错误码
 			translated := i18n.Translate(ctx, apiErr.Code.String(), nil)
 
-			fmt.Println("translated", translated)
-			fmt.Println("apiErr.Code.String()", apiErr.Code.String())
 			if translated != apiErr.Code.String() {
 				// 翻译成功，更新 Message
 				apiErr.Message = translated
