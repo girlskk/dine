@@ -195,6 +195,22 @@ func (repo *CategoryRepository) Exists(ctx context.Context, params domain.Catego
 	return query.Exist(ctx)
 }
 
+func (repo *CategoryRepository) CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (count int, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.CountChildrenByParentID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	count, err = repo.Client.Category.Query().
+		Where(category.ParentID(parentID)).
+		Count(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func convertCategoryToDomain(ec *ent.Category) *domain.Category {
 	if ec == nil {
 		return nil

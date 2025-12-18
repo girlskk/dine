@@ -31,3 +31,8 @@ other = "User {{.Username}} does not exist"
 [CATEGORY_NAME_EXISTS]
 other = "Product category name already exists"
 
+[CATEGORY_DELETE_HAS_CHILDREN]
+other = "Product category has children, cannot delete"
+
+[CATEGORY_DELETE_HAS_PRODUCTS]
+other = "Product category has products, cannot delete"

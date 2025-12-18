@@ -9,12 +9,13 @@ import (
 )
 
 var (
-	ErrCategoryNotExists         = errors.New("product category not exists")
-	ErrCategoryNameExists        = errors.New("product category name already exists")
-	ErrCategoryHasProducts       = errors.New("first level category has products, cannot create child category")
-	ErrCategoryParentNotExists   = errors.New("parent category not exists")
-	ErrCategoryParentHasProducts = errors.New("parent category has products, cannot create child category")
-	ErrCategoryInvalidLevel      = errors.New("invalid category level, only two levels are supported")
+	ErrCategoryNotExists         = errors.New("商品分类不存在")
+	ErrCategoryNameExists        = errors.New("商品分类名称已存在")
+	ErrCategoryParentNotExists   = errors.New("父分类不存在")
+	ErrCategoryParentHasProducts = errors.New("父分类下有商品，不能创建子分类")
+	ErrCategoryInvalidLevel      = errors.New("分类级别无效，只支持两级分类")
+	ErrCategoryDeleteHasChildren = errors.New("商品分类下有子分类，不能删除")
+	ErrCategoryDeleteHasProducts = errors.New("商品分类下有商品，不能删除")
 )
 
 // CategoryRepository 商品分类仓储接口
@@ -27,6 +28,7 @@ type CategoryRepository interface {
 	Update(ctx context.Context, category *Category) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params CategoryExistsParams) (bool, error)
+	CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (int, error)
 }
 
 // CategoryInteractor 商品分类用例接口
@@ -35,8 +37,8 @@ type CategoryRepository interface {
 type CategoryInteractor interface {
 	CreateRoot(ctx context.Context, category *Category) error
 	CreateChild(ctx context.Context, category *Category) error
+	Delete(ctx context.Context, id uuid.UUID) error
 	// Update(ctx context.Context, category *Category) (*Category, error)
-	// Delete(ctx context.Context, id uuid.UUID) error
 }
 
 // Category 商品分类实体

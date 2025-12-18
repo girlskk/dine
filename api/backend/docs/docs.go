@@ -116,6 +116,37 @@ const docTemplate = `{
                         "description": "OK"
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "删除商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
             }
         },
         "/user/info": {
@@ -288,8 +319,6 @@ const docTemplate = `{
         "types.CreateChildCategoryReq": {
             "type": "object",
             "required": [
-                "inherit_stall",
-                "inherit_tax_rate",
                 "name"
             ],
             "properties": {

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -29,8 +30,8 @@ func (h *CategoryHandler) Routes(r gin.IRouter) {
 	r = r.Group("product/category")
 	r.POST("", h.CreateRoot())
 	r.POST("/:id", h.CreateChild())
+	r.DELETE("/:id", h.Delete())
 	// r.PUT("/:id", h.Update())
-	// r.DELETE("/:id", h.Delete())
 	// r.GET("/:id", h.GetByID())
 	// r.GET("", h.List())
 }
@@ -95,11 +96,15 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 		err := h.CategoryInteractor.CreateRoot(ctx, category)
 
 		if err != nil {
-			if domain.IsConflict(err) {
+			if errors.Is(err, domain.ErrCategoryNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
 				return
 			}
-			err = fmt.Errorf("failed to create category: %w", err)
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to create root category: %w", err)
 			c.Error(err)
 			return
 		}
@@ -174,16 +179,12 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 		err = h.CategoryInteractor.CreateChild(ctx, category)
 
 		if err != nil {
+			if errors.Is(err, domain.ErrCategoryNameExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsConflict(err) {
-				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
 				return
 			}
 			err = fmt.Errorf("failed to create child category: %w", err)
@@ -254,48 +255,53 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 // 	}
 // }
 
-// // Delete
-// //
-// //	@Tags		商品分类
-// //	@Security	BearerAuth
-// //	@Summary	删除商品分类
-// //	@Accept		json
-// //	@Produce	json
-// //	@Param		id	path		string	true	"分类ID"
-// //	@Success	200	"No Content"
-// //	@Router		/category/{id} [delete]
-// func (h *CategoryHandler) Delete() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := c.Request.Context()
-// 		logger := logging.FromContext(ctx).Named("CategoryHandler.Delete")
-// 		ctx = logging.NewContext(ctx, logger)
-// 		c.Request = c.Request.Clone(ctx)
+// Delete
+//
+//	@Tags		商品分类
+//	@Security	BearerAuth
+//	@Summary	删除商品分类
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path	string	true	"分类ID"
+//	@Success	200	"No Content"
+//	@Router		/product/category/{id} [delete]
+func (h *CategoryHandler) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("CategoryHandler.Delete")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
 
-// 		idStr := c.Param("id")
-// 		id, err := uuid.Parse(idStr)
-// 		if err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
-// 			return
-// 		}
+		idStr := c.Param("id")
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
 
-// 		err = h.CategoryInteractor.Delete(ctx, id)
-// 		if err != nil {
-// 			if domain.IsParamsError(err) {
-// 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-// 				return
-// 			}
-// 			if domain.IsNotFound(err) {
-// 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-// 				return
-// 			}
-// 			err = fmt.Errorf("failed to delete category: %w", err)
-// 			c.Error(err)
-// 			return
-// 		}
+		err = h.CategoryInteractor.Delete(ctx, id)
+		if err != nil {
+			if errors.Is(err, domain.ErrCategoryDeleteHasChildren) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.CategoryDeleteHasChildren, err))
+				return
+			}
+			if errors.Is(err, domain.ErrCategoryDeleteHasProducts) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.CategoryDeleteHasProducts, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
 
-// 		response.Ok(c, nil)
-// 	}
-// }
+			err = fmt.Errorf("failed to delete category: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
 
 // // GetByID
 // //

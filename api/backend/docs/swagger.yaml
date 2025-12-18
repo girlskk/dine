@@ -76,8 +76,6 @@ definitions:
         description: 税率ID
         type: string
     required:
-    - inherit_stall
-    - inherit_tax_rate
     - name
     type: object
   types.CreateRootCategoryReq:
@@ -206,6 +204,25 @@ paths:
       tags:
       - 商品分类
   /product/category/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品分类
+      tags:
+      - 商品分类
     post:
       parameters:
       - description: 父分类ID
