@@ -28,6 +28,7 @@ func NewCategoryHandler(categoryInteractor domain.CategoryInteractor) *CategoryH
 func (h *CategoryHandler) Routes(r gin.IRouter) {
 	r = r.Group("product/category")
 	r.POST("", h.CreateRoot())
+	r.POST("/:id", h.CreateChild())
 	// r.PUT("/:id", h.Update())
 	// r.DELETE("/:id", h.Delete())
 	// r.GET("/:id", h.GetByID())
@@ -99,6 +100,93 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 				return
 			}
 			err = fmt.Errorf("failed to create category: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// CreateChild
+//
+//	@Tags		商品分类
+//	@Security	BearerAuth
+//	@Summary	创建二级商品分类
+//	@Param		id		path	string							true	"父分类ID"
+//	@Param		data	body	types.CreateChildCategoryReq	true	"请求信息"
+//	@Success	200
+//	@Router		/product/category/{id} [post]
+func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("CategoryHandler.CreateChild")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取父分类ID
+		parentIDStr := c.Param("id")
+		parentID, err := uuid.Parse(parentIDStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		var req types.CreateChildCategoryReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		if !req.InheritTaxRate && req.TaxRateID == nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, nil))
+			return
+		}
+
+		if !req.InheritStall && req.StallID == nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, nil))
+			return
+		}
+
+		user := domain.FromBackendUserContext(ctx)
+
+		category := &domain.Category{
+			ID:             uuid.New(),
+			Name:           req.Name,
+			ParentID:       parentID,
+			MerchantID:     user.MerchantID,
+			InheritTaxRate: req.InheritTaxRate,
+			InheritStall:   req.InheritStall,
+		}
+
+		// 如果设置了税率ID，则不继承
+		if req.TaxRateID != nil {
+			category.TaxRateID = *req.TaxRateID
+			category.InheritTaxRate = false
+		}
+
+		// 如果设置了出品部门ID，则不继承
+		if req.StallID != nil {
+			category.StallID = *req.StallID
+			category.InheritStall = false
+		}
+
+		err = h.CategoryInteractor.CreateChild(ctx, category)
+
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsConflict(err) {
+				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
+				return
+			}
+			err = fmt.Errorf("failed to create child category: %w", err)
 			c.Error(err)
 			return
 		}

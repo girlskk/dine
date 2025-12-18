@@ -57,6 +57,29 @@ definitions:
     - ObjectStorageSceneReconciliationDetailExport
     - ObjectStorageScenePointSettlementListExport
     - ObjectStorageScenePointSettlementDetailExport
+  types.CreateChildCategoryReq:
+    properties:
+      inherit_stall:
+        description: 是否继承父分类的出品部门ID
+        type: boolean
+      inherit_tax_rate:
+        description: 是否继承父分类的税率ID
+        type: boolean
+      name:
+        description: 分类名称
+        maxLength: 255
+        type: string
+      stall_id:
+        description: 出品部门ID
+        type: string
+      tax_rate_id:
+        description: 税率ID
+        type: string
+    required:
+    - inherit_stall
+    - inherit_tax_rate
+    - name
+    type: object
   types.CreateRootCategoryReq:
     properties:
       children_names:
@@ -180,6 +203,28 @@ paths:
       security:
       - BearerAuth: []
       summary: 创建一级商品分类
+      tags:
+      - 商品分类
+  /product/category/{id}:
+    post:
+      parameters:
+      - description: 父分类ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateChildCategoryReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建二级商品分类
       tags:
       - 商品分类
   /user/info:

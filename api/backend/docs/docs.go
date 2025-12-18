@@ -82,6 +82,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/product/category/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "创建二级商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "父分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateChildCategoryReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/user/info": {
             "post": {
                 "security": [
@@ -248,6 +284,37 @@ const docTemplate = `{
                 "ObjectStorageScenePointSettlementListExport",
                 "ObjectStorageScenePointSettlementDetailExport"
             ]
+        },
+        "types.CreateChildCategoryReq": {
+            "type": "object",
+            "required": [
+                "inherit_stall",
+                "inherit_tax_rate",
+                "name"
+            ],
+            "properties": {
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                }
+            }
         },
         "types.CreateRootCategoryReq": {
             "type": "object",

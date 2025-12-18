@@ -34,6 +34,7 @@ type CategoryRepository interface {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/category_interactor.go -package=mock . CategoryInteractor
 type CategoryInteractor interface {
 	CreateRoot(ctx context.Context, category *Category) error
+	CreateChild(ctx context.Context, category *Category) error
 	// Update(ctx context.Context, category *Category) (*Category, error)
 	// Delete(ctx context.Context, id uuid.UUID) error
 }

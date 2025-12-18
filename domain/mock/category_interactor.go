@@ -35,6 +35,20 @@ func (m *MockCategoryInteractor) EXPECT() *MockCategoryInteractorMockRecorder {
 	return m.recorder
 }
 
+// CreateChild mocks base method.
+func (m *MockCategoryInteractor) CreateChild(arg0 context.Context, arg1 *domain.Category) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateChild", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateChild indicates an expected call of CreateChild.
+func (mr *MockCategoryInteractorMockRecorder) CreateChild(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChild", reflect.TypeOf((*MockCategoryInteractor)(nil).CreateChild), arg0, arg1)
+}
+
 // CreateRoot mocks base method.
 func (m *MockCategoryInteractor) CreateRoot(arg0 context.Context, arg1 *domain.Category) error {
 	m.ctrl.T.Helper()
