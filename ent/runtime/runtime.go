@@ -5,6 +5,7 @@ package runtime
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -18,28 +19,30 @@ import (
 // to their package variables.
 func init() {
 	adminuserMixin := schema.AdminUser{}.Mixin()
-	adminuserMixinHooks1 := adminuserMixin[1].Hooks()
-	adminuser.Hooks[0] = adminuserMixinHooks1[0]
-	adminuserMixinInters1 := adminuserMixin[1].Interceptors()
-	adminuser.Interceptors[0] = adminuserMixinInters1[0]
+	adminuserMixinHooks2 := adminuserMixin[2].Hooks()
+	adminuser.Hooks[0] = adminuserMixinHooks2[0]
+	adminuserMixinInters2 := adminuserMixin[2].Interceptors()
+	adminuser.Interceptors[0] = adminuserMixinInters2[0]
 	adminuserMixinFields0 := adminuserMixin[0].Fields()
 	_ = adminuserMixinFields0
 	adminuserMixinFields1 := adminuserMixin[1].Fields()
 	_ = adminuserMixinFields1
+	adminuserMixinFields2 := adminuserMixin[2].Fields()
+	_ = adminuserMixinFields2
 	adminuserFields := schema.AdminUser{}.Fields()
 	_ = adminuserFields
 	// adminuserDescCreatedAt is the schema descriptor for created_at field.
-	adminuserDescCreatedAt := adminuserMixinFields0[0].Descriptor()
+	adminuserDescCreatedAt := adminuserMixinFields1[0].Descriptor()
 	// adminuser.DefaultCreatedAt holds the default value on creation for the created_at field.
 	adminuser.DefaultCreatedAt = adminuserDescCreatedAt.Default.(func() time.Time)
 	// adminuserDescUpdatedAt is the schema descriptor for updated_at field.
-	adminuserDescUpdatedAt := adminuserMixinFields0[1].Descriptor()
+	adminuserDescUpdatedAt := adminuserMixinFields1[1].Descriptor()
 	// adminuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	adminuser.DefaultUpdatedAt = adminuserDescUpdatedAt.Default.(func() time.Time)
 	// adminuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	adminuser.UpdateDefaultUpdatedAt = adminuserDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// adminuserDescDeletedAt is the schema descriptor for deleted_at field.
-	adminuserDescDeletedAt := adminuserMixinFields1[0].Descriptor()
+	adminuserDescDeletedAt := adminuserMixinFields2[0].Descriptor()
 	// adminuser.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	adminuser.DefaultDeletedAt = adminuserDescDeletedAt.Default.(int64)
 	// adminuserDescUsername is the schema descriptor for username field.
@@ -64,6 +67,10 @@ func init() {
 	adminuserDescHashedPassword := adminuserFields[1].Descriptor()
 	// adminuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	adminuser.HashedPasswordValidator = adminuserDescHashedPassword.Validators[0].(func(string) error)
+	// adminuserDescID is the schema descriptor for id field.
+	adminuserDescID := adminuserMixinFields0[0].Descriptor()
+	// adminuser.DefaultID holds the default value on creation for the id field.
+	adminuser.DefaultID = adminuserDescID.Default.(func() uuid.UUID)
 	merchantMixin := schema.Merchant{}.Mixin()
 	merchantMixinHooks1 := merchantMixin[1].Hooks()
 	merchant.Hooks[0] = merchantMixinHooks1[0]

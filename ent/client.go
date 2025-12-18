@@ -9,6 +9,7 @@ import (
 	"log"
 	"reflect"
 
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/migrate"
 
 	"entgo.io/ent"
@@ -298,7 +299,7 @@ func (c *AdminUserClient) UpdateOne(au *AdminUser) *AdminUserUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *AdminUserClient) UpdateOneID(id int) *AdminUserUpdateOne {
+func (c *AdminUserClient) UpdateOneID(id uuid.UUID) *AdminUserUpdateOne {
 	mutation := newAdminUserMutation(c.config, OpUpdateOne, withAdminUserID(id))
 	return &AdminUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -315,7 +316,7 @@ func (c *AdminUserClient) DeleteOne(au *AdminUser) *AdminUserDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *AdminUserClient) DeleteOneID(id int) *AdminUserDeleteOne {
+func (c *AdminUserClient) DeleteOneID(id uuid.UUID) *AdminUserDeleteOne {
 	builder := c.Delete().Where(adminuser.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -332,12 +333,12 @@ func (c *AdminUserClient) Query() *AdminUserQuery {
 }
 
 // Get returns a AdminUser entity by its id.
-func (c *AdminUserClient) Get(ctx context.Context, id int) (*AdminUser, error) {
+func (c *AdminUserClient) Get(ctx context.Context, id uuid.UUID) (*AdminUser, error) {
 	return c.Query().Where(adminuser.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *AdminUserClient) GetX(ctx context.Context, id int) *AdminUser {
+func (c *AdminUserClient) GetX(ctx context.Context, id uuid.UUID) *AdminUser {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
