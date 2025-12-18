@@ -32,6 +32,11 @@ func (repo *MerchantRenewalRepository) Create(ctx context.Context, merchantRenew
 		util.SpanErrFinish(span, err)
 	}()
 
+	if merchantRenewal == nil {
+		err = fmt.Errorf("merchantRenewal is nil")
+		return
+	}
+
 	_, err = repo.Client.MerchantRenewal.Create().
 		SetMerchantID(merchantRenewal.MerchantID).
 		SetPurchaseDuration(merchantRenewal.PurchaseDuration).

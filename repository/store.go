@@ -19,6 +19,32 @@ type StoreRepository struct {
 	Client *ent.Client
 }
 
+func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams *domain.ExistsStoreParams) (exists bool, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.ExistsStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if existsStoreParams == nil {
+		err = fmt.Errorf("existsStoreParams is nil")
+		return
+	}
+
+	query := repo.Client.Store.Query().
+		Where(store.StoreNameEQ(existsStoreParams.StoreName))
+	if existsStoreParams.NotID > 0 {
+		query = query.Where(store.IDNEQ(existsStoreParams.NotID))
+	}
+
+	exists, err = query.Exist(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to check store existence: %w", err)
+		return
+	}
+
+	return
+}
+
 func (repo *StoreRepository) FindByID(ctx context.Context, id int) (domainStore *domain.Store, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.FindByID")
 	defer func() {
@@ -28,8 +54,8 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id int) (domainStore 
 	em, err := repo.Client.Store.Query().
 		Where(store.ID(id)).
 		Only(ctx)
-	if err != nil {
-		return nil, err
+	if ent.IsNotFound(err) {
+		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
 	}
 	return convertStore(em), nil
 }
@@ -39,7 +65,10 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-
+	if domainStore == nil {
+		err = fmt.Errorf("domainStore is nil")
+		return
+	}
 	_, err = repo.Client.Store.Create().
 		SetMerchantID(domainStore.MerchantID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
@@ -82,7 +111,10 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-
+	if domainStore == nil {
+		err = fmt.Errorf("domainStore is nil")
+		return
+	}
 	_, err = repo.Client.Store.UpdateOneID(domainStore.ID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
@@ -141,10 +173,19 @@ func (repo *StoreRepository) Delete(ctx context.Context, id int) (err error) {
 }
 
 func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.Pagination, filter *domain.StoreListFilter, orderBys ...domain.StoreListOrderBy) (domainStores []*domain.Store, total int, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.GetMerchants")
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.GetStores")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+
+	if pager == nil {
+		err = fmt.Errorf("pager is nil")
+		return
+	}
+	if filter == nil {
+		err = fmt.Errorf("filter is nil")
+		return
+	}
 
 	query := repo.filterBuildQuery(filter)
 

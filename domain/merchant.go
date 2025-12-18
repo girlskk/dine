@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
@@ -133,18 +134,26 @@ type MerchantRepository interface {
 	Update(ctx context.Context, domainMerchant *Merchant) (err error)
 	Delete(ctx context.Context, id int) error
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
-	CountMerchant(ctx context.Context, condition map[string]string) (merchantCount *MerchantCount, err error)
+	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	CreateMerchantAndStore(ctx context.Context, domainMerchant *Merchant, domainStore *Store) (err error)
 	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
+	ExistMerchant(ctx context.Context, merchantExistsParams *MerchantExistsParams) (exist bool, err error)
 }
 
+var (
+	ErrMerchantNameExists = errors.New("商户名称已存在")
+	ErrMerchantNotExists  = errors.New("商户不存在")
+)
+
 type MerchantInteractor interface {
-	CreateMerchant(ctx context.Context, domainMerchant *Merchant, domainStore *Store) (err error)
-	UpdateMerchant(ctx context.Context, domainMerchant *Merchant, domainStore *Store) (err error)
-	DeleteMerchant(ctx context.Context, id int) error
+	CreateMerchant(ctx context.Context, domainMerchant *Merchant) (err error)
+	CreateMerchantAndStore(ctx context.Context, domainMerchant *Merchant, domainStore *Store) (err error)
+	UpdateMerchant(ctx context.Context, domainMerchant *Merchant) (err error)
+	UpdateMerchantAndStore(ctx context.Context, domainMerchant *Merchant, domainStore *Store) (err error)
+	DeleteMerchant(ctx context.Context, id int) (err error)
 	GetMerchant(ctx context.Context, id int) (domainMerchant *Merchant, err error)
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
-	CountMerchant(ctx context.Context, condition map[string]string) (merchantCount *MerchantCount, err error)
+	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
 }
 
@@ -156,4 +165,9 @@ type MerchantListFilter struct {
 	CreatedAtGte     *time.Time     `json:"created_at_gte"`     // 创建时间 大于等于
 	CreatedAtLte     *time.Time     `json:"created_at_lte"`     // 创建时间 小于等于
 	ProvinceID       int            `json:"province_id"`        // 省份 ID
+}
+
+type MerchantExistsParams struct {
+	MerchantName string // 商户名称
+	NotID        int    // 排除的商户 ID
 }

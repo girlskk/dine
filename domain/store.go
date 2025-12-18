@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
@@ -127,7 +128,13 @@ type StoreRepository interface {
 	Update(ctx context.Context, domainStore *Store) (err error)
 	Delete(ctx context.Context, id int) (err error)
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
+	ExistsStore(ctx context.Context, existsStoreParams *ExistsStoreParams) (exists bool, err error)
 }
+
+var (
+	ErrStoreNameExists = errors.New("门店名称已存在")
+	ErrStoreNotExists  = errors.New("门店不存在")
+)
 
 type StoreListFilter struct {
 	StoreName        string        `json:"store_name"`         // 门店名称
@@ -139,4 +146,9 @@ type StoreListFilter struct {
 	CreatedAtGte     *time.Time    `json:"created_at_gte"`     // 创建时间 大于等于
 	CreatedAtLte     *time.Time    `json:"created_at_lte"`     // 创建时间 小于等于
 	ProvinceID       int           `json:"province_id"`        // 省份 ID
+}
+
+type ExistsStoreParams struct {
+	StoreName string // 门店名称
+	NotID     int    // 排除的门店 ID
 }

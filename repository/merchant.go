@@ -35,8 +35,8 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id int) (domainMer
 	em, err := repo.Client.Merchant.Query().
 		Where(merchant.ID(id)).
 		Only(ctx)
-	if err != nil {
-		return nil, err
+	if ent.IsNotFound(err) {
+		return nil, domain.NotFoundError(domain.ErrMerchantNotExists)
 	}
 	return convertMerchant(em), nil
 }
@@ -47,6 +47,10 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		util.SpanErrFinish(span, err)
 	}()
 
+	if domainMerchant == nil {
+		err = fmt.Errorf("domainMerchant is nil")
+		return
+	}
 	_, err = repo.Client.Merchant.Create().
 		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
@@ -85,6 +89,11 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+
+	if domainMerchant == nil {
+		err = fmt.Errorf("domainMerchant is nil")
+		return
+	}
 
 	_, err = repo.Client.Merchant.UpdateOneID(domainMerchant.ID).
 		SetMerchantCode(domainMerchant.MerchantCode).
@@ -146,6 +155,14 @@ func (repo *MerchantRepository) GetMerchants(ctx context.Context, pager *upagina
 		util.SpanErrFinish(span, err)
 	}()
 
+	if pager == nil {
+		err = fmt.Errorf("pager is nil")
+		return
+	}
+	if filter == nil {
+		err = fmt.Errorf("filter is nil")
+		return
+	}
 	query := repo.filterBuildQuery(filter)
 
 	total, err = query.Clone().Count(ctx)
@@ -169,8 +186,8 @@ func (repo *MerchantRepository) GetMerchants(ctx context.Context, pager *upagina
 	return
 }
 
-func (repo *MerchantRepository) CountMerchant(ctx context.Context, condition map[string]string) (merchantCount *domain.MerchantCount, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.CountMerchantByCondition")
+func (repo *MerchantRepository) CountMerchant(ctx context.Context) (merchantCount *domain.MerchantCount, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.CountMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -226,6 +243,14 @@ func (repo *MerchantRepository) CreateMerchantAndStore(ctx context.Context, doma
 		util.SpanErrFinish(span, err)
 	}()
 
+	if domainMerchant == nil {
+		err = fmt.Errorf("domainMerchant is nil")
+		return
+	}
+	if domainStore == nil {
+		err = fmt.Errorf("domainStore is nil")
+		return
+	}
 	repoTx := New(repo.Client)
 	err = repoTx.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		err := ds.MerchantRepo().Create(ctx, domainMerchant)
@@ -247,6 +272,10 @@ func (repo *MerchantRepository) MerchantRenewal(ctx context.Context, merchantRen
 		util.SpanErrFinish(span, err)
 	}()
 
+	if merchantRenewal == nil {
+		err = fmt.Errorf("merchantRenewal is nil")
+		return
+	}
 	repoTx := New(repo.Client)
 	err = repoTx.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		err := ds.MerchantRenewalRepo().Create(ctx, merchantRenewal)
@@ -264,6 +293,30 @@ func (repo *MerchantRepository) MerchantRenewal(ctx context.Context, merchantRen
 		}
 		return nil
 	})
+	return
+}
+
+func (repo *MerchantRepository) ExistMerchant(ctx context.Context, merchantExistsParams *domain.MerchantExistsParams) (exist bool, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.ExistMerchant")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if merchantExistsParams == nil {
+		err = fmt.Errorf("merchantExistsParams is nil")
+		return
+	}
+	query := repo.Client.Merchant.Query().
+		Where(merchant.MerchantNameEQ(merchantExistsParams.MerchantName))
+	if merchantExistsParams.NotID > 0 {
+		query = query.Where(merchant.IDNEQ(merchantExistsParams.NotID))
+	}
+	exist, err = query.Exist(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to check merchant existence: %w", err)
+		return
+	}
+
 	return
 }
 
