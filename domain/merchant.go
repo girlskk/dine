@@ -138,6 +138,16 @@ type MerchantRepository interface {
 	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
 }
 
+type MerchantInteractor interface {
+	CreateMerchant(ctx context.Context, domainMerchant *Merchant, domainStore *Store) (err error)
+	UpdateMerchant(ctx context.Context, domainMerchant *Merchant, domainStore *Store) (err error)
+	DeleteMerchant(ctx context.Context, id int) error
+	GetMerchant(ctx context.Context, id int) (domainMerchant *Merchant, err error)
+	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
+	CountMerchant(ctx context.Context, condition map[string]string) (merchantCount *MerchantCount, err error)
+	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
+}
+
 type MerchantListFilter struct {
 	Status           MerchantStatus `json:"status"`
 	MerchantName     string         `json:"merchant_name"`      // 商户名称

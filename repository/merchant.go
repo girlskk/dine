@@ -3,8 +3,6 @@ package repository
 import (
 	"context"
 	"fmt"
-	"strings"
-	"sync"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -177,68 +175,48 @@ func (repo *MerchantRepository) CountMerchant(ctx context.Context, condition map
 		util.SpanErrFinish(span, err)
 	}()
 
-	validMap := lo.PickByKeys(condition, merchant.Columns)
-	errChan := make(chan error, 3)
-	mc := domain.MerchantCount{}
-	wg := sync.WaitGroup{}
-	for k, v := range validMap {
-		switch k {
-		case merchant.FieldMerchantType:
-			switch v {
-			case string(domain.MerchantTypeBrand):
-				wg.Add(1)
-				go func() {
-					count, err := repo.Client.Merchant.Query().
-						Where(merchant.MerchantTypeEQ(domain.MerchantTypeBrand)).
-						Count(ctx)
-					if err != nil {
-						errChan <- err
-					}
-					mc.MerchantTypeBrand = count
-					wg.Done()
-				}()
-			case string(domain.MerchantTypeStore):
-				wg.Add(1)
-				go func() {
-					count, err := repo.Client.Merchant.Query().
-						Where(merchant.MerchantTypeEQ(domain.MerchantTypeStore)).
-						Count(ctx)
-					if err != nil {
-						errChan <- err
-					}
-					mc.MerchantTypeStore = count
-					wg.Done()
-				}()
-			default:
-			}
-		case merchant.FieldExpireUtc:
-			wg.Add(1)
-			go func() {
-				count, err := repo.Client.Merchant.Query().
-					Where(merchant.ExpireUtcLT(time.Now())).
-					Count(ctx)
-				if err != nil {
-					errChan <- err
-				}
-				mc.Expired = count
-				wg.Done()
-			}()
-		default:
-		}
+	now := time.Now().UTC()
+	var counts struct {
+		BrandCount   int `sql:"brand_count"`
+		StoreCount   int `sql:"store_count"`
+		ExpiredCount int `sql:"expired_count"`
 	}
-	wg.Wait()
-	close(errChan)
-	errMsg := make([]string, 0)
-	for e := range errChan {
-		if e != nil {
-			errMsg = append(errMsg, e.Error())
-		}
-	}
-	if len(errMsg) > 0 {
-		err = fmt.Errorf("failed to count merchant: %s", strings.Join(errMsg, ";"))
+
+	err = repo.Client.Merchant.Query().
+		Aggregate(
+			func(s *sql.Selector) string {
+				// count brand merchants
+				return sql.As(
+					fmt.Sprintf("SUM(CASE WHEN %s = '%s' THEN 1 ELSE 0 END)", s.C(merchant.FieldMerchantType), domain.MerchantTypeBrand),
+					"brand_count",
+				)
+			},
+			func(s *sql.Selector) string {
+				// count store merchants
+				return sql.As(
+					fmt.Sprintf("SUM(CASE WHEN %s = '%s' THEN 1 ELSE 0 END)", s.C(merchant.FieldMerchantType), domain.MerchantTypeStore),
+					"store_count",
+				)
+			},
+			func(s *sql.Selector) string {
+				// count expired merchants
+				return sql.As(
+					fmt.Sprintf("SUM(CASE WHEN %s < '%s' THEN 1 ELSE 0 END)", s.C(merchant.FieldExpireUtc), now.Format("2006-01-02 15:04:05")),
+					"expired_count",
+				)
+			},
+		).
+		Scan(ctx, &counts)
+	if err != nil {
+		err = fmt.Errorf("failed to count merchant: %w", err)
 		return
 	}
-	merchantCount = &mc
+
+	merchantCount = &domain.MerchantCount{
+		MerchantTypeBrand: counts.BrandCount,
+		MerchantTypeStore: counts.StoreCount,
+		Expired:           counts.ExpiredCount,
+	}
 	return
 }
 
@@ -382,35 +360,3 @@ func sumRenewalDuration(oldTime time.Time, d int, durationUnit domain.PurchaseDu
 	}
 	return &newTime
 }
-
-//func (repo *MerchantRepository) CountMerchant(ctx context.Context, condition map[string]string) (merchantCount *domain.MerchantCount, err error) {
-//	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.CountMerchantByCondition")
-//	defer func() {
-//		util.SpanErrFinish(span, err)
-//	}()
-//	return
-//	validMap := lo.PickByKeys(condition, merchant.Columns)
-//	i := 1
-//	queryCondition := "SELECT "
-//	for k, v := range validMap {
-//		switch k {
-//		case merchant.FieldMerchantType:
-//			switch v {
-//			case string(domain.MerchantTypeBrand):
-//				queryCondition += fmt.Sprintf(" COUNT(CASE WHEN '%s' = '%s' THEN 1 END) as brand_count", k, v)
-//			case string(domain.MerchantTypeStore):
-//				queryCondition += fmt.Sprintf(" COUNT(CASE WHEN '%s' = '%s' THEN 1 END) as store_count", k, v)
-//			default:
-//			}
-//		case merchant.FieldExpireUtc:
-//			queryCondition += fmt.Sprintf(" COUNT(CASE WHEN '%s' < NOW() THEN 1 END) as expired_count", k)
-//		default:
-//		}
-//		if i < len(validMap) {
-//			queryCondition += ","
-//		}
-//		i++
-//	}
-//	queryCondition += " FROM merchant"
-//	return
-//}
