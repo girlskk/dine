@@ -82,9 +82,8 @@ func (e *Error) caller(skip ...int) *Error {
 	return e
 }
 
-// ShouldTranslate 检查是否需要翻译（Message 等于 Code 的字符串形式时返回 true）
-func (e *Error) ShouldTranslate() bool {
-	return e.Message == string(e.Code)
+func (e *Error) IsMessageEmpty() bool {
+	return e.Message == e.Code.String()
 }
 
 // MarshalJSON 自定义 JSON 序列化，根据 debug 模式决定是否返回底层错误

@@ -14,6 +14,10 @@ type Tx struct {
 	config
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
+	// BackendUser is the client for interacting with the BackendUser builders.
+	BackendUser *BackendUserClient
+	// Category is the client for interacting with the Category builders.
+	Category *CategoryClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +150,8 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AdminUser = NewAdminUserClient(tx.config)
+	tx.BackendUser = NewBackendUserClient(tx.config)
+	tx.Category = NewCategoryClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
 )
 
@@ -67,6 +69,124 @@ func init() {
 	adminuserDescID := adminuserMixinFields0[0].Descriptor()
 	// adminuser.DefaultID holds the default value on creation for the id field.
 	adminuser.DefaultID = adminuserDescID.Default.(func() uuid.UUID)
+	backenduserMixin := schema.BackendUser{}.Mixin()
+	backenduserMixinHooks1 := backenduserMixin[1].Hooks()
+	backenduser.Hooks[0] = backenduserMixinHooks1[0]
+	backenduserMixinInters1 := backenduserMixin[1].Interceptors()
+	backenduser.Interceptors[0] = backenduserMixinInters1[0]
+	backenduserMixinFields0 := backenduserMixin[0].Fields()
+	_ = backenduserMixinFields0
+	backenduserMixinFields1 := backenduserMixin[1].Fields()
+	_ = backenduserMixinFields1
+	backenduserMixinFields2 := backenduserMixin[2].Fields()
+	_ = backenduserMixinFields2
+	backenduserFields := schema.BackendUser{}.Fields()
+	_ = backenduserFields
+	// backenduserDescCreatedAt is the schema descriptor for created_at field.
+	backenduserDescCreatedAt := backenduserMixinFields0[0].Descriptor()
+	// backenduser.DefaultCreatedAt holds the default value on creation for the created_at field.
+	backenduser.DefaultCreatedAt = backenduserDescCreatedAt.Default.(func() time.Time)
+	// backenduserDescUpdatedAt is the schema descriptor for updated_at field.
+	backenduserDescUpdatedAt := backenduserMixinFields0[1].Descriptor()
+	// backenduser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	backenduser.DefaultUpdatedAt = backenduserDescUpdatedAt.Default.(func() time.Time)
+	// backenduser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	backenduser.UpdateDefaultUpdatedAt = backenduserDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// backenduserDescDeletedAt is the schema descriptor for deleted_at field.
+	backenduserDescDeletedAt := backenduserMixinFields1[0].Descriptor()
+	// backenduser.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	backenduser.DefaultDeletedAt = backenduserDescDeletedAt.Default.(int64)
+	// backenduserDescUsername is the schema descriptor for username field.
+	backenduserDescUsername := backenduserFields[0].Descriptor()
+	// backenduser.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	backenduser.UsernameValidator = func() func(string) error {
+		validators := backenduserDescUsername.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(username string) error {
+			for _, fn := range fns {
+				if err := fn(username); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// backenduserDescHashedPassword is the schema descriptor for hashed_password field.
+	backenduserDescHashedPassword := backenduserFields[1].Descriptor()
+	// backenduser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
+	backenduser.HashedPasswordValidator = backenduserDescHashedPassword.Validators[0].(func(string) error)
+	// backenduserDescID is the schema descriptor for id field.
+	backenduserDescID := backenduserMixinFields2[0].Descriptor()
+	// backenduser.DefaultID holds the default value on creation for the id field.
+	backenduser.DefaultID = backenduserDescID.Default.(func() uuid.UUID)
+	categoryMixin := schema.Category{}.Mixin()
+	categoryMixinHooks2 := categoryMixin[2].Hooks()
+	category.Hooks[0] = categoryMixinHooks2[0]
+	categoryMixinInters2 := categoryMixin[2].Interceptors()
+	category.Interceptors[0] = categoryMixinInters2[0]
+	categoryMixinFields0 := categoryMixin[0].Fields()
+	_ = categoryMixinFields0
+	categoryMixinFields1 := categoryMixin[1].Fields()
+	_ = categoryMixinFields1
+	categoryMixinFields2 := categoryMixin[2].Fields()
+	_ = categoryMixinFields2
+	categoryFields := schema.Category{}.Fields()
+	_ = categoryFields
+	// categoryDescCreatedAt is the schema descriptor for created_at field.
+	categoryDescCreatedAt := categoryMixinFields1[0].Descriptor()
+	// category.DefaultCreatedAt holds the default value on creation for the created_at field.
+	category.DefaultCreatedAt = categoryDescCreatedAt.Default.(func() time.Time)
+	// categoryDescUpdatedAt is the schema descriptor for updated_at field.
+	categoryDescUpdatedAt := categoryMixinFields1[1].Descriptor()
+	// category.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	category.DefaultUpdatedAt = categoryDescUpdatedAt.Default.(func() time.Time)
+	// category.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	category.UpdateDefaultUpdatedAt = categoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// categoryDescDeletedAt is the schema descriptor for deleted_at field.
+	categoryDescDeletedAt := categoryMixinFields2[0].Descriptor()
+	// category.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	category.DefaultDeletedAt = categoryDescDeletedAt.Default.(int64)
+	// categoryDescName is the schema descriptor for name field.
+	categoryDescName := categoryFields[0].Descriptor()
+	// category.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	category.NameValidator = func() func(string) error {
+		validators := categoryDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// categoryDescInheritTaxRate is the schema descriptor for inherit_tax_rate field.
+	categoryDescInheritTaxRate := categoryFields[4].Descriptor()
+	// category.DefaultInheritTaxRate holds the default value on creation for the inherit_tax_rate field.
+	category.DefaultInheritTaxRate = categoryDescInheritTaxRate.Default.(bool)
+	// categoryDescInheritStall is the schema descriptor for inherit_stall field.
+	categoryDescInheritStall := categoryFields[6].Descriptor()
+	// category.DefaultInheritStall holds the default value on creation for the inherit_stall field.
+	category.DefaultInheritStall = categoryDescInheritStall.Default.(bool)
+	// categoryDescProductCount is the schema descriptor for product_count field.
+	categoryDescProductCount := categoryFields[8].Descriptor()
+	// category.DefaultProductCount holds the default value on creation for the product_count field.
+	category.DefaultProductCount = categoryDescProductCount.Default.(int)
+	// categoryDescSortOrder is the schema descriptor for sort_order field.
+	categoryDescSortOrder := categoryFields[9].Descriptor()
+	// category.DefaultSortOrder holds the default value on creation for the sort_order field.
+	category.DefaultSortOrder = categoryDescSortOrder.Default.(int)
+	// categoryDescID is the schema descriptor for id field.
+	categoryDescID := categoryMixinFields0[0].Descriptor()
+	// category.DefaultID holds the default value on creation for the id field.
+	category.DefaultID = categoryDescID.Default.(func() uuid.UUID)
 }
 
 const (
