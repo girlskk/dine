@@ -287,6 +287,48 @@ func (su *StoreUpdate) SetNillableFoodOperationLicenseURL(s *string) *StoreUpdat
 	return su
 }
 
+// SetBusinessHours sets the "business_hours" field.
+func (su *StoreUpdate) SetBusinessHours(s string) *StoreUpdate {
+	su.mutation.SetBusinessHours(s)
+	return su
+}
+
+// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
+func (su *StoreUpdate) SetNillableBusinessHours(s *string) *StoreUpdate {
+	if s != nil {
+		su.SetBusinessHours(*s)
+	}
+	return su
+}
+
+// SetDiningPeriods sets the "dining_periods" field.
+func (su *StoreUpdate) SetDiningPeriods(s string) *StoreUpdate {
+	su.mutation.SetDiningPeriods(s)
+	return su
+}
+
+// SetNillableDiningPeriods sets the "dining_periods" field if the given value is not nil.
+func (su *StoreUpdate) SetNillableDiningPeriods(s *string) *StoreUpdate {
+	if s != nil {
+		su.SetDiningPeriods(*s)
+	}
+	return su
+}
+
+// SetShiftTimes sets the "shift_times" field.
+func (su *StoreUpdate) SetShiftTimes(s string) *StoreUpdate {
+	su.mutation.SetShiftTimes(s)
+	return su
+}
+
+// SetNillableShiftTimes sets the "shift_times" field if the given value is not nil.
+func (su *StoreUpdate) SetNillableShiftTimes(s *string) *StoreUpdate {
+	if s != nil {
+		su.SetShiftTimes(*s)
+	}
+	return su
+}
+
 // SetCountryID sets the "country_id" field.
 func (su *StoreUpdate) SetCountryID(u uuid.UUID) *StoreUpdate {
 	su.mutation.SetCountryID(u)
@@ -588,6 +630,21 @@ func (su *StoreUpdate) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
+	if v, ok := su.mutation.BusinessHours(); ok {
+		if err := store.BusinessHoursValidator(v); err != nil {
+			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.DiningPeriods(); ok {
+		if err := store.DiningPeriodsValidator(v); err != nil {
+			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.ShiftTimes(); ok {
+		if err := store.ShiftTimesValidator(v); err != nil {
+			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
+		}
+	}
 	if v, ok := su.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -686,6 +743,15 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.FoodOperationLicenseURL(); ok {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
+	}
+	if value, ok := su.mutation.BusinessHours(); ok {
+		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+	}
+	if value, ok := su.mutation.DiningPeriods(); ok {
+		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+	}
+	if value, ok := su.mutation.ShiftTimes(); ok {
+		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
@@ -1114,6 +1180,48 @@ func (suo *StoreUpdateOne) SetNillableFoodOperationLicenseURL(s *string) *StoreU
 	return suo
 }
 
+// SetBusinessHours sets the "business_hours" field.
+func (suo *StoreUpdateOne) SetBusinessHours(s string) *StoreUpdateOne {
+	suo.mutation.SetBusinessHours(s)
+	return suo
+}
+
+// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
+func (suo *StoreUpdateOne) SetNillableBusinessHours(s *string) *StoreUpdateOne {
+	if s != nil {
+		suo.SetBusinessHours(*s)
+	}
+	return suo
+}
+
+// SetDiningPeriods sets the "dining_periods" field.
+func (suo *StoreUpdateOne) SetDiningPeriods(s string) *StoreUpdateOne {
+	suo.mutation.SetDiningPeriods(s)
+	return suo
+}
+
+// SetNillableDiningPeriods sets the "dining_periods" field if the given value is not nil.
+func (suo *StoreUpdateOne) SetNillableDiningPeriods(s *string) *StoreUpdateOne {
+	if s != nil {
+		suo.SetDiningPeriods(*s)
+	}
+	return suo
+}
+
+// SetShiftTimes sets the "shift_times" field.
+func (suo *StoreUpdateOne) SetShiftTimes(s string) *StoreUpdateOne {
+	suo.mutation.SetShiftTimes(s)
+	return suo
+}
+
+// SetNillableShiftTimes sets the "shift_times" field if the given value is not nil.
+func (suo *StoreUpdateOne) SetNillableShiftTimes(s *string) *StoreUpdateOne {
+	if s != nil {
+		suo.SetShiftTimes(*s)
+	}
+	return suo
+}
+
 // SetCountryID sets the "country_id" field.
 func (suo *StoreUpdateOne) SetCountryID(u uuid.UUID) *StoreUpdateOne {
 	suo.mutation.SetCountryID(u)
@@ -1428,6 +1536,21 @@ func (suo *StoreUpdateOne) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
+	if v, ok := suo.mutation.BusinessHours(); ok {
+		if err := store.BusinessHoursValidator(v); err != nil {
+			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.DiningPeriods(); ok {
+		if err := store.DiningPeriodsValidator(v); err != nil {
+			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.ShiftTimes(); ok {
+		if err := store.ShiftTimesValidator(v); err != nil {
+			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
+		}
+	}
 	if v, ok := suo.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -1543,6 +1666,15 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	}
 	if value, ok := suo.mutation.FoodOperationLicenseURL(); ok {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.BusinessHours(); ok {
+		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.DiningPeriods(); ok {
+		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.ShiftTimes(); ok {
+		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)

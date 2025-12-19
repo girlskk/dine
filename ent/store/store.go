@@ -57,6 +57,12 @@ const (
 	FieldDiningEnvironmentURL = "dining_environment_url"
 	// FieldFoodOperationLicenseURL holds the string denoting the food_operation_license_url field in the database.
 	FieldFoodOperationLicenseURL = "food_operation_license_url"
+	// FieldBusinessHours holds the string denoting the business_hours field in the database.
+	FieldBusinessHours = "business_hours"
+	// FieldDiningPeriods holds the string denoting the dining_periods field in the database.
+	FieldDiningPeriods = "dining_periods"
+	// FieldShiftTimes holds the string denoting the shift_times field in the database.
+	FieldShiftTimes = "shift_times"
 	// FieldCountryID holds the string denoting the country_id field in the database.
 	FieldCountryID = "country_id"
 	// FieldProvinceID holds the string denoting the province_id field in the database.
@@ -163,6 +169,9 @@ var Columns = []string{
 	FieldCashierDeskURL,
 	FieldDiningEnvironmentURL,
 	FieldFoodOperationLicenseURL,
+	FieldBusinessHours,
+	FieldDiningPeriods,
+	FieldShiftTimes,
 	FieldCountryID,
 	FieldProvinceID,
 	FieldCityID,
@@ -244,6 +253,14 @@ var (
 	DefaultFoodOperationLicenseURL string
 	// FoodOperationLicenseURLValidator is a validator for the "food_operation_license_url" field. It is called by the builders before save.
 	FoodOperationLicenseURLValidator func(string) error
+	// DefaultBusinessHours holds the default value on creation for the "business_hours" field.
+	DefaultBusinessHours string
+	// BusinessHoursValidator is a validator for the "business_hours" field. It is called by the builders before save.
+	BusinessHoursValidator func(string) error
+	// DiningPeriodsValidator is a validator for the "dining_periods" field. It is called by the builders before save.
+	DiningPeriodsValidator func(string) error
+	// ShiftTimesValidator is a validator for the "shift_times" field. It is called by the builders before save.
+	ShiftTimesValidator func(string) error
 	// DefaultAddress holds the default value on creation for the "address" field.
 	DefaultAddress string
 	// AddressValidator is a validator for the "address" field. It is called by the builders before save.
@@ -386,6 +403,21 @@ func ByDiningEnvironmentURL(opts ...sql.OrderTermOption) OrderOption {
 // ByFoodOperationLicenseURL orders the results by the food_operation_license_url field.
 func ByFoodOperationLicenseURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFoodOperationLicenseURL, opts...).ToFunc()
+}
+
+// ByBusinessHours orders the results by the business_hours field.
+func ByBusinessHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBusinessHours, opts...).ToFunc()
+}
+
+// ByDiningPeriods orders the results by the dining_periods field.
+func ByDiningPeriods(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDiningPeriods, opts...).ToFunc()
+}
+
+// ByShiftTimes orders the results by the shift_times field.
+func ByShiftTimes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShiftTimes, opts...).ToFunc()
 }
 
 // ByCountryID orders the results by the country_id field.

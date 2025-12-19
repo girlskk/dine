@@ -280,6 +280,32 @@ func (sc *StoreCreate) SetNillableFoodOperationLicenseURL(s *string) *StoreCreat
 	return sc
 }
 
+// SetBusinessHours sets the "business_hours" field.
+func (sc *StoreCreate) SetBusinessHours(s string) *StoreCreate {
+	sc.mutation.SetBusinessHours(s)
+	return sc
+}
+
+// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
+func (sc *StoreCreate) SetNillableBusinessHours(s *string) *StoreCreate {
+	if s != nil {
+		sc.SetBusinessHours(*s)
+	}
+	return sc
+}
+
+// SetDiningPeriods sets the "dining_periods" field.
+func (sc *StoreCreate) SetDiningPeriods(s string) *StoreCreate {
+	sc.mutation.SetDiningPeriods(s)
+	return sc
+}
+
+// SetShiftTimes sets the "shift_times" field.
+func (sc *StoreCreate) SetShiftTimes(s string) *StoreCreate {
+	sc.mutation.SetShiftTimes(s)
+	return sc
+}
+
 // SetCountryID sets the "country_id" field.
 func (sc *StoreCreate) SetCountryID(u uuid.UUID) *StoreCreate {
 	sc.mutation.SetCountryID(u)
@@ -538,6 +564,10 @@ func (sc *StoreCreate) defaults() {
 		v := store.DefaultFoodOperationLicenseURL
 		sc.mutation.SetFoodOperationLicenseURL(v)
 	}
+	if _, ok := sc.mutation.BusinessHours(); !ok {
+		v := store.DefaultBusinessHours
+		sc.mutation.SetBusinessHours(v)
+	}
 	if _, ok := sc.mutation.Address(); !ok {
 		v := store.DefaultAddress
 		sc.mutation.SetAddress(v)
@@ -693,6 +723,30 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
+	if _, ok := sc.mutation.BusinessHours(); !ok {
+		return &ValidationError{Name: "business_hours", err: errors.New(`ent: missing required field "Store.business_hours"`)}
+	}
+	if v, ok := sc.mutation.BusinessHours(); ok {
+		if err := store.BusinessHoursValidator(v); err != nil {
+			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
+		}
+	}
+	if _, ok := sc.mutation.DiningPeriods(); !ok {
+		return &ValidationError{Name: "dining_periods", err: errors.New(`ent: missing required field "Store.dining_periods"`)}
+	}
+	if v, ok := sc.mutation.DiningPeriods(); ok {
+		if err := store.DiningPeriodsValidator(v); err != nil {
+			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
+		}
+	}
+	if _, ok := sc.mutation.ShiftTimes(); !ok {
+		return &ValidationError{Name: "shift_times", err: errors.New(`ent: missing required field "Store.shift_times"`)}
+	}
+	if v, ok := sc.mutation.ShiftTimes(); ok {
+		if err := store.ShiftTimesValidator(v); err != nil {
+			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.Address(); !ok {
 		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Store.address"`)}
 	}
@@ -836,6 +890,18 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.FoodOperationLicenseURL(); ok {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 		_node.FoodOperationLicenseURL = value
+	}
+	if value, ok := sc.mutation.BusinessHours(); ok {
+		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+		_node.BusinessHours = value
+	}
+	if value, ok := sc.mutation.DiningPeriods(); ok {
+		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+		_node.DiningPeriods = value
+	}
+	if value, ok := sc.mutation.ShiftTimes(); ok {
+		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
+		_node.ShiftTimes = value
 	}
 	if value, ok := sc.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
@@ -1239,6 +1305,42 @@ func (u *StoreUpsert) SetFoodOperationLicenseURL(v string) *StoreUpsert {
 // UpdateFoodOperationLicenseURL sets the "food_operation_license_url" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateFoodOperationLicenseURL() *StoreUpsert {
 	u.SetExcluded(store.FieldFoodOperationLicenseURL)
+	return u
+}
+
+// SetBusinessHours sets the "business_hours" field.
+func (u *StoreUpsert) SetBusinessHours(v string) *StoreUpsert {
+	u.Set(store.FieldBusinessHours, v)
+	return u
+}
+
+// UpdateBusinessHours sets the "business_hours" field to the value that was provided on create.
+func (u *StoreUpsert) UpdateBusinessHours() *StoreUpsert {
+	u.SetExcluded(store.FieldBusinessHours)
+	return u
+}
+
+// SetDiningPeriods sets the "dining_periods" field.
+func (u *StoreUpsert) SetDiningPeriods(v string) *StoreUpsert {
+	u.Set(store.FieldDiningPeriods, v)
+	return u
+}
+
+// UpdateDiningPeriods sets the "dining_periods" field to the value that was provided on create.
+func (u *StoreUpsert) UpdateDiningPeriods() *StoreUpsert {
+	u.SetExcluded(store.FieldDiningPeriods)
+	return u
+}
+
+// SetShiftTimes sets the "shift_times" field.
+func (u *StoreUpsert) SetShiftTimes(v string) *StoreUpsert {
+	u.Set(store.FieldShiftTimes, v)
+	return u
+}
+
+// UpdateShiftTimes sets the "shift_times" field to the value that was provided on create.
+func (u *StoreUpsert) UpdateShiftTimes() *StoreUpsert {
+	u.SetExcluded(store.FieldShiftTimes)
 	return u
 }
 
@@ -1663,6 +1765,48 @@ func (u *StoreUpsertOne) SetFoodOperationLicenseURL(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateFoodOperationLicenseURL() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateFoodOperationLicenseURL()
+	})
+}
+
+// SetBusinessHours sets the "business_hours" field.
+func (u *StoreUpsertOne) SetBusinessHours(v string) *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetBusinessHours(v)
+	})
+}
+
+// UpdateBusinessHours sets the "business_hours" field to the value that was provided on create.
+func (u *StoreUpsertOne) UpdateBusinessHours() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateBusinessHours()
+	})
+}
+
+// SetDiningPeriods sets the "dining_periods" field.
+func (u *StoreUpsertOne) SetDiningPeriods(v string) *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetDiningPeriods(v)
+	})
+}
+
+// UpdateDiningPeriods sets the "dining_periods" field to the value that was provided on create.
+func (u *StoreUpsertOne) UpdateDiningPeriods() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateDiningPeriods()
+	})
+}
+
+// SetShiftTimes sets the "shift_times" field.
+func (u *StoreUpsertOne) SetShiftTimes(v string) *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetShiftTimes(v)
+	})
+}
+
+// UpdateShiftTimes sets the "shift_times" field to the value that was provided on create.
+func (u *StoreUpsertOne) UpdateShiftTimes() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateShiftTimes()
 	})
 }
 
@@ -2272,6 +2416,48 @@ func (u *StoreUpsertBulk) SetFoodOperationLicenseURL(v string) *StoreUpsertBulk 
 func (u *StoreUpsertBulk) UpdateFoodOperationLicenseURL() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateFoodOperationLicenseURL()
+	})
+}
+
+// SetBusinessHours sets the "business_hours" field.
+func (u *StoreUpsertBulk) SetBusinessHours(v string) *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetBusinessHours(v)
+	})
+}
+
+// UpdateBusinessHours sets the "business_hours" field to the value that was provided on create.
+func (u *StoreUpsertBulk) UpdateBusinessHours() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateBusinessHours()
+	})
+}
+
+// SetDiningPeriods sets the "dining_periods" field.
+func (u *StoreUpsertBulk) SetDiningPeriods(v string) *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetDiningPeriods(v)
+	})
+}
+
+// UpdateDiningPeriods sets the "dining_periods" field to the value that was provided on create.
+func (u *StoreUpsertBulk) UpdateDiningPeriods() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateDiningPeriods()
+	})
+}
+
+// SetShiftTimes sets the "shift_times" field.
+func (u *StoreUpsertBulk) SetShiftTimes(v string) *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetShiftTimes(v)
+	})
+}
+
+// UpdateShiftTimes sets the "shift_times" field to the value that was provided on create.
+func (u *StoreUpsertBulk) UpdateShiftTimes() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateShiftTimes()
 	})
 }
 

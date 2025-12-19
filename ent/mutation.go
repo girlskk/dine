@@ -10862,6 +10862,9 @@ type StoreMutation struct {
 	cashier_desk_url              *string
 	dining_environment_url        *string
 	food_operation_license_url    *string
+	business_hours                *string
+	dining_periods                *string
+	shift_times                   *string
 	address                       *string
 	lng                           *string
 	lat                           *string
@@ -11729,6 +11732,114 @@ func (m *StoreMutation) ResetFoodOperationLicenseURL() {
 	m.food_operation_license_url = nil
 }
 
+// SetBusinessHours sets the "business_hours" field.
+func (m *StoreMutation) SetBusinessHours(s string) {
+	m.business_hours = &s
+}
+
+// BusinessHours returns the value of the "business_hours" field in the mutation.
+func (m *StoreMutation) BusinessHours() (r string, exists bool) {
+	v := m.business_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBusinessHours returns the old "business_hours" field's value of the Store entity.
+// If the Store object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StoreMutation) OldBusinessHours(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBusinessHours is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBusinessHours requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBusinessHours: %w", err)
+	}
+	return oldValue.BusinessHours, nil
+}
+
+// ResetBusinessHours resets all changes to the "business_hours" field.
+func (m *StoreMutation) ResetBusinessHours() {
+	m.business_hours = nil
+}
+
+// SetDiningPeriods sets the "dining_periods" field.
+func (m *StoreMutation) SetDiningPeriods(s string) {
+	m.dining_periods = &s
+}
+
+// DiningPeriods returns the value of the "dining_periods" field in the mutation.
+func (m *StoreMutation) DiningPeriods() (r string, exists bool) {
+	v := m.dining_periods
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDiningPeriods returns the old "dining_periods" field's value of the Store entity.
+// If the Store object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StoreMutation) OldDiningPeriods(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDiningPeriods is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDiningPeriods requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDiningPeriods: %w", err)
+	}
+	return oldValue.DiningPeriods, nil
+}
+
+// ResetDiningPeriods resets all changes to the "dining_periods" field.
+func (m *StoreMutation) ResetDiningPeriods() {
+	m.dining_periods = nil
+}
+
+// SetShiftTimes sets the "shift_times" field.
+func (m *StoreMutation) SetShiftTimes(s string) {
+	m.shift_times = &s
+}
+
+// ShiftTimes returns the value of the "shift_times" field in the mutation.
+func (m *StoreMutation) ShiftTimes() (r string, exists bool) {
+	v := m.shift_times
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShiftTimes returns the old "shift_times" field's value of the Store entity.
+// If the Store object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StoreMutation) OldShiftTimes(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShiftTimes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShiftTimes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShiftTimes: %w", err)
+	}
+	return oldValue.ShiftTimes, nil
+}
+
+// ResetShiftTimes resets all changes to the "shift_times" field.
+func (m *StoreMutation) ResetShiftTimes() {
+	m.shift_times = nil
+}
+
 // SetCountryID sets the "country_id" field.
 func (m *StoreMutation) SetCountryID(u uuid.UUID) {
 	m.country = &u
@@ -12305,7 +12416,7 @@ func (m *StoreMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StoreMutation) Fields() []string {
-	fields := make([]string, 0, 28)
+	fields := make([]string, 0, 31)
 	if m.created_at != nil {
 		fields = append(fields, store.FieldCreatedAt)
 	}
@@ -12365,6 +12476,15 @@ func (m *StoreMutation) Fields() []string {
 	}
 	if m.food_operation_license_url != nil {
 		fields = append(fields, store.FieldFoodOperationLicenseURL)
+	}
+	if m.business_hours != nil {
+		fields = append(fields, store.FieldBusinessHours)
+	}
+	if m.dining_periods != nil {
+		fields = append(fields, store.FieldDiningPeriods)
+	}
+	if m.shift_times != nil {
+		fields = append(fields, store.FieldShiftTimes)
 	}
 	if m.country != nil {
 		fields = append(fields, store.FieldCountryID)
@@ -12438,6 +12558,12 @@ func (m *StoreMutation) Field(name string) (ent.Value, bool) {
 		return m.DiningEnvironmentURL()
 	case store.FieldFoodOperationLicenseURL:
 		return m.FoodOperationLicenseURL()
+	case store.FieldBusinessHours:
+		return m.BusinessHours()
+	case store.FieldDiningPeriods:
+		return m.DiningPeriods()
+	case store.FieldShiftTimes:
+		return m.ShiftTimes()
 	case store.FieldCountryID:
 		return m.CountryID()
 	case store.FieldProvinceID:
@@ -12503,6 +12629,12 @@ func (m *StoreMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDiningEnvironmentURL(ctx)
 	case store.FieldFoodOperationLicenseURL:
 		return m.OldFoodOperationLicenseURL(ctx)
+	case store.FieldBusinessHours:
+		return m.OldBusinessHours(ctx)
+	case store.FieldDiningPeriods:
+		return m.OldDiningPeriods(ctx)
+	case store.FieldShiftTimes:
+		return m.OldShiftTimes(ctx)
 	case store.FieldCountryID:
 		return m.OldCountryID(ctx)
 	case store.FieldProvinceID:
@@ -12667,6 +12799,27 @@ func (m *StoreMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetFoodOperationLicenseURL(v)
+		return nil
+	case store.FieldBusinessHours:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBusinessHours(v)
+		return nil
+	case store.FieldDiningPeriods:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDiningPeriods(v)
+		return nil
+	case store.FieldShiftTimes:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShiftTimes(v)
 		return nil
 	case store.FieldCountryID:
 		v, ok := value.(uuid.UUID)
@@ -12874,6 +13027,15 @@ func (m *StoreMutation) ResetField(name string) error {
 		return nil
 	case store.FieldFoodOperationLicenseURL:
 		m.ResetFoodOperationLicenseURL()
+		return nil
+	case store.FieldBusinessHours:
+		m.ResetBusinessHours()
+		return nil
+	case store.FieldDiningPeriods:
+		m.ResetDiningPeriods()
+		return nil
+	case store.FieldShiftTimes:
+		m.ResetShiftTimes()
 		return nil
 	case store.FieldCountryID:
 		m.ResetCountryID()

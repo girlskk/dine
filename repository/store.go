@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
@@ -29,6 +30,23 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("domainStore is nil")
 		return
 	}
+
+	businessHoursByte, err := json.Marshal(domainStore.BusinessHours)
+	if err != nil {
+		err = fmt.Errorf("failed to marshal business hours: %w", err)
+		return
+	}
+	diningPeriodsByte, err := json.Marshal(domainStore.DiningPeriods)
+	if err != nil {
+		err = fmt.Errorf("failed to marshal dining periods: %w", err)
+		return
+	}
+	shiftTimesByte, err := json.Marshal(domainStore.ShiftTimes)
+	if err != nil {
+		err = fmt.Errorf("failed to marshal shift times: %w", err)
+		return
+	}
+
 	_, err = repo.Client.Store.Create().SetID(domainStore.ID).
 		SetMerchantID(domainStore.MerchantID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
@@ -47,6 +65,9 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetCashierDeskURL(domainStore.CashierDeskURL).
 		SetDiningEnvironmentURL(domainStore.DiningEnvironmentURL).
 		SetFoodOperationLicenseURL(domainStore.FoodOperationLicenseURL).
+		SetBusinessHours(string(businessHoursByte)).
+		SetDiningPeriods(string(diningPeriodsByte)).
+		SetShiftTimes(string(shiftTimesByte)).
 		SetCountryID(domainStore.Address.CountryID).
 		SetProvinceID(domainStore.Address.ProvinceID).
 		SetCityID(domainStore.Address.CityID).
@@ -71,6 +92,22 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("domainStore is nil")
 		return
 	}
+
+	businessHoursByte, err := json.Marshal(domainStore.BusinessHours)
+	if err != nil {
+		err = fmt.Errorf("failed to marshal business hours: %w", err)
+		return
+	}
+	diningPeriodsByte, err := json.Marshal(domainStore.DiningPeriods)
+	if err != nil {
+		err = fmt.Errorf("failed to marshal dining periods: %w", err)
+		return
+	}
+	shiftTimesByte, err := json.Marshal(domainStore.ShiftTimes)
+	if err != nil {
+		err = fmt.Errorf("failed to marshal shift times: %w", err)
+		return
+	}
 	_, err = repo.Client.Store.UpdateOneID(domainStore.ID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
@@ -88,6 +125,9 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		SetCashierDeskURL(domainStore.CashierDeskURL).
 		SetDiningEnvironmentURL(domainStore.DiningEnvironmentURL).
 		SetFoodOperationLicenseURL(domainStore.FoodOperationLicenseURL).
+		SetBusinessHours(string(businessHoursByte)).
+		SetDiningPeriods(string(diningPeriodsByte)).
+		SetShiftTimes(string(shiftTimesByte)).
 		SetCountryID(domainStore.Address.CountryID).
 		SetProvinceID(domainStore.Address.ProvinceID).
 		SetCityID(domainStore.Address.CityID).
@@ -132,6 +172,12 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 
 	em, err := repo.Client.Store.Query().
 		Where(store.ID(id)).
+		WithCountry().
+		WithProvince().
+		WithCity().
+		WithDistrict().
+		WithAdminUser().
+		WithMerchantBusinessType().
 		Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
@@ -190,8 +236,8 @@ func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams 
 
 	query := repo.Client.Store.Query().
 		Where(store.StoreNameEQ(existsStoreParams.StoreName))
-	if existsStoreParams.NotID != uuid.Nil {
-		query = query.Where(store.IDNEQ(existsStoreParams.NotID))
+	if existsStoreParams.ExcludeID != uuid.Nil {
+		query = query.Where(store.IDNEQ(existsStoreParams.ExcludeID))
 	}
 
 	exists, err = query.Exist(ctx)
@@ -248,6 +294,10 @@ func convertStore(es *ent.Store) *domain.Store {
 		CreatedAt:               es.CreatedAt,
 		UpdatedAt:               es.UpdatedAt,
 	}
+
+	_ = json.Unmarshal([]byte(es.BusinessHours), &repoStore.BusinessHours)
+	_ = json.Unmarshal([]byte(es.DiningPeriods), &repoStore.DiningPeriods)
+	_ = json.Unmarshal([]byte(es.ShiftTimes), &repoStore.ShiftTimes)
 	if es.Edges.AdminUser != nil {
 		repoStore.LoginAccount = es.Edges.AdminUser.Username
 		repoStore.LoginPassword = es.Edges.AdminUser.HashedPassword

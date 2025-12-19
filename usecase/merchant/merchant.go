@@ -278,7 +278,9 @@ func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merch
 	}()
 
 	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		err := ds.MerchantRenewalRepo().Create(ctx, merchantRenewal)
+		var err error
+		merchantRenewal.ID = uuid.New()
+		err = ds.MerchantRenewalRepo().Create(ctx, merchantRenewal)
 		if err != nil {
 			return err
 		}
@@ -313,15 +315,9 @@ func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Cont
 		MerchantLogo:      domainCMerchant.MerchantLogo,
 		Description:       domainCMerchant.Description,
 		Status:            domainCMerchant.Status,
-		CountryID:         domainCMerchant.CountryID,
-		ProvinceID:        domainCMerchant.ProvinceID,
-		CityID:            domainCMerchant.CityID,
-		DistrictID:        domainCMerchant.DistrictID,
-		Address:           domainCMerchant.Address,
-		Lng:               domainCMerchant.Lng,
-		Lat:               domainCMerchant.Lat,
 		LoginAccount:      domainCMerchant.LoginAccount,
 		LoginPassword:     domainCMerchant.LoginPassword,
+		Address:           domainCMerchant.Address,
 	}
 
 	err = interactor.checkFields(ctx, domainMerchant)
@@ -354,13 +350,7 @@ func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Cont
 		MerchantLogo:      domainUMerchant.MerchantLogo,
 		Description:       domainUMerchant.Description,
 		Status:            domainUMerchant.Status,
-		CountryID:         domainUMerchant.CountryID,
-		ProvinceID:        domainUMerchant.ProvinceID,
-		CityID:            domainUMerchant.CityID,
-		DistrictID:        domainUMerchant.DistrictID,
 		Address:           domainUMerchant.Address,
-		Lng:               domainUMerchant.Lng,
-		Lat:               domainUMerchant.Lat,
 		LoginAccount:      domainUMerchant.LoginAccount,
 		LoginPassword:     domainUMerchant.LoginPassword,
 		AdminUserID:       oldMerchant.AdminUserID,
@@ -377,14 +367,14 @@ func (interactor *MerchantInteractor) checkFields(ctx context.Context, domainMer
 	// 商户名称唯一性校验（update排除自身）
 	exists, err := interactor.DataStore.MerchantRepo().ExistMerchant(ctx, &domain.MerchantExistsParams{
 		MerchantName: domainMerchant.MerchantName,
-		NotID:        domainMerchant.ID,
+		ExcludeID:    domainMerchant.ID,
 	})
 	if err != nil {
 		err = fmt.Errorf("failed to query merchant name existence: %w", err)
 		return err
 	}
 	if exists {
-		return domain.ParamsError(domain.ErrMerchantNameExists)
+		return domain.ConflictError(domain.ErrMerchantNameExists)
 	}
 
 	return

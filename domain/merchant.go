@@ -107,11 +107,9 @@ type Merchant struct {
 	LoginAccount      string         `json:"login_account"`       // 登录账号
 	LoginPassword     string         `json:"login_password"`      // 登录密码(加密存储)
 	AdminUserID       uuid.UUID      `json:"admin_user_id"`       // 登陆账号 ID
-
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-
-	Address *Address `json:"address"` // 地址
+	Address           *Address       `json:"address"`             // 地址
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
 }
 
 type Address struct {
@@ -173,7 +171,7 @@ type MerchantListFilter struct {
 
 type MerchantExistsParams struct {
 	MerchantName string    // 商户名称
-	NotID        uuid.UUID // 排除的商户 ID
+	ExcludeID    uuid.UUID // 排除的商户 ID
 }
 
 type CreateMerchantParams struct {
@@ -191,8 +189,7 @@ type CreateMerchantParams struct {
 	Status               MerchantStatus       `json:"status"`                 // 状态: 正常,停用,过期
 	LoginAccount         string               `json:"login_account"`          // 登录账号
 	LoginPassword        string               `json:"login_password"`         // 登录密码(加密存储)
-
-	Address *Address `json:"address"` // 地址
+	Address              *Address             `json:"address"`                // 地址
 }
 
 type UpdateMerchantParams struct {
@@ -208,6 +205,5 @@ type UpdateMerchantParams struct {
 	Status            MerchantStatus `json:"status"`              // 状态: 正常,停用,过期
 	LoginAccount      string         `json:"login_account"`       // 登录账号
 	LoginPassword     string         `json:"login_password"`      // 登录密码(加密存储)
-
-	Address *Address `json:"address"` // 地址
+	Address           *Address       `json:"address"`             // 地址
 }

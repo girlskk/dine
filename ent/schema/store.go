@@ -92,6 +92,16 @@ func (Store) Fields() []ent.Field {
 			Default("").
 			MaxLen(500).
 			Comment("食品经营许可证照片"),
+		field.String("business_hours").
+			NotEmpty().
+			Default("").
+			Comment("营业时间段，JSON格式存储"),
+		field.String("dining_periods").
+			NotEmpty().
+			Comment("就餐时段，JSON格式存储"),
+		field.String("shift_times").
+			NotEmpty().
+			Comment("班次时间，JSON格式存储"),
 		// 地区信息
 		field.UUID("country_id", uuid.UUID{}).
 			Optional().

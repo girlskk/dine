@@ -67,6 +67,12 @@ type Store struct {
 	DiningEnvironmentURL string `json:"dining_environment_url,omitempty"`
 	// 食品经营许可证照片
 	FoodOperationLicenseURL string `json:"food_operation_license_url,omitempty"`
+	// 营业时间段，JSON格式存储
+	BusinessHours string `json:"business_hours,omitempty"`
+	// 就餐时段，JSON格式存储
+	DiningPeriods string `json:"dining_periods,omitempty"`
+	// 班次时间，JSON格式存储
+	ShiftTimes string `json:"shift_times,omitempty"`
 	// 国家/地区id
 	CountryID uuid.UUID `json:"country_id,omitempty"`
 	// 省份 id
@@ -194,7 +200,7 @@ func (*Store) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case store.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldAddress, store.FieldLng, store.FieldLat:
+		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldBusinessHours, store.FieldDiningPeriods, store.FieldShiftTimes, store.FieldAddress, store.FieldLng, store.FieldLat:
 			values[i] = new(sql.NullString)
 		case store.FieldCreatedAt, store.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -340,6 +346,24 @@ func (s *Store) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field food_operation_license_url", values[i])
 			} else if value.Valid {
 				s.FoodOperationLicenseURL = value.String
+			}
+		case store.FieldBusinessHours:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field business_hours", values[i])
+			} else if value.Valid {
+				s.BusinessHours = value.String
+			}
+		case store.FieldDiningPeriods:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field dining_periods", values[i])
+			} else if value.Valid {
+				s.DiningPeriods = value.String
+			}
+		case store.FieldShiftTimes:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field shift_times", values[i])
+			} else if value.Valid {
+				s.ShiftTimes = value.String
 			}
 		case store.FieldCountryID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -519,6 +543,15 @@ func (s *Store) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("food_operation_license_url=")
 	builder.WriteString(s.FoodOperationLicenseURL)
+	builder.WriteString(", ")
+	builder.WriteString("business_hours=")
+	builder.WriteString(s.BusinessHours)
+	builder.WriteString(", ")
+	builder.WriteString("dining_periods=")
+	builder.WriteString(s.DiningPeriods)
+	builder.WriteString(", ")
+	builder.WriteString("shift_times=")
+	builder.WriteString(s.ShiftTimes)
 	builder.WriteString(", ")
 	builder.WriteString("country_id=")
 	builder.WriteString(fmt.Sprintf("%v", s.CountryID))

@@ -37,12 +37,8 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		err = fmt.Errorf("domainMerchant is nil")
 		return
 	}
-	if domainMerchant.Address == nil {
-		err = fmt.Errorf("domainMerchant.Address is nil")
-		return
-	}
 
-	_, err = repo.Client.Merchant.Create().SetID(domainMerchant.ID).
+	mc := repo.Client.Merchant.Create().SetID(domainMerchant.ID).
 		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
 		SetMerchantShortName(domainMerchant.MerchantShortName).
@@ -54,15 +50,17 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status).
-		SetCountryID(domainMerchant.Address.CountryID).
-		SetProvinceID(domainMerchant.Address.ProvinceID).
-		SetCityID(domainMerchant.Address.CityID).
-		SetDistrictID(domainMerchant.Address.DistrictID).
-		SetAddress(domainMerchant.Address.Address).
-		SetLng(domainMerchant.Address.Lng).
-		SetLat(domainMerchant.Address.Lat).
-		SetAdminUserID(domainMerchant.AdminUserID).
-		Save(ctx)
+		SetAdminUserID(domainMerchant.AdminUserID)
+	if domainMerchant.Address != nil {
+		mc.SetCountryID(domainMerchant.Address.CountryID).
+			SetProvinceID(domainMerchant.Address.ProvinceID).
+			SetCityID(domainMerchant.Address.CityID).
+			SetDistrictID(domainMerchant.Address.DistrictID).
+			SetAddress(domainMerchant.Address.Address).
+			SetLng(domainMerchant.Address.Lng).
+			SetLat(domainMerchant.Address.Lat)
+	}
+	_, err = mc.Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create merchant: %w", err)
 		return
@@ -80,11 +78,8 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		err = fmt.Errorf("domainMerchant is nil")
 		return
 	}
-	if domainMerchant.Address == nil {
-		err = fmt.Errorf("domainMerchant.Address is nil")
-		return
-	}
-	_, err = repo.Client.Merchant.UpdateOneID(domainMerchant.ID).
+
+	uc := repo.Client.Merchant.UpdateOneID(domainMerchant.ID).
 		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
 		SetMerchantShortName(domainMerchant.MerchantShortName).
@@ -102,8 +97,18 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		SetDistrictID(domainMerchant.Address.DistrictID).
 		SetAddress(domainMerchant.Address.Address).
 		SetLng(domainMerchant.Address.Lng).
-		SetLat(domainMerchant.Address.Lat).
-		Save(ctx)
+		SetLat(domainMerchant.Address.Lat)
+
+	if domainMerchant.Address != nil {
+		uc.SetCountryID(domainMerchant.Address.CountryID).
+			SetProvinceID(domainMerchant.Address.ProvinceID).
+			SetCityID(domainMerchant.Address.CityID).
+			SetDistrictID(domainMerchant.Address.DistrictID).
+			SetAddress(domainMerchant.Address.Address).
+			SetLng(domainMerchant.Address.Lng).
+			SetLat(domainMerchant.Address.Lat)
+	}
+	_, err = uc.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
@@ -253,8 +258,8 @@ func (repo *MerchantRepository) ExistMerchant(ctx context.Context, merchantExist
 	}
 	query := repo.Client.Merchant.Query().
 		Where(merchant.MerchantNameEQ(merchantExistsParams.MerchantName))
-	if merchantExistsParams.NotID != uuid.Nil {
-		query = query.Where(merchant.IDNEQ(merchantExistsParams.NotID))
+	if merchantExistsParams.ExcludeID != uuid.Nil {
+		query = query.Where(merchant.IDNEQ(merchantExistsParams.ExcludeID))
 	}
 	exist, err = query.Exist(ctx)
 	if err != nil {

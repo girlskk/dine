@@ -122,13 +122,10 @@ func (interactor *StoreInteractor) CheckCreateStoreFields(ctx context.Context, d
 		CashierDeskURL:          domainCStore.CashierDeskURL,
 		DiningEnvironmentURL:    domainCStore.DiningEnvironmentURL,
 		FoodOperationLicenseURL: domainCStore.FoodOperationLicenseURL,
-		CountryID:               domainCStore.CountryID,
-		ProvinceID:              domainCStore.ProvinceID,
-		CityID:                  domainCStore.CityID,
-		DistrictID:              domainCStore.DistrictID,
+		BusinessHours:           domainCStore.BusinessHours,
+		DiningPeriods:           domainCStore.DiningPeriods,
+		ShiftTimes:              domainCStore.ShiftTimes,
 		Address:                 domainCStore.Address,
-		Lng:                     domainCStore.Lng,
-		Lat:                     domainCStore.Lat,
 		LoginAccount:            domainCStore.LoginAccount,
 		LoginPassword:           domainCStore.LoginPassword,
 	}
@@ -174,13 +171,10 @@ func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context, d
 		CashierDeskURL:          domainUStore.CashierDeskURL,
 		DiningEnvironmentURL:    domainUStore.DiningEnvironmentURL,
 		FoodOperationLicenseURL: domainUStore.FoodOperationLicenseURL,
-		CountryID:               domainUStore.CountryID,
-		ProvinceID:              domainUStore.ProvinceID,
-		CityID:                  domainUStore.CityID,
-		DistrictID:              domainUStore.DistrictID,
+		BusinessHours:           domainUStore.BusinessHours,
+		DiningPeriods:           domainUStore.DiningPeriods,
+		ShiftTimes:              domainUStore.ShiftTimes,
 		Address:                 domainUStore.Address,
-		Lng:                     domainUStore.Lng,
-		Lat:                     domainUStore.Lat,
 		LoginAccount:            domainUStore.LoginAccount,
 		LoginPassword:           domainUStore.LoginPassword,
 		AdminUserID:             oldStore.AdminUserID,
@@ -195,8 +189,18 @@ func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context, d
 }
 
 func (interactor *StoreInteractor) checkFields(ctx context.Context, domainStore *domain.Store) (err error) {
-	//TODO implement me
-	panic("implement me")
+	exists, err := interactor.DataStore.StoreRepo().ExistsStore(ctx, &domain.ExistsStoreParams{
+		MerchantID: domainStore.MerchantID,
+		StoreName:  domainStore.StoreName,
+		ExcludeID:  domainStore.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to check store name exists: %w", err)
+	}
+	if exists {
+		return domain.ConflictError(domain.ErrStoreNameExists)
+	}
+	return
 }
 
 func NewStoreInteractor(dataStore domain.DataStore) *StoreInteractor {

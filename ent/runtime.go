@@ -950,8 +950,22 @@ func init() {
 			return nil
 		}
 	}()
+	// storeDescBusinessHours is the schema descriptor for business_hours field.
+	storeDescBusinessHours := storeFields[17].Descriptor()
+	// store.DefaultBusinessHours holds the default value on creation for the business_hours field.
+	store.DefaultBusinessHours = storeDescBusinessHours.Default.(string)
+	// store.BusinessHoursValidator is a validator for the "business_hours" field. It is called by the builders before save.
+	store.BusinessHoursValidator = storeDescBusinessHours.Validators[0].(func(string) error)
+	// storeDescDiningPeriods is the schema descriptor for dining_periods field.
+	storeDescDiningPeriods := storeFields[18].Descriptor()
+	// store.DiningPeriodsValidator is a validator for the "dining_periods" field. It is called by the builders before save.
+	store.DiningPeriodsValidator = storeDescDiningPeriods.Validators[0].(func(string) error)
+	// storeDescShiftTimes is the schema descriptor for shift_times field.
+	storeDescShiftTimes := storeFields[19].Descriptor()
+	// store.ShiftTimesValidator is a validator for the "shift_times" field. It is called by the builders before save.
+	store.ShiftTimesValidator = storeDescShiftTimes.Validators[0].(func(string) error)
 	// storeDescAddress is the schema descriptor for address field.
-	storeDescAddress := storeFields[21].Descriptor()
+	storeDescAddress := storeFields[24].Descriptor()
 	// store.DefaultAddress holds the default value on creation for the address field.
 	store.DefaultAddress = storeDescAddress.Default.(string)
 	// store.AddressValidator is a validator for the "address" field. It is called by the builders before save.
@@ -971,7 +985,7 @@ func init() {
 		}
 	}()
 	// storeDescLng is the schema descriptor for lng field.
-	storeDescLng := storeFields[22].Descriptor()
+	storeDescLng := storeFields[25].Descriptor()
 	// store.DefaultLng holds the default value on creation for the lng field.
 	store.DefaultLng = storeDescLng.Default.(string)
 	// store.LngValidator is a validator for the "lng" field. It is called by the builders before save.
@@ -991,7 +1005,7 @@ func init() {
 		}
 	}()
 	// storeDescLat is the schema descriptor for lat field.
-	storeDescLat := storeFields[23].Descriptor()
+	storeDescLat := storeFields[26].Descriptor()
 	// store.DefaultLat holds the default value on creation for the lat field.
 	store.DefaultLat = storeDescLat.Default.(string)
 	// store.LatValidator is a validator for the "lat" field. It is called by the builders before save.
