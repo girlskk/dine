@@ -9,6 +9,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
 )
 
@@ -187,6 +188,59 @@ func init() {
 	categoryDescID := categoryMixinFields0[0].Descriptor()
 	// category.DefaultID holds the default value on creation for the id field.
 	category.DefaultID = categoryDescID.Default.(func() uuid.UUID)
+	productunitMixin := schema.ProductUnit{}.Mixin()
+	productunitMixinHooks2 := productunitMixin[2].Hooks()
+	productunit.Hooks[0] = productunitMixinHooks2[0]
+	productunitMixinInters2 := productunitMixin[2].Interceptors()
+	productunit.Interceptors[0] = productunitMixinInters2[0]
+	productunitMixinFields0 := productunitMixin[0].Fields()
+	_ = productunitMixinFields0
+	productunitMixinFields1 := productunitMixin[1].Fields()
+	_ = productunitMixinFields1
+	productunitMixinFields2 := productunitMixin[2].Fields()
+	_ = productunitMixinFields2
+	productunitFields := schema.ProductUnit{}.Fields()
+	_ = productunitFields
+	// productunitDescCreatedAt is the schema descriptor for created_at field.
+	productunitDescCreatedAt := productunitMixinFields1[0].Descriptor()
+	// productunit.DefaultCreatedAt holds the default value on creation for the created_at field.
+	productunit.DefaultCreatedAt = productunitDescCreatedAt.Default.(func() time.Time)
+	// productunitDescUpdatedAt is the schema descriptor for updated_at field.
+	productunitDescUpdatedAt := productunitMixinFields1[1].Descriptor()
+	// productunit.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	productunit.DefaultUpdatedAt = productunitDescUpdatedAt.Default.(func() time.Time)
+	// productunit.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	productunit.UpdateDefaultUpdatedAt = productunitDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productunitDescDeletedAt is the schema descriptor for deleted_at field.
+	productunitDescDeletedAt := productunitMixinFields2[0].Descriptor()
+	// productunit.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	productunit.DefaultDeletedAt = productunitDescDeletedAt.Default.(int64)
+	// productunitDescName is the schema descriptor for name field.
+	productunitDescName := productunitFields[0].Descriptor()
+	// productunit.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	productunit.NameValidator = func() func(string) error {
+		validators := productunitDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productunitDescProductCount is the schema descriptor for product_count field.
+	productunitDescProductCount := productunitFields[4].Descriptor()
+	// productunit.DefaultProductCount holds the default value on creation for the product_count field.
+	productunit.DefaultProductCount = productunitDescProductCount.Default.(int)
+	// productunitDescID is the schema descriptor for id field.
+	productunitDescID := productunitMixinFields0[0].Descriptor()
+	// productunit.DefaultID holds the default value on creation for the id field.
+	productunit.DefaultID = productunitDescID.Default.(func() uuid.UUID)
 }
 
 const (

@@ -36,3 +36,9 @@ other = "Product category has children, cannot delete"
 
 [CATEGORY_DELETE_HAS_PRODUCTS]
 other = "Product category has products, cannot delete"
+
+[PRODUCT_UNIT_NAME_EXISTS]
+other = "Product unit name already exists"
+
+[PRODUCT_UNIT_DELETE_HAS_PRODUCTS]
+other = "Product unit has products, cannot delete"

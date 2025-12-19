@@ -113,11 +113,47 @@ var (
 			},
 		},
 	}
+	// ProductUnitsColumns holds the columns for the "product_units" table.
+	ProductUnitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"quantity", "weight"}},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductUnitsTable holds the schema information for the "product_units" table.
+	ProductUnitsTable = &schema.Table{
+		Name:       "product_units",
+		Columns:    ProductUnitsColumns,
+		PrimaryKey: []*schema.Column{ProductUnitsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productunit_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductUnitsColumns[3]},
+			},
+			{
+				Name:    "productunit_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductUnitsColumns[6]},
+			},
+			{
+				Name:    "productunit_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductUnitsColumns[7]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AdminUsersTable,
 		BackendUsersTable,
 		CategoriesTable,
+		ProductUnitsTable,
 	}
 )
 
