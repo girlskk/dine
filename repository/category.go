@@ -52,8 +52,7 @@ func (repo *CategoryRepository) Create(ctx context.Context, cat *domain.Category
 		SetName(cat.Name).
 		SetMerchantID(cat.MerchantID).
 		SetInheritTaxRate(cat.InheritTaxRate).
-		SetInheritStall(cat.InheritStall).
-		SetSortOrder(cat.SortOrder)
+		SetInheritStall(cat.InheritStall)
 
 	if cat.StoreID != uuid.Nil {
 		builder = builder.SetStoreID(cat.StoreID)
@@ -96,8 +95,7 @@ func (repo *CategoryRepository) CreateBulk(ctx context.Context, categories []*do
 			SetName(cat.Name).
 			SetMerchantID(cat.MerchantID).
 			SetInheritTaxRate(cat.InheritTaxRate).
-			SetInheritStall(cat.InheritStall).
-			SetSortOrder(cat.SortOrder)
+			SetInheritStall(cat.InheritStall)
 
 		if cat.StoreID != uuid.Nil {
 			builder = builder.SetStoreID(cat.StoreID)
@@ -192,7 +190,70 @@ func (repo *CategoryRepository) Exists(ctx context.Context, params domain.Catego
 	if params.Name != "" {
 		query.Where(category.Name(params.Name))
 	}
+	// 排除指定的ID（用于更新时检查名称唯一性）
+	if params.ExcludeID != uuid.Nil {
+		query.Where(category.IDNEQ(params.ExcludeID))
+	}
 	return query.Exist(ctx)
+}
+
+func (repo *CategoryRepository) CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (count int, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.CountChildrenByParentID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	count, err = repo.Client.Category.Query().
+		Where(category.ParentID(parentID)).
+		Count(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (repo *CategoryRepository) ListBySearch(
+	ctx context.Context,
+	params domain.CategorySearchParams,
+) (res domain.Categories, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.ListBySearch")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Category.Query()
+
+	// 默认只查询一级分类
+	query.Where(category.ParentIDIsNil())
+
+	if params.MerchantID != uuid.Nil {
+		query.Where(category.MerchantID(params.MerchantID))
+	}
+
+	// 预加载子分类
+	query.WithChildren(func(q *ent.CategoryQuery) {
+		q.Order(
+			category.BySortOrder(),            // 先按 SortOrder 升序（值越小越靠前）
+			ent.Desc(category.FieldCreatedAt), // 如果 SortOrder 相同，按创建时间倒序
+		)
+	})
+
+	entCats, err := query.Order(
+		category.BySortOrder(),
+		ent.Desc(category.FieldCreatedAt),
+	).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.Categories, 0, len(entCats))
+	for _, c := range entCats {
+		items = append(items, convertCategoryToDomainWithChildren(c))
+	}
+
+	return items, nil
 }
 
 func convertCategoryToDomain(ec *ent.Category) *domain.Category {
@@ -214,6 +275,24 @@ func convertCategoryToDomain(ec *ent.Category) *domain.Category {
 		SortOrder:      ec.SortOrder,
 		CreatedAt:      ec.CreatedAt,
 		UpdatedAt:      ec.UpdatedAt,
+	}
+
+	return cat
+}
+
+func convertCategoryToDomainWithChildren(ec *ent.Category) *domain.Category {
+	if ec == nil {
+		return nil
+	}
+
+	cat := convertCategoryToDomain(ec)
+
+	// 转换子分类
+	if children, err := ec.Edges.ChildrenOrErr(); err == nil && len(children) > 0 {
+		cat.Childrens = make([]*domain.Category, 0, len(children))
+		for _, child := range children {
+			cat.Childrens = append(cat.Childrens, convertCategoryToDomain(child))
+		}
 	}
 
 	return cat

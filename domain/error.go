@@ -40,17 +40,6 @@ func ParamsErrorf(format string, args ...any) error {
 	return ParamsError(fmt.Errorf(format, args...))
 }
 
-func GetParamsErrorMessage(err error) (msg string, ok bool) {
-	if err == nil {
-		return
-	}
-	var e *paramsError
-	if ok = errors.As(err, &e); ok {
-		msg = e.Error()
-	}
-	return
-}
-
 // notFoundError 资源不存在错误
 type notFoundError struct {
 	err error

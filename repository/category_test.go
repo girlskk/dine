@@ -30,15 +30,15 @@ func (s *CategoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *CategoryTestSuite) createTestCategory(parentID uuid.UUID) *ent.Category {
-	storeID := uuid.New()
+func (s *CategoryTestSuite) createTestCategory(parentID uuid.UUID, name string) *ent.Category {
+	merchantID := uuid.New()
 	taxRateID := uuid.New()
 	stallID := uuid.New()
 
 	builder := s.client.Category.Create().
 		SetID(uuid.New()).
-		SetName("测试分类").
-		SetStoreID(storeID).
+		SetName(name).
+		SetMerchantID(merchantID).
 		SetInheritTaxRate(false).
 		SetInheritStall(false).
 		SetSortOrder(0)
@@ -59,7 +59,7 @@ func (s *CategoryTestSuite) createTestCategory(parentID uuid.UUID) *ent.Category
 }
 
 func (s *CategoryTestSuite) createTestRootCategory() *ent.Category {
-	return s.createTestCategory(uuid.Nil)
+	return s.createTestCategory(uuid.Nil, "测试分类")
 }
 
 func (s *CategoryTestSuite) TestCategory_Create() {
@@ -202,7 +202,7 @@ func (s *CategoryTestSuite) TestCategory_Update() {
 	s.T().Run("更新继承字段", func(t *testing.T) {
 		// 创建二级分类
 		rootCategory := s.createTestRootCategory()
-		childCategory := s.createTestCategory(rootCategory.ID)
+		childCategory := s.createTestCategory(rootCategory.ID, "测试分类")
 
 		cat := &domain.Category{
 			ID:             childCategory.ID,
@@ -239,5 +239,23 @@ func (s *CategoryTestSuite) TestCategory_Update() {
 
 		err := s.repo.Update(s.ctx, cat)
 		require.Error(t, err)
+	})
+}
+
+func (s *CategoryTestSuite) TestCategory_ListBySearch() {
+	category := s.createTestRootCategory()
+	s.createTestCategory(category.ID, "测试分类")
+	s.createTestCategory(category.ID, "测试分类2")
+
+	s.T().Run("正常查询", func(t *testing.T) {
+		params := domain.CategorySearchParams{
+			MerchantID: category.MerchantID,
+		}
+		res, err := s.repo.ListBySearch(s.ctx, params)
+		require.NoError(t, err)
+		require.Equal(t, 1, len(res))
+		require.Equal(t, category.ID, res[0].ID)
+		require.Equal(t, "测试分类", res[0].Name)
+		require.Equal(t, 2, len(res[0].Childrens))
 	})
 }

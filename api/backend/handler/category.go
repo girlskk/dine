@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -29,10 +30,9 @@ func (h *CategoryHandler) Routes(r gin.IRouter) {
 	r = r.Group("product/category")
 	r.POST("", h.CreateRoot())
 	r.POST("/:id", h.CreateChild())
-	// r.PUT("/:id", h.Update())
-	// r.DELETE("/:id", h.Delete())
-	// r.GET("/:id", h.GetByID())
-	// r.GET("", h.List())
+	r.PUT("/:id", h.Update())
+	r.DELETE("/:id", h.Delete())
+	r.GET("", h.List())
 }
 
 func (h *CategoryHandler) NoAuths() []string {
@@ -44,7 +44,7 @@ func (h *CategoryHandler) NoAuths() []string {
 //	@Tags		商品分类
 //	@Security	BearerAuth
 //	@Summary	创建一级商品分类
-//	@Param		data	body	types.CreateRootCategoryReq	true	"请求信息"
+//	@Param		data	body	types.CategoryCreateRootReq	true	"请求信息"
 //	@Success	200
 //	@Router		/product/category [post]
 func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
@@ -54,7 +54,7 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		var req types.CreateRootCategoryReq
+		var req types.CategoryCreateRootReq
 		if err := c.ShouldBind(&req); err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
@@ -95,11 +95,15 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 		err := h.CategoryInteractor.CreateRoot(ctx, category)
 
 		if err != nil {
-			if domain.IsConflict(err) {
+			if errors.Is(err, domain.ErrCategoryNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
 				return
 			}
-			err = fmt.Errorf("failed to create category: %w", err)
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to create root category: %w", err)
 			c.Error(err)
 			return
 		}
@@ -114,7 +118,7 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 //	@Security	BearerAuth
 //	@Summary	创建二级商品分类
 //	@Param		id		path	string							true	"父分类ID"
-//	@Param		data	body	types.CreateChildCategoryReq	true	"请求信息"
+//	@Param		data	body	types.CategoryCreateChildReq	true	"请求信息"
 //	@Success	200
 //	@Router		/product/category/{id} [post]
 func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
@@ -132,7 +136,7 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 			return
 		}
 
-		var req types.CreateChildCategoryReq
+		var req types.CategoryCreateChildReq
 		if err := c.ShouldBind(&req); err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
@@ -174,16 +178,12 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 		err = h.CategoryInteractor.CreateChild(ctx, category)
 
 		if err != nil {
+			if errors.Is(err, domain.ErrCategoryNameExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsConflict(err) {
-				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
 				return
 			}
 			err = fmt.Errorf("failed to create child category: %w", err)
@@ -195,223 +195,156 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 	}
 }
 
-// // Update
-// //
-// //	@Tags		商品分类
-// //	@Security	BearerAuth
-// //	@Summary	更新商品分类
-// //	@Accept		json
-// //	@Produce	json
-// //	@Param		id		path		string					true	"分类ID"
-// //	@Param		data	body		types.UpdateCategoryReq	true	"请求信息"
-// //	@Success	200		{object}	types.CategoryResp		"成功"
-// //	@Router		/category/{id} [put]
-// func (h *CategoryHandler) Update() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := c.Request.Context()
-// 		logger := logging.FromContext(ctx).Named("CategoryHandler.Update")
-// 		ctx = logging.NewContext(ctx, logger)
-// 		c.Request = c.Request.Clone(ctx)
+// Update
+//
+//	@Tags		商品分类
+//	@Security	BearerAuth
+//	@Summary	更新商品分类
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path	string					true	"分类ID"
+//	@Param		data	body	types.UpdateCategoryReq	true	"请求信息"
+//	@Success	200
+//	@Router		/product/category/{id} [put]
+func (h *CategoryHandler) Update() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("CategoryHandler.Update")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
 
-// 		idStr := c.Param("id")
-// 		id, err := uuid.Parse(idStr)
-// 		if err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
-// 			return
-// 		}
+		// 从路径参数获取分类ID
+		idStr := c.Param("id")
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
+			return
+		}
 
-// 		var req types.UpdateCategoryReq
-// 		if err := c.ShouldBind(&req); err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-// 			return
-// 		}
+		var req types.UpdateCategoryReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
 
-// 		category, err := h.CategoryInteractor.Update(ctx, domain.CategoryUpdateParams{
-// 			ID:           id,
-// 			Name:         req.Name,
-// 			TaxRateID:    req.TaxRateID,
-// 			DepartmentID: req.DepartmentID,
-// 		})
-// 		if err != nil {
-// 			if domain.IsParamsError(err) {
-// 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-// 				return
-// 			}
-// 			if domain.IsConflict(err) {
-// 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-// 				return
-// 			}
-// 			if domain.IsNotFound(err) {
-// 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-// 				return
-// 			}
-// 			err = fmt.Errorf("failed to update category: %w", err)
-// 			c.Error(err)
-// 			return
-// 		}
+		// 将请求数据映射到 domain.Category
+		category := &domain.Category{
+			ID:             id,
+			Name:           req.Name,
+			InheritTaxRate: req.InheritTaxRate,
+			InheritStall:   req.InheritStall,
+		}
 
-// 		response.Ok(c, convertCategoryToResp(category))
-// 	}
-// }
+		// 如果设置了税率ID，则不继承
+		if req.TaxRateID != nil {
+			category.TaxRateID = *req.TaxRateID
+			category.InheritTaxRate = false
+		}
 
-// // Delete
-// //
-// //	@Tags		商品分类
-// //	@Security	BearerAuth
-// //	@Summary	删除商品分类
-// //	@Accept		json
-// //	@Produce	json
-// //	@Param		id	path		string	true	"分类ID"
-// //	@Success	200	"No Content"
-// //	@Router		/category/{id} [delete]
-// func (h *CategoryHandler) Delete() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := c.Request.Context()
-// 		logger := logging.FromContext(ctx).Named("CategoryHandler.Delete")
-// 		ctx = logging.NewContext(ctx, logger)
-// 		c.Request = c.Request.Clone(ctx)
+		// 如果设置了出品部门ID，则不继承
+		if req.StallID != nil {
+			category.StallID = *req.StallID
+			category.InheritStall = false
+		}
 
-// 		idStr := c.Param("id")
-// 		id, err := uuid.Parse(idStr)
-// 		if err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
-// 			return
-// 		}
+		err = h.CategoryInteractor.Update(ctx, category)
+		if err != nil {
+			if errors.Is(err, domain.ErrCategoryNameExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.CategoryNameExists, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to update category: %w", err)
+			c.Error(err)
+			return
+		}
 
-// 		err = h.CategoryInteractor.Delete(ctx, id)
-// 		if err != nil {
-// 			if domain.IsParamsError(err) {
-// 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-// 				return
-// 			}
-// 			if domain.IsNotFound(err) {
-// 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-// 				return
-// 			}
-// 			err = fmt.Errorf("failed to delete category: %w", err)
-// 			c.Error(err)
-// 			return
-// 		}
+		response.Ok(c, nil)
+	}
+}
 
-// 		response.Ok(c, nil)
-// 	}
-// }
+// Delete
+//
+//	@Tags		商品分类
+//	@Security	BearerAuth
+//	@Summary	删除商品分类
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path	string	true	"分类ID"
+//	@Success	200	"No Content"
+//	@Router		/product/category/{id} [delete]
+func (h *CategoryHandler) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("CategoryHandler.Delete")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
 
-// // GetByID
-// //
-// //	@Tags		商品分类
-// //	@Security	BearerAuth
-// //	@Summary	获取商品分类详情
-// //	@Accept		json
-// //	@Produce	json
-// //	@Param		id		path		string				true	"分类ID"
-// //	@Success	200		{object}	types.CategoryResp	"成功"
-// //	@Router		/category/{id} [get]
-// func (h *CategoryHandler) GetByID() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := c.Request.Context()
-// 		logger := logging.FromContext(ctx).Named("CategoryHandler.GetByID")
-// 		ctx = logging.NewContext(ctx, logger)
-// 		c.Request = c.Request.Clone(ctx)
+		idStr := c.Param("id")
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
 
-// 		idStr := c.Param("id")
-// 		id, err := uuid.Parse(idStr)
-// 		if err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid category id: %w", err)))
-// 			return
-// 		}
+		err = h.CategoryInteractor.Delete(ctx, id)
+		if err != nil {
+			if errors.Is(err, domain.ErrCategoryDeleteHasChildren) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.CategoryDeleteHasChildren, err))
+				return
+			}
+			if errors.Is(err, domain.ErrCategoryDeleteHasProducts) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.CategoryDeleteHasProducts, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
 
-// 		category, err := h.CategoryInteractor.GetByID(ctx, id)
-// 		if err != nil {
-// 			if domain.IsNotFound(err) {
-// 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-// 				return
-// 			}
-// 			err = fmt.Errorf("failed to get category: %w", err)
-// 			c.Error(err)
-// 			return
-// 		}
+			err = fmt.Errorf("failed to delete category: %w", err)
+			c.Error(err)
+			return
+		}
 
-// 		response.Ok(c, convertCategoryToResp(category))
-// 	}
-// }
+		response.Ok(c, nil)
+	}
+}
 
-// // List
-// //
-// //	@Tags		商品分类
-// //	@Security	BearerAuth
-// //	@Summary	获取商品分类列表
-// //	@Accept		json
-// //	@Produce	json
-// //	@Param		parent_id	query		string				false	"父分类ID，为空表示查询一级分类"
-// //	@Param		store_id	query		string				true	"门店ID"
-// //	@Success	200			{array}		types.CategoryResp	"成功"
-// //	@Router		/category [get]
-// func (h *CategoryHandler) List() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := c.Request.Context()
-// 		logger := logging.FromContext(ctx).Named("CategoryHandler.List")
-// 		ctx = logging.NewContext(ctx, logger)
-// 		c.Request = c.Request.Clone(ctx)
+// List
+//
+//	@Tags		商品分类
+//	@Security	BearerAuth
+//	@Summary	获取商品分类列表
+//	@Success	200	{array}	domain.Categories	"成功"
+//	@Router		/product/category [get]
+func (h *CategoryHandler) List() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("CategoryHandler.List")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
 
-// 		var req types.ListCategoryReq
-// 		if err := c.ShouldBindQuery(&req); err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-// 			return
-// 		}
+		user := domain.FromBackendUserContext(ctx)
 
-// 		storeIDStr := c.Query("store_id")
-// 		if storeIDStr == "" {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, errors.New("store_id is required")))
-// 			return
-// 		}
+		params := domain.CategorySearchParams{
+			MerchantID: user.MerchantID,
+		}
 
-// 		storeID, err := uuid.Parse(storeIDStr)
-// 		if err != nil {
-// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid store_id: %w", err)))
-// 			return
-// 		}
+		res, err := h.CategoryInteractor.ListBySearch(ctx, params)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			} else {
+				err = fmt.Errorf("failed to paged list categories: %w", err)
+				c.Error(err)
+			}
+			return
+		}
 
-// 		categories, err := h.CategoryInteractor.ListByStoreID(ctx, storeID, req.ParentID)
-// 		if err != nil {
-// 			err = fmt.Errorf("failed to list categories: %w", err)
-// 			c.Error(err)
-// 			return
-// 		}
-
-// 		res := make([]types.CategoryResp, 0, len(categories))
-// 		for _, category := range categories {
-// 			res = append(res, convertCategoryToResp(category))
-// 		}
-
-// 		response.Ok(c, res)
-// 	}
-// }
-
-// func convertCategoryToResp(category *domain.Category) types.CategoryResp {
-// 	res := types.CategoryResp{
-// 		ID:           category.ID,
-// 		Name:         category.Name,
-// 		StoreID:      category.StoreID,
-// 		ParentID:     category.ParentID,
-// 		TaxRateID:    category.TaxRateID,
-// 		DepartmentID: category.DepartmentID,
-// 		ProductCount: category.ProductCount,
-// 		CreatedAt:    category.CreatedAt.Format(time.RFC3339),
-// 		UpdatedAt:    category.UpdatedAt.Format(time.RFC3339),
-// 	}
-
-// 	if category.Parent != nil {
-// 		parentResp := convertCategoryToResp(category.Parent)
-// 		res.Parent = &parentResp
-// 	}
-
-// 	if len(category.Children) > 0 {
-// 		res.Children = make([]types.CategoryResp, 0, len(category.Children))
-// 		for _, child := range category.Children {
-// 			res.Children = append(res.Children, convertCategoryToResp(child))
-// 		}
-// 	}
-
-// 	return res
-// }
+		response.Ok(c, res)
+	}
+}
