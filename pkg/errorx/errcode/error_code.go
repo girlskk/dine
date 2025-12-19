@@ -25,7 +25,9 @@ const (
 	UnknownError  ErrCode = "UNKNOWN_ERROR"  // 未知错误
 
 	// 业务错误
-	UserNotFound       ErrCode = "USER_NOT_FOUND"       // 用户不存在
-	CategoryNameExists ErrCode = "CATEGORY_NAME_EXISTS" // 商品分类名称已存在
-	MerchantNameExists ErrCode = "MERCHANT_NAME_EXISTS" // 商户名称已存在
+	UserNotFound              ErrCode = "USER_NOT_FOUND"               // 用户不存在
+	CategoryNameExists        ErrCode = "CATEGORY_NAME_EXISTS"         // 商品分类名称已存在
+	CategoryDeleteHasChildren ErrCode = "CATEGORY_DELETE_HAS_CHILDREN" // 商品分类有子分类
+	CategoryDeleteHasProducts ErrCode = "CATEGORY_DELETE_HAS_PRODUCTS" // 商品分类有商品
+	MerchantNameExists        ErrCode = "MERCHANT_NAME_EXISTS"         // 商户名称已存在
 )

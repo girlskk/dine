@@ -25,7 +25,7 @@ func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Ca
 			return err
 		}
 		if exists {
-			return domain.ConflictError(domain.ErrCategoryNameExists)
+			return domain.ErrCategoryNameExists
 		}
 
 		// check tax rate id
@@ -39,7 +39,7 @@ func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Ca
 			// 	return err
 			// }
 			// if !exists {
-			// 	return domain.NotFoundError(domain.ErrTaxRateNotExists)
+			// 	return domain.ParamsErrorf(domain.ErrTaxRateNotExists)
 			// }
 		}
 
@@ -53,7 +53,7 @@ func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Ca
 			// 	return err
 			// }
 			// if !exists {
-			// 	return domain.NotFoundError(domain.ErrStallNotExists)
+			// 	return domain.ParamsErrorf(domain.ErrStallNotExists)
 			// }
 		}
 
@@ -85,7 +85,7 @@ func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.C
 		parentCategory, err := ds.CategoryRepo().FindByID(ctx, category.ParentID)
 		if err != nil {
 			if domain.IsNotFound(err) {
-				return domain.NotFoundError(domain.ErrCategoryParentNotExists)
+				return domain.ParamsError(domain.ErrCategoryParentNotExists)
 			}
 			return err
 		}
@@ -111,7 +111,7 @@ func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.C
 			return err
 		}
 		if exists {
-			return domain.ConflictError(domain.ErrCategoryNameExists)
+			return domain.ErrCategoryNameExists
 		}
 
 		// 5. 处理继承逻辑
@@ -136,7 +136,7 @@ func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.C
 			// 	return err
 			// }
 			// if !exists {
-			// 	return domain.NotFoundError(domain.ErrTaxRateNotExists)
+			// 	return domain.ParamsError(domain.ErrTaxRateNotExists)
 			// }
 		}
 
@@ -150,7 +150,7 @@ func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.C
 			// 	return err
 			// }
 			// if !exists {
-			// 	return domain.NotFoundError(domain.ErrStallNotExists)
+			// 	return domain.ParamsError(domain.ErrStallNotExists)
 			// }
 		}
 

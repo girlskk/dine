@@ -9,12 +9,13 @@ import (
 )
 
 var (
-	ErrCategoryNotExists         = errors.New("product category not exists")
-	ErrCategoryNameExists        = errors.New("product category name already exists")
-	ErrCategoryHasProducts       = errors.New("first level category has products, cannot create child category")
-	ErrCategoryParentNotExists   = errors.New("parent category not exists")
-	ErrCategoryParentHasProducts = errors.New("parent category has products, cannot create child category")
-	ErrCategoryInvalidLevel      = errors.New("invalid category level, only two levels are supported")
+	ErrCategoryNotExists         = errors.New("商品分类不存在")
+	ErrCategoryNameExists        = errors.New("商品分类名称已存在")
+	ErrCategoryParentNotExists   = errors.New("父分类不存在")
+	ErrCategoryParentHasProducts = errors.New("父分类下有商品，不能创建子分类")
+	ErrCategoryInvalidLevel      = errors.New("分类级别无效，只支持两级分类")
+	ErrCategoryDeleteHasChildren = errors.New("商品分类下有子分类，不能删除")
+	ErrCategoryDeleteHasProducts = errors.New("商品分类下有商品，不能删除")
 )
 
 // CategoryRepository 商品分类仓储接口
@@ -27,6 +28,8 @@ type CategoryRepository interface {
 	Update(ctx context.Context, category *Category) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params CategoryExistsParams) (bool, error)
+	CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (int, error)
+	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
 }
 
 // CategoryInteractor 商品分类用例接口
@@ -35,8 +38,9 @@ type CategoryRepository interface {
 type CategoryInteractor interface {
 	CreateRoot(ctx context.Context, category *Category) error
 	CreateChild(ctx context.Context, category *Category) error
-	// Update(ctx context.Context, category *Category) (*Category, error)
-	// Delete(ctx context.Context, id uuid.UUID) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, category *Category) error
+	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
 }
 
 // Category 商品分类实体
@@ -79,4 +83,10 @@ type CategoryExistsParams struct {
 	Name       string
 	ParentID   uuid.UUID
 	IsRoot     bool
+	ExcludeID  uuid.UUID // 排除的ID（用于更新时检查名称唯一性）
+}
+
+// CategorySearchParams 查询参数
+type CategorySearchParams struct {
+	MerchantID uuid.UUID
 }

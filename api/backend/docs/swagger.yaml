@@ -16,6 +16,53 @@ definitions:
       username:
         type: string
     type: object
+  domain.Category:
+    properties:
+      children:
+        description: '@TODO 关联信息'
+        items:
+          $ref: '#/definitions/domain.Category'
+        type: array
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 分类ID
+        type: string
+      inherit_stall:
+        description: 是否继承父分类的出品部门ID
+        type: boolean
+      inherit_tax_rate:
+        description: 是否继承父分类的税率ID
+        type: boolean
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 分类名称
+        type: string
+      parent_id:
+        description: 父分类ID
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      sort_order:
+        description: 排序，值越小越靠前
+        type: integer
+      stall_id:
+        description: 出品部门ID
+        type: string
+      store_id:
+        description: 门店ID
+        type: string
+      tax_rate_id:
+        description: 税率ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
   domain.Merchant:
     properties:
       id:
@@ -57,7 +104,7 @@ definitions:
     - ObjectStorageSceneReconciliationDetailExport
     - ObjectStorageScenePointSettlementListExport
     - ObjectStorageScenePointSettlementDetailExport
-  types.CreateChildCategoryReq:
+  types.CategoryCreateChildReq:
     properties:
       inherit_stall:
         description: 是否继承父分类的出品部门ID
@@ -76,11 +123,9 @@ definitions:
         description: 税率ID
         type: string
     required:
-    - inherit_stall
-    - inherit_tax_rate
     - name
     type: object
-  types.CreateRootCategoryReq:
+  types.CategoryCreateRootReq:
     properties:
       children_names:
         description: 子分类名称列表
@@ -159,6 +204,25 @@ definitions:
       x_oss_signature_version:
         type: string
     type: object
+  types.UpdateCategoryReq:
+    properties:
+      inherit_stall:
+        description: 是否继承父分类的出品部门ID（仅子分类有效）
+        type: boolean
+      inherit_tax_rate:
+        description: 是否继承父分类的税率ID（仅子分类有效）
+        type: boolean
+      name:
+        description: 分类名称
+        maxLength: 255
+        type: string
+      stall_id:
+        description: 出品部门ID
+        type: string
+      tax_rate_id:
+        description: 税率ID
+        type: string
+    type: object
 info:
   contact: {}
   description: 供门店后台调用.
@@ -189,6 +253,21 @@ paths:
       tags:
       - 阿里OSS
   /product/category:
+    get:
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/domain.Category'
+              type: array
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 获取商品分类列表
+      tags:
+      - 商品分类
     post:
       parameters:
       - description: 请求信息
@@ -196,7 +275,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/types.CreateRootCategoryReq'
+          $ref: '#/definitions/types.CategoryCreateRootReq'
       responses:
         "200":
           description: OK
@@ -206,6 +285,25 @@ paths:
       tags:
       - 商品分类
   /product/category/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品分类
+      tags:
+      - 商品分类
     post:
       parameters:
       - description: 父分类ID
@@ -218,13 +316,38 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/types.CreateChildCategoryReq'
+          $ref: '#/definitions/types.CategoryCreateChildReq'
       responses:
         "200":
           description: OK
       security:
       - BearerAuth: []
       summary: 创建二级商品分类
+      tags:
+      - 商品分类
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.UpdateCategoryReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新商品分类
       tags:
       - 商品分类
   /user/info:

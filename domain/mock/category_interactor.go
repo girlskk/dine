@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
@@ -61,4 +62,47 @@ func (m *MockCategoryInteractor) CreateRoot(arg0 context.Context, arg1 *domain.C
 func (mr *MockCategoryInteractorMockRecorder) CreateRoot(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRoot", reflect.TypeOf((*MockCategoryInteractor)(nil).CreateRoot), arg0, arg1)
+}
+
+// Delete mocks base method.
+func (m *MockCategoryInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockCategoryInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCategoryInteractor)(nil).Delete), arg0, arg1)
+}
+
+// ListBySearch mocks base method.
+func (m *MockCategoryInteractor) ListBySearch(arg0 context.Context, arg1 domain.CategorySearchParams) (domain.Categories, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListBySearch", arg0, arg1)
+	ret0, _ := ret[0].(domain.Categories)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListBySearch indicates an expected call of ListBySearch.
+func (mr *MockCategoryInteractorMockRecorder) ListBySearch(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockCategoryInteractor)(nil).ListBySearch), arg0, arg1)
+}
+
+// Update mocks base method.
+func (m *MockCategoryInteractor) Update(arg0 context.Context, arg1 *domain.Category) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockCategoryInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCategoryInteractor)(nil).Update), arg0, arg1)
 }
