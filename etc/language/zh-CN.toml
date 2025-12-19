@@ -41,3 +41,9 @@ other = "商品单位名称已存在"
 
 [PRODUCT_UNIT_DELETE_HAS_PRODUCTS]
 other = "商品单位有商品，不能删除"
+
+[PRODUCT_SPEC_NAME_EXISTS]
+other = "商品规格名称已存在"
+
+[PRODUCT_SPEC_DELETE_HAS_PRODUCTS]
+other = "商品规格有商品，不能删除"

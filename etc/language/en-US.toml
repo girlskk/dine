@@ -42,3 +42,9 @@ other = "Product unit name already exists"
 
 [PRODUCT_UNIT_DELETE_HAS_PRODUCTS]
 other = "Product unit has products, cannot delete"
+
+[PRODUCT_SPEC_NAME_EXISTS]
+other = "Product spec name already exists"
+
+[PRODUCT_SPEC_DELETE_HAS_PRODUCTS]
+other = "Product spec has products, cannot delete"

@@ -15,6 +15,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 )
 
@@ -79,6 +80,7 @@ func checkColumn(table, column string) error {
 			adminuser.Table:   adminuser.ValidColumn,
 			backenduser.Table: backenduser.ValidColumn,
 			category.Table:    category.ValidColumn,
+			productspec.Table: productspec.ValidColumn,
 			productunit.Table: productunit.ValidColumn,
 		})
 	})

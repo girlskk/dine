@@ -113,6 +113,40 @@ var (
 			},
 		},
 	}
+	// ProductSpecsColumns holds the columns for the "product_specs" table.
+	ProductSpecsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductSpecsTable holds the schema information for the "product_specs" table.
+	ProductSpecsTable = &schema.Table{
+		Name:       "product_specs",
+		Columns:    ProductSpecsColumns,
+		PrimaryKey: []*schema.Column{ProductSpecsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productspec_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecsColumns[3]},
+			},
+			{
+				Name:    "productspec_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecsColumns[5]},
+			},
+			{
+				Name:    "productspec_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecsColumns[6]},
+			},
+		},
+	}
 	// ProductUnitsColumns holds the columns for the "product_units" table.
 	ProductUnitsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -153,6 +187,7 @@ var (
 		AdminUsersTable,
 		BackendUsersTable,
 		CategoriesTable,
+		ProductSpecsTable,
 		ProductUnitsTable,
 	}
 )

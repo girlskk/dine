@@ -12,6 +12,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 )
 
@@ -152,6 +153,33 @@ func (f TraverseCategory) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.CategoryQuery", q)
 }
 
+// The ProductSpecFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ProductSpecFunc func(context.Context, *ent.ProductSpecQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ProductSpecFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ProductSpecQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ProductSpecQuery", q)
+}
+
+// The TraverseProductSpec type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseProductSpec func(context.Context, *ent.ProductSpecQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseProductSpec) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseProductSpec) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProductSpecQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ProductSpecQuery", q)
+}
+
 // The ProductUnitFunc type is an adapter to allow the use of ordinary function as a Querier.
 type ProductUnitFunc func(context.Context, *ent.ProductUnitQuery) (ent.Value, error)
 
@@ -188,6 +216,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.BackendUserQuery, predicate.BackendUser, backenduser.OrderOption]{typ: ent.TypeBackendUser, tq: q}, nil
 	case *ent.CategoryQuery:
 		return &query[*ent.CategoryQuery, predicate.Category, category.OrderOption]{typ: ent.TypeCategory, tq: q}, nil
+	case *ent.ProductSpecQuery:
+		return &query[*ent.ProductSpecQuery, predicate.ProductSpec, productspec.OrderOption]{typ: ent.TypeProductSpec, tq: q}, nil
 	case *ent.ProductUnitQuery:
 		return &query[*ent.ProductUnitQuery, predicate.ProductUnit, productunit.OrderOption]{typ: ent.TypeProductUnit, tq: q}, nil
 	default:

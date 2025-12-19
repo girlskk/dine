@@ -31,4 +31,6 @@ const (
 	CategoryDeleteHasProducts    ErrCode = "CATEGORY_DELETE_HAS_PRODUCTS"     // 商品分类有商品
 	ProductUnitNameExists        ErrCode = "PRODUCT_UNIT_NAME_EXISTS"         // 商品单位名称已存在
 	ProductUnitDeleteHasProducts ErrCode = "PRODUCT_UNIT_DELETE_HAS_PRODUCTS" // 商品单位有商品
+	ProductSpecNameExists        ErrCode = "PRODUCT_SPEC_NAME_EXISTS"         // 商品规格名称已存在
+	ProductSpecDeleteHasProducts ErrCode = "PRODUCT_SPEC_DELETE_HAS_PRODUCTS" // 商品规格有商品
 )

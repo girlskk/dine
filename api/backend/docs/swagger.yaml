@@ -104,6 +104,46 @@ definitions:
     - ObjectStorageSceneReconciliationDetailExport
     - ObjectStorageScenePointSettlementListExport
     - ObjectStorageScenePointSettlementDetailExport
+  domain.ProductSpec:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 规格ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 规格名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductSpecSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProductSpec'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
   domain.ProductUnit:
     properties:
       created_at:
@@ -261,6 +301,24 @@ definitions:
         type: string
       x_oss_signature_version:
         type: string
+    type: object
+  types.ProductSpecCreateReq:
+    properties:
+      name:
+        description: 规格名称
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
+  types.ProductSpecUpdateReq:
+    properties:
+      name:
+        description: 规格名称
+        maxLength: 255
+        type: string
+    required:
+    - name
     type: object
   types.ProductUnitCreateReq:
     properties:
@@ -440,6 +498,95 @@ paths:
       summary: 更新商品分类
       tags:
       - 商品分类
+  /product/spec:
+    get:
+      parameters:
+      - description: 规格名称
+        in: query
+        maxLength: 255
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProductSpecSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 获取商品规格列表
+      tags:
+      - 商品规格
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductSpecCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建商品规格
+      tags:
+      - 商品规格
+  /product/spec/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 规格ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品规格
+      tags:
+      - 商品规格
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 规格ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductSpecUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新商品规格
+      tags:
+      - 商品规格
   /product/unit:
     get:
       parameters:
