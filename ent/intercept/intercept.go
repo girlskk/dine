@@ -12,6 +12,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
@@ -154,6 +156,60 @@ func (f TraverseCategory) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.CategoryQuery", q)
 }
 
+// The ProductAttrFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ProductAttrFunc func(context.Context, *ent.ProductAttrQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ProductAttrFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ProductAttrQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ProductAttrQuery", q)
+}
+
+// The TraverseProductAttr type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseProductAttr func(context.Context, *ent.ProductAttrQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseProductAttr) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseProductAttr) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProductAttrQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ProductAttrQuery", q)
+}
+
+// The ProductAttrItemFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ProductAttrItemFunc func(context.Context, *ent.ProductAttrItemQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ProductAttrItemFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ProductAttrItemQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ProductAttrItemQuery", q)
+}
+
+// The TraverseProductAttrItem type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseProductAttrItem func(context.Context, *ent.ProductAttrItemQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseProductAttrItem) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseProductAttrItem) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProductAttrItemQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ProductAttrItemQuery", q)
+}
+
 // The ProductSpecFunc type is an adapter to allow the use of ordinary function as a Querier.
 type ProductSpecFunc func(context.Context, *ent.ProductSpecQuery) (ent.Value, error)
 
@@ -244,6 +300,10 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.BackendUserQuery, predicate.BackendUser, backenduser.OrderOption]{typ: ent.TypeBackendUser, tq: q}, nil
 	case *ent.CategoryQuery:
 		return &query[*ent.CategoryQuery, predicate.Category, category.OrderOption]{typ: ent.TypeCategory, tq: q}, nil
+	case *ent.ProductAttrQuery:
+		return &query[*ent.ProductAttrQuery, predicate.ProductAttr, productattr.OrderOption]{typ: ent.TypeProductAttr, tq: q}, nil
+	case *ent.ProductAttrItemQuery:
+		return &query[*ent.ProductAttrItemQuery, predicate.ProductAttrItem, productattritem.OrderOption]{typ: ent.TypeProductAttrItem, tq: q}, nil
 	case *ent.ProductSpecQuery:
 		return &query[*ent.ProductSpecQuery, predicate.ProductSpec, productspec.OrderOption]{typ: ent.TypeProductSpec, tq: q}, nil
 	case *ent.ProductTagQuery:

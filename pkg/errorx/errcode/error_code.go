@@ -35,4 +35,9 @@ const (
 	ProductSpecDeleteHasProducts ErrCode = "PRODUCT_SPEC_DELETE_HAS_PRODUCTS" // 商品规格有商品
 	ProductTagNameExists         ErrCode = "PRODUCT_TAG_NAME_EXISTS"          // 商品标签名称已存在
 	ProductTagDeleteHasProducts  ErrCode = "PRODUCT_TAG_DELETE_HAS_PRODUCTS"  // 商品标签有商品
+
+	// 商品口味做法
+	ProductAttrNameExists            ErrCode = "PRODUCT_ATTR_NAME_EXISTS"              // 商品口味做法名称已存在
+	ProductAttrDeleteHasItems        ErrCode = "PRODUCT_ATTR_DELETE_HAS_ITEMS"         // 商品口味做法有子项
+	ProductAttrItemDeleteHasProducts ErrCode = "PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS" // 商品口味做法项有商品
 )

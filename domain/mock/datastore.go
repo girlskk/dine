@@ -117,6 +117,20 @@ func (mr *MockDataStoreMockRecorder) IsTransactionActive() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsTransactionActive", reflect.TypeOf((*MockDataStore)(nil).IsTransactionActive))
 }
 
+// ProductAttrRepo mocks base method.
+func (m *MockDataStore) ProductAttrRepo() domain.ProductAttrRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductAttrRepo")
+	ret0, _ := ret[0].(domain.ProductAttrRepository)
+	return ret0
+}
+
+// ProductAttrRepo indicates an expected call of ProductAttrRepo.
+func (mr *MockDataStoreMockRecorder) ProductAttrRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductAttrRepo", reflect.TypeOf((*MockDataStore)(nil).ProductAttrRepo))
+}
+
 // ProductSpecRepo mocks base method.
 func (m *MockDataStore) ProductSpecRepo() domain.ProductSpecRepository {
 	m.ctrl.T.Helper()

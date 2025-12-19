@@ -104,6 +104,67 @@ definitions:
     - ObjectStorageSceneReconciliationDetailExport
     - ObjectStorageScenePointSettlementListExport
     - ObjectStorageScenePointSettlementDetailExport
+  domain.ProductAttr:
+    properties:
+      channels:
+        description: 售卖渠道列表
+        items:
+          $ref: '#/definitions/domain.SaleChannel'
+        type: array
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 口味做法ID
+        type: string
+      items:
+        description: 关联信息
+        items:
+          $ref: '#/definitions/domain.ProductAttrItem'
+        type: array
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 口味做法名称
+        type: string
+      product_count:
+        description: 关联的商品数量（所有项的关联商品数量累加）
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductAttrItem:
+    properties:
+      attr_id:
+        description: 口味做法ID（外键）
+        type: string
+      base_price:
+        description: 基础加价（单位：分）
+        type: number
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 口味做法项ID
+        type: string
+      image:
+        description: 图片URL（可选）
+        type: string
+      name:
+        description: 口味做法项名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
   domain.ProductSpec:
     properties:
       created_at:
@@ -242,6 +303,32 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.SaleChannel:
+    enum:
+    - POS
+    - Mobile
+    - Scan
+    - SelfService
+    - ThirdParty
+    type: string
+    x-enum-comments:
+      SaleChannelMobileOrdering: 移动点餐
+      SaleChannelPOS: POS
+      SaleChannelScanOrdering: 扫码点餐
+      SaleChannelSelfService: 自助点餐
+      SaleChannelThirdPartyDelivery: 三方外卖
+    x-enum-descriptions:
+    - POS
+    - 移动点餐
+    - 扫码点餐
+    - 自助点餐
+    - 三方外卖
+    x-enum-varnames:
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   types.CategoryCreateChildReq:
     properties:
       inherit_stall:
@@ -341,6 +428,67 @@ definitions:
         type: string
       x_oss_signature_version:
         type: string
+    type: object
+  types.ProductAttrCreateReq:
+    properties:
+      channels:
+        description: 售卖渠道列表（必选，可多选）
+        items:
+          $ref: '#/definitions/domain.SaleChannel'
+        minItems: 1
+        type: array
+      items:
+        description: 口味做法项列表（可选）
+        items:
+          $ref: '#/definitions/types.ProductAttrItemReq'
+        type: array
+      name:
+        description: 口味做法名称
+        maxLength: 255
+        type: string
+    required:
+    - channels
+    - name
+    type: object
+  types.ProductAttrItemReq:
+    properties:
+      base_price:
+        description: 基础加价（单位：分）
+        type: number
+      id:
+        description: 口味做法项ID（更新时传入）
+        type: string
+      image:
+        description: 图片URL（可选）
+        type: string
+      name:
+        description: 口味做法项名称
+        maxLength: 255
+        type: string
+    required:
+    - base_price
+    - name
+    type: object
+  types.ProductAttrUpdateReq:
+    properties:
+      channels:
+        description: 售卖渠道列表（必选，可多选）
+        items:
+          $ref: '#/definitions/domain.SaleChannel'
+        minItems: 1
+        type: array
+      items:
+        description: 口味做法项列表（可选，用于新增、修改、删除）
+        items:
+          $ref: '#/definitions/types.ProductAttrItemReq'
+        type: array
+      name:
+        description: 口味做法名称
+        maxLength: 255
+        type: string
+    required:
+    - channels
+    - name
     type: object
   types.ProductSpecCreateReq:
     properties:
@@ -458,6 +606,89 @@ paths:
       summary: 获取OSS Token
       tags:
       - 阿里OSS
+  /product/attr:
+    get:
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/domain.ProductAttr'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 获取商品口味做法列表
+      tags:
+      - 商品口味做法
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductAttrCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建商品口味做法
+      tags:
+      - 商品口味做法
+  /product/attr/{id}:
+    delete:
+      parameters:
+      - description: 口味做法ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品口味做法
+      tags:
+      - 商品口味做法
+    put:
+      parameters:
+      - description: 口味做法ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductAttrUpdateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新商品口味做法
+      tags:
+      - 商品口味做法
+  /product/attr/item/{id}:
+    delete:
+      parameters:
+      - description: 口味做法项ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品口味做法项
+      tags:
+      - 商品口味做法
   /product/category:
     get:
       responses:

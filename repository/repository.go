@@ -23,6 +23,7 @@ type Repository struct {
 	productUnitRepo   *ProductUnitRepository
 	productSpecRepo   *ProductSpecRepository
 	productTagRepo    *ProductTagRepository
+	productAttrRepo   *ProductAttrRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -149,4 +150,13 @@ func (repo *Repository) ProductTagRepo() domain.ProductTagRepository {
 		repo.productTagRepo = NewProductTagRepository(repo.client)
 	}
 	return repo.productTagRepo
+}
+
+func (repo *Repository) ProductAttrRepo() domain.ProductAttrRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productAttrRepo == nil {
+		repo.productAttrRepo = NewProductAttrRepository(repo.client)
+	}
+	return repo.productAttrRepo
 }

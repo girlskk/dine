@@ -113,6 +113,79 @@ var (
 			},
 		},
 	}
+	// ProductAttrsColumns holds the columns for the "product_attrs" table.
+	ProductAttrsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "channels", Type: field.TypeJSON},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductAttrsTable holds the schema information for the "product_attrs" table.
+	ProductAttrsTable = &schema.Table{
+		Name:       "product_attrs",
+		Columns:    ProductAttrsColumns,
+		PrimaryKey: []*schema.Column{ProductAttrsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productattr_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrsColumns[3]},
+			},
+			{
+				Name:    "productattr_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrsColumns[6]},
+			},
+			{
+				Name:    "productattr_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrsColumns[7]},
+			},
+		},
+	}
+	// ProductAttrItemsColumns holds the columns for the "product_attr_items" table.
+	ProductAttrItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "image", Type: field.TypeString, Size: 512, Default: ""},
+		{Name: "base_price", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+		{Name: "attr_id", Type: field.TypeUUID},
+	}
+	// ProductAttrItemsTable holds the schema information for the "product_attr_items" table.
+	ProductAttrItemsTable = &schema.Table{
+		Name:       "product_attr_items",
+		Columns:    ProductAttrItemsColumns,
+		PrimaryKey: []*schema.Column{ProductAttrItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_attr_items_product_attrs_items",
+				Columns:    []*schema.Column{ProductAttrItemsColumns[8]},
+				RefColumns: []*schema.Column{ProductAttrsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productattritem_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrItemsColumns[3]},
+			},
+			{
+				Name:    "productattritem_attr_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrItemsColumns[8]},
+			},
+		},
+	}
 	// ProductSpecsColumns holds the columns for the "product_specs" table.
 	ProductSpecsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -221,6 +294,8 @@ var (
 		AdminUsersTable,
 		BackendUsersTable,
 		CategoriesTable,
+		ProductAttrsTable,
+		ProductAttrItemsTable,
 		ProductSpecsTable,
 		ProductTagsTable,
 		ProductUnitsTable,
@@ -229,4 +304,5 @@ var (
 
 func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
+	ProductAttrItemsTable.ForeignKeys[0].RefTable = ProductAttrsTable
 }

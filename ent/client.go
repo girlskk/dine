@@ -19,6 +19,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
@@ -35,6 +37,10 @@ type Client struct {
 	BackendUser *BackendUserClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// ProductAttr is the client for interacting with the ProductAttr builders.
+	ProductAttr *ProductAttrClient
+	// ProductAttrItem is the client for interacting with the ProductAttrItem builders.
+	ProductAttrItem *ProductAttrItemClient
 	// ProductSpec is the client for interacting with the ProductSpec builders.
 	ProductSpec *ProductSpecClient
 	// ProductTag is the client for interacting with the ProductTag builders.
@@ -55,6 +61,8 @@ func (c *Client) init() {
 	c.AdminUser = NewAdminUserClient(c.config)
 	c.BackendUser = NewBackendUserClient(c.config)
 	c.Category = NewCategoryClient(c.config)
+	c.ProductAttr = NewProductAttrClient(c.config)
+	c.ProductAttrItem = NewProductAttrItemClient(c.config)
 	c.ProductSpec = NewProductSpecClient(c.config)
 	c.ProductTag = NewProductTagClient(c.config)
 	c.ProductUnit = NewProductUnitClient(c.config)
@@ -148,14 +156,16 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:         ctx,
-		config:      cfg,
-		AdminUser:   NewAdminUserClient(cfg),
-		BackendUser: NewBackendUserClient(cfg),
-		Category:    NewCategoryClient(cfg),
-		ProductSpec: NewProductSpecClient(cfg),
-		ProductTag:  NewProductTagClient(cfg),
-		ProductUnit: NewProductUnitClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		AdminUser:       NewAdminUserClient(cfg),
+		BackendUser:     NewBackendUserClient(cfg),
+		Category:        NewCategoryClient(cfg),
+		ProductAttr:     NewProductAttrClient(cfg),
+		ProductAttrItem: NewProductAttrItemClient(cfg),
+		ProductSpec:     NewProductSpecClient(cfg),
+		ProductTag:      NewProductTagClient(cfg),
+		ProductUnit:     NewProductUnitClient(cfg),
 	}, nil
 }
 
@@ -173,14 +183,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:         ctx,
-		config:      cfg,
-		AdminUser:   NewAdminUserClient(cfg),
-		BackendUser: NewBackendUserClient(cfg),
-		Category:    NewCategoryClient(cfg),
-		ProductSpec: NewProductSpecClient(cfg),
-		ProductTag:  NewProductTagClient(cfg),
-		ProductUnit: NewProductUnitClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		AdminUser:       NewAdminUserClient(cfg),
+		BackendUser:     NewBackendUserClient(cfg),
+		Category:        NewCategoryClient(cfg),
+		ProductAttr:     NewProductAttrClient(cfg),
+		ProductAttrItem: NewProductAttrItemClient(cfg),
+		ProductSpec:     NewProductSpecClient(cfg),
+		ProductTag:      NewProductTagClient(cfg),
+		ProductUnit:     NewProductUnitClient(cfg),
 	}, nil
 }
 
@@ -210,8 +222,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AdminUser, c.BackendUser, c.Category, c.ProductSpec, c.ProductTag,
-		c.ProductUnit,
+		c.AdminUser, c.BackendUser, c.Category, c.ProductAttr, c.ProductAttrItem,
+		c.ProductSpec, c.ProductTag, c.ProductUnit,
 	} {
 		n.Use(hooks...)
 	}
@@ -221,8 +233,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AdminUser, c.BackendUser, c.Category, c.ProductSpec, c.ProductTag,
-		c.ProductUnit,
+		c.AdminUser, c.BackendUser, c.Category, c.ProductAttr, c.ProductAttrItem,
+		c.ProductSpec, c.ProductTag, c.ProductUnit,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -237,6 +249,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.BackendUser.mutate(ctx, m)
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
+	case *ProductAttrMutation:
+		return c.ProductAttr.mutate(ctx, m)
+	case *ProductAttrItemMutation:
+		return c.ProductAttrItem.mutate(ctx, m)
 	case *ProductSpecMutation:
 		return c.ProductSpec.mutate(ctx, m)
 	case *ProductTagMutation:
@@ -685,6 +701,308 @@ func (c *CategoryClient) mutate(ctx context.Context, m *CategoryMutation) (Value
 	}
 }
 
+// ProductAttrClient is a client for the ProductAttr schema.
+type ProductAttrClient struct {
+	config
+}
+
+// NewProductAttrClient returns a client for the ProductAttr from the given config.
+func NewProductAttrClient(c config) *ProductAttrClient {
+	return &ProductAttrClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `productattr.Hooks(f(g(h())))`.
+func (c *ProductAttrClient) Use(hooks ...Hook) {
+	c.hooks.ProductAttr = append(c.hooks.ProductAttr, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `productattr.Intercept(f(g(h())))`.
+func (c *ProductAttrClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProductAttr = append(c.inters.ProductAttr, interceptors...)
+}
+
+// Create returns a builder for creating a ProductAttr entity.
+func (c *ProductAttrClient) Create() *ProductAttrCreate {
+	mutation := newProductAttrMutation(c.config, OpCreate)
+	return &ProductAttrCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProductAttr entities.
+func (c *ProductAttrClient) CreateBulk(builders ...*ProductAttrCreate) *ProductAttrCreateBulk {
+	return &ProductAttrCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProductAttrClient) MapCreateBulk(slice any, setFunc func(*ProductAttrCreate, int)) *ProductAttrCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProductAttrCreateBulk{err: fmt.Errorf("calling to ProductAttrClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProductAttrCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProductAttrCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProductAttr.
+func (c *ProductAttrClient) Update() *ProductAttrUpdate {
+	mutation := newProductAttrMutation(c.config, OpUpdate)
+	return &ProductAttrUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProductAttrClient) UpdateOne(pa *ProductAttr) *ProductAttrUpdateOne {
+	mutation := newProductAttrMutation(c.config, OpUpdateOne, withProductAttr(pa))
+	return &ProductAttrUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProductAttrClient) UpdateOneID(id uuid.UUID) *ProductAttrUpdateOne {
+	mutation := newProductAttrMutation(c.config, OpUpdateOne, withProductAttrID(id))
+	return &ProductAttrUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProductAttr.
+func (c *ProductAttrClient) Delete() *ProductAttrDelete {
+	mutation := newProductAttrMutation(c.config, OpDelete)
+	return &ProductAttrDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProductAttrClient) DeleteOne(pa *ProductAttr) *ProductAttrDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProductAttrClient) DeleteOneID(id uuid.UUID) *ProductAttrDeleteOne {
+	builder := c.Delete().Where(productattr.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProductAttrDeleteOne{builder}
+}
+
+// Query returns a query builder for ProductAttr.
+func (c *ProductAttrClient) Query() *ProductAttrQuery {
+	return &ProductAttrQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProductAttr},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProductAttr entity by its id.
+func (c *ProductAttrClient) Get(ctx context.Context, id uuid.UUID) (*ProductAttr, error) {
+	return c.Query().Where(productattr.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProductAttrClient) GetX(ctx context.Context, id uuid.UUID) *ProductAttr {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryItems queries the items edge of a ProductAttr.
+func (c *ProductAttrClient) QueryItems(pa *ProductAttr) *ProductAttrItemQuery {
+	query := (&ProductAttrItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattr.Table, productattr.FieldID, id),
+			sqlgraph.To(productattritem.Table, productattritem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productattr.ItemsTable, productattr.ItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProductAttrClient) Hooks() []Hook {
+	hooks := c.hooks.ProductAttr
+	return append(hooks[:len(hooks):len(hooks)], productattr.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProductAttrClient) Interceptors() []Interceptor {
+	inters := c.inters.ProductAttr
+	return append(inters[:len(inters):len(inters)], productattr.Interceptors[:]...)
+}
+
+func (c *ProductAttrClient) mutate(ctx context.Context, m *ProductAttrMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductAttrCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductAttrUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductAttrUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductAttrDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProductAttr mutation op: %q", m.Op())
+	}
+}
+
+// ProductAttrItemClient is a client for the ProductAttrItem schema.
+type ProductAttrItemClient struct {
+	config
+}
+
+// NewProductAttrItemClient returns a client for the ProductAttrItem from the given config.
+func NewProductAttrItemClient(c config) *ProductAttrItemClient {
+	return &ProductAttrItemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `productattritem.Hooks(f(g(h())))`.
+func (c *ProductAttrItemClient) Use(hooks ...Hook) {
+	c.hooks.ProductAttrItem = append(c.hooks.ProductAttrItem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `productattritem.Intercept(f(g(h())))`.
+func (c *ProductAttrItemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProductAttrItem = append(c.inters.ProductAttrItem, interceptors...)
+}
+
+// Create returns a builder for creating a ProductAttrItem entity.
+func (c *ProductAttrItemClient) Create() *ProductAttrItemCreate {
+	mutation := newProductAttrItemMutation(c.config, OpCreate)
+	return &ProductAttrItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProductAttrItem entities.
+func (c *ProductAttrItemClient) CreateBulk(builders ...*ProductAttrItemCreate) *ProductAttrItemCreateBulk {
+	return &ProductAttrItemCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProductAttrItemClient) MapCreateBulk(slice any, setFunc func(*ProductAttrItemCreate, int)) *ProductAttrItemCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProductAttrItemCreateBulk{err: fmt.Errorf("calling to ProductAttrItemClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProductAttrItemCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProductAttrItemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProductAttrItem.
+func (c *ProductAttrItemClient) Update() *ProductAttrItemUpdate {
+	mutation := newProductAttrItemMutation(c.config, OpUpdate)
+	return &ProductAttrItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProductAttrItemClient) UpdateOne(pai *ProductAttrItem) *ProductAttrItemUpdateOne {
+	mutation := newProductAttrItemMutation(c.config, OpUpdateOne, withProductAttrItem(pai))
+	return &ProductAttrItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProductAttrItemClient) UpdateOneID(id uuid.UUID) *ProductAttrItemUpdateOne {
+	mutation := newProductAttrItemMutation(c.config, OpUpdateOne, withProductAttrItemID(id))
+	return &ProductAttrItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProductAttrItem.
+func (c *ProductAttrItemClient) Delete() *ProductAttrItemDelete {
+	mutation := newProductAttrItemMutation(c.config, OpDelete)
+	return &ProductAttrItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProductAttrItemClient) DeleteOne(pai *ProductAttrItem) *ProductAttrItemDeleteOne {
+	return c.DeleteOneID(pai.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProductAttrItemClient) DeleteOneID(id uuid.UUID) *ProductAttrItemDeleteOne {
+	builder := c.Delete().Where(productattritem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProductAttrItemDeleteOne{builder}
+}
+
+// Query returns a query builder for ProductAttrItem.
+func (c *ProductAttrItemClient) Query() *ProductAttrItemQuery {
+	return &ProductAttrItemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProductAttrItem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProductAttrItem entity by its id.
+func (c *ProductAttrItemClient) Get(ctx context.Context, id uuid.UUID) (*ProductAttrItem, error) {
+	return c.Query().Where(productattritem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProductAttrItemClient) GetX(ctx context.Context, id uuid.UUID) *ProductAttrItem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAttr queries the attr edge of a ProductAttrItem.
+func (c *ProductAttrItemClient) QueryAttr(pai *ProductAttrItem) *ProductAttrQuery {
+	query := (&ProductAttrClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pai.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattritem.Table, productattritem.FieldID, id),
+			sqlgraph.To(productattr.Table, productattr.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productattritem.AttrTable, productattritem.AttrColumn),
+		)
+		fromV = sqlgraph.Neighbors(pai.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProductAttrItemClient) Hooks() []Hook {
+	hooks := c.hooks.ProductAttrItem
+	return append(hooks[:len(hooks):len(hooks)], productattritem.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProductAttrItemClient) Interceptors() []Interceptor {
+	inters := c.inters.ProductAttrItem
+	return append(inters[:len(inters):len(inters)], productattritem.Interceptors[:]...)
+}
+
+func (c *ProductAttrItemClient) mutate(ctx context.Context, m *ProductAttrItemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductAttrItemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductAttrItemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductAttrItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductAttrItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProductAttrItem mutation op: %q", m.Op())
+	}
+}
+
 // ProductSpecClient is a client for the ProductSpec schema.
 type ProductSpecClient struct {
 	config
@@ -1093,11 +1411,11 @@ func (c *ProductUnitClient) mutate(ctx context.Context, m *ProductUnitMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AdminUser, BackendUser, Category, ProductSpec, ProductTag,
-		ProductUnit []ent.Hook
+		AdminUser, BackendUser, Category, ProductAttr, ProductAttrItem, ProductSpec,
+		ProductTag, ProductUnit []ent.Hook
 	}
 	inters struct {
-		AdminUser, BackendUser, Category, ProductSpec, ProductTag,
-		ProductUnit []ent.Interceptor
+		AdminUser, BackendUser, Category, ProductAttr, ProductAttrItem, ProductSpec,
+		ProductTag, ProductUnit []ent.Interceptor
 	}
 )

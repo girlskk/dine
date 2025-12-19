@@ -47,3 +47,12 @@ other = "商品规格名称已存在"
 
 [PRODUCT_SPEC_DELETE_HAS_PRODUCTS]
 other = "商品规格有商品，不能删除"
+
+[PRODUCT_ATTR_NAME_EXISTS]
+other = "商品口味做法名称已存在"
+
+[PRODUCT_ATTR_DELETE_HAS_ITEMS]
+other = "商品口味做法有子项，不能删除"
+
+[PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS]
+other = "商品口味做法项有商品，不能删除"

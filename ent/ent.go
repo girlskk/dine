@@ -15,6 +15,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
@@ -78,12 +80,14 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			adminuser.Table:   adminuser.ValidColumn,
-			backenduser.Table: backenduser.ValidColumn,
-			category.Table:    category.ValidColumn,
-			productspec.Table: productspec.ValidColumn,
-			producttag.Table:  producttag.ValidColumn,
-			productunit.Table: productunit.ValidColumn,
+			adminuser.Table:       adminuser.ValidColumn,
+			backenduser.Table:     backenduser.ValidColumn,
+			category.Table:        category.ValidColumn,
+			productattr.Table:     productattr.ValidColumn,
+			productattritem.Table: productattritem.ValidColumn,
+			productspec.Table:     productspec.ValidColumn,
+			producttag.Table:      producttag.ValidColumn,
+			productunit.Table:     productunit.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)
