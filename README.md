@@ -119,30 +119,33 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
 
 #### 错误定义与转换
 
-1. **Domain 层错误**：
+1. **Domain 层定义错误**：
 
-   - 定义核心业务错误（如 `ErrTokenInvalid`、`ErrMismatchedHashAndPassword`）
-   - 提供通用错误构造函数（如 `NotFoundError`、`ParamsError`、`ConflictError`）
+   - 定义通用业务错误（如 `ErrTokenInvalid`、`ErrMismatchedHashAndPassword`、`ParamsError`）
+   - 定义具体各个领域业务错误，和各个领域的接口定义放在一起
+   - 定义底层通用错误类型（如 `NotFoundError`、`ConflictError`）
    - 错误类型：自定义 `error` 类型，实现 `Unwrap` 方法支持错误链
-   - **示例**：`domain/error.go` 定义了各种领域错误类型
+   - **示例**：`domain/error.go` 定义了各种底层通用错误类型
 2. **Repository 层错误**：
 
-   - 将技术错误（如数据库错误）转换为业务错误
+   - 预期的底层错误（如NotFoundError/ConflictError）,需使用Domain层定义的底层通用错误类型来包装，以便调用方断言
+   - 非预期的底层错误（如网络错误、数据库连接错误等）添加上下文信息后返回给调用方，如 `fmt.Errorf("failed to create user: %w", err)`
    - 使用 `domain.NotFoundError` 包装 `ent.IsNotFound` 错误
    - 使用 `domain.ConflictError` 包装 `ent.IsConstraintError` 错误
    - 错误类型：`domain.Error` 或其具体实现
    - **示例**：`repository/admin_user.go` 中处理数据库错误的代码
+   - 不要返回具体的业务错误（如金额不足、订单无法取消等）
 3. **UseCase 层错误**：
 
-   - 包装底层错误（如仓储错误）
+   - 预期的错误（如仓储层返回的 `NotFoundError`）在调用方能够根据底层通用错误确定异常情况（如 `NotFoundError`只会代表找不到用户），添加上下文信息后返回给调用方。如果调用方无法明确异常情况（如找不到用户或订单），则需要断言并返回不同的Domain 层定义的具体业务错误。
    - 添加上下文信息（如 `fmt.Errorf("failed to find user: %w", err)`）
    - 错误类型：`domain.Error` 或标准 `error`
    - **示例**：`usecase/userauth/admin_user.go` 中处理仓储错误的代码
 4. **API 层错误**：
 
-   - 将业务错误转换为 HTTP 错误
-   - 使用 `errorx.New` 构造 HTTP 错误
-   - 错误类型：`errorx.Error`
+   - 预期的业务错误使用 `errorx.New` 分配Rest风格的HTTP状态码与构造 HTTP 错误
+   - 非预期错误添加上下文信息后返回
+   - 错误类型：`errorx.Error` 或标准 `error`
    - **示例**：`api/admin/handler/user.go` 中处理业务错误的代码
 
 #### 错误处理最佳实践
@@ -150,7 +153,7 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
 1. **错误传递**：
 
    ```go
-   // Repository 层：将技术错误转换为业务错误
+   // Repository 层：将ent错误转换为业务错误
    if ent.IsNotFound(err) {
        err = domain.NotFoundError(err)
    }
@@ -161,12 +164,20 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
        return
    }
 
-   // API 层：将业务错误转换为 HTTP 错误
+   // UseCase 层：断言底层错误，并返回业务错误
    if domain.IsNotFound(err) {
+       return domain.ErrUserNotFound
+   }
+
+   // API 层：将业务错误转换为 HTTP 错误
+   if domain.IsNotFound(err) { // or errors.Is(err, domain.ErrUserNotFound) or errors.As(err, domain.UserNotFoundError)
        translated := i18n.Translate(ctx, errcode.UserNotFound.String(), map[string]any{"Username": req.Username})
        c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err).WithMessage(translated))
        return
    }
+
+   // API 层：非预期错误
+   c.Error(err = fmt.Errorf("failed to authenticate user: %w", err))
    ```
 2. **错误包装**：
 
@@ -175,7 +186,7 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
 3. **错误分类**：
 
    - 业务错误：由领域层定义，反映业务规则违反
-   - 技术错误：由基础设施层产生，需要转换为业务错误
+   - 底层错误：由基础设施层产生，需要转换为业务错误
    - HTTP 错误：由 API 层产生，反映 HTTP 协议状态
 4. **错误检查**：
 
@@ -287,6 +298,7 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
   - `updated_at`：更新时间
   - `deleted_at`：软删除标记（0 表示未删除）
 - 表名使用复数形式，字段名使用下划线分隔
+- **禁止使用 JOIN 操作**：通过应用层关联查询替代，避免复杂 SQL 依赖和性能瓶颈
 - 索引设计：
 
   - 为经常查询的字段创建索引
@@ -305,6 +317,17 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
 
 - 使用事务保证数据一致性
 - 优先使用 entgo 的查询构建器，避免直接写 SQL
+- **禁止 N+1 查询**：使用 entgo 的 `With` 方法预加载关联数据
+  ```go
+  // 正确：预加载关联数据，避免 N+1 查询
+  users, err := client.User.Query().WithRoles().All(ctx)
+
+  // 错误：N+1 查询（先查用户，再循环查角色）
+  users, err := client.User.Query().All(ctx)
+  for _, user := range users {
+      roles, err := user.QueryRoles().All(ctx) // 循环中执行查询，导致 N+1 问题
+  }
+  ```
 - 软删除默认开启，使用 `SkipSoftDelete` 上下文跳过软删除
 
 ## 5. API 设计规范
@@ -423,8 +446,8 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
 
 ### 9.3 测试覆盖率
 
-- 单元测试覆盖率目标：≥60%（根据开发时间酌情考虑)
-- 关键业务逻辑必须有测试覆盖（根据开发时间酌情考虑)
+- 单元测试覆盖率目标：≥60%（根据开发时间酌情考虑）
+- 关键业务逻辑必须有测试覆盖（根据开发时间酌情考虑）
 
 ## 10. 代码审查规范
 
@@ -506,5 +529,5 @@ POS Dine API 是一个基于 Go 语言开发的餐饮管理系统后端 API，�
 
 ---
 
-**最后更新时间**：2025-12-17
-**版本**：1.0.0
+**最后更新时间**：2025-12-18
+**版本**：1.0.2
