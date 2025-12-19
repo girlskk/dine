@@ -111,7 +111,9 @@ func (buc *BackendUserCreate) Mutation() *BackendUserMutation {
 
 // Save creates the BackendUser in the database.
 func (buc *BackendUserCreate) Save(ctx context.Context) (*BackendUser, error) {
-	buc.defaults()
+	if err := buc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, buc.sqlSave, buc.mutation, buc.hooks)
 }
 
@@ -138,12 +140,18 @@ func (buc *BackendUserCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (buc *BackendUserCreate) defaults() {
+func (buc *BackendUserCreate) defaults() error {
 	if _, ok := buc.mutation.CreatedAt(); !ok {
+		if backenduser.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized backenduser.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := backenduser.DefaultCreatedAt()
 		buc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := buc.mutation.UpdatedAt(); !ok {
+		if backenduser.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized backenduser.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := backenduser.DefaultUpdatedAt()
 		buc.mutation.SetUpdatedAt(v)
 	}
@@ -152,9 +160,13 @@ func (buc *BackendUserCreate) defaults() {
 		buc.mutation.SetDeletedAt(v)
 	}
 	if _, ok := buc.mutation.ID(); !ok {
+		if backenduser.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized backenduser.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := backenduser.DefaultID()
 		buc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

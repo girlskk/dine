@@ -166,7 +166,9 @@ func (mbtu *MerchantBusinessTypeUpdate) RemoveStores(s ...*Store) *MerchantBusin
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (mbtu *MerchantBusinessTypeUpdate) Save(ctx context.Context) (int, error) {
-	mbtu.defaults()
+	if err := mbtu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, mbtu.sqlSave, mbtu.mutation, mbtu.hooks)
 }
 
@@ -193,11 +195,15 @@ func (mbtu *MerchantBusinessTypeUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mbtu *MerchantBusinessTypeUpdate) defaults() {
+func (mbtu *MerchantBusinessTypeUpdate) defaults() error {
 	if _, ok := mbtu.mutation.UpdatedAt(); !ok {
+		if merchantbusinesstype.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantbusinesstype.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantbusinesstype.UpdateDefaultUpdatedAt()
 		mbtu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -507,7 +513,9 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) Select(field string, fields ...strin
 
 // Save executes the query and returns the updated MerchantBusinessType entity.
 func (mbtuo *MerchantBusinessTypeUpdateOne) Save(ctx context.Context) (*MerchantBusinessType, error) {
-	mbtuo.defaults()
+	if err := mbtuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, mbtuo.sqlSave, mbtuo.mutation, mbtuo.hooks)
 }
 
@@ -534,11 +542,15 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mbtuo *MerchantBusinessTypeUpdateOne) defaults() {
+func (mbtuo *MerchantBusinessTypeUpdateOne) defaults() error {
 	if _, ok := mbtuo.mutation.UpdatedAt(); !ok {
+		if merchantbusinesstype.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantbusinesstype.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantbusinesstype.UpdateDefaultUpdatedAt()
 		mbtuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

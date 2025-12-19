@@ -430,12 +430,14 @@ func (c *AdminUserClient) QueryStore(au *AdminUser) *StoreQuery {
 
 // Hooks returns the client hooks.
 func (c *AdminUserClient) Hooks() []Hook {
-	return c.hooks.AdminUser
+	hooks := c.hooks.AdminUser
+	return append(hooks[:len(hooks):len(hooks)], adminuser.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *AdminUserClient) Interceptors() []Interceptor {
-	return c.inters.AdminUser
+	inters := c.inters.AdminUser
+	return append(inters[:len(inters):len(inters)], adminuser.Interceptors[:]...)
 }
 
 func (c *AdminUserClient) mutate(ctx context.Context, m *AdminUserMutation) (Value, error) {
@@ -563,12 +565,14 @@ func (c *BackendUserClient) GetX(ctx context.Context, id uuid.UUID) *BackendUser
 
 // Hooks returns the client hooks.
 func (c *BackendUserClient) Hooks() []Hook {
-	return c.hooks.BackendUser
+	hooks := c.hooks.BackendUser
+	return append(hooks[:len(hooks):len(hooks)], backenduser.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *BackendUserClient) Interceptors() []Interceptor {
-	return c.inters.BackendUser
+	inters := c.inters.BackendUser
+	return append(inters[:len(inters):len(inters)], backenduser.Interceptors[:]...)
 }
 
 func (c *BackendUserClient) mutate(ctx context.Context, m *BackendUserMutation) (Value, error) {
@@ -728,12 +732,14 @@ func (c *CategoryClient) QueryParent(ca *Category) *CategoryQuery {
 
 // Hooks returns the client hooks.
 func (c *CategoryClient) Hooks() []Hook {
-	return c.hooks.Category
+	hooks := c.hooks.Category
+	return append(hooks[:len(hooks):len(hooks)], category.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *CategoryClient) Interceptors() []Interceptor {
-	return c.inters.Category
+	inters := c.inters.Category
+	return append(inters[:len(inters):len(inters)], category.Interceptors[:]...)
 }
 
 func (c *CategoryClient) mutate(ctx context.Context, m *CategoryMutation) (Value, error) {
@@ -941,12 +947,14 @@ func (c *CityClient) QueryStores(ci *City) *StoreQuery {
 
 // Hooks returns the client hooks.
 func (c *CityClient) Hooks() []Hook {
-	return c.hooks.City
+	hooks := c.hooks.City
+	return append(hooks[:len(hooks):len(hooks)], city.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *CityClient) Interceptors() []Interceptor {
-	return c.inters.City
+	inters := c.inters.City
+	return append(inters[:len(inters):len(inters)], city.Interceptors[:]...)
 }
 
 func (c *CityClient) mutate(ctx context.Context, m *CityMutation) (Value, error) {
@@ -1154,12 +1162,14 @@ func (c *CountryClient) QueryStores(co *Country) *StoreQuery {
 
 // Hooks returns the client hooks.
 func (c *CountryClient) Hooks() []Hook {
-	return c.hooks.Country
+	hooks := c.hooks.Country
+	return append(hooks[:len(hooks):len(hooks)], country.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *CountryClient) Interceptors() []Interceptor {
-	return c.inters.Country
+	inters := c.inters.Country
+	return append(inters[:len(inters):len(inters)], country.Interceptors[:]...)
 }
 
 func (c *CountryClient) mutate(ctx context.Context, m *CountryMutation) (Value, error) {
@@ -1367,12 +1377,14 @@ func (c *DistrictClient) QueryStores(d *District) *StoreQuery {
 
 // Hooks returns the client hooks.
 func (c *DistrictClient) Hooks() []Hook {
-	return c.hooks.District
+	hooks := c.hooks.District
+	return append(hooks[:len(hooks):len(hooks)], district.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *DistrictClient) Interceptors() []Interceptor {
-	return c.inters.District
+	inters := c.inters.District
+	return append(inters[:len(inters):len(inters)], district.Interceptors[:]...)
 }
 
 func (c *DistrictClient) mutate(ctx context.Context, m *DistrictMutation) (Value, error) {
@@ -1628,12 +1640,14 @@ func (c *MerchantClient) QueryDistrict(m *Merchant) *DistrictQuery {
 
 // Hooks returns the client hooks.
 func (c *MerchantClient) Hooks() []Hook {
-	return c.hooks.Merchant
+	hooks := c.hooks.Merchant
+	return append(hooks[:len(hooks):len(hooks)], merchant.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *MerchantClient) Interceptors() []Interceptor {
-	return c.inters.Merchant
+	inters := c.inters.Merchant
+	return append(inters[:len(inters):len(inters)], merchant.Interceptors[:]...)
 }
 
 func (c *MerchantClient) mutate(ctx context.Context, m *MerchantMutation) (Value, error) {
@@ -1793,12 +1807,14 @@ func (c *MerchantBusinessTypeClient) QueryStores(mbt *MerchantBusinessType) *Sto
 
 // Hooks returns the client hooks.
 func (c *MerchantBusinessTypeClient) Hooks() []Hook {
-	return c.hooks.MerchantBusinessType
+	hooks := c.hooks.MerchantBusinessType
+	return append(hooks[:len(hooks):len(hooks)], merchantbusinesstype.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *MerchantBusinessTypeClient) Interceptors() []Interceptor {
-	return c.inters.MerchantBusinessType
+	inters := c.inters.MerchantBusinessType
+	return append(inters[:len(inters):len(inters)], merchantbusinesstype.Interceptors[:]...)
 }
 
 func (c *MerchantBusinessTypeClient) mutate(ctx context.Context, m *MerchantBusinessTypeMutation) (Value, error) {
@@ -1942,12 +1958,14 @@ func (c *MerchantRenewalClient) QueryMerchant(mr *MerchantRenewal) *MerchantQuer
 
 // Hooks returns the client hooks.
 func (c *MerchantRenewalClient) Hooks() []Hook {
-	return c.hooks.MerchantRenewal
+	hooks := c.hooks.MerchantRenewal
+	return append(hooks[:len(hooks):len(hooks)], merchantrenewal.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *MerchantRenewalClient) Interceptors() []Interceptor {
-	return c.inters.MerchantRenewal
+	inters := c.inters.MerchantRenewal
+	return append(inters[:len(inters):len(inters)], merchantrenewal.Interceptors[:]...)
 }
 
 func (c *MerchantRenewalClient) mutate(ctx context.Context, m *MerchantRenewalMutation) (Value, error) {
@@ -2155,12 +2173,14 @@ func (c *ProvinceClient) QueryStores(pr *Province) *StoreQuery {
 
 // Hooks returns the client hooks.
 func (c *ProvinceClient) Hooks() []Hook {
-	return c.hooks.Province
+	hooks := c.hooks.Province
+	return append(hooks[:len(hooks):len(hooks)], province.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *ProvinceClient) Interceptors() []Interceptor {
-	return c.inters.Province
+	inters := c.inters.Province
+	return append(inters[:len(inters):len(inters)], province.Interceptors[:]...)
 }
 
 func (c *ProvinceClient) mutate(ctx context.Context, m *ProvinceMutation) (Value, error) {
@@ -2400,12 +2420,14 @@ func (c *StoreClient) QueryDistrict(s *Store) *DistrictQuery {
 
 // Hooks returns the client hooks.
 func (c *StoreClient) Hooks() []Hook {
-	return c.hooks.Store
+	hooks := c.hooks.Store
+	return append(hooks[:len(hooks):len(hooks)], store.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *StoreClient) Interceptors() []Interceptor {
-	return c.inters.Store
+	inters := c.inters.Store
+	return append(inters[:len(inters):len(inters)], store.Interceptors[:]...)
 }
 
 func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, error) {

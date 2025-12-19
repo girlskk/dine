@@ -139,7 +139,9 @@ func (mru *MerchantRenewalUpdate) ClearMerchant() *MerchantRenewalUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (mru *MerchantRenewalUpdate) Save(ctx context.Context) (int, error) {
-	mru.defaults()
+	if err := mru.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, mru.sqlSave, mru.mutation, mru.hooks)
 }
 
@@ -166,11 +168,15 @@ func (mru *MerchantRenewalUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mru *MerchantRenewalUpdate) defaults() {
+func (mru *MerchantRenewalUpdate) defaults() error {
 	if _, ok := mru.mutation.UpdatedAt(); !ok {
+		if merchantrenewal.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantrenewal.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantrenewal.UpdateDefaultUpdatedAt()
 		mru.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -402,7 +408,9 @@ func (mruo *MerchantRenewalUpdateOne) Select(field string, fields ...string) *Me
 
 // Save executes the query and returns the updated MerchantRenewal entity.
 func (mruo *MerchantRenewalUpdateOne) Save(ctx context.Context) (*MerchantRenewal, error) {
-	mruo.defaults()
+	if err := mruo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, mruo.sqlSave, mruo.mutation, mruo.hooks)
 }
 
@@ -429,11 +437,15 @@ func (mruo *MerchantRenewalUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mruo *MerchantRenewalUpdateOne) defaults() {
+func (mruo *MerchantRenewalUpdateOne) defaults() error {
 	if _, ok := mruo.mutation.UpdatedAt(); !ok {
+		if merchantrenewal.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantrenewal.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantrenewal.UpdateDefaultUpdatedAt()
 		mruo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

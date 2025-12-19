@@ -472,7 +472,9 @@ func (sc *StoreCreate) Mutation() *StoreMutation {
 
 // Save creates the Store in the database.
 func (sc *StoreCreate) Save(ctx context.Context) (*Store, error) {
-	sc.defaults()
+	if err := sc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
 }
 
@@ -499,12 +501,18 @@ func (sc *StoreCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (sc *StoreCreate) defaults() {
+func (sc *StoreCreate) defaults() error {
 	if _, ok := sc.mutation.CreatedAt(); !ok {
+		if store.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized store.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := store.DefaultCreatedAt()
 		sc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := sc.mutation.UpdatedAt(); !ok {
+		if store.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized store.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := store.DefaultUpdatedAt()
 		sc.mutation.SetUpdatedAt(v)
 	}
@@ -581,9 +589,13 @@ func (sc *StoreCreate) defaults() {
 		sc.mutation.SetLat(v)
 	}
 	if _, ok := sc.mutation.ID(); !ok {
+		if store.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized store.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := store.DefaultID()
 		sc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

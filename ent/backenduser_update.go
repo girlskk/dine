@@ -105,7 +105,9 @@ func (buu *BackendUserUpdate) Mutation() *BackendUserMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (buu *BackendUserUpdate) Save(ctx context.Context) (int, error) {
-	buu.defaults()
+	if err := buu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, buu.sqlSave, buu.mutation, buu.hooks)
 }
 
@@ -132,11 +134,15 @@ func (buu *BackendUserUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (buu *BackendUserUpdate) defaults() {
+func (buu *BackendUserUpdate) defaults() error {
 	if _, ok := buu.mutation.UpdatedAt(); !ok {
+		if backenduser.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized backenduser.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := backenduser.UpdateDefaultUpdatedAt()
 		buu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -301,7 +307,9 @@ func (buuo *BackendUserUpdateOne) Select(field string, fields ...string) *Backen
 
 // Save executes the query and returns the updated BackendUser entity.
 func (buuo *BackendUserUpdateOne) Save(ctx context.Context) (*BackendUser, error) {
-	buuo.defaults()
+	if err := buuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, buuo.sqlSave, buuo.mutation, buuo.hooks)
 }
 
@@ -328,11 +336,15 @@ func (buuo *BackendUserUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (buuo *BackendUserUpdateOne) defaults() {
+func (buuo *BackendUserUpdateOne) defaults() error {
 	if _, ok := buuo.mutation.UpdatedAt(); !ok {
+		if backenduser.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized backenduser.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := backenduser.UpdateDefaultUpdatedAt()
 		buuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

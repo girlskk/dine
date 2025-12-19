@@ -210,7 +210,9 @@ func (cu *CityUpdate) RemoveStores(s ...*Store) *CityUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CityUpdate) Save(ctx context.Context) (int, error) {
-	cu.defaults()
+	if err := cu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -237,11 +239,15 @@ func (cu *CityUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cu *CityUpdate) defaults() {
+func (cu *CityUpdate) defaults() error {
 	if _, ok := cu.mutation.UpdatedAt(); !ok {
+		if city.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized city.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := city.UpdateDefaultUpdatedAt()
 		cu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -643,7 +649,9 @@ func (cuo *CityUpdateOne) Select(field string, fields ...string) *CityUpdateOne 
 
 // Save executes the query and returns the updated City entity.
 func (cuo *CityUpdateOne) Save(ctx context.Context) (*City, error) {
-	cuo.defaults()
+	if err := cuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -670,11 +678,15 @@ func (cuo *CityUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cuo *CityUpdateOne) defaults() {
+func (cuo *CityUpdateOne) defaults() error {
 	if _, ok := cuo.mutation.UpdatedAt(); !ok {
+		if city.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized city.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := city.UpdateDefaultUpdatedAt()
 		cuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

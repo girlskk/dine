@@ -187,7 +187,9 @@ func (cc *CountryCreate) Mutation() *CountryMutation {
 
 // Save creates the Country in the database.
 func (cc *CountryCreate) Save(ctx context.Context) (*Country, error) {
-	cc.defaults()
+	if err := cc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -214,12 +216,18 @@ func (cc *CountryCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cc *CountryCreate) defaults() {
+func (cc *CountryCreate) defaults() error {
 	if _, ok := cc.mutation.CreatedAt(); !ok {
+		if country.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized country.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := country.DefaultCreatedAt()
 		cc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := cc.mutation.UpdatedAt(); !ok {
+		if country.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized country.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := country.DefaultUpdatedAt()
 		cc.mutation.SetUpdatedAt(v)
 	}
@@ -232,9 +240,13 @@ func (cc *CountryCreate) defaults() {
 		cc.mutation.SetSort(v)
 	}
 	if _, ok := cc.mutation.ID(); !ok {
+		if country.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized country.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := country.DefaultID()
 		cc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

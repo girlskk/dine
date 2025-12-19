@@ -175,7 +175,9 @@ func (dc *DistrictCreate) Mutation() *DistrictMutation {
 
 // Save creates the District in the database.
 func (dc *DistrictCreate) Save(ctx context.Context) (*District, error) {
-	dc.defaults()
+	if err := dc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, dc.sqlSave, dc.mutation, dc.hooks)
 }
 
@@ -202,12 +204,18 @@ func (dc *DistrictCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (dc *DistrictCreate) defaults() {
+func (dc *DistrictCreate) defaults() error {
 	if _, ok := dc.mutation.CreatedAt(); !ok {
+		if district.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized district.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := district.DefaultCreatedAt()
 		dc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := dc.mutation.UpdatedAt(); !ok {
+		if district.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized district.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := district.DefaultUpdatedAt()
 		dc.mutation.SetUpdatedAt(v)
 	}
@@ -220,9 +228,13 @@ func (dc *DistrictCreate) defaults() {
 		dc.mutation.SetSort(v)
 	}
 	if _, ok := dc.mutation.ID(); !ok {
+		if district.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized district.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := district.DefaultID()
 		dc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

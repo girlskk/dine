@@ -183,7 +183,9 @@ func (pc *ProvinceCreate) Mutation() *ProvinceMutation {
 
 // Save creates the Province in the database.
 func (pc *ProvinceCreate) Save(ctx context.Context) (*Province, error) {
-	pc.defaults()
+	if err := pc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
@@ -210,12 +212,18 @@ func (pc *ProvinceCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (pc *ProvinceCreate) defaults() {
+func (pc *ProvinceCreate) defaults() error {
 	if _, ok := pc.mutation.CreatedAt(); !ok {
+		if province.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized province.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := province.DefaultCreatedAt()
 		pc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := pc.mutation.UpdatedAt(); !ok {
+		if province.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized province.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := province.DefaultUpdatedAt()
 		pc.mutation.SetUpdatedAt(v)
 	}
@@ -228,9 +236,13 @@ func (pc *ProvinceCreate) defaults() {
 		pc.mutation.SetSort(v)
 	}
 	if _, ok := pc.mutation.ID(); !ok {
+		if province.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized province.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := province.DefaultID()
 		pc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

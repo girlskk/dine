@@ -247,7 +247,9 @@ func (pu *ProvinceUpdate) RemoveStores(s ...*Store) *ProvinceUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (pu *ProvinceUpdate) Save(ctx context.Context) (int, error) {
-	pu.defaults()
+	if err := pu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, pu.sqlSave, pu.mutation, pu.hooks)
 }
 
@@ -274,11 +276,15 @@ func (pu *ProvinceUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (pu *ProvinceUpdate) defaults() {
+func (pu *ProvinceUpdate) defaults() error {
 	if _, ok := pu.mutation.UpdatedAt(); !ok {
+		if province.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized province.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := province.UpdateDefaultUpdatedAt()
 		pu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -758,7 +764,9 @@ func (puo *ProvinceUpdateOne) Select(field string, fields ...string) *ProvinceUp
 
 // Save executes the query and returns the updated Province entity.
 func (puo *ProvinceUpdateOne) Save(ctx context.Context) (*Province, error) {
-	puo.defaults()
+	if err := puo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, puo.sqlSave, puo.mutation, puo.hooks)
 }
 
@@ -785,11 +793,15 @@ func (puo *ProvinceUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (puo *ProvinceUpdateOne) defaults() {
+func (puo *ProvinceUpdateOne) defaults() error {
 	if _, ok := puo.mutation.UpdatedAt(); !ok {
+		if province.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized province.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := province.UpdateDefaultUpdatedAt()
 		puo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

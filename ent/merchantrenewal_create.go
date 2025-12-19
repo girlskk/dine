@@ -148,7 +148,9 @@ func (mrc *MerchantRenewalCreate) Mutation() *MerchantRenewalMutation {
 
 // Save creates the MerchantRenewal in the database.
 func (mrc *MerchantRenewalCreate) Save(ctx context.Context) (*MerchantRenewal, error) {
-	mrc.defaults()
+	if err := mrc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, mrc.sqlSave, mrc.mutation, mrc.hooks)
 }
 
@@ -175,12 +177,18 @@ func (mrc *MerchantRenewalCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mrc *MerchantRenewalCreate) defaults() {
+func (mrc *MerchantRenewalCreate) defaults() error {
 	if _, ok := mrc.mutation.CreatedAt(); !ok {
+		if merchantrenewal.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantrenewal.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantrenewal.DefaultCreatedAt()
 		mrc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := mrc.mutation.UpdatedAt(); !ok {
+		if merchantrenewal.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantrenewal.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantrenewal.DefaultUpdatedAt()
 		mrc.mutation.SetUpdatedAt(v)
 	}
@@ -201,9 +209,13 @@ func (mrc *MerchantRenewalCreate) defaults() {
 		mrc.mutation.SetOperatorAccount(v)
 	}
 	if _, ok := mrc.mutation.ID(); !ok {
+		if merchantrenewal.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized merchantrenewal.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := merchantrenewal.DefaultID()
 		mrc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

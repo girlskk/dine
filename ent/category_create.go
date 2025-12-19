@@ -231,7 +231,9 @@ func (cc *CategoryCreate) Mutation() *CategoryMutation {
 
 // Save creates the Category in the database.
 func (cc *CategoryCreate) Save(ctx context.Context) (*Category, error) {
-	cc.defaults()
+	if err := cc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -258,12 +260,18 @@ func (cc *CategoryCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cc *CategoryCreate) defaults() {
+func (cc *CategoryCreate) defaults() error {
 	if _, ok := cc.mutation.CreatedAt(); !ok {
+		if category.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized category.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := category.DefaultCreatedAt()
 		cc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := cc.mutation.UpdatedAt(); !ok {
+		if category.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized category.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := category.DefaultUpdatedAt()
 		cc.mutation.SetUpdatedAt(v)
 	}
@@ -288,9 +296,13 @@ func (cc *CategoryCreate) defaults() {
 		cc.mutation.SetSortOrder(v)
 	}
 	if _, ok := cc.mutation.ID(); !ok {
+		if category.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized category.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := category.DefaultID()
 		cc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

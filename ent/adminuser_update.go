@@ -180,7 +180,9 @@ func (auu *AdminUserUpdate) RemoveStore(s ...*Store) *AdminUserUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (auu *AdminUserUpdate) Save(ctx context.Context) (int, error) {
-	auu.defaults()
+	if err := auu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, auu.sqlSave, auu.mutation, auu.hooks)
 }
 
@@ -207,11 +209,15 @@ func (auu *AdminUserUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (auu *AdminUserUpdate) defaults() {
+func (auu *AdminUserUpdate) defaults() error {
 	if _, ok := auu.mutation.UpdatedAt(); !ok {
+		if adminuser.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized adminuser.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := adminuser.UpdateDefaultUpdatedAt()
 		auu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -538,7 +544,9 @@ func (auuo *AdminUserUpdateOne) Select(field string, fields ...string) *AdminUse
 
 // Save executes the query and returns the updated AdminUser entity.
 func (auuo *AdminUserUpdateOne) Save(ctx context.Context) (*AdminUser, error) {
-	auuo.defaults()
+	if err := auuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, auuo.sqlSave, auuo.mutation, auuo.hooks)
 }
 
@@ -565,11 +573,15 @@ func (auuo *AdminUserUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (auuo *AdminUserUpdateOne) defaults() {
+func (auuo *AdminUserUpdateOne) defaults() error {
 	if _, ok := auuo.mutation.UpdatedAt(); !ok {
+		if adminuser.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized adminuser.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := adminuser.UpdateDefaultUpdatedAt()
 		auuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

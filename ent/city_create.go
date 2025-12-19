@@ -179,7 +179,9 @@ func (cc *CityCreate) Mutation() *CityMutation {
 
 // Save creates the City in the database.
 func (cc *CityCreate) Save(ctx context.Context) (*City, error) {
-	cc.defaults()
+	if err := cc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -206,12 +208,18 @@ func (cc *CityCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cc *CityCreate) defaults() {
+func (cc *CityCreate) defaults() error {
 	if _, ok := cc.mutation.CreatedAt(); !ok {
+		if city.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized city.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := city.DefaultCreatedAt()
 		cc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := cc.mutation.UpdatedAt(); !ok {
+		if city.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized city.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := city.DefaultUpdatedAt()
 		cc.mutation.SetUpdatedAt(v)
 	}
@@ -224,9 +232,13 @@ func (cc *CityCreate) defaults() {
 		cc.mutation.SetSort(v)
 	}
 	if _, ok := cc.mutation.ID(); !ok {
+		if city.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized city.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := city.DefaultID()
 		cc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

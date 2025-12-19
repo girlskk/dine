@@ -147,7 +147,9 @@ func (mbtc *MerchantBusinessTypeCreate) Mutation() *MerchantBusinessTypeMutation
 
 // Save creates the MerchantBusinessType in the database.
 func (mbtc *MerchantBusinessTypeCreate) Save(ctx context.Context) (*MerchantBusinessType, error) {
-	mbtc.defaults()
+	if err := mbtc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, mbtc.sqlSave, mbtc.mutation, mbtc.hooks)
 }
 
@@ -174,12 +176,18 @@ func (mbtc *MerchantBusinessTypeCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mbtc *MerchantBusinessTypeCreate) defaults() {
+func (mbtc *MerchantBusinessTypeCreate) defaults() error {
 	if _, ok := mbtc.mutation.CreatedAt(); !ok {
+		if merchantbusinesstype.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantbusinesstype.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantbusinesstype.DefaultCreatedAt()
 		mbtc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := mbtc.mutation.UpdatedAt(); !ok {
+		if merchantbusinesstype.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized merchantbusinesstype.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := merchantbusinesstype.DefaultUpdatedAt()
 		mbtc.mutation.SetUpdatedAt(v)
 	}
@@ -196,9 +204,13 @@ func (mbtc *MerchantBusinessTypeCreate) defaults() {
 		mbtc.mutation.SetTypeName(v)
 	}
 	if _, ok := mbtc.mutation.ID(); !ok {
+		if merchantbusinesstype.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized merchantbusinesstype.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := merchantbusinesstype.DefaultID()
 		mbtc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

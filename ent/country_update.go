@@ -284,7 +284,9 @@ func (cu *CountryUpdate) RemoveStores(s ...*Store) *CountryUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CountryUpdate) Save(ctx context.Context) (int, error) {
-	cu.defaults()
+	if err := cu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -311,11 +313,15 @@ func (cu *CountryUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cu *CountryUpdate) defaults() {
+func (cu *CountryUpdate) defaults() error {
 	if _, ok := cu.mutation.UpdatedAt(); !ok {
+		if country.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized country.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := country.UpdateDefaultUpdatedAt()
 		cu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -873,7 +879,9 @@ func (cuo *CountryUpdateOne) Select(field string, fields ...string) *CountryUpda
 
 // Save executes the query and returns the updated Country entity.
 func (cuo *CountryUpdateOne) Save(ctx context.Context) (*Country, error) {
-	cuo.defaults()
+	if err := cuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -900,11 +908,15 @@ func (cuo *CountryUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cuo *CountryUpdateOne) defaults() {
+func (cuo *CountryUpdateOne) defaults() error {
 	if _, ok := cuo.mutation.UpdatedAt(); !ok {
+		if country.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized country.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := country.UpdateDefaultUpdatedAt()
 		cuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
