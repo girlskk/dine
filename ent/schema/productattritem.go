@@ -27,7 +27,7 @@ func (ProductAttrItem) Mixin() []ent.Mixin {
 // Fields of the ProductAttrItem.
 func (ProductAttrItem) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("attr_id", uuid.UUID{}).Comment("口味做法ID（外键）"),
+		field.UUID("attr_id", uuid.UUID{}).Immutable().Comment("口味做法ID（外键）"),
 		field.String("name").MaxLen(255).NotEmpty().Comment("口味做法项名称"),
 		field.String("image").Default("").MaxLen(512).Comment("图片URL（可选）"),
 		field.Other("base_price", decimal.Decimal{}).
@@ -53,6 +53,7 @@ func (ProductAttrItem) Edges() []ent.Edge {
 		edge.From("attr", ProductAttr.Type).
 			Ref("items").
 			Field("attr_id").
+			Immutable().
 			Required().
 			Unique().
 			Comment("所属的口味做法"),

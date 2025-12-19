@@ -121,6 +121,67 @@ func (h *ProductAttrHandler) Create() gin.HandlerFunc {
 //	@Router		/product/attr/{id} [put]
 func (h *ProductAttrHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductAttrHandler.Update")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取口味做法ID
+		idStr := c.Param("id")
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		var req types.ProductAttrUpdateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		// 将请求数据映射到 domain.ProductAttr
+		attr := &domain.ProductAttr{
+			ID:       id,
+			Name:     req.Name,
+			Channels: req.Channels,
+		}
+
+		// 验证口味做法项名称不重复
+		if len(req.Items) > 0 {
+			itemNames := make(map[string]bool)
+			for _, itemReq := range req.Items {
+				if itemNames[itemReq.Name] {
+					c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, domain.ErrProductAttrItemNameExists))
+					return
+				}
+				itemNames[itemReq.Name] = true
+				item := &domain.ProductAttrItem{
+					ID:        itemReq.ID,
+					AttrID:    id,
+					Name:      itemReq.Name,
+					Image:     itemReq.Image,
+					BasePrice: itemReq.BasePrice,
+				}
+				attr.Items = append(attr.Items, item)
+			}
+		}
+
+		err = h.ProductAttrInteractor.Update(ctx, attr)
+		if err != nil {
+			if errors.Is(err, domain.ErrProductAttrNameExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.ProductAttrNameExists, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to update product attr: %w", err)
+			c.Error(err)
+			return
+		}
+
 		response.Ok(c, nil)
 	}
 }

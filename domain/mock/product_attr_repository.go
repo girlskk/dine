@@ -166,3 +166,31 @@ func (mr *MockProductAttrRepositoryMockRecorder) ListBySearch(arg0, arg1 interfa
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockProductAttrRepository)(nil).ListBySearch), arg0, arg1)
 }
+
+// SaveItems mocks base method.
+func (m *MockProductAttrRepository) SaveItems(arg0 context.Context, arg1 []*domain.ProductAttrItem) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveItems", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveItems indicates an expected call of SaveItems.
+func (mr *MockProductAttrRepositoryMockRecorder) SaveItems(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveItems", reflect.TypeOf((*MockProductAttrRepository)(nil).SaveItems), arg0, arg1)
+}
+
+// Update mocks base method.
+func (m *MockProductAttrRepository) Update(arg0 context.Context, arg1 *domain.ProductAttr) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockProductAttrRepositoryMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductAttrRepository)(nil).Update), arg0, arg1)
+}

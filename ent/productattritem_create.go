@@ -420,18 +420,6 @@ func (u *ProductAttrItemUpsert) AddDeletedAt(v int64) *ProductAttrItemUpsert {
 	return u
 }
 
-// SetAttrID sets the "attr_id" field.
-func (u *ProductAttrItemUpsert) SetAttrID(v uuid.UUID) *ProductAttrItemUpsert {
-	u.Set(productattritem.FieldAttrID, v)
-	return u
-}
-
-// UpdateAttrID sets the "attr_id" field to the value that was provided on create.
-func (u *ProductAttrItemUpsert) UpdateAttrID() *ProductAttrItemUpsert {
-	u.SetExcluded(productattritem.FieldAttrID)
-	return u
-}
-
 // SetName sets the "name" field.
 func (u *ProductAttrItemUpsert) SetName(v string) *ProductAttrItemUpsert {
 	u.Set(productattritem.FieldName, v)
@@ -506,6 +494,9 @@ func (u *ProductAttrItemUpsertOne) UpdateNewValues() *ProductAttrItemUpsertOne {
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(productattritem.FieldCreatedAt)
 		}
+		if _, exists := u.create.mutation.AttrID(); exists {
+			s.SetIgnore(productattritem.FieldAttrID)
+		}
 	}))
 	return u
 }
@@ -569,20 +560,6 @@ func (u *ProductAttrItemUpsertOne) AddDeletedAt(v int64) *ProductAttrItemUpsertO
 func (u *ProductAttrItemUpsertOne) UpdateDeletedAt() *ProductAttrItemUpsertOne {
 	return u.Update(func(s *ProductAttrItemUpsert) {
 		s.UpdateDeletedAt()
-	})
-}
-
-// SetAttrID sets the "attr_id" field.
-func (u *ProductAttrItemUpsertOne) SetAttrID(v uuid.UUID) *ProductAttrItemUpsertOne {
-	return u.Update(func(s *ProductAttrItemUpsert) {
-		s.SetAttrID(v)
-	})
-}
-
-// UpdateAttrID sets the "attr_id" field to the value that was provided on create.
-func (u *ProductAttrItemUpsertOne) UpdateAttrID() *ProductAttrItemUpsertOne {
-	return u.Update(func(s *ProductAttrItemUpsert) {
-		s.UpdateAttrID()
 	})
 }
 
@@ -835,6 +812,9 @@ func (u *ProductAttrItemUpsertBulk) UpdateNewValues() *ProductAttrItemUpsertBulk
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(productattritem.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.AttrID(); exists {
+				s.SetIgnore(productattritem.FieldAttrID)
+			}
 		}
 	}))
 	return u
@@ -899,20 +879,6 @@ func (u *ProductAttrItemUpsertBulk) AddDeletedAt(v int64) *ProductAttrItemUpsert
 func (u *ProductAttrItemUpsertBulk) UpdateDeletedAt() *ProductAttrItemUpsertBulk {
 	return u.Update(func(s *ProductAttrItemUpsert) {
 		s.UpdateDeletedAt()
-	})
-}
-
-// SetAttrID sets the "attr_id" field.
-func (u *ProductAttrItemUpsertBulk) SetAttrID(v uuid.UUID) *ProductAttrItemUpsertBulk {
-	return u.Update(func(s *ProductAttrItemUpsert) {
-		s.SetAttrID(v)
-	})
-}
-
-// UpdateAttrID sets the "attr_id" field to the value that was provided on create.
-func (u *ProductAttrItemUpsertBulk) UpdateAttrID() *ProductAttrItemUpsertBulk {
-	return u.Update(func(s *ProductAttrItemUpsert) {
-		s.UpdateAttrID()
 	})
 }
 

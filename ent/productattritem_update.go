@@ -11,10 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
 )
 
@@ -56,20 +54,6 @@ func (paiu *ProductAttrItemUpdate) SetNillableDeletedAt(i *int64) *ProductAttrIt
 // AddDeletedAt adds i to the "deleted_at" field.
 func (paiu *ProductAttrItemUpdate) AddDeletedAt(i int64) *ProductAttrItemUpdate {
 	paiu.mutation.AddDeletedAt(i)
-	return paiu
-}
-
-// SetAttrID sets the "attr_id" field.
-func (paiu *ProductAttrItemUpdate) SetAttrID(u uuid.UUID) *ProductAttrItemUpdate {
-	paiu.mutation.SetAttrID(u)
-	return paiu
-}
-
-// SetNillableAttrID sets the "attr_id" field if the given value is not nil.
-func (paiu *ProductAttrItemUpdate) SetNillableAttrID(u *uuid.UUID) *ProductAttrItemUpdate {
-	if u != nil {
-		paiu.SetAttrID(*u)
-	}
 	return paiu
 }
 
@@ -136,20 +120,9 @@ func (paiu *ProductAttrItemUpdate) AddProductCount(i int) *ProductAttrItemUpdate
 	return paiu
 }
 
-// SetAttr sets the "attr" edge to the ProductAttr entity.
-func (paiu *ProductAttrItemUpdate) SetAttr(p *ProductAttr) *ProductAttrItemUpdate {
-	return paiu.SetAttrID(p.ID)
-}
-
 // Mutation returns the ProductAttrItemMutation object of the builder.
 func (paiu *ProductAttrItemUpdate) Mutation() *ProductAttrItemMutation {
 	return paiu.mutation
-}
-
-// ClearAttr clears the "attr" edge to the ProductAttr entity.
-func (paiu *ProductAttrItemUpdate) ClearAttr() *ProductAttrItemUpdate {
-	paiu.mutation.ClearAttr()
-	return paiu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -254,35 +227,6 @@ func (paiu *ProductAttrItemUpdate) sqlSave(ctx context.Context) (n int, err erro
 	if value, ok := paiu.mutation.AddedProductCount(); ok {
 		_spec.AddField(productattritem.FieldProductCount, field.TypeInt, value)
 	}
-	if paiu.mutation.AttrCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   productattritem.AttrTable,
-			Columns: []string{productattritem.AttrColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(productattr.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := paiu.mutation.AttrIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   productattritem.AttrTable,
-			Columns: []string{productattritem.AttrColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(productattr.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	_spec.AddModifiers(paiu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, paiu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -329,20 +273,6 @@ func (paiuo *ProductAttrItemUpdateOne) SetNillableDeletedAt(i *int64) *ProductAt
 // AddDeletedAt adds i to the "deleted_at" field.
 func (paiuo *ProductAttrItemUpdateOne) AddDeletedAt(i int64) *ProductAttrItemUpdateOne {
 	paiuo.mutation.AddDeletedAt(i)
-	return paiuo
-}
-
-// SetAttrID sets the "attr_id" field.
-func (paiuo *ProductAttrItemUpdateOne) SetAttrID(u uuid.UUID) *ProductAttrItemUpdateOne {
-	paiuo.mutation.SetAttrID(u)
-	return paiuo
-}
-
-// SetNillableAttrID sets the "attr_id" field if the given value is not nil.
-func (paiuo *ProductAttrItemUpdateOne) SetNillableAttrID(u *uuid.UUID) *ProductAttrItemUpdateOne {
-	if u != nil {
-		paiuo.SetAttrID(*u)
-	}
 	return paiuo
 }
 
@@ -409,20 +339,9 @@ func (paiuo *ProductAttrItemUpdateOne) AddProductCount(i int) *ProductAttrItemUp
 	return paiuo
 }
 
-// SetAttr sets the "attr" edge to the ProductAttr entity.
-func (paiuo *ProductAttrItemUpdateOne) SetAttr(p *ProductAttr) *ProductAttrItemUpdateOne {
-	return paiuo.SetAttrID(p.ID)
-}
-
 // Mutation returns the ProductAttrItemMutation object of the builder.
 func (paiuo *ProductAttrItemUpdateOne) Mutation() *ProductAttrItemMutation {
 	return paiuo.mutation
-}
-
-// ClearAttr clears the "attr" edge to the ProductAttr entity.
-func (paiuo *ProductAttrItemUpdateOne) ClearAttr() *ProductAttrItemUpdateOne {
-	paiuo.mutation.ClearAttr()
-	return paiuo
 }
 
 // Where appends a list predicates to the ProductAttrItemUpdate builder.
@@ -556,35 +475,6 @@ func (paiuo *ProductAttrItemUpdateOne) sqlSave(ctx context.Context) (_node *Prod
 	}
 	if value, ok := paiuo.mutation.AddedProductCount(); ok {
 		_spec.AddField(productattritem.FieldProductCount, field.TypeInt, value)
-	}
-	if paiuo.mutation.AttrCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   productattritem.AttrTable,
-			Columns: []string{productattritem.AttrColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(productattr.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := paiuo.mutation.AttrIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   productattritem.AttrTable,
-			Columns: []string{productattritem.AttrColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(productattr.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(paiuo.modifiers...)
 	_node = &ProductAttrItem{config: paiuo.config}

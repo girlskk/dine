@@ -27,6 +27,7 @@ type ProductAttrRepository interface {
 	// ProductAttr 相关操作
 	FindByID(ctx context.Context, id uuid.UUID) (*ProductAttr, error)
 	Create(ctx context.Context, attr *ProductAttr) error
+	Update(ctx context.Context, attr *ProductAttr) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProductAttrExistsParams) (bool, error)
 	ListBySearch(ctx context.Context, params ProductAttrSearchParams) (ProductAttrs, error)
@@ -35,7 +36,9 @@ type ProductAttrRepository interface {
 	// ProductAttrItem 相关操作（作为 ProductAttr 的一部分）
 	FindItemByID(ctx context.Context, id uuid.UUID) (*ProductAttrItem, error)
 	CreateItems(ctx context.Context, items []*ProductAttrItem) error
+	SaveItems(ctx context.Context, items []*ProductAttrItem) error // 批量保存（新增或更新，如果ID存在则覆盖）
 	DeleteItem(ctx context.Context, id uuid.UUID) error
+	DeleteItems(ctx context.Context, ids []uuid.UUID) error
 }
 
 // ProductAttrInteractor 商品口味做法用例接口
