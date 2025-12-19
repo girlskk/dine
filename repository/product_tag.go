@@ -52,8 +52,11 @@ func (repo *ProductTagRepository) Create(ctx context.Context, tag *domain.Produc
 		SetID(tag.ID).
 		SetName(tag.Name).
 		SetMerchantID(tag.MerchantID).
-		SetStoreID(tag.StoreID).
 		SetProductCount(tag.ProductCount)
+
+	if tag.StoreID != uuid.Nil {
+		builder.SetStoreID(tag.StoreID)
+	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {

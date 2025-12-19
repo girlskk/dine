@@ -52,8 +52,11 @@ func (repo *ProductSpecRepository) Create(ctx context.Context, spec *domain.Prod
 		SetID(spec.ID).
 		SetName(spec.Name).
 		SetMerchantID(spec.MerchantID).
-		SetStoreID(spec.StoreID).
 		SetProductCount(spec.ProductCount)
+
+	if spec.StoreID != uuid.Nil {
+		builder.SetStoreID(spec.StoreID)
+	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
