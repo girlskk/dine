@@ -18,5 +18,8 @@ type Category func(*sql.Selector)
 // ProductSpec is the predicate function for productspec builders.
 type ProductSpec func(*sql.Selector)
 
+// ProductTag is the predicate function for producttag builders.
+type ProductTag func(*sql.Selector)
+
 // ProductUnit is the predicate function for productunit builders.
 type ProductUnit func(*sql.Selector)

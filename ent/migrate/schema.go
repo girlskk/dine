@@ -147,6 +147,40 @@ var (
 			},
 		},
 	}
+	// ProductTagsColumns holds the columns for the "product_tags" table.
+	ProductTagsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductTagsTable holds the schema information for the "product_tags" table.
+	ProductTagsTable = &schema.Table{
+		Name:       "product_tags",
+		Columns:    ProductTagsColumns,
+		PrimaryKey: []*schema.Column{ProductTagsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "producttag_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductTagsColumns[3]},
+			},
+			{
+				Name:    "producttag_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductTagsColumns[5]},
+			},
+			{
+				Name:    "producttag_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductTagsColumns[6]},
+			},
+		},
+	}
 	// ProductUnitsColumns holds the columns for the "product_units" table.
 	ProductUnitsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -188,6 +222,7 @@ var (
 		BackendUsersTable,
 		CategoriesTable,
 		ProductSpecsTable,
+		ProductTagsTable,
 		ProductUnitsTable,
 	}
 )

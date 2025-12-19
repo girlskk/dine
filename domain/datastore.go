@@ -12,6 +12,7 @@ type DataStore interface {
 	BackendUserRepo() BackendUserRepository
 	ProductUnitRepo() ProductUnitRepository
 	ProductSpecRepo() ProductSpecRepository
+	ProductTagRepo() ProductTagRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

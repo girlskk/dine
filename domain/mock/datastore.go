@@ -131,6 +131,20 @@ func (mr *MockDataStoreMockRecorder) ProductSpecRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductSpecRepo", reflect.TypeOf((*MockDataStore)(nil).ProductSpecRepo))
 }
 
+// ProductTagRepo mocks base method.
+func (m *MockDataStore) ProductTagRepo() domain.ProductTagRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductTagRepo")
+	ret0, _ := ret[0].(domain.ProductTagRepository)
+	return ret0
+}
+
+// ProductTagRepo indicates an expected call of ProductTagRepo.
+func (mr *MockDataStoreMockRecorder) ProductTagRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductTagRepo", reflect.TypeOf((*MockDataStore)(nil).ProductTagRepo))
+}
+
 // ProductUnitRepo mocks base method.
 func (m *MockDataStore) ProductUnitRepo() domain.ProductUnitRepository {
 	m.ctrl.T.Helper()

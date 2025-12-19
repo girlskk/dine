@@ -10,6 +10,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
 )
@@ -242,6 +243,59 @@ func init() {
 	productspecDescID := productspecMixinFields0[0].Descriptor()
 	// productspec.DefaultID holds the default value on creation for the id field.
 	productspec.DefaultID = productspecDescID.Default.(func() uuid.UUID)
+	producttagMixin := schema.ProductTag{}.Mixin()
+	producttagMixinHooks2 := producttagMixin[2].Hooks()
+	producttag.Hooks[0] = producttagMixinHooks2[0]
+	producttagMixinInters2 := producttagMixin[2].Interceptors()
+	producttag.Interceptors[0] = producttagMixinInters2[0]
+	producttagMixinFields0 := producttagMixin[0].Fields()
+	_ = producttagMixinFields0
+	producttagMixinFields1 := producttagMixin[1].Fields()
+	_ = producttagMixinFields1
+	producttagMixinFields2 := producttagMixin[2].Fields()
+	_ = producttagMixinFields2
+	producttagFields := schema.ProductTag{}.Fields()
+	_ = producttagFields
+	// producttagDescCreatedAt is the schema descriptor for created_at field.
+	producttagDescCreatedAt := producttagMixinFields1[0].Descriptor()
+	// producttag.DefaultCreatedAt holds the default value on creation for the created_at field.
+	producttag.DefaultCreatedAt = producttagDescCreatedAt.Default.(func() time.Time)
+	// producttagDescUpdatedAt is the schema descriptor for updated_at field.
+	producttagDescUpdatedAt := producttagMixinFields1[1].Descriptor()
+	// producttag.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	producttag.DefaultUpdatedAt = producttagDescUpdatedAt.Default.(func() time.Time)
+	// producttag.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	producttag.UpdateDefaultUpdatedAt = producttagDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// producttagDescDeletedAt is the schema descriptor for deleted_at field.
+	producttagDescDeletedAt := producttagMixinFields2[0].Descriptor()
+	// producttag.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	producttag.DefaultDeletedAt = producttagDescDeletedAt.Default.(int64)
+	// producttagDescName is the schema descriptor for name field.
+	producttagDescName := producttagFields[0].Descriptor()
+	// producttag.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	producttag.NameValidator = func() func(string) error {
+		validators := producttagDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// producttagDescProductCount is the schema descriptor for product_count field.
+	producttagDescProductCount := producttagFields[3].Descriptor()
+	// producttag.DefaultProductCount holds the default value on creation for the product_count field.
+	producttag.DefaultProductCount = producttagDescProductCount.Default.(int)
+	// producttagDescID is the schema descriptor for id field.
+	producttagDescID := producttagMixinFields0[0].Descriptor()
+	// producttag.DefaultID holds the default value on creation for the id field.
+	producttag.DefaultID = producttagDescID.Default.(func() uuid.UUID)
 	productunitMixin := schema.ProductUnit{}.Mixin()
 	productunitMixinHooks2 := productunitMixin[2].Hooks()
 	productunit.Hooks[0] = productunitMixinHooks2[0]
