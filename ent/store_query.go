@@ -14,21 +14,31 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // StoreQuery is the builder for querying Store entities.
 type StoreQuery struct {
 	config
-	ctx           *QueryContext
-	order         []store.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.Store
-	withMerchant  *MerchantQuery
-	withAdminUser *AdminUserQuery
-	modifiers     []func(*sql.Selector)
+	ctx                      *QueryContext
+	order                    []store.OrderOption
+	inters                   []Interceptor
+	predicates               []predicate.Store
+	withMerchant             *MerchantQuery
+	withAdminUser            *AdminUserQuery
+	withMerchantBusinessType *MerchantBusinessTypeQuery
+	withCountry              *CountryQuery
+	withProvince             *ProvinceQuery
+	withCity                 *CityQuery
+	withDistrict             *DistrictQuery
+	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -109,6 +119,116 @@ func (sq *StoreQuery) QueryAdminUser() *AdminUserQuery {
 	return query
 }
 
+// QueryMerchantBusinessType chains the current query on the "merchant_business_type" edge.
+func (sq *StoreQuery) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
+	query := (&MerchantBusinessTypeClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, store.MerchantBusinessTypeTable, store.MerchantBusinessTypeColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCountry chains the current query on the "country" edge.
+func (sq *StoreQuery) QueryCountry() *CountryQuery {
+	query := (&CountryClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(country.Table, country.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, store.CountryTable, store.CountryColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProvince chains the current query on the "province" edge.
+func (sq *StoreQuery) QueryProvince() *ProvinceQuery {
+	query := (&ProvinceClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(province.Table, province.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, store.ProvinceTable, store.ProvinceColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCity chains the current query on the "city" edge.
+func (sq *StoreQuery) QueryCity() *CityQuery {
+	query := (&CityClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(city.Table, city.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, store.CityTable, store.CityColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDistrict chains the current query on the "district" edge.
+func (sq *StoreQuery) QueryDistrict() *DistrictQuery {
+	query := (&DistrictClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(district.Table, district.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, store.DistrictTable, store.DistrictColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Store entity from the query.
 // Returns a *NotFoundError when no Store was found.
 func (sq *StoreQuery) First(ctx context.Context) (*Store, error) {
@@ -133,8 +253,8 @@ func (sq *StoreQuery) FirstX(ctx context.Context) *Store {
 
 // FirstID returns the first Store ID from the query.
 // Returns a *NotFoundError when no Store ID was found.
-func (sq *StoreQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (sq *StoreQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = sq.Limit(1).IDs(setContextOp(ctx, sq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -146,7 +266,7 @@ func (sq *StoreQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (sq *StoreQuery) FirstIDX(ctx context.Context) int {
+func (sq *StoreQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := sq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -184,8 +304,8 @@ func (sq *StoreQuery) OnlyX(ctx context.Context) *Store {
 // OnlyID is like Only, but returns the only Store ID in the query.
 // Returns a *NotSingularError when more than one Store ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (sq *StoreQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (sq *StoreQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = sq.Limit(2).IDs(setContextOp(ctx, sq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -201,7 +321,7 @@ func (sq *StoreQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (sq *StoreQuery) OnlyIDX(ctx context.Context) int {
+func (sq *StoreQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := sq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -229,7 +349,7 @@ func (sq *StoreQuery) AllX(ctx context.Context) []*Store {
 }
 
 // IDs executes the query and returns a list of Store IDs.
-func (sq *StoreQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (sq *StoreQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if sq.ctx.Unique == nil && sq.path != nil {
 		sq.Unique(true)
 	}
@@ -241,7 +361,7 @@ func (sq *StoreQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (sq *StoreQuery) IDsX(ctx context.Context) []int {
+func (sq *StoreQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := sq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -296,13 +416,18 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		return nil
 	}
 	return &StoreQuery{
-		config:        sq.config,
-		ctx:           sq.ctx.Clone(),
-		order:         append([]store.OrderOption{}, sq.order...),
-		inters:        append([]Interceptor{}, sq.inters...),
-		predicates:    append([]predicate.Store{}, sq.predicates...),
-		withMerchant:  sq.withMerchant.Clone(),
-		withAdminUser: sq.withAdminUser.Clone(),
+		config:                   sq.config,
+		ctx:                      sq.ctx.Clone(),
+		order:                    append([]store.OrderOption{}, sq.order...),
+		inters:                   append([]Interceptor{}, sq.inters...),
+		predicates:               append([]predicate.Store{}, sq.predicates...),
+		withMerchant:             sq.withMerchant.Clone(),
+		withAdminUser:            sq.withAdminUser.Clone(),
+		withMerchantBusinessType: sq.withMerchantBusinessType.Clone(),
+		withCountry:              sq.withCountry.Clone(),
+		withProvince:             sq.withProvince.Clone(),
+		withCity:                 sq.withCity.Clone(),
+		withDistrict:             sq.withDistrict.Clone(),
 		// clone intermediate query.
 		sql:       sq.sql.Clone(),
 		path:      sq.path,
@@ -329,6 +454,61 @@ func (sq *StoreQuery) WithAdminUser(opts ...func(*AdminUserQuery)) *StoreQuery {
 		opt(query)
 	}
 	sq.withAdminUser = query
+	return sq
+}
+
+// WithMerchantBusinessType tells the query-builder to eager-load the nodes that are connected to
+// the "merchant_business_type" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithMerchantBusinessType(opts ...func(*MerchantBusinessTypeQuery)) *StoreQuery {
+	query := (&MerchantBusinessTypeClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withMerchantBusinessType = query
+	return sq
+}
+
+// WithCountry tells the query-builder to eager-load the nodes that are connected to
+// the "country" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithCountry(opts ...func(*CountryQuery)) *StoreQuery {
+	query := (&CountryClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withCountry = query
+	return sq
+}
+
+// WithProvince tells the query-builder to eager-load the nodes that are connected to
+// the "province" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithProvince(opts ...func(*ProvinceQuery)) *StoreQuery {
+	query := (&ProvinceClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withProvince = query
+	return sq
+}
+
+// WithCity tells the query-builder to eager-load the nodes that are connected to
+// the "city" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithCity(opts ...func(*CityQuery)) *StoreQuery {
+	query := (&CityClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withCity = query
+	return sq
+}
+
+// WithDistrict tells the query-builder to eager-load the nodes that are connected to
+// the "district" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithDistrict(opts ...func(*DistrictQuery)) *StoreQuery {
+	query := (&DistrictClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withDistrict = query
 	return sq
 }
 
@@ -410,9 +590,14 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [7]bool{
 			sq.withMerchant != nil,
 			sq.withAdminUser != nil,
+			sq.withMerchantBusinessType != nil,
+			sq.withCountry != nil,
+			sq.withProvince != nil,
+			sq.withCity != nil,
+			sq.withDistrict != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -448,12 +633,42 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			return nil, err
 		}
 	}
+	if query := sq.withMerchantBusinessType; query != nil {
+		if err := sq.loadMerchantBusinessType(ctx, query, nodes, nil,
+			func(n *Store, e *MerchantBusinessType) { n.Edges.MerchantBusinessType = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withCountry; query != nil {
+		if err := sq.loadCountry(ctx, query, nodes, nil,
+			func(n *Store, e *Country) { n.Edges.Country = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withProvince; query != nil {
+		if err := sq.loadProvince(ctx, query, nodes, nil,
+			func(n *Store, e *Province) { n.Edges.Province = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withCity; query != nil {
+		if err := sq.loadCity(ctx, query, nodes, nil,
+			func(n *Store, e *City) { n.Edges.City = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withDistrict; query != nil {
+		if err := sq.loadDistrict(ctx, query, nodes, nil,
+			func(n *Store, e *District) { n.Edges.District = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (sq *StoreQuery) loadMerchant(ctx context.Context, query *MerchantQuery, nodes []*Store, init func(*Store), assign func(*Store, *Merchant)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Store)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Store)
 	for i := range nodes {
 		fk := nodes[i].MerchantID
 		if _, ok := nodeids[fk]; !ok {
@@ -509,6 +724,151 @@ func (sq *StoreQuery) loadAdminUser(ctx context.Context, query *AdminUserQuery, 
 	}
 	return nil
 }
+func (sq *StoreQuery) loadMerchantBusinessType(ctx context.Context, query *MerchantBusinessTypeQuery, nodes []*Store, init func(*Store), assign func(*Store, *MerchantBusinessType)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Store)
+	for i := range nodes {
+		fk := nodes[i].BusinessTypeID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(merchantbusinesstype.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "business_type_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (sq *StoreQuery) loadCountry(ctx context.Context, query *CountryQuery, nodes []*Store, init func(*Store), assign func(*Store, *Country)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Store)
+	for i := range nodes {
+		fk := nodes[i].CountryID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(country.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "country_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (sq *StoreQuery) loadProvince(ctx context.Context, query *ProvinceQuery, nodes []*Store, init func(*Store), assign func(*Store, *Province)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Store)
+	for i := range nodes {
+		fk := nodes[i].ProvinceID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(province.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "province_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (sq *StoreQuery) loadCity(ctx context.Context, query *CityQuery, nodes []*Store, init func(*Store), assign func(*Store, *City)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Store)
+	for i := range nodes {
+		fk := nodes[i].CityID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(city.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "city_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (sq *StoreQuery) loadDistrict(ctx context.Context, query *DistrictQuery, nodes []*Store, init func(*Store), assign func(*Store, *District)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Store)
+	for i := range nodes {
+		fk := nodes[i].DistrictID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(district.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "district_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (sq *StoreQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := sq.querySpec()
@@ -523,7 +883,7 @@ func (sq *StoreQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (sq *StoreQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(store.Table, store.Columns, sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(store.Table, store.Columns, sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID))
 	_spec.From = sq.sql
 	if unique := sq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -543,6 +903,21 @@ func (sq *StoreQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if sq.withAdminUser != nil {
 			_spec.Node.AddColumnOnce(store.FieldAdminUserID)
+		}
+		if sq.withMerchantBusinessType != nil {
+			_spec.Node.AddColumnOnce(store.FieldBusinessTypeID)
+		}
+		if sq.withCountry != nil {
+			_spec.Node.AddColumnOnce(store.FieldCountryID)
+		}
+		if sq.withProvince != nil {
+			_spec.Node.AddColumnOnce(store.FieldProvinceID)
+		}
+		if sq.withCity != nil {
+			_spec.Node.AddColumnOnce(store.FieldCityID)
+		}
+		if sq.withDistrict != nil {
+			_spec.Node.AddColumnOnce(store.FieldDistrictID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -108,8 +109,8 @@ func (mrq *MerchantRenewalQuery) FirstX(ctx context.Context) *MerchantRenewal {
 
 // FirstID returns the first MerchantRenewal ID from the query.
 // Returns a *NotFoundError when no MerchantRenewal ID was found.
-func (mrq *MerchantRenewalQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (mrq *MerchantRenewalQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = mrq.Limit(1).IDs(setContextOp(ctx, mrq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -121,7 +122,7 @@ func (mrq *MerchantRenewalQuery) FirstID(ctx context.Context) (id int, err error
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (mrq *MerchantRenewalQuery) FirstIDX(ctx context.Context) int {
+func (mrq *MerchantRenewalQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := mrq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -159,8 +160,8 @@ func (mrq *MerchantRenewalQuery) OnlyX(ctx context.Context) *MerchantRenewal {
 // OnlyID is like Only, but returns the only MerchantRenewal ID in the query.
 // Returns a *NotSingularError when more than one MerchantRenewal ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (mrq *MerchantRenewalQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (mrq *MerchantRenewalQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = mrq.Limit(2).IDs(setContextOp(ctx, mrq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -176,7 +177,7 @@ func (mrq *MerchantRenewalQuery) OnlyID(ctx context.Context) (id int, err error)
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (mrq *MerchantRenewalQuery) OnlyIDX(ctx context.Context) int {
+func (mrq *MerchantRenewalQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := mrq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +205,7 @@ func (mrq *MerchantRenewalQuery) AllX(ctx context.Context) []*MerchantRenewal {
 }
 
 // IDs executes the query and returns a list of MerchantRenewal IDs.
-func (mrq *MerchantRenewalQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (mrq *MerchantRenewalQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if mrq.ctx.Unique == nil && mrq.path != nil {
 		mrq.Unique(true)
 	}
@@ -216,7 +217,7 @@ func (mrq *MerchantRenewalQuery) IDs(ctx context.Context) (ids []int, err error)
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (mrq *MerchantRenewalQuery) IDsX(ctx context.Context) []int {
+func (mrq *MerchantRenewalQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := mrq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -408,8 +409,8 @@ func (mrq *MerchantRenewalQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 }
 
 func (mrq *MerchantRenewalQuery) loadMerchant(ctx context.Context, query *MerchantQuery, nodes []*MerchantRenewal, init func(*MerchantRenewal), assign func(*MerchantRenewal, *Merchant)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*MerchantRenewal)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*MerchantRenewal)
 	for i := range nodes {
 		fk := nodes[i].MerchantID
 		if _, ok := nodeids[fk]; !ok {
@@ -450,7 +451,7 @@ func (mrq *MerchantRenewalQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (mrq *MerchantRenewalQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(merchantrenewal.Table, merchantrenewal.Columns, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(merchantrenewal.Table, merchantrenewal.Columns, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID))
 	_spec.From = mrq.sql
 	if unique := mrq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

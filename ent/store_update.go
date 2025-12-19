@@ -11,8 +11,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -142,23 +148,16 @@ func (su *StoreUpdate) SetNillableBusinessModel(dm *domain.BusinessModel) *Store
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (su *StoreUpdate) SetBusinessTypeID(i int) *StoreUpdate {
-	su.mutation.ResetBusinessTypeID()
-	su.mutation.SetBusinessTypeID(i)
+func (su *StoreUpdate) SetBusinessTypeID(u uuid.UUID) *StoreUpdate {
+	su.mutation.SetBusinessTypeID(u)
 	return su
 }
 
 // SetNillableBusinessTypeID sets the "business_type_id" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableBusinessTypeID(i *int) *StoreUpdate {
-	if i != nil {
-		su.SetBusinessTypeID(*i)
+func (su *StoreUpdate) SetNillableBusinessTypeID(u *uuid.UUID) *StoreUpdate {
+	if u != nil {
+		su.SetBusinessTypeID(*u)
 	}
-	return su
-}
-
-// AddBusinessTypeID adds i to the "business_type_id" field.
-func (su *StoreUpdate) AddBusinessTypeID(i int) *StoreUpdate {
-	su.mutation.AddBusinessTypeID(i)
 	return su
 }
 
@@ -289,142 +288,82 @@ func (su *StoreUpdate) SetNillableFoodOperationLicenseURL(s *string) *StoreUpdat
 }
 
 // SetCountryID sets the "country_id" field.
-func (su *StoreUpdate) SetCountryID(i int) *StoreUpdate {
-	su.mutation.ResetCountryID()
-	su.mutation.SetCountryID(i)
+func (su *StoreUpdate) SetCountryID(u uuid.UUID) *StoreUpdate {
+	su.mutation.SetCountryID(u)
 	return su
 }
 
 // SetNillableCountryID sets the "country_id" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableCountryID(i *int) *StoreUpdate {
-	if i != nil {
-		su.SetCountryID(*i)
+func (su *StoreUpdate) SetNillableCountryID(u *uuid.UUID) *StoreUpdate {
+	if u != nil {
+		su.SetCountryID(*u)
 	}
 	return su
 }
 
-// AddCountryID adds i to the "country_id" field.
-func (su *StoreUpdate) AddCountryID(i int) *StoreUpdate {
-	su.mutation.AddCountryID(i)
+// ClearCountryID clears the value of the "country_id" field.
+func (su *StoreUpdate) ClearCountryID() *StoreUpdate {
+	su.mutation.ClearCountryID()
 	return su
 }
 
 // SetProvinceID sets the "province_id" field.
-func (su *StoreUpdate) SetProvinceID(i int) *StoreUpdate {
-	su.mutation.ResetProvinceID()
-	su.mutation.SetProvinceID(i)
+func (su *StoreUpdate) SetProvinceID(u uuid.UUID) *StoreUpdate {
+	su.mutation.SetProvinceID(u)
 	return su
 }
 
 // SetNillableProvinceID sets the "province_id" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableProvinceID(i *int) *StoreUpdate {
-	if i != nil {
-		su.SetProvinceID(*i)
+func (su *StoreUpdate) SetNillableProvinceID(u *uuid.UUID) *StoreUpdate {
+	if u != nil {
+		su.SetProvinceID(*u)
 	}
 	return su
 }
 
-// AddProvinceID adds i to the "province_id" field.
-func (su *StoreUpdate) AddProvinceID(i int) *StoreUpdate {
-	su.mutation.AddProvinceID(i)
+// ClearProvinceID clears the value of the "province_id" field.
+func (su *StoreUpdate) ClearProvinceID() *StoreUpdate {
+	su.mutation.ClearProvinceID()
 	return su
 }
 
 // SetCityID sets the "city_id" field.
-func (su *StoreUpdate) SetCityID(i int) *StoreUpdate {
-	su.mutation.ResetCityID()
-	su.mutation.SetCityID(i)
+func (su *StoreUpdate) SetCityID(u uuid.UUID) *StoreUpdate {
+	su.mutation.SetCityID(u)
 	return su
 }
 
 // SetNillableCityID sets the "city_id" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableCityID(i *int) *StoreUpdate {
-	if i != nil {
-		su.SetCityID(*i)
+func (su *StoreUpdate) SetNillableCityID(u *uuid.UUID) *StoreUpdate {
+	if u != nil {
+		su.SetCityID(*u)
 	}
 	return su
 }
 
-// AddCityID adds i to the "city_id" field.
-func (su *StoreUpdate) AddCityID(i int) *StoreUpdate {
-	su.mutation.AddCityID(i)
+// ClearCityID clears the value of the "city_id" field.
+func (su *StoreUpdate) ClearCityID() *StoreUpdate {
+	su.mutation.ClearCityID()
 	return su
 }
 
 // SetDistrictID sets the "district_id" field.
-func (su *StoreUpdate) SetDistrictID(i int) *StoreUpdate {
-	su.mutation.ResetDistrictID()
-	su.mutation.SetDistrictID(i)
+func (su *StoreUpdate) SetDistrictID(u uuid.UUID) *StoreUpdate {
+	su.mutation.SetDistrictID(u)
 	return su
 }
 
 // SetNillableDistrictID sets the "district_id" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableDistrictID(i *int) *StoreUpdate {
-	if i != nil {
-		su.SetDistrictID(*i)
+func (su *StoreUpdate) SetNillableDistrictID(u *uuid.UUID) *StoreUpdate {
+	if u != nil {
+		su.SetDistrictID(*u)
 	}
 	return su
 }
 
-// AddDistrictID adds i to the "district_id" field.
-func (su *StoreUpdate) AddDistrictID(i int) *StoreUpdate {
-	su.mutation.AddDistrictID(i)
-	return su
-}
-
-// SetCountryName sets the "country_name" field.
-func (su *StoreUpdate) SetCountryName(s string) *StoreUpdate {
-	su.mutation.SetCountryName(s)
-	return su
-}
-
-// SetNillableCountryName sets the "country_name" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableCountryName(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetCountryName(*s)
-	}
-	return su
-}
-
-// SetProvinceName sets the "province_name" field.
-func (su *StoreUpdate) SetProvinceName(s string) *StoreUpdate {
-	su.mutation.SetProvinceName(s)
-	return su
-}
-
-// SetNillableProvinceName sets the "province_name" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableProvinceName(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetProvinceName(*s)
-	}
-	return su
-}
-
-// SetCityName sets the "city_name" field.
-func (su *StoreUpdate) SetCityName(s string) *StoreUpdate {
-	su.mutation.SetCityName(s)
-	return su
-}
-
-// SetNillableCityName sets the "city_name" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableCityName(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetCityName(*s)
-	}
-	return su
-}
-
-// SetDistrictName sets the "district_name" field.
-func (su *StoreUpdate) SetDistrictName(s string) *StoreUpdate {
-	su.mutation.SetDistrictName(s)
-	return su
-}
-
-// SetNillableDistrictName sets the "district_name" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableDistrictName(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetDistrictName(*s)
-	}
+// ClearDistrictID clears the value of the "district_id" field.
+func (su *StoreUpdate) ClearDistrictID() *StoreUpdate {
+	su.mutation.ClearDistrictID()
 	return su
 }
 
@@ -470,9 +409,70 @@ func (su *StoreUpdate) SetNillableLat(s *string) *StoreUpdate {
 	return su
 }
 
+// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
+func (su *StoreUpdate) SetMerchantBusinessTypeID(id uuid.UUID) *StoreUpdate {
+	su.mutation.SetMerchantBusinessTypeID(id)
+	return su
+}
+
+// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
+func (su *StoreUpdate) SetMerchantBusinessType(m *MerchantBusinessType) *StoreUpdate {
+	return su.SetMerchantBusinessTypeID(m.ID)
+}
+
+// SetCountry sets the "country" edge to the Country entity.
+func (su *StoreUpdate) SetCountry(c *Country) *StoreUpdate {
+	return su.SetCountryID(c.ID)
+}
+
+// SetProvince sets the "province" edge to the Province entity.
+func (su *StoreUpdate) SetProvince(p *Province) *StoreUpdate {
+	return su.SetProvinceID(p.ID)
+}
+
+// SetCity sets the "city" edge to the City entity.
+func (su *StoreUpdate) SetCity(c *City) *StoreUpdate {
+	return su.SetCityID(c.ID)
+}
+
+// SetDistrict sets the "district" edge to the District entity.
+func (su *StoreUpdate) SetDistrict(d *District) *StoreUpdate {
+	return su.SetDistrictID(d.ID)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
+}
+
+// ClearMerchantBusinessType clears the "merchant_business_type" edge to the MerchantBusinessType entity.
+func (su *StoreUpdate) ClearMerchantBusinessType() *StoreUpdate {
+	su.mutation.ClearMerchantBusinessType()
+	return su
+}
+
+// ClearCountry clears the "country" edge to the Country entity.
+func (su *StoreUpdate) ClearCountry() *StoreUpdate {
+	su.mutation.ClearCountry()
+	return su
+}
+
+// ClearProvince clears the "province" edge to the Province entity.
+func (su *StoreUpdate) ClearProvince() *StoreUpdate {
+	su.mutation.ClearProvince()
+	return su
+}
+
+// ClearCity clears the "city" edge to the City entity.
+func (su *StoreUpdate) ClearCity() *StoreUpdate {
+	su.mutation.ClearCity()
+	return su
+}
+
+// ClearDistrict clears the "district" edge to the District entity.
+func (su *StoreUpdate) ClearDistrict() *StoreUpdate {
+	su.mutation.ClearDistrict()
+	return su
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -588,26 +588,6 @@ func (su *StoreUpdate) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.CountryName(); ok {
-		if err := store.CountryNameValidator(v); err != nil {
-			return &ValidationError{Name: "country_name", err: fmt.Errorf(`ent: validator failed for field "Store.country_name": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.ProvinceName(); ok {
-		if err := store.ProvinceNameValidator(v); err != nil {
-			return &ValidationError{Name: "province_name", err: fmt.Errorf(`ent: validator failed for field "Store.province_name": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.CityName(); ok {
-		if err := store.CityNameValidator(v); err != nil {
-			return &ValidationError{Name: "city_name", err: fmt.Errorf(`ent: validator failed for field "Store.city_name": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.DistrictName(); ok {
-		if err := store.DistrictNameValidator(v); err != nil {
-			return &ValidationError{Name: "district_name", err: fmt.Errorf(`ent: validator failed for field "Store.district_name": %w`, err)}
-		}
-	}
 	if v, ok := su.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -629,6 +609,9 @@ func (su *StoreUpdate) check() error {
 	if su.mutation.AdminUserCleared() && len(su.mutation.AdminUserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
 	}
+	if su.mutation.MerchantBusinessTypeCleared() && len(su.mutation.MerchantBusinessTypeIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
+	}
 	return nil
 }
 
@@ -642,7 +625,7 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := su.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(store.Table, store.Columns, sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(store.Table, store.Columns, sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -677,12 +660,6 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
 	}
-	if value, ok := su.mutation.BusinessTypeID(); ok {
-		_spec.SetField(store.FieldBusinessTypeID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedBusinessTypeID(); ok {
-		_spec.AddField(store.FieldBusinessTypeID, field.TypeInt, value)
-	}
 	if value, ok := su.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)
 	}
@@ -710,42 +687,6 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.FoodOperationLicenseURL(); ok {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 	}
-	if value, ok := su.mutation.CountryID(); ok {
-		_spec.SetField(store.FieldCountryID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedCountryID(); ok {
-		_spec.AddField(store.FieldCountryID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.ProvinceID(); ok {
-		_spec.SetField(store.FieldProvinceID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedProvinceID(); ok {
-		_spec.AddField(store.FieldProvinceID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.CityID(); ok {
-		_spec.SetField(store.FieldCityID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedCityID(); ok {
-		_spec.AddField(store.FieldCityID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.DistrictID(); ok {
-		_spec.SetField(store.FieldDistrictID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedDistrictID(); ok {
-		_spec.AddField(store.FieldDistrictID, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.CountryName(); ok {
-		_spec.SetField(store.FieldCountryName, field.TypeString, value)
-	}
-	if value, ok := su.mutation.ProvinceName(); ok {
-		_spec.SetField(store.FieldProvinceName, field.TypeString, value)
-	}
-	if value, ok := su.mutation.CityName(); ok {
-		_spec.SetField(store.FieldCityName, field.TypeString, value)
-	}
-	if value, ok := su.mutation.DistrictName(); ok {
-		_spec.SetField(store.FieldDistrictName, field.TypeString, value)
-	}
 	if value, ok := su.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
 	}
@@ -754,6 +695,151 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.Lat(); ok {
 		_spec.SetField(store.FieldLat, field.TypeString, value)
+	}
+	if su.mutation.MerchantBusinessTypeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.MerchantBusinessTypeTable,
+			Columns: []string{store.MerchantBusinessTypeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.MerchantBusinessTypeTable,
+			Columns: []string{store.MerchantBusinessTypeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.CountryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CountryTable,
+			Columns: []string{store.CountryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.CountryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CountryTable,
+			Columns: []string{store.CountryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.ProvinceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.ProvinceTable,
+			Columns: []string{store.ProvinceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ProvinceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.ProvinceTable,
+			Columns: []string{store.ProvinceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.CityCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CityTable,
+			Columns: []string{store.CityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.CityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CityTable,
+			Columns: []string{store.CityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.DistrictCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.DistrictTable,
+			Columns: []string{store.DistrictColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.DistrictIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.DistrictTable,
+			Columns: []string{store.DistrictColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(su.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
@@ -889,23 +975,16 @@ func (suo *StoreUpdateOne) SetNillableBusinessModel(dm *domain.BusinessModel) *S
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (suo *StoreUpdateOne) SetBusinessTypeID(i int) *StoreUpdateOne {
-	suo.mutation.ResetBusinessTypeID()
-	suo.mutation.SetBusinessTypeID(i)
+func (suo *StoreUpdateOne) SetBusinessTypeID(u uuid.UUID) *StoreUpdateOne {
+	suo.mutation.SetBusinessTypeID(u)
 	return suo
 }
 
 // SetNillableBusinessTypeID sets the "business_type_id" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableBusinessTypeID(i *int) *StoreUpdateOne {
-	if i != nil {
-		suo.SetBusinessTypeID(*i)
+func (suo *StoreUpdateOne) SetNillableBusinessTypeID(u *uuid.UUID) *StoreUpdateOne {
+	if u != nil {
+		suo.SetBusinessTypeID(*u)
 	}
-	return suo
-}
-
-// AddBusinessTypeID adds i to the "business_type_id" field.
-func (suo *StoreUpdateOne) AddBusinessTypeID(i int) *StoreUpdateOne {
-	suo.mutation.AddBusinessTypeID(i)
 	return suo
 }
 
@@ -1036,142 +1115,82 @@ func (suo *StoreUpdateOne) SetNillableFoodOperationLicenseURL(s *string) *StoreU
 }
 
 // SetCountryID sets the "country_id" field.
-func (suo *StoreUpdateOne) SetCountryID(i int) *StoreUpdateOne {
-	suo.mutation.ResetCountryID()
-	suo.mutation.SetCountryID(i)
+func (suo *StoreUpdateOne) SetCountryID(u uuid.UUID) *StoreUpdateOne {
+	suo.mutation.SetCountryID(u)
 	return suo
 }
 
 // SetNillableCountryID sets the "country_id" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableCountryID(i *int) *StoreUpdateOne {
-	if i != nil {
-		suo.SetCountryID(*i)
+func (suo *StoreUpdateOne) SetNillableCountryID(u *uuid.UUID) *StoreUpdateOne {
+	if u != nil {
+		suo.SetCountryID(*u)
 	}
 	return suo
 }
 
-// AddCountryID adds i to the "country_id" field.
-func (suo *StoreUpdateOne) AddCountryID(i int) *StoreUpdateOne {
-	suo.mutation.AddCountryID(i)
+// ClearCountryID clears the value of the "country_id" field.
+func (suo *StoreUpdateOne) ClearCountryID() *StoreUpdateOne {
+	suo.mutation.ClearCountryID()
 	return suo
 }
 
 // SetProvinceID sets the "province_id" field.
-func (suo *StoreUpdateOne) SetProvinceID(i int) *StoreUpdateOne {
-	suo.mutation.ResetProvinceID()
-	suo.mutation.SetProvinceID(i)
+func (suo *StoreUpdateOne) SetProvinceID(u uuid.UUID) *StoreUpdateOne {
+	suo.mutation.SetProvinceID(u)
 	return suo
 }
 
 // SetNillableProvinceID sets the "province_id" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableProvinceID(i *int) *StoreUpdateOne {
-	if i != nil {
-		suo.SetProvinceID(*i)
+func (suo *StoreUpdateOne) SetNillableProvinceID(u *uuid.UUID) *StoreUpdateOne {
+	if u != nil {
+		suo.SetProvinceID(*u)
 	}
 	return suo
 }
 
-// AddProvinceID adds i to the "province_id" field.
-func (suo *StoreUpdateOne) AddProvinceID(i int) *StoreUpdateOne {
-	suo.mutation.AddProvinceID(i)
+// ClearProvinceID clears the value of the "province_id" field.
+func (suo *StoreUpdateOne) ClearProvinceID() *StoreUpdateOne {
+	suo.mutation.ClearProvinceID()
 	return suo
 }
 
 // SetCityID sets the "city_id" field.
-func (suo *StoreUpdateOne) SetCityID(i int) *StoreUpdateOne {
-	suo.mutation.ResetCityID()
-	suo.mutation.SetCityID(i)
+func (suo *StoreUpdateOne) SetCityID(u uuid.UUID) *StoreUpdateOne {
+	suo.mutation.SetCityID(u)
 	return suo
 }
 
 // SetNillableCityID sets the "city_id" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableCityID(i *int) *StoreUpdateOne {
-	if i != nil {
-		suo.SetCityID(*i)
+func (suo *StoreUpdateOne) SetNillableCityID(u *uuid.UUID) *StoreUpdateOne {
+	if u != nil {
+		suo.SetCityID(*u)
 	}
 	return suo
 }
 
-// AddCityID adds i to the "city_id" field.
-func (suo *StoreUpdateOne) AddCityID(i int) *StoreUpdateOne {
-	suo.mutation.AddCityID(i)
+// ClearCityID clears the value of the "city_id" field.
+func (suo *StoreUpdateOne) ClearCityID() *StoreUpdateOne {
+	suo.mutation.ClearCityID()
 	return suo
 }
 
 // SetDistrictID sets the "district_id" field.
-func (suo *StoreUpdateOne) SetDistrictID(i int) *StoreUpdateOne {
-	suo.mutation.ResetDistrictID()
-	suo.mutation.SetDistrictID(i)
+func (suo *StoreUpdateOne) SetDistrictID(u uuid.UUID) *StoreUpdateOne {
+	suo.mutation.SetDistrictID(u)
 	return suo
 }
 
 // SetNillableDistrictID sets the "district_id" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableDistrictID(i *int) *StoreUpdateOne {
-	if i != nil {
-		suo.SetDistrictID(*i)
+func (suo *StoreUpdateOne) SetNillableDistrictID(u *uuid.UUID) *StoreUpdateOne {
+	if u != nil {
+		suo.SetDistrictID(*u)
 	}
 	return suo
 }
 
-// AddDistrictID adds i to the "district_id" field.
-func (suo *StoreUpdateOne) AddDistrictID(i int) *StoreUpdateOne {
-	suo.mutation.AddDistrictID(i)
-	return suo
-}
-
-// SetCountryName sets the "country_name" field.
-func (suo *StoreUpdateOne) SetCountryName(s string) *StoreUpdateOne {
-	suo.mutation.SetCountryName(s)
-	return suo
-}
-
-// SetNillableCountryName sets the "country_name" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableCountryName(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetCountryName(*s)
-	}
-	return suo
-}
-
-// SetProvinceName sets the "province_name" field.
-func (suo *StoreUpdateOne) SetProvinceName(s string) *StoreUpdateOne {
-	suo.mutation.SetProvinceName(s)
-	return suo
-}
-
-// SetNillableProvinceName sets the "province_name" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableProvinceName(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetProvinceName(*s)
-	}
-	return suo
-}
-
-// SetCityName sets the "city_name" field.
-func (suo *StoreUpdateOne) SetCityName(s string) *StoreUpdateOne {
-	suo.mutation.SetCityName(s)
-	return suo
-}
-
-// SetNillableCityName sets the "city_name" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableCityName(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetCityName(*s)
-	}
-	return suo
-}
-
-// SetDistrictName sets the "district_name" field.
-func (suo *StoreUpdateOne) SetDistrictName(s string) *StoreUpdateOne {
-	suo.mutation.SetDistrictName(s)
-	return suo
-}
-
-// SetNillableDistrictName sets the "district_name" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableDistrictName(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetDistrictName(*s)
-	}
+// ClearDistrictID clears the value of the "district_id" field.
+func (suo *StoreUpdateOne) ClearDistrictID() *StoreUpdateOne {
+	suo.mutation.ClearDistrictID()
 	return suo
 }
 
@@ -1217,9 +1236,70 @@ func (suo *StoreUpdateOne) SetNillableLat(s *string) *StoreUpdateOne {
 	return suo
 }
 
+// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
+func (suo *StoreUpdateOne) SetMerchantBusinessTypeID(id uuid.UUID) *StoreUpdateOne {
+	suo.mutation.SetMerchantBusinessTypeID(id)
+	return suo
+}
+
+// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
+func (suo *StoreUpdateOne) SetMerchantBusinessType(m *MerchantBusinessType) *StoreUpdateOne {
+	return suo.SetMerchantBusinessTypeID(m.ID)
+}
+
+// SetCountry sets the "country" edge to the Country entity.
+func (suo *StoreUpdateOne) SetCountry(c *Country) *StoreUpdateOne {
+	return suo.SetCountryID(c.ID)
+}
+
+// SetProvince sets the "province" edge to the Province entity.
+func (suo *StoreUpdateOne) SetProvince(p *Province) *StoreUpdateOne {
+	return suo.SetProvinceID(p.ID)
+}
+
+// SetCity sets the "city" edge to the City entity.
+func (suo *StoreUpdateOne) SetCity(c *City) *StoreUpdateOne {
+	return suo.SetCityID(c.ID)
+}
+
+// SetDistrict sets the "district" edge to the District entity.
+func (suo *StoreUpdateOne) SetDistrict(d *District) *StoreUpdateOne {
+	return suo.SetDistrictID(d.ID)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
+}
+
+// ClearMerchantBusinessType clears the "merchant_business_type" edge to the MerchantBusinessType entity.
+func (suo *StoreUpdateOne) ClearMerchantBusinessType() *StoreUpdateOne {
+	suo.mutation.ClearMerchantBusinessType()
+	return suo
+}
+
+// ClearCountry clears the "country" edge to the Country entity.
+func (suo *StoreUpdateOne) ClearCountry() *StoreUpdateOne {
+	suo.mutation.ClearCountry()
+	return suo
+}
+
+// ClearProvince clears the "province" edge to the Province entity.
+func (suo *StoreUpdateOne) ClearProvince() *StoreUpdateOne {
+	suo.mutation.ClearProvince()
+	return suo
+}
+
+// ClearCity clears the "city" edge to the City entity.
+func (suo *StoreUpdateOne) ClearCity() *StoreUpdateOne {
+	suo.mutation.ClearCity()
+	return suo
+}
+
+// ClearDistrict clears the "district" edge to the District entity.
+func (suo *StoreUpdateOne) ClearDistrict() *StoreUpdateOne {
+	suo.mutation.ClearDistrict()
+	return suo
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -1348,26 +1428,6 @@ func (suo *StoreUpdateOne) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.CountryName(); ok {
-		if err := store.CountryNameValidator(v); err != nil {
-			return &ValidationError{Name: "country_name", err: fmt.Errorf(`ent: validator failed for field "Store.country_name": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.ProvinceName(); ok {
-		if err := store.ProvinceNameValidator(v); err != nil {
-			return &ValidationError{Name: "province_name", err: fmt.Errorf(`ent: validator failed for field "Store.province_name": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.CityName(); ok {
-		if err := store.CityNameValidator(v); err != nil {
-			return &ValidationError{Name: "city_name", err: fmt.Errorf(`ent: validator failed for field "Store.city_name": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.DistrictName(); ok {
-		if err := store.DistrictNameValidator(v); err != nil {
-			return &ValidationError{Name: "district_name", err: fmt.Errorf(`ent: validator failed for field "Store.district_name": %w`, err)}
-		}
-	}
 	if v, ok := suo.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -1389,6 +1449,9 @@ func (suo *StoreUpdateOne) check() error {
 	if suo.mutation.AdminUserCleared() && len(suo.mutation.AdminUserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
 	}
+	if suo.mutation.MerchantBusinessTypeCleared() && len(suo.mutation.MerchantBusinessTypeIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
+	}
 	return nil
 }
 
@@ -1402,7 +1465,7 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	if err := suo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(store.Table, store.Columns, sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(store.Table, store.Columns, sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID))
 	id, ok := suo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Store.id" for update`)}
@@ -1454,12 +1517,6 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	if value, ok := suo.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
 	}
-	if value, ok := suo.mutation.BusinessTypeID(); ok {
-		_spec.SetField(store.FieldBusinessTypeID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedBusinessTypeID(); ok {
-		_spec.AddField(store.FieldBusinessTypeID, field.TypeInt, value)
-	}
 	if value, ok := suo.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)
 	}
@@ -1487,42 +1544,6 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	if value, ok := suo.mutation.FoodOperationLicenseURL(); ok {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 	}
-	if value, ok := suo.mutation.CountryID(); ok {
-		_spec.SetField(store.FieldCountryID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedCountryID(); ok {
-		_spec.AddField(store.FieldCountryID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.ProvinceID(); ok {
-		_spec.SetField(store.FieldProvinceID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedProvinceID(); ok {
-		_spec.AddField(store.FieldProvinceID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.CityID(); ok {
-		_spec.SetField(store.FieldCityID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedCityID(); ok {
-		_spec.AddField(store.FieldCityID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.DistrictID(); ok {
-		_spec.SetField(store.FieldDistrictID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedDistrictID(); ok {
-		_spec.AddField(store.FieldDistrictID, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.CountryName(); ok {
-		_spec.SetField(store.FieldCountryName, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.ProvinceName(); ok {
-		_spec.SetField(store.FieldProvinceName, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.CityName(); ok {
-		_spec.SetField(store.FieldCityName, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.DistrictName(); ok {
-		_spec.SetField(store.FieldDistrictName, field.TypeString, value)
-	}
 	if value, ok := suo.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
 	}
@@ -1531,6 +1552,151 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	}
 	if value, ok := suo.mutation.Lat(); ok {
 		_spec.SetField(store.FieldLat, field.TypeString, value)
+	}
+	if suo.mutation.MerchantBusinessTypeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.MerchantBusinessTypeTable,
+			Columns: []string{store.MerchantBusinessTypeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.MerchantBusinessTypeTable,
+			Columns: []string{store.MerchantBusinessTypeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.CountryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CountryTable,
+			Columns: []string{store.CountryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.CountryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CountryTable,
+			Columns: []string{store.CountryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.ProvinceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.ProvinceTable,
+			Columns: []string{store.ProvinceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ProvinceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.ProvinceTable,
+			Columns: []string{store.ProvinceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.CityCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CityTable,
+			Columns: []string{store.CityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.CityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CityTable,
+			Columns: []string{store.CityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.DistrictCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.DistrictTable,
+			Columns: []string{store.DistrictColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.DistrictIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.DistrictTable,
+			Columns: []string{store.DistrictColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(suo.modifiers...)
 	_node = &Store{config: suo.config}

@@ -114,9 +114,114 @@ var (
 			},
 		},
 	}
+	// CitiesColumns holds the columns for the "cities" table.
+	CitiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "country_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID},
+	}
+	// CitiesTable holds the schema information for the "cities" table.
+	CitiesTable = &schema.Table{
+		Name:       "cities",
+		Columns:    CitiesColumns,
+		PrimaryKey: []*schema.Column{CitiesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "cities_countries_cities",
+				Columns:    []*schema.Column{CitiesColumns[6]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "cities_provinces_cities",
+				Columns:    []*schema.Column{CitiesColumns[7]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "city_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{CitiesColumns[3]},
+			},
+		},
+	}
+	// CountriesColumns holds the columns for the "countries" table.
+	CountriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+	}
+	// CountriesTable holds the schema information for the "countries" table.
+	CountriesTable = &schema.Table{
+		Name:       "countries",
+		Columns:    CountriesColumns,
+		PrimaryKey: []*schema.Column{CountriesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "country_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{CountriesColumns[3]},
+			},
+		},
+	}
+	// DistrictsColumns holds the columns for the "districts" table.
+	DistrictsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "city_id", Type: field.TypeUUID},
+		{Name: "country_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID},
+	}
+	// DistrictsTable holds the schema information for the "districts" table.
+	DistrictsTable = &schema.Table{
+		Name:       "districts",
+		Columns:    DistrictsColumns,
+		PrimaryKey: []*schema.Column{DistrictsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "districts_cities_districts",
+				Columns:    []*schema.Column{DistrictsColumns[6]},
+				RefColumns: []*schema.Column{CitiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "districts_countries_districts",
+				Columns:    []*schema.Column{DistrictsColumns[7]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "districts_provinces_districts",
+				Columns:    []*schema.Column{DistrictsColumns[8]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "district_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{DistrictsColumns[3]},
+			},
+		},
+	}
 	// MerchantsColumns holds the columns for the "merchants" table.
 	MerchantsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
@@ -130,19 +235,15 @@ var (
 		{Name: "merchant_logo", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "description", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "expired", "disabled"}},
-		{Name: "country_id", Type: field.TypeInt, Default: 0},
-		{Name: "province_id", Type: field.TypeInt, Default: 0},
-		{Name: "city_id", Type: field.TypeInt, Default: 0},
-		{Name: "district_id", Type: field.TypeInt, Default: 0},
-		{Name: "country_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "province_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "city_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "district_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "address", Type: field.TypeString, Default: ""},
+		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Default: ""},
 		{Name: "lat", Type: field.TypeString, Default: ""},
 		{Name: "admin_user_id", Type: field.TypeUUID},
-		{Name: "business_type_id", Type: field.TypeInt, Default: 0},
+		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "business_type_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// MerchantsTable holds the schema information for the "merchants" table.
 	MerchantsTable = &schema.Table{
@@ -152,15 +253,39 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "merchants_admin_users_merchant",
-				Columns:    []*schema.Column{MerchantsColumns[25]},
+				Columns:    []*schema.Column{MerchantsColumns[17]},
 				RefColumns: []*schema.Column{AdminUsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
+				Symbol:     "merchants_cities_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[18]},
+				RefColumns: []*schema.Column{CitiesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "merchants_countries_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[19]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "merchants_districts_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[20]},
+				RefColumns: []*schema.Column{DistrictsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "merchants_merchant_business_types_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[26]},
+				Columns:    []*schema.Column{MerchantsColumns[21]},
 				RefColumns: []*schema.Column{MerchantBusinessTypesColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "merchants_provinces_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[22]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -173,7 +298,10 @@ var (
 	}
 	// MerchantBusinessTypesColumns holds the columns for the "merchant_business_types" table.
 	MerchantBusinessTypesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "type_code", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "type_name", Type: field.TypeString, Size: 50, Default: ""},
 	}
@@ -182,17 +310,25 @@ var (
 		Name:       "merchant_business_types",
 		Columns:    MerchantBusinessTypesColumns,
 		PrimaryKey: []*schema.Column{MerchantBusinessTypesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "merchantbusinesstype_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{MerchantBusinessTypesColumns[3]},
+			},
+		},
 	}
 	// MerchantRenewalsColumns holds the columns for the "merchant_renewals" table.
 	MerchantRenewalsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "purchase_duration", Type: field.TypeInt, Default: 0},
 		{Name: "purchase_duration_unit", Type: field.TypeEnum, Enums: []string{"day", "month", "year", "week"}},
 		{Name: "operator_name", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "operator_account", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "merchant_id", Type: field.TypeInt},
+		{Name: "merchant_id", Type: field.TypeUUID},
 	}
 	// MerchantRenewalsTable holds the schema information for the "merchant_renewals" table.
 	MerchantRenewalsTable = &schema.Table{
@@ -202,15 +338,53 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "merchant_renewals_merchants_merchant_renewals",
-				Columns:    []*schema.Column{MerchantRenewalsColumns[7]},
+				Columns:    []*schema.Column{MerchantRenewalsColumns[8]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "merchantrenewal_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{MerchantRenewalsColumns[3]},
+			},
+		},
+	}
+	// ProvincesColumns holds the columns for the "provinces" table.
+	ProvincesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "country_id", Type: field.TypeUUID},
+	}
+	// ProvincesTable holds the schema information for the "provinces" table.
+	ProvincesTable = &schema.Table{
+		Name:       "provinces",
+		Columns:    ProvincesColumns,
+		PrimaryKey: []*schema.Column{ProvincesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "provinces_countries_provinces",
+				Columns:    []*schema.Column{ProvincesColumns[6]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "province_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProvincesColumns[3]},
 			},
 		},
 	}
 	// StoresColumns holds the columns for the "stores" table.
 	StoresColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
@@ -220,7 +394,6 @@ var (
 		{Name: "store_code", Type: field.TypeString, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"open", "closed"}},
 		{Name: "business_model", Type: field.TypeEnum, Enums: []string{"direct", "franchisee"}},
-		{Name: "business_type_id", Type: field.TypeInt, Default: 0},
 		{Name: "contact_name", Type: field.TypeString, Size: 20, Default: ""},
 		{Name: "contact_phone", Type: field.TypeString, Size: 20, Default: ""},
 		{Name: "unified_social_credit_code", Type: field.TypeString, Size: 50, Default: ""},
@@ -230,19 +403,16 @@ var (
 		{Name: "cashier_desk_url", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "dining_environment_url", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "food_operation_license_url", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "country_id", Type: field.TypeInt, Default: 0},
-		{Name: "province_id", Type: field.TypeInt, Default: 0},
-		{Name: "city_id", Type: field.TypeInt, Default: 0},
-		{Name: "district_id", Type: field.TypeInt, Default: 0},
-		{Name: "country_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "province_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "city_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "district_name", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "lat", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "admin_user_id", Type: field.TypeUUID},
-		{Name: "merchant_id", Type: field.TypeInt},
+		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "business_type_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// StoresTable holds the schema information for the "stores" table.
 	StoresTable = &schema.Table{
@@ -252,15 +422,45 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "stores_admin_users_store",
-				Columns:    []*schema.Column{StoresColumns[31]},
+				Columns:    []*schema.Column{StoresColumns[22]},
 				RefColumns: []*schema.Column{AdminUsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
+				Symbol:     "stores_cities_stores",
+				Columns:    []*schema.Column{StoresColumns[23]},
+				RefColumns: []*schema.Column{CitiesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "stores_countries_stores",
+				Columns:    []*schema.Column{StoresColumns[24]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "stores_districts_stores",
+				Columns:    []*schema.Column{StoresColumns[25]},
+				RefColumns: []*schema.Column{DistrictsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "stores_merchants_stores",
-				Columns:    []*schema.Column{StoresColumns[32]},
+				Columns:    []*schema.Column{StoresColumns[26]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "stores_merchant_business_types_stores",
+				Columns:    []*schema.Column{StoresColumns[27]},
+				RefColumns: []*schema.Column{MerchantBusinessTypesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "stores_provinces_stores",
+				Columns:    []*schema.Column{StoresColumns[28]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -276,18 +476,37 @@ var (
 		AdminUsersTable,
 		BackendUsersTable,
 		CategoriesTable,
+		CitiesTable,
+		CountriesTable,
+		DistrictsTable,
 		MerchantsTable,
 		MerchantBusinessTypesTable,
 		MerchantRenewalsTable,
+		ProvincesTable,
 		StoresTable,
 	}
 )
 
 func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
+	CitiesTable.ForeignKeys[0].RefTable = CountriesTable
+	CitiesTable.ForeignKeys[1].RefTable = ProvincesTable
+	DistrictsTable.ForeignKeys[0].RefTable = CitiesTable
+	DistrictsTable.ForeignKeys[1].RefTable = CountriesTable
+	DistrictsTable.ForeignKeys[2].RefTable = ProvincesTable
 	MerchantsTable.ForeignKeys[0].RefTable = AdminUsersTable
-	MerchantsTable.ForeignKeys[1].RefTable = MerchantBusinessTypesTable
+	MerchantsTable.ForeignKeys[1].RefTable = CitiesTable
+	MerchantsTable.ForeignKeys[2].RefTable = CountriesTable
+	MerchantsTable.ForeignKeys[3].RefTable = DistrictsTable
+	MerchantsTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
+	MerchantsTable.ForeignKeys[5].RefTable = ProvincesTable
 	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
+	ProvincesTable.ForeignKeys[0].RefTable = CountriesTable
 	StoresTable.ForeignKeys[0].RefTable = AdminUsersTable
-	StoresTable.ForeignKeys[1].RefTable = MerchantsTable
+	StoresTable.ForeignKeys[1].RefTable = CitiesTable
+	StoresTable.ForeignKeys[2].RefTable = CountriesTable
+	StoresTable.ForeignKeys[3].RefTable = DistrictsTable
+	StoresTable.ForeignKeys[4].RefTable = MerchantsTable
+	StoresTable.ForeignKeys[5].RefTable = MerchantBusinessTypesTable
+	StoresTable.ForeignKeys[6].RefTable = ProvincesTable
 }

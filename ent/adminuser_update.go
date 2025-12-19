@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -101,14 +102,14 @@ func (auu *AdminUserUpdate) SetNillableNickname(s *string) *AdminUserUpdate {
 }
 
 // AddMerchantIDs adds the "merchant" edge to the Merchant entity by IDs.
-func (auu *AdminUserUpdate) AddMerchantIDs(ids ...int) *AdminUserUpdate {
+func (auu *AdminUserUpdate) AddMerchantIDs(ids ...uuid.UUID) *AdminUserUpdate {
 	auu.mutation.AddMerchantIDs(ids...)
 	return auu
 }
 
 // AddMerchant adds the "merchant" edges to the Merchant entity.
 func (auu *AdminUserUpdate) AddMerchant(m ...*Merchant) *AdminUserUpdate {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
@@ -116,14 +117,14 @@ func (auu *AdminUserUpdate) AddMerchant(m ...*Merchant) *AdminUserUpdate {
 }
 
 // AddStoreIDs adds the "store" edge to the Store entity by IDs.
-func (auu *AdminUserUpdate) AddStoreIDs(ids ...int) *AdminUserUpdate {
+func (auu *AdminUserUpdate) AddStoreIDs(ids ...uuid.UUID) *AdminUserUpdate {
 	auu.mutation.AddStoreIDs(ids...)
 	return auu
 }
 
 // AddStore adds the "store" edges to the Store entity.
 func (auu *AdminUserUpdate) AddStore(s ...*Store) *AdminUserUpdate {
-	ids := make([]int, len(s))
+	ids := make([]uuid.UUID, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -142,14 +143,14 @@ func (auu *AdminUserUpdate) ClearMerchant() *AdminUserUpdate {
 }
 
 // RemoveMerchantIDs removes the "merchant" edge to Merchant entities by IDs.
-func (auu *AdminUserUpdate) RemoveMerchantIDs(ids ...int) *AdminUserUpdate {
+func (auu *AdminUserUpdate) RemoveMerchantIDs(ids ...uuid.UUID) *AdminUserUpdate {
 	auu.mutation.RemoveMerchantIDs(ids...)
 	return auu
 }
 
 // RemoveMerchant removes "merchant" edges to Merchant entities.
 func (auu *AdminUserUpdate) RemoveMerchant(m ...*Merchant) *AdminUserUpdate {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
@@ -163,14 +164,14 @@ func (auu *AdminUserUpdate) ClearStore() *AdminUserUpdate {
 }
 
 // RemoveStoreIDs removes the "store" edge to Store entities by IDs.
-func (auu *AdminUserUpdate) RemoveStoreIDs(ids ...int) *AdminUserUpdate {
+func (auu *AdminUserUpdate) RemoveStoreIDs(ids ...uuid.UUID) *AdminUserUpdate {
 	auu.mutation.RemoveStoreIDs(ids...)
 	return auu
 }
 
 // RemoveStore removes "store" edges to Store entities.
 func (auu *AdminUserUpdate) RemoveStore(s ...*Store) *AdminUserUpdate {
-	ids := make([]int, len(s))
+	ids := make([]uuid.UUID, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -272,7 +273,7 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{adminuser.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -285,7 +286,7 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{adminuser.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -301,7 +302,7 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{adminuser.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -317,7 +318,7 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{adminuser.StoreColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -330,7 +331,7 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{adminuser.StoreColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -346,7 +347,7 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{adminuser.StoreColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -446,14 +447,14 @@ func (auuo *AdminUserUpdateOne) SetNillableNickname(s *string) *AdminUserUpdateO
 }
 
 // AddMerchantIDs adds the "merchant" edge to the Merchant entity by IDs.
-func (auuo *AdminUserUpdateOne) AddMerchantIDs(ids ...int) *AdminUserUpdateOne {
+func (auuo *AdminUserUpdateOne) AddMerchantIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
 	auuo.mutation.AddMerchantIDs(ids...)
 	return auuo
 }
 
 // AddMerchant adds the "merchant" edges to the Merchant entity.
 func (auuo *AdminUserUpdateOne) AddMerchant(m ...*Merchant) *AdminUserUpdateOne {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
@@ -461,14 +462,14 @@ func (auuo *AdminUserUpdateOne) AddMerchant(m ...*Merchant) *AdminUserUpdateOne 
 }
 
 // AddStoreIDs adds the "store" edge to the Store entity by IDs.
-func (auuo *AdminUserUpdateOne) AddStoreIDs(ids ...int) *AdminUserUpdateOne {
+func (auuo *AdminUserUpdateOne) AddStoreIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
 	auuo.mutation.AddStoreIDs(ids...)
 	return auuo
 }
 
 // AddStore adds the "store" edges to the Store entity.
 func (auuo *AdminUserUpdateOne) AddStore(s ...*Store) *AdminUserUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]uuid.UUID, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -487,14 +488,14 @@ func (auuo *AdminUserUpdateOne) ClearMerchant() *AdminUserUpdateOne {
 }
 
 // RemoveMerchantIDs removes the "merchant" edge to Merchant entities by IDs.
-func (auuo *AdminUserUpdateOne) RemoveMerchantIDs(ids ...int) *AdminUserUpdateOne {
+func (auuo *AdminUserUpdateOne) RemoveMerchantIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
 	auuo.mutation.RemoveMerchantIDs(ids...)
 	return auuo
 }
 
 // RemoveMerchant removes "merchant" edges to Merchant entities.
 func (auuo *AdminUserUpdateOne) RemoveMerchant(m ...*Merchant) *AdminUserUpdateOne {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
@@ -508,14 +509,14 @@ func (auuo *AdminUserUpdateOne) ClearStore() *AdminUserUpdateOne {
 }
 
 // RemoveStoreIDs removes the "store" edge to Store entities by IDs.
-func (auuo *AdminUserUpdateOne) RemoveStoreIDs(ids ...int) *AdminUserUpdateOne {
+func (auuo *AdminUserUpdateOne) RemoveStoreIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
 	auuo.mutation.RemoveStoreIDs(ids...)
 	return auuo
 }
 
 // RemoveStore removes "store" edges to Store entities.
 func (auuo *AdminUserUpdateOne) RemoveStore(s ...*Store) *AdminUserUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]uuid.UUID, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -647,7 +648,7 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 			Columns: []string{adminuser.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -660,7 +661,7 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 			Columns: []string{adminuser.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -676,7 +677,7 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 			Columns: []string{adminuser.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -692,7 +693,7 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 			Columns: []string{adminuser.StoreColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -705,7 +706,7 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 			Columns: []string{adminuser.StoreColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -721,7 +722,7 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 			Columns: []string{adminuser.StoreColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

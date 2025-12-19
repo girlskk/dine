@@ -45,6 +45,42 @@ func (f CategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CategoryMutation", m)
 }
 
+// The CityFunc type is an adapter to allow the use of ordinary
+// function as City mutator.
+type CityFunc func(context.Context, *ent.CityMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CityFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CityMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CityMutation", m)
+}
+
+// The CountryFunc type is an adapter to allow the use of ordinary
+// function as Country mutator.
+type CountryFunc func(context.Context, *ent.CountryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CountryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CountryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CountryMutation", m)
+}
+
+// The DistrictFunc type is an adapter to allow the use of ordinary
+// function as District mutator.
+type DistrictFunc func(context.Context, *ent.DistrictMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DistrictFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DistrictMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DistrictMutation", m)
+}
+
 // The MerchantFunc type is an adapter to allow the use of ordinary
 // function as Merchant mutator.
 type MerchantFunc func(context.Context, *ent.MerchantMutation) (ent.Value, error)
@@ -79,6 +115,18 @@ func (f MerchantRenewalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MerchantRenewalMutation", m)
+}
+
+// The ProvinceFunc type is an adapter to allow the use of ordinary
+// function as Province mutator.
+type ProvinceFunc func(context.Context, *ent.ProvinceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProvinceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProvinceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProvinceMutation", m)
 }
 
 // The StoreFunc type is an adapter to allow the use of ordinary

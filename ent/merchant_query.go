@@ -15,10 +15,14 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -33,6 +37,10 @@ type MerchantQuery struct {
 	withMerchantRenewals     *MerchantRenewalQuery
 	withMerchantBusinessType *MerchantBusinessTypeQuery
 	withAdminUser            *AdminUserQuery
+	withCountry              *CountryQuery
+	withProvince             *ProvinceQuery
+	withCity                 *CityQuery
+	withDistrict             *DistrictQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -158,6 +166,94 @@ func (mq *MerchantQuery) QueryAdminUser() *AdminUserQuery {
 	return query
 }
 
+// QueryCountry chains the current query on the "country" edge.
+func (mq *MerchantQuery) QueryCountry() *CountryQuery {
+	query := (&CountryClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(country.Table, country.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, merchant.CountryTable, merchant.CountryColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProvince chains the current query on the "province" edge.
+func (mq *MerchantQuery) QueryProvince() *ProvinceQuery {
+	query := (&ProvinceClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(province.Table, province.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, merchant.ProvinceTable, merchant.ProvinceColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCity chains the current query on the "city" edge.
+func (mq *MerchantQuery) QueryCity() *CityQuery {
+	query := (&CityClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(city.Table, city.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, merchant.CityTable, merchant.CityColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDistrict chains the current query on the "district" edge.
+func (mq *MerchantQuery) QueryDistrict() *DistrictQuery {
+	query := (&DistrictClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(district.Table, district.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, merchant.DistrictTable, merchant.DistrictColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Merchant entity from the query.
 // Returns a *NotFoundError when no Merchant was found.
 func (mq *MerchantQuery) First(ctx context.Context) (*Merchant, error) {
@@ -182,8 +278,8 @@ func (mq *MerchantQuery) FirstX(ctx context.Context) *Merchant {
 
 // FirstID returns the first Merchant ID from the query.
 // Returns a *NotFoundError when no Merchant ID was found.
-func (mq *MerchantQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (mq *MerchantQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = mq.Limit(1).IDs(setContextOp(ctx, mq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -195,7 +291,7 @@ func (mq *MerchantQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (mq *MerchantQuery) FirstIDX(ctx context.Context) int {
+func (mq *MerchantQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := mq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -233,8 +329,8 @@ func (mq *MerchantQuery) OnlyX(ctx context.Context) *Merchant {
 // OnlyID is like Only, but returns the only Merchant ID in the query.
 // Returns a *NotSingularError when more than one Merchant ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (mq *MerchantQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (mq *MerchantQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = mq.Limit(2).IDs(setContextOp(ctx, mq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -250,7 +346,7 @@ func (mq *MerchantQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (mq *MerchantQuery) OnlyIDX(ctx context.Context) int {
+func (mq *MerchantQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := mq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -278,7 +374,7 @@ func (mq *MerchantQuery) AllX(ctx context.Context) []*Merchant {
 }
 
 // IDs executes the query and returns a list of Merchant IDs.
-func (mq *MerchantQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (mq *MerchantQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if mq.ctx.Unique == nil && mq.path != nil {
 		mq.Unique(true)
 	}
@@ -290,7 +386,7 @@ func (mq *MerchantQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (mq *MerchantQuery) IDsX(ctx context.Context) []int {
+func (mq *MerchantQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := mq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -354,6 +450,10 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		withMerchantRenewals:     mq.withMerchantRenewals.Clone(),
 		withMerchantBusinessType: mq.withMerchantBusinessType.Clone(),
 		withAdminUser:            mq.withAdminUser.Clone(),
+		withCountry:              mq.withCountry.Clone(),
+		withProvince:             mq.withProvince.Clone(),
+		withCity:                 mq.withCity.Clone(),
+		withDistrict:             mq.withDistrict.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
 		path:      mq.path,
@@ -402,6 +502,50 @@ func (mq *MerchantQuery) WithAdminUser(opts ...func(*AdminUserQuery)) *MerchantQ
 		opt(query)
 	}
 	mq.withAdminUser = query
+	return mq
+}
+
+// WithCountry tells the query-builder to eager-load the nodes that are connected to
+// the "country" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithCountry(opts ...func(*CountryQuery)) *MerchantQuery {
+	query := (&CountryClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withCountry = query
+	return mq
+}
+
+// WithProvince tells the query-builder to eager-load the nodes that are connected to
+// the "province" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithProvince(opts ...func(*ProvinceQuery)) *MerchantQuery {
+	query := (&ProvinceClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withProvince = query
+	return mq
+}
+
+// WithCity tells the query-builder to eager-load the nodes that are connected to
+// the "city" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithCity(opts ...func(*CityQuery)) *MerchantQuery {
+	query := (&CityClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withCity = query
+	return mq
+}
+
+// WithDistrict tells the query-builder to eager-load the nodes that are connected to
+// the "district" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithDistrict(opts ...func(*DistrictQuery)) *MerchantQuery {
+	query := (&DistrictClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withDistrict = query
 	return mq
 }
 
@@ -483,11 +627,15 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [8]bool{
 			mq.withStores != nil,
 			mq.withMerchantRenewals != nil,
 			mq.withMerchantBusinessType != nil,
 			mq.withAdminUser != nil,
+			mq.withCountry != nil,
+			mq.withProvince != nil,
+			mq.withCity != nil,
+			mq.withDistrict != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -537,12 +685,36 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			return nil, err
 		}
 	}
+	if query := mq.withCountry; query != nil {
+		if err := mq.loadCountry(ctx, query, nodes, nil,
+			func(n *Merchant, e *Country) { n.Edges.Country = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withProvince; query != nil {
+		if err := mq.loadProvince(ctx, query, nodes, nil,
+			func(n *Merchant, e *Province) { n.Edges.Province = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withCity; query != nil {
+		if err := mq.loadCity(ctx, query, nodes, nil,
+			func(n *Merchant, e *City) { n.Edges.City = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withDistrict; query != nil {
+		if err := mq.loadDistrict(ctx, query, nodes, nil,
+			func(n *Merchant, e *District) { n.Edges.District = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (mq *MerchantQuery) loadStores(ctx context.Context, query *StoreQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Store)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Merchant)
+	nodeids := make(map[uuid.UUID]*Merchant)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -572,7 +744,7 @@ func (mq *MerchantQuery) loadStores(ctx context.Context, query *StoreQuery, node
 }
 func (mq *MerchantQuery) loadMerchantRenewals(ctx context.Context, query *MerchantRenewalQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *MerchantRenewal)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Merchant)
+	nodeids := make(map[uuid.UUID]*Merchant)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -601,8 +773,8 @@ func (mq *MerchantQuery) loadMerchantRenewals(ctx context.Context, query *Mercha
 	return nil
 }
 func (mq *MerchantQuery) loadMerchantBusinessType(ctx context.Context, query *MerchantBusinessTypeQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *MerchantBusinessType)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Merchant)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Merchant)
 	for i := range nodes {
 		fk := nodes[i].BusinessTypeID
 		if _, ok := nodeids[fk]; !ok {
@@ -658,6 +830,122 @@ func (mq *MerchantQuery) loadAdminUser(ctx context.Context, query *AdminUserQuer
 	}
 	return nil
 }
+func (mq *MerchantQuery) loadCountry(ctx context.Context, query *CountryQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Country)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Merchant)
+	for i := range nodes {
+		fk := nodes[i].CountryID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(country.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "country_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadProvince(ctx context.Context, query *ProvinceQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Province)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Merchant)
+	for i := range nodes {
+		fk := nodes[i].ProvinceID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(province.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "province_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadCity(ctx context.Context, query *CityQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *City)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Merchant)
+	for i := range nodes {
+		fk := nodes[i].CityID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(city.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "city_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadDistrict(ctx context.Context, query *DistrictQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *District)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Merchant)
+	for i := range nodes {
+		fk := nodes[i].DistrictID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(district.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "district_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (mq *MerchantQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
@@ -672,7 +960,7 @@ func (mq *MerchantQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (mq *MerchantQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(merchant.Table, merchant.Columns, sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(merchant.Table, merchant.Columns, sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID))
 	_spec.From = mq.sql
 	if unique := mq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -692,6 +980,18 @@ func (mq *MerchantQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if mq.withAdminUser != nil {
 			_spec.Node.AddColumnOnce(merchant.FieldAdminUserID)
+		}
+		if mq.withCountry != nil {
+			_spec.Node.AddColumnOnce(merchant.FieldCountryID)
+		}
+		if mq.withProvince != nil {
+			_spec.Node.AddColumnOnce(merchant.FieldProvinceID)
+		}
+		if mq.withCity != nil {
+			_spec.Node.AddColumnOnce(merchant.FieldCityID)
+		}
+		if mq.withDistrict != nil {
+			_spec.Node.AddColumnOnce(merchant.FieldDistrictID)
 		}
 	}
 	if ps := mq.predicates; len(ps) > 0 {

@@ -6,13 +6,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // MerchantBusinessTypeUpdate is the builder for updating MerchantBusinessType entities.
@@ -26,6 +29,33 @@ type MerchantBusinessTypeUpdate struct {
 // Where appends a list predicates to the MerchantBusinessTypeUpdate builder.
 func (mbtu *MerchantBusinessTypeUpdate) Where(ps ...predicate.MerchantBusinessType) *MerchantBusinessTypeUpdate {
 	mbtu.mutation.Where(ps...)
+	return mbtu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (mbtu *MerchantBusinessTypeUpdate) SetUpdatedAt(t time.Time) *MerchantBusinessTypeUpdate {
+	mbtu.mutation.SetUpdatedAt(t)
+	return mbtu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (mbtu *MerchantBusinessTypeUpdate) SetDeletedAt(i int64) *MerchantBusinessTypeUpdate {
+	mbtu.mutation.ResetDeletedAt()
+	mbtu.mutation.SetDeletedAt(i)
+	return mbtu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mbtu *MerchantBusinessTypeUpdate) SetNillableDeletedAt(i *int64) *MerchantBusinessTypeUpdate {
+	if i != nil {
+		mbtu.SetDeletedAt(*i)
+	}
+	return mbtu
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (mbtu *MerchantBusinessTypeUpdate) AddDeletedAt(i int64) *MerchantBusinessTypeUpdate {
+	mbtu.mutation.AddDeletedAt(i)
 	return mbtu
 }
 
@@ -58,18 +88,33 @@ func (mbtu *MerchantBusinessTypeUpdate) SetNillableTypeName(s *string) *Merchant
 }
 
 // AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
-func (mbtu *MerchantBusinessTypeUpdate) AddMerchantIDs(ids ...int) *MerchantBusinessTypeUpdate {
+func (mbtu *MerchantBusinessTypeUpdate) AddMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
 	mbtu.mutation.AddMerchantIDs(ids...)
 	return mbtu
 }
 
 // AddMerchants adds the "merchants" edges to the Merchant entity.
 func (mbtu *MerchantBusinessTypeUpdate) AddMerchants(m ...*Merchant) *MerchantBusinessTypeUpdate {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
 	return mbtu.AddMerchantIDs(ids...)
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
+func (mbtu *MerchantBusinessTypeUpdate) AddStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
+	mbtu.mutation.AddStoreIDs(ids...)
+	return mbtu
+}
+
+// AddStores adds the "stores" edges to the Store entity.
+func (mbtu *MerchantBusinessTypeUpdate) AddStores(s ...*Store) *MerchantBusinessTypeUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mbtu.AddStoreIDs(ids...)
 }
 
 // Mutation returns the MerchantBusinessTypeMutation object of the builder.
@@ -84,22 +129,44 @@ func (mbtu *MerchantBusinessTypeUpdate) ClearMerchants() *MerchantBusinessTypeUp
 }
 
 // RemoveMerchantIDs removes the "merchants" edge to Merchant entities by IDs.
-func (mbtu *MerchantBusinessTypeUpdate) RemoveMerchantIDs(ids ...int) *MerchantBusinessTypeUpdate {
+func (mbtu *MerchantBusinessTypeUpdate) RemoveMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
 	mbtu.mutation.RemoveMerchantIDs(ids...)
 	return mbtu
 }
 
 // RemoveMerchants removes "merchants" edges to Merchant entities.
 func (mbtu *MerchantBusinessTypeUpdate) RemoveMerchants(m ...*Merchant) *MerchantBusinessTypeUpdate {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
 	return mbtu.RemoveMerchantIDs(ids...)
 }
 
+// ClearStores clears all "stores" edges to the Store entity.
+func (mbtu *MerchantBusinessTypeUpdate) ClearStores() *MerchantBusinessTypeUpdate {
+	mbtu.mutation.ClearStores()
+	return mbtu
+}
+
+// RemoveStoreIDs removes the "stores" edge to Store entities by IDs.
+func (mbtu *MerchantBusinessTypeUpdate) RemoveStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
+	mbtu.mutation.RemoveStoreIDs(ids...)
+	return mbtu
+}
+
+// RemoveStores removes "stores" edges to Store entities.
+func (mbtu *MerchantBusinessTypeUpdate) RemoveStores(s ...*Store) *MerchantBusinessTypeUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mbtu.RemoveStoreIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (mbtu *MerchantBusinessTypeUpdate) Save(ctx context.Context) (int, error) {
+	mbtu.defaults()
 	return withHooks(ctx, mbtu.sqlSave, mbtu.mutation, mbtu.hooks)
 }
 
@@ -122,6 +189,14 @@ func (mbtu *MerchantBusinessTypeUpdate) Exec(ctx context.Context) error {
 func (mbtu *MerchantBusinessTypeUpdate) ExecX(ctx context.Context) {
 	if err := mbtu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (mbtu *MerchantBusinessTypeUpdate) defaults() {
+	if _, ok := mbtu.mutation.UpdatedAt(); !ok {
+		v := merchantbusinesstype.UpdateDefaultUpdatedAt()
+		mbtu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -150,13 +225,22 @@ func (mbtu *MerchantBusinessTypeUpdate) sqlSave(ctx context.Context) (n int, err
 	if err := mbtu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(merchantbusinesstype.Table, merchantbusinesstype.Columns, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(merchantbusinesstype.Table, merchantbusinesstype.Columns, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID))
 	if ps := mbtu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := mbtu.mutation.UpdatedAt(); ok {
+		_spec.SetField(merchantbusinesstype.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := mbtu.mutation.DeletedAt(); ok {
+		_spec.SetField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if value, ok := mbtu.mutation.AddedDeletedAt(); ok {
+		_spec.AddField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
 	}
 	if value, ok := mbtu.mutation.TypeCode(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeCode, field.TypeString, value)
@@ -172,7 +256,7 @@ func (mbtu *MerchantBusinessTypeUpdate) sqlSave(ctx context.Context) (n int, err
 			Columns: []string{merchantbusinesstype.MerchantsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -185,7 +269,7 @@ func (mbtu *MerchantBusinessTypeUpdate) sqlSave(ctx context.Context) (n int, err
 			Columns: []string{merchantbusinesstype.MerchantsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -201,7 +285,52 @@ func (mbtu *MerchantBusinessTypeUpdate) sqlSave(ctx context.Context) (n int, err
 			Columns: []string{merchantbusinesstype.MerchantsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mbtu.mutation.StoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchantbusinesstype.StoresTable,
+			Columns: []string{merchantbusinesstype.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mbtu.mutation.RemovedStoresIDs(); len(nodes) > 0 && !mbtu.mutation.StoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchantbusinesstype.StoresTable,
+			Columns: []string{merchantbusinesstype.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mbtu.mutation.StoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchantbusinesstype.StoresTable,
+			Columns: []string{merchantbusinesstype.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -229,6 +358,33 @@ type MerchantBusinessTypeUpdateOne struct {
 	hooks     []Hook
 	mutation  *MerchantBusinessTypeMutation
 	modifiers []func(*sql.UpdateBuilder)
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (mbtuo *MerchantBusinessTypeUpdateOne) SetUpdatedAt(t time.Time) *MerchantBusinessTypeUpdateOne {
+	mbtuo.mutation.SetUpdatedAt(t)
+	return mbtuo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (mbtuo *MerchantBusinessTypeUpdateOne) SetDeletedAt(i int64) *MerchantBusinessTypeUpdateOne {
+	mbtuo.mutation.ResetDeletedAt()
+	mbtuo.mutation.SetDeletedAt(i)
+	return mbtuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mbtuo *MerchantBusinessTypeUpdateOne) SetNillableDeletedAt(i *int64) *MerchantBusinessTypeUpdateOne {
+	if i != nil {
+		mbtuo.SetDeletedAt(*i)
+	}
+	return mbtuo
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (mbtuo *MerchantBusinessTypeUpdateOne) AddDeletedAt(i int64) *MerchantBusinessTypeUpdateOne {
+	mbtuo.mutation.AddDeletedAt(i)
+	return mbtuo
 }
 
 // SetTypeCode sets the "type_code" field.
@@ -260,18 +416,33 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) SetNillableTypeName(s *string) *Merc
 }
 
 // AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
-func (mbtuo *MerchantBusinessTypeUpdateOne) AddMerchantIDs(ids ...int) *MerchantBusinessTypeUpdateOne {
+func (mbtuo *MerchantBusinessTypeUpdateOne) AddMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
 	mbtuo.mutation.AddMerchantIDs(ids...)
 	return mbtuo
 }
 
 // AddMerchants adds the "merchants" edges to the Merchant entity.
 func (mbtuo *MerchantBusinessTypeUpdateOne) AddMerchants(m ...*Merchant) *MerchantBusinessTypeUpdateOne {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
 	return mbtuo.AddMerchantIDs(ids...)
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
+func (mbtuo *MerchantBusinessTypeUpdateOne) AddStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
+	mbtuo.mutation.AddStoreIDs(ids...)
+	return mbtuo
+}
+
+// AddStores adds the "stores" edges to the Store entity.
+func (mbtuo *MerchantBusinessTypeUpdateOne) AddStores(s ...*Store) *MerchantBusinessTypeUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mbtuo.AddStoreIDs(ids...)
 }
 
 // Mutation returns the MerchantBusinessTypeMutation object of the builder.
@@ -286,18 +457,39 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) ClearMerchants() *MerchantBusinessTy
 }
 
 // RemoveMerchantIDs removes the "merchants" edge to Merchant entities by IDs.
-func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveMerchantIDs(ids ...int) *MerchantBusinessTypeUpdateOne {
+func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
 	mbtuo.mutation.RemoveMerchantIDs(ids...)
 	return mbtuo
 }
 
 // RemoveMerchants removes "merchants" edges to Merchant entities.
 func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveMerchants(m ...*Merchant) *MerchantBusinessTypeUpdateOne {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
 	return mbtuo.RemoveMerchantIDs(ids...)
+}
+
+// ClearStores clears all "stores" edges to the Store entity.
+func (mbtuo *MerchantBusinessTypeUpdateOne) ClearStores() *MerchantBusinessTypeUpdateOne {
+	mbtuo.mutation.ClearStores()
+	return mbtuo
+}
+
+// RemoveStoreIDs removes the "stores" edge to Store entities by IDs.
+func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
+	mbtuo.mutation.RemoveStoreIDs(ids...)
+	return mbtuo
+}
+
+// RemoveStores removes "stores" edges to Store entities.
+func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveStores(s ...*Store) *MerchantBusinessTypeUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mbtuo.RemoveStoreIDs(ids...)
 }
 
 // Where appends a list predicates to the MerchantBusinessTypeUpdate builder.
@@ -315,6 +507,7 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) Select(field string, fields ...strin
 
 // Save executes the query and returns the updated MerchantBusinessType entity.
 func (mbtuo *MerchantBusinessTypeUpdateOne) Save(ctx context.Context) (*MerchantBusinessType, error) {
+	mbtuo.defaults()
 	return withHooks(ctx, mbtuo.sqlSave, mbtuo.mutation, mbtuo.hooks)
 }
 
@@ -337,6 +530,14 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) Exec(ctx context.Context) error {
 func (mbtuo *MerchantBusinessTypeUpdateOne) ExecX(ctx context.Context) {
 	if err := mbtuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (mbtuo *MerchantBusinessTypeUpdateOne) defaults() {
+	if _, ok := mbtuo.mutation.UpdatedAt(); !ok {
+		v := merchantbusinesstype.UpdateDefaultUpdatedAt()
+		mbtuo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -365,7 +566,7 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) sqlSave(ctx context.Context) (_node 
 	if err := mbtuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(merchantbusinesstype.Table, merchantbusinesstype.Columns, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(merchantbusinesstype.Table, merchantbusinesstype.Columns, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID))
 	id, ok := mbtuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "MerchantBusinessType.id" for update`)}
@@ -390,6 +591,15 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) sqlSave(ctx context.Context) (_node 
 			}
 		}
 	}
+	if value, ok := mbtuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(merchantbusinesstype.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := mbtuo.mutation.DeletedAt(); ok {
+		_spec.SetField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if value, ok := mbtuo.mutation.AddedDeletedAt(); ok {
+		_spec.AddField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
+	}
 	if value, ok := mbtuo.mutation.TypeCode(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeCode, field.TypeString, value)
 	}
@@ -404,7 +614,7 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) sqlSave(ctx context.Context) (_node 
 			Columns: []string{merchantbusinesstype.MerchantsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -417,7 +627,7 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) sqlSave(ctx context.Context) (_node 
 			Columns: []string{merchantbusinesstype.MerchantsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -433,7 +643,52 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) sqlSave(ctx context.Context) (_node 
 			Columns: []string{merchantbusinesstype.MerchantsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mbtuo.mutation.StoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchantbusinesstype.StoresTable,
+			Columns: []string{merchantbusinesstype.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mbtuo.mutation.RemovedStoresIDs(); len(nodes) > 0 && !mbtuo.mutation.StoresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchantbusinesstype.StoresTable,
+			Columns: []string{merchantbusinesstype.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mbtuo.mutation.StoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchantbusinesstype.StoresTable,
+			Columns: []string{merchantbusinesstype.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

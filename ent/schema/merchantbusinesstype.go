@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
 // MerchantBusinessType holds the schema definition for the MerchantBusinessType entity.
@@ -31,5 +32,14 @@ func (MerchantBusinessType) Fields() []ent.Field {
 func (MerchantBusinessType) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("merchants", Merchant.Type),
+		edge.To("stores", Store.Type),
+	}
+}
+
+func (MerchantBusinessType) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		schematype.UUIDMixin{},
+		schematype.TimeMixin{},
+		schematype.SoftDeleteMixin{},
 	}
 }

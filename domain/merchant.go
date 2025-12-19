@@ -91,7 +91,7 @@ func (s MerchantStatus) ToString() string {
 }
 
 type Merchant struct {
-	ID                int            `json:"id"`
+	ID                uuid.UUID      `json:"id"`
 	MerchantCode      string         `json:"merchant_code"`       // 商户编号(保留字段)
 	MerchantName      string         `json:"merchant_name"`       // 商户名称,最长不得超过50个字
 	MerchantShortName string         `json:"merchant_short_name"` // 商户简称
@@ -99,30 +99,34 @@ type Merchant struct {
 	BrandName         string         `json:"brand_name"`          // 品牌名称
 	AdminPhoneNumber  string         `json:"admin_phone_number"`  // 管理员手机号
 	ExpireUTC         *time.Time     `json:"expire_utc"`          // UTC 时区的过期时间
-	BusinessTypeID    int            `json:"business_type_id"`    // 业务类型
+	BusinessTypeID    uuid.UUID      `json:"business_type_id"`    // 业务类型
+	BusinessTypeName  string         `json:"business_type_name"`  // 业务类型名称
 	MerchantLogo      string         `json:"merchant_logo"`       // logo 图片地址
 	Description       string         `json:"description"`         // 商户描述(保留字段)
 	Status            MerchantStatus `json:"status"`              // 状态: 正常,停用,过期
-
-	CountryID     int       `json:"country_id"`     // 国家/地区 ID
-	ProvinceID    int       `json:"province_id"`    // 省份 ID
-	CityID        int       `json:"city_id"`        // 城市 ID
-	DistrictID    int       `json:"district_id"`    // 区县 ID
-	CountryName   string    `json:"country_name"`   // 国家/地区 名称
-	ProvinceName  string    `json:"province_name"`  // 省份名称
-	CityName      string    `json:"city_name"`      // 城市名称
-	DistrictName  string    `json:"district_name"`  // 区县名称
-	Address       string    `json:"address"`        // 详细地址
-	Lng           string    `json:"lng"`            // 经度
-	Lat           string    `json:"lat"`            // 纬度
-	LoginAccount  string    `json:"login_account"`  // 登录账号
-	LoginPassword string    `json:"login_password"` // 登录密码(加密存储)
-	AdminUserID   uuid.UUID `json:"admin_user_id"`  // 登陆账号 ID
+	LoginAccount      string         `json:"login_account"`       // 登录账号
+	LoginPassword     string         `json:"login_password"`      // 登录密码(加密存储)
+	AdminUserID       uuid.UUID      `json:"admin_user_id"`       // 登陆账号 ID
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+
+	Address *Address `json:"address"` // 地址
 }
 
+type Address struct {
+	CountryID    uuid.UUID `json:"country_id"`    // 国家/地区 ID
+	ProvinceID   uuid.UUID `json:"province_id"`   // 省份 ID
+	CityID       uuid.UUID `json:"city_id"`       // 城市 ID
+	DistrictID   uuid.UUID `json:"district_id"`   // 区县 ID
+	CountryName  string    `json:"country_name"`  // 国家/地区 名称
+	ProvinceName string    `json:"province_name"` // 省份名称
+	CityName     string    `json:"city_name"`     // 城市名称
+	DistrictName string    `json:"district_name"` // 区县名称
+	Address      string    `json:"address"`       // 详细地址
+	Lng          string    `json:"lng"`           // 经度
+	Lat          string    `json:"lat"`           // 纬度
+}
 type MerchantCount struct {
 	MerchantTypeBrand int `json:"merchant_type_brand"` // 品牌商户数量
 	MerchantTypeStore int `json:"merchant_type_store"` // 门店商户数量
@@ -131,10 +135,10 @@ type MerchantCount struct {
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_repository.go -package=mock . MerchantRepository
 type MerchantRepository interface {
-	FindByID(ctx context.Context, id int) (domainMerchant *Merchant, err error)
-	Create(ctx context.Context, domainMerchant *Merchant) (id int, err error)
+	FindByID(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
+	Create(ctx context.Context, domainMerchant *Merchant) (err error)
 	Update(ctx context.Context, domainMerchant *Merchant) (err error)
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id uuid.UUID) error
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
 	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	ExistMerchant(ctx context.Context, merchantExistsParams *MerchantExistsParams) (exist bool, err error)
@@ -150,8 +154,8 @@ type MerchantInteractor interface {
 	CreateMerchantAndStore(ctx context.Context, domainMerchant *CreateMerchantParams, domainCStore *CreateStoreParams) (err error)
 	UpdateMerchant(ctx context.Context, domainUMerchant *UpdateMerchantParams) (err error)
 	UpdateMerchantAndStore(ctx context.Context, domainMerchant *UpdateMerchantParams, domainUStore *UpdateStoreParams) (err error)
-	DeleteMerchant(ctx context.Context, id int) (err error)
-	GetMerchant(ctx context.Context, id int) (domainMerchant *Merchant, err error)
+	DeleteMerchant(ctx context.Context, id uuid.UUID) (err error)
+	GetMerchant(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
 	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
@@ -164,12 +168,12 @@ type MerchantListFilter struct {
 	MerchantType     MerchantType   `json:"merchant_type"`      // 商户类型: 品牌商户,门店商户
 	CreatedAtGte     *time.Time     `json:"created_at_gte"`     // 创建时间 大于等于
 	CreatedAtLte     *time.Time     `json:"created_at_lte"`     // 创建时间 小于等于
-	ProvinceID       int            `json:"province_id"`        // 省份 ID
+	ProvinceID       uuid.UUID      `json:"province_id"`        // 省份 ID
 }
 
 type MerchantExistsParams struct {
-	MerchantName string // 商户名称
-	NotID        int    // 排除的商户 ID
+	MerchantName string    // 商户名称
+	NotID        uuid.UUID // 排除的商户 ID
 }
 
 type CreateMerchantParams struct {
@@ -181,55 +185,29 @@ type CreateMerchantParams struct {
 	AdminPhoneNumber     string               `json:"admin_phone_number"`     // 管理员手机号
 	PurchaseDuration     int                  `json:"purchase_duration"`      // 购买时长
 	PurchaseDurationUnit PurchaseDurationUnit `json:"purchase_duration_unit"` // 购买时长单位
-	BusinessTypeID       int                  `json:"business_type_id"`       // 业务类型
+	BusinessTypeID       uuid.UUID            `json:"business_type_id"`       // 业务类型
 	MerchantLogo         string               `json:"merchant_logo"`          // logo 图片地址
 	Description          string               `json:"description"`            // 商户描述(保留字段)
 	Status               MerchantStatus       `json:"status"`                 // 状态: 正常,停用,过期
-	CountryID            int                  `json:"country_id"`             // 国家/地区 ID
-	ProvinceID           int                  `json:"province_id"`            // 省份 ID
-	CityID               int                  `json:"city_id"`                // 城市 ID
-	DistrictID           int                  `json:"district_id"`            // 区县 ID
-	Address              string               `json:"address"`                // 详细地址
-	Lng                  string               `json:"lng"`                    // 经度
-	Lat                  string               `json:"lat"`                    // 纬度
 	LoginAccount         string               `json:"login_account"`          // 登录账号
 	LoginPassword        string               `json:"login_password"`         // 登录密码(加密存储)
+
+	Address *Address `json:"address"` // 地址
 }
 
 type UpdateMerchantParams struct {
-	ID                int            `json:"id"`
+	ID                uuid.UUID      `json:"id"`
 	MerchantCode      string         `json:"merchant_code"`       // 商户编号(保留字段)
 	MerchantName      string         `json:"merchant_name"`       // 商户名称,最长不得超过50个字
 	MerchantShortName string         `json:"merchant_short_name"` // 商户简称
 	BrandName         string         `json:"brand_name"`          // 品牌名称
 	AdminPhoneNumber  string         `json:"admin_phone_number"`  // 管理员手机号
-	BusinessTypeID    int            `json:"business_type_id"`    // 业务类型
+	BusinessTypeID    uuid.UUID      `json:"business_type_id"`    // 业务类型
 	MerchantLogo      string         `json:"merchant_logo"`       // logo 图片地址
 	Description       string         `json:"description"`         // 商户描述(保留字段)
 	Status            MerchantStatus `json:"status"`              // 状态: 正常,停用,过期
-	CountryID         int            `json:"country_id"`          // 国家/地区 ID
-	ProvinceID        int            `json:"province_id"`         // 省份 ID
-	CityID            int            `json:"city_id"`             // 城市 ID
-	DistrictID        int            `json:"district_id"`         // 区县 ID
-	Address           string         `json:"address"`             // 详细地址
-	Lng               string         `json:"lng"`                 // 经度
-	Lat               string         `json:"lat"`                 // 纬度
 	LoginAccount      string         `json:"login_account"`       // 登录账号
 	LoginPassword     string         `json:"login_password"`      // 登录密码(加密存储)
-}
 
-func CalculateExpireTime(oldTime time.Time, d int, durationUnit PurchaseDurationUnit) *time.Time {
-	newTime := oldTime
-	switch durationUnit {
-	case PurchaseDurationUnitDay:
-		newTime = oldTime.AddDate(0, 0, d)
-	case PurchaseDurationUnitMonth:
-		newTime = oldTime.AddDate(0, d, 0)
-	case PurchaseDurationUnitYear:
-		newTime = oldTime.AddDate(d, 0, 0)
-	case PurchaseDurationUnitWeek:
-		newTime = oldTime.AddDate(0, 0, d*7)
-	default:
-	}
-	return &newTime
+	Address *Address `json:"address"` // 地址
 }

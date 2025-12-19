@@ -40,7 +40,7 @@ func (mbtd *MerchantBusinessTypeDelete) ExecX(ctx context.Context) int {
 }
 
 func (mbtd *MerchantBusinessTypeDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(merchantbusinesstype.Table, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(merchantbusinesstype.Table, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID))
 	if ps := mbtd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

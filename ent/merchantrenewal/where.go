@@ -7,52 +7,53 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.MerchantRenewal {
+func ID(id uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.MerchantRenewal {
+func IDEQ(id uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.MerchantRenewal {
+func IDNEQ(id uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.MerchantRenewal {
+func IDIn(ids ...uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.MerchantRenewal {
+func IDNotIn(ids ...uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.MerchantRenewal {
+func IDGT(id uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.MerchantRenewal {
+func IDGTE(id uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.MerchantRenewal {
+func IDLT(id uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.MerchantRenewal {
+func IDLTE(id uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldLTE(FieldID, id))
 }
 
@@ -66,8 +67,13 @@ func UpdatedAt(v time.Time) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldEQ(FieldDeletedAt, v))
+}
+
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
-func MerchantID(v int) predicate.MerchantRenewal {
+func MerchantID(v uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldEQ(FieldMerchantID, v))
 }
 
@@ -166,23 +172,63 @@ func UpdatedAtLTE(v time.Time) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v int64) predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldLTE(FieldDeletedAt, v))
+}
+
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
-func MerchantIDEQ(v int) predicate.MerchantRenewal {
+func MerchantIDEQ(v uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldEQ(FieldMerchantID, v))
 }
 
 // MerchantIDNEQ applies the NEQ predicate on the "merchant_id" field.
-func MerchantIDNEQ(v int) predicate.MerchantRenewal {
+func MerchantIDNEQ(v uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldNEQ(FieldMerchantID, v))
 }
 
 // MerchantIDIn applies the In predicate on the "merchant_id" field.
-func MerchantIDIn(vs ...int) predicate.MerchantRenewal {
+func MerchantIDIn(vs ...uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldIn(FieldMerchantID, vs...))
 }
 
 // MerchantIDNotIn applies the NotIn predicate on the "merchant_id" field.
-func MerchantIDNotIn(vs ...int) predicate.MerchantRenewal {
+func MerchantIDNotIn(vs ...uuid.UUID) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldNotIn(FieldMerchantID, vs...))
 }
 

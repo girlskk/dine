@@ -91,6 +91,8 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		var err error
 		adminUserID := uuid.New()
+		merchantID := uuid.New()
+
 		err = ds.AdminUserRepo().Create(ctx, &domain.AdminUser{
 			ID:             adminUserID,
 			Username:       domainMerchant.LoginAccount,
@@ -100,8 +102,9 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 		if err != nil {
 			return err
 		}
+		domainMerchant.ID = merchantID
 		domainMerchant.AdminUserID = adminUserID
-		merchantID, err := ds.MerchantRepo().Create(ctx, domainMerchant)
+		err = ds.MerchantRepo().Create(ctx, domainMerchant)
 		if err != nil {
 			return err
 		}
@@ -109,6 +112,7 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 		if domainStore != nil {
 			domainStore.AdminUserID = adminUserID
 			domainStore.MerchantID = merchantID
+			domainStore.ID = uuid.New()
 			err = ds.StoreRepo().Create(ctx, domainStore)
 			if err != nil {
 				return err
@@ -209,7 +213,7 @@ func (interactor *MerchantInteractor) updateMerchant(ctx context.Context, domain
 	return
 }
 
-func (interactor *MerchantInteractor) DeleteMerchant(ctx context.Context, id int) (err error) {
+func (interactor *MerchantInteractor) DeleteMerchant(ctx context.Context, id uuid.UUID) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantInteractor.DeleteMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -222,7 +226,7 @@ func (interactor *MerchantInteractor) DeleteMerchant(ctx context.Context, id int
 	return
 }
 
-func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id int) (domainMerchant *domain.Merchant, err error) {
+func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.UUID) (domainMerchant *domain.Merchant, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantInteractor.GetMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -354,10 +358,6 @@ func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Cont
 		ProvinceID:        domainUMerchant.ProvinceID,
 		CityID:            domainUMerchant.CityID,
 		DistrictID:        domainUMerchant.DistrictID,
-		CountryName:       oldMerchant.CountryName,
-		ProvinceName:      oldMerchant.ProvinceName,
-		CityName:          oldMerchant.CityName,
-		DistrictName:      oldMerchant.DistrictName,
 		Address:           domainUMerchant.Address,
 		Lng:               domainUMerchant.Lng,
 		Lat:               domainUMerchant.Lat,

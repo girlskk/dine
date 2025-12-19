@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -36,16 +37,37 @@ func (mru *MerchantRenewalUpdate) SetUpdatedAt(t time.Time) *MerchantRenewalUpda
 	return mru
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (mru *MerchantRenewalUpdate) SetDeletedAt(i int64) *MerchantRenewalUpdate {
+	mru.mutation.ResetDeletedAt()
+	mru.mutation.SetDeletedAt(i)
+	return mru
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mru *MerchantRenewalUpdate) SetNillableDeletedAt(i *int64) *MerchantRenewalUpdate {
+	if i != nil {
+		mru.SetDeletedAt(*i)
+	}
+	return mru
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (mru *MerchantRenewalUpdate) AddDeletedAt(i int64) *MerchantRenewalUpdate {
+	mru.mutation.AddDeletedAt(i)
+	return mru
+}
+
 // SetMerchantID sets the "merchant_id" field.
-func (mru *MerchantRenewalUpdate) SetMerchantID(i int) *MerchantRenewalUpdate {
-	mru.mutation.SetMerchantID(i)
+func (mru *MerchantRenewalUpdate) SetMerchantID(u uuid.UUID) *MerchantRenewalUpdate {
+	mru.mutation.SetMerchantID(u)
 	return mru
 }
 
 // SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
-func (mru *MerchantRenewalUpdate) SetNillableMerchantID(i *int) *MerchantRenewalUpdate {
-	if i != nil {
-		mru.SetMerchantID(*i)
+func (mru *MerchantRenewalUpdate) SetNillableMerchantID(u *uuid.UUID) *MerchantRenewalUpdate {
+	if u != nil {
+		mru.SetMerchantID(*u)
 	}
 	return mru
 }
@@ -179,7 +201,7 @@ func (mru *MerchantRenewalUpdate) sqlSave(ctx context.Context) (n int, err error
 	if err := mru.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(merchantrenewal.Table, merchantrenewal.Columns, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(merchantrenewal.Table, merchantrenewal.Columns, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID))
 	if ps := mru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -189,6 +211,12 @@ func (mru *MerchantRenewalUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if value, ok := mru.mutation.UpdatedAt(); ok {
 		_spec.SetField(merchantrenewal.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := mru.mutation.DeletedAt(); ok {
+		_spec.SetField(merchantrenewal.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if value, ok := mru.mutation.AddedDeletedAt(); ok {
+		_spec.AddField(merchantrenewal.FieldDeletedAt, field.TypeInt64, value)
 	}
 	if value, ok := mru.mutation.PurchaseDuration(); ok {
 		_spec.SetField(merchantrenewal.FieldPurchaseDuration, field.TypeInt, value)
@@ -210,7 +238,7 @@ func (mru *MerchantRenewalUpdate) sqlSave(ctx context.Context) (n int, err error
 			Columns: []string{merchantrenewal.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -223,7 +251,7 @@ func (mru *MerchantRenewalUpdate) sqlSave(ctx context.Context) (n int, err error
 			Columns: []string{merchantrenewal.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -259,16 +287,37 @@ func (mruo *MerchantRenewalUpdateOne) SetUpdatedAt(t time.Time) *MerchantRenewal
 	return mruo
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (mruo *MerchantRenewalUpdateOne) SetDeletedAt(i int64) *MerchantRenewalUpdateOne {
+	mruo.mutation.ResetDeletedAt()
+	mruo.mutation.SetDeletedAt(i)
+	return mruo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mruo *MerchantRenewalUpdateOne) SetNillableDeletedAt(i *int64) *MerchantRenewalUpdateOne {
+	if i != nil {
+		mruo.SetDeletedAt(*i)
+	}
+	return mruo
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (mruo *MerchantRenewalUpdateOne) AddDeletedAt(i int64) *MerchantRenewalUpdateOne {
+	mruo.mutation.AddDeletedAt(i)
+	return mruo
+}
+
 // SetMerchantID sets the "merchant_id" field.
-func (mruo *MerchantRenewalUpdateOne) SetMerchantID(i int) *MerchantRenewalUpdateOne {
-	mruo.mutation.SetMerchantID(i)
+func (mruo *MerchantRenewalUpdateOne) SetMerchantID(u uuid.UUID) *MerchantRenewalUpdateOne {
+	mruo.mutation.SetMerchantID(u)
 	return mruo
 }
 
 // SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
-func (mruo *MerchantRenewalUpdateOne) SetNillableMerchantID(i *int) *MerchantRenewalUpdateOne {
-	if i != nil {
-		mruo.SetMerchantID(*i)
+func (mruo *MerchantRenewalUpdateOne) SetNillableMerchantID(u *uuid.UUID) *MerchantRenewalUpdateOne {
+	if u != nil {
+		mruo.SetMerchantID(*u)
 	}
 	return mruo
 }
@@ -415,7 +464,7 @@ func (mruo *MerchantRenewalUpdateOne) sqlSave(ctx context.Context) (_node *Merch
 	if err := mruo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(merchantrenewal.Table, merchantrenewal.Columns, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(merchantrenewal.Table, merchantrenewal.Columns, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID))
 	id, ok := mruo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "MerchantRenewal.id" for update`)}
@@ -443,6 +492,12 @@ func (mruo *MerchantRenewalUpdateOne) sqlSave(ctx context.Context) (_node *Merch
 	if value, ok := mruo.mutation.UpdatedAt(); ok {
 		_spec.SetField(merchantrenewal.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := mruo.mutation.DeletedAt(); ok {
+		_spec.SetField(merchantrenewal.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if value, ok := mruo.mutation.AddedDeletedAt(); ok {
+		_spec.AddField(merchantrenewal.FieldDeletedAt, field.TypeInt64, value)
+	}
 	if value, ok := mruo.mutation.PurchaseDuration(); ok {
 		_spec.SetField(merchantrenewal.FieldPurchaseDuration, field.TypeInt, value)
 	}
@@ -463,7 +518,7 @@ func (mruo *MerchantRenewalUpdateOne) sqlSave(ctx context.Context) (_node *Merch
 			Columns: []string{merchantrenewal.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -476,7 +531,7 @@ func (mruo *MerchantRenewalUpdateOne) sqlSave(ctx context.Context) (_node *Merch
 			Columns: []string{merchantrenewal.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -52,9 +54,23 @@ func (mrc *MerchantRenewalCreate) SetNillableUpdatedAt(t *time.Time) *MerchantRe
 	return mrc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (mrc *MerchantRenewalCreate) SetDeletedAt(i int64) *MerchantRenewalCreate {
+	mrc.mutation.SetDeletedAt(i)
+	return mrc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mrc *MerchantRenewalCreate) SetNillableDeletedAt(i *int64) *MerchantRenewalCreate {
+	if i != nil {
+		mrc.SetDeletedAt(*i)
+	}
+	return mrc
+}
+
 // SetMerchantID sets the "merchant_id" field.
-func (mrc *MerchantRenewalCreate) SetMerchantID(i int) *MerchantRenewalCreate {
-	mrc.mutation.SetMerchantID(i)
+func (mrc *MerchantRenewalCreate) SetMerchantID(u uuid.UUID) *MerchantRenewalCreate {
+	mrc.mutation.SetMerchantID(u)
 	return mrc
 }
 
@@ -102,6 +118,20 @@ func (mrc *MerchantRenewalCreate) SetOperatorAccount(s string) *MerchantRenewalC
 func (mrc *MerchantRenewalCreate) SetNillableOperatorAccount(s *string) *MerchantRenewalCreate {
 	if s != nil {
 		mrc.SetOperatorAccount(*s)
+	}
+	return mrc
+}
+
+// SetID sets the "id" field.
+func (mrc *MerchantRenewalCreate) SetID(u uuid.UUID) *MerchantRenewalCreate {
+	mrc.mutation.SetID(u)
+	return mrc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (mrc *MerchantRenewalCreate) SetNillableID(u *uuid.UUID) *MerchantRenewalCreate {
+	if u != nil {
+		mrc.SetID(*u)
 	}
 	return mrc
 }
@@ -154,6 +184,10 @@ func (mrc *MerchantRenewalCreate) defaults() {
 		v := merchantrenewal.DefaultUpdatedAt()
 		mrc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := mrc.mutation.DeletedAt(); !ok {
+		v := merchantrenewal.DefaultDeletedAt
+		mrc.mutation.SetDeletedAt(v)
+	}
 	if _, ok := mrc.mutation.PurchaseDuration(); !ok {
 		v := merchantrenewal.DefaultPurchaseDuration
 		mrc.mutation.SetPurchaseDuration(v)
@@ -166,6 +200,10 @@ func (mrc *MerchantRenewalCreate) defaults() {
 		v := merchantrenewal.DefaultOperatorAccount
 		mrc.mutation.SetOperatorAccount(v)
 	}
+	if _, ok := mrc.mutation.ID(); !ok {
+		v := merchantrenewal.DefaultID()
+		mrc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -175,6 +213,9 @@ func (mrc *MerchantRenewalCreate) check() error {
 	}
 	if _, ok := mrc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "MerchantRenewal.updated_at"`)}
+	}
+	if _, ok := mrc.mutation.DeletedAt(); !ok {
+		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "MerchantRenewal.deleted_at"`)}
 	}
 	if _, ok := mrc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "MerchantRenewal.merchant_id"`)}
@@ -223,8 +264,13 @@ func (mrc *MerchantRenewalCreate) sqlSave(ctx context.Context) (*MerchantRenewal
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	mrc.mutation.id = &_node.ID
 	mrc.mutation.done = true
 	return _node, nil
@@ -233,9 +279,13 @@ func (mrc *MerchantRenewalCreate) sqlSave(ctx context.Context) (*MerchantRenewal
 func (mrc *MerchantRenewalCreate) createSpec() (*MerchantRenewal, *sqlgraph.CreateSpec) {
 	var (
 		_node = &MerchantRenewal{config: mrc.config}
-		_spec = sqlgraph.NewCreateSpec(merchantrenewal.Table, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(merchantrenewal.Table, sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = mrc.conflict
+	if id, ok := mrc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := mrc.mutation.CreatedAt(); ok {
 		_spec.SetField(merchantrenewal.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -243,6 +293,10 @@ func (mrc *MerchantRenewalCreate) createSpec() (*MerchantRenewal, *sqlgraph.Crea
 	if value, ok := mrc.mutation.UpdatedAt(); ok {
 		_spec.SetField(merchantrenewal.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := mrc.mutation.DeletedAt(); ok {
+		_spec.SetField(merchantrenewal.FieldDeletedAt, field.TypeInt64, value)
+		_node.DeletedAt = value
 	}
 	if value, ok := mrc.mutation.PurchaseDuration(); ok {
 		_spec.SetField(merchantrenewal.FieldPurchaseDuration, field.TypeInt, value)
@@ -268,7 +322,7 @@ func (mrc *MerchantRenewalCreate) createSpec() (*MerchantRenewal, *sqlgraph.Crea
 			Columns: []string{merchantrenewal.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -341,8 +395,26 @@ func (u *MerchantRenewalUpsert) UpdateUpdatedAt() *MerchantRenewalUpsert {
 	return u
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (u *MerchantRenewalUpsert) SetDeletedAt(v int64) *MerchantRenewalUpsert {
+	u.Set(merchantrenewal.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *MerchantRenewalUpsert) UpdateDeletedAt() *MerchantRenewalUpsert {
+	u.SetExcluded(merchantrenewal.FieldDeletedAt)
+	return u
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *MerchantRenewalUpsert) AddDeletedAt(v int64) *MerchantRenewalUpsert {
+	u.Add(merchantrenewal.FieldDeletedAt, v)
+	return u
+}
+
 // SetMerchantID sets the "merchant_id" field.
-func (u *MerchantRenewalUpsert) SetMerchantID(v int) *MerchantRenewalUpsert {
+func (u *MerchantRenewalUpsert) SetMerchantID(v uuid.UUID) *MerchantRenewalUpsert {
 	u.Set(merchantrenewal.FieldMerchantID, v)
 	return u
 }
@@ -395,17 +467,23 @@ func (u *MerchantRenewalUpsert) UpdateOperatorAccount() *MerchantRenewalUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.MerchantRenewal.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(merchantrenewal.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MerchantRenewalUpsertOne) UpdateNewValues() *MerchantRenewalUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(merchantrenewal.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(merchantrenewal.FieldCreatedAt)
 		}
@@ -457,8 +535,29 @@ func (u *MerchantRenewalUpsertOne) UpdateUpdatedAt() *MerchantRenewalUpsertOne {
 	})
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (u *MerchantRenewalUpsertOne) SetDeletedAt(v int64) *MerchantRenewalUpsertOne {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *MerchantRenewalUpsertOne) AddDeletedAt(v int64) *MerchantRenewalUpsertOne {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.AddDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *MerchantRenewalUpsertOne) UpdateDeletedAt() *MerchantRenewalUpsertOne {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
 // SetMerchantID sets the "merchant_id" field.
-func (u *MerchantRenewalUpsertOne) SetMerchantID(v int) *MerchantRenewalUpsertOne {
+func (u *MerchantRenewalUpsertOne) SetMerchantID(v uuid.UUID) *MerchantRenewalUpsertOne {
 	return u.Update(func(s *MerchantRenewalUpsert) {
 		s.SetMerchantID(v)
 	})
@@ -536,7 +635,12 @@ func (u *MerchantRenewalUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *MerchantRenewalUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *MerchantRenewalUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: MerchantRenewalUpsertOne.ID is not supported by MySQL driver. Use MerchantRenewalUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -545,7 +649,7 @@ func (u *MerchantRenewalUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *MerchantRenewalUpsertOne) IDX(ctx context.Context) int {
+func (u *MerchantRenewalUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -600,10 +704,6 @@ func (mrcb *MerchantRenewalCreateBulk) Save(ctx context.Context) ([]*MerchantRen
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -690,12 +790,18 @@ type MerchantRenewalUpsertBulk struct {
 //	client.MerchantRenewal.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(merchantrenewal.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MerchantRenewalUpsertBulk) UpdateNewValues() *MerchantRenewalUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(merchantrenewal.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(merchantrenewal.FieldCreatedAt)
 			}
@@ -748,8 +854,29 @@ func (u *MerchantRenewalUpsertBulk) UpdateUpdatedAt() *MerchantRenewalUpsertBulk
 	})
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (u *MerchantRenewalUpsertBulk) SetDeletedAt(v int64) *MerchantRenewalUpsertBulk {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *MerchantRenewalUpsertBulk) AddDeletedAt(v int64) *MerchantRenewalUpsertBulk {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.AddDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *MerchantRenewalUpsertBulk) UpdateDeletedAt() *MerchantRenewalUpsertBulk {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
 // SetMerchantID sets the "merchant_id" field.
-func (u *MerchantRenewalUpsertBulk) SetMerchantID(v int) *MerchantRenewalUpsertBulk {
+func (u *MerchantRenewalUpsertBulk) SetMerchantID(v uuid.UUID) *MerchantRenewalUpsertBulk {
 	return u.Update(func(s *MerchantRenewalUpsert) {
 		s.SetMerchantID(v)
 	})

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -26,6 +27,7 @@ func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore
 		return
 	}
 
+	domainStore.ID = uuid.New()
 	err = interactor.DataStore.StoreRepo().Create(ctx, domainStore)
 	if err != nil {
 		err = fmt.Errorf("failed to create store: %w", err)
@@ -54,7 +56,7 @@ func (interactor *StoreInteractor) UpdateStore(ctx context.Context, domainUStore
 	return
 }
 
-func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id int) (err error) {
+func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id uuid.UUID) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.DeleteStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -69,7 +71,7 @@ func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id int) (err
 	return
 }
 
-func (interactor *StoreInteractor) GetStore(ctx context.Context, id int) (domainStore *domain.Store, err error) {
+func (interactor *StoreInteractor) GetStore(ctx context.Context, id uuid.UUID) (domainStore *domain.Store, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.GetStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -176,10 +178,6 @@ func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context, d
 		ProvinceID:              domainUStore.ProvinceID,
 		CityID:                  domainUStore.CityID,
 		DistrictID:              domainUStore.DistrictID,
-		CountryName:             oldStore.CountryName,
-		ProvinceName:            oldStore.ProvinceName,
-		CityName:                oldStore.CityName,
-		DistrictName:            oldStore.DistrictName,
 		Address:                 domainUStore.Address,
 		Lng:                     domainUStore.Lng,
 		Lat:                     domainUStore.Lat,

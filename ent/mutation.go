@@ -16,10 +16,14 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -35,9 +39,13 @@ const (
 	TypeAdminUser            = "AdminUser"
 	TypeBackendUser          = "BackendUser"
 	TypeCategory             = "Category"
+	TypeCity                 = "City"
+	TypeCountry              = "Country"
+	TypeDistrict             = "District"
 	TypeMerchant             = "Merchant"
 	TypeMerchantBusinessType = "MerchantBusinessType"
 	TypeMerchantRenewal      = "MerchantRenewal"
+	TypeProvince             = "Province"
 	TypeStore                = "Store"
 )
 
@@ -56,11 +64,11 @@ type AdminUserMutation struct {
 	nickname        *string
 	account_type    *domain.AdminUserAccountType
 	clearedFields   map[string]struct{}
-	merchant        map[int]struct{}
-	removedmerchant map[int]struct{}
+	merchant        map[uuid.UUID]struct{}
+	removedmerchant map[uuid.UUID]struct{}
 	clearedmerchant bool
-	store           map[int]struct{}
-	removedstore    map[int]struct{}
+	store           map[uuid.UUID]struct{}
+	removedstore    map[uuid.UUID]struct{}
 	clearedstore    bool
 	done            bool
 	oldValue        func(context.Context) (*AdminUser, error)
@@ -444,9 +452,9 @@ func (m *AdminUserMutation) ResetAccountType() {
 }
 
 // AddMerchantIDs adds the "merchant" edge to the Merchant entity by ids.
-func (m *AdminUserMutation) AddMerchantIDs(ids ...int) {
+func (m *AdminUserMutation) AddMerchantIDs(ids ...uuid.UUID) {
 	if m.merchant == nil {
-		m.merchant = make(map[int]struct{})
+		m.merchant = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.merchant[ids[i]] = struct{}{}
@@ -464,9 +472,9 @@ func (m *AdminUserMutation) MerchantCleared() bool {
 }
 
 // RemoveMerchantIDs removes the "merchant" edge to the Merchant entity by IDs.
-func (m *AdminUserMutation) RemoveMerchantIDs(ids ...int) {
+func (m *AdminUserMutation) RemoveMerchantIDs(ids ...uuid.UUID) {
 	if m.removedmerchant == nil {
-		m.removedmerchant = make(map[int]struct{})
+		m.removedmerchant = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.merchant, ids[i])
@@ -475,7 +483,7 @@ func (m *AdminUserMutation) RemoveMerchantIDs(ids ...int) {
 }
 
 // RemovedMerchant returns the removed IDs of the "merchant" edge to the Merchant entity.
-func (m *AdminUserMutation) RemovedMerchantIDs() (ids []int) {
+func (m *AdminUserMutation) RemovedMerchantIDs() (ids []uuid.UUID) {
 	for id := range m.removedmerchant {
 		ids = append(ids, id)
 	}
@@ -483,7 +491,7 @@ func (m *AdminUserMutation) RemovedMerchantIDs() (ids []int) {
 }
 
 // MerchantIDs returns the "merchant" edge IDs in the mutation.
-func (m *AdminUserMutation) MerchantIDs() (ids []int) {
+func (m *AdminUserMutation) MerchantIDs() (ids []uuid.UUID) {
 	for id := range m.merchant {
 		ids = append(ids, id)
 	}
@@ -498,9 +506,9 @@ func (m *AdminUserMutation) ResetMerchant() {
 }
 
 // AddStoreIDs adds the "store" edge to the Store entity by ids.
-func (m *AdminUserMutation) AddStoreIDs(ids ...int) {
+func (m *AdminUserMutation) AddStoreIDs(ids ...uuid.UUID) {
 	if m.store == nil {
-		m.store = make(map[int]struct{})
+		m.store = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.store[ids[i]] = struct{}{}
@@ -518,9 +526,9 @@ func (m *AdminUserMutation) StoreCleared() bool {
 }
 
 // RemoveStoreIDs removes the "store" edge to the Store entity by IDs.
-func (m *AdminUserMutation) RemoveStoreIDs(ids ...int) {
+func (m *AdminUserMutation) RemoveStoreIDs(ids ...uuid.UUID) {
 	if m.removedstore == nil {
-		m.removedstore = make(map[int]struct{})
+		m.removedstore = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.store, ids[i])
@@ -529,7 +537,7 @@ func (m *AdminUserMutation) RemoveStoreIDs(ids ...int) {
 }
 
 // RemovedStore returns the removed IDs of the "store" edge to the Store entity.
-func (m *AdminUserMutation) RemovedStoreIDs() (ids []int) {
+func (m *AdminUserMutation) RemovedStoreIDs() (ids []uuid.UUID) {
 	for id := range m.removedstore {
 		ids = append(ids, id)
 	}
@@ -537,7 +545,7 @@ func (m *AdminUserMutation) RemovedStoreIDs() (ids []int) {
 }
 
 // StoreIDs returns the "store" edge IDs in the mutation.
-func (m *AdminUserMutation) StoreIDs() (ids []int) {
+func (m *AdminUserMutation) StoreIDs() (ids []uuid.UUID) {
 	for id := range m.store {
 		ids = append(ids, id)
 	}
@@ -2901,12 +2909,3223 @@ func (m *CategoryMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Category edge %s", name)
 }
 
+// CityMutation represents an operation that mutates the City nodes in the graph.
+type CityMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *int64
+	adddeleted_at    *int64
+	name             *string
+	sort             *int
+	addsort          *int
+	clearedFields    map[string]struct{}
+	country          *uuid.UUID
+	clearedcountry   bool
+	province         *uuid.UUID
+	clearedprovince  bool
+	districts        map[uuid.UUID]struct{}
+	removeddistricts map[uuid.UUID]struct{}
+	cleareddistricts bool
+	merchants        map[uuid.UUID]struct{}
+	removedmerchants map[uuid.UUID]struct{}
+	clearedmerchants bool
+	stores           map[uuid.UUID]struct{}
+	removedstores    map[uuid.UUID]struct{}
+	clearedstores    bool
+	done             bool
+	oldValue         func(context.Context) (*City, error)
+	predicates       []predicate.City
+}
+
+var _ ent.Mutation = (*CityMutation)(nil)
+
+// cityOption allows management of the mutation configuration using functional options.
+type cityOption func(*CityMutation)
+
+// newCityMutation creates new mutation for the City entity.
+func newCityMutation(c config, op Op, opts ...cityOption) *CityMutation {
+	m := &CityMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeCity,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withCityID sets the ID field of the mutation.
+func withCityID(id uuid.UUID) cityOption {
+	return func(m *CityMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *City
+		)
+		m.oldValue = func(ctx context.Context) (*City, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().City.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withCity sets the old City of the mutation.
+func withCity(node *City) cityOption {
+	return func(m *CityMutation) {
+		m.oldValue = func(context.Context) (*City, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m CityMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m CityMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of City entities.
+func (m *CityMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *CityMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *CityMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().City.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *CityMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *CityMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the City entity.
+// If the City object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CityMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *CityMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *CityMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *CityMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the City entity.
+// If the City object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CityMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *CityMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *CityMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *CityMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the City entity.
+// If the City object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CityMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *CityMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *CityMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *CityMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetCountryID sets the "country_id" field.
+func (m *CityMutation) SetCountryID(u uuid.UUID) {
+	m.country = &u
+}
+
+// CountryID returns the value of the "country_id" field in the mutation.
+func (m *CityMutation) CountryID() (r uuid.UUID, exists bool) {
+	v := m.country
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCountryID returns the old "country_id" field's value of the City entity.
+// If the City object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CityMutation) OldCountryID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCountryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCountryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCountryID: %w", err)
+	}
+	return oldValue.CountryID, nil
+}
+
+// ResetCountryID resets all changes to the "country_id" field.
+func (m *CityMutation) ResetCountryID() {
+	m.country = nil
+}
+
+// SetProvinceID sets the "province_id" field.
+func (m *CityMutation) SetProvinceID(u uuid.UUID) {
+	m.province = &u
+}
+
+// ProvinceID returns the value of the "province_id" field in the mutation.
+func (m *CityMutation) ProvinceID() (r uuid.UUID, exists bool) {
+	v := m.province
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProvinceID returns the old "province_id" field's value of the City entity.
+// If the City object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CityMutation) OldProvinceID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProvinceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProvinceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProvinceID: %w", err)
+	}
+	return oldValue.ProvinceID, nil
+}
+
+// ResetProvinceID resets all changes to the "province_id" field.
+func (m *CityMutation) ResetProvinceID() {
+	m.province = nil
+}
+
+// SetName sets the "name" field.
+func (m *CityMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *CityMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the City entity.
+// If the City object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CityMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *CityMutation) ResetName() {
+	m.name = nil
+}
+
+// SetSort sets the "sort" field.
+func (m *CityMutation) SetSort(i int) {
+	m.sort = &i
+	m.addsort = nil
+}
+
+// Sort returns the value of the "sort" field in the mutation.
+func (m *CityMutation) Sort() (r int, exists bool) {
+	v := m.sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSort returns the old "sort" field's value of the City entity.
+// If the City object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CityMutation) OldSort(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSort is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSort requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSort: %w", err)
+	}
+	return oldValue.Sort, nil
+}
+
+// AddSort adds i to the "sort" field.
+func (m *CityMutation) AddSort(i int) {
+	if m.addsort != nil {
+		*m.addsort += i
+	} else {
+		m.addsort = &i
+	}
+}
+
+// AddedSort returns the value that was added to the "sort" field in this mutation.
+func (m *CityMutation) AddedSort() (r int, exists bool) {
+	v := m.addsort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSort resets all changes to the "sort" field.
+func (m *CityMutation) ResetSort() {
+	m.sort = nil
+	m.addsort = nil
+}
+
+// ClearCountry clears the "country" edge to the Country entity.
+func (m *CityMutation) ClearCountry() {
+	m.clearedcountry = true
+	m.clearedFields[city.FieldCountryID] = struct{}{}
+}
+
+// CountryCleared reports if the "country" edge to the Country entity was cleared.
+func (m *CityMutation) CountryCleared() bool {
+	return m.clearedcountry
+}
+
+// CountryIDs returns the "country" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CountryID instead. It exists only for internal usage by the builders.
+func (m *CityMutation) CountryIDs() (ids []uuid.UUID) {
+	if id := m.country; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCountry resets all changes to the "country" edge.
+func (m *CityMutation) ResetCountry() {
+	m.country = nil
+	m.clearedcountry = false
+}
+
+// ClearProvince clears the "province" edge to the Province entity.
+func (m *CityMutation) ClearProvince() {
+	m.clearedprovince = true
+	m.clearedFields[city.FieldProvinceID] = struct{}{}
+}
+
+// ProvinceCleared reports if the "province" edge to the Province entity was cleared.
+func (m *CityMutation) ProvinceCleared() bool {
+	return m.clearedprovince
+}
+
+// ProvinceIDs returns the "province" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ProvinceID instead. It exists only for internal usage by the builders.
+func (m *CityMutation) ProvinceIDs() (ids []uuid.UUID) {
+	if id := m.province; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetProvince resets all changes to the "province" edge.
+func (m *CityMutation) ResetProvince() {
+	m.province = nil
+	m.clearedprovince = false
+}
+
+// AddDistrictIDs adds the "districts" edge to the District entity by ids.
+func (m *CityMutation) AddDistrictIDs(ids ...uuid.UUID) {
+	if m.districts == nil {
+		m.districts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.districts[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDistricts clears the "districts" edge to the District entity.
+func (m *CityMutation) ClearDistricts() {
+	m.cleareddistricts = true
+}
+
+// DistrictsCleared reports if the "districts" edge to the District entity was cleared.
+func (m *CityMutation) DistrictsCleared() bool {
+	return m.cleareddistricts
+}
+
+// RemoveDistrictIDs removes the "districts" edge to the District entity by IDs.
+func (m *CityMutation) RemoveDistrictIDs(ids ...uuid.UUID) {
+	if m.removeddistricts == nil {
+		m.removeddistricts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.districts, ids[i])
+		m.removeddistricts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDistricts returns the removed IDs of the "districts" edge to the District entity.
+func (m *CityMutation) RemovedDistrictsIDs() (ids []uuid.UUID) {
+	for id := range m.removeddistricts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DistrictsIDs returns the "districts" edge IDs in the mutation.
+func (m *CityMutation) DistrictsIDs() (ids []uuid.UUID) {
+	for id := range m.districts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDistricts resets all changes to the "districts" edge.
+func (m *CityMutation) ResetDistricts() {
+	m.districts = nil
+	m.cleareddistricts = false
+	m.removeddistricts = nil
+}
+
+// AddMerchantIDs adds the "merchants" edge to the Merchant entity by ids.
+func (m *CityMutation) AddMerchantIDs(ids ...uuid.UUID) {
+	if m.merchants == nil {
+		m.merchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.merchants[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMerchants clears the "merchants" edge to the Merchant entity.
+func (m *CityMutation) ClearMerchants() {
+	m.clearedmerchants = true
+}
+
+// MerchantsCleared reports if the "merchants" edge to the Merchant entity was cleared.
+func (m *CityMutation) MerchantsCleared() bool {
+	return m.clearedmerchants
+}
+
+// RemoveMerchantIDs removes the "merchants" edge to the Merchant entity by IDs.
+func (m *CityMutation) RemoveMerchantIDs(ids ...uuid.UUID) {
+	if m.removedmerchants == nil {
+		m.removedmerchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.merchants, ids[i])
+		m.removedmerchants[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMerchants returns the removed IDs of the "merchants" edge to the Merchant entity.
+func (m *CityMutation) RemovedMerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.removedmerchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MerchantsIDs returns the "merchants" edge IDs in the mutation.
+func (m *CityMutation) MerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.merchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMerchants resets all changes to the "merchants" edge.
+func (m *CityMutation) ResetMerchants() {
+	m.merchants = nil
+	m.clearedmerchants = false
+	m.removedmerchants = nil
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by ids.
+func (m *CityMutation) AddStoreIDs(ids ...uuid.UUID) {
+	if m.stores == nil {
+		m.stores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.stores[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStores clears the "stores" edge to the Store entity.
+func (m *CityMutation) ClearStores() {
+	m.clearedstores = true
+}
+
+// StoresCleared reports if the "stores" edge to the Store entity was cleared.
+func (m *CityMutation) StoresCleared() bool {
+	return m.clearedstores
+}
+
+// RemoveStoreIDs removes the "stores" edge to the Store entity by IDs.
+func (m *CityMutation) RemoveStoreIDs(ids ...uuid.UUID) {
+	if m.removedstores == nil {
+		m.removedstores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.stores, ids[i])
+		m.removedstores[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStores returns the removed IDs of the "stores" edge to the Store entity.
+func (m *CityMutation) RemovedStoresIDs() (ids []uuid.UUID) {
+	for id := range m.removedstores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StoresIDs returns the "stores" edge IDs in the mutation.
+func (m *CityMutation) StoresIDs() (ids []uuid.UUID) {
+	for id := range m.stores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStores resets all changes to the "stores" edge.
+func (m *CityMutation) ResetStores() {
+	m.stores = nil
+	m.clearedstores = false
+	m.removedstores = nil
+}
+
+// Where appends a list predicates to the CityMutation builder.
+func (m *CityMutation) Where(ps ...predicate.City) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the CityMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *CityMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.City, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *CityMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *CityMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (City).
+func (m *CityMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *CityMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.created_at != nil {
+		fields = append(fields, city.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, city.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, city.FieldDeletedAt)
+	}
+	if m.country != nil {
+		fields = append(fields, city.FieldCountryID)
+	}
+	if m.province != nil {
+		fields = append(fields, city.FieldProvinceID)
+	}
+	if m.name != nil {
+		fields = append(fields, city.FieldName)
+	}
+	if m.sort != nil {
+		fields = append(fields, city.FieldSort)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *CityMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case city.FieldCreatedAt:
+		return m.CreatedAt()
+	case city.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case city.FieldDeletedAt:
+		return m.DeletedAt()
+	case city.FieldCountryID:
+		return m.CountryID()
+	case city.FieldProvinceID:
+		return m.ProvinceID()
+	case city.FieldName:
+		return m.Name()
+	case city.FieldSort:
+		return m.Sort()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *CityMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case city.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case city.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case city.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case city.FieldCountryID:
+		return m.OldCountryID(ctx)
+	case city.FieldProvinceID:
+		return m.OldProvinceID(ctx)
+	case city.FieldName:
+		return m.OldName(ctx)
+	case city.FieldSort:
+		return m.OldSort(ctx)
+	}
+	return nil, fmt.Errorf("unknown City field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CityMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case city.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case city.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case city.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case city.FieldCountryID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCountryID(v)
+		return nil
+	case city.FieldProvinceID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProvinceID(v)
+		return nil
+	case city.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case city.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown City field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *CityMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, city.FieldDeletedAt)
+	}
+	if m.addsort != nil {
+		fields = append(fields, city.FieldSort)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *CityMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case city.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	case city.FieldSort:
+		return m.AddedSort()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CityMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case city.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	case city.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown City numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *CityMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *CityMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *CityMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown City nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *CityMutation) ResetField(name string) error {
+	switch name {
+	case city.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case city.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case city.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case city.FieldCountryID:
+		m.ResetCountryID()
+		return nil
+	case city.FieldProvinceID:
+		m.ResetProvinceID()
+		return nil
+	case city.FieldName:
+		m.ResetName()
+		return nil
+	case city.FieldSort:
+		m.ResetSort()
+		return nil
+	}
+	return fmt.Errorf("unknown City field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *CityMutation) AddedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.country != nil {
+		edges = append(edges, city.EdgeCountry)
+	}
+	if m.province != nil {
+		edges = append(edges, city.EdgeProvince)
+	}
+	if m.districts != nil {
+		edges = append(edges, city.EdgeDistricts)
+	}
+	if m.merchants != nil {
+		edges = append(edges, city.EdgeMerchants)
+	}
+	if m.stores != nil {
+		edges = append(edges, city.EdgeStores)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *CityMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case city.EdgeCountry:
+		if id := m.country; id != nil {
+			return []ent.Value{*id}
+		}
+	case city.EdgeProvince:
+		if id := m.province; id != nil {
+			return []ent.Value{*id}
+		}
+	case city.EdgeDistricts:
+		ids := make([]ent.Value, 0, len(m.districts))
+		for id := range m.districts {
+			ids = append(ids, id)
+		}
+		return ids
+	case city.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.merchants))
+		for id := range m.merchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case city.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.stores))
+		for id := range m.stores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *CityMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.removeddistricts != nil {
+		edges = append(edges, city.EdgeDistricts)
+	}
+	if m.removedmerchants != nil {
+		edges = append(edges, city.EdgeMerchants)
+	}
+	if m.removedstores != nil {
+		edges = append(edges, city.EdgeStores)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *CityMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case city.EdgeDistricts:
+		ids := make([]ent.Value, 0, len(m.removeddistricts))
+		for id := range m.removeddistricts {
+			ids = append(ids, id)
+		}
+		return ids
+	case city.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.removedmerchants))
+		for id := range m.removedmerchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case city.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.removedstores))
+		for id := range m.removedstores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *CityMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.clearedcountry {
+		edges = append(edges, city.EdgeCountry)
+	}
+	if m.clearedprovince {
+		edges = append(edges, city.EdgeProvince)
+	}
+	if m.cleareddistricts {
+		edges = append(edges, city.EdgeDistricts)
+	}
+	if m.clearedmerchants {
+		edges = append(edges, city.EdgeMerchants)
+	}
+	if m.clearedstores {
+		edges = append(edges, city.EdgeStores)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *CityMutation) EdgeCleared(name string) bool {
+	switch name {
+	case city.EdgeCountry:
+		return m.clearedcountry
+	case city.EdgeProvince:
+		return m.clearedprovince
+	case city.EdgeDistricts:
+		return m.cleareddistricts
+	case city.EdgeMerchants:
+		return m.clearedmerchants
+	case city.EdgeStores:
+		return m.clearedstores
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *CityMutation) ClearEdge(name string) error {
+	switch name {
+	case city.EdgeCountry:
+		m.ClearCountry()
+		return nil
+	case city.EdgeProvince:
+		m.ClearProvince()
+		return nil
+	}
+	return fmt.Errorf("unknown City unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *CityMutation) ResetEdge(name string) error {
+	switch name {
+	case city.EdgeCountry:
+		m.ResetCountry()
+		return nil
+	case city.EdgeProvince:
+		m.ResetProvince()
+		return nil
+	case city.EdgeDistricts:
+		m.ResetDistricts()
+		return nil
+	case city.EdgeMerchants:
+		m.ResetMerchants()
+		return nil
+	case city.EdgeStores:
+		m.ResetStores()
+		return nil
+	}
+	return fmt.Errorf("unknown City edge %s", name)
+}
+
+// CountryMutation represents an operation that mutates the Country nodes in the graph.
+type CountryMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *int64
+	adddeleted_at    *int64
+	name             *string
+	sort             *int
+	addsort          *int
+	clearedFields    map[string]struct{}
+	provinces        map[uuid.UUID]struct{}
+	removedprovinces map[uuid.UUID]struct{}
+	clearedprovinces bool
+	cities           map[uuid.UUID]struct{}
+	removedcities    map[uuid.UUID]struct{}
+	clearedcities    bool
+	districts        map[uuid.UUID]struct{}
+	removeddistricts map[uuid.UUID]struct{}
+	cleareddistricts bool
+	merchants        map[uuid.UUID]struct{}
+	removedmerchants map[uuid.UUID]struct{}
+	clearedmerchants bool
+	stores           map[uuid.UUID]struct{}
+	removedstores    map[uuid.UUID]struct{}
+	clearedstores    bool
+	done             bool
+	oldValue         func(context.Context) (*Country, error)
+	predicates       []predicate.Country
+}
+
+var _ ent.Mutation = (*CountryMutation)(nil)
+
+// countryOption allows management of the mutation configuration using functional options.
+type countryOption func(*CountryMutation)
+
+// newCountryMutation creates new mutation for the Country entity.
+func newCountryMutation(c config, op Op, opts ...countryOption) *CountryMutation {
+	m := &CountryMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeCountry,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withCountryID sets the ID field of the mutation.
+func withCountryID(id uuid.UUID) countryOption {
+	return func(m *CountryMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Country
+		)
+		m.oldValue = func(ctx context.Context) (*Country, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Country.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withCountry sets the old Country of the mutation.
+func withCountry(node *Country) countryOption {
+	return func(m *CountryMutation) {
+		m.oldValue = func(context.Context) (*Country, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m CountryMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m CountryMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Country entities.
+func (m *CountryMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *CountryMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *CountryMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Country.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *CountryMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *CountryMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Country entity.
+// If the Country object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CountryMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *CountryMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *CountryMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *CountryMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Country entity.
+// If the Country object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CountryMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *CountryMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *CountryMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *CountryMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Country entity.
+// If the Country object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CountryMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *CountryMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *CountryMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *CountryMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetName sets the "name" field.
+func (m *CountryMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *CountryMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Country entity.
+// If the Country object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CountryMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *CountryMutation) ResetName() {
+	m.name = nil
+}
+
+// SetSort sets the "sort" field.
+func (m *CountryMutation) SetSort(i int) {
+	m.sort = &i
+	m.addsort = nil
+}
+
+// Sort returns the value of the "sort" field in the mutation.
+func (m *CountryMutation) Sort() (r int, exists bool) {
+	v := m.sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSort returns the old "sort" field's value of the Country entity.
+// If the Country object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CountryMutation) OldSort(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSort is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSort requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSort: %w", err)
+	}
+	return oldValue.Sort, nil
+}
+
+// AddSort adds i to the "sort" field.
+func (m *CountryMutation) AddSort(i int) {
+	if m.addsort != nil {
+		*m.addsort += i
+	} else {
+		m.addsort = &i
+	}
+}
+
+// AddedSort returns the value that was added to the "sort" field in this mutation.
+func (m *CountryMutation) AddedSort() (r int, exists bool) {
+	v := m.addsort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSort resets all changes to the "sort" field.
+func (m *CountryMutation) ResetSort() {
+	m.sort = nil
+	m.addsort = nil
+}
+
+// AddProvinceIDs adds the "provinces" edge to the Province entity by ids.
+func (m *CountryMutation) AddProvinceIDs(ids ...uuid.UUID) {
+	if m.provinces == nil {
+		m.provinces = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.provinces[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProvinces clears the "provinces" edge to the Province entity.
+func (m *CountryMutation) ClearProvinces() {
+	m.clearedprovinces = true
+}
+
+// ProvincesCleared reports if the "provinces" edge to the Province entity was cleared.
+func (m *CountryMutation) ProvincesCleared() bool {
+	return m.clearedprovinces
+}
+
+// RemoveProvinceIDs removes the "provinces" edge to the Province entity by IDs.
+func (m *CountryMutation) RemoveProvinceIDs(ids ...uuid.UUID) {
+	if m.removedprovinces == nil {
+		m.removedprovinces = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.provinces, ids[i])
+		m.removedprovinces[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProvinces returns the removed IDs of the "provinces" edge to the Province entity.
+func (m *CountryMutation) RemovedProvincesIDs() (ids []uuid.UUID) {
+	for id := range m.removedprovinces {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProvincesIDs returns the "provinces" edge IDs in the mutation.
+func (m *CountryMutation) ProvincesIDs() (ids []uuid.UUID) {
+	for id := range m.provinces {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProvinces resets all changes to the "provinces" edge.
+func (m *CountryMutation) ResetProvinces() {
+	m.provinces = nil
+	m.clearedprovinces = false
+	m.removedprovinces = nil
+}
+
+// AddCityIDs adds the "cities" edge to the City entity by ids.
+func (m *CountryMutation) AddCityIDs(ids ...uuid.UUID) {
+	if m.cities == nil {
+		m.cities = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.cities[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCities clears the "cities" edge to the City entity.
+func (m *CountryMutation) ClearCities() {
+	m.clearedcities = true
+}
+
+// CitiesCleared reports if the "cities" edge to the City entity was cleared.
+func (m *CountryMutation) CitiesCleared() bool {
+	return m.clearedcities
+}
+
+// RemoveCityIDs removes the "cities" edge to the City entity by IDs.
+func (m *CountryMutation) RemoveCityIDs(ids ...uuid.UUID) {
+	if m.removedcities == nil {
+		m.removedcities = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.cities, ids[i])
+		m.removedcities[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCities returns the removed IDs of the "cities" edge to the City entity.
+func (m *CountryMutation) RemovedCitiesIDs() (ids []uuid.UUID) {
+	for id := range m.removedcities {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CitiesIDs returns the "cities" edge IDs in the mutation.
+func (m *CountryMutation) CitiesIDs() (ids []uuid.UUID) {
+	for id := range m.cities {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCities resets all changes to the "cities" edge.
+func (m *CountryMutation) ResetCities() {
+	m.cities = nil
+	m.clearedcities = false
+	m.removedcities = nil
+}
+
+// AddDistrictIDs adds the "districts" edge to the District entity by ids.
+func (m *CountryMutation) AddDistrictIDs(ids ...uuid.UUID) {
+	if m.districts == nil {
+		m.districts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.districts[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDistricts clears the "districts" edge to the District entity.
+func (m *CountryMutation) ClearDistricts() {
+	m.cleareddistricts = true
+}
+
+// DistrictsCleared reports if the "districts" edge to the District entity was cleared.
+func (m *CountryMutation) DistrictsCleared() bool {
+	return m.cleareddistricts
+}
+
+// RemoveDistrictIDs removes the "districts" edge to the District entity by IDs.
+func (m *CountryMutation) RemoveDistrictIDs(ids ...uuid.UUID) {
+	if m.removeddistricts == nil {
+		m.removeddistricts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.districts, ids[i])
+		m.removeddistricts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDistricts returns the removed IDs of the "districts" edge to the District entity.
+func (m *CountryMutation) RemovedDistrictsIDs() (ids []uuid.UUID) {
+	for id := range m.removeddistricts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DistrictsIDs returns the "districts" edge IDs in the mutation.
+func (m *CountryMutation) DistrictsIDs() (ids []uuid.UUID) {
+	for id := range m.districts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDistricts resets all changes to the "districts" edge.
+func (m *CountryMutation) ResetDistricts() {
+	m.districts = nil
+	m.cleareddistricts = false
+	m.removeddistricts = nil
+}
+
+// AddMerchantIDs adds the "merchants" edge to the Merchant entity by ids.
+func (m *CountryMutation) AddMerchantIDs(ids ...uuid.UUID) {
+	if m.merchants == nil {
+		m.merchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.merchants[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMerchants clears the "merchants" edge to the Merchant entity.
+func (m *CountryMutation) ClearMerchants() {
+	m.clearedmerchants = true
+}
+
+// MerchantsCleared reports if the "merchants" edge to the Merchant entity was cleared.
+func (m *CountryMutation) MerchantsCleared() bool {
+	return m.clearedmerchants
+}
+
+// RemoveMerchantIDs removes the "merchants" edge to the Merchant entity by IDs.
+func (m *CountryMutation) RemoveMerchantIDs(ids ...uuid.UUID) {
+	if m.removedmerchants == nil {
+		m.removedmerchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.merchants, ids[i])
+		m.removedmerchants[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMerchants returns the removed IDs of the "merchants" edge to the Merchant entity.
+func (m *CountryMutation) RemovedMerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.removedmerchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MerchantsIDs returns the "merchants" edge IDs in the mutation.
+func (m *CountryMutation) MerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.merchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMerchants resets all changes to the "merchants" edge.
+func (m *CountryMutation) ResetMerchants() {
+	m.merchants = nil
+	m.clearedmerchants = false
+	m.removedmerchants = nil
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by ids.
+func (m *CountryMutation) AddStoreIDs(ids ...uuid.UUID) {
+	if m.stores == nil {
+		m.stores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.stores[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStores clears the "stores" edge to the Store entity.
+func (m *CountryMutation) ClearStores() {
+	m.clearedstores = true
+}
+
+// StoresCleared reports if the "stores" edge to the Store entity was cleared.
+func (m *CountryMutation) StoresCleared() bool {
+	return m.clearedstores
+}
+
+// RemoveStoreIDs removes the "stores" edge to the Store entity by IDs.
+func (m *CountryMutation) RemoveStoreIDs(ids ...uuid.UUID) {
+	if m.removedstores == nil {
+		m.removedstores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.stores, ids[i])
+		m.removedstores[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStores returns the removed IDs of the "stores" edge to the Store entity.
+func (m *CountryMutation) RemovedStoresIDs() (ids []uuid.UUID) {
+	for id := range m.removedstores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StoresIDs returns the "stores" edge IDs in the mutation.
+func (m *CountryMutation) StoresIDs() (ids []uuid.UUID) {
+	for id := range m.stores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStores resets all changes to the "stores" edge.
+func (m *CountryMutation) ResetStores() {
+	m.stores = nil
+	m.clearedstores = false
+	m.removedstores = nil
+}
+
+// Where appends a list predicates to the CountryMutation builder.
+func (m *CountryMutation) Where(ps ...predicate.Country) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the CountryMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *CountryMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Country, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *CountryMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *CountryMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Country).
+func (m *CountryMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *CountryMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.created_at != nil {
+		fields = append(fields, country.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, country.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, country.FieldDeletedAt)
+	}
+	if m.name != nil {
+		fields = append(fields, country.FieldName)
+	}
+	if m.sort != nil {
+		fields = append(fields, country.FieldSort)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *CountryMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case country.FieldCreatedAt:
+		return m.CreatedAt()
+	case country.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case country.FieldDeletedAt:
+		return m.DeletedAt()
+	case country.FieldName:
+		return m.Name()
+	case country.FieldSort:
+		return m.Sort()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *CountryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case country.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case country.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case country.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case country.FieldName:
+		return m.OldName(ctx)
+	case country.FieldSort:
+		return m.OldSort(ctx)
+	}
+	return nil, fmt.Errorf("unknown Country field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CountryMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case country.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case country.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case country.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case country.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case country.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Country field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *CountryMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, country.FieldDeletedAt)
+	}
+	if m.addsort != nil {
+		fields = append(fields, country.FieldSort)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *CountryMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case country.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	case country.FieldSort:
+		return m.AddedSort()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CountryMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case country.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	case country.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Country numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *CountryMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *CountryMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *CountryMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Country nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *CountryMutation) ResetField(name string) error {
+	switch name {
+	case country.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case country.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case country.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case country.FieldName:
+		m.ResetName()
+		return nil
+	case country.FieldSort:
+		m.ResetSort()
+		return nil
+	}
+	return fmt.Errorf("unknown Country field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *CountryMutation) AddedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.provinces != nil {
+		edges = append(edges, country.EdgeProvinces)
+	}
+	if m.cities != nil {
+		edges = append(edges, country.EdgeCities)
+	}
+	if m.districts != nil {
+		edges = append(edges, country.EdgeDistricts)
+	}
+	if m.merchants != nil {
+		edges = append(edges, country.EdgeMerchants)
+	}
+	if m.stores != nil {
+		edges = append(edges, country.EdgeStores)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *CountryMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case country.EdgeProvinces:
+		ids := make([]ent.Value, 0, len(m.provinces))
+		for id := range m.provinces {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeCities:
+		ids := make([]ent.Value, 0, len(m.cities))
+		for id := range m.cities {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeDistricts:
+		ids := make([]ent.Value, 0, len(m.districts))
+		for id := range m.districts {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.merchants))
+		for id := range m.merchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.stores))
+		for id := range m.stores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *CountryMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.removedprovinces != nil {
+		edges = append(edges, country.EdgeProvinces)
+	}
+	if m.removedcities != nil {
+		edges = append(edges, country.EdgeCities)
+	}
+	if m.removeddistricts != nil {
+		edges = append(edges, country.EdgeDistricts)
+	}
+	if m.removedmerchants != nil {
+		edges = append(edges, country.EdgeMerchants)
+	}
+	if m.removedstores != nil {
+		edges = append(edges, country.EdgeStores)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *CountryMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case country.EdgeProvinces:
+		ids := make([]ent.Value, 0, len(m.removedprovinces))
+		for id := range m.removedprovinces {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeCities:
+		ids := make([]ent.Value, 0, len(m.removedcities))
+		for id := range m.removedcities {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeDistricts:
+		ids := make([]ent.Value, 0, len(m.removeddistricts))
+		for id := range m.removeddistricts {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.removedmerchants))
+		for id := range m.removedmerchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case country.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.removedstores))
+		for id := range m.removedstores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *CountryMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.clearedprovinces {
+		edges = append(edges, country.EdgeProvinces)
+	}
+	if m.clearedcities {
+		edges = append(edges, country.EdgeCities)
+	}
+	if m.cleareddistricts {
+		edges = append(edges, country.EdgeDistricts)
+	}
+	if m.clearedmerchants {
+		edges = append(edges, country.EdgeMerchants)
+	}
+	if m.clearedstores {
+		edges = append(edges, country.EdgeStores)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *CountryMutation) EdgeCleared(name string) bool {
+	switch name {
+	case country.EdgeProvinces:
+		return m.clearedprovinces
+	case country.EdgeCities:
+		return m.clearedcities
+	case country.EdgeDistricts:
+		return m.cleareddistricts
+	case country.EdgeMerchants:
+		return m.clearedmerchants
+	case country.EdgeStores:
+		return m.clearedstores
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *CountryMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Country unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *CountryMutation) ResetEdge(name string) error {
+	switch name {
+	case country.EdgeProvinces:
+		m.ResetProvinces()
+		return nil
+	case country.EdgeCities:
+		m.ResetCities()
+		return nil
+	case country.EdgeDistricts:
+		m.ResetDistricts()
+		return nil
+	case country.EdgeMerchants:
+		m.ResetMerchants()
+		return nil
+	case country.EdgeStores:
+		m.ResetStores()
+		return nil
+	}
+	return fmt.Errorf("unknown Country edge %s", name)
+}
+
+// DistrictMutation represents an operation that mutates the District nodes in the graph.
+type DistrictMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *int64
+	adddeleted_at    *int64
+	name             *string
+	sort             *int
+	addsort          *int
+	clearedFields    map[string]struct{}
+	country          *uuid.UUID
+	clearedcountry   bool
+	province         *uuid.UUID
+	clearedprovince  bool
+	city             *uuid.UUID
+	clearedcity      bool
+	merchants        map[uuid.UUID]struct{}
+	removedmerchants map[uuid.UUID]struct{}
+	clearedmerchants bool
+	stores           map[uuid.UUID]struct{}
+	removedstores    map[uuid.UUID]struct{}
+	clearedstores    bool
+	done             bool
+	oldValue         func(context.Context) (*District, error)
+	predicates       []predicate.District
+}
+
+var _ ent.Mutation = (*DistrictMutation)(nil)
+
+// districtOption allows management of the mutation configuration using functional options.
+type districtOption func(*DistrictMutation)
+
+// newDistrictMutation creates new mutation for the District entity.
+func newDistrictMutation(c config, op Op, opts ...districtOption) *DistrictMutation {
+	m := &DistrictMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDistrict,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDistrictID sets the ID field of the mutation.
+func withDistrictID(id uuid.UUID) districtOption {
+	return func(m *DistrictMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *District
+		)
+		m.oldValue = func(ctx context.Context) (*District, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().District.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDistrict sets the old District of the mutation.
+func withDistrict(node *District) districtOption {
+	return func(m *DistrictMutation) {
+		m.oldValue = func(context.Context) (*District, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DistrictMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DistrictMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of District entities.
+func (m *DistrictMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DistrictMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DistrictMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().District.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DistrictMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DistrictMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DistrictMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DistrictMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DistrictMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DistrictMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *DistrictMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *DistrictMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *DistrictMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *DistrictMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *DistrictMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetCountryID sets the "country_id" field.
+func (m *DistrictMutation) SetCountryID(u uuid.UUID) {
+	m.country = &u
+}
+
+// CountryID returns the value of the "country_id" field in the mutation.
+func (m *DistrictMutation) CountryID() (r uuid.UUID, exists bool) {
+	v := m.country
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCountryID returns the old "country_id" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldCountryID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCountryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCountryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCountryID: %w", err)
+	}
+	return oldValue.CountryID, nil
+}
+
+// ResetCountryID resets all changes to the "country_id" field.
+func (m *DistrictMutation) ResetCountryID() {
+	m.country = nil
+}
+
+// SetProvinceID sets the "province_id" field.
+func (m *DistrictMutation) SetProvinceID(u uuid.UUID) {
+	m.province = &u
+}
+
+// ProvinceID returns the value of the "province_id" field in the mutation.
+func (m *DistrictMutation) ProvinceID() (r uuid.UUID, exists bool) {
+	v := m.province
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProvinceID returns the old "province_id" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldProvinceID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProvinceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProvinceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProvinceID: %w", err)
+	}
+	return oldValue.ProvinceID, nil
+}
+
+// ResetProvinceID resets all changes to the "province_id" field.
+func (m *DistrictMutation) ResetProvinceID() {
+	m.province = nil
+}
+
+// SetCityID sets the "city_id" field.
+func (m *DistrictMutation) SetCityID(u uuid.UUID) {
+	m.city = &u
+}
+
+// CityID returns the value of the "city_id" field in the mutation.
+func (m *DistrictMutation) CityID() (r uuid.UUID, exists bool) {
+	v := m.city
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCityID returns the old "city_id" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldCityID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCityID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCityID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCityID: %w", err)
+	}
+	return oldValue.CityID, nil
+}
+
+// ResetCityID resets all changes to the "city_id" field.
+func (m *DistrictMutation) ResetCityID() {
+	m.city = nil
+}
+
+// SetName sets the "name" field.
+func (m *DistrictMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *DistrictMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *DistrictMutation) ResetName() {
+	m.name = nil
+}
+
+// SetSort sets the "sort" field.
+func (m *DistrictMutation) SetSort(i int) {
+	m.sort = &i
+	m.addsort = nil
+}
+
+// Sort returns the value of the "sort" field in the mutation.
+func (m *DistrictMutation) Sort() (r int, exists bool) {
+	v := m.sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSort returns the old "sort" field's value of the District entity.
+// If the District object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DistrictMutation) OldSort(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSort is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSort requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSort: %w", err)
+	}
+	return oldValue.Sort, nil
+}
+
+// AddSort adds i to the "sort" field.
+func (m *DistrictMutation) AddSort(i int) {
+	if m.addsort != nil {
+		*m.addsort += i
+	} else {
+		m.addsort = &i
+	}
+}
+
+// AddedSort returns the value that was added to the "sort" field in this mutation.
+func (m *DistrictMutation) AddedSort() (r int, exists bool) {
+	v := m.addsort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSort resets all changes to the "sort" field.
+func (m *DistrictMutation) ResetSort() {
+	m.sort = nil
+	m.addsort = nil
+}
+
+// ClearCountry clears the "country" edge to the Country entity.
+func (m *DistrictMutation) ClearCountry() {
+	m.clearedcountry = true
+	m.clearedFields[district.FieldCountryID] = struct{}{}
+}
+
+// CountryCleared reports if the "country" edge to the Country entity was cleared.
+func (m *DistrictMutation) CountryCleared() bool {
+	return m.clearedcountry
+}
+
+// CountryIDs returns the "country" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CountryID instead. It exists only for internal usage by the builders.
+func (m *DistrictMutation) CountryIDs() (ids []uuid.UUID) {
+	if id := m.country; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCountry resets all changes to the "country" edge.
+func (m *DistrictMutation) ResetCountry() {
+	m.country = nil
+	m.clearedcountry = false
+}
+
+// ClearProvince clears the "province" edge to the Province entity.
+func (m *DistrictMutation) ClearProvince() {
+	m.clearedprovince = true
+	m.clearedFields[district.FieldProvinceID] = struct{}{}
+}
+
+// ProvinceCleared reports if the "province" edge to the Province entity was cleared.
+func (m *DistrictMutation) ProvinceCleared() bool {
+	return m.clearedprovince
+}
+
+// ProvinceIDs returns the "province" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ProvinceID instead. It exists only for internal usage by the builders.
+func (m *DistrictMutation) ProvinceIDs() (ids []uuid.UUID) {
+	if id := m.province; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetProvince resets all changes to the "province" edge.
+func (m *DistrictMutation) ResetProvince() {
+	m.province = nil
+	m.clearedprovince = false
+}
+
+// ClearCity clears the "city" edge to the City entity.
+func (m *DistrictMutation) ClearCity() {
+	m.clearedcity = true
+	m.clearedFields[district.FieldCityID] = struct{}{}
+}
+
+// CityCleared reports if the "city" edge to the City entity was cleared.
+func (m *DistrictMutation) CityCleared() bool {
+	return m.clearedcity
+}
+
+// CityIDs returns the "city" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CityID instead. It exists only for internal usage by the builders.
+func (m *DistrictMutation) CityIDs() (ids []uuid.UUID) {
+	if id := m.city; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCity resets all changes to the "city" edge.
+func (m *DistrictMutation) ResetCity() {
+	m.city = nil
+	m.clearedcity = false
+}
+
+// AddMerchantIDs adds the "merchants" edge to the Merchant entity by ids.
+func (m *DistrictMutation) AddMerchantIDs(ids ...uuid.UUID) {
+	if m.merchants == nil {
+		m.merchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.merchants[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMerchants clears the "merchants" edge to the Merchant entity.
+func (m *DistrictMutation) ClearMerchants() {
+	m.clearedmerchants = true
+}
+
+// MerchantsCleared reports if the "merchants" edge to the Merchant entity was cleared.
+func (m *DistrictMutation) MerchantsCleared() bool {
+	return m.clearedmerchants
+}
+
+// RemoveMerchantIDs removes the "merchants" edge to the Merchant entity by IDs.
+func (m *DistrictMutation) RemoveMerchantIDs(ids ...uuid.UUID) {
+	if m.removedmerchants == nil {
+		m.removedmerchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.merchants, ids[i])
+		m.removedmerchants[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMerchants returns the removed IDs of the "merchants" edge to the Merchant entity.
+func (m *DistrictMutation) RemovedMerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.removedmerchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MerchantsIDs returns the "merchants" edge IDs in the mutation.
+func (m *DistrictMutation) MerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.merchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMerchants resets all changes to the "merchants" edge.
+func (m *DistrictMutation) ResetMerchants() {
+	m.merchants = nil
+	m.clearedmerchants = false
+	m.removedmerchants = nil
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by ids.
+func (m *DistrictMutation) AddStoreIDs(ids ...uuid.UUID) {
+	if m.stores == nil {
+		m.stores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.stores[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStores clears the "stores" edge to the Store entity.
+func (m *DistrictMutation) ClearStores() {
+	m.clearedstores = true
+}
+
+// StoresCleared reports if the "stores" edge to the Store entity was cleared.
+func (m *DistrictMutation) StoresCleared() bool {
+	return m.clearedstores
+}
+
+// RemoveStoreIDs removes the "stores" edge to the Store entity by IDs.
+func (m *DistrictMutation) RemoveStoreIDs(ids ...uuid.UUID) {
+	if m.removedstores == nil {
+		m.removedstores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.stores, ids[i])
+		m.removedstores[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStores returns the removed IDs of the "stores" edge to the Store entity.
+func (m *DistrictMutation) RemovedStoresIDs() (ids []uuid.UUID) {
+	for id := range m.removedstores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StoresIDs returns the "stores" edge IDs in the mutation.
+func (m *DistrictMutation) StoresIDs() (ids []uuid.UUID) {
+	for id := range m.stores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStores resets all changes to the "stores" edge.
+func (m *DistrictMutation) ResetStores() {
+	m.stores = nil
+	m.clearedstores = false
+	m.removedstores = nil
+}
+
+// Where appends a list predicates to the DistrictMutation builder.
+func (m *DistrictMutation) Where(ps ...predicate.District) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DistrictMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DistrictMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.District, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DistrictMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DistrictMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (District).
+func (m *DistrictMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DistrictMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.created_at != nil {
+		fields = append(fields, district.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, district.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, district.FieldDeletedAt)
+	}
+	if m.country != nil {
+		fields = append(fields, district.FieldCountryID)
+	}
+	if m.province != nil {
+		fields = append(fields, district.FieldProvinceID)
+	}
+	if m.city != nil {
+		fields = append(fields, district.FieldCityID)
+	}
+	if m.name != nil {
+		fields = append(fields, district.FieldName)
+	}
+	if m.sort != nil {
+		fields = append(fields, district.FieldSort)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DistrictMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case district.FieldCreatedAt:
+		return m.CreatedAt()
+	case district.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case district.FieldDeletedAt:
+		return m.DeletedAt()
+	case district.FieldCountryID:
+		return m.CountryID()
+	case district.FieldProvinceID:
+		return m.ProvinceID()
+	case district.FieldCityID:
+		return m.CityID()
+	case district.FieldName:
+		return m.Name()
+	case district.FieldSort:
+		return m.Sort()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DistrictMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case district.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case district.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case district.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case district.FieldCountryID:
+		return m.OldCountryID(ctx)
+	case district.FieldProvinceID:
+		return m.OldProvinceID(ctx)
+	case district.FieldCityID:
+		return m.OldCityID(ctx)
+	case district.FieldName:
+		return m.OldName(ctx)
+	case district.FieldSort:
+		return m.OldSort(ctx)
+	}
+	return nil, fmt.Errorf("unknown District field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DistrictMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case district.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case district.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case district.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case district.FieldCountryID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCountryID(v)
+		return nil
+	case district.FieldProvinceID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProvinceID(v)
+		return nil
+	case district.FieldCityID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCityID(v)
+		return nil
+	case district.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case district.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown District field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DistrictMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, district.FieldDeletedAt)
+	}
+	if m.addsort != nil {
+		fields = append(fields, district.FieldSort)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DistrictMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case district.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	case district.FieldSort:
+		return m.AddedSort()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DistrictMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case district.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	case district.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown District numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DistrictMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DistrictMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DistrictMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown District nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DistrictMutation) ResetField(name string) error {
+	switch name {
+	case district.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case district.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case district.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case district.FieldCountryID:
+		m.ResetCountryID()
+		return nil
+	case district.FieldProvinceID:
+		m.ResetProvinceID()
+		return nil
+	case district.FieldCityID:
+		m.ResetCityID()
+		return nil
+	case district.FieldName:
+		m.ResetName()
+		return nil
+	case district.FieldSort:
+		m.ResetSort()
+		return nil
+	}
+	return fmt.Errorf("unknown District field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DistrictMutation) AddedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.country != nil {
+		edges = append(edges, district.EdgeCountry)
+	}
+	if m.province != nil {
+		edges = append(edges, district.EdgeProvince)
+	}
+	if m.city != nil {
+		edges = append(edges, district.EdgeCity)
+	}
+	if m.merchants != nil {
+		edges = append(edges, district.EdgeMerchants)
+	}
+	if m.stores != nil {
+		edges = append(edges, district.EdgeStores)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DistrictMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case district.EdgeCountry:
+		if id := m.country; id != nil {
+			return []ent.Value{*id}
+		}
+	case district.EdgeProvince:
+		if id := m.province; id != nil {
+			return []ent.Value{*id}
+		}
+	case district.EdgeCity:
+		if id := m.city; id != nil {
+			return []ent.Value{*id}
+		}
+	case district.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.merchants))
+		for id := range m.merchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case district.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.stores))
+		for id := range m.stores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DistrictMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.removedmerchants != nil {
+		edges = append(edges, district.EdgeMerchants)
+	}
+	if m.removedstores != nil {
+		edges = append(edges, district.EdgeStores)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DistrictMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case district.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.removedmerchants))
+		for id := range m.removedmerchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case district.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.removedstores))
+		for id := range m.removedstores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DistrictMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.clearedcountry {
+		edges = append(edges, district.EdgeCountry)
+	}
+	if m.clearedprovince {
+		edges = append(edges, district.EdgeProvince)
+	}
+	if m.clearedcity {
+		edges = append(edges, district.EdgeCity)
+	}
+	if m.clearedmerchants {
+		edges = append(edges, district.EdgeMerchants)
+	}
+	if m.clearedstores {
+		edges = append(edges, district.EdgeStores)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DistrictMutation) EdgeCleared(name string) bool {
+	switch name {
+	case district.EdgeCountry:
+		return m.clearedcountry
+	case district.EdgeProvince:
+		return m.clearedprovince
+	case district.EdgeCity:
+		return m.clearedcity
+	case district.EdgeMerchants:
+		return m.clearedmerchants
+	case district.EdgeStores:
+		return m.clearedstores
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DistrictMutation) ClearEdge(name string) error {
+	switch name {
+	case district.EdgeCountry:
+		m.ClearCountry()
+		return nil
+	case district.EdgeProvince:
+		m.ClearProvince()
+		return nil
+	case district.EdgeCity:
+		m.ClearCity()
+		return nil
+	}
+	return fmt.Errorf("unknown District unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DistrictMutation) ResetEdge(name string) error {
+	switch name {
+	case district.EdgeCountry:
+		m.ResetCountry()
+		return nil
+	case district.EdgeProvince:
+		m.ResetProvince()
+		return nil
+	case district.EdgeCity:
+		m.ResetCity()
+		return nil
+	case district.EdgeMerchants:
+		m.ResetMerchants()
+		return nil
+	case district.EdgeStores:
+		m.ResetStores()
+		return nil
+	}
+	return fmt.Errorf("unknown District edge %s", name)
+}
+
 // MerchantMutation represents an operation that mutates the Merchant nodes in the graph.
 type MerchantMutation struct {
 	config
 	op                            Op
 	typ                           string
-	id                            *int
+	id                            *uuid.UUID
 	created_at                    *time.Time
 	updated_at                    *time.Time
 	deleted_at                    *int64
@@ -2921,32 +6140,28 @@ type MerchantMutation struct {
 	merchant_logo                 *string
 	description                   *string
 	status                        *domain.MerchantStatus
-	country_id                    *int
-	addcountry_id                 *int
-	province_id                   *int
-	addprovince_id                *int
-	city_id                       *int
-	addcity_id                    *int
-	district_id                   *int
-	adddistrict_id                *int
-	country_name                  *string
-	province_name                 *string
-	city_name                     *string
-	district_name                 *string
 	address                       *string
 	lng                           *string
 	lat                           *string
 	clearedFields                 map[string]struct{}
-	stores                        map[int]struct{}
-	removedstores                 map[int]struct{}
+	stores                        map[uuid.UUID]struct{}
+	removedstores                 map[uuid.UUID]struct{}
 	clearedstores                 bool
-	merchant_renewals             map[int]struct{}
-	removedmerchant_renewals      map[int]struct{}
+	merchant_renewals             map[uuid.UUID]struct{}
+	removedmerchant_renewals      map[uuid.UUID]struct{}
 	clearedmerchant_renewals      bool
-	merchant_business_type        *int
+	merchant_business_type        *uuid.UUID
 	clearedmerchant_business_type bool
 	admin_user                    *uuid.UUID
 	clearedadmin_user             bool
+	country                       *uuid.UUID
+	clearedcountry                bool
+	province                      *uuid.UUID
+	clearedprovince               bool
+	city                          *uuid.UUID
+	clearedcity                   bool
+	district                      *uuid.UUID
+	cleareddistrict               bool
 	done                          bool
 	oldValue                      func(context.Context) (*Merchant, error)
 	predicates                    []predicate.Merchant
@@ -2972,7 +6187,7 @@ func newMerchantMutation(c config, op Op, opts ...merchantOption) *MerchantMutat
 }
 
 // withMerchantID sets the ID field of the mutation.
-func withMerchantID(id int) merchantOption {
+func withMerchantID(id uuid.UUID) merchantOption {
 	return func(m *MerchantMutation) {
 		var (
 			err   error
@@ -3022,9 +6237,15 @@ func (m MerchantMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Merchant entities.
+func (m *MerchantMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *MerchantMutation) ID() (id int, exists bool) {
+func (m *MerchantMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -3035,12 +6256,12 @@ func (m *MerchantMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *MerchantMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *MerchantMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -3444,12 +6665,12 @@ func (m *MerchantMutation) ResetExpireUtc() {
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (m *MerchantMutation) SetBusinessTypeID(i int) {
-	m.merchant_business_type = &i
+func (m *MerchantMutation) SetBusinessTypeID(u uuid.UUID) {
+	m.merchant_business_type = &u
 }
 
 // BusinessTypeID returns the value of the "business_type_id" field in the mutation.
-func (m *MerchantMutation) BusinessTypeID() (r int, exists bool) {
+func (m *MerchantMutation) BusinessTypeID() (r uuid.UUID, exists bool) {
 	v := m.merchant_business_type
 	if v == nil {
 		return
@@ -3460,7 +6681,7 @@ func (m *MerchantMutation) BusinessTypeID() (r int, exists bool) {
 // OldBusinessTypeID returns the old "business_type_id" field's value of the Merchant entity.
 // If the Merchant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldBusinessTypeID(ctx context.Context) (v int, err error) {
+func (m *MerchantMutation) OldBusinessTypeID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBusinessTypeID is only allowed on UpdateOne operations")
 	}
@@ -3588,14 +6809,13 @@ func (m *MerchantMutation) ResetStatus() {
 }
 
 // SetCountryID sets the "country_id" field.
-func (m *MerchantMutation) SetCountryID(i int) {
-	m.country_id = &i
-	m.addcountry_id = nil
+func (m *MerchantMutation) SetCountryID(u uuid.UUID) {
+	m.country = &u
 }
 
 // CountryID returns the value of the "country_id" field in the mutation.
-func (m *MerchantMutation) CountryID() (r int, exists bool) {
-	v := m.country_id
+func (m *MerchantMutation) CountryID() (r uuid.UUID, exists bool) {
+	v := m.country
 	if v == nil {
 		return
 	}
@@ -3605,7 +6825,7 @@ func (m *MerchantMutation) CountryID() (r int, exists bool) {
 // OldCountryID returns the old "country_id" field's value of the Merchant entity.
 // If the Merchant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldCountryID(ctx context.Context) (v int, err error) {
+func (m *MerchantMutation) OldCountryID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCountryID is only allowed on UpdateOne operations")
 	}
@@ -3619,39 +6839,32 @@ func (m *MerchantMutation) OldCountryID(ctx context.Context) (v int, err error) 
 	return oldValue.CountryID, nil
 }
 
-// AddCountryID adds i to the "country_id" field.
-func (m *MerchantMutation) AddCountryID(i int) {
-	if m.addcountry_id != nil {
-		*m.addcountry_id += i
-	} else {
-		m.addcountry_id = &i
-	}
+// ClearCountryID clears the value of the "country_id" field.
+func (m *MerchantMutation) ClearCountryID() {
+	m.country = nil
+	m.clearedFields[merchant.FieldCountryID] = struct{}{}
 }
 
-// AddedCountryID returns the value that was added to the "country_id" field in this mutation.
-func (m *MerchantMutation) AddedCountryID() (r int, exists bool) {
-	v := m.addcountry_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// CountryIDCleared returns if the "country_id" field was cleared in this mutation.
+func (m *MerchantMutation) CountryIDCleared() bool {
+	_, ok := m.clearedFields[merchant.FieldCountryID]
+	return ok
 }
 
 // ResetCountryID resets all changes to the "country_id" field.
 func (m *MerchantMutation) ResetCountryID() {
-	m.country_id = nil
-	m.addcountry_id = nil
+	m.country = nil
+	delete(m.clearedFields, merchant.FieldCountryID)
 }
 
 // SetProvinceID sets the "province_id" field.
-func (m *MerchantMutation) SetProvinceID(i int) {
-	m.province_id = &i
-	m.addprovince_id = nil
+func (m *MerchantMutation) SetProvinceID(u uuid.UUID) {
+	m.province = &u
 }
 
 // ProvinceID returns the value of the "province_id" field in the mutation.
-func (m *MerchantMutation) ProvinceID() (r int, exists bool) {
-	v := m.province_id
+func (m *MerchantMutation) ProvinceID() (r uuid.UUID, exists bool) {
+	v := m.province
 	if v == nil {
 		return
 	}
@@ -3661,7 +6874,7 @@ func (m *MerchantMutation) ProvinceID() (r int, exists bool) {
 // OldProvinceID returns the old "province_id" field's value of the Merchant entity.
 // If the Merchant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldProvinceID(ctx context.Context) (v int, err error) {
+func (m *MerchantMutation) OldProvinceID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProvinceID is only allowed on UpdateOne operations")
 	}
@@ -3675,39 +6888,32 @@ func (m *MerchantMutation) OldProvinceID(ctx context.Context) (v int, err error)
 	return oldValue.ProvinceID, nil
 }
 
-// AddProvinceID adds i to the "province_id" field.
-func (m *MerchantMutation) AddProvinceID(i int) {
-	if m.addprovince_id != nil {
-		*m.addprovince_id += i
-	} else {
-		m.addprovince_id = &i
-	}
+// ClearProvinceID clears the value of the "province_id" field.
+func (m *MerchantMutation) ClearProvinceID() {
+	m.province = nil
+	m.clearedFields[merchant.FieldProvinceID] = struct{}{}
 }
 
-// AddedProvinceID returns the value that was added to the "province_id" field in this mutation.
-func (m *MerchantMutation) AddedProvinceID() (r int, exists bool) {
-	v := m.addprovince_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// ProvinceIDCleared returns if the "province_id" field was cleared in this mutation.
+func (m *MerchantMutation) ProvinceIDCleared() bool {
+	_, ok := m.clearedFields[merchant.FieldProvinceID]
+	return ok
 }
 
 // ResetProvinceID resets all changes to the "province_id" field.
 func (m *MerchantMutation) ResetProvinceID() {
-	m.province_id = nil
-	m.addprovince_id = nil
+	m.province = nil
+	delete(m.clearedFields, merchant.FieldProvinceID)
 }
 
 // SetCityID sets the "city_id" field.
-func (m *MerchantMutation) SetCityID(i int) {
-	m.city_id = &i
-	m.addcity_id = nil
+func (m *MerchantMutation) SetCityID(u uuid.UUID) {
+	m.city = &u
 }
 
 // CityID returns the value of the "city_id" field in the mutation.
-func (m *MerchantMutation) CityID() (r int, exists bool) {
-	v := m.city_id
+func (m *MerchantMutation) CityID() (r uuid.UUID, exists bool) {
+	v := m.city
 	if v == nil {
 		return
 	}
@@ -3717,7 +6923,7 @@ func (m *MerchantMutation) CityID() (r int, exists bool) {
 // OldCityID returns the old "city_id" field's value of the Merchant entity.
 // If the Merchant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldCityID(ctx context.Context) (v int, err error) {
+func (m *MerchantMutation) OldCityID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCityID is only allowed on UpdateOne operations")
 	}
@@ -3731,39 +6937,32 @@ func (m *MerchantMutation) OldCityID(ctx context.Context) (v int, err error) {
 	return oldValue.CityID, nil
 }
 
-// AddCityID adds i to the "city_id" field.
-func (m *MerchantMutation) AddCityID(i int) {
-	if m.addcity_id != nil {
-		*m.addcity_id += i
-	} else {
-		m.addcity_id = &i
-	}
+// ClearCityID clears the value of the "city_id" field.
+func (m *MerchantMutation) ClearCityID() {
+	m.city = nil
+	m.clearedFields[merchant.FieldCityID] = struct{}{}
 }
 
-// AddedCityID returns the value that was added to the "city_id" field in this mutation.
-func (m *MerchantMutation) AddedCityID() (r int, exists bool) {
-	v := m.addcity_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// CityIDCleared returns if the "city_id" field was cleared in this mutation.
+func (m *MerchantMutation) CityIDCleared() bool {
+	_, ok := m.clearedFields[merchant.FieldCityID]
+	return ok
 }
 
 // ResetCityID resets all changes to the "city_id" field.
 func (m *MerchantMutation) ResetCityID() {
-	m.city_id = nil
-	m.addcity_id = nil
+	m.city = nil
+	delete(m.clearedFields, merchant.FieldCityID)
 }
 
 // SetDistrictID sets the "district_id" field.
-func (m *MerchantMutation) SetDistrictID(i int) {
-	m.district_id = &i
-	m.adddistrict_id = nil
+func (m *MerchantMutation) SetDistrictID(u uuid.UUID) {
+	m.district = &u
 }
 
 // DistrictID returns the value of the "district_id" field in the mutation.
-func (m *MerchantMutation) DistrictID() (r int, exists bool) {
-	v := m.district_id
+func (m *MerchantMutation) DistrictID() (r uuid.UUID, exists bool) {
+	v := m.district
 	if v == nil {
 		return
 	}
@@ -3773,7 +6972,7 @@ func (m *MerchantMutation) DistrictID() (r int, exists bool) {
 // OldDistrictID returns the old "district_id" field's value of the Merchant entity.
 // If the Merchant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldDistrictID(ctx context.Context) (v int, err error) {
+func (m *MerchantMutation) OldDistrictID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDistrictID is only allowed on UpdateOne operations")
 	}
@@ -3787,172 +6986,22 @@ func (m *MerchantMutation) OldDistrictID(ctx context.Context) (v int, err error)
 	return oldValue.DistrictID, nil
 }
 
-// AddDistrictID adds i to the "district_id" field.
-func (m *MerchantMutation) AddDistrictID(i int) {
-	if m.adddistrict_id != nil {
-		*m.adddistrict_id += i
-	} else {
-		m.adddistrict_id = &i
-	}
+// ClearDistrictID clears the value of the "district_id" field.
+func (m *MerchantMutation) ClearDistrictID() {
+	m.district = nil
+	m.clearedFields[merchant.FieldDistrictID] = struct{}{}
 }
 
-// AddedDistrictID returns the value that was added to the "district_id" field in this mutation.
-func (m *MerchantMutation) AddedDistrictID() (r int, exists bool) {
-	v := m.adddistrict_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// DistrictIDCleared returns if the "district_id" field was cleared in this mutation.
+func (m *MerchantMutation) DistrictIDCleared() bool {
+	_, ok := m.clearedFields[merchant.FieldDistrictID]
+	return ok
 }
 
 // ResetDistrictID resets all changes to the "district_id" field.
 func (m *MerchantMutation) ResetDistrictID() {
-	m.district_id = nil
-	m.adddistrict_id = nil
-}
-
-// SetCountryName sets the "country_name" field.
-func (m *MerchantMutation) SetCountryName(s string) {
-	m.country_name = &s
-}
-
-// CountryName returns the value of the "country_name" field in the mutation.
-func (m *MerchantMutation) CountryName() (r string, exists bool) {
-	v := m.country_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCountryName returns the old "country_name" field's value of the Merchant entity.
-// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldCountryName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCountryName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCountryName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCountryName: %w", err)
-	}
-	return oldValue.CountryName, nil
-}
-
-// ResetCountryName resets all changes to the "country_name" field.
-func (m *MerchantMutation) ResetCountryName() {
-	m.country_name = nil
-}
-
-// SetProvinceName sets the "province_name" field.
-func (m *MerchantMutation) SetProvinceName(s string) {
-	m.province_name = &s
-}
-
-// ProvinceName returns the value of the "province_name" field in the mutation.
-func (m *MerchantMutation) ProvinceName() (r string, exists bool) {
-	v := m.province_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldProvinceName returns the old "province_name" field's value of the Merchant entity.
-// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldProvinceName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldProvinceName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldProvinceName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldProvinceName: %w", err)
-	}
-	return oldValue.ProvinceName, nil
-}
-
-// ResetProvinceName resets all changes to the "province_name" field.
-func (m *MerchantMutation) ResetProvinceName() {
-	m.province_name = nil
-}
-
-// SetCityName sets the "city_name" field.
-func (m *MerchantMutation) SetCityName(s string) {
-	m.city_name = &s
-}
-
-// CityName returns the value of the "city_name" field in the mutation.
-func (m *MerchantMutation) CityName() (r string, exists bool) {
-	v := m.city_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCityName returns the old "city_name" field's value of the Merchant entity.
-// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldCityName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCityName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCityName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCityName: %w", err)
-	}
-	return oldValue.CityName, nil
-}
-
-// ResetCityName resets all changes to the "city_name" field.
-func (m *MerchantMutation) ResetCityName() {
-	m.city_name = nil
-}
-
-// SetDistrictName sets the "district_name" field.
-func (m *MerchantMutation) SetDistrictName(s string) {
-	m.district_name = &s
-}
-
-// DistrictName returns the value of the "district_name" field in the mutation.
-func (m *MerchantMutation) DistrictName() (r string, exists bool) {
-	v := m.district_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDistrictName returns the old "district_name" field's value of the Merchant entity.
-// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantMutation) OldDistrictName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDistrictName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDistrictName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDistrictName: %w", err)
-	}
-	return oldValue.DistrictName, nil
-}
-
-// ResetDistrictName resets all changes to the "district_name" field.
-func (m *MerchantMutation) ResetDistrictName() {
-	m.district_name = nil
+	m.district = nil
+	delete(m.clearedFields, merchant.FieldDistrictID)
 }
 
 // SetAddress sets the "address" field.
@@ -4100,9 +7149,9 @@ func (m *MerchantMutation) ResetAdminUserID() {
 }
 
 // AddStoreIDs adds the "stores" edge to the Store entity by ids.
-func (m *MerchantMutation) AddStoreIDs(ids ...int) {
+func (m *MerchantMutation) AddStoreIDs(ids ...uuid.UUID) {
 	if m.stores == nil {
-		m.stores = make(map[int]struct{})
+		m.stores = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.stores[ids[i]] = struct{}{}
@@ -4120,9 +7169,9 @@ func (m *MerchantMutation) StoresCleared() bool {
 }
 
 // RemoveStoreIDs removes the "stores" edge to the Store entity by IDs.
-func (m *MerchantMutation) RemoveStoreIDs(ids ...int) {
+func (m *MerchantMutation) RemoveStoreIDs(ids ...uuid.UUID) {
 	if m.removedstores == nil {
-		m.removedstores = make(map[int]struct{})
+		m.removedstores = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.stores, ids[i])
@@ -4131,7 +7180,7 @@ func (m *MerchantMutation) RemoveStoreIDs(ids ...int) {
 }
 
 // RemovedStores returns the removed IDs of the "stores" edge to the Store entity.
-func (m *MerchantMutation) RemovedStoresIDs() (ids []int) {
+func (m *MerchantMutation) RemovedStoresIDs() (ids []uuid.UUID) {
 	for id := range m.removedstores {
 		ids = append(ids, id)
 	}
@@ -4139,7 +7188,7 @@ func (m *MerchantMutation) RemovedStoresIDs() (ids []int) {
 }
 
 // StoresIDs returns the "stores" edge IDs in the mutation.
-func (m *MerchantMutation) StoresIDs() (ids []int) {
+func (m *MerchantMutation) StoresIDs() (ids []uuid.UUID) {
 	for id := range m.stores {
 		ids = append(ids, id)
 	}
@@ -4154,9 +7203,9 @@ func (m *MerchantMutation) ResetStores() {
 }
 
 // AddMerchantRenewalIDs adds the "merchant_renewals" edge to the MerchantRenewal entity by ids.
-func (m *MerchantMutation) AddMerchantRenewalIDs(ids ...int) {
+func (m *MerchantMutation) AddMerchantRenewalIDs(ids ...uuid.UUID) {
 	if m.merchant_renewals == nil {
-		m.merchant_renewals = make(map[int]struct{})
+		m.merchant_renewals = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.merchant_renewals[ids[i]] = struct{}{}
@@ -4174,9 +7223,9 @@ func (m *MerchantMutation) MerchantRenewalsCleared() bool {
 }
 
 // RemoveMerchantRenewalIDs removes the "merchant_renewals" edge to the MerchantRenewal entity by IDs.
-func (m *MerchantMutation) RemoveMerchantRenewalIDs(ids ...int) {
+func (m *MerchantMutation) RemoveMerchantRenewalIDs(ids ...uuid.UUID) {
 	if m.removedmerchant_renewals == nil {
-		m.removedmerchant_renewals = make(map[int]struct{})
+		m.removedmerchant_renewals = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.merchant_renewals, ids[i])
@@ -4185,7 +7234,7 @@ func (m *MerchantMutation) RemoveMerchantRenewalIDs(ids ...int) {
 }
 
 // RemovedMerchantRenewals returns the removed IDs of the "merchant_renewals" edge to the MerchantRenewal entity.
-func (m *MerchantMutation) RemovedMerchantRenewalsIDs() (ids []int) {
+func (m *MerchantMutation) RemovedMerchantRenewalsIDs() (ids []uuid.UUID) {
 	for id := range m.removedmerchant_renewals {
 		ids = append(ids, id)
 	}
@@ -4193,7 +7242,7 @@ func (m *MerchantMutation) RemovedMerchantRenewalsIDs() (ids []int) {
 }
 
 // MerchantRenewalsIDs returns the "merchant_renewals" edge IDs in the mutation.
-func (m *MerchantMutation) MerchantRenewalsIDs() (ids []int) {
+func (m *MerchantMutation) MerchantRenewalsIDs() (ids []uuid.UUID) {
 	for id := range m.merchant_renewals {
 		ids = append(ids, id)
 	}
@@ -4208,7 +7257,7 @@ func (m *MerchantMutation) ResetMerchantRenewals() {
 }
 
 // SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by id.
-func (m *MerchantMutation) SetMerchantBusinessTypeID(id int) {
+func (m *MerchantMutation) SetMerchantBusinessTypeID(id uuid.UUID) {
 	m.merchant_business_type = &id
 }
 
@@ -4224,7 +7273,7 @@ func (m *MerchantMutation) MerchantBusinessTypeCleared() bool {
 }
 
 // MerchantBusinessTypeID returns the "merchant_business_type" edge ID in the mutation.
-func (m *MerchantMutation) MerchantBusinessTypeID() (id int, exists bool) {
+func (m *MerchantMutation) MerchantBusinessTypeID() (id uuid.UUID, exists bool) {
 	if m.merchant_business_type != nil {
 		return *m.merchant_business_type, true
 	}
@@ -4234,7 +7283,7 @@ func (m *MerchantMutation) MerchantBusinessTypeID() (id int, exists bool) {
 // MerchantBusinessTypeIDs returns the "merchant_business_type" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // MerchantBusinessTypeID instead. It exists only for internal usage by the builders.
-func (m *MerchantMutation) MerchantBusinessTypeIDs() (ids []int) {
+func (m *MerchantMutation) MerchantBusinessTypeIDs() (ids []uuid.UUID) {
 	if id := m.merchant_business_type; id != nil {
 		ids = append(ids, *id)
 	}
@@ -4274,6 +7323,114 @@ func (m *MerchantMutation) ResetAdminUser() {
 	m.clearedadmin_user = false
 }
 
+// ClearCountry clears the "country" edge to the Country entity.
+func (m *MerchantMutation) ClearCountry() {
+	m.clearedcountry = true
+	m.clearedFields[merchant.FieldCountryID] = struct{}{}
+}
+
+// CountryCleared reports if the "country" edge to the Country entity was cleared.
+func (m *MerchantMutation) CountryCleared() bool {
+	return m.CountryIDCleared() || m.clearedcountry
+}
+
+// CountryIDs returns the "country" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CountryID instead. It exists only for internal usage by the builders.
+func (m *MerchantMutation) CountryIDs() (ids []uuid.UUID) {
+	if id := m.country; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCountry resets all changes to the "country" edge.
+func (m *MerchantMutation) ResetCountry() {
+	m.country = nil
+	m.clearedcountry = false
+}
+
+// ClearProvince clears the "province" edge to the Province entity.
+func (m *MerchantMutation) ClearProvince() {
+	m.clearedprovince = true
+	m.clearedFields[merchant.FieldProvinceID] = struct{}{}
+}
+
+// ProvinceCleared reports if the "province" edge to the Province entity was cleared.
+func (m *MerchantMutation) ProvinceCleared() bool {
+	return m.ProvinceIDCleared() || m.clearedprovince
+}
+
+// ProvinceIDs returns the "province" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ProvinceID instead. It exists only for internal usage by the builders.
+func (m *MerchantMutation) ProvinceIDs() (ids []uuid.UUID) {
+	if id := m.province; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetProvince resets all changes to the "province" edge.
+func (m *MerchantMutation) ResetProvince() {
+	m.province = nil
+	m.clearedprovince = false
+}
+
+// ClearCity clears the "city" edge to the City entity.
+func (m *MerchantMutation) ClearCity() {
+	m.clearedcity = true
+	m.clearedFields[merchant.FieldCityID] = struct{}{}
+}
+
+// CityCleared reports if the "city" edge to the City entity was cleared.
+func (m *MerchantMutation) CityCleared() bool {
+	return m.CityIDCleared() || m.clearedcity
+}
+
+// CityIDs returns the "city" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CityID instead. It exists only for internal usage by the builders.
+func (m *MerchantMutation) CityIDs() (ids []uuid.UUID) {
+	if id := m.city; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCity resets all changes to the "city" edge.
+func (m *MerchantMutation) ResetCity() {
+	m.city = nil
+	m.clearedcity = false
+}
+
+// ClearDistrict clears the "district" edge to the District entity.
+func (m *MerchantMutation) ClearDistrict() {
+	m.cleareddistrict = true
+	m.clearedFields[merchant.FieldDistrictID] = struct{}{}
+}
+
+// DistrictCleared reports if the "district" edge to the District entity was cleared.
+func (m *MerchantMutation) DistrictCleared() bool {
+	return m.DistrictIDCleared() || m.cleareddistrict
+}
+
+// DistrictIDs returns the "district" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DistrictID instead. It exists only for internal usage by the builders.
+func (m *MerchantMutation) DistrictIDs() (ids []uuid.UUID) {
+	if id := m.district; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDistrict resets all changes to the "district" edge.
+func (m *MerchantMutation) ResetDistrict() {
+	m.district = nil
+	m.cleareddistrict = false
+}
+
 // Where appends a list predicates to the MerchantMutation builder.
 func (m *MerchantMutation) Where(ps ...predicate.Merchant) {
 	m.predicates = append(m.predicates, ps...)
@@ -4308,7 +7465,7 @@ func (m *MerchantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MerchantMutation) Fields() []string {
-	fields := make([]string, 0, 26)
+	fields := make([]string, 0, 22)
 	if m.created_at != nil {
 		fields = append(fields, merchant.FieldCreatedAt)
 	}
@@ -4351,29 +7508,17 @@ func (m *MerchantMutation) Fields() []string {
 	if m.status != nil {
 		fields = append(fields, merchant.FieldStatus)
 	}
-	if m.country_id != nil {
+	if m.country != nil {
 		fields = append(fields, merchant.FieldCountryID)
 	}
-	if m.province_id != nil {
+	if m.province != nil {
 		fields = append(fields, merchant.FieldProvinceID)
 	}
-	if m.city_id != nil {
+	if m.city != nil {
 		fields = append(fields, merchant.FieldCityID)
 	}
-	if m.district_id != nil {
+	if m.district != nil {
 		fields = append(fields, merchant.FieldDistrictID)
-	}
-	if m.country_name != nil {
-		fields = append(fields, merchant.FieldCountryName)
-	}
-	if m.province_name != nil {
-		fields = append(fields, merchant.FieldProvinceName)
-	}
-	if m.city_name != nil {
-		fields = append(fields, merchant.FieldCityName)
-	}
-	if m.district_name != nil {
-		fields = append(fields, merchant.FieldDistrictName)
 	}
 	if m.address != nil {
 		fields = append(fields, merchant.FieldAddress)
@@ -4431,14 +7576,6 @@ func (m *MerchantMutation) Field(name string) (ent.Value, bool) {
 		return m.CityID()
 	case merchant.FieldDistrictID:
 		return m.DistrictID()
-	case merchant.FieldCountryName:
-		return m.CountryName()
-	case merchant.FieldProvinceName:
-		return m.ProvinceName()
-	case merchant.FieldCityName:
-		return m.CityName()
-	case merchant.FieldDistrictName:
-		return m.DistrictName()
 	case merchant.FieldAddress:
 		return m.Address()
 	case merchant.FieldLng:
@@ -4492,14 +7629,6 @@ func (m *MerchantMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldCityID(ctx)
 	case merchant.FieldDistrictID:
 		return m.OldDistrictID(ctx)
-	case merchant.FieldCountryName:
-		return m.OldCountryName(ctx)
-	case merchant.FieldProvinceName:
-		return m.OldProvinceName(ctx)
-	case merchant.FieldCityName:
-		return m.OldCityName(ctx)
-	case merchant.FieldDistrictName:
-		return m.OldDistrictName(ctx)
 	case merchant.FieldAddress:
 		return m.OldAddress(ctx)
 	case merchant.FieldLng:
@@ -4588,7 +7717,7 @@ func (m *MerchantMutation) SetField(name string, value ent.Value) error {
 		m.SetExpireUtc(v)
 		return nil
 	case merchant.FieldBusinessTypeID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4616,60 +7745,32 @@ func (m *MerchantMutation) SetField(name string, value ent.Value) error {
 		m.SetStatus(v)
 		return nil
 	case merchant.FieldCountryID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCountryID(v)
 		return nil
 	case merchant.FieldProvinceID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProvinceID(v)
 		return nil
 	case merchant.FieldCityID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCityID(v)
 		return nil
 	case merchant.FieldDistrictID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDistrictID(v)
-		return nil
-	case merchant.FieldCountryName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCountryName(v)
-		return nil
-	case merchant.FieldProvinceName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetProvinceName(v)
-		return nil
-	case merchant.FieldCityName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCityName(v)
-		return nil
-	case merchant.FieldDistrictName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDistrictName(v)
 		return nil
 	case merchant.FieldAddress:
 		v, ok := value.(string)
@@ -4710,18 +7811,6 @@ func (m *MerchantMutation) AddedFields() []string {
 	if m.adddeleted_at != nil {
 		fields = append(fields, merchant.FieldDeletedAt)
 	}
-	if m.addcountry_id != nil {
-		fields = append(fields, merchant.FieldCountryID)
-	}
-	if m.addprovince_id != nil {
-		fields = append(fields, merchant.FieldProvinceID)
-	}
-	if m.addcity_id != nil {
-		fields = append(fields, merchant.FieldCityID)
-	}
-	if m.adddistrict_id != nil {
-		fields = append(fields, merchant.FieldDistrictID)
-	}
 	return fields
 }
 
@@ -4732,14 +7821,6 @@ func (m *MerchantMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case merchant.FieldDeletedAt:
 		return m.AddedDeletedAt()
-	case merchant.FieldCountryID:
-		return m.AddedCountryID()
-	case merchant.FieldProvinceID:
-		return m.AddedProvinceID()
-	case merchant.FieldCityID:
-		return m.AddedCityID()
-	case merchant.FieldDistrictID:
-		return m.AddedDistrictID()
 	}
 	return nil, false
 }
@@ -4756,34 +7837,6 @@ func (m *MerchantMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddDeletedAt(v)
 		return nil
-	case merchant.FieldCountryID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddCountryID(v)
-		return nil
-	case merchant.FieldProvinceID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddProvinceID(v)
-		return nil
-	case merchant.FieldCityID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddCityID(v)
-		return nil
-	case merchant.FieldDistrictID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddDistrictID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Merchant numeric field %s", name)
 }
@@ -4794,6 +7847,18 @@ func (m *MerchantMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(merchant.FieldExpireUtc) {
 		fields = append(fields, merchant.FieldExpireUtc)
+	}
+	if m.FieldCleared(merchant.FieldCountryID) {
+		fields = append(fields, merchant.FieldCountryID)
+	}
+	if m.FieldCleared(merchant.FieldProvinceID) {
+		fields = append(fields, merchant.FieldProvinceID)
+	}
+	if m.FieldCleared(merchant.FieldCityID) {
+		fields = append(fields, merchant.FieldCityID)
+	}
+	if m.FieldCleared(merchant.FieldDistrictID) {
+		fields = append(fields, merchant.FieldDistrictID)
 	}
 	return fields
 }
@@ -4811,6 +7876,18 @@ func (m *MerchantMutation) ClearField(name string) error {
 	switch name {
 	case merchant.FieldExpireUtc:
 		m.ClearExpireUtc()
+		return nil
+	case merchant.FieldCountryID:
+		m.ClearCountryID()
+		return nil
+	case merchant.FieldProvinceID:
+		m.ClearProvinceID()
+		return nil
+	case merchant.FieldCityID:
+		m.ClearCityID()
+		return nil
+	case merchant.FieldDistrictID:
+		m.ClearDistrictID()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant nullable field %s", name)
@@ -4874,18 +7951,6 @@ func (m *MerchantMutation) ResetField(name string) error {
 	case merchant.FieldDistrictID:
 		m.ResetDistrictID()
 		return nil
-	case merchant.FieldCountryName:
-		m.ResetCountryName()
-		return nil
-	case merchant.FieldProvinceName:
-		m.ResetProvinceName()
-		return nil
-	case merchant.FieldCityName:
-		m.ResetCityName()
-		return nil
-	case merchant.FieldDistrictName:
-		m.ResetDistrictName()
-		return nil
 	case merchant.FieldAddress:
 		m.ResetAddress()
 		return nil
@@ -4904,7 +7969,7 @@ func (m *MerchantMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MerchantMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 8)
 	if m.stores != nil {
 		edges = append(edges, merchant.EdgeStores)
 	}
@@ -4916,6 +7981,18 @@ func (m *MerchantMutation) AddedEdges() []string {
 	}
 	if m.admin_user != nil {
 		edges = append(edges, merchant.EdgeAdminUser)
+	}
+	if m.country != nil {
+		edges = append(edges, merchant.EdgeCountry)
+	}
+	if m.province != nil {
+		edges = append(edges, merchant.EdgeProvince)
+	}
+	if m.city != nil {
+		edges = append(edges, merchant.EdgeCity)
+	}
+	if m.district != nil {
+		edges = append(edges, merchant.EdgeDistrict)
 	}
 	return edges
 }
@@ -4944,13 +8021,29 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 		if id := m.admin_user; id != nil {
 			return []ent.Value{*id}
 		}
+	case merchant.EdgeCountry:
+		if id := m.country; id != nil {
+			return []ent.Value{*id}
+		}
+	case merchant.EdgeProvince:
+		if id := m.province; id != nil {
+			return []ent.Value{*id}
+		}
+	case merchant.EdgeCity:
+		if id := m.city; id != nil {
+			return []ent.Value{*id}
+		}
+	case merchant.EdgeDistrict:
+		if id := m.district; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MerchantMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 8)
 	if m.removedstores != nil {
 		edges = append(edges, merchant.EdgeStores)
 	}
@@ -4982,7 +8075,7 @@ func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MerchantMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 8)
 	if m.clearedstores {
 		edges = append(edges, merchant.EdgeStores)
 	}
@@ -4994,6 +8087,18 @@ func (m *MerchantMutation) ClearedEdges() []string {
 	}
 	if m.clearedadmin_user {
 		edges = append(edges, merchant.EdgeAdminUser)
+	}
+	if m.clearedcountry {
+		edges = append(edges, merchant.EdgeCountry)
+	}
+	if m.clearedprovince {
+		edges = append(edges, merchant.EdgeProvince)
+	}
+	if m.clearedcity {
+		edges = append(edges, merchant.EdgeCity)
+	}
+	if m.cleareddistrict {
+		edges = append(edges, merchant.EdgeDistrict)
 	}
 	return edges
 }
@@ -5010,6 +8115,14 @@ func (m *MerchantMutation) EdgeCleared(name string) bool {
 		return m.clearedmerchant_business_type
 	case merchant.EdgeAdminUser:
 		return m.clearedadmin_user
+	case merchant.EdgeCountry:
+		return m.clearedcountry
+	case merchant.EdgeProvince:
+		return m.clearedprovince
+	case merchant.EdgeCity:
+		return m.clearedcity
+	case merchant.EdgeDistrict:
+		return m.cleareddistrict
 	}
 	return false
 }
@@ -5023,6 +8136,18 @@ func (m *MerchantMutation) ClearEdge(name string) error {
 		return nil
 	case merchant.EdgeAdminUser:
 		m.ClearAdminUser()
+		return nil
+	case merchant.EdgeCountry:
+		m.ClearCountry()
+		return nil
+	case merchant.EdgeProvince:
+		m.ClearProvince()
+		return nil
+	case merchant.EdgeCity:
+		m.ClearCity()
+		return nil
+	case merchant.EdgeDistrict:
+		m.ClearDistrict()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant unique edge %s", name)
@@ -5044,6 +8169,18 @@ func (m *MerchantMutation) ResetEdge(name string) error {
 	case merchant.EdgeAdminUser:
 		m.ResetAdminUser()
 		return nil
+	case merchant.EdgeCountry:
+		m.ResetCountry()
+		return nil
+	case merchant.EdgeProvince:
+		m.ResetProvince()
+		return nil
+	case merchant.EdgeCity:
+		m.ResetCity()
+		return nil
+	case merchant.EdgeDistrict:
+		m.ResetDistrict()
+		return nil
 	}
 	return fmt.Errorf("unknown Merchant edge %s", name)
 }
@@ -5053,13 +8190,20 @@ type MerchantBusinessTypeMutation struct {
 	config
 	op               Op
 	typ              string
-	id               *int
+	id               *uuid.UUID
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *int64
+	adddeleted_at    *int64
 	type_code        *string
 	type_name        *string
 	clearedFields    map[string]struct{}
-	merchants        map[int]struct{}
-	removedmerchants map[int]struct{}
+	merchants        map[uuid.UUID]struct{}
+	removedmerchants map[uuid.UUID]struct{}
 	clearedmerchants bool
+	stores           map[uuid.UUID]struct{}
+	removedstores    map[uuid.UUID]struct{}
+	clearedstores    bool
 	done             bool
 	oldValue         func(context.Context) (*MerchantBusinessType, error)
 	predicates       []predicate.MerchantBusinessType
@@ -5085,7 +8229,7 @@ func newMerchantBusinessTypeMutation(c config, op Op, opts ...merchantbusinessty
 }
 
 // withMerchantBusinessTypeID sets the ID field of the mutation.
-func withMerchantBusinessTypeID(id int) merchantbusinesstypeOption {
+func withMerchantBusinessTypeID(id uuid.UUID) merchantbusinesstypeOption {
 	return func(m *MerchantBusinessTypeMutation) {
 		var (
 			err   error
@@ -5135,9 +8279,15 @@ func (m MerchantBusinessTypeMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of MerchantBusinessType entities.
+func (m *MerchantBusinessTypeMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *MerchantBusinessTypeMutation) ID() (id int, exists bool) {
+func (m *MerchantBusinessTypeMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -5148,12 +8298,12 @@ func (m *MerchantBusinessTypeMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *MerchantBusinessTypeMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *MerchantBusinessTypeMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -5161,6 +8311,134 @@ func (m *MerchantBusinessTypeMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *MerchantBusinessTypeMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *MerchantBusinessTypeMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the MerchantBusinessType entity.
+// If the MerchantBusinessType object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MerchantBusinessTypeMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *MerchantBusinessTypeMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *MerchantBusinessTypeMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *MerchantBusinessTypeMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the MerchantBusinessType entity.
+// If the MerchantBusinessType object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MerchantBusinessTypeMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *MerchantBusinessTypeMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *MerchantBusinessTypeMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *MerchantBusinessTypeMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the MerchantBusinessType entity.
+// If the MerchantBusinessType object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MerchantBusinessTypeMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *MerchantBusinessTypeMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *MerchantBusinessTypeMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *MerchantBusinessTypeMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
 }
 
 // SetTypeCode sets the "type_code" field.
@@ -5236,9 +8514,9 @@ func (m *MerchantBusinessTypeMutation) ResetTypeName() {
 }
 
 // AddMerchantIDs adds the "merchants" edge to the Merchant entity by ids.
-func (m *MerchantBusinessTypeMutation) AddMerchantIDs(ids ...int) {
+func (m *MerchantBusinessTypeMutation) AddMerchantIDs(ids ...uuid.UUID) {
 	if m.merchants == nil {
-		m.merchants = make(map[int]struct{})
+		m.merchants = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.merchants[ids[i]] = struct{}{}
@@ -5256,9 +8534,9 @@ func (m *MerchantBusinessTypeMutation) MerchantsCleared() bool {
 }
 
 // RemoveMerchantIDs removes the "merchants" edge to the Merchant entity by IDs.
-func (m *MerchantBusinessTypeMutation) RemoveMerchantIDs(ids ...int) {
+func (m *MerchantBusinessTypeMutation) RemoveMerchantIDs(ids ...uuid.UUID) {
 	if m.removedmerchants == nil {
-		m.removedmerchants = make(map[int]struct{})
+		m.removedmerchants = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.merchants, ids[i])
@@ -5267,7 +8545,7 @@ func (m *MerchantBusinessTypeMutation) RemoveMerchantIDs(ids ...int) {
 }
 
 // RemovedMerchants returns the removed IDs of the "merchants" edge to the Merchant entity.
-func (m *MerchantBusinessTypeMutation) RemovedMerchantsIDs() (ids []int) {
+func (m *MerchantBusinessTypeMutation) RemovedMerchantsIDs() (ids []uuid.UUID) {
 	for id := range m.removedmerchants {
 		ids = append(ids, id)
 	}
@@ -5275,7 +8553,7 @@ func (m *MerchantBusinessTypeMutation) RemovedMerchantsIDs() (ids []int) {
 }
 
 // MerchantsIDs returns the "merchants" edge IDs in the mutation.
-func (m *MerchantBusinessTypeMutation) MerchantsIDs() (ids []int) {
+func (m *MerchantBusinessTypeMutation) MerchantsIDs() (ids []uuid.UUID) {
 	for id := range m.merchants {
 		ids = append(ids, id)
 	}
@@ -5287,6 +8565,60 @@ func (m *MerchantBusinessTypeMutation) ResetMerchants() {
 	m.merchants = nil
 	m.clearedmerchants = false
 	m.removedmerchants = nil
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by ids.
+func (m *MerchantBusinessTypeMutation) AddStoreIDs(ids ...uuid.UUID) {
+	if m.stores == nil {
+		m.stores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.stores[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStores clears the "stores" edge to the Store entity.
+func (m *MerchantBusinessTypeMutation) ClearStores() {
+	m.clearedstores = true
+}
+
+// StoresCleared reports if the "stores" edge to the Store entity was cleared.
+func (m *MerchantBusinessTypeMutation) StoresCleared() bool {
+	return m.clearedstores
+}
+
+// RemoveStoreIDs removes the "stores" edge to the Store entity by IDs.
+func (m *MerchantBusinessTypeMutation) RemoveStoreIDs(ids ...uuid.UUID) {
+	if m.removedstores == nil {
+		m.removedstores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.stores, ids[i])
+		m.removedstores[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStores returns the removed IDs of the "stores" edge to the Store entity.
+func (m *MerchantBusinessTypeMutation) RemovedStoresIDs() (ids []uuid.UUID) {
+	for id := range m.removedstores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StoresIDs returns the "stores" edge IDs in the mutation.
+func (m *MerchantBusinessTypeMutation) StoresIDs() (ids []uuid.UUID) {
+	for id := range m.stores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStores resets all changes to the "stores" edge.
+func (m *MerchantBusinessTypeMutation) ResetStores() {
+	m.stores = nil
+	m.clearedstores = false
+	m.removedstores = nil
 }
 
 // Where appends a list predicates to the MerchantBusinessTypeMutation builder.
@@ -5323,7 +8655,16 @@ func (m *MerchantBusinessTypeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MerchantBusinessTypeMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 5)
+	if m.created_at != nil {
+		fields = append(fields, merchantbusinesstype.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, merchantbusinesstype.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, merchantbusinesstype.FieldDeletedAt)
+	}
 	if m.type_code != nil {
 		fields = append(fields, merchantbusinesstype.FieldTypeCode)
 	}
@@ -5338,6 +8679,12 @@ func (m *MerchantBusinessTypeMutation) Fields() []string {
 // schema.
 func (m *MerchantBusinessTypeMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case merchantbusinesstype.FieldCreatedAt:
+		return m.CreatedAt()
+	case merchantbusinesstype.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case merchantbusinesstype.FieldDeletedAt:
+		return m.DeletedAt()
 	case merchantbusinesstype.FieldTypeCode:
 		return m.TypeCode()
 	case merchantbusinesstype.FieldTypeName:
@@ -5351,6 +8698,12 @@ func (m *MerchantBusinessTypeMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *MerchantBusinessTypeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case merchantbusinesstype.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case merchantbusinesstype.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case merchantbusinesstype.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	case merchantbusinesstype.FieldTypeCode:
 		return m.OldTypeCode(ctx)
 	case merchantbusinesstype.FieldTypeName:
@@ -5364,6 +8717,27 @@ func (m *MerchantBusinessTypeMutation) OldField(ctx context.Context, name string
 // type.
 func (m *MerchantBusinessTypeMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case merchantbusinesstype.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case merchantbusinesstype.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case merchantbusinesstype.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
 	case merchantbusinesstype.FieldTypeCode:
 		v, ok := value.(string)
 		if !ok {
@@ -5385,13 +8759,21 @@ func (m *MerchantBusinessTypeMutation) SetField(name string, value ent.Value) er
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *MerchantBusinessTypeMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, merchantbusinesstype.FieldDeletedAt)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *MerchantBusinessTypeMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case merchantbusinesstype.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	}
 	return nil, false
 }
 
@@ -5400,6 +8782,13 @@ func (m *MerchantBusinessTypeMutation) AddedField(name string) (ent.Value, bool)
 // type.
 func (m *MerchantBusinessTypeMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case merchantbusinesstype.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown MerchantBusinessType numeric field %s", name)
 }
@@ -5427,6 +8816,15 @@ func (m *MerchantBusinessTypeMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *MerchantBusinessTypeMutation) ResetField(name string) error {
 	switch name {
+	case merchantbusinesstype.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case merchantbusinesstype.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case merchantbusinesstype.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
 	case merchantbusinesstype.FieldTypeCode:
 		m.ResetTypeCode()
 		return nil
@@ -5439,9 +8837,12 @@ func (m *MerchantBusinessTypeMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MerchantBusinessTypeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.merchants != nil {
 		edges = append(edges, merchantbusinesstype.EdgeMerchants)
+	}
+	if m.stores != nil {
+		edges = append(edges, merchantbusinesstype.EdgeStores)
 	}
 	return edges
 }
@@ -5456,15 +8857,24 @@ func (m *MerchantBusinessTypeMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case merchantbusinesstype.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.stores))
+		for id := range m.stores {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MerchantBusinessTypeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedmerchants != nil {
 		edges = append(edges, merchantbusinesstype.EdgeMerchants)
+	}
+	if m.removedstores != nil {
+		edges = append(edges, merchantbusinesstype.EdgeStores)
 	}
 	return edges
 }
@@ -5479,15 +8889,24 @@ func (m *MerchantBusinessTypeMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case merchantbusinesstype.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.removedstores))
+		for id := range m.removedstores {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MerchantBusinessTypeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedmerchants {
 		edges = append(edges, merchantbusinesstype.EdgeMerchants)
+	}
+	if m.clearedstores {
+		edges = append(edges, merchantbusinesstype.EdgeStores)
 	}
 	return edges
 }
@@ -5498,6 +8917,8 @@ func (m *MerchantBusinessTypeMutation) EdgeCleared(name string) bool {
 	switch name {
 	case merchantbusinesstype.EdgeMerchants:
 		return m.clearedmerchants
+	case merchantbusinesstype.EdgeStores:
+		return m.clearedstores
 	}
 	return false
 }
@@ -5517,6 +8938,9 @@ func (m *MerchantBusinessTypeMutation) ResetEdge(name string) error {
 	case merchantbusinesstype.EdgeMerchants:
 		m.ResetMerchants()
 		return nil
+	case merchantbusinesstype.EdgeStores:
+		m.ResetStores()
+		return nil
 	}
 	return fmt.Errorf("unknown MerchantBusinessType edge %s", name)
 }
@@ -5526,16 +8950,18 @@ type MerchantRenewalMutation struct {
 	config
 	op                     Op
 	typ                    string
-	id                     *int
+	id                     *uuid.UUID
 	created_at             *time.Time
 	updated_at             *time.Time
+	deleted_at             *int64
+	adddeleted_at          *int64
 	purchase_duration      *int
 	addpurchase_duration   *int
 	purchase_duration_unit *domain.PurchaseDurationUnit
 	operator_name          *string
 	operator_account       *string
 	clearedFields          map[string]struct{}
-	merchant               *int
+	merchant               *uuid.UUID
 	clearedmerchant        bool
 	done                   bool
 	oldValue               func(context.Context) (*MerchantRenewal, error)
@@ -5562,7 +8988,7 @@ func newMerchantRenewalMutation(c config, op Op, opts ...merchantrenewalOption) 
 }
 
 // withMerchantRenewalID sets the ID field of the mutation.
-func withMerchantRenewalID(id int) merchantrenewalOption {
+func withMerchantRenewalID(id uuid.UUID) merchantrenewalOption {
 	return func(m *MerchantRenewalMutation) {
 		var (
 			err   error
@@ -5612,9 +9038,15 @@ func (m MerchantRenewalMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of MerchantRenewal entities.
+func (m *MerchantRenewalMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *MerchantRenewalMutation) ID() (id int, exists bool) {
+func (m *MerchantRenewalMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -5625,12 +9057,12 @@ func (m *MerchantRenewalMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *MerchantRenewalMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *MerchantRenewalMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -5712,13 +9144,69 @@ func (m *MerchantRenewalMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (m *MerchantRenewalMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *MerchantRenewalMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the MerchantRenewal entity.
+// If the MerchantRenewal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MerchantRenewalMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *MerchantRenewalMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *MerchantRenewalMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *MerchantRenewalMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
 // SetMerchantID sets the "merchant_id" field.
-func (m *MerchantRenewalMutation) SetMerchantID(i int) {
-	m.merchant = &i
+func (m *MerchantRenewalMutation) SetMerchantID(u uuid.UUID) {
+	m.merchant = &u
 }
 
 // MerchantID returns the value of the "merchant_id" field in the mutation.
-func (m *MerchantRenewalMutation) MerchantID() (r int, exists bool) {
+func (m *MerchantRenewalMutation) MerchantID() (r uuid.UUID, exists bool) {
 	v := m.merchant
 	if v == nil {
 		return
@@ -5729,7 +9217,7 @@ func (m *MerchantRenewalMutation) MerchantID() (r int, exists bool) {
 // OldMerchantID returns the old "merchant_id" field's value of the MerchantRenewal entity.
 // If the MerchantRenewal object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MerchantRenewalMutation) OldMerchantID(ctx context.Context) (v int, err error) {
+func (m *MerchantRenewalMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
 	}
@@ -5926,7 +9414,7 @@ func (m *MerchantRenewalMutation) MerchantCleared() bool {
 // MerchantIDs returns the "merchant" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // MerchantID instead. It exists only for internal usage by the builders.
-func (m *MerchantRenewalMutation) MerchantIDs() (ids []int) {
+func (m *MerchantRenewalMutation) MerchantIDs() (ids []uuid.UUID) {
 	if id := m.merchant; id != nil {
 		ids = append(ids, *id)
 	}
@@ -5973,12 +9461,15 @@ func (m *MerchantRenewalMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MerchantRenewalMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, merchantrenewal.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, merchantrenewal.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, merchantrenewal.FieldDeletedAt)
 	}
 	if m.merchant != nil {
 		fields = append(fields, merchantrenewal.FieldMerchantID)
@@ -6007,6 +9498,8 @@ func (m *MerchantRenewalMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case merchantrenewal.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case merchantrenewal.FieldDeletedAt:
+		return m.DeletedAt()
 	case merchantrenewal.FieldMerchantID:
 		return m.MerchantID()
 	case merchantrenewal.FieldPurchaseDuration:
@@ -6030,6 +9523,8 @@ func (m *MerchantRenewalMutation) OldField(ctx context.Context, name string) (en
 		return m.OldCreatedAt(ctx)
 	case merchantrenewal.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case merchantrenewal.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	case merchantrenewal.FieldMerchantID:
 		return m.OldMerchantID(ctx)
 	case merchantrenewal.FieldPurchaseDuration:
@@ -6063,8 +9558,15 @@ func (m *MerchantRenewalMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case merchantrenewal.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
 	case merchantrenewal.FieldMerchantID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6106,6 +9608,9 @@ func (m *MerchantRenewalMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *MerchantRenewalMutation) AddedFields() []string {
 	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, merchantrenewal.FieldDeletedAt)
+	}
 	if m.addpurchase_duration != nil {
 		fields = append(fields, merchantrenewal.FieldPurchaseDuration)
 	}
@@ -6117,6 +9622,8 @@ func (m *MerchantRenewalMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *MerchantRenewalMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case merchantrenewal.FieldDeletedAt:
+		return m.AddedDeletedAt()
 	case merchantrenewal.FieldPurchaseDuration:
 		return m.AddedPurchaseDuration()
 	}
@@ -6128,6 +9635,13 @@ func (m *MerchantRenewalMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *MerchantRenewalMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case merchantrenewal.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
 	case merchantrenewal.FieldPurchaseDuration:
 		v, ok := value.(int)
 		if !ok {
@@ -6167,6 +9681,9 @@ func (m *MerchantRenewalMutation) ResetField(name string) error {
 		return nil
 	case merchantrenewal.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case merchantrenewal.FieldDeletedAt:
+		m.ResetDeletedAt()
 		return nil
 	case merchantrenewal.FieldMerchantID:
 		m.ResetMerchantID()
@@ -6261,56 +9778,1111 @@ func (m *MerchantRenewalMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown MerchantRenewal edge %s", name)
 }
 
+// ProvinceMutation represents an operation that mutates the Province nodes in the graph.
+type ProvinceMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *int64
+	adddeleted_at    *int64
+	name             *string
+	sort             *int
+	addsort          *int
+	clearedFields    map[string]struct{}
+	country          *uuid.UUID
+	clearedcountry   bool
+	cities           map[uuid.UUID]struct{}
+	removedcities    map[uuid.UUID]struct{}
+	clearedcities    bool
+	districts        map[uuid.UUID]struct{}
+	removeddistricts map[uuid.UUID]struct{}
+	cleareddistricts bool
+	merchants        map[uuid.UUID]struct{}
+	removedmerchants map[uuid.UUID]struct{}
+	clearedmerchants bool
+	stores           map[uuid.UUID]struct{}
+	removedstores    map[uuid.UUID]struct{}
+	clearedstores    bool
+	done             bool
+	oldValue         func(context.Context) (*Province, error)
+	predicates       []predicate.Province
+}
+
+var _ ent.Mutation = (*ProvinceMutation)(nil)
+
+// provinceOption allows management of the mutation configuration using functional options.
+type provinceOption func(*ProvinceMutation)
+
+// newProvinceMutation creates new mutation for the Province entity.
+func newProvinceMutation(c config, op Op, opts ...provinceOption) *ProvinceMutation {
+	m := &ProvinceMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeProvince,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withProvinceID sets the ID field of the mutation.
+func withProvinceID(id uuid.UUID) provinceOption {
+	return func(m *ProvinceMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Province
+		)
+		m.oldValue = func(ctx context.Context) (*Province, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Province.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withProvince sets the old Province of the mutation.
+func withProvince(node *Province) provinceOption {
+	return func(m *ProvinceMutation) {
+		m.oldValue = func(context.Context) (*Province, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ProvinceMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ProvinceMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Province entities.
+func (m *ProvinceMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ProvinceMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ProvinceMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Province.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ProvinceMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ProvinceMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Province entity.
+// If the Province object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProvinceMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ProvinceMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *ProvinceMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *ProvinceMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Province entity.
+// If the Province object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProvinceMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *ProvinceMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *ProvinceMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *ProvinceMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Province entity.
+// If the Province object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProvinceMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *ProvinceMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *ProvinceMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *ProvinceMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetCountryID sets the "country_id" field.
+func (m *ProvinceMutation) SetCountryID(u uuid.UUID) {
+	m.country = &u
+}
+
+// CountryID returns the value of the "country_id" field in the mutation.
+func (m *ProvinceMutation) CountryID() (r uuid.UUID, exists bool) {
+	v := m.country
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCountryID returns the old "country_id" field's value of the Province entity.
+// If the Province object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProvinceMutation) OldCountryID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCountryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCountryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCountryID: %w", err)
+	}
+	return oldValue.CountryID, nil
+}
+
+// ResetCountryID resets all changes to the "country_id" field.
+func (m *ProvinceMutation) ResetCountryID() {
+	m.country = nil
+}
+
+// SetName sets the "name" field.
+func (m *ProvinceMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *ProvinceMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Province entity.
+// If the Province object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProvinceMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *ProvinceMutation) ResetName() {
+	m.name = nil
+}
+
+// SetSort sets the "sort" field.
+func (m *ProvinceMutation) SetSort(i int) {
+	m.sort = &i
+	m.addsort = nil
+}
+
+// Sort returns the value of the "sort" field in the mutation.
+func (m *ProvinceMutation) Sort() (r int, exists bool) {
+	v := m.sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSort returns the old "sort" field's value of the Province entity.
+// If the Province object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProvinceMutation) OldSort(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSort is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSort requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSort: %w", err)
+	}
+	return oldValue.Sort, nil
+}
+
+// AddSort adds i to the "sort" field.
+func (m *ProvinceMutation) AddSort(i int) {
+	if m.addsort != nil {
+		*m.addsort += i
+	} else {
+		m.addsort = &i
+	}
+}
+
+// AddedSort returns the value that was added to the "sort" field in this mutation.
+func (m *ProvinceMutation) AddedSort() (r int, exists bool) {
+	v := m.addsort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSort resets all changes to the "sort" field.
+func (m *ProvinceMutation) ResetSort() {
+	m.sort = nil
+	m.addsort = nil
+}
+
+// ClearCountry clears the "country" edge to the Country entity.
+func (m *ProvinceMutation) ClearCountry() {
+	m.clearedcountry = true
+	m.clearedFields[province.FieldCountryID] = struct{}{}
+}
+
+// CountryCleared reports if the "country" edge to the Country entity was cleared.
+func (m *ProvinceMutation) CountryCleared() bool {
+	return m.clearedcountry
+}
+
+// CountryIDs returns the "country" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CountryID instead. It exists only for internal usage by the builders.
+func (m *ProvinceMutation) CountryIDs() (ids []uuid.UUID) {
+	if id := m.country; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCountry resets all changes to the "country" edge.
+func (m *ProvinceMutation) ResetCountry() {
+	m.country = nil
+	m.clearedcountry = false
+}
+
+// AddCityIDs adds the "cities" edge to the City entity by ids.
+func (m *ProvinceMutation) AddCityIDs(ids ...uuid.UUID) {
+	if m.cities == nil {
+		m.cities = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.cities[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCities clears the "cities" edge to the City entity.
+func (m *ProvinceMutation) ClearCities() {
+	m.clearedcities = true
+}
+
+// CitiesCleared reports if the "cities" edge to the City entity was cleared.
+func (m *ProvinceMutation) CitiesCleared() bool {
+	return m.clearedcities
+}
+
+// RemoveCityIDs removes the "cities" edge to the City entity by IDs.
+func (m *ProvinceMutation) RemoveCityIDs(ids ...uuid.UUID) {
+	if m.removedcities == nil {
+		m.removedcities = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.cities, ids[i])
+		m.removedcities[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCities returns the removed IDs of the "cities" edge to the City entity.
+func (m *ProvinceMutation) RemovedCitiesIDs() (ids []uuid.UUID) {
+	for id := range m.removedcities {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CitiesIDs returns the "cities" edge IDs in the mutation.
+func (m *ProvinceMutation) CitiesIDs() (ids []uuid.UUID) {
+	for id := range m.cities {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCities resets all changes to the "cities" edge.
+func (m *ProvinceMutation) ResetCities() {
+	m.cities = nil
+	m.clearedcities = false
+	m.removedcities = nil
+}
+
+// AddDistrictIDs adds the "districts" edge to the District entity by ids.
+func (m *ProvinceMutation) AddDistrictIDs(ids ...uuid.UUID) {
+	if m.districts == nil {
+		m.districts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.districts[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDistricts clears the "districts" edge to the District entity.
+func (m *ProvinceMutation) ClearDistricts() {
+	m.cleareddistricts = true
+}
+
+// DistrictsCleared reports if the "districts" edge to the District entity was cleared.
+func (m *ProvinceMutation) DistrictsCleared() bool {
+	return m.cleareddistricts
+}
+
+// RemoveDistrictIDs removes the "districts" edge to the District entity by IDs.
+func (m *ProvinceMutation) RemoveDistrictIDs(ids ...uuid.UUID) {
+	if m.removeddistricts == nil {
+		m.removeddistricts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.districts, ids[i])
+		m.removeddistricts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDistricts returns the removed IDs of the "districts" edge to the District entity.
+func (m *ProvinceMutation) RemovedDistrictsIDs() (ids []uuid.UUID) {
+	for id := range m.removeddistricts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DistrictsIDs returns the "districts" edge IDs in the mutation.
+func (m *ProvinceMutation) DistrictsIDs() (ids []uuid.UUID) {
+	for id := range m.districts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDistricts resets all changes to the "districts" edge.
+func (m *ProvinceMutation) ResetDistricts() {
+	m.districts = nil
+	m.cleareddistricts = false
+	m.removeddistricts = nil
+}
+
+// AddMerchantIDs adds the "merchants" edge to the Merchant entity by ids.
+func (m *ProvinceMutation) AddMerchantIDs(ids ...uuid.UUID) {
+	if m.merchants == nil {
+		m.merchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.merchants[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMerchants clears the "merchants" edge to the Merchant entity.
+func (m *ProvinceMutation) ClearMerchants() {
+	m.clearedmerchants = true
+}
+
+// MerchantsCleared reports if the "merchants" edge to the Merchant entity was cleared.
+func (m *ProvinceMutation) MerchantsCleared() bool {
+	return m.clearedmerchants
+}
+
+// RemoveMerchantIDs removes the "merchants" edge to the Merchant entity by IDs.
+func (m *ProvinceMutation) RemoveMerchantIDs(ids ...uuid.UUID) {
+	if m.removedmerchants == nil {
+		m.removedmerchants = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.merchants, ids[i])
+		m.removedmerchants[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMerchants returns the removed IDs of the "merchants" edge to the Merchant entity.
+func (m *ProvinceMutation) RemovedMerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.removedmerchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MerchantsIDs returns the "merchants" edge IDs in the mutation.
+func (m *ProvinceMutation) MerchantsIDs() (ids []uuid.UUID) {
+	for id := range m.merchants {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMerchants resets all changes to the "merchants" edge.
+func (m *ProvinceMutation) ResetMerchants() {
+	m.merchants = nil
+	m.clearedmerchants = false
+	m.removedmerchants = nil
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by ids.
+func (m *ProvinceMutation) AddStoreIDs(ids ...uuid.UUID) {
+	if m.stores == nil {
+		m.stores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.stores[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStores clears the "stores" edge to the Store entity.
+func (m *ProvinceMutation) ClearStores() {
+	m.clearedstores = true
+}
+
+// StoresCleared reports if the "stores" edge to the Store entity was cleared.
+func (m *ProvinceMutation) StoresCleared() bool {
+	return m.clearedstores
+}
+
+// RemoveStoreIDs removes the "stores" edge to the Store entity by IDs.
+func (m *ProvinceMutation) RemoveStoreIDs(ids ...uuid.UUID) {
+	if m.removedstores == nil {
+		m.removedstores = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.stores, ids[i])
+		m.removedstores[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStores returns the removed IDs of the "stores" edge to the Store entity.
+func (m *ProvinceMutation) RemovedStoresIDs() (ids []uuid.UUID) {
+	for id := range m.removedstores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StoresIDs returns the "stores" edge IDs in the mutation.
+func (m *ProvinceMutation) StoresIDs() (ids []uuid.UUID) {
+	for id := range m.stores {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStores resets all changes to the "stores" edge.
+func (m *ProvinceMutation) ResetStores() {
+	m.stores = nil
+	m.clearedstores = false
+	m.removedstores = nil
+}
+
+// Where appends a list predicates to the ProvinceMutation builder.
+func (m *ProvinceMutation) Where(ps ...predicate.Province) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ProvinceMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ProvinceMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Province, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ProvinceMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ProvinceMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Province).
+func (m *ProvinceMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ProvinceMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.created_at != nil {
+		fields = append(fields, province.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, province.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, province.FieldDeletedAt)
+	}
+	if m.country != nil {
+		fields = append(fields, province.FieldCountryID)
+	}
+	if m.name != nil {
+		fields = append(fields, province.FieldName)
+	}
+	if m.sort != nil {
+		fields = append(fields, province.FieldSort)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ProvinceMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case province.FieldCreatedAt:
+		return m.CreatedAt()
+	case province.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case province.FieldDeletedAt:
+		return m.DeletedAt()
+	case province.FieldCountryID:
+		return m.CountryID()
+	case province.FieldName:
+		return m.Name()
+	case province.FieldSort:
+		return m.Sort()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ProvinceMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case province.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case province.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case province.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case province.FieldCountryID:
+		return m.OldCountryID(ctx)
+	case province.FieldName:
+		return m.OldName(ctx)
+	case province.FieldSort:
+		return m.OldSort(ctx)
+	}
+	return nil, fmt.Errorf("unknown Province field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProvinceMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case province.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case province.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case province.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case province.FieldCountryID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCountryID(v)
+		return nil
+	case province.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case province.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Province field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ProvinceMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, province.FieldDeletedAt)
+	}
+	if m.addsort != nil {
+		fields = append(fields, province.FieldSort)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ProvinceMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case province.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	case province.FieldSort:
+		return m.AddedSort()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProvinceMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case province.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	case province.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Province numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ProvinceMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ProvinceMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ProvinceMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Province nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ProvinceMutation) ResetField(name string) error {
+	switch name {
+	case province.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case province.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case province.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case province.FieldCountryID:
+		m.ResetCountryID()
+		return nil
+	case province.FieldName:
+		m.ResetName()
+		return nil
+	case province.FieldSort:
+		m.ResetSort()
+		return nil
+	}
+	return fmt.Errorf("unknown Province field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ProvinceMutation) AddedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.country != nil {
+		edges = append(edges, province.EdgeCountry)
+	}
+	if m.cities != nil {
+		edges = append(edges, province.EdgeCities)
+	}
+	if m.districts != nil {
+		edges = append(edges, province.EdgeDistricts)
+	}
+	if m.merchants != nil {
+		edges = append(edges, province.EdgeMerchants)
+	}
+	if m.stores != nil {
+		edges = append(edges, province.EdgeStores)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ProvinceMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case province.EdgeCountry:
+		if id := m.country; id != nil {
+			return []ent.Value{*id}
+		}
+	case province.EdgeCities:
+		ids := make([]ent.Value, 0, len(m.cities))
+		for id := range m.cities {
+			ids = append(ids, id)
+		}
+		return ids
+	case province.EdgeDistricts:
+		ids := make([]ent.Value, 0, len(m.districts))
+		for id := range m.districts {
+			ids = append(ids, id)
+		}
+		return ids
+	case province.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.merchants))
+		for id := range m.merchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case province.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.stores))
+		for id := range m.stores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ProvinceMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.removedcities != nil {
+		edges = append(edges, province.EdgeCities)
+	}
+	if m.removeddistricts != nil {
+		edges = append(edges, province.EdgeDistricts)
+	}
+	if m.removedmerchants != nil {
+		edges = append(edges, province.EdgeMerchants)
+	}
+	if m.removedstores != nil {
+		edges = append(edges, province.EdgeStores)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ProvinceMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case province.EdgeCities:
+		ids := make([]ent.Value, 0, len(m.removedcities))
+		for id := range m.removedcities {
+			ids = append(ids, id)
+		}
+		return ids
+	case province.EdgeDistricts:
+		ids := make([]ent.Value, 0, len(m.removeddistricts))
+		for id := range m.removeddistricts {
+			ids = append(ids, id)
+		}
+		return ids
+	case province.EdgeMerchants:
+		ids := make([]ent.Value, 0, len(m.removedmerchants))
+		for id := range m.removedmerchants {
+			ids = append(ids, id)
+		}
+		return ids
+	case province.EdgeStores:
+		ids := make([]ent.Value, 0, len(m.removedstores))
+		for id := range m.removedstores {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ProvinceMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 5)
+	if m.clearedcountry {
+		edges = append(edges, province.EdgeCountry)
+	}
+	if m.clearedcities {
+		edges = append(edges, province.EdgeCities)
+	}
+	if m.cleareddistricts {
+		edges = append(edges, province.EdgeDistricts)
+	}
+	if m.clearedmerchants {
+		edges = append(edges, province.EdgeMerchants)
+	}
+	if m.clearedstores {
+		edges = append(edges, province.EdgeStores)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ProvinceMutation) EdgeCleared(name string) bool {
+	switch name {
+	case province.EdgeCountry:
+		return m.clearedcountry
+	case province.EdgeCities:
+		return m.clearedcities
+	case province.EdgeDistricts:
+		return m.cleareddistricts
+	case province.EdgeMerchants:
+		return m.clearedmerchants
+	case province.EdgeStores:
+		return m.clearedstores
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ProvinceMutation) ClearEdge(name string) error {
+	switch name {
+	case province.EdgeCountry:
+		m.ClearCountry()
+		return nil
+	}
+	return fmt.Errorf("unknown Province unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ProvinceMutation) ResetEdge(name string) error {
+	switch name {
+	case province.EdgeCountry:
+		m.ResetCountry()
+		return nil
+	case province.EdgeCities:
+		m.ResetCities()
+		return nil
+	case province.EdgeDistricts:
+		m.ResetDistricts()
+		return nil
+	case province.EdgeMerchants:
+		m.ResetMerchants()
+		return nil
+	case province.EdgeStores:
+		m.ResetStores()
+		return nil
+	}
+	return fmt.Errorf("unknown Province edge %s", name)
+}
+
 // StoreMutation represents an operation that mutates the Store nodes in the graph.
 type StoreMutation struct {
 	config
-	op                         Op
-	typ                        string
-	id                         *int
-	created_at                 *time.Time
-	updated_at                 *time.Time
-	deleted_at                 *int64
-	adddeleted_at              *int64
-	admin_phone_number         *string
-	store_name                 *string
-	store_short_name           *string
-	store_code                 *string
-	status                     *domain.StoreStatus
-	business_model             *domain.BusinessModel
-	business_type_id           *int
-	addbusiness_type_id        *int
-	contact_name               *string
-	contact_phone              *string
-	unified_social_credit_code *string
-	store_logo                 *string
-	business_license_url       *string
-	storefront_url             *string
-	cashier_desk_url           *string
-	dining_environment_url     *string
-	food_operation_license_url *string
-	country_id                 *int
-	addcountry_id              *int
-	province_id                *int
-	addprovince_id             *int
-	city_id                    *int
-	addcity_id                 *int
-	district_id                *int
-	adddistrict_id             *int
-	country_name               *string
-	province_name              *string
-	city_name                  *string
-	district_name              *string
-	address                    *string
-	lng                        *string
-	lat                        *string
-	clearedFields              map[string]struct{}
-	merchant                   *int
-	clearedmerchant            bool
-	admin_user                 *uuid.UUID
-	clearedadmin_user          bool
-	done                       bool
-	oldValue                   func(context.Context) (*Store, error)
-	predicates                 []predicate.Store
+	op                            Op
+	typ                           string
+	id                            *uuid.UUID
+	created_at                    *time.Time
+	updated_at                    *time.Time
+	deleted_at                    *int64
+	adddeleted_at                 *int64
+	admin_phone_number            *string
+	store_name                    *string
+	store_short_name              *string
+	store_code                    *string
+	status                        *domain.StoreStatus
+	business_model                *domain.BusinessModel
+	contact_name                  *string
+	contact_phone                 *string
+	unified_social_credit_code    *string
+	store_logo                    *string
+	business_license_url          *string
+	storefront_url                *string
+	cashier_desk_url              *string
+	dining_environment_url        *string
+	food_operation_license_url    *string
+	address                       *string
+	lng                           *string
+	lat                           *string
+	clearedFields                 map[string]struct{}
+	merchant                      *uuid.UUID
+	clearedmerchant               bool
+	admin_user                    *uuid.UUID
+	clearedadmin_user             bool
+	merchant_business_type        *uuid.UUID
+	clearedmerchant_business_type bool
+	country                       *uuid.UUID
+	clearedcountry                bool
+	province                      *uuid.UUID
+	clearedprovince               bool
+	city                          *uuid.UUID
+	clearedcity                   bool
+	district                      *uuid.UUID
+	cleareddistrict               bool
+	done                          bool
+	oldValue                      func(context.Context) (*Store, error)
+	predicates                    []predicate.Store
 }
 
 var _ ent.Mutation = (*StoreMutation)(nil)
@@ -6333,7 +10905,7 @@ func newStoreMutation(c config, op Op, opts ...storeOption) *StoreMutation {
 }
 
 // withStoreID sets the ID field of the mutation.
-func withStoreID(id int) storeOption {
+func withStoreID(id uuid.UUID) storeOption {
 	return func(m *StoreMutation) {
 		var (
 			err   error
@@ -6383,9 +10955,15 @@ func (m StoreMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Store entities.
+func (m *StoreMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *StoreMutation) ID() (id int, exists bool) {
+func (m *StoreMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -6396,12 +10974,12 @@ func (m *StoreMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *StoreMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *StoreMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -6540,12 +11118,12 @@ func (m *StoreMutation) ResetDeletedAt() {
 }
 
 // SetMerchantID sets the "merchant_id" field.
-func (m *StoreMutation) SetMerchantID(i int) {
-	m.merchant = &i
+func (m *StoreMutation) SetMerchantID(u uuid.UUID) {
+	m.merchant = &u
 }
 
 // MerchantID returns the value of the "merchant_id" field in the mutation.
-func (m *StoreMutation) MerchantID() (r int, exists bool) {
+func (m *StoreMutation) MerchantID() (r uuid.UUID, exists bool) {
 	v := m.merchant
 	if v == nil {
 		return
@@ -6556,7 +11134,7 @@ func (m *StoreMutation) MerchantID() (r int, exists bool) {
 // OldMerchantID returns the old "merchant_id" field's value of the Store entity.
 // If the Store object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldMerchantID(ctx context.Context) (v int, err error) {
+func (m *StoreMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
 	}
@@ -6792,14 +11370,13 @@ func (m *StoreMutation) ResetBusinessModel() {
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (m *StoreMutation) SetBusinessTypeID(i int) {
-	m.business_type_id = &i
-	m.addbusiness_type_id = nil
+func (m *StoreMutation) SetBusinessTypeID(u uuid.UUID) {
+	m.merchant_business_type = &u
 }
 
 // BusinessTypeID returns the value of the "business_type_id" field in the mutation.
-func (m *StoreMutation) BusinessTypeID() (r int, exists bool) {
-	v := m.business_type_id
+func (m *StoreMutation) BusinessTypeID() (r uuid.UUID, exists bool) {
+	v := m.merchant_business_type
 	if v == nil {
 		return
 	}
@@ -6809,7 +11386,7 @@ func (m *StoreMutation) BusinessTypeID() (r int, exists bool) {
 // OldBusinessTypeID returns the old "business_type_id" field's value of the Store entity.
 // If the Store object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldBusinessTypeID(ctx context.Context) (v int, err error) {
+func (m *StoreMutation) OldBusinessTypeID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBusinessTypeID is only allowed on UpdateOne operations")
 	}
@@ -6823,28 +11400,9 @@ func (m *StoreMutation) OldBusinessTypeID(ctx context.Context) (v int, err error
 	return oldValue.BusinessTypeID, nil
 }
 
-// AddBusinessTypeID adds i to the "business_type_id" field.
-func (m *StoreMutation) AddBusinessTypeID(i int) {
-	if m.addbusiness_type_id != nil {
-		*m.addbusiness_type_id += i
-	} else {
-		m.addbusiness_type_id = &i
-	}
-}
-
-// AddedBusinessTypeID returns the value that was added to the "business_type_id" field in this mutation.
-func (m *StoreMutation) AddedBusinessTypeID() (r int, exists bool) {
-	v := m.addbusiness_type_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetBusinessTypeID resets all changes to the "business_type_id" field.
 func (m *StoreMutation) ResetBusinessTypeID() {
-	m.business_type_id = nil
-	m.addbusiness_type_id = nil
+	m.merchant_business_type = nil
 }
 
 // SetContactName sets the "contact_name" field.
@@ -7172,14 +11730,13 @@ func (m *StoreMutation) ResetFoodOperationLicenseURL() {
 }
 
 // SetCountryID sets the "country_id" field.
-func (m *StoreMutation) SetCountryID(i int) {
-	m.country_id = &i
-	m.addcountry_id = nil
+func (m *StoreMutation) SetCountryID(u uuid.UUID) {
+	m.country = &u
 }
 
 // CountryID returns the value of the "country_id" field in the mutation.
-func (m *StoreMutation) CountryID() (r int, exists bool) {
-	v := m.country_id
+func (m *StoreMutation) CountryID() (r uuid.UUID, exists bool) {
+	v := m.country
 	if v == nil {
 		return
 	}
@@ -7189,7 +11746,7 @@ func (m *StoreMutation) CountryID() (r int, exists bool) {
 // OldCountryID returns the old "country_id" field's value of the Store entity.
 // If the Store object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldCountryID(ctx context.Context) (v int, err error) {
+func (m *StoreMutation) OldCountryID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCountryID is only allowed on UpdateOne operations")
 	}
@@ -7203,39 +11760,32 @@ func (m *StoreMutation) OldCountryID(ctx context.Context) (v int, err error) {
 	return oldValue.CountryID, nil
 }
 
-// AddCountryID adds i to the "country_id" field.
-func (m *StoreMutation) AddCountryID(i int) {
-	if m.addcountry_id != nil {
-		*m.addcountry_id += i
-	} else {
-		m.addcountry_id = &i
-	}
+// ClearCountryID clears the value of the "country_id" field.
+func (m *StoreMutation) ClearCountryID() {
+	m.country = nil
+	m.clearedFields[store.FieldCountryID] = struct{}{}
 }
 
-// AddedCountryID returns the value that was added to the "country_id" field in this mutation.
-func (m *StoreMutation) AddedCountryID() (r int, exists bool) {
-	v := m.addcountry_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// CountryIDCleared returns if the "country_id" field was cleared in this mutation.
+func (m *StoreMutation) CountryIDCleared() bool {
+	_, ok := m.clearedFields[store.FieldCountryID]
+	return ok
 }
 
 // ResetCountryID resets all changes to the "country_id" field.
 func (m *StoreMutation) ResetCountryID() {
-	m.country_id = nil
-	m.addcountry_id = nil
+	m.country = nil
+	delete(m.clearedFields, store.FieldCountryID)
 }
 
 // SetProvinceID sets the "province_id" field.
-func (m *StoreMutation) SetProvinceID(i int) {
-	m.province_id = &i
-	m.addprovince_id = nil
+func (m *StoreMutation) SetProvinceID(u uuid.UUID) {
+	m.province = &u
 }
 
 // ProvinceID returns the value of the "province_id" field in the mutation.
-func (m *StoreMutation) ProvinceID() (r int, exists bool) {
-	v := m.province_id
+func (m *StoreMutation) ProvinceID() (r uuid.UUID, exists bool) {
+	v := m.province
 	if v == nil {
 		return
 	}
@@ -7245,7 +11795,7 @@ func (m *StoreMutation) ProvinceID() (r int, exists bool) {
 // OldProvinceID returns the old "province_id" field's value of the Store entity.
 // If the Store object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldProvinceID(ctx context.Context) (v int, err error) {
+func (m *StoreMutation) OldProvinceID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProvinceID is only allowed on UpdateOne operations")
 	}
@@ -7259,39 +11809,32 @@ func (m *StoreMutation) OldProvinceID(ctx context.Context) (v int, err error) {
 	return oldValue.ProvinceID, nil
 }
 
-// AddProvinceID adds i to the "province_id" field.
-func (m *StoreMutation) AddProvinceID(i int) {
-	if m.addprovince_id != nil {
-		*m.addprovince_id += i
-	} else {
-		m.addprovince_id = &i
-	}
+// ClearProvinceID clears the value of the "province_id" field.
+func (m *StoreMutation) ClearProvinceID() {
+	m.province = nil
+	m.clearedFields[store.FieldProvinceID] = struct{}{}
 }
 
-// AddedProvinceID returns the value that was added to the "province_id" field in this mutation.
-func (m *StoreMutation) AddedProvinceID() (r int, exists bool) {
-	v := m.addprovince_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// ProvinceIDCleared returns if the "province_id" field was cleared in this mutation.
+func (m *StoreMutation) ProvinceIDCleared() bool {
+	_, ok := m.clearedFields[store.FieldProvinceID]
+	return ok
 }
 
 // ResetProvinceID resets all changes to the "province_id" field.
 func (m *StoreMutation) ResetProvinceID() {
-	m.province_id = nil
-	m.addprovince_id = nil
+	m.province = nil
+	delete(m.clearedFields, store.FieldProvinceID)
 }
 
 // SetCityID sets the "city_id" field.
-func (m *StoreMutation) SetCityID(i int) {
-	m.city_id = &i
-	m.addcity_id = nil
+func (m *StoreMutation) SetCityID(u uuid.UUID) {
+	m.city = &u
 }
 
 // CityID returns the value of the "city_id" field in the mutation.
-func (m *StoreMutation) CityID() (r int, exists bool) {
-	v := m.city_id
+func (m *StoreMutation) CityID() (r uuid.UUID, exists bool) {
+	v := m.city
 	if v == nil {
 		return
 	}
@@ -7301,7 +11844,7 @@ func (m *StoreMutation) CityID() (r int, exists bool) {
 // OldCityID returns the old "city_id" field's value of the Store entity.
 // If the Store object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldCityID(ctx context.Context) (v int, err error) {
+func (m *StoreMutation) OldCityID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCityID is only allowed on UpdateOne operations")
 	}
@@ -7315,39 +11858,32 @@ func (m *StoreMutation) OldCityID(ctx context.Context) (v int, err error) {
 	return oldValue.CityID, nil
 }
 
-// AddCityID adds i to the "city_id" field.
-func (m *StoreMutation) AddCityID(i int) {
-	if m.addcity_id != nil {
-		*m.addcity_id += i
-	} else {
-		m.addcity_id = &i
-	}
+// ClearCityID clears the value of the "city_id" field.
+func (m *StoreMutation) ClearCityID() {
+	m.city = nil
+	m.clearedFields[store.FieldCityID] = struct{}{}
 }
 
-// AddedCityID returns the value that was added to the "city_id" field in this mutation.
-func (m *StoreMutation) AddedCityID() (r int, exists bool) {
-	v := m.addcity_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// CityIDCleared returns if the "city_id" field was cleared in this mutation.
+func (m *StoreMutation) CityIDCleared() bool {
+	_, ok := m.clearedFields[store.FieldCityID]
+	return ok
 }
 
 // ResetCityID resets all changes to the "city_id" field.
 func (m *StoreMutation) ResetCityID() {
-	m.city_id = nil
-	m.addcity_id = nil
+	m.city = nil
+	delete(m.clearedFields, store.FieldCityID)
 }
 
 // SetDistrictID sets the "district_id" field.
-func (m *StoreMutation) SetDistrictID(i int) {
-	m.district_id = &i
-	m.adddistrict_id = nil
+func (m *StoreMutation) SetDistrictID(u uuid.UUID) {
+	m.district = &u
 }
 
 // DistrictID returns the value of the "district_id" field in the mutation.
-func (m *StoreMutation) DistrictID() (r int, exists bool) {
-	v := m.district_id
+func (m *StoreMutation) DistrictID() (r uuid.UUID, exists bool) {
+	v := m.district
 	if v == nil {
 		return
 	}
@@ -7357,7 +11893,7 @@ func (m *StoreMutation) DistrictID() (r int, exists bool) {
 // OldDistrictID returns the old "district_id" field's value of the Store entity.
 // If the Store object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldDistrictID(ctx context.Context) (v int, err error) {
+func (m *StoreMutation) OldDistrictID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDistrictID is only allowed on UpdateOne operations")
 	}
@@ -7371,172 +11907,22 @@ func (m *StoreMutation) OldDistrictID(ctx context.Context) (v int, err error) {
 	return oldValue.DistrictID, nil
 }
 
-// AddDistrictID adds i to the "district_id" field.
-func (m *StoreMutation) AddDistrictID(i int) {
-	if m.adddistrict_id != nil {
-		*m.adddistrict_id += i
-	} else {
-		m.adddistrict_id = &i
-	}
+// ClearDistrictID clears the value of the "district_id" field.
+func (m *StoreMutation) ClearDistrictID() {
+	m.district = nil
+	m.clearedFields[store.FieldDistrictID] = struct{}{}
 }
 
-// AddedDistrictID returns the value that was added to the "district_id" field in this mutation.
-func (m *StoreMutation) AddedDistrictID() (r int, exists bool) {
-	v := m.adddistrict_id
-	if v == nil {
-		return
-	}
-	return *v, true
+// DistrictIDCleared returns if the "district_id" field was cleared in this mutation.
+func (m *StoreMutation) DistrictIDCleared() bool {
+	_, ok := m.clearedFields[store.FieldDistrictID]
+	return ok
 }
 
 // ResetDistrictID resets all changes to the "district_id" field.
 func (m *StoreMutation) ResetDistrictID() {
-	m.district_id = nil
-	m.adddistrict_id = nil
-}
-
-// SetCountryName sets the "country_name" field.
-func (m *StoreMutation) SetCountryName(s string) {
-	m.country_name = &s
-}
-
-// CountryName returns the value of the "country_name" field in the mutation.
-func (m *StoreMutation) CountryName() (r string, exists bool) {
-	v := m.country_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCountryName returns the old "country_name" field's value of the Store entity.
-// If the Store object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldCountryName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCountryName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCountryName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCountryName: %w", err)
-	}
-	return oldValue.CountryName, nil
-}
-
-// ResetCountryName resets all changes to the "country_name" field.
-func (m *StoreMutation) ResetCountryName() {
-	m.country_name = nil
-}
-
-// SetProvinceName sets the "province_name" field.
-func (m *StoreMutation) SetProvinceName(s string) {
-	m.province_name = &s
-}
-
-// ProvinceName returns the value of the "province_name" field in the mutation.
-func (m *StoreMutation) ProvinceName() (r string, exists bool) {
-	v := m.province_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldProvinceName returns the old "province_name" field's value of the Store entity.
-// If the Store object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldProvinceName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldProvinceName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldProvinceName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldProvinceName: %w", err)
-	}
-	return oldValue.ProvinceName, nil
-}
-
-// ResetProvinceName resets all changes to the "province_name" field.
-func (m *StoreMutation) ResetProvinceName() {
-	m.province_name = nil
-}
-
-// SetCityName sets the "city_name" field.
-func (m *StoreMutation) SetCityName(s string) {
-	m.city_name = &s
-}
-
-// CityName returns the value of the "city_name" field in the mutation.
-func (m *StoreMutation) CityName() (r string, exists bool) {
-	v := m.city_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCityName returns the old "city_name" field's value of the Store entity.
-// If the Store object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldCityName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCityName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCityName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCityName: %w", err)
-	}
-	return oldValue.CityName, nil
-}
-
-// ResetCityName resets all changes to the "city_name" field.
-func (m *StoreMutation) ResetCityName() {
-	m.city_name = nil
-}
-
-// SetDistrictName sets the "district_name" field.
-func (m *StoreMutation) SetDistrictName(s string) {
-	m.district_name = &s
-}
-
-// DistrictName returns the value of the "district_name" field in the mutation.
-func (m *StoreMutation) DistrictName() (r string, exists bool) {
-	v := m.district_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDistrictName returns the old "district_name" field's value of the Store entity.
-// If the Store object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreMutation) OldDistrictName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDistrictName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDistrictName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDistrictName: %w", err)
-	}
-	return oldValue.DistrictName, nil
-}
-
-// ResetDistrictName resets all changes to the "district_name" field.
-func (m *StoreMutation) ResetDistrictName() {
-	m.district_name = nil
+	m.district = nil
+	delete(m.clearedFields, store.FieldDistrictID)
 }
 
 // SetAddress sets the "address" field.
@@ -7697,7 +12083,7 @@ func (m *StoreMutation) MerchantCleared() bool {
 // MerchantIDs returns the "merchant" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // MerchantID instead. It exists only for internal usage by the builders.
-func (m *StoreMutation) MerchantIDs() (ids []int) {
+func (m *StoreMutation) MerchantIDs() (ids []uuid.UUID) {
 	if id := m.merchant; id != nil {
 		ids = append(ids, *id)
 	}
@@ -7737,6 +12123,154 @@ func (m *StoreMutation) ResetAdminUser() {
 	m.clearedadmin_user = false
 }
 
+// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by id.
+func (m *StoreMutation) SetMerchantBusinessTypeID(id uuid.UUID) {
+	m.merchant_business_type = &id
+}
+
+// ClearMerchantBusinessType clears the "merchant_business_type" edge to the MerchantBusinessType entity.
+func (m *StoreMutation) ClearMerchantBusinessType() {
+	m.clearedmerchant_business_type = true
+	m.clearedFields[store.FieldBusinessTypeID] = struct{}{}
+}
+
+// MerchantBusinessTypeCleared reports if the "merchant_business_type" edge to the MerchantBusinessType entity was cleared.
+func (m *StoreMutation) MerchantBusinessTypeCleared() bool {
+	return m.clearedmerchant_business_type
+}
+
+// MerchantBusinessTypeID returns the "merchant_business_type" edge ID in the mutation.
+func (m *StoreMutation) MerchantBusinessTypeID() (id uuid.UUID, exists bool) {
+	if m.merchant_business_type != nil {
+		return *m.merchant_business_type, true
+	}
+	return
+}
+
+// MerchantBusinessTypeIDs returns the "merchant_business_type" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MerchantBusinessTypeID instead. It exists only for internal usage by the builders.
+func (m *StoreMutation) MerchantBusinessTypeIDs() (ids []uuid.UUID) {
+	if id := m.merchant_business_type; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMerchantBusinessType resets all changes to the "merchant_business_type" edge.
+func (m *StoreMutation) ResetMerchantBusinessType() {
+	m.merchant_business_type = nil
+	m.clearedmerchant_business_type = false
+}
+
+// ClearCountry clears the "country" edge to the Country entity.
+func (m *StoreMutation) ClearCountry() {
+	m.clearedcountry = true
+	m.clearedFields[store.FieldCountryID] = struct{}{}
+}
+
+// CountryCleared reports if the "country" edge to the Country entity was cleared.
+func (m *StoreMutation) CountryCleared() bool {
+	return m.CountryIDCleared() || m.clearedcountry
+}
+
+// CountryIDs returns the "country" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CountryID instead. It exists only for internal usage by the builders.
+func (m *StoreMutation) CountryIDs() (ids []uuid.UUID) {
+	if id := m.country; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCountry resets all changes to the "country" edge.
+func (m *StoreMutation) ResetCountry() {
+	m.country = nil
+	m.clearedcountry = false
+}
+
+// ClearProvince clears the "province" edge to the Province entity.
+func (m *StoreMutation) ClearProvince() {
+	m.clearedprovince = true
+	m.clearedFields[store.FieldProvinceID] = struct{}{}
+}
+
+// ProvinceCleared reports if the "province" edge to the Province entity was cleared.
+func (m *StoreMutation) ProvinceCleared() bool {
+	return m.ProvinceIDCleared() || m.clearedprovince
+}
+
+// ProvinceIDs returns the "province" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ProvinceID instead. It exists only for internal usage by the builders.
+func (m *StoreMutation) ProvinceIDs() (ids []uuid.UUID) {
+	if id := m.province; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetProvince resets all changes to the "province" edge.
+func (m *StoreMutation) ResetProvince() {
+	m.province = nil
+	m.clearedprovince = false
+}
+
+// ClearCity clears the "city" edge to the City entity.
+func (m *StoreMutation) ClearCity() {
+	m.clearedcity = true
+	m.clearedFields[store.FieldCityID] = struct{}{}
+}
+
+// CityCleared reports if the "city" edge to the City entity was cleared.
+func (m *StoreMutation) CityCleared() bool {
+	return m.CityIDCleared() || m.clearedcity
+}
+
+// CityIDs returns the "city" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CityID instead. It exists only for internal usage by the builders.
+func (m *StoreMutation) CityIDs() (ids []uuid.UUID) {
+	if id := m.city; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCity resets all changes to the "city" edge.
+func (m *StoreMutation) ResetCity() {
+	m.city = nil
+	m.clearedcity = false
+}
+
+// ClearDistrict clears the "district" edge to the District entity.
+func (m *StoreMutation) ClearDistrict() {
+	m.cleareddistrict = true
+	m.clearedFields[store.FieldDistrictID] = struct{}{}
+}
+
+// DistrictCleared reports if the "district" edge to the District entity was cleared.
+func (m *StoreMutation) DistrictCleared() bool {
+	return m.DistrictIDCleared() || m.cleareddistrict
+}
+
+// DistrictIDs returns the "district" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DistrictID instead. It exists only for internal usage by the builders.
+func (m *StoreMutation) DistrictIDs() (ids []uuid.UUID) {
+	if id := m.district; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDistrict resets all changes to the "district" edge.
+func (m *StoreMutation) ResetDistrict() {
+	m.district = nil
+	m.cleareddistrict = false
+}
+
 // Where appends a list predicates to the StoreMutation builder.
 func (m *StoreMutation) Where(ps ...predicate.Store) {
 	m.predicates = append(m.predicates, ps...)
@@ -7771,7 +12305,7 @@ func (m *StoreMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StoreMutation) Fields() []string {
-	fields := make([]string, 0, 32)
+	fields := make([]string, 0, 28)
 	if m.created_at != nil {
 		fields = append(fields, store.FieldCreatedAt)
 	}
@@ -7802,7 +12336,7 @@ func (m *StoreMutation) Fields() []string {
 	if m.business_model != nil {
 		fields = append(fields, store.FieldBusinessModel)
 	}
-	if m.business_type_id != nil {
+	if m.merchant_business_type != nil {
 		fields = append(fields, store.FieldBusinessTypeID)
 	}
 	if m.contact_name != nil {
@@ -7832,29 +12366,17 @@ func (m *StoreMutation) Fields() []string {
 	if m.food_operation_license_url != nil {
 		fields = append(fields, store.FieldFoodOperationLicenseURL)
 	}
-	if m.country_id != nil {
+	if m.country != nil {
 		fields = append(fields, store.FieldCountryID)
 	}
-	if m.province_id != nil {
+	if m.province != nil {
 		fields = append(fields, store.FieldProvinceID)
 	}
-	if m.city_id != nil {
+	if m.city != nil {
 		fields = append(fields, store.FieldCityID)
 	}
-	if m.district_id != nil {
+	if m.district != nil {
 		fields = append(fields, store.FieldDistrictID)
-	}
-	if m.country_name != nil {
-		fields = append(fields, store.FieldCountryName)
-	}
-	if m.province_name != nil {
-		fields = append(fields, store.FieldProvinceName)
-	}
-	if m.city_name != nil {
-		fields = append(fields, store.FieldCityName)
-	}
-	if m.district_name != nil {
-		fields = append(fields, store.FieldDistrictName)
 	}
 	if m.address != nil {
 		fields = append(fields, store.FieldAddress)
@@ -7924,14 +12446,6 @@ func (m *StoreMutation) Field(name string) (ent.Value, bool) {
 		return m.CityID()
 	case store.FieldDistrictID:
 		return m.DistrictID()
-	case store.FieldCountryName:
-		return m.CountryName()
-	case store.FieldProvinceName:
-		return m.ProvinceName()
-	case store.FieldCityName:
-		return m.CityName()
-	case store.FieldDistrictName:
-		return m.DistrictName()
 	case store.FieldAddress:
 		return m.Address()
 	case store.FieldLng:
@@ -7997,14 +12511,6 @@ func (m *StoreMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldCityID(ctx)
 	case store.FieldDistrictID:
 		return m.OldDistrictID(ctx)
-	case store.FieldCountryName:
-		return m.OldCountryName(ctx)
-	case store.FieldProvinceName:
-		return m.OldProvinceName(ctx)
-	case store.FieldCityName:
-		return m.OldCityName(ctx)
-	case store.FieldDistrictName:
-		return m.OldDistrictName(ctx)
 	case store.FieldAddress:
 		return m.OldAddress(ctx)
 	case store.FieldLng:
@@ -8044,7 +12550,7 @@ func (m *StoreMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case store.FieldMerchantID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -8093,7 +12599,7 @@ func (m *StoreMutation) SetField(name string, value ent.Value) error {
 		m.SetBusinessModel(v)
 		return nil
 	case store.FieldBusinessTypeID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -8163,60 +12669,32 @@ func (m *StoreMutation) SetField(name string, value ent.Value) error {
 		m.SetFoodOperationLicenseURL(v)
 		return nil
 	case store.FieldCountryID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCountryID(v)
 		return nil
 	case store.FieldProvinceID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProvinceID(v)
 		return nil
 	case store.FieldCityID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCityID(v)
 		return nil
 	case store.FieldDistrictID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDistrictID(v)
-		return nil
-	case store.FieldCountryName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCountryName(v)
-		return nil
-	case store.FieldProvinceName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetProvinceName(v)
-		return nil
-	case store.FieldCityName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCityName(v)
-		return nil
-	case store.FieldDistrictName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDistrictName(v)
 		return nil
 	case store.FieldAddress:
 		v, ok := value.(string)
@@ -8257,21 +12735,6 @@ func (m *StoreMutation) AddedFields() []string {
 	if m.adddeleted_at != nil {
 		fields = append(fields, store.FieldDeletedAt)
 	}
-	if m.addbusiness_type_id != nil {
-		fields = append(fields, store.FieldBusinessTypeID)
-	}
-	if m.addcountry_id != nil {
-		fields = append(fields, store.FieldCountryID)
-	}
-	if m.addprovince_id != nil {
-		fields = append(fields, store.FieldProvinceID)
-	}
-	if m.addcity_id != nil {
-		fields = append(fields, store.FieldCityID)
-	}
-	if m.adddistrict_id != nil {
-		fields = append(fields, store.FieldDistrictID)
-	}
 	return fields
 }
 
@@ -8282,16 +12745,6 @@ func (m *StoreMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case store.FieldDeletedAt:
 		return m.AddedDeletedAt()
-	case store.FieldBusinessTypeID:
-		return m.AddedBusinessTypeID()
-	case store.FieldCountryID:
-		return m.AddedCountryID()
-	case store.FieldProvinceID:
-		return m.AddedProvinceID()
-	case store.FieldCityID:
-		return m.AddedCityID()
-	case store.FieldDistrictID:
-		return m.AddedDistrictID()
 	}
 	return nil, false
 }
@@ -8308,41 +12761,6 @@ func (m *StoreMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddDeletedAt(v)
 		return nil
-	case store.FieldBusinessTypeID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddBusinessTypeID(v)
-		return nil
-	case store.FieldCountryID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddCountryID(v)
-		return nil
-	case store.FieldProvinceID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddProvinceID(v)
-		return nil
-	case store.FieldCityID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddCityID(v)
-		return nil
-	case store.FieldDistrictID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddDistrictID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Store numeric field %s", name)
 }
@@ -8350,7 +12768,20 @@ func (m *StoreMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *StoreMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(store.FieldCountryID) {
+		fields = append(fields, store.FieldCountryID)
+	}
+	if m.FieldCleared(store.FieldProvinceID) {
+		fields = append(fields, store.FieldProvinceID)
+	}
+	if m.FieldCleared(store.FieldCityID) {
+		fields = append(fields, store.FieldCityID)
+	}
+	if m.FieldCleared(store.FieldDistrictID) {
+		fields = append(fields, store.FieldDistrictID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -8363,6 +12794,20 @@ func (m *StoreMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *StoreMutation) ClearField(name string) error {
+	switch name {
+	case store.FieldCountryID:
+		m.ClearCountryID()
+		return nil
+	case store.FieldProvinceID:
+		m.ClearProvinceID()
+		return nil
+	case store.FieldCityID:
+		m.ClearCityID()
+		return nil
+	case store.FieldDistrictID:
+		m.ClearDistrictID()
+		return nil
+	}
 	return fmt.Errorf("unknown Store nullable field %s", name)
 }
 
@@ -8442,18 +12887,6 @@ func (m *StoreMutation) ResetField(name string) error {
 	case store.FieldDistrictID:
 		m.ResetDistrictID()
 		return nil
-	case store.FieldCountryName:
-		m.ResetCountryName()
-		return nil
-	case store.FieldProvinceName:
-		m.ResetProvinceName()
-		return nil
-	case store.FieldCityName:
-		m.ResetCityName()
-		return nil
-	case store.FieldDistrictName:
-		m.ResetDistrictName()
-		return nil
 	case store.FieldAddress:
 		m.ResetAddress()
 		return nil
@@ -8472,12 +12905,27 @@ func (m *StoreMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StoreMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 7)
 	if m.merchant != nil {
 		edges = append(edges, store.EdgeMerchant)
 	}
 	if m.admin_user != nil {
 		edges = append(edges, store.EdgeAdminUser)
+	}
+	if m.merchant_business_type != nil {
+		edges = append(edges, store.EdgeMerchantBusinessType)
+	}
+	if m.country != nil {
+		edges = append(edges, store.EdgeCountry)
+	}
+	if m.province != nil {
+		edges = append(edges, store.EdgeProvince)
+	}
+	if m.city != nil {
+		edges = append(edges, store.EdgeCity)
+	}
+	if m.district != nil {
+		edges = append(edges, store.EdgeDistrict)
 	}
 	return edges
 }
@@ -8494,13 +12942,33 @@ func (m *StoreMutation) AddedIDs(name string) []ent.Value {
 		if id := m.admin_user; id != nil {
 			return []ent.Value{*id}
 		}
+	case store.EdgeMerchantBusinessType:
+		if id := m.merchant_business_type; id != nil {
+			return []ent.Value{*id}
+		}
+	case store.EdgeCountry:
+		if id := m.country; id != nil {
+			return []ent.Value{*id}
+		}
+	case store.EdgeProvince:
+		if id := m.province; id != nil {
+			return []ent.Value{*id}
+		}
+	case store.EdgeCity:
+		if id := m.city; id != nil {
+			return []ent.Value{*id}
+		}
+	case store.EdgeDistrict:
+		if id := m.district; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StoreMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 7)
 	return edges
 }
 
@@ -8512,12 +12980,27 @@ func (m *StoreMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StoreMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 7)
 	if m.clearedmerchant {
 		edges = append(edges, store.EdgeMerchant)
 	}
 	if m.clearedadmin_user {
 		edges = append(edges, store.EdgeAdminUser)
+	}
+	if m.clearedmerchant_business_type {
+		edges = append(edges, store.EdgeMerchantBusinessType)
+	}
+	if m.clearedcountry {
+		edges = append(edges, store.EdgeCountry)
+	}
+	if m.clearedprovince {
+		edges = append(edges, store.EdgeProvince)
+	}
+	if m.clearedcity {
+		edges = append(edges, store.EdgeCity)
+	}
+	if m.cleareddistrict {
+		edges = append(edges, store.EdgeDistrict)
 	}
 	return edges
 }
@@ -8530,6 +13013,16 @@ func (m *StoreMutation) EdgeCleared(name string) bool {
 		return m.clearedmerchant
 	case store.EdgeAdminUser:
 		return m.clearedadmin_user
+	case store.EdgeMerchantBusinessType:
+		return m.clearedmerchant_business_type
+	case store.EdgeCountry:
+		return m.clearedcountry
+	case store.EdgeProvince:
+		return m.clearedprovince
+	case store.EdgeCity:
+		return m.clearedcity
+	case store.EdgeDistrict:
+		return m.cleareddistrict
 	}
 	return false
 }
@@ -8544,6 +13037,21 @@ func (m *StoreMutation) ClearEdge(name string) error {
 	case store.EdgeAdminUser:
 		m.ClearAdminUser()
 		return nil
+	case store.EdgeMerchantBusinessType:
+		m.ClearMerchantBusinessType()
+		return nil
+	case store.EdgeCountry:
+		m.ClearCountry()
+		return nil
+	case store.EdgeProvince:
+		m.ClearProvince()
+		return nil
+	case store.EdgeCity:
+		m.ClearCity()
+		return nil
+	case store.EdgeDistrict:
+		m.ClearDistrict()
+		return nil
 	}
 	return fmt.Errorf("unknown Store unique edge %s", name)
 }
@@ -8557,6 +13065,21 @@ func (m *StoreMutation) ResetEdge(name string) error {
 		return nil
 	case store.EdgeAdminUser:
 		m.ResetAdminUser()
+		return nil
+	case store.EdgeMerchantBusinessType:
+		m.ResetMerchantBusinessType()
+		return nil
+	case store.EdgeCountry:
+		m.ResetCountry()
+		return nil
+	case store.EdgeProvince:
+		m.ResetProvince()
+		return nil
+	case store.EdgeCity:
+		m.ResetCity()
+		return nil
+	case store.EdgeDistrict:
+		m.ResetDistrict()
 		return nil
 	}
 	return fmt.Errorf("unknown Store edge %s", name)

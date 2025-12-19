@@ -87,15 +87,16 @@ func (b BusinessModel) ToString() string {
 }
 
 type Store struct {
-	ID                      int           `json:"id"`
-	MerchantID              int           `json:"merchant_id"`                // 商户 ID
+	ID                      uuid.UUID     `json:"id"`
+	MerchantID              uuid.UUID     `json:"merchant_id"`                // 商户 ID
 	AdminPhoneNumber        string        `json:"admin_phone_number"`         // 管理员手机号
 	StoreName               string        `json:"store_name"`                 // 门店名称,长度不超过30个字
 	StoreShortName          string        `json:"store_short_name"`           // 门店简称
 	StoreCode               string        `json:"store_code"`                 // 门店编码(保留字段)
 	Status                  StoreStatus   `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeID          int           `json:"business_type_id"`           // 业态类型
+	BusinessTypeID          uuid.UUID     `json:"business_type_id"`           // 业态类型
+	BusinessTypeName        string        `json:"business_type_name"`         // 业务类型名称
 	ContactName             string        `json:"contact_name"`               // 联系人
 	ContactPhone            string        `json:"contact_phone"`              // 联系电话
 	UnifiedSocialCreditCode string        `json:"unified_social_credit_code"` // 统一社会信用代码
@@ -105,32 +106,22 @@ type Store struct {
 	CashierDeskURL          string        `json:"cashier_desk_url"`           // 收银台照片地址
 	DiningEnvironmentURL    string        `json:"dining_environment_url"`     // 就餐环境照片地址
 	FoodOperationLicenseURL string        `json:"food_operation_license_url"` // 食品经营许可证照片地址
-
-	CountryID     int       `json:"country_id"`     // 国家/地区 ID
-	ProvinceID    int       `json:"province_id"`    // 省份 ID
-	CityID        int       `json:"city_id"`        // 城市 ID
-	DistrictID    int       `json:"district_id"`    // 区县 ID
-	CountryName   string    `json:"country_name"`   // 国家/地区 名称
-	ProvinceName  string    `json:"province_name"`  // 省份名称
-	CityName      string    `json:"city_name"`      // 城市名称
-	DistrictName  string    `json:"district_name"`  // 区县名称
-	Address       string    `json:"address"`        // 详细地址
-	Lng           string    `json:"lng"`            // 经度
-	Lat           string    `json:"lat"`            // 纬度
-	LoginAccount  string    `json:"login_account"`  // 登录账号
-	LoginPassword string    `json:"login_password"` // 登录密码(加密存储)
-	AdminUserID   uuid.UUID `json:"admin_user_id"`  // 登陆账号 ID
+	LoginAccount            string        `json:"login_account"`              // 登录账号
+	LoginPassword           string        `json:"login_password"`             // 登录密码(加密存储)
+	AdminUserID             uuid.UUID     `json:"admin_user_id"`              // 登陆账号 ID
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+
+	Address *Address `json:"address"` // 地址
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_repository.go -package=mock . StoreRepository
 type StoreRepository interface {
-	FindByID(ctx context.Context, id int) (domainStore *Store, err error)
+	FindByID(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
 	Create(ctx context.Context, domainStore *Store) (err error)
 	Update(ctx context.Context, domainStore *Store) (err error)
-	Delete(ctx context.Context, id int) (err error)
+	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
 	ExistsStore(ctx context.Context, existsStoreParams *ExistsStoreParams) (exists bool, err error)
 }
@@ -138,8 +129,8 @@ type StoreRepository interface {
 type StoreInteractor interface {
 	CreateStore(ctx context.Context, domainCStoreParams *CreateStoreParams) (err error)
 	UpdateStore(ctx context.Context, domainUStoreParams *UpdateStoreParams) (err error)
-	DeleteStore(ctx context.Context, id int) (err error)
-	GetStore(ctx context.Context, id int) (domainStore *Store, err error)
+	DeleteStore(ctx context.Context, id uuid.UUID) (err error)
+	GetStore(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
 }
 
@@ -150,25 +141,25 @@ var (
 
 type StoreListFilter struct {
 	StoreName        string        `json:"store_name"`         // 门店名称
-	MerchantID       int           `json:"merchant_id"`        // 商户 ID
-	BusinessTypeID   int           `json:"business_type_id"`   // 业态类型
+	MerchantID       uuid.UUID     `json:"merchant_id"`        // 商户 ID
+	BusinessTypeID   uuid.UUID     `json:"business_type_id"`   // 业态类型
 	AdminPhoneNumber string        `json:"admin_phone_number"` // 管理员手机号
 	Status           StoreStatus   `json:"status"`             // 状态: 营业 停业
 	BusinessModel    BusinessModel `json:"business_model"`     // 经营模式：直营 加盟
 	CreatedAtGte     *time.Time    `json:"created_at_gte"`     // 创建时间 大于等于
 	CreatedAtLte     *time.Time    `json:"created_at_lte"`     // 创建时间 小于等于
-	ProvinceID       int           `json:"province_id"`        // 省份 ID
+	ProvinceID       uuid.UUID     `json:"province_id"`        // 省份 ID
 }
 
 type CreateStoreParams struct {
-	MerchantID              int           `json:"merchant_id"`                // 商户 ID
+	MerchantID              uuid.UUID     `json:"merchant_id"`                // 商户 ID
 	AdminPhoneNumber        string        `json:"admin_phone_number"`         // 管理员手机号
 	StoreName               string        `json:"store_name"`                 // 门店名称,长度不超过30个字
 	StoreShortName          string        `json:"store_short_name"`           // 门店简称
 	StoreCode               string        `json:"store_code"`                 // 门店编码(保留字段)
 	Status                  StoreStatus   `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeID          int           `json:"business_type_id"`           // 业态类型
+	BusinessTypeID          uuid.UUID     `json:"business_type_id"`           // 业态类型
 	ContactName             string        `json:"contact_name"`               // 联系人
 	ContactPhone            string        `json:"contact_phone"`              // 联系电话
 	UnifiedSocialCreditCode string        `json:"unified_social_credit_code"` // 统一社会信用代码
@@ -178,26 +169,21 @@ type CreateStoreParams struct {
 	CashierDeskURL          string        `json:"cashier_desk_url"`           // 收银台照片地址
 	DiningEnvironmentURL    string        `json:"dining_environment_url"`     // 就餐环境照片地址
 	FoodOperationLicenseURL string        `json:"food_operation_license_url"` // 食品经营许可证照片地址
-	CountryID               int           `json:"country_id"`                 // 国家/地区 ID
-	ProvinceID              int           `json:"province_id"`                // 省份 ID
-	CityID                  int           `json:"city_id"`                    // 城市 ID
-	DistrictID              int           `json:"district_id"`                // 区县 ID
-	Address                 string        `json:"address"`                    // 详细地址
-	Lng                     string        `json:"lng"`                        // 经度
-	Lat                     string        `json:"lat"`                        // 纬度
 	LoginAccount            string        `json:"login_account"`              // 登录账号
 	LoginPassword           string        `json:"login_password"`             // 登录密码(加密存储)
+
+	Address *Address `json:"address"` // 地址
 }
 
 type UpdateStoreParams struct {
-	ID                      int           `json:"id"`
+	ID                      uuid.UUID     `json:"id"`
 	AdminPhoneNumber        string        `json:"admin_phone_number"`         // 管理员手机号
 	StoreName               string        `json:"store_name"`                 // 门店名称,长度不超过30个字
 	StoreShortName          string        `json:"store_short_name"`           // 门店简称
 	StoreCode               string        `json:"store_code"`                 // 门店编码(保留字段)
 	Status                  StoreStatus   `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeID          int           `json:"business_type_id"`           // 业态类型
+	BusinessTypeID          uuid.UUID     `json:"business_type_id"`           // 业态类型
 	ContactName             string        `json:"contact_name"`               // 联系人
 	ContactPhone            string        `json:"contact_phone"`              // 联系电话
 	UnifiedSocialCreditCode string        `json:"unified_social_credit_code"` // 统一社会信用代码
@@ -207,18 +193,13 @@ type UpdateStoreParams struct {
 	CashierDeskURL          string        `json:"cashier_desk_url"`           // 收银台照片地址
 	DiningEnvironmentURL    string        `json:"dining_environment_url"`     // 就餐环境照片地址
 	FoodOperationLicenseURL string        `json:"food_operation_license_url"` // 食品经营许可证照片地址
-	CountryID               int           `json:"country_id"`                 // 国家/地区 ID
-	ProvinceID              int           `json:"province_id"`                // 省份 ID
-	CityID                  int           `json:"city_id"`                    // 城市 ID
-	DistrictID              int           `json:"district_id"`                // 区县 ID
-	Address                 string        `json:"address"`                    // 详细地址
-	Lng                     string        `json:"lng"`                        // 经度
-	Lat                     string        `json:"lat"`                        // 纬度
 	LoginAccount            string        `json:"login_account"`              // 登录账号
 	LoginPassword           string        `json:"login_password"`             // 登录密码(加密存储)
+
+	Address *Address `json:"address"` // 地址
 }
 
 type ExistsStoreParams struct {
-	StoreName string // 门店名称
-	NotID     int    // 排除的门店 ID
+	StoreName string    // 门店名称
+	NotID     uuid.UUID // 排除的门店 ID
 }

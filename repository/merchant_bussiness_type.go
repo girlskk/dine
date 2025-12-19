@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
@@ -22,7 +23,7 @@ func NewMerchantBusinessTypeRepository(client *ent.Client) *MerchantBusinessType
 	}
 }
 
-func (repo MerchantBusinessTypeRepository) FindById(ctx context.Context, id int) (businessType *domain.MerchantBusinessType, err error) {
+func (repo MerchantBusinessTypeRepository) FindById(ctx context.Context, id uuid.UUID) (businessType *domain.MerchantBusinessType, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.FindByID")
 	defer func() {
 		util.SpanErrFinish(span, err)

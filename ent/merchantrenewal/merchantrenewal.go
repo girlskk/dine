@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
@@ -20,6 +21,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
 	// FieldPurchaseDuration holds the string denoting the purchase_duration field in the database.
@@ -48,6 +51,7 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldDeletedAt,
 	FieldMerchantID,
 	FieldPurchaseDuration,
 	FieldPurchaseDurationUnit,
@@ -72,6 +76,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
+	DefaultDeletedAt int64
 	// DefaultPurchaseDuration holds the default value on creation for the "purchase_duration" field.
 	DefaultPurchaseDuration int
 	// DefaultOperatorName holds the default value on creation for the "operator_name" field.
@@ -82,6 +88,8 @@ var (
 	DefaultOperatorAccount string
 	// OperatorAccountValidator is a validator for the "operator_account" field. It is called by the builders before save.
 	OperatorAccountValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // PurchaseDurationUnitValidator is a validator for the "purchase_duration_unit" field enum values. It is called by the builders before save.
@@ -110,6 +118,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByMerchantID orders the results by the merchant_id field.

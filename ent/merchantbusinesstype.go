@@ -5,9 +5,11 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 )
 
@@ -15,7 +17,14 @@ import (
 type MerchantBusinessType struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	// UUID as primary key
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// 删除时间
+	DeletedAt int64 `json:"deleted_at,omitempty"`
 	// 业态类型编码（保留字段）
 	TypeCode string `json:"type_code,omitempty"`
 	// 业态类型名称
@@ -30,9 +39,11 @@ type MerchantBusinessType struct {
 type MerchantBusinessTypeEdges struct {
 	// Merchants holds the value of the merchants edge.
 	Merchants []*Merchant `json:"merchants,omitempty"`
+	// Stores holds the value of the stores edge.
+	Stores []*Store `json:"stores,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MerchantsOrErr returns the Merchants value or an error if the edge
@@ -44,15 +55,28 @@ func (e MerchantBusinessTypeEdges) MerchantsOrErr() ([]*Merchant, error) {
 	return nil, &NotLoadedError{edge: "merchants"}
 }
 
+// StoresOrErr returns the Stores value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantBusinessTypeEdges) StoresOrErr() ([]*Store, error) {
+	if e.loadedTypes[1] {
+		return e.Stores, nil
+	}
+	return nil, &NotLoadedError{edge: "stores"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*MerchantBusinessType) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case merchantbusinesstype.FieldID:
+		case merchantbusinesstype.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case merchantbusinesstype.FieldTypeCode, merchantbusinesstype.FieldTypeName:
 			values[i] = new(sql.NullString)
+		case merchantbusinesstype.FieldCreatedAt, merchantbusinesstype.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
+		case merchantbusinesstype.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -69,11 +93,29 @@ func (mbt *MerchantBusinessType) assignValues(columns []string, values []any) er
 	for i := range columns {
 		switch columns[i] {
 		case merchantbusinesstype.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				mbt.ID = *value
 			}
-			mbt.ID = int(value.Int64)
+		case merchantbusinesstype.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				mbt.CreatedAt = value.Time
+			}
+		case merchantbusinesstype.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				mbt.UpdatedAt = value.Time
+			}
+		case merchantbusinesstype.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				mbt.DeletedAt = value.Int64
+			}
 		case merchantbusinesstype.FieldTypeCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type_code", values[i])
@@ -104,6 +146,11 @@ func (mbt *MerchantBusinessType) QueryMerchants() *MerchantQuery {
 	return NewMerchantBusinessTypeClient(mbt.config).QueryMerchants(mbt)
 }
 
+// QueryStores queries the "stores" edge of the MerchantBusinessType entity.
+func (mbt *MerchantBusinessType) QueryStores() *StoreQuery {
+	return NewMerchantBusinessTypeClient(mbt.config).QueryStores(mbt)
+}
+
 // Update returns a builder for updating this MerchantBusinessType.
 // Note that you need to call MerchantBusinessType.Unwrap() before calling this method if this MerchantBusinessType
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -127,6 +174,15 @@ func (mbt *MerchantBusinessType) String() string {
 	var builder strings.Builder
 	builder.WriteString("MerchantBusinessType(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", mbt.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(mbt.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(mbt.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("deleted_at=")
+	builder.WriteString(fmt.Sprintf("%v", mbt.DeletedAt))
+	builder.WriteString(", ")
 	builder.WriteString("type_code=")
 	builder.WriteString(mbt.TypeCode)
 	builder.WriteString(", ")

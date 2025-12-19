@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
@@ -64,14 +65,6 @@ const (
 	FieldCityID = "city_id"
 	// FieldDistrictID holds the string denoting the district_id field in the database.
 	FieldDistrictID = "district_id"
-	// FieldCountryName holds the string denoting the country_name field in the database.
-	FieldCountryName = "country_name"
-	// FieldProvinceName holds the string denoting the province_name field in the database.
-	FieldProvinceName = "province_name"
-	// FieldCityName holds the string denoting the city_name field in the database.
-	FieldCityName = "city_name"
-	// FieldDistrictName holds the string denoting the district_name field in the database.
-	FieldDistrictName = "district_name"
 	// FieldAddress holds the string denoting the address field in the database.
 	FieldAddress = "address"
 	// FieldLng holds the string denoting the lng field in the database.
@@ -84,6 +77,16 @@ const (
 	EdgeMerchant = "merchant"
 	// EdgeAdminUser holds the string denoting the admin_user edge name in mutations.
 	EdgeAdminUser = "admin_user"
+	// EdgeMerchantBusinessType holds the string denoting the merchant_business_type edge name in mutations.
+	EdgeMerchantBusinessType = "merchant_business_type"
+	// EdgeCountry holds the string denoting the country edge name in mutations.
+	EdgeCountry = "country"
+	// EdgeProvince holds the string denoting the province edge name in mutations.
+	EdgeProvince = "province"
+	// EdgeCity holds the string denoting the city edge name in mutations.
+	EdgeCity = "city"
+	// EdgeDistrict holds the string denoting the district edge name in mutations.
+	EdgeDistrict = "district"
 	// Table holds the table name of the store in the database.
 	Table = "stores"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -100,6 +103,41 @@ const (
 	AdminUserInverseTable = "admin_users"
 	// AdminUserColumn is the table column denoting the admin_user relation/edge.
 	AdminUserColumn = "admin_user_id"
+	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
+	MerchantBusinessTypeTable = "stores"
+	// MerchantBusinessTypeInverseTable is the table name for the MerchantBusinessType entity.
+	// It exists in this package in order to avoid circular dependency with the "merchantbusinesstype" package.
+	MerchantBusinessTypeInverseTable = "merchant_business_types"
+	// MerchantBusinessTypeColumn is the table column denoting the merchant_business_type relation/edge.
+	MerchantBusinessTypeColumn = "business_type_id"
+	// CountryTable is the table that holds the country relation/edge.
+	CountryTable = "stores"
+	// CountryInverseTable is the table name for the Country entity.
+	// It exists in this package in order to avoid circular dependency with the "country" package.
+	CountryInverseTable = "countries"
+	// CountryColumn is the table column denoting the country relation/edge.
+	CountryColumn = "country_id"
+	// ProvinceTable is the table that holds the province relation/edge.
+	ProvinceTable = "stores"
+	// ProvinceInverseTable is the table name for the Province entity.
+	// It exists in this package in order to avoid circular dependency with the "province" package.
+	ProvinceInverseTable = "provinces"
+	// ProvinceColumn is the table column denoting the province relation/edge.
+	ProvinceColumn = "province_id"
+	// CityTable is the table that holds the city relation/edge.
+	CityTable = "stores"
+	// CityInverseTable is the table name for the City entity.
+	// It exists in this package in order to avoid circular dependency with the "city" package.
+	CityInverseTable = "cities"
+	// CityColumn is the table column denoting the city relation/edge.
+	CityColumn = "city_id"
+	// DistrictTable is the table that holds the district relation/edge.
+	DistrictTable = "stores"
+	// DistrictInverseTable is the table name for the District entity.
+	// It exists in this package in order to avoid circular dependency with the "district" package.
+	DistrictInverseTable = "districts"
+	// DistrictColumn is the table column denoting the district relation/edge.
+	DistrictColumn = "district_id"
 )
 
 // Columns holds all SQL columns for store fields.
@@ -129,10 +167,6 @@ var Columns = []string{
 	FieldProvinceID,
 	FieldCityID,
 	FieldDistrictID,
-	FieldCountryName,
-	FieldProvinceName,
-	FieldCityName,
-	FieldDistrictName,
 	FieldAddress,
 	FieldLng,
 	FieldLat,
@@ -174,8 +208,6 @@ var (
 	DefaultStoreCode string
 	// StoreCodeValidator is a validator for the "store_code" field. It is called by the builders before save.
 	StoreCodeValidator func(string) error
-	// DefaultBusinessTypeID holds the default value on creation for the "business_type_id" field.
-	DefaultBusinessTypeID int
 	// DefaultContactName holds the default value on creation for the "contact_name" field.
 	DefaultContactName string
 	// ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
@@ -212,30 +244,6 @@ var (
 	DefaultFoodOperationLicenseURL string
 	// FoodOperationLicenseURLValidator is a validator for the "food_operation_license_url" field. It is called by the builders before save.
 	FoodOperationLicenseURLValidator func(string) error
-	// DefaultCountryID holds the default value on creation for the "country_id" field.
-	DefaultCountryID int
-	// DefaultProvinceID holds the default value on creation for the "province_id" field.
-	DefaultProvinceID int
-	// DefaultCityID holds the default value on creation for the "city_id" field.
-	DefaultCityID int
-	// DefaultDistrictID holds the default value on creation for the "district_id" field.
-	DefaultDistrictID int
-	// DefaultCountryName holds the default value on creation for the "country_name" field.
-	DefaultCountryName string
-	// CountryNameValidator is a validator for the "country_name" field. It is called by the builders before save.
-	CountryNameValidator func(string) error
-	// DefaultProvinceName holds the default value on creation for the "province_name" field.
-	DefaultProvinceName string
-	// ProvinceNameValidator is a validator for the "province_name" field. It is called by the builders before save.
-	ProvinceNameValidator func(string) error
-	// DefaultCityName holds the default value on creation for the "city_name" field.
-	DefaultCityName string
-	// CityNameValidator is a validator for the "city_name" field. It is called by the builders before save.
-	CityNameValidator func(string) error
-	// DefaultDistrictName holds the default value on creation for the "district_name" field.
-	DefaultDistrictName string
-	// DistrictNameValidator is a validator for the "district_name" field. It is called by the builders before save.
-	DistrictNameValidator func(string) error
 	// DefaultAddress holds the default value on creation for the "address" field.
 	DefaultAddress string
 	// AddressValidator is a validator for the "address" field. It is called by the builders before save.
@@ -248,6 +256,8 @@ var (
 	DefaultLat string
 	// LatValidator is a validator for the "lat" field. It is called by the builders before save.
 	LatValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
@@ -398,26 +408,6 @@ func ByDistrictID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDistrictID, opts...).ToFunc()
 }
 
-// ByCountryName orders the results by the country_name field.
-func ByCountryName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCountryName, opts...).ToFunc()
-}
-
-// ByProvinceName orders the results by the province_name field.
-func ByProvinceName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldProvinceName, opts...).ToFunc()
-}
-
-// ByCityName orders the results by the city_name field.
-func ByCityName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCityName, opts...).ToFunc()
-}
-
-// ByDistrictName orders the results by the district_name field.
-func ByDistrictName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDistrictName, opts...).ToFunc()
-}
-
 // ByAddress orders the results by the address field.
 func ByAddress(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAddress, opts...).ToFunc()
@@ -451,6 +441,41 @@ func ByAdminUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAdminUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByMerchantBusinessTypeField orders the results by merchant_business_type field.
+func ByMerchantBusinessTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMerchantBusinessTypeStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByCountryField orders the results by country field.
+func ByCountryField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCountryStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByProvinceField orders the results by province field.
+func ByProvinceField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProvinceStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByCityField orders the results by city field.
+func ByCityField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCityStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByDistrictField orders the results by district field.
+func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDistrictStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -463,5 +488,40 @@ func newAdminUserStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AdminUserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
+	)
+}
+func newMerchantBusinessTypeStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MerchantBusinessTypeInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, MerchantBusinessTypeTable, MerchantBusinessTypeColumn),
+	)
+}
+func newCountryStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CountryInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CountryTable, CountryColumn),
+	)
+}
+func newProvinceStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProvinceInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProvinceTable, ProvinceColumn),
+	)
+}
+func newCityStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CityInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CityTable, CityColumn),
+	)
+}
+func newDistrictStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DistrictInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
 	)
 }

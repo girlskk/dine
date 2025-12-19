@@ -48,8 +48,7 @@ func (Merchant) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("UTC 时区的过期时间"),
-		field.Int("business_type_id").
-			Default(0).
+		field.UUID("business_type_id", uuid.UUID{}).
 			Comment("业务类型"),
 		field.String("merchant_logo").
 			Default("").
@@ -65,41 +64,22 @@ func (Merchant) Fields() []ent.Field {
 			Comment("状态: 正常,停用,过期"),
 
 		// 地区信息
-		field.Int("country_id").
-			Default(0).
+		field.UUID("country_id", uuid.UUID{}).
+			Optional().
 			Comment("国家/地区id"),
-		field.Int("province_id").
-			Default(0).
+		field.UUID("province_id", uuid.UUID{}).
+			Optional().
 			Comment("省份 id"),
-		field.Int("city_id").
-			Default(0).
+		field.UUID("city_id", uuid.UUID{}).
+			Optional().
 			Comment("城市 id"),
-		field.Int("district_id").
-			Default(0).
+		field.UUID("district_id", uuid.UUID{}).
+			Optional().
 			Comment("区县 id"),
-		field.String("country_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("国家/地区"),
-		field.String("province_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("省份"),
-		field.String("city_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("城市"),
-		field.String("district_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("区县"),
 		field.String("address").
 			NotEmpty().
 			Default("").
+			MaxLen(255).
 			Comment("详细地址"),
 		field.String("lng").
 			NotEmpty().
@@ -120,22 +100,42 @@ func (Merchant) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("stores", Store.Type),
 		edge.To("merchant_renewals", MerchantRenewal.Type),
+		// 业态类型
 		edge.From("merchant_business_type", MerchantBusinessType.Type).
 			Ref("merchants").
 			Field("business_type_id").
 			Unique().
 			Required(),
+		// 管理员账号
 		edge.From("admin_user", AdminUser.Type).
 			Ref("merchant").
 			Field("admin_user_id").
 			Unique().
 			Immutable().
 			Required(),
+		// 地区关联（绑定已有外键字段）
+		edge.From("country", Country.Type).
+			Ref("merchants").
+			Field("country_id").
+			Unique(),
+		edge.From("province", Province.Type).
+			Ref("merchants").
+			Field("province_id").
+			Unique(),
+		edge.From("city", City.Type).
+			Ref("merchants").
+			Field("city_id").
+			Unique(),
+		edge.From("district", District.Type).
+			Ref("merchants").
+			Field("district_id").
+			Unique(),
 	}
 }
 
 func (Merchant) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
 		schematype.SoftDeleteMixin{},
 	}

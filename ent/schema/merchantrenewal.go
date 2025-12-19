@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
@@ -17,7 +18,7 @@ type MerchantRenewal struct {
 func (MerchantRenewal) Fields() []ent.Field {
 	return []ent.Field{
 		// 商户基础信息
-		field.Int("merchant_id").
+		field.UUID("merchant_id", uuid.UUID{}).
 			Comment("商户 ID"),
 		field.Int("purchase_duration").
 			Default(0).
@@ -52,6 +53,8 @@ func (MerchantRenewal) Edges() []ent.Edge {
 
 func (MerchantRenewal) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
+		schematype.SoftDeleteMixin{},
 	}
 }

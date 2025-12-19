@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
@@ -26,7 +27,7 @@ func NewMerchantRepository(client *ent.Client) *MerchantRepository {
 	}
 }
 
-func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *domain.Merchant) (id int, err error) {
+func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *domain.Merchant) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.Create")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -36,7 +37,12 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		err = fmt.Errorf("domainMerchant is nil")
 		return
 	}
-	_, err = repo.Client.Merchant.Create().
+	if domainMerchant.Address == nil {
+		err = fmt.Errorf("domainMerchant.Address is nil")
+		return
+	}
+
+	_, err = repo.Client.Merchant.Create().SetID(domainMerchant.ID).
 		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
 		SetMerchantShortName(domainMerchant.MerchantShortName).
@@ -48,17 +54,13 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status).
-		SetCountryID(domainMerchant.CountryID).
-		SetProvinceID(domainMerchant.ProvinceID).
-		SetCityID(domainMerchant.CityID).
-		SetDistrictID(domainMerchant.DistrictID).
-		SetCountryName(domainMerchant.CountryName).
-		SetProvinceName(domainMerchant.ProvinceName).
-		SetCityName(domainMerchant.CityName).
-		SetDistrictName(domainMerchant.DistrictName).
-		SetAddress(domainMerchant.Address).
-		SetLng(domainMerchant.Lng).
-		SetLat(domainMerchant.Lat).
+		SetCountryID(domainMerchant.Address.CountryID).
+		SetProvinceID(domainMerchant.Address.ProvinceID).
+		SetCityID(domainMerchant.Address.CityID).
+		SetDistrictID(domainMerchant.Address.DistrictID).
+		SetAddress(domainMerchant.Address.Address).
+		SetLng(domainMerchant.Address.Lng).
+		SetLat(domainMerchant.Address.Lat).
 		SetAdminUserID(domainMerchant.AdminUserID).
 		Save(ctx)
 	if err != nil {
@@ -78,7 +80,10 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		err = fmt.Errorf("domainMerchant is nil")
 		return
 	}
-
+	if domainMerchant.Address == nil {
+		err = fmt.Errorf("domainMerchant.Address is nil")
+		return
+	}
 	_, err = repo.Client.Merchant.UpdateOneID(domainMerchant.ID).
 		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
@@ -91,17 +96,13 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status).
-		SetCountryID(domainMerchant.CountryID).
-		SetProvinceID(domainMerchant.ProvinceID).
-		SetCityID(domainMerchant.CityID).
-		SetDistrictID(domainMerchant.DistrictID).
-		SetCountryName(domainMerchant.CountryName).
-		SetProvinceName(domainMerchant.ProvinceName).
-		SetCityName(domainMerchant.CityName).
-		SetDistrictName(domainMerchant.DistrictName).
-		SetAddress(domainMerchant.Address).
-		SetLng(domainMerchant.Lng).
-		SetLat(domainMerchant.Lat).
+		SetCountryID(domainMerchant.Address.CountryID).
+		SetProvinceID(domainMerchant.Address.ProvinceID).
+		SetCityID(domainMerchant.Address.CityID).
+		SetDistrictID(domainMerchant.Address.DistrictID).
+		SetAddress(domainMerchant.Address.Address).
+		SetLng(domainMerchant.Address.Lng).
+		SetLat(domainMerchant.Address.Lat).
 		Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -113,7 +114,7 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 	return
 }
 
-func (repo *MerchantRepository) Delete(ctx context.Context, id int) (err error) {
+func (repo *MerchantRepository) Delete(ctx context.Context, id uuid.UUID) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -131,7 +132,7 @@ func (repo *MerchantRepository) Delete(ctx context.Context, id int) (err error) 
 	return
 }
 
-func (repo *MerchantRepository) FindByID(ctx context.Context, id int) (domainMerchant *domain.Merchant, err error) {
+func (repo *MerchantRepository) FindByID(ctx context.Context, id uuid.UUID) (domainMerchant *domain.Merchant, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.FindByID")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -139,6 +140,12 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id int) (domainMer
 
 	em, err := repo.Client.Merchant.Query().
 		Where(merchant.ID(id)).
+		WithCountry().
+		WithProvince().
+		WithCity().
+		WithDistrict().
+		WithAdminUser().
+		WithMerchantBusinessType().
 		Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, domain.NotFoundError(domain.ErrMerchantNotExists)
@@ -246,7 +253,7 @@ func (repo *MerchantRepository) ExistMerchant(ctx context.Context, merchantExist
 	}
 	query := repo.Client.Merchant.Query().
 		Where(merchant.MerchantNameEQ(merchantExistsParams.MerchantName))
-	if merchantExistsParams.NotID > 0 {
+	if merchantExistsParams.NotID != uuid.Nil {
 		query = query.Where(merchant.IDNEQ(merchantExistsParams.NotID))
 	}
 	exist, err = query.Exist(ctx)
@@ -279,7 +286,7 @@ func (repo *MerchantRepository) filterBuildQuery(filter *domain.MerchantListFilt
 	if filter.CreatedAtLte != nil {
 		query = query.Where(merchant.CreatedAtLTE(*filter.CreatedAtLte))
 	}
-	if filter.ProvinceID > 0 {
+	if filter.ProvinceID != uuid.Nil {
 		query = query.Where(merchant.ProvinceIDEQ(filter.ProvinceID))
 	}
 	return query
@@ -305,7 +312,29 @@ func (repo *MerchantRepository) orderBy(orderBys ...domain.MerchantListOrderBy) 
 }
 
 func convertMerchant(em *ent.Merchant) *domain.Merchant {
-	return &domain.Merchant{
+	address := &domain.Address{
+		CountryID:  em.CountryID,
+		ProvinceID: em.ProvinceID,
+		CityID:     em.CityID,
+		DistrictID: em.DistrictID,
+		Address:    em.Address,
+		Lng:        em.Lng,
+		Lat:        em.Lat,
+	}
+	if em.Edges.Country != nil {
+		address.CountryName = em.Edges.Country.Name
+	}
+	if em.Edges.Province != nil {
+		address.ProvinceName = em.Edges.Province.Name
+	}
+	if em.Edges.City != nil {
+		address.CityName = em.Edges.City.Name
+	}
+	if em.Edges.District != nil {
+		address.DistrictName = em.Edges.District.Name
+	}
+
+	repoMerchant := &domain.Merchant{
 		ID:                em.ID,
 		MerchantCode:      em.MerchantCode,
 		MerchantName:      em.MerchantName,
@@ -318,19 +347,17 @@ func convertMerchant(em *ent.Merchant) *domain.Merchant {
 		MerchantLogo:      em.MerchantLogo,
 		Description:       em.Description,
 		Status:            em.Status,
-		CountryID:         em.CountryID,
-		ProvinceID:        em.ProvinceID,
-		CityID:            em.CityID,
-		DistrictID:        em.DistrictID,
-		CountryName:       em.CountryName,
-		ProvinceName:      em.ProvinceName,
-		CityName:          em.CityName,
-		DistrictName:      em.DistrictName,
-		Address:           em.Address,
-		Lng:               em.Lng,
-		Lat:               em.Lat,
+		Address:           address,
 		AdminUserID:       em.AdminUserID,
 		CreatedAt:         em.CreatedAt,
 		UpdatedAt:         em.UpdatedAt,
 	}
+	if em.Edges.AdminUser != nil {
+		repoMerchant.LoginAccount = em.Edges.AdminUser.Username
+		repoMerchant.LoginPassword = em.Edges.AdminUser.HashedPassword
+	}
+	if em.Edges.MerchantBusinessType != nil {
+		repoMerchant.BusinessTypeName = em.Edges.MerchantBusinessType.TypeName
+	}
+	return repoMerchant
 }

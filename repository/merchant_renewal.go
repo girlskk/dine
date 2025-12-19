@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -21,7 +22,7 @@ func NewMerchantRenewalRepository(client *ent.Client) *MerchantRenewalRepository
 	}
 }
 
-func (repo *MerchantRenewalRepository) GetByMerchant(ctx context.Context, merchantId int) (renewals []*domain.MerchantRenewal, err error) {
+func (repo *MerchantRenewalRepository) GetByMerchant(ctx context.Context, merchantId uuid.UUID) (renewals []*domain.MerchantRenewal, err error) {
 	//TODO implement me
 	return
 }
@@ -37,7 +38,7 @@ func (repo *MerchantRenewalRepository) Create(ctx context.Context, merchantRenew
 		return
 	}
 
-	_, err = repo.Client.MerchantRenewal.Create().
+	_, err = repo.Client.MerchantRenewal.Create().SetID(merchantRenewal.ID).
 		SetMerchantID(merchantRenewal.MerchantID).
 		SetPurchaseDuration(merchantRenewal.PurchaseDuration).
 		SetPurchaseDurationUnit(merchantRenewal.PurchaseDurationUnit).

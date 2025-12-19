@@ -6,12 +6,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // MerchantBusinessTypeCreate is the builder for creating a MerchantBusinessType entity.
@@ -20,6 +24,48 @@ type MerchantBusinessTypeCreate struct {
 	mutation *MerchantBusinessTypeMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (mbtc *MerchantBusinessTypeCreate) SetCreatedAt(t time.Time) *MerchantBusinessTypeCreate {
+	mbtc.mutation.SetCreatedAt(t)
+	return mbtc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (mbtc *MerchantBusinessTypeCreate) SetNillableCreatedAt(t *time.Time) *MerchantBusinessTypeCreate {
+	if t != nil {
+		mbtc.SetCreatedAt(*t)
+	}
+	return mbtc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (mbtc *MerchantBusinessTypeCreate) SetUpdatedAt(t time.Time) *MerchantBusinessTypeCreate {
+	mbtc.mutation.SetUpdatedAt(t)
+	return mbtc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (mbtc *MerchantBusinessTypeCreate) SetNillableUpdatedAt(t *time.Time) *MerchantBusinessTypeCreate {
+	if t != nil {
+		mbtc.SetUpdatedAt(*t)
+	}
+	return mbtc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (mbtc *MerchantBusinessTypeCreate) SetDeletedAt(i int64) *MerchantBusinessTypeCreate {
+	mbtc.mutation.SetDeletedAt(i)
+	return mbtc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mbtc *MerchantBusinessTypeCreate) SetNillableDeletedAt(i *int64) *MerchantBusinessTypeCreate {
+	if i != nil {
+		mbtc.SetDeletedAt(*i)
+	}
+	return mbtc
 }
 
 // SetTypeCode sets the "type_code" field.
@@ -50,19 +96,48 @@ func (mbtc *MerchantBusinessTypeCreate) SetNillableTypeName(s *string) *Merchant
 	return mbtc
 }
 
+// SetID sets the "id" field.
+func (mbtc *MerchantBusinessTypeCreate) SetID(u uuid.UUID) *MerchantBusinessTypeCreate {
+	mbtc.mutation.SetID(u)
+	return mbtc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (mbtc *MerchantBusinessTypeCreate) SetNillableID(u *uuid.UUID) *MerchantBusinessTypeCreate {
+	if u != nil {
+		mbtc.SetID(*u)
+	}
+	return mbtc
+}
+
 // AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
-func (mbtc *MerchantBusinessTypeCreate) AddMerchantIDs(ids ...int) *MerchantBusinessTypeCreate {
+func (mbtc *MerchantBusinessTypeCreate) AddMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeCreate {
 	mbtc.mutation.AddMerchantIDs(ids...)
 	return mbtc
 }
 
 // AddMerchants adds the "merchants" edges to the Merchant entity.
 func (mbtc *MerchantBusinessTypeCreate) AddMerchants(m ...*Merchant) *MerchantBusinessTypeCreate {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
 	return mbtc.AddMerchantIDs(ids...)
+}
+
+// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
+func (mbtc *MerchantBusinessTypeCreate) AddStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeCreate {
+	mbtc.mutation.AddStoreIDs(ids...)
+	return mbtc
+}
+
+// AddStores adds the "stores" edges to the Store entity.
+func (mbtc *MerchantBusinessTypeCreate) AddStores(s ...*Store) *MerchantBusinessTypeCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mbtc.AddStoreIDs(ids...)
 }
 
 // Mutation returns the MerchantBusinessTypeMutation object of the builder.
@@ -100,6 +175,18 @@ func (mbtc *MerchantBusinessTypeCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (mbtc *MerchantBusinessTypeCreate) defaults() {
+	if _, ok := mbtc.mutation.CreatedAt(); !ok {
+		v := merchantbusinesstype.DefaultCreatedAt()
+		mbtc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := mbtc.mutation.UpdatedAt(); !ok {
+		v := merchantbusinesstype.DefaultUpdatedAt()
+		mbtc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := mbtc.mutation.DeletedAt(); !ok {
+		v := merchantbusinesstype.DefaultDeletedAt
+		mbtc.mutation.SetDeletedAt(v)
+	}
 	if _, ok := mbtc.mutation.TypeCode(); !ok {
 		v := merchantbusinesstype.DefaultTypeCode
 		mbtc.mutation.SetTypeCode(v)
@@ -108,10 +195,23 @@ func (mbtc *MerchantBusinessTypeCreate) defaults() {
 		v := merchantbusinesstype.DefaultTypeName
 		mbtc.mutation.SetTypeName(v)
 	}
+	if _, ok := mbtc.mutation.ID(); !ok {
+		v := merchantbusinesstype.DefaultID()
+		mbtc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (mbtc *MerchantBusinessTypeCreate) check() error {
+	if _, ok := mbtc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "MerchantBusinessType.created_at"`)}
+	}
+	if _, ok := mbtc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "MerchantBusinessType.updated_at"`)}
+	}
+	if _, ok := mbtc.mutation.DeletedAt(); !ok {
+		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "MerchantBusinessType.deleted_at"`)}
+	}
 	if _, ok := mbtc.mutation.TypeCode(); !ok {
 		return &ValidationError{Name: "type_code", err: errors.New(`ent: missing required field "MerchantBusinessType.type_code"`)}
 	}
@@ -142,8 +242,13 @@ func (mbtc *MerchantBusinessTypeCreate) sqlSave(ctx context.Context) (*MerchantB
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	mbtc.mutation.id = &_node.ID
 	mbtc.mutation.done = true
 	return _node, nil
@@ -152,9 +257,25 @@ func (mbtc *MerchantBusinessTypeCreate) sqlSave(ctx context.Context) (*MerchantB
 func (mbtc *MerchantBusinessTypeCreate) createSpec() (*MerchantBusinessType, *sqlgraph.CreateSpec) {
 	var (
 		_node = &MerchantBusinessType{config: mbtc.config}
-		_spec = sqlgraph.NewCreateSpec(merchantbusinesstype.Table, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(merchantbusinesstype.Table, sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = mbtc.conflict
+	if id, ok := mbtc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := mbtc.mutation.CreatedAt(); ok {
+		_spec.SetField(merchantbusinesstype.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := mbtc.mutation.UpdatedAt(); ok {
+		_spec.SetField(merchantbusinesstype.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := mbtc.mutation.DeletedAt(); ok {
+		_spec.SetField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := mbtc.mutation.TypeCode(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeCode, field.TypeString, value)
 		_node.TypeCode = value
@@ -171,7 +292,23 @@ func (mbtc *MerchantBusinessTypeCreate) createSpec() (*MerchantBusinessType, *sq
 			Columns: []string{merchantbusinesstype.MerchantsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mbtc.mutation.StoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchantbusinesstype.StoresTable,
+			Columns: []string{merchantbusinesstype.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -186,7 +323,7 @@ func (mbtc *MerchantBusinessTypeCreate) createSpec() (*MerchantBusinessType, *sq
 // of the `INSERT` statement. For example:
 //
 //	client.MerchantBusinessType.Create().
-//		SetTypeCode(v).
+//		SetCreatedAt(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -195,7 +332,7 @@ func (mbtc *MerchantBusinessTypeCreate) createSpec() (*MerchantBusinessType, *sq
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.MerchantBusinessTypeUpsert) {
-//			SetTypeCode(v+v).
+//			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
 func (mbtc *MerchantBusinessTypeCreate) OnConflict(opts ...sql.ConflictOption) *MerchantBusinessTypeUpsertOne {
@@ -231,6 +368,36 @@ type (
 	}
 )
 
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MerchantBusinessTypeUpsert) SetUpdatedAt(v time.Time) *MerchantBusinessTypeUpsert {
+	u.Set(merchantbusinesstype.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MerchantBusinessTypeUpsert) UpdateUpdatedAt() *MerchantBusinessTypeUpsert {
+	u.SetExcluded(merchantbusinesstype.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *MerchantBusinessTypeUpsert) SetDeletedAt(v int64) *MerchantBusinessTypeUpsert {
+	u.Set(merchantbusinesstype.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *MerchantBusinessTypeUpsert) UpdateDeletedAt() *MerchantBusinessTypeUpsert {
+	u.SetExcluded(merchantbusinesstype.FieldDeletedAt)
+	return u
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *MerchantBusinessTypeUpsert) AddDeletedAt(v int64) *MerchantBusinessTypeUpsert {
+	u.Add(merchantbusinesstype.FieldDeletedAt, v)
+	return u
+}
+
 // SetTypeCode sets the "type_code" field.
 func (u *MerchantBusinessTypeUpsert) SetTypeCode(v string) *MerchantBusinessTypeUpsert {
 	u.Set(merchantbusinesstype.FieldTypeCode, v)
@@ -255,16 +422,27 @@ func (u *MerchantBusinessTypeUpsert) UpdateTypeName() *MerchantBusinessTypeUpser
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.MerchantBusinessType.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(merchantbusinesstype.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MerchantBusinessTypeUpsertOne) UpdateNewValues() *MerchantBusinessTypeUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(merchantbusinesstype.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(merchantbusinesstype.FieldCreatedAt)
+		}
+	}))
 	return u
 }
 
@@ -293,6 +471,41 @@ func (u *MerchantBusinessTypeUpsertOne) Update(set func(*MerchantBusinessTypeUps
 		set(&MerchantBusinessTypeUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MerchantBusinessTypeUpsertOne) SetUpdatedAt(v time.Time) *MerchantBusinessTypeUpsertOne {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MerchantBusinessTypeUpsertOne) UpdateUpdatedAt() *MerchantBusinessTypeUpsertOne {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *MerchantBusinessTypeUpsertOne) SetDeletedAt(v int64) *MerchantBusinessTypeUpsertOne {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *MerchantBusinessTypeUpsertOne) AddDeletedAt(v int64) *MerchantBusinessTypeUpsertOne {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.AddDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *MerchantBusinessTypeUpsertOne) UpdateDeletedAt() *MerchantBusinessTypeUpsertOne {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.UpdateDeletedAt()
+	})
 }
 
 // SetTypeCode sets the "type_code" field.
@@ -339,7 +552,12 @@ func (u *MerchantBusinessTypeUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *MerchantBusinessTypeUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *MerchantBusinessTypeUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: MerchantBusinessTypeUpsertOne.ID is not supported by MySQL driver. Use MerchantBusinessTypeUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -348,7 +566,7 @@ func (u *MerchantBusinessTypeUpsertOne) ID(ctx context.Context) (id int, err err
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *MerchantBusinessTypeUpsertOne) IDX(ctx context.Context) int {
+func (u *MerchantBusinessTypeUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -403,10 +621,6 @@ func (mbtcb *MerchantBusinessTypeCreateBulk) Save(ctx context.Context) ([]*Merch
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -458,7 +672,7 @@ func (mbtcb *MerchantBusinessTypeCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.MerchantBusinessTypeUpsert) {
-//			SetTypeCode(v+v).
+//			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
 func (mbtcb *MerchantBusinessTypeCreateBulk) OnConflict(opts ...sql.ConflictOption) *MerchantBusinessTypeUpsertBulk {
@@ -493,10 +707,23 @@ type MerchantBusinessTypeUpsertBulk struct {
 //	client.MerchantBusinessType.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(merchantbusinesstype.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MerchantBusinessTypeUpsertBulk) UpdateNewValues() *MerchantBusinessTypeUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(merchantbusinesstype.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(merchantbusinesstype.FieldCreatedAt)
+			}
+		}
+	}))
 	return u
 }
 
@@ -525,6 +752,41 @@ func (u *MerchantBusinessTypeUpsertBulk) Update(set func(*MerchantBusinessTypeUp
 		set(&MerchantBusinessTypeUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MerchantBusinessTypeUpsertBulk) SetUpdatedAt(v time.Time) *MerchantBusinessTypeUpsertBulk {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MerchantBusinessTypeUpsertBulk) UpdateUpdatedAt() *MerchantBusinessTypeUpsertBulk {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *MerchantBusinessTypeUpsertBulk) SetDeletedAt(v int64) *MerchantBusinessTypeUpsertBulk {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *MerchantBusinessTypeUpsertBulk) AddDeletedAt(v int64) *MerchantBusinessTypeUpsertBulk {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.AddDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *MerchantBusinessTypeUpsertBulk) UpdateDeletedAt() *MerchantBusinessTypeUpsertBulk {
+	return u.Update(func(s *MerchantBusinessTypeUpsert) {
+		s.UpdateDeletedAt()
+	})
 }
 
 // SetTypeCode sets the "type_code" field.

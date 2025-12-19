@@ -13,47 +13,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Store {
+func ID(id uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Store {
+func IDEQ(id uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Store {
+func IDNEQ(id uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Store {
+func IDIn(ids ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Store {
+func IDNotIn(ids ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Store {
+func IDGT(id uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Store {
+func IDGTE(id uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Store {
+func IDLT(id uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Store {
+func IDLTE(id uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldLTE(FieldID, id))
 }
 
@@ -73,7 +73,7 @@ func DeletedAt(v int64) predicate.Store {
 }
 
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
-func MerchantID(v int) predicate.Store {
+func MerchantID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldMerchantID, v))
 }
 
@@ -98,7 +98,7 @@ func StoreCode(v string) predicate.Store {
 }
 
 // BusinessTypeID applies equality check predicate on the "business_type_id" field. It's identical to BusinessTypeIDEQ.
-func BusinessTypeID(v int) predicate.Store {
+func BusinessTypeID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldBusinessTypeID, v))
 }
 
@@ -148,43 +148,23 @@ func FoodOperationLicenseURL(v string) predicate.Store {
 }
 
 // CountryID applies equality check predicate on the "country_id" field. It's identical to CountryIDEQ.
-func CountryID(v int) predicate.Store {
+func CountryID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldCountryID, v))
 }
 
 // ProvinceID applies equality check predicate on the "province_id" field. It's identical to ProvinceIDEQ.
-func ProvinceID(v int) predicate.Store {
+func ProvinceID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldProvinceID, v))
 }
 
 // CityID applies equality check predicate on the "city_id" field. It's identical to CityIDEQ.
-func CityID(v int) predicate.Store {
+func CityID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldCityID, v))
 }
 
 // DistrictID applies equality check predicate on the "district_id" field. It's identical to DistrictIDEQ.
-func DistrictID(v int) predicate.Store {
+func DistrictID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldDistrictID, v))
-}
-
-// CountryName applies equality check predicate on the "country_name" field. It's identical to CountryNameEQ.
-func CountryName(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldCountryName, v))
-}
-
-// ProvinceName applies equality check predicate on the "province_name" field. It's identical to ProvinceNameEQ.
-func ProvinceName(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldProvinceName, v))
-}
-
-// CityName applies equality check predicate on the "city_name" field. It's identical to CityNameEQ.
-func CityName(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldCityName, v))
-}
-
-// DistrictName applies equality check predicate on the "district_name" field. It's identical to DistrictNameEQ.
-func DistrictName(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldDistrictName, v))
 }
 
 // Address applies equality check predicate on the "address" field. It's identical to AddressEQ.
@@ -328,22 +308,22 @@ func DeletedAtLTE(v int64) predicate.Store {
 }
 
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
-func MerchantIDEQ(v int) predicate.Store {
+func MerchantIDEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldMerchantID, v))
 }
 
 // MerchantIDNEQ applies the NEQ predicate on the "merchant_id" field.
-func MerchantIDNEQ(v int) predicate.Store {
+func MerchantIDNEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNEQ(FieldMerchantID, v))
 }
 
 // MerchantIDIn applies the In predicate on the "merchant_id" field.
-func MerchantIDIn(vs ...int) predicate.Store {
+func MerchantIDIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldIn(FieldMerchantID, vs...))
 }
 
 // MerchantIDNotIn applies the NotIn predicate on the "merchant_id" field.
-func MerchantIDNotIn(vs ...int) predicate.Store {
+func MerchantIDNotIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldMerchantID, vs...))
 }
 
@@ -668,43 +648,23 @@ func BusinessModelNotIn(vs ...domain.BusinessModel) predicate.Store {
 }
 
 // BusinessTypeIDEQ applies the EQ predicate on the "business_type_id" field.
-func BusinessTypeIDEQ(v int) predicate.Store {
+func BusinessTypeIDEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldBusinessTypeID, v))
 }
 
 // BusinessTypeIDNEQ applies the NEQ predicate on the "business_type_id" field.
-func BusinessTypeIDNEQ(v int) predicate.Store {
+func BusinessTypeIDNEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNEQ(FieldBusinessTypeID, v))
 }
 
 // BusinessTypeIDIn applies the In predicate on the "business_type_id" field.
-func BusinessTypeIDIn(vs ...int) predicate.Store {
+func BusinessTypeIDIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldIn(FieldBusinessTypeID, vs...))
 }
 
 // BusinessTypeIDNotIn applies the NotIn predicate on the "business_type_id" field.
-func BusinessTypeIDNotIn(vs ...int) predicate.Store {
+func BusinessTypeIDNotIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldBusinessTypeID, vs...))
-}
-
-// BusinessTypeIDGT applies the GT predicate on the "business_type_id" field.
-func BusinessTypeIDGT(v int) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldBusinessTypeID, v))
-}
-
-// BusinessTypeIDGTE applies the GTE predicate on the "business_type_id" field.
-func BusinessTypeIDGTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldBusinessTypeID, v))
-}
-
-// BusinessTypeIDLT applies the LT predicate on the "business_type_id" field.
-func BusinessTypeIDLT(v int) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldBusinessTypeID, v))
-}
-
-// BusinessTypeIDLTE applies the LTE predicate on the "business_type_id" field.
-func BusinessTypeIDLTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldBusinessTypeID, v))
 }
 
 // ContactNameEQ applies the EQ predicate on the "contact_name" field.
@@ -1293,423 +1253,123 @@ func FoodOperationLicenseURLContainsFold(v string) predicate.Store {
 }
 
 // CountryIDEQ applies the EQ predicate on the "country_id" field.
-func CountryIDEQ(v int) predicate.Store {
+func CountryIDEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldCountryID, v))
 }
 
 // CountryIDNEQ applies the NEQ predicate on the "country_id" field.
-func CountryIDNEQ(v int) predicate.Store {
+func CountryIDNEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNEQ(FieldCountryID, v))
 }
 
 // CountryIDIn applies the In predicate on the "country_id" field.
-func CountryIDIn(vs ...int) predicate.Store {
+func CountryIDIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldIn(FieldCountryID, vs...))
 }
 
 // CountryIDNotIn applies the NotIn predicate on the "country_id" field.
-func CountryIDNotIn(vs ...int) predicate.Store {
+func CountryIDNotIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldCountryID, vs...))
 }
 
-// CountryIDGT applies the GT predicate on the "country_id" field.
-func CountryIDGT(v int) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldCountryID, v))
+// CountryIDIsNil applies the IsNil predicate on the "country_id" field.
+func CountryIDIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldCountryID))
 }
 
-// CountryIDGTE applies the GTE predicate on the "country_id" field.
-func CountryIDGTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldCountryID, v))
-}
-
-// CountryIDLT applies the LT predicate on the "country_id" field.
-func CountryIDLT(v int) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldCountryID, v))
-}
-
-// CountryIDLTE applies the LTE predicate on the "country_id" field.
-func CountryIDLTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldCountryID, v))
+// CountryIDNotNil applies the NotNil predicate on the "country_id" field.
+func CountryIDNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldCountryID))
 }
 
 // ProvinceIDEQ applies the EQ predicate on the "province_id" field.
-func ProvinceIDEQ(v int) predicate.Store {
+func ProvinceIDEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldProvinceID, v))
 }
 
 // ProvinceIDNEQ applies the NEQ predicate on the "province_id" field.
-func ProvinceIDNEQ(v int) predicate.Store {
+func ProvinceIDNEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNEQ(FieldProvinceID, v))
 }
 
 // ProvinceIDIn applies the In predicate on the "province_id" field.
-func ProvinceIDIn(vs ...int) predicate.Store {
+func ProvinceIDIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldIn(FieldProvinceID, vs...))
 }
 
 // ProvinceIDNotIn applies the NotIn predicate on the "province_id" field.
-func ProvinceIDNotIn(vs ...int) predicate.Store {
+func ProvinceIDNotIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldProvinceID, vs...))
 }
 
-// ProvinceIDGT applies the GT predicate on the "province_id" field.
-func ProvinceIDGT(v int) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldProvinceID, v))
+// ProvinceIDIsNil applies the IsNil predicate on the "province_id" field.
+func ProvinceIDIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldProvinceID))
 }
 
-// ProvinceIDGTE applies the GTE predicate on the "province_id" field.
-func ProvinceIDGTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldProvinceID, v))
-}
-
-// ProvinceIDLT applies the LT predicate on the "province_id" field.
-func ProvinceIDLT(v int) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldProvinceID, v))
-}
-
-// ProvinceIDLTE applies the LTE predicate on the "province_id" field.
-func ProvinceIDLTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldProvinceID, v))
+// ProvinceIDNotNil applies the NotNil predicate on the "province_id" field.
+func ProvinceIDNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldProvinceID))
 }
 
 // CityIDEQ applies the EQ predicate on the "city_id" field.
-func CityIDEQ(v int) predicate.Store {
+func CityIDEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldCityID, v))
 }
 
 // CityIDNEQ applies the NEQ predicate on the "city_id" field.
-func CityIDNEQ(v int) predicate.Store {
+func CityIDNEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNEQ(FieldCityID, v))
 }
 
 // CityIDIn applies the In predicate on the "city_id" field.
-func CityIDIn(vs ...int) predicate.Store {
+func CityIDIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldIn(FieldCityID, vs...))
 }
 
 // CityIDNotIn applies the NotIn predicate on the "city_id" field.
-func CityIDNotIn(vs ...int) predicate.Store {
+func CityIDNotIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldCityID, vs...))
 }
 
-// CityIDGT applies the GT predicate on the "city_id" field.
-func CityIDGT(v int) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldCityID, v))
+// CityIDIsNil applies the IsNil predicate on the "city_id" field.
+func CityIDIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldCityID))
 }
 
-// CityIDGTE applies the GTE predicate on the "city_id" field.
-func CityIDGTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldCityID, v))
-}
-
-// CityIDLT applies the LT predicate on the "city_id" field.
-func CityIDLT(v int) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldCityID, v))
-}
-
-// CityIDLTE applies the LTE predicate on the "city_id" field.
-func CityIDLTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldCityID, v))
+// CityIDNotNil applies the NotNil predicate on the "city_id" field.
+func CityIDNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldCityID))
 }
 
 // DistrictIDEQ applies the EQ predicate on the "district_id" field.
-func DistrictIDEQ(v int) predicate.Store {
+func DistrictIDEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldDistrictID, v))
 }
 
 // DistrictIDNEQ applies the NEQ predicate on the "district_id" field.
-func DistrictIDNEQ(v int) predicate.Store {
+func DistrictIDNEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNEQ(FieldDistrictID, v))
 }
 
 // DistrictIDIn applies the In predicate on the "district_id" field.
-func DistrictIDIn(vs ...int) predicate.Store {
+func DistrictIDIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldIn(FieldDistrictID, vs...))
 }
 
 // DistrictIDNotIn applies the NotIn predicate on the "district_id" field.
-func DistrictIDNotIn(vs ...int) predicate.Store {
+func DistrictIDNotIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldDistrictID, vs...))
 }
 
-// DistrictIDGT applies the GT predicate on the "district_id" field.
-func DistrictIDGT(v int) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldDistrictID, v))
+// DistrictIDIsNil applies the IsNil predicate on the "district_id" field.
+func DistrictIDIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldDistrictID))
 }
 
-// DistrictIDGTE applies the GTE predicate on the "district_id" field.
-func DistrictIDGTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldDistrictID, v))
-}
-
-// DistrictIDLT applies the LT predicate on the "district_id" field.
-func DistrictIDLT(v int) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldDistrictID, v))
-}
-
-// DistrictIDLTE applies the LTE predicate on the "district_id" field.
-func DistrictIDLTE(v int) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldDistrictID, v))
-}
-
-// CountryNameEQ applies the EQ predicate on the "country_name" field.
-func CountryNameEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldCountryName, v))
-}
-
-// CountryNameNEQ applies the NEQ predicate on the "country_name" field.
-func CountryNameNEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldCountryName, v))
-}
-
-// CountryNameIn applies the In predicate on the "country_name" field.
-func CountryNameIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldCountryName, vs...))
-}
-
-// CountryNameNotIn applies the NotIn predicate on the "country_name" field.
-func CountryNameNotIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldCountryName, vs...))
-}
-
-// CountryNameGT applies the GT predicate on the "country_name" field.
-func CountryNameGT(v string) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldCountryName, v))
-}
-
-// CountryNameGTE applies the GTE predicate on the "country_name" field.
-func CountryNameGTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldCountryName, v))
-}
-
-// CountryNameLT applies the LT predicate on the "country_name" field.
-func CountryNameLT(v string) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldCountryName, v))
-}
-
-// CountryNameLTE applies the LTE predicate on the "country_name" field.
-func CountryNameLTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldCountryName, v))
-}
-
-// CountryNameContains applies the Contains predicate on the "country_name" field.
-func CountryNameContains(v string) predicate.Store {
-	return predicate.Store(sql.FieldContains(FieldCountryName, v))
-}
-
-// CountryNameHasPrefix applies the HasPrefix predicate on the "country_name" field.
-func CountryNameHasPrefix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasPrefix(FieldCountryName, v))
-}
-
-// CountryNameHasSuffix applies the HasSuffix predicate on the "country_name" field.
-func CountryNameHasSuffix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasSuffix(FieldCountryName, v))
-}
-
-// CountryNameEqualFold applies the EqualFold predicate on the "country_name" field.
-func CountryNameEqualFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldEqualFold(FieldCountryName, v))
-}
-
-// CountryNameContainsFold applies the ContainsFold predicate on the "country_name" field.
-func CountryNameContainsFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldContainsFold(FieldCountryName, v))
-}
-
-// ProvinceNameEQ applies the EQ predicate on the "province_name" field.
-func ProvinceNameEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldProvinceName, v))
-}
-
-// ProvinceNameNEQ applies the NEQ predicate on the "province_name" field.
-func ProvinceNameNEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldProvinceName, v))
-}
-
-// ProvinceNameIn applies the In predicate on the "province_name" field.
-func ProvinceNameIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldProvinceName, vs...))
-}
-
-// ProvinceNameNotIn applies the NotIn predicate on the "province_name" field.
-func ProvinceNameNotIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldProvinceName, vs...))
-}
-
-// ProvinceNameGT applies the GT predicate on the "province_name" field.
-func ProvinceNameGT(v string) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldProvinceName, v))
-}
-
-// ProvinceNameGTE applies the GTE predicate on the "province_name" field.
-func ProvinceNameGTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldProvinceName, v))
-}
-
-// ProvinceNameLT applies the LT predicate on the "province_name" field.
-func ProvinceNameLT(v string) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldProvinceName, v))
-}
-
-// ProvinceNameLTE applies the LTE predicate on the "province_name" field.
-func ProvinceNameLTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldProvinceName, v))
-}
-
-// ProvinceNameContains applies the Contains predicate on the "province_name" field.
-func ProvinceNameContains(v string) predicate.Store {
-	return predicate.Store(sql.FieldContains(FieldProvinceName, v))
-}
-
-// ProvinceNameHasPrefix applies the HasPrefix predicate on the "province_name" field.
-func ProvinceNameHasPrefix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasPrefix(FieldProvinceName, v))
-}
-
-// ProvinceNameHasSuffix applies the HasSuffix predicate on the "province_name" field.
-func ProvinceNameHasSuffix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasSuffix(FieldProvinceName, v))
-}
-
-// ProvinceNameEqualFold applies the EqualFold predicate on the "province_name" field.
-func ProvinceNameEqualFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldEqualFold(FieldProvinceName, v))
-}
-
-// ProvinceNameContainsFold applies the ContainsFold predicate on the "province_name" field.
-func ProvinceNameContainsFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldContainsFold(FieldProvinceName, v))
-}
-
-// CityNameEQ applies the EQ predicate on the "city_name" field.
-func CityNameEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldCityName, v))
-}
-
-// CityNameNEQ applies the NEQ predicate on the "city_name" field.
-func CityNameNEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldCityName, v))
-}
-
-// CityNameIn applies the In predicate on the "city_name" field.
-func CityNameIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldCityName, vs...))
-}
-
-// CityNameNotIn applies the NotIn predicate on the "city_name" field.
-func CityNameNotIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldCityName, vs...))
-}
-
-// CityNameGT applies the GT predicate on the "city_name" field.
-func CityNameGT(v string) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldCityName, v))
-}
-
-// CityNameGTE applies the GTE predicate on the "city_name" field.
-func CityNameGTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldCityName, v))
-}
-
-// CityNameLT applies the LT predicate on the "city_name" field.
-func CityNameLT(v string) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldCityName, v))
-}
-
-// CityNameLTE applies the LTE predicate on the "city_name" field.
-func CityNameLTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldCityName, v))
-}
-
-// CityNameContains applies the Contains predicate on the "city_name" field.
-func CityNameContains(v string) predicate.Store {
-	return predicate.Store(sql.FieldContains(FieldCityName, v))
-}
-
-// CityNameHasPrefix applies the HasPrefix predicate on the "city_name" field.
-func CityNameHasPrefix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasPrefix(FieldCityName, v))
-}
-
-// CityNameHasSuffix applies the HasSuffix predicate on the "city_name" field.
-func CityNameHasSuffix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasSuffix(FieldCityName, v))
-}
-
-// CityNameEqualFold applies the EqualFold predicate on the "city_name" field.
-func CityNameEqualFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldEqualFold(FieldCityName, v))
-}
-
-// CityNameContainsFold applies the ContainsFold predicate on the "city_name" field.
-func CityNameContainsFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldContainsFold(FieldCityName, v))
-}
-
-// DistrictNameEQ applies the EQ predicate on the "district_name" field.
-func DistrictNameEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldDistrictName, v))
-}
-
-// DistrictNameNEQ applies the NEQ predicate on the "district_name" field.
-func DistrictNameNEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldDistrictName, v))
-}
-
-// DistrictNameIn applies the In predicate on the "district_name" field.
-func DistrictNameIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldDistrictName, vs...))
-}
-
-// DistrictNameNotIn applies the NotIn predicate on the "district_name" field.
-func DistrictNameNotIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldDistrictName, vs...))
-}
-
-// DistrictNameGT applies the GT predicate on the "district_name" field.
-func DistrictNameGT(v string) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldDistrictName, v))
-}
-
-// DistrictNameGTE applies the GTE predicate on the "district_name" field.
-func DistrictNameGTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldDistrictName, v))
-}
-
-// DistrictNameLT applies the LT predicate on the "district_name" field.
-func DistrictNameLT(v string) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldDistrictName, v))
-}
-
-// DistrictNameLTE applies the LTE predicate on the "district_name" field.
-func DistrictNameLTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldDistrictName, v))
-}
-
-// DistrictNameContains applies the Contains predicate on the "district_name" field.
-func DistrictNameContains(v string) predicate.Store {
-	return predicate.Store(sql.FieldContains(FieldDistrictName, v))
-}
-
-// DistrictNameHasPrefix applies the HasPrefix predicate on the "district_name" field.
-func DistrictNameHasPrefix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasPrefix(FieldDistrictName, v))
-}
-
-// DistrictNameHasSuffix applies the HasSuffix predicate on the "district_name" field.
-func DistrictNameHasSuffix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasSuffix(FieldDistrictName, v))
-}
-
-// DistrictNameEqualFold applies the EqualFold predicate on the "district_name" field.
-func DistrictNameEqualFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldEqualFold(FieldDistrictName, v))
-}
-
-// DistrictNameContainsFold applies the ContainsFold predicate on the "district_name" field.
-func DistrictNameContainsFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldContainsFold(FieldDistrictName, v))
+// DistrictIDNotNil applies the NotNil predicate on the "district_id" field.
+func DistrictIDNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldDistrictID))
 }
 
 // AddressEQ applies the EQ predicate on the "address" field.
@@ -1965,6 +1625,121 @@ func HasAdminUser() predicate.Store {
 func HasAdminUserWith(preds ...predicate.AdminUser) predicate.Store {
 	return predicate.Store(func(s *sql.Selector) {
 		step := newAdminUserStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMerchantBusinessType applies the HasEdge predicate on the "merchant_business_type" edge.
+func HasMerchantBusinessType() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, MerchantBusinessTypeTable, MerchantBusinessTypeColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMerchantBusinessTypeWith applies the HasEdge predicate on the "merchant_business_type" edge with a given conditions (other predicates).
+func HasMerchantBusinessTypeWith(preds ...predicate.MerchantBusinessType) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newMerchantBusinessTypeStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCountry applies the HasEdge predicate on the "country" edge.
+func HasCountry() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CountryTable, CountryColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCountryWith applies the HasEdge predicate on the "country" edge with a given conditions (other predicates).
+func HasCountryWith(preds ...predicate.Country) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newCountryStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasProvince applies the HasEdge predicate on the "province" edge.
+func HasProvince() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ProvinceTable, ProvinceColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProvinceWith applies the HasEdge predicate on the "province" edge with a given conditions (other predicates).
+func HasProvinceWith(preds ...predicate.Province) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newProvinceStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCity applies the HasEdge predicate on the "city" edge.
+func HasCity() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CityTable, CityColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCityWith applies the HasEdge predicate on the "city" edge with a given conditions (other predicates).
+func HasCityWith(preds ...predicate.City) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newCityStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDistrict applies the HasEdge predicate on the "district" edge.
+func HasDistrict() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDistrictWith applies the HasEdge predicate on the "district" edge with a given conditions (other predicates).
+func HasDistrictWith(preds ...predicate.District) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newDistrictStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

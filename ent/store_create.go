@@ -8,13 +8,19 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -69,8 +75,8 @@ func (sc *StoreCreate) SetNillableDeletedAt(i *int64) *StoreCreate {
 }
 
 // SetMerchantID sets the "merchant_id" field.
-func (sc *StoreCreate) SetMerchantID(i int) *StoreCreate {
-	sc.mutation.SetMerchantID(i)
+func (sc *StoreCreate) SetMerchantID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetMerchantID(u)
 	return sc
 }
 
@@ -143,16 +149,8 @@ func (sc *StoreCreate) SetBusinessModel(dm domain.BusinessModel) *StoreCreate {
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (sc *StoreCreate) SetBusinessTypeID(i int) *StoreCreate {
-	sc.mutation.SetBusinessTypeID(i)
-	return sc
-}
-
-// SetNillableBusinessTypeID sets the "business_type_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableBusinessTypeID(i *int) *StoreCreate {
-	if i != nil {
-		sc.SetBusinessTypeID(*i)
-	}
+func (sc *StoreCreate) SetBusinessTypeID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetBusinessTypeID(u)
 	return sc
 }
 
@@ -283,113 +281,57 @@ func (sc *StoreCreate) SetNillableFoodOperationLicenseURL(s *string) *StoreCreat
 }
 
 // SetCountryID sets the "country_id" field.
-func (sc *StoreCreate) SetCountryID(i int) *StoreCreate {
-	sc.mutation.SetCountryID(i)
+func (sc *StoreCreate) SetCountryID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetCountryID(u)
 	return sc
 }
 
 // SetNillableCountryID sets the "country_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableCountryID(i *int) *StoreCreate {
-	if i != nil {
-		sc.SetCountryID(*i)
+func (sc *StoreCreate) SetNillableCountryID(u *uuid.UUID) *StoreCreate {
+	if u != nil {
+		sc.SetCountryID(*u)
 	}
 	return sc
 }
 
 // SetProvinceID sets the "province_id" field.
-func (sc *StoreCreate) SetProvinceID(i int) *StoreCreate {
-	sc.mutation.SetProvinceID(i)
+func (sc *StoreCreate) SetProvinceID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetProvinceID(u)
 	return sc
 }
 
 // SetNillableProvinceID sets the "province_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableProvinceID(i *int) *StoreCreate {
-	if i != nil {
-		sc.SetProvinceID(*i)
+func (sc *StoreCreate) SetNillableProvinceID(u *uuid.UUID) *StoreCreate {
+	if u != nil {
+		sc.SetProvinceID(*u)
 	}
 	return sc
 }
 
 // SetCityID sets the "city_id" field.
-func (sc *StoreCreate) SetCityID(i int) *StoreCreate {
-	sc.mutation.SetCityID(i)
+func (sc *StoreCreate) SetCityID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetCityID(u)
 	return sc
 }
 
 // SetNillableCityID sets the "city_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableCityID(i *int) *StoreCreate {
-	if i != nil {
-		sc.SetCityID(*i)
+func (sc *StoreCreate) SetNillableCityID(u *uuid.UUID) *StoreCreate {
+	if u != nil {
+		sc.SetCityID(*u)
 	}
 	return sc
 }
 
 // SetDistrictID sets the "district_id" field.
-func (sc *StoreCreate) SetDistrictID(i int) *StoreCreate {
-	sc.mutation.SetDistrictID(i)
+func (sc *StoreCreate) SetDistrictID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetDistrictID(u)
 	return sc
 }
 
 // SetNillableDistrictID sets the "district_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableDistrictID(i *int) *StoreCreate {
-	if i != nil {
-		sc.SetDistrictID(*i)
-	}
-	return sc
-}
-
-// SetCountryName sets the "country_name" field.
-func (sc *StoreCreate) SetCountryName(s string) *StoreCreate {
-	sc.mutation.SetCountryName(s)
-	return sc
-}
-
-// SetNillableCountryName sets the "country_name" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableCountryName(s *string) *StoreCreate {
-	if s != nil {
-		sc.SetCountryName(*s)
-	}
-	return sc
-}
-
-// SetProvinceName sets the "province_name" field.
-func (sc *StoreCreate) SetProvinceName(s string) *StoreCreate {
-	sc.mutation.SetProvinceName(s)
-	return sc
-}
-
-// SetNillableProvinceName sets the "province_name" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableProvinceName(s *string) *StoreCreate {
-	if s != nil {
-		sc.SetProvinceName(*s)
-	}
-	return sc
-}
-
-// SetCityName sets the "city_name" field.
-func (sc *StoreCreate) SetCityName(s string) *StoreCreate {
-	sc.mutation.SetCityName(s)
-	return sc
-}
-
-// SetNillableCityName sets the "city_name" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableCityName(s *string) *StoreCreate {
-	if s != nil {
-		sc.SetCityName(*s)
-	}
-	return sc
-}
-
-// SetDistrictName sets the "district_name" field.
-func (sc *StoreCreate) SetDistrictName(s string) *StoreCreate {
-	sc.mutation.SetDistrictName(s)
-	return sc
-}
-
-// SetNillableDistrictName sets the "district_name" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableDistrictName(s *string) *StoreCreate {
-	if s != nil {
-		sc.SetDistrictName(*s)
+func (sc *StoreCreate) SetNillableDistrictID(u *uuid.UUID) *StoreCreate {
+	if u != nil {
+		sc.SetDistrictID(*u)
 	}
 	return sc
 }
@@ -442,6 +384,20 @@ func (sc *StoreCreate) SetAdminUserID(u uuid.UUID) *StoreCreate {
 	return sc
 }
 
+// SetID sets the "id" field.
+func (sc *StoreCreate) SetID(u uuid.UUID) *StoreCreate {
+	sc.mutation.SetID(u)
+	return sc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (sc *StoreCreate) SetNillableID(u *uuid.UUID) *StoreCreate {
+	if u != nil {
+		sc.SetID(*u)
+	}
+	return sc
+}
+
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (sc *StoreCreate) SetMerchant(m *Merchant) *StoreCreate {
 	return sc.SetMerchantID(m.ID)
@@ -450,6 +406,37 @@ func (sc *StoreCreate) SetMerchant(m *Merchant) *StoreCreate {
 // SetAdminUser sets the "admin_user" edge to the AdminUser entity.
 func (sc *StoreCreate) SetAdminUser(a *AdminUser) *StoreCreate {
 	return sc.SetAdminUserID(a.ID)
+}
+
+// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
+func (sc *StoreCreate) SetMerchantBusinessTypeID(id uuid.UUID) *StoreCreate {
+	sc.mutation.SetMerchantBusinessTypeID(id)
+	return sc
+}
+
+// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
+func (sc *StoreCreate) SetMerchantBusinessType(m *MerchantBusinessType) *StoreCreate {
+	return sc.SetMerchantBusinessTypeID(m.ID)
+}
+
+// SetCountry sets the "country" edge to the Country entity.
+func (sc *StoreCreate) SetCountry(c *Country) *StoreCreate {
+	return sc.SetCountryID(c.ID)
+}
+
+// SetProvince sets the "province" edge to the Province entity.
+func (sc *StoreCreate) SetProvince(p *Province) *StoreCreate {
+	return sc.SetProvinceID(p.ID)
+}
+
+// SetCity sets the "city" edge to the City entity.
+func (sc *StoreCreate) SetCity(c *City) *StoreCreate {
+	return sc.SetCityID(c.ID)
+}
+
+// SetDistrict sets the "district" edge to the District entity.
+func (sc *StoreCreate) SetDistrict(d *District) *StoreCreate {
+	return sc.SetDistrictID(d.ID)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -515,10 +502,6 @@ func (sc *StoreCreate) defaults() {
 		v := store.DefaultStoreCode
 		sc.mutation.SetStoreCode(v)
 	}
-	if _, ok := sc.mutation.BusinessTypeID(); !ok {
-		v := store.DefaultBusinessTypeID
-		sc.mutation.SetBusinessTypeID(v)
-	}
 	if _, ok := sc.mutation.ContactName(); !ok {
 		v := store.DefaultContactName
 		sc.mutation.SetContactName(v)
@@ -555,38 +538,6 @@ func (sc *StoreCreate) defaults() {
 		v := store.DefaultFoodOperationLicenseURL
 		sc.mutation.SetFoodOperationLicenseURL(v)
 	}
-	if _, ok := sc.mutation.CountryID(); !ok {
-		v := store.DefaultCountryID
-		sc.mutation.SetCountryID(v)
-	}
-	if _, ok := sc.mutation.ProvinceID(); !ok {
-		v := store.DefaultProvinceID
-		sc.mutation.SetProvinceID(v)
-	}
-	if _, ok := sc.mutation.CityID(); !ok {
-		v := store.DefaultCityID
-		sc.mutation.SetCityID(v)
-	}
-	if _, ok := sc.mutation.DistrictID(); !ok {
-		v := store.DefaultDistrictID
-		sc.mutation.SetDistrictID(v)
-	}
-	if _, ok := sc.mutation.CountryName(); !ok {
-		v := store.DefaultCountryName
-		sc.mutation.SetCountryName(v)
-	}
-	if _, ok := sc.mutation.ProvinceName(); !ok {
-		v := store.DefaultProvinceName
-		sc.mutation.SetProvinceName(v)
-	}
-	if _, ok := sc.mutation.CityName(); !ok {
-		v := store.DefaultCityName
-		sc.mutation.SetCityName(v)
-	}
-	if _, ok := sc.mutation.DistrictName(); !ok {
-		v := store.DefaultDistrictName
-		sc.mutation.SetDistrictName(v)
-	}
 	if _, ok := sc.mutation.Address(); !ok {
 		v := store.DefaultAddress
 		sc.mutation.SetAddress(v)
@@ -598,6 +549,10 @@ func (sc *StoreCreate) defaults() {
 	if _, ok := sc.mutation.Lat(); !ok {
 		v := store.DefaultLat
 		sc.mutation.SetLat(v)
+	}
+	if _, ok := sc.mutation.ID(); !ok {
+		v := store.DefaultID()
+		sc.mutation.SetID(v)
 	}
 }
 
@@ -738,50 +693,6 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.CountryID(); !ok {
-		return &ValidationError{Name: "country_id", err: errors.New(`ent: missing required field "Store.country_id"`)}
-	}
-	if _, ok := sc.mutation.ProvinceID(); !ok {
-		return &ValidationError{Name: "province_id", err: errors.New(`ent: missing required field "Store.province_id"`)}
-	}
-	if _, ok := sc.mutation.CityID(); !ok {
-		return &ValidationError{Name: "city_id", err: errors.New(`ent: missing required field "Store.city_id"`)}
-	}
-	if _, ok := sc.mutation.DistrictID(); !ok {
-		return &ValidationError{Name: "district_id", err: errors.New(`ent: missing required field "Store.district_id"`)}
-	}
-	if _, ok := sc.mutation.CountryName(); !ok {
-		return &ValidationError{Name: "country_name", err: errors.New(`ent: missing required field "Store.country_name"`)}
-	}
-	if v, ok := sc.mutation.CountryName(); ok {
-		if err := store.CountryNameValidator(v); err != nil {
-			return &ValidationError{Name: "country_name", err: fmt.Errorf(`ent: validator failed for field "Store.country_name": %w`, err)}
-		}
-	}
-	if _, ok := sc.mutation.ProvinceName(); !ok {
-		return &ValidationError{Name: "province_name", err: errors.New(`ent: missing required field "Store.province_name"`)}
-	}
-	if v, ok := sc.mutation.ProvinceName(); ok {
-		if err := store.ProvinceNameValidator(v); err != nil {
-			return &ValidationError{Name: "province_name", err: fmt.Errorf(`ent: validator failed for field "Store.province_name": %w`, err)}
-		}
-	}
-	if _, ok := sc.mutation.CityName(); !ok {
-		return &ValidationError{Name: "city_name", err: errors.New(`ent: missing required field "Store.city_name"`)}
-	}
-	if v, ok := sc.mutation.CityName(); ok {
-		if err := store.CityNameValidator(v); err != nil {
-			return &ValidationError{Name: "city_name", err: fmt.Errorf(`ent: validator failed for field "Store.city_name": %w`, err)}
-		}
-	}
-	if _, ok := sc.mutation.DistrictName(); !ok {
-		return &ValidationError{Name: "district_name", err: errors.New(`ent: missing required field "Store.district_name"`)}
-	}
-	if v, ok := sc.mutation.DistrictName(); ok {
-		if err := store.DistrictNameValidator(v); err != nil {
-			return &ValidationError{Name: "district_name", err: fmt.Errorf(`ent: validator failed for field "Store.district_name": %w`, err)}
-		}
-	}
 	if _, ok := sc.mutation.Address(); !ok {
 		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Store.address"`)}
 	}
@@ -815,6 +726,9 @@ func (sc *StoreCreate) check() error {
 	if len(sc.mutation.AdminUserIDs()) == 0 {
 		return &ValidationError{Name: "admin_user", err: errors.New(`ent: missing required edge "Store.admin_user"`)}
 	}
+	if len(sc.mutation.MerchantBusinessTypeIDs()) == 0 {
+		return &ValidationError{Name: "merchant_business_type", err: errors.New(`ent: missing required edge "Store.merchant_business_type"`)}
+	}
 	return nil
 }
 
@@ -829,8 +743,13 @@ func (sc *StoreCreate) sqlSave(ctx context.Context) (*Store, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
 	return _node, nil
@@ -839,9 +758,13 @@ func (sc *StoreCreate) sqlSave(ctx context.Context) (*Store, error) {
 func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Store{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(store.Table, sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(store.Table, sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = sc.conflict
+	if id, ok := sc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := sc.mutation.CreatedAt(); ok {
 		_spec.SetField(store.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -877,10 +800,6 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
 		_node.BusinessModel = value
-	}
-	if value, ok := sc.mutation.BusinessTypeID(); ok {
-		_spec.SetField(store.FieldBusinessTypeID, field.TypeInt, value)
-		_node.BusinessTypeID = value
 	}
 	if value, ok := sc.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)
@@ -918,38 +837,6 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 		_node.FoodOperationLicenseURL = value
 	}
-	if value, ok := sc.mutation.CountryID(); ok {
-		_spec.SetField(store.FieldCountryID, field.TypeInt, value)
-		_node.CountryID = value
-	}
-	if value, ok := sc.mutation.ProvinceID(); ok {
-		_spec.SetField(store.FieldProvinceID, field.TypeInt, value)
-		_node.ProvinceID = value
-	}
-	if value, ok := sc.mutation.CityID(); ok {
-		_spec.SetField(store.FieldCityID, field.TypeInt, value)
-		_node.CityID = value
-	}
-	if value, ok := sc.mutation.DistrictID(); ok {
-		_spec.SetField(store.FieldDistrictID, field.TypeInt, value)
-		_node.DistrictID = value
-	}
-	if value, ok := sc.mutation.CountryName(); ok {
-		_spec.SetField(store.FieldCountryName, field.TypeString, value)
-		_node.CountryName = value
-	}
-	if value, ok := sc.mutation.ProvinceName(); ok {
-		_spec.SetField(store.FieldProvinceName, field.TypeString, value)
-		_node.ProvinceName = value
-	}
-	if value, ok := sc.mutation.CityName(); ok {
-		_spec.SetField(store.FieldCityName, field.TypeString, value)
-		_node.CityName = value
-	}
-	if value, ok := sc.mutation.DistrictName(); ok {
-		_spec.SetField(store.FieldDistrictName, field.TypeString, value)
-		_node.DistrictName = value
-	}
 	if value, ok := sc.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
 		_node.Address = value
@@ -970,7 +857,7 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Columns: []string{store.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -994,6 +881,91 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AdminUserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.MerchantBusinessTypeTable,
+			Columns: []string{store.MerchantBusinessTypeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.BusinessTypeID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.CountryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CountryTable,
+			Columns: []string{store.CountryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CountryID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.ProvinceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.ProvinceTable,
+			Columns: []string{store.ProvinceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ProvinceID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.CityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.CityTable,
+			Columns: []string{store.CityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CityID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.DistrictIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   store.DistrictTable,
+			Columns: []string{store.DistrictColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DistrictID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -1151,7 +1123,7 @@ func (u *StoreUpsert) UpdateBusinessModel() *StoreUpsert {
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (u *StoreUpsert) SetBusinessTypeID(v int) *StoreUpsert {
+func (u *StoreUpsert) SetBusinessTypeID(v uuid.UUID) *StoreUpsert {
 	u.Set(store.FieldBusinessTypeID, v)
 	return u
 }
@@ -1159,12 +1131,6 @@ func (u *StoreUpsert) SetBusinessTypeID(v int) *StoreUpsert {
 // UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateBusinessTypeID() *StoreUpsert {
 	u.SetExcluded(store.FieldBusinessTypeID)
-	return u
-}
-
-// AddBusinessTypeID adds v to the "business_type_id" field.
-func (u *StoreUpsert) AddBusinessTypeID(v int) *StoreUpsert {
-	u.Add(store.FieldBusinessTypeID, v)
 	return u
 }
 
@@ -1277,7 +1243,7 @@ func (u *StoreUpsert) UpdateFoodOperationLicenseURL() *StoreUpsert {
 }
 
 // SetCountryID sets the "country_id" field.
-func (u *StoreUpsert) SetCountryID(v int) *StoreUpsert {
+func (u *StoreUpsert) SetCountryID(v uuid.UUID) *StoreUpsert {
 	u.Set(store.FieldCountryID, v)
 	return u
 }
@@ -1288,14 +1254,14 @@ func (u *StoreUpsert) UpdateCountryID() *StoreUpsert {
 	return u
 }
 
-// AddCountryID adds v to the "country_id" field.
-func (u *StoreUpsert) AddCountryID(v int) *StoreUpsert {
-	u.Add(store.FieldCountryID, v)
+// ClearCountryID clears the value of the "country_id" field.
+func (u *StoreUpsert) ClearCountryID() *StoreUpsert {
+	u.SetNull(store.FieldCountryID)
 	return u
 }
 
 // SetProvinceID sets the "province_id" field.
-func (u *StoreUpsert) SetProvinceID(v int) *StoreUpsert {
+func (u *StoreUpsert) SetProvinceID(v uuid.UUID) *StoreUpsert {
 	u.Set(store.FieldProvinceID, v)
 	return u
 }
@@ -1306,14 +1272,14 @@ func (u *StoreUpsert) UpdateProvinceID() *StoreUpsert {
 	return u
 }
 
-// AddProvinceID adds v to the "province_id" field.
-func (u *StoreUpsert) AddProvinceID(v int) *StoreUpsert {
-	u.Add(store.FieldProvinceID, v)
+// ClearProvinceID clears the value of the "province_id" field.
+func (u *StoreUpsert) ClearProvinceID() *StoreUpsert {
+	u.SetNull(store.FieldProvinceID)
 	return u
 }
 
 // SetCityID sets the "city_id" field.
-func (u *StoreUpsert) SetCityID(v int) *StoreUpsert {
+func (u *StoreUpsert) SetCityID(v uuid.UUID) *StoreUpsert {
 	u.Set(store.FieldCityID, v)
 	return u
 }
@@ -1324,14 +1290,14 @@ func (u *StoreUpsert) UpdateCityID() *StoreUpsert {
 	return u
 }
 
-// AddCityID adds v to the "city_id" field.
-func (u *StoreUpsert) AddCityID(v int) *StoreUpsert {
-	u.Add(store.FieldCityID, v)
+// ClearCityID clears the value of the "city_id" field.
+func (u *StoreUpsert) ClearCityID() *StoreUpsert {
+	u.SetNull(store.FieldCityID)
 	return u
 }
 
 // SetDistrictID sets the "district_id" field.
-func (u *StoreUpsert) SetDistrictID(v int) *StoreUpsert {
+func (u *StoreUpsert) SetDistrictID(v uuid.UUID) *StoreUpsert {
 	u.Set(store.FieldDistrictID, v)
 	return u
 }
@@ -1342,57 +1308,9 @@ func (u *StoreUpsert) UpdateDistrictID() *StoreUpsert {
 	return u
 }
 
-// AddDistrictID adds v to the "district_id" field.
-func (u *StoreUpsert) AddDistrictID(v int) *StoreUpsert {
-	u.Add(store.FieldDistrictID, v)
-	return u
-}
-
-// SetCountryName sets the "country_name" field.
-func (u *StoreUpsert) SetCountryName(v string) *StoreUpsert {
-	u.Set(store.FieldCountryName, v)
-	return u
-}
-
-// UpdateCountryName sets the "country_name" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateCountryName() *StoreUpsert {
-	u.SetExcluded(store.FieldCountryName)
-	return u
-}
-
-// SetProvinceName sets the "province_name" field.
-func (u *StoreUpsert) SetProvinceName(v string) *StoreUpsert {
-	u.Set(store.FieldProvinceName, v)
-	return u
-}
-
-// UpdateProvinceName sets the "province_name" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateProvinceName() *StoreUpsert {
-	u.SetExcluded(store.FieldProvinceName)
-	return u
-}
-
-// SetCityName sets the "city_name" field.
-func (u *StoreUpsert) SetCityName(v string) *StoreUpsert {
-	u.Set(store.FieldCityName, v)
-	return u
-}
-
-// UpdateCityName sets the "city_name" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateCityName() *StoreUpsert {
-	u.SetExcluded(store.FieldCityName)
-	return u
-}
-
-// SetDistrictName sets the "district_name" field.
-func (u *StoreUpsert) SetDistrictName(v string) *StoreUpsert {
-	u.Set(store.FieldDistrictName, v)
-	return u
-}
-
-// UpdateDistrictName sets the "district_name" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateDistrictName() *StoreUpsert {
-	u.SetExcluded(store.FieldDistrictName)
+// ClearDistrictID clears the value of the "district_id" field.
+func (u *StoreUpsert) ClearDistrictID() *StoreUpsert {
+	u.SetNull(store.FieldDistrictID)
 	return u
 }
 
@@ -1432,17 +1350,23 @@ func (u *StoreUpsert) UpdateLat() *StoreUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Store.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(store.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *StoreUpsertOne) UpdateNewValues() *StoreUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(store.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(store.FieldCreatedAt)
 		}
@@ -1603,16 +1527,9 @@ func (u *StoreUpsertOne) UpdateBusinessModel() *StoreUpsertOne {
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (u *StoreUpsertOne) SetBusinessTypeID(v int) *StoreUpsertOne {
+func (u *StoreUpsertOne) SetBusinessTypeID(v uuid.UUID) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetBusinessTypeID(v)
-	})
-}
-
-// AddBusinessTypeID adds v to the "business_type_id" field.
-func (u *StoreUpsertOne) AddBusinessTypeID(v int) *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.AddBusinessTypeID(v)
 	})
 }
 
@@ -1750,16 +1667,9 @@ func (u *StoreUpsertOne) UpdateFoodOperationLicenseURL() *StoreUpsertOne {
 }
 
 // SetCountryID sets the "country_id" field.
-func (u *StoreUpsertOne) SetCountryID(v int) *StoreUpsertOne {
+func (u *StoreUpsertOne) SetCountryID(v uuid.UUID) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetCountryID(v)
-	})
-}
-
-// AddCountryID adds v to the "country_id" field.
-func (u *StoreUpsertOne) AddCountryID(v int) *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.AddCountryID(v)
 	})
 }
 
@@ -1770,17 +1680,17 @@ func (u *StoreUpsertOne) UpdateCountryID() *StoreUpsertOne {
 	})
 }
 
-// SetProvinceID sets the "province_id" field.
-func (u *StoreUpsertOne) SetProvinceID(v int) *StoreUpsertOne {
+// ClearCountryID clears the value of the "country_id" field.
+func (u *StoreUpsertOne) ClearCountryID() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetProvinceID(v)
+		s.ClearCountryID()
 	})
 }
 
-// AddProvinceID adds v to the "province_id" field.
-func (u *StoreUpsertOne) AddProvinceID(v int) *StoreUpsertOne {
+// SetProvinceID sets the "province_id" field.
+func (u *StoreUpsertOne) SetProvinceID(v uuid.UUID) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.AddProvinceID(v)
+		s.SetProvinceID(v)
 	})
 }
 
@@ -1791,17 +1701,17 @@ func (u *StoreUpsertOne) UpdateProvinceID() *StoreUpsertOne {
 	})
 }
 
-// SetCityID sets the "city_id" field.
-func (u *StoreUpsertOne) SetCityID(v int) *StoreUpsertOne {
+// ClearProvinceID clears the value of the "province_id" field.
+func (u *StoreUpsertOne) ClearProvinceID() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetCityID(v)
+		s.ClearProvinceID()
 	})
 }
 
-// AddCityID adds v to the "city_id" field.
-func (u *StoreUpsertOne) AddCityID(v int) *StoreUpsertOne {
+// SetCityID sets the "city_id" field.
+func (u *StoreUpsertOne) SetCityID(v uuid.UUID) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.AddCityID(v)
+		s.SetCityID(v)
 	})
 }
 
@@ -1812,17 +1722,17 @@ func (u *StoreUpsertOne) UpdateCityID() *StoreUpsertOne {
 	})
 }
 
-// SetDistrictID sets the "district_id" field.
-func (u *StoreUpsertOne) SetDistrictID(v int) *StoreUpsertOne {
+// ClearCityID clears the value of the "city_id" field.
+func (u *StoreUpsertOne) ClearCityID() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetDistrictID(v)
+		s.ClearCityID()
 	})
 }
 
-// AddDistrictID adds v to the "district_id" field.
-func (u *StoreUpsertOne) AddDistrictID(v int) *StoreUpsertOne {
+// SetDistrictID sets the "district_id" field.
+func (u *StoreUpsertOne) SetDistrictID(v uuid.UUID) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.AddDistrictID(v)
+		s.SetDistrictID(v)
 	})
 }
 
@@ -1833,59 +1743,10 @@ func (u *StoreUpsertOne) UpdateDistrictID() *StoreUpsertOne {
 	})
 }
 
-// SetCountryName sets the "country_name" field.
-func (u *StoreUpsertOne) SetCountryName(v string) *StoreUpsertOne {
+// ClearDistrictID clears the value of the "district_id" field.
+func (u *StoreUpsertOne) ClearDistrictID() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetCountryName(v)
-	})
-}
-
-// UpdateCountryName sets the "country_name" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateCountryName() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCountryName()
-	})
-}
-
-// SetProvinceName sets the "province_name" field.
-func (u *StoreUpsertOne) SetProvinceName(v string) *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetProvinceName(v)
-	})
-}
-
-// UpdateProvinceName sets the "province_name" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateProvinceName() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateProvinceName()
-	})
-}
-
-// SetCityName sets the "city_name" field.
-func (u *StoreUpsertOne) SetCityName(v string) *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetCityName(v)
-	})
-}
-
-// UpdateCityName sets the "city_name" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateCityName() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCityName()
-	})
-}
-
-// SetDistrictName sets the "district_name" field.
-func (u *StoreUpsertOne) SetDistrictName(v string) *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetDistrictName(v)
-	})
-}
-
-// UpdateDistrictName sets the "district_name" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateDistrictName() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateDistrictName()
+		s.ClearDistrictID()
 	})
 }
 
@@ -1947,7 +1808,12 @@ func (u *StoreUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *StoreUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *StoreUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: StoreUpsertOne.ID is not supported by MySQL driver. Use StoreUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -1956,7 +1822,7 @@ func (u *StoreUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *StoreUpsertOne) IDX(ctx context.Context) int {
+func (u *StoreUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -2011,10 +1877,6 @@ func (scb *StoreCreateBulk) Save(ctx context.Context) ([]*Store, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -2101,12 +1963,18 @@ type StoreUpsertBulk struct {
 //	client.Store.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(store.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *StoreUpsertBulk) UpdateNewValues() *StoreUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(store.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(store.FieldCreatedAt)
 			}
@@ -2268,16 +2136,9 @@ func (u *StoreUpsertBulk) UpdateBusinessModel() *StoreUpsertBulk {
 }
 
 // SetBusinessTypeID sets the "business_type_id" field.
-func (u *StoreUpsertBulk) SetBusinessTypeID(v int) *StoreUpsertBulk {
+func (u *StoreUpsertBulk) SetBusinessTypeID(v uuid.UUID) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetBusinessTypeID(v)
-	})
-}
-
-// AddBusinessTypeID adds v to the "business_type_id" field.
-func (u *StoreUpsertBulk) AddBusinessTypeID(v int) *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.AddBusinessTypeID(v)
 	})
 }
 
@@ -2415,16 +2276,9 @@ func (u *StoreUpsertBulk) UpdateFoodOperationLicenseURL() *StoreUpsertBulk {
 }
 
 // SetCountryID sets the "country_id" field.
-func (u *StoreUpsertBulk) SetCountryID(v int) *StoreUpsertBulk {
+func (u *StoreUpsertBulk) SetCountryID(v uuid.UUID) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetCountryID(v)
-	})
-}
-
-// AddCountryID adds v to the "country_id" field.
-func (u *StoreUpsertBulk) AddCountryID(v int) *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.AddCountryID(v)
 	})
 }
 
@@ -2435,17 +2289,17 @@ func (u *StoreUpsertBulk) UpdateCountryID() *StoreUpsertBulk {
 	})
 }
 
-// SetProvinceID sets the "province_id" field.
-func (u *StoreUpsertBulk) SetProvinceID(v int) *StoreUpsertBulk {
+// ClearCountryID clears the value of the "country_id" field.
+func (u *StoreUpsertBulk) ClearCountryID() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetProvinceID(v)
+		s.ClearCountryID()
 	})
 }
 
-// AddProvinceID adds v to the "province_id" field.
-func (u *StoreUpsertBulk) AddProvinceID(v int) *StoreUpsertBulk {
+// SetProvinceID sets the "province_id" field.
+func (u *StoreUpsertBulk) SetProvinceID(v uuid.UUID) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.AddProvinceID(v)
+		s.SetProvinceID(v)
 	})
 }
 
@@ -2456,17 +2310,17 @@ func (u *StoreUpsertBulk) UpdateProvinceID() *StoreUpsertBulk {
 	})
 }
 
-// SetCityID sets the "city_id" field.
-func (u *StoreUpsertBulk) SetCityID(v int) *StoreUpsertBulk {
+// ClearProvinceID clears the value of the "province_id" field.
+func (u *StoreUpsertBulk) ClearProvinceID() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetCityID(v)
+		s.ClearProvinceID()
 	})
 }
 
-// AddCityID adds v to the "city_id" field.
-func (u *StoreUpsertBulk) AddCityID(v int) *StoreUpsertBulk {
+// SetCityID sets the "city_id" field.
+func (u *StoreUpsertBulk) SetCityID(v uuid.UUID) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.AddCityID(v)
+		s.SetCityID(v)
 	})
 }
 
@@ -2477,17 +2331,17 @@ func (u *StoreUpsertBulk) UpdateCityID() *StoreUpsertBulk {
 	})
 }
 
-// SetDistrictID sets the "district_id" field.
-func (u *StoreUpsertBulk) SetDistrictID(v int) *StoreUpsertBulk {
+// ClearCityID clears the value of the "city_id" field.
+func (u *StoreUpsertBulk) ClearCityID() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetDistrictID(v)
+		s.ClearCityID()
 	})
 }
 
-// AddDistrictID adds v to the "district_id" field.
-func (u *StoreUpsertBulk) AddDistrictID(v int) *StoreUpsertBulk {
+// SetDistrictID sets the "district_id" field.
+func (u *StoreUpsertBulk) SetDistrictID(v uuid.UUID) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.AddDistrictID(v)
+		s.SetDistrictID(v)
 	})
 }
 
@@ -2498,59 +2352,10 @@ func (u *StoreUpsertBulk) UpdateDistrictID() *StoreUpsertBulk {
 	})
 }
 
-// SetCountryName sets the "country_name" field.
-func (u *StoreUpsertBulk) SetCountryName(v string) *StoreUpsertBulk {
+// ClearDistrictID clears the value of the "district_id" field.
+func (u *StoreUpsertBulk) ClearDistrictID() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetCountryName(v)
-	})
-}
-
-// UpdateCountryName sets the "country_name" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateCountryName() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCountryName()
-	})
-}
-
-// SetProvinceName sets the "province_name" field.
-func (u *StoreUpsertBulk) SetProvinceName(v string) *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetProvinceName(v)
-	})
-}
-
-// UpdateProvinceName sets the "province_name" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateProvinceName() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateProvinceName()
-	})
-}
-
-// SetCityName sets the "city_name" field.
-func (u *StoreUpsertBulk) SetCityName(v string) *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetCityName(v)
-	})
-}
-
-// UpdateCityName sets the "city_name" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateCityName() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCityName()
-	})
-}
-
-// SetDistrictName sets the "district_name" field.
-func (u *StoreUpsertBulk) SetDistrictName(v string) *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetDistrictName(v)
-	})
-}
-
-// UpdateDistrictName sets the "district_name" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateDistrictName() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateDistrictName()
+		s.ClearDistrictID()
 	})
 }
 

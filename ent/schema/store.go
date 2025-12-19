@@ -17,7 +17,7 @@ type Store struct {
 // Fields of the Store.
 func (Store) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("merchant_id").
+		field.UUID("merchant_id", uuid.UUID{}).
 			Immutable().
 			Comment("商户 ID"),
 		field.String("admin_phone_number").
@@ -45,8 +45,7 @@ func (Store) Fields() []ent.Field {
 		field.Enum("business_model").
 			GoType(domain.BusinessModel("")).
 			Comment("经营模式：直营 加盟"),
-		field.Int("business_type_id").
-			Default(0).
+		field.UUID("business_type_id", uuid.UUID{}).
 			Comment("业态类型"),
 		field.String("contact_name").
 			NotEmpty().
@@ -94,38 +93,18 @@ func (Store) Fields() []ent.Field {
 			MaxLen(500).
 			Comment("食品经营许可证照片"),
 		// 地区信息
-		field.Int("country_id").
-			Default(0).
-			Comment("国家/地区 id"),
-		field.Int("province_id").
-			Default(0).
+		field.UUID("country_id", uuid.UUID{}).
+			Optional().
+			Comment("国家/地区id"),
+		field.UUID("province_id", uuid.UUID{}).
+			Optional().
 			Comment("省份 id"),
-		field.Int("city_id").
-			Default(0).
+		field.UUID("city_id", uuid.UUID{}).
+			Optional().
 			Comment("城市 id"),
-		field.Int("district_id").
-			Default(0).
+		field.UUID("district_id", uuid.UUID{}).
+			Optional().
 			Comment("区县 id"),
-		field.String("country_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("国家/地区"),
-		field.String("province_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("省份"),
-		field.String("city_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("城市"),
-		field.String("district_name").
-			NotEmpty().
-			Default("").
-			MaxLen(50).
-			Comment("区县"),
 		field.String("address").
 			NotEmpty().
 			Default("").
@@ -150,23 +129,49 @@ func (Store) Fields() []ent.Field {
 // Edges of the Store.
 func (Store) Edges() []ent.Edge {
 	return []ent.Edge{
+		// 所属商户
 		edge.From("merchant", Merchant.Type).
 			Ref("stores").
 			Field("merchant_id").
 			Unique().
 			Immutable().
 			Required(),
+		// 管理员用户关联
 		edge.From("admin_user", AdminUser.Type).
 			Ref("store").
 			Field("admin_user_id").
 			Unique().
 			Immutable().
 			Required(),
+		// 业态类型
+		edge.From("merchant_business_type", MerchantBusinessType.Type).
+			Ref("stores").
+			Field("business_type_id").
+			Unique().
+			Required(),
+		// 地区关联（绑定已有外键字段）
+		edge.From("country", Country.Type).
+			Ref("stores").
+			Field("country_id").
+			Unique(),
+		edge.From("province", Province.Type).
+			Ref("stores").
+			Field("province_id").
+			Unique(),
+		edge.From("city", City.Type).
+			Ref("stores").
+			Field("city_id").
+			Unique(),
+		edge.From("district", District.Type).
+			Ref("stores").
+			Field("district_id").
+			Unique(),
 	}
 }
 
 func (Store) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
 		schematype.SoftDeleteMixin{},
 	}

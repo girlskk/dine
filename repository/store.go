@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
@@ -28,7 +29,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("domainStore is nil")
 		return
 	}
-	_, err = repo.Client.Store.Create().
+	_, err = repo.Client.Store.Create().SetID(domainStore.ID).
 		SetMerchantID(domainStore.MerchantID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
@@ -46,17 +47,13 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetCashierDeskURL(domainStore.CashierDeskURL).
 		SetDiningEnvironmentURL(domainStore.DiningEnvironmentURL).
 		SetFoodOperationLicenseURL(domainStore.FoodOperationLicenseURL).
-		SetCountryID(domainStore.CountryID).
-		SetProvinceID(domainStore.ProvinceID).
-		SetCityID(domainStore.CityID).
-		SetDistrictID(domainStore.DistrictID).
-		SetCountryName(domainStore.CountryName).
-		SetProvinceName(domainStore.ProvinceName).
-		SetCityName(domainStore.CityName).
-		SetDistrictName(domainStore.DistrictName).
-		SetAddress(domainStore.Address).
-		SetLng(domainStore.Lng).
-		SetLat(domainStore.Lat).
+		SetCountryID(domainStore.Address.CountryID).
+		SetProvinceID(domainStore.Address.ProvinceID).
+		SetCityID(domainStore.Address.CityID).
+		SetDistrictID(domainStore.Address.DistrictID).
+		SetAddress(domainStore.Address.Address).
+		SetLng(domainStore.Address.Lng).
+		SetLat(domainStore.Address.Lat).
 		Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create store: %w", err)
@@ -91,17 +88,13 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		SetCashierDeskURL(domainStore.CashierDeskURL).
 		SetDiningEnvironmentURL(domainStore.DiningEnvironmentURL).
 		SetFoodOperationLicenseURL(domainStore.FoodOperationLicenseURL).
-		SetCountryID(domainStore.CountryID).
-		SetProvinceID(domainStore.ProvinceID).
-		SetCityID(domainStore.CityID).
-		SetDistrictID(domainStore.DistrictID).
-		SetCountryName(domainStore.CountryName).
-		SetProvinceName(domainStore.ProvinceName).
-		SetCityName(domainStore.CityName).
-		SetDistrictName(domainStore.DistrictName).
-		SetAddress(domainStore.Address).
-		SetLng(domainStore.Lng).
-		SetLat(domainStore.Lat).
+		SetCountryID(domainStore.Address.CountryID).
+		SetProvinceID(domainStore.Address.ProvinceID).
+		SetCityID(domainStore.Address.CityID).
+		SetDistrictID(domainStore.Address.DistrictID).
+		SetAddress(domainStore.Address.Address).
+		SetLng(domainStore.Address.Lng).
+		SetLat(domainStore.Address.Lat).
 		Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -113,7 +106,7 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 	return
 }
 
-func (repo *StoreRepository) Delete(ctx context.Context, id int) (err error) {
+func (repo *StoreRepository) Delete(ctx context.Context, id uuid.UUID) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -131,7 +124,7 @@ func (repo *StoreRepository) Delete(ctx context.Context, id int) (err error) {
 	return
 }
 
-func (repo *StoreRepository) FindByID(ctx context.Context, id int) (domainStore *domain.Store, err error) {
+func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domainStore *domain.Store, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.FindByID")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -197,7 +190,7 @@ func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams 
 
 	query := repo.Client.Store.Query().
 		Where(store.StoreNameEQ(existsStoreParams.StoreName))
-	if existsStoreParams.NotID > 0 {
+	if existsStoreParams.NotID != uuid.Nil {
 		query = query.Where(store.IDNEQ(existsStoreParams.NotID))
 	}
 
@@ -211,7 +204,28 @@ func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams 
 }
 
 func convertStore(es *ent.Store) *domain.Store {
-	return &domain.Store{
+	address := &domain.Address{
+		CountryID:  es.CountryID,
+		ProvinceID: es.ProvinceID,
+		CityID:     es.CityID,
+		DistrictID: es.DistrictID,
+		Address:    es.Address,
+		Lng:        es.Lng,
+		Lat:        es.Lat,
+	}
+	if es.Edges.Country != nil {
+		address.CountryName = es.Edges.Country.Name
+	}
+	if es.Edges.Province != nil {
+		address.ProvinceName = es.Edges.Province.Name
+	}
+	if es.Edges.City != nil {
+		address.CityName = es.Edges.City.Name
+	}
+	if es.Edges.District != nil {
+		address.DistrictName = es.Edges.District.Name
+	}
+	repoStore := &domain.Store{
 		ID:                      es.ID,
 		MerchantID:              es.MerchantID,
 		AdminPhoneNumber:        es.AdminPhoneNumber,
@@ -230,20 +244,18 @@ func convertStore(es *ent.Store) *domain.Store {
 		CashierDeskURL:          es.CashierDeskURL,
 		DiningEnvironmentURL:    es.DiningEnvironmentURL,
 		FoodOperationLicenseURL: es.FoodOperationLicenseURL,
-		CountryID:               es.CountryID,
-		ProvinceID:              es.ProvinceID,
-		CityID:                  es.CityID,
-		DistrictID:              es.DistrictID,
-		CountryName:             es.CountryName,
-		ProvinceName:            es.ProvinceName,
-		CityName:                es.CityName,
-		DistrictName:            es.DistrictName,
-		Address:                 es.Address,
-		Lng:                     es.Lng,
-		Lat:                     es.Lat,
+		Address:                 address,
 		CreatedAt:               es.CreatedAt,
 		UpdatedAt:               es.UpdatedAt,
 	}
+	if es.Edges.AdminUser != nil {
+		repoStore.LoginAccount = es.Edges.AdminUser.Username
+		repoStore.LoginPassword = es.Edges.AdminUser.HashedPassword
+	}
+	if es.Edges.MerchantBusinessType != nil {
+		repoStore.BusinessTypeName = es.Edges.MerchantBusinessType.TypeName
+	}
+	return repoStore
 }
 
 func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *ent.StoreQuery {
@@ -252,10 +264,10 @@ func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *e
 	if filter.StoreName != "" {
 		query = query.Where(store.StoreNameContains(filter.StoreName))
 	}
-	if filter.MerchantID != 0 {
+	if filter.MerchantID != uuid.Nil {
 		query = query.Where(store.MerchantIDEQ(filter.MerchantID))
 	}
-	if filter.BusinessTypeID != 0 {
+	if filter.BusinessTypeID != uuid.Nil {
 		query = query.Where(store.BusinessTypeIDEQ(filter.BusinessTypeID))
 	}
 	if filter.AdminPhoneNumber != "" {
@@ -273,7 +285,7 @@ func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *e
 	if filter.CreatedAtLte != nil {
 		query = query.Where(store.CreatedAtLTE(*filter.CreatedAtLte))
 	}
-	if filter.ProvinceID != 0 {
+	if filter.ProvinceID != uuid.Nil {
 		query = query.Where(store.ProvinceIDEQ(filter.ProvinceID))
 	}
 

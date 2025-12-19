@@ -12,15 +12,20 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 )
 
 // Merchant is the model entity for the Merchant schema.
 type Merchant struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	// UUID as primary key
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -42,7 +47,7 @@ type Merchant struct {
 	// UTC 时区的过期时间
 	ExpireUtc *time.Time `json:"expire_utc,omitempty"`
 	// 业务类型
-	BusinessTypeID int `json:"business_type_id,omitempty"`
+	BusinessTypeID uuid.UUID `json:"business_type_id,omitempty"`
 	// logo 图片地址
 	MerchantLogo string `json:"merchant_logo,omitempty"`
 	// 商户描述(保留字段)
@@ -50,21 +55,13 @@ type Merchant struct {
 	// 状态: 正常,停用,过期
 	Status domain.MerchantStatus `json:"status,omitempty"`
 	// 国家/地区id
-	CountryID int `json:"country_id,omitempty"`
+	CountryID uuid.UUID `json:"country_id,omitempty"`
 	// 省份 id
-	ProvinceID int `json:"province_id,omitempty"`
+	ProvinceID uuid.UUID `json:"province_id,omitempty"`
 	// 城市 id
-	CityID int `json:"city_id,omitempty"`
+	CityID uuid.UUID `json:"city_id,omitempty"`
 	// 区县 id
-	DistrictID int `json:"district_id,omitempty"`
-	// 国家/地区
-	CountryName string `json:"country_name,omitempty"`
-	// 省份
-	ProvinceName string `json:"province_name,omitempty"`
-	// 城市
-	CityName string `json:"city_name,omitempty"`
-	// 区县
-	DistrictName string `json:"district_name,omitempty"`
+	DistrictID uuid.UUID `json:"district_id,omitempty"`
 	// 详细地址
 	Address string `json:"address,omitempty"`
 	// 经度
@@ -89,9 +86,17 @@ type MerchantEdges struct {
 	MerchantBusinessType *MerchantBusinessType `json:"merchant_business_type,omitempty"`
 	// AdminUser holds the value of the admin_user edge.
 	AdminUser *AdminUser `json:"admin_user,omitempty"`
+	// Country holds the value of the country edge.
+	Country *Country `json:"country,omitempty"`
+	// Province holds the value of the province edge.
+	Province *Province `json:"province,omitempty"`
+	// City holds the value of the city edge.
+	City *City `json:"city,omitempty"`
+	// District holds the value of the district edge.
+	District *District `json:"district,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [8]bool
 }
 
 // StoresOrErr returns the Stores value or an error if the edge
@@ -134,18 +139,62 @@ func (e MerchantEdges) AdminUserOrErr() (*AdminUser, error) {
 	return nil, &NotLoadedError{edge: "admin_user"}
 }
 
+// CountryOrErr returns the Country value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MerchantEdges) CountryOrErr() (*Country, error) {
+	if e.Country != nil {
+		return e.Country, nil
+	} else if e.loadedTypes[4] {
+		return nil, &NotFoundError{label: country.Label}
+	}
+	return nil, &NotLoadedError{edge: "country"}
+}
+
+// ProvinceOrErr returns the Province value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MerchantEdges) ProvinceOrErr() (*Province, error) {
+	if e.Province != nil {
+		return e.Province, nil
+	} else if e.loadedTypes[5] {
+		return nil, &NotFoundError{label: province.Label}
+	}
+	return nil, &NotLoadedError{edge: "province"}
+}
+
+// CityOrErr returns the City value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MerchantEdges) CityOrErr() (*City, error) {
+	if e.City != nil {
+		return e.City, nil
+	} else if e.loadedTypes[6] {
+		return nil, &NotFoundError{label: city.Label}
+	}
+	return nil, &NotLoadedError{edge: "city"}
+}
+
+// DistrictOrErr returns the District value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MerchantEdges) DistrictOrErr() (*District, error) {
+	if e.District != nil {
+		return e.District, nil
+	} else if e.loadedTypes[7] {
+		return nil, &NotFoundError{label: district.Label}
+	}
+	return nil, &NotLoadedError{edge: "district"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Merchant) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case merchant.FieldID, merchant.FieldDeletedAt, merchant.FieldBusinessTypeID, merchant.FieldCountryID, merchant.FieldProvinceID, merchant.FieldCityID, merchant.FieldDistrictID:
+		case merchant.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case merchant.FieldMerchantCode, merchant.FieldMerchantName, merchant.FieldMerchantShortName, merchant.FieldMerchantType, merchant.FieldBrandName, merchant.FieldAdminPhoneNumber, merchant.FieldMerchantLogo, merchant.FieldDescription, merchant.FieldStatus, merchant.FieldCountryName, merchant.FieldProvinceName, merchant.FieldCityName, merchant.FieldDistrictName, merchant.FieldAddress, merchant.FieldLng, merchant.FieldLat:
+		case merchant.FieldMerchantCode, merchant.FieldMerchantName, merchant.FieldMerchantShortName, merchant.FieldMerchantType, merchant.FieldBrandName, merchant.FieldAdminPhoneNumber, merchant.FieldMerchantLogo, merchant.FieldDescription, merchant.FieldStatus, merchant.FieldAddress, merchant.FieldLng, merchant.FieldLat:
 			values[i] = new(sql.NullString)
 		case merchant.FieldCreatedAt, merchant.FieldUpdatedAt, merchant.FieldExpireUtc:
 			values[i] = new(sql.NullTime)
-		case merchant.FieldAdminUserID:
+		case merchant.FieldID, merchant.FieldBusinessTypeID, merchant.FieldCountryID, merchant.FieldProvinceID, merchant.FieldCityID, merchant.FieldDistrictID, merchant.FieldAdminUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -163,11 +212,11 @@ func (m *Merchant) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case merchant.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				m.ID = *value
 			}
-			m.ID = int(value.Int64)
 		case merchant.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -230,10 +279,10 @@ func (m *Merchant) assignValues(columns []string, values []any) error {
 				*m.ExpireUtc = value.Time
 			}
 		case merchant.FieldBusinessTypeID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field business_type_id", values[i])
-			} else if value.Valid {
-				m.BusinessTypeID = int(value.Int64)
+			} else if value != nil {
+				m.BusinessTypeID = *value
 			}
 		case merchant.FieldMerchantLogo:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -254,52 +303,28 @@ func (m *Merchant) assignValues(columns []string, values []any) error {
 				m.Status = domain.MerchantStatus(value.String)
 			}
 		case merchant.FieldCountryID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field country_id", values[i])
-			} else if value.Valid {
-				m.CountryID = int(value.Int64)
+			} else if value != nil {
+				m.CountryID = *value
 			}
 		case merchant.FieldProvinceID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field province_id", values[i])
-			} else if value.Valid {
-				m.ProvinceID = int(value.Int64)
+			} else if value != nil {
+				m.ProvinceID = *value
 			}
 		case merchant.FieldCityID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field city_id", values[i])
-			} else if value.Valid {
-				m.CityID = int(value.Int64)
+			} else if value != nil {
+				m.CityID = *value
 			}
 		case merchant.FieldDistrictID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field district_id", values[i])
-			} else if value.Valid {
-				m.DistrictID = int(value.Int64)
-			}
-		case merchant.FieldCountryName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field country_name", values[i])
-			} else if value.Valid {
-				m.CountryName = value.String
-			}
-		case merchant.FieldProvinceName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field province_name", values[i])
-			} else if value.Valid {
-				m.ProvinceName = value.String
-			}
-		case merchant.FieldCityName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field city_name", values[i])
-			} else if value.Valid {
-				m.CityName = value.String
-			}
-		case merchant.FieldDistrictName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field district_name", values[i])
-			} else if value.Valid {
-				m.DistrictName = value.String
+			} else if value != nil {
+				m.DistrictID = *value
 			}
 		case merchant.FieldAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -356,6 +381,26 @@ func (m *Merchant) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
 // QueryAdminUser queries the "admin_user" edge of the Merchant entity.
 func (m *Merchant) QueryAdminUser() *AdminUserQuery {
 	return NewMerchantClient(m.config).QueryAdminUser(m)
+}
+
+// QueryCountry queries the "country" edge of the Merchant entity.
+func (m *Merchant) QueryCountry() *CountryQuery {
+	return NewMerchantClient(m.config).QueryCountry(m)
+}
+
+// QueryProvince queries the "province" edge of the Merchant entity.
+func (m *Merchant) QueryProvince() *ProvinceQuery {
+	return NewMerchantClient(m.config).QueryProvince(m)
+}
+
+// QueryCity queries the "city" edge of the Merchant entity.
+func (m *Merchant) QueryCity() *CityQuery {
+	return NewMerchantClient(m.config).QueryCity(m)
+}
+
+// QueryDistrict queries the "district" edge of the Merchant entity.
+func (m *Merchant) QueryDistrict() *DistrictQuery {
+	return NewMerchantClient(m.config).QueryDistrict(m)
 }
 
 // Update returns a builder for updating this Merchant.
@@ -436,18 +481,6 @@ func (m *Merchant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("district_id=")
 	builder.WriteString(fmt.Sprintf("%v", m.DistrictID))
-	builder.WriteString(", ")
-	builder.WriteString("country_name=")
-	builder.WriteString(m.CountryName)
-	builder.WriteString(", ")
-	builder.WriteString("province_name=")
-	builder.WriteString(m.ProvinceName)
-	builder.WriteString(", ")
-	builder.WriteString("city_name=")
-	builder.WriteString(m.CityName)
-	builder.WriteString(", ")
-	builder.WriteString("district_name=")
-	builder.WriteString(m.DistrictName)
 	builder.WriteString(", ")
 	builder.WriteString("address=")
 	builder.WriteString(m.Address)

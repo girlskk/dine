@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -18,13 +19,16 @@ import (
 type MerchantRenewal struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	// UUID as primary key
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// 删除时间
+	DeletedAt int64 `json:"deleted_at,omitempty"`
 	// 商户 ID
-	MerchantID int `json:"merchant_id,omitempty"`
+	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 购买时长
 	PurchaseDuration int `json:"purchase_duration,omitempty"`
 	// 购买时长单位
@@ -64,12 +68,14 @@ func (*MerchantRenewal) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case merchantrenewal.FieldID, merchantrenewal.FieldMerchantID, merchantrenewal.FieldPurchaseDuration:
+		case merchantrenewal.FieldDeletedAt, merchantrenewal.FieldPurchaseDuration:
 			values[i] = new(sql.NullInt64)
 		case merchantrenewal.FieldPurchaseDurationUnit, merchantrenewal.FieldOperatorName, merchantrenewal.FieldOperatorAccount:
 			values[i] = new(sql.NullString)
 		case merchantrenewal.FieldCreatedAt, merchantrenewal.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case merchantrenewal.FieldID, merchantrenewal.FieldMerchantID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -86,11 +92,11 @@ func (mr *MerchantRenewal) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case merchantrenewal.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				mr.ID = *value
 			}
-			mr.ID = int(value.Int64)
 		case merchantrenewal.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -103,11 +109,17 @@ func (mr *MerchantRenewal) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				mr.UpdatedAt = value.Time
 			}
-		case merchantrenewal.FieldMerchantID:
+		case merchantrenewal.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				mr.MerchantID = int(value.Int64)
+				mr.DeletedAt = value.Int64
+			}
+		case merchantrenewal.FieldMerchantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
+			} else if value != nil {
+				mr.MerchantID = *value
 			}
 		case merchantrenewal.FieldPurchaseDuration:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -179,6 +191,9 @@ func (mr *MerchantRenewal) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(mr.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("deleted_at=")
+	builder.WriteString(fmt.Sprintf("%v", mr.DeletedAt))
 	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", mr.MerchantID))

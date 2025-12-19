@@ -12,7 +12,12 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -20,7 +25,8 @@ import (
 type Store struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	// UUID as primary key
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -28,7 +34,7 @@ type Store struct {
 	// 删除时间
 	DeletedAt int64 `json:"deleted_at,omitempty"`
 	// 商户 ID
-	MerchantID int `json:"merchant_id,omitempty"`
+	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 管理员手机号
 	AdminPhoneNumber string `json:"admin_phone_number,omitempty"`
 	// 门店名称,长度不超过30个字
@@ -42,7 +48,7 @@ type Store struct {
 	// 经营模式：直营 加盟
 	BusinessModel domain.BusinessModel `json:"business_model,omitempty"`
 	// 业态类型
-	BusinessTypeID int `json:"business_type_id,omitempty"`
+	BusinessTypeID uuid.UUID `json:"business_type_id,omitempty"`
 	// 联系人
 	ContactName string `json:"contact_name,omitempty"`
 	// 联系电话
@@ -61,22 +67,14 @@ type Store struct {
 	DiningEnvironmentURL string `json:"dining_environment_url,omitempty"`
 	// 食品经营许可证照片
 	FoodOperationLicenseURL string `json:"food_operation_license_url,omitempty"`
-	// 国家/地区 id
-	CountryID int `json:"country_id,omitempty"`
+	// 国家/地区id
+	CountryID uuid.UUID `json:"country_id,omitempty"`
 	// 省份 id
-	ProvinceID int `json:"province_id,omitempty"`
+	ProvinceID uuid.UUID `json:"province_id,omitempty"`
 	// 城市 id
-	CityID int `json:"city_id,omitempty"`
+	CityID uuid.UUID `json:"city_id,omitempty"`
 	// 区县 id
-	DistrictID int `json:"district_id,omitempty"`
-	// 国家/地区
-	CountryName string `json:"country_name,omitempty"`
-	// 省份
-	ProvinceName string `json:"province_name,omitempty"`
-	// 城市
-	CityName string `json:"city_name,omitempty"`
-	// 区县
-	DistrictName string `json:"district_name,omitempty"`
+	DistrictID uuid.UUID `json:"district_id,omitempty"`
 	// 详细地址
 	Address string `json:"address,omitempty"`
 	// 经度
@@ -97,9 +95,19 @@ type StoreEdges struct {
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// AdminUser holds the value of the admin_user edge.
 	AdminUser *AdminUser `json:"admin_user,omitempty"`
+	// MerchantBusinessType holds the value of the merchant_business_type edge.
+	MerchantBusinessType *MerchantBusinessType `json:"merchant_business_type,omitempty"`
+	// Country holds the value of the country edge.
+	Country *Country `json:"country,omitempty"`
+	// Province holds the value of the province edge.
+	Province *Province `json:"province,omitempty"`
+	// City holds the value of the city edge.
+	City *City `json:"city,omitempty"`
+	// District holds the value of the district edge.
+	District *District `json:"district,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [7]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -124,18 +132,73 @@ func (e StoreEdges) AdminUserOrErr() (*AdminUser, error) {
 	return nil, &NotLoadedError{edge: "admin_user"}
 }
 
+// MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StoreEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error) {
+	if e.MerchantBusinessType != nil {
+		return e.MerchantBusinessType, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: merchantbusinesstype.Label}
+	}
+	return nil, &NotLoadedError{edge: "merchant_business_type"}
+}
+
+// CountryOrErr returns the Country value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StoreEdges) CountryOrErr() (*Country, error) {
+	if e.Country != nil {
+		return e.Country, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: country.Label}
+	}
+	return nil, &NotLoadedError{edge: "country"}
+}
+
+// ProvinceOrErr returns the Province value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StoreEdges) ProvinceOrErr() (*Province, error) {
+	if e.Province != nil {
+		return e.Province, nil
+	} else if e.loadedTypes[4] {
+		return nil, &NotFoundError{label: province.Label}
+	}
+	return nil, &NotLoadedError{edge: "province"}
+}
+
+// CityOrErr returns the City value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StoreEdges) CityOrErr() (*City, error) {
+	if e.City != nil {
+		return e.City, nil
+	} else if e.loadedTypes[5] {
+		return nil, &NotFoundError{label: city.Label}
+	}
+	return nil, &NotLoadedError{edge: "city"}
+}
+
+// DistrictOrErr returns the District value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StoreEdges) DistrictOrErr() (*District, error) {
+	if e.District != nil {
+		return e.District, nil
+	} else if e.loadedTypes[6] {
+		return nil, &NotFoundError{label: district.Label}
+	}
+	return nil, &NotLoadedError{edge: "district"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Store) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case store.FieldID, store.FieldDeletedAt, store.FieldMerchantID, store.FieldBusinessTypeID, store.FieldCountryID, store.FieldProvinceID, store.FieldCityID, store.FieldDistrictID:
+		case store.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldCountryName, store.FieldProvinceName, store.FieldCityName, store.FieldDistrictName, store.FieldAddress, store.FieldLng, store.FieldLat:
+		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldAddress, store.FieldLng, store.FieldLat:
 			values[i] = new(sql.NullString)
 		case store.FieldCreatedAt, store.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case store.FieldAdminUserID:
+		case store.FieldID, store.FieldMerchantID, store.FieldBusinessTypeID, store.FieldCountryID, store.FieldProvinceID, store.FieldCityID, store.FieldDistrictID, store.FieldAdminUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -153,11 +216,11 @@ func (s *Store) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case store.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				s.ID = *value
 			}
-			s.ID = int(value.Int64)
 		case store.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -177,10 +240,10 @@ func (s *Store) assignValues(columns []string, values []any) error {
 				s.DeletedAt = value.Int64
 			}
 		case store.FieldMerchantID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
-			} else if value.Valid {
-				s.MerchantID = int(value.Int64)
+			} else if value != nil {
+				s.MerchantID = *value
 			}
 		case store.FieldAdminPhoneNumber:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -219,10 +282,10 @@ func (s *Store) assignValues(columns []string, values []any) error {
 				s.BusinessModel = domain.BusinessModel(value.String)
 			}
 		case store.FieldBusinessTypeID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field business_type_id", values[i])
-			} else if value.Valid {
-				s.BusinessTypeID = int(value.Int64)
+			} else if value != nil {
+				s.BusinessTypeID = *value
 			}
 		case store.FieldContactName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -279,52 +342,28 @@ func (s *Store) assignValues(columns []string, values []any) error {
 				s.FoodOperationLicenseURL = value.String
 			}
 		case store.FieldCountryID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field country_id", values[i])
-			} else if value.Valid {
-				s.CountryID = int(value.Int64)
+			} else if value != nil {
+				s.CountryID = *value
 			}
 		case store.FieldProvinceID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field province_id", values[i])
-			} else if value.Valid {
-				s.ProvinceID = int(value.Int64)
+			} else if value != nil {
+				s.ProvinceID = *value
 			}
 		case store.FieldCityID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field city_id", values[i])
-			} else if value.Valid {
-				s.CityID = int(value.Int64)
+			} else if value != nil {
+				s.CityID = *value
 			}
 		case store.FieldDistrictID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field district_id", values[i])
-			} else if value.Valid {
-				s.DistrictID = int(value.Int64)
-			}
-		case store.FieldCountryName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field country_name", values[i])
-			} else if value.Valid {
-				s.CountryName = value.String
-			}
-		case store.FieldProvinceName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field province_name", values[i])
-			} else if value.Valid {
-				s.ProvinceName = value.String
-			}
-		case store.FieldCityName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field city_name", values[i])
-			} else if value.Valid {
-				s.CityName = value.String
-			}
-		case store.FieldDistrictName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field district_name", values[i])
-			} else if value.Valid {
-				s.DistrictName = value.String
+			} else if value != nil {
+				s.DistrictID = *value
 			}
 		case store.FieldAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -371,6 +410,31 @@ func (s *Store) QueryMerchant() *MerchantQuery {
 // QueryAdminUser queries the "admin_user" edge of the Store entity.
 func (s *Store) QueryAdminUser() *AdminUserQuery {
 	return NewStoreClient(s.config).QueryAdminUser(s)
+}
+
+// QueryMerchantBusinessType queries the "merchant_business_type" edge of the Store entity.
+func (s *Store) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
+	return NewStoreClient(s.config).QueryMerchantBusinessType(s)
+}
+
+// QueryCountry queries the "country" edge of the Store entity.
+func (s *Store) QueryCountry() *CountryQuery {
+	return NewStoreClient(s.config).QueryCountry(s)
+}
+
+// QueryProvince queries the "province" edge of the Store entity.
+func (s *Store) QueryProvince() *ProvinceQuery {
+	return NewStoreClient(s.config).QueryProvince(s)
+}
+
+// QueryCity queries the "city" edge of the Store entity.
+func (s *Store) QueryCity() *CityQuery {
+	return NewStoreClient(s.config).QueryCity(s)
+}
+
+// QueryDistrict queries the "district" edge of the Store entity.
+func (s *Store) QueryDistrict() *DistrictQuery {
+	return NewStoreClient(s.config).QueryDistrict(s)
 }
 
 // Update returns a builder for updating this Store.
@@ -467,18 +531,6 @@ func (s *Store) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("district_id=")
 	builder.WriteString(fmt.Sprintf("%v", s.DistrictID))
-	builder.WriteString(", ")
-	builder.WriteString("country_name=")
-	builder.WriteString(s.CountryName)
-	builder.WriteString(", ")
-	builder.WriteString("province_name=")
-	builder.WriteString(s.ProvinceName)
-	builder.WriteString(", ")
-	builder.WriteString("city_name=")
-	builder.WriteString(s.CityName)
-	builder.WriteString(", ")
-	builder.WriteString("district_name=")
-	builder.WriteString(s.DistrictName)
 	builder.WriteString(", ")
 	builder.WriteString("address=")
 	builder.WriteString(s.Address)

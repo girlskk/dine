@@ -116,14 +116,14 @@ func (auc *AdminUserCreate) SetNillableID(u *uuid.UUID) *AdminUserCreate {
 }
 
 // AddMerchantIDs adds the "merchant" edge to the Merchant entity by IDs.
-func (auc *AdminUserCreate) AddMerchantIDs(ids ...int) *AdminUserCreate {
+func (auc *AdminUserCreate) AddMerchantIDs(ids ...uuid.UUID) *AdminUserCreate {
 	auc.mutation.AddMerchantIDs(ids...)
 	return auc
 }
 
 // AddMerchant adds the "merchant" edges to the Merchant entity.
 func (auc *AdminUserCreate) AddMerchant(m ...*Merchant) *AdminUserCreate {
-	ids := make([]int, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
@@ -131,14 +131,14 @@ func (auc *AdminUserCreate) AddMerchant(m ...*Merchant) *AdminUserCreate {
 }
 
 // AddStoreIDs adds the "store" edge to the Store entity by IDs.
-func (auc *AdminUserCreate) AddStoreIDs(ids ...int) *AdminUserCreate {
+func (auc *AdminUserCreate) AddStoreIDs(ids ...uuid.UUID) *AdminUserCreate {
 	auc.mutation.AddStoreIDs(ids...)
 	return auc
 }
 
 // AddStore adds the "store" edges to the Store entity.
 func (auc *AdminUserCreate) AddStore(s ...*Store) *AdminUserCreate {
-	ids := make([]int, len(s))
+	ids := make([]uuid.UUID, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -312,7 +312,7 @@ func (auc *AdminUserCreate) createSpec() (*AdminUser, *sqlgraph.CreateSpec) {
 			Columns: []string{adminuser.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -328,7 +328,7 @@ func (auc *AdminUserCreate) createSpec() (*AdminUser, *sqlgraph.CreateSpec) {
 			Columns: []string{adminuser.StoreColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
