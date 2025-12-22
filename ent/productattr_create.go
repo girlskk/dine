@@ -16,6 +16,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
 )
 
 // ProductAttrCreate is the builder for creating a ProductAttr entity.
@@ -141,6 +142,21 @@ func (pac *ProductAttrCreate) AddItems(p ...*ProductAttrItem) *ProductAttrCreate
 		ids[i] = p[i].ID
 	}
 	return pac.AddItemIDs(ids...)
+}
+
+// AddProductAttrIDs adds the "product_attrs" edge to the ProductAttrRelation entity by IDs.
+func (pac *ProductAttrCreate) AddProductAttrIDs(ids ...uuid.UUID) *ProductAttrCreate {
+	pac.mutation.AddProductAttrIDs(ids...)
+	return pac
+}
+
+// AddProductAttrs adds the "product_attrs" edges to the ProductAttrRelation entity.
+func (pac *ProductAttrCreate) AddProductAttrs(p ...*ProductAttrRelation) *ProductAttrCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pac.AddProductAttrIDs(ids...)
 }
 
 // Mutation returns the ProductAttrMutation object of the builder.
@@ -317,6 +333,22 @@ func (pac *ProductAttrCreate) createSpec() (*ProductAttr, *sqlgraph.CreateSpec) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(productattritem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pac.mutation.ProductAttrsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattr.ProductAttrsTable,
+			Columns: []string{productattr.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

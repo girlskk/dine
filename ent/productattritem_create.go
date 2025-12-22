@@ -16,6 +16,7 @@ import (
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
 )
 
 // ProductAttrItemCreate is the builder for creating a ProductAttrItem entity.
@@ -139,6 +140,21 @@ func (paic *ProductAttrItemCreate) SetNillableID(u *uuid.UUID) *ProductAttrItemC
 // SetAttr sets the "attr" edge to the ProductAttr entity.
 func (paic *ProductAttrItemCreate) SetAttr(p *ProductAttr) *ProductAttrItemCreate {
 	return paic.SetAttrID(p.ID)
+}
+
+// AddProductAttrIDs adds the "product_attrs" edge to the ProductAttrRelation entity by IDs.
+func (paic *ProductAttrItemCreate) AddProductAttrIDs(ids ...uuid.UUID) *ProductAttrItemCreate {
+	paic.mutation.AddProductAttrIDs(ids...)
+	return paic
+}
+
+// AddProductAttrs adds the "product_attrs" edges to the ProductAttrRelation entity.
+func (paic *ProductAttrItemCreate) AddProductAttrs(p ...*ProductAttrRelation) *ProductAttrItemCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return paic.AddProductAttrIDs(ids...)
 }
 
 // Mutation returns the ProductAttrItemMutation object of the builder.
@@ -336,6 +352,22 @@ func (paic *ProductAttrItemCreate) createSpec() (*ProductAttrItem, *sqlgraph.Cre
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AttrID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := paic.mutation.ProductAttrsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattritem.ProductAttrsTable,
+			Columns: []string{productattritem.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

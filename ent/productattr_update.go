@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
 )
 
 // ProductAttrUpdate is the builder for updating ProductAttr entities.
@@ -122,6 +123,21 @@ func (pau *ProductAttrUpdate) AddItems(p ...*ProductAttrItem) *ProductAttrUpdate
 	return pau.AddItemIDs(ids...)
 }
 
+// AddProductAttrIDs adds the "product_attrs" edge to the ProductAttrRelation entity by IDs.
+func (pau *ProductAttrUpdate) AddProductAttrIDs(ids ...uuid.UUID) *ProductAttrUpdate {
+	pau.mutation.AddProductAttrIDs(ids...)
+	return pau
+}
+
+// AddProductAttrs adds the "product_attrs" edges to the ProductAttrRelation entity.
+func (pau *ProductAttrUpdate) AddProductAttrs(p ...*ProductAttrRelation) *ProductAttrUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pau.AddProductAttrIDs(ids...)
+}
+
 // Mutation returns the ProductAttrMutation object of the builder.
 func (pau *ProductAttrUpdate) Mutation() *ProductAttrMutation {
 	return pau.mutation
@@ -146,6 +162,27 @@ func (pau *ProductAttrUpdate) RemoveItems(p ...*ProductAttrItem) *ProductAttrUpd
 		ids[i] = p[i].ID
 	}
 	return pau.RemoveItemIDs(ids...)
+}
+
+// ClearProductAttrs clears all "product_attrs" edges to the ProductAttrRelation entity.
+func (pau *ProductAttrUpdate) ClearProductAttrs() *ProductAttrUpdate {
+	pau.mutation.ClearProductAttrs()
+	return pau
+}
+
+// RemoveProductAttrIDs removes the "product_attrs" edge to ProductAttrRelation entities by IDs.
+func (pau *ProductAttrUpdate) RemoveProductAttrIDs(ids ...uuid.UUID) *ProductAttrUpdate {
+	pau.mutation.RemoveProductAttrIDs(ids...)
+	return pau
+}
+
+// RemoveProductAttrs removes "product_attrs" edges to ProductAttrRelation entities.
+func (pau *ProductAttrUpdate) RemoveProductAttrs(p ...*ProductAttrRelation) *ProductAttrUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pau.RemoveProductAttrIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -292,6 +329,51 @@ func (pau *ProductAttrUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if pau.mutation.ProductAttrsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattr.ProductAttrsTable,
+			Columns: []string{productattr.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pau.mutation.RemovedProductAttrsIDs(); len(nodes) > 0 && !pau.mutation.ProductAttrsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattr.ProductAttrsTable,
+			Columns: []string{productattr.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pau.mutation.ProductAttrsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattr.ProductAttrsTable,
+			Columns: []string{productattr.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(pau.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, pau.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -403,6 +485,21 @@ func (pauo *ProductAttrUpdateOne) AddItems(p ...*ProductAttrItem) *ProductAttrUp
 	return pauo.AddItemIDs(ids...)
 }
 
+// AddProductAttrIDs adds the "product_attrs" edge to the ProductAttrRelation entity by IDs.
+func (pauo *ProductAttrUpdateOne) AddProductAttrIDs(ids ...uuid.UUID) *ProductAttrUpdateOne {
+	pauo.mutation.AddProductAttrIDs(ids...)
+	return pauo
+}
+
+// AddProductAttrs adds the "product_attrs" edges to the ProductAttrRelation entity.
+func (pauo *ProductAttrUpdateOne) AddProductAttrs(p ...*ProductAttrRelation) *ProductAttrUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pauo.AddProductAttrIDs(ids...)
+}
+
 // Mutation returns the ProductAttrMutation object of the builder.
 func (pauo *ProductAttrUpdateOne) Mutation() *ProductAttrMutation {
 	return pauo.mutation
@@ -427,6 +524,27 @@ func (pauo *ProductAttrUpdateOne) RemoveItems(p ...*ProductAttrItem) *ProductAtt
 		ids[i] = p[i].ID
 	}
 	return pauo.RemoveItemIDs(ids...)
+}
+
+// ClearProductAttrs clears all "product_attrs" edges to the ProductAttrRelation entity.
+func (pauo *ProductAttrUpdateOne) ClearProductAttrs() *ProductAttrUpdateOne {
+	pauo.mutation.ClearProductAttrs()
+	return pauo
+}
+
+// RemoveProductAttrIDs removes the "product_attrs" edge to ProductAttrRelation entities by IDs.
+func (pauo *ProductAttrUpdateOne) RemoveProductAttrIDs(ids ...uuid.UUID) *ProductAttrUpdateOne {
+	pauo.mutation.RemoveProductAttrIDs(ids...)
+	return pauo
+}
+
+// RemoveProductAttrs removes "product_attrs" edges to ProductAttrRelation entities.
+func (pauo *ProductAttrUpdateOne) RemoveProductAttrs(p ...*ProductAttrRelation) *ProductAttrUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pauo.RemoveProductAttrIDs(ids...)
 }
 
 // Where appends a list predicates to the ProductAttrUpdate builder.
@@ -596,6 +714,51 @@ func (pauo *ProductAttrUpdateOne) sqlSave(ctx context.Context) (_node *ProductAt
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(productattritem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pauo.mutation.ProductAttrsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattr.ProductAttrsTable,
+			Columns: []string{productattr.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pauo.mutation.RemovedProductAttrsIDs(); len(nodes) > 0 && !pauo.mutation.ProductAttrsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattr.ProductAttrsTable,
+			Columns: []string{productattr.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pauo.mutation.ProductAttrsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   productattr.ProductAttrsTable,
+			Columns: []string{productattr.ProductAttrsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

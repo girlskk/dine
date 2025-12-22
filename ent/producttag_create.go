@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 )
 
@@ -118,6 +119,21 @@ func (ptc *ProductTagCreate) SetNillableID(u *uuid.UUID) *ProductTagCreate {
 		ptc.SetID(*u)
 	}
 	return ptc
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (ptc *ProductTagCreate) AddProductIDs(ids ...uuid.UUID) *ProductTagCreate {
+	ptc.mutation.AddProductIDs(ids...)
+	return ptc
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (ptc *ProductTagCreate) AddProducts(p ...*Product) *ProductTagCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ptc.AddProductIDs(ids...)
 }
 
 // Mutation returns the ProductTagMutation object of the builder.
@@ -277,6 +293,22 @@ func (ptc *ProductTagCreate) createSpec() (*ProductTag, *sqlgraph.CreateSpec) {
 	if value, ok := ptc.mutation.ProductCount(); ok {
 		_spec.SetField(producttag.FieldProductCount, field.TypeInt, value)
 		_node.ProductCount = value
+	}
+	if nodes := ptc.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   producttag.ProductsTable,
+			Columns: producttag.ProductsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

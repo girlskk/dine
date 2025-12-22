@@ -36,7 +36,28 @@ type ProductUnit struct {
 	StoreID uuid.UUID `json:"store_id,omitempty"`
 	// 关联的商品数量
 	ProductCount int `json:"product_count,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ProductUnitQuery when eager-loading is set.
+	Edges        ProductUnitEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ProductUnitEdges holds the relations/edges for other nodes in the graph.
+type ProductUnitEdges struct {
+	// 关联的商品
+	Products []*Product `json:"products,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ProductsOrErr returns the Products value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductUnitEdges) ProductsOrErr() ([]*Product, error) {
+	if e.loadedTypes[0] {
+		return e.Products, nil
+	}
+	return nil, &NotLoadedError{edge: "products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -132,6 +153,11 @@ func (pu *ProductUnit) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (pu *ProductUnit) Value(name string) (ent.Value, error) {
 	return pu.selectValues.Get(name)
+}
+
+// QueryProducts queries the "products" edge of the ProductUnit entity.
+func (pu *ProductUnit) QueryProducts() *ProductQuery {
+	return NewProductUnitClient(pu.config).QueryProducts(pu)
 }
 
 // Update returns a builder for updating this ProductUnit.

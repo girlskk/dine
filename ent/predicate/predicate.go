@@ -15,14 +15,23 @@ type BackendUser func(*sql.Selector)
 // Category is the predicate function for category builders.
 type Category func(*sql.Selector)
 
+// Product is the predicate function for product builders.
+type Product func(*sql.Selector)
+
 // ProductAttr is the predicate function for productattr builders.
 type ProductAttr func(*sql.Selector)
 
 // ProductAttrItem is the predicate function for productattritem builders.
 type ProductAttrItem func(*sql.Selector)
 
+// ProductAttrRelation is the predicate function for productattrrelation builders.
+type ProductAttrRelation func(*sql.Selector)
+
 // ProductSpec is the predicate function for productspec builders.
 type ProductSpec func(*sql.Selector)
+
+// ProductSpecRelation is the predicate function for productspecrelation builders.
+type ProductSpecRelation func(*sql.Selector)
 
 // ProductTag is the predicate function for producttag builders.
 type ProductTag func(*sql.Selector)

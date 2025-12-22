@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -15,16 +16,18 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 )
 
 // ProductSpecQuery is the builder for querying ProductSpec entities.
 type ProductSpecQuery struct {
 	config
-	ctx        *QueryContext
-	order      []productspec.OrderOption
-	inters     []Interceptor
-	predicates []predicate.ProductSpec
-	modifiers  []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []productspec.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.ProductSpec
+	withProductSpecs *ProductSpecRelationQuery
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +62,28 @@ func (psq *ProductSpecQuery) Unique(unique bool) *ProductSpecQuery {
 func (psq *ProductSpecQuery) Order(o ...productspec.OrderOption) *ProductSpecQuery {
 	psq.order = append(psq.order, o...)
 	return psq
+}
+
+// QueryProductSpecs chains the current query on the "product_specs" edge.
+func (psq *ProductSpecQuery) QueryProductSpecs() *ProductSpecRelationQuery {
+	query := (&ProductSpecRelationClient{config: psq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := psq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := psq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productspec.Table, productspec.FieldID, selector),
+			sqlgraph.To(productspecrelation.Table, productspecrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productspec.ProductSpecsTable, productspec.ProductSpecsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(psq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first ProductSpec entity from the query.
@@ -248,16 +273,28 @@ func (psq *ProductSpecQuery) Clone() *ProductSpecQuery {
 		return nil
 	}
 	return &ProductSpecQuery{
-		config:     psq.config,
-		ctx:        psq.ctx.Clone(),
-		order:      append([]productspec.OrderOption{}, psq.order...),
-		inters:     append([]Interceptor{}, psq.inters...),
-		predicates: append([]predicate.ProductSpec{}, psq.predicates...),
+		config:           psq.config,
+		ctx:              psq.ctx.Clone(),
+		order:            append([]productspec.OrderOption{}, psq.order...),
+		inters:           append([]Interceptor{}, psq.inters...),
+		predicates:       append([]predicate.ProductSpec{}, psq.predicates...),
+		withProductSpecs: psq.withProductSpecs.Clone(),
 		// clone intermediate query.
 		sql:       psq.sql.Clone(),
 		path:      psq.path,
 		modifiers: append([]func(*sql.Selector){}, psq.modifiers...),
 	}
+}
+
+// WithProductSpecs tells the query-builder to eager-load the nodes that are connected to
+// the "product_specs" edge. The optional arguments are used to configure the query builder of the edge.
+func (psq *ProductSpecQuery) WithProductSpecs(opts ...func(*ProductSpecRelationQuery)) *ProductSpecQuery {
+	query := (&ProductSpecRelationClient{config: psq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	psq.withProductSpecs = query
+	return psq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +373,11 @@ func (psq *ProductSpecQuery) prepareQuery(ctx context.Context) error {
 
 func (psq *ProductSpecQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ProductSpec, error) {
 	var (
-		nodes = []*ProductSpec{}
-		_spec = psq.querySpec()
+		nodes       = []*ProductSpec{}
+		_spec       = psq.querySpec()
+		loadedTypes = [1]bool{
+			psq.withProductSpecs != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ProductSpec).scanValues(nil, columns)
@@ -345,6 +385,7 @@ func (psq *ProductSpecQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &ProductSpec{config: psq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(psq.modifiers) > 0 {
@@ -359,7 +400,45 @@ func (psq *ProductSpecQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := psq.withProductSpecs; query != nil {
+		if err := psq.loadProductSpecs(ctx, query, nodes,
+			func(n *ProductSpec) { n.Edges.ProductSpecs = []*ProductSpecRelation{} },
+			func(n *ProductSpec, e *ProductSpecRelation) { n.Edges.ProductSpecs = append(n.Edges.ProductSpecs, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (psq *ProductSpecQuery) loadProductSpecs(ctx context.Context, query *ProductSpecRelationQuery, nodes []*ProductSpec, init func(*ProductSpec), assign func(*ProductSpec, *ProductSpecRelation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*ProductSpec)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(productspecrelation.FieldSpecID)
+	}
+	query.Where(predicate.ProductSpecRelation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(productspec.ProductSpecsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.SpecID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "spec_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (psq *ProductSpecQuery) sqlCount(ctx context.Context) (int, error) {

@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 )
 
@@ -91,9 +93,45 @@ func (ptu *ProductTagUpdate) AddProductCount(i int) *ProductTagUpdate {
 	return ptu
 }
 
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (ptu *ProductTagUpdate) AddProductIDs(ids ...uuid.UUID) *ProductTagUpdate {
+	ptu.mutation.AddProductIDs(ids...)
+	return ptu
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (ptu *ProductTagUpdate) AddProducts(p ...*Product) *ProductTagUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ptu.AddProductIDs(ids...)
+}
+
 // Mutation returns the ProductTagMutation object of the builder.
 func (ptu *ProductTagUpdate) Mutation() *ProductTagMutation {
 	return ptu.mutation
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (ptu *ProductTagUpdate) ClearProducts() *ProductTagUpdate {
+	ptu.mutation.ClearProducts()
+	return ptu
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (ptu *ProductTagUpdate) RemoveProductIDs(ids ...uuid.UUID) *ProductTagUpdate {
+	ptu.mutation.RemoveProductIDs(ids...)
+	return ptu
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (ptu *ProductTagUpdate) RemoveProducts(p ...*Product) *ProductTagUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ptu.RemoveProductIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -187,6 +225,51 @@ func (ptu *ProductTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ptu.mutation.AddedProductCount(); ok {
 		_spec.AddField(producttag.FieldProductCount, field.TypeInt, value)
 	}
+	if ptu.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   producttag.ProductsTable,
+			Columns: producttag.ProductsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ptu.mutation.RemovedProductsIDs(); len(nodes) > 0 && !ptu.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   producttag.ProductsTable,
+			Columns: producttag.ProductsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ptu.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   producttag.ProductsTable,
+			Columns: producttag.ProductsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(ptu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, ptu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -271,9 +354,45 @@ func (ptuo *ProductTagUpdateOne) AddProductCount(i int) *ProductTagUpdateOne {
 	return ptuo
 }
 
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (ptuo *ProductTagUpdateOne) AddProductIDs(ids ...uuid.UUID) *ProductTagUpdateOne {
+	ptuo.mutation.AddProductIDs(ids...)
+	return ptuo
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (ptuo *ProductTagUpdateOne) AddProducts(p ...*Product) *ProductTagUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ptuo.AddProductIDs(ids...)
+}
+
 // Mutation returns the ProductTagMutation object of the builder.
 func (ptuo *ProductTagUpdateOne) Mutation() *ProductTagMutation {
 	return ptuo.mutation
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (ptuo *ProductTagUpdateOne) ClearProducts() *ProductTagUpdateOne {
+	ptuo.mutation.ClearProducts()
+	return ptuo
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (ptuo *ProductTagUpdateOne) RemoveProductIDs(ids ...uuid.UUID) *ProductTagUpdateOne {
+	ptuo.mutation.RemoveProductIDs(ids...)
+	return ptuo
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (ptuo *ProductTagUpdateOne) RemoveProducts(p ...*Product) *ProductTagUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ptuo.RemoveProductIDs(ids...)
 }
 
 // Where appends a list predicates to the ProductTagUpdate builder.
@@ -396,6 +515,51 @@ func (ptuo *ProductTagUpdateOne) sqlSave(ctx context.Context) (_node *ProductTag
 	}
 	if value, ok := ptuo.mutation.AddedProductCount(); ok {
 		_spec.AddField(producttag.FieldProductCount, field.TypeInt, value)
+	}
+	if ptuo.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   producttag.ProductsTable,
+			Columns: producttag.ProductsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ptuo.mutation.RemovedProductsIDs(); len(nodes) > 0 && !ptuo.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   producttag.ProductsTable,
+			Columns: producttag.ProductsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ptuo.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   producttag.ProductsTable,
+			Columns: producttag.ProductsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(ptuo.modifiers...)
 	_node = &ProductTag{config: ptuo.config}

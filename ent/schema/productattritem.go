@@ -57,5 +57,7 @@ func (ProductAttrItem) Edges() []ent.Edge {
 			Required().
 			Unique().
 			Comment("所属的口味做法"),
+
+		edge.To("product_attrs", ProductAttrRelation.Type),
 	}
 }

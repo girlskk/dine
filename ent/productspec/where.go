@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -403,6 +404,29 @@ func ProductCountLT(v int) predicate.ProductSpec {
 // ProductCountLTE applies the LTE predicate on the "product_count" field.
 func ProductCountLTE(v int) predicate.ProductSpec {
 	return predicate.ProductSpec(sql.FieldLTE(FieldProductCount, v))
+}
+
+// HasProductSpecs applies the HasEdge predicate on the "product_specs" edge.
+func HasProductSpecs() predicate.ProductSpec {
+	return predicate.ProductSpec(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ProductSpecsTable, ProductSpecsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProductSpecsWith applies the HasEdge predicate on the "product_specs" edge with a given conditions (other predicates).
+func HasProductSpecsWith(preds ...predicate.ProductSpecRelation) predicate.ProductSpec {
+	return predicate.ProductSpec(func(s *sql.Selector) {
+		step := newProductSpecsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

@@ -33,7 +33,28 @@ type ProductTag struct {
 	StoreID uuid.UUID `json:"store_id,omitempty"`
 	// 关联的商品数量
 	ProductCount int `json:"product_count,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ProductTagQuery when eager-loading is set.
+	Edges        ProductTagEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ProductTagEdges holds the relations/edges for other nodes in the graph.
+type ProductTagEdges struct {
+	// 关联的商品
+	Products []*Product `json:"products,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ProductsOrErr returns the Products value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductTagEdges) ProductsOrErr() ([]*Product, error) {
+	if e.loadedTypes[0] {
+		return e.Products, nil
+	}
+	return nil, &NotLoadedError{edge: "products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -123,6 +144,11 @@ func (pt *ProductTag) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (pt *ProductTag) Value(name string) (ent.Value, error) {
 	return pt.selectValues.Get(name)
+}
+
+// QueryProducts queries the "products" edge of the ProductTag entity.
+func (pt *ProductTag) QueryProducts() *ProductQuery {
+	return NewProductTagClient(pt.config).QueryProducts(pt)
 }
 
 // Update returns a builder for updating this ProductTag.

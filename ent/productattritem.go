@@ -47,9 +47,11 @@ type ProductAttrItem struct {
 type ProductAttrItemEdges struct {
 	// 所属的口味做法
 	Attr *ProductAttr `json:"attr,omitempty"`
+	// ProductAttrs holds the value of the product_attrs edge.
+	ProductAttrs []*ProductAttrRelation `json:"product_attrs,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // AttrOrErr returns the Attr value or an error if the edge
@@ -61,6 +63,15 @@ func (e ProductAttrItemEdges) AttrOrErr() (*ProductAttr, error) {
 		return nil, &NotFoundError{label: productattr.Label}
 	}
 	return nil, &NotLoadedError{edge: "attr"}
+}
+
+// ProductAttrsOrErr returns the ProductAttrs value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductAttrItemEdges) ProductAttrsOrErr() ([]*ProductAttrRelation, error) {
+	if e.loadedTypes[1] {
+		return e.ProductAttrs, nil
+	}
+	return nil, &NotLoadedError{edge: "product_attrs"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -163,6 +174,11 @@ func (pai *ProductAttrItem) Value(name string) (ent.Value, error) {
 // QueryAttr queries the "attr" edge of the ProductAttrItem entity.
 func (pai *ProductAttrItem) QueryAttr() *ProductAttrQuery {
 	return NewProductAttrItemClient(pai.config).QueryAttr(pai)
+}
+
+// QueryProductAttrs queries the "product_attrs" edge of the ProductAttrItem entity.
+func (pai *ProductAttrItem) QueryProductAttrs() *ProductAttrRelationQuery {
+	return NewProductAttrItemClient(pai.config).QueryProductAttrs(pai)
 }
 
 // Update returns a builder for updating this ProductAttrItem.

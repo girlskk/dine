@@ -470,6 +470,29 @@ func HasAttrWith(preds ...predicate.ProductAttr) predicate.ProductAttrItem {
 	})
 }
 
+// HasProductAttrs applies the HasEdge predicate on the "product_attrs" edge.
+func HasProductAttrs() predicate.ProductAttrItem {
+	return predicate.ProductAttrItem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ProductAttrsTable, ProductAttrsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProductAttrsWith applies the HasEdge predicate on the "product_attrs" edge with a given conditions (other predicates).
+func HasProductAttrsWith(preds ...predicate.ProductAttrRelation) predicate.ProductAttrItem {
+	return predicate.ProductAttrItem(func(s *sql.Selector) {
+		step := newProductAttrsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.ProductAttrItem) predicate.ProductAttrItem {
 	return predicate.ProductAttrItem(sql.AndPredicates(predicates...))

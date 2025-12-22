@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -16,17 +17,19 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
 )
 
 // ProductAttrItemQuery is the builder for querying ProductAttrItem entities.
 type ProductAttrItemQuery struct {
 	config
-	ctx        *QueryContext
-	order      []productattritem.OrderOption
-	inters     []Interceptor
-	predicates []predicate.ProductAttrItem
-	withAttr   *ProductAttrQuery
-	modifiers  []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []productattritem.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.ProductAttrItem
+	withAttr         *ProductAttrQuery
+	withProductAttrs *ProductAttrRelationQuery
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,6 +81,28 @@ func (paiq *ProductAttrItemQuery) QueryAttr() *ProductAttrQuery {
 			sqlgraph.From(productattritem.Table, productattritem.FieldID, selector),
 			sqlgraph.To(productattr.Table, productattr.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, productattritem.AttrTable, productattritem.AttrColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(paiq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProductAttrs chains the current query on the "product_attrs" edge.
+func (paiq *ProductAttrItemQuery) QueryProductAttrs() *ProductAttrRelationQuery {
+	query := (&ProductAttrRelationClient{config: paiq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := paiq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := paiq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattritem.Table, productattritem.FieldID, selector),
+			sqlgraph.To(productattrrelation.Table, productattrrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productattritem.ProductAttrsTable, productattritem.ProductAttrsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(paiq.driver.Dialect(), step)
 		return fromU, nil
@@ -272,12 +297,13 @@ func (paiq *ProductAttrItemQuery) Clone() *ProductAttrItemQuery {
 		return nil
 	}
 	return &ProductAttrItemQuery{
-		config:     paiq.config,
-		ctx:        paiq.ctx.Clone(),
-		order:      append([]productattritem.OrderOption{}, paiq.order...),
-		inters:     append([]Interceptor{}, paiq.inters...),
-		predicates: append([]predicate.ProductAttrItem{}, paiq.predicates...),
-		withAttr:   paiq.withAttr.Clone(),
+		config:           paiq.config,
+		ctx:              paiq.ctx.Clone(),
+		order:            append([]productattritem.OrderOption{}, paiq.order...),
+		inters:           append([]Interceptor{}, paiq.inters...),
+		predicates:       append([]predicate.ProductAttrItem{}, paiq.predicates...),
+		withAttr:         paiq.withAttr.Clone(),
+		withProductAttrs: paiq.withProductAttrs.Clone(),
 		// clone intermediate query.
 		sql:       paiq.sql.Clone(),
 		path:      paiq.path,
@@ -293,6 +319,17 @@ func (paiq *ProductAttrItemQuery) WithAttr(opts ...func(*ProductAttrQuery)) *Pro
 		opt(query)
 	}
 	paiq.withAttr = query
+	return paiq
+}
+
+// WithProductAttrs tells the query-builder to eager-load the nodes that are connected to
+// the "product_attrs" edge. The optional arguments are used to configure the query builder of the edge.
+func (paiq *ProductAttrItemQuery) WithProductAttrs(opts ...func(*ProductAttrRelationQuery)) *ProductAttrItemQuery {
+	query := (&ProductAttrRelationClient{config: paiq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	paiq.withProductAttrs = query
 	return paiq
 }
 
@@ -374,8 +411,9 @@ func (paiq *ProductAttrItemQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	var (
 		nodes       = []*ProductAttrItem{}
 		_spec       = paiq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			paiq.withAttr != nil,
+			paiq.withProductAttrs != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -402,6 +440,15 @@ func (paiq *ProductAttrItemQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	if query := paiq.withAttr; query != nil {
 		if err := paiq.loadAttr(ctx, query, nodes, nil,
 			func(n *ProductAttrItem, e *ProductAttr) { n.Edges.Attr = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := paiq.withProductAttrs; query != nil {
+		if err := paiq.loadProductAttrs(ctx, query, nodes,
+			func(n *ProductAttrItem) { n.Edges.ProductAttrs = []*ProductAttrRelation{} },
+			func(n *ProductAttrItem, e *ProductAttrRelation) {
+				n.Edges.ProductAttrs = append(n.Edges.ProductAttrs, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -434,6 +481,36 @@ func (paiq *ProductAttrItemQuery) loadAttr(ctx context.Context, query *ProductAt
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (paiq *ProductAttrItemQuery) loadProductAttrs(ctx context.Context, query *ProductAttrRelationQuery, nodes []*ProductAttrItem, init func(*ProductAttrItem), assign func(*ProductAttrItem, *ProductAttrRelation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*ProductAttrItem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(productattrrelation.FieldAttrItemID)
+	}
+	query.Where(predicate.ProductAttrRelation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(productattritem.ProductAttrsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AttrItemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "attr_item_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

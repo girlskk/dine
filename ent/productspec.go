@@ -33,7 +33,28 @@ type ProductSpec struct {
 	StoreID uuid.UUID `json:"store_id,omitempty"`
 	// 关联的商品数量
 	ProductCount int `json:"product_count,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ProductSpecQuery when eager-loading is set.
+	Edges        ProductSpecEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ProductSpecEdges holds the relations/edges for other nodes in the graph.
+type ProductSpecEdges struct {
+	// 规格项列表
+	ProductSpecs []*ProductSpecRelation `json:"product_specs,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ProductSpecsOrErr returns the ProductSpecs value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductSpecEdges) ProductSpecsOrErr() ([]*ProductSpecRelation, error) {
+	if e.loadedTypes[0] {
+		return e.ProductSpecs, nil
+	}
+	return nil, &NotLoadedError{edge: "product_specs"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -123,6 +144,11 @@ func (ps *ProductSpec) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (ps *ProductSpec) Value(name string) (ent.Value, error) {
 	return ps.selectValues.Get(name)
+}
+
+// QueryProductSpecs queries the "product_specs" edge of the ProductSpec entity.
+func (ps *ProductSpec) QueryProductSpecs() *ProductSpecRelationQuery {
+	return NewProductSpecClient(ps.config).QueryProductSpecs(ps)
 }
 
 // Update returns a builder for updating this ProductSpec.

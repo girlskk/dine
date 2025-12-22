@@ -16,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 )
 
 // CategoryQuery is the builder for querying Category entities.
@@ -27,6 +28,7 @@ type CategoryQuery struct {
 	predicates   []predicate.Category
 	withChildren *CategoryQuery
 	withParent   *CategoryQuery
+	withProducts *ProductQuery
 	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -101,6 +103,28 @@ func (cq *CategoryQuery) QueryParent() *CategoryQuery {
 			sqlgraph.From(category.Table, category.FieldID, selector),
 			sqlgraph.To(category.Table, category.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, category.ParentTable, category.ParentColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProducts chains the current query on the "products" edge.
+func (cq *CategoryQuery) QueryProducts() *ProductQuery {
+	query := (&ProductClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, selector),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, category.ProductsTable, category.ProductsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -302,6 +326,7 @@ func (cq *CategoryQuery) Clone() *CategoryQuery {
 		predicates:   append([]predicate.Category{}, cq.predicates...),
 		withChildren: cq.withChildren.Clone(),
 		withParent:   cq.withParent.Clone(),
+		withProducts: cq.withProducts.Clone(),
 		// clone intermediate query.
 		sql:       cq.sql.Clone(),
 		path:      cq.path,
@@ -328,6 +353,17 @@ func (cq *CategoryQuery) WithParent(opts ...func(*CategoryQuery)) *CategoryQuery
 		opt(query)
 	}
 	cq.withParent = query
+	return cq
+}
+
+// WithProducts tells the query-builder to eager-load the nodes that are connected to
+// the "products" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CategoryQuery) WithProducts(opts ...func(*ProductQuery)) *CategoryQuery {
+	query := (&ProductClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withProducts = query
 	return cq
 }
 
@@ -409,9 +445,10 @@ func (cq *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 	var (
 		nodes       = []*Category{}
 		_spec       = cq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			cq.withChildren != nil,
 			cq.withParent != nil,
+			cq.withProducts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +482,13 @@ func (cq *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 	if query := cq.withParent; query != nil {
 		if err := cq.loadParent(ctx, query, nodes, nil,
 			func(n *Category, e *Category) { n.Edges.Parent = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withProducts; query != nil {
+		if err := cq.loadProducts(ctx, query, nodes,
+			func(n *Category) { n.Edges.Products = []*Product{} },
+			func(n *Category, e *Product) { n.Edges.Products = append(n.Edges.Products, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -507,6 +551,36 @@ func (cq *CategoryQuery) loadParent(ctx context.Context, query *CategoryQuery, n
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (cq *CategoryQuery) loadProducts(ctx context.Context, query *ProductQuery, nodes []*Category, init func(*Category), assign func(*Category, *Product)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Category)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(product.FieldCategoryID)
+	}
+	query.Where(predicate.Product(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(category.ProductsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CategoryID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "category_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

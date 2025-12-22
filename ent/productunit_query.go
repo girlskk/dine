@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -14,17 +15,19 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 )
 
 // ProductUnitQuery is the builder for querying ProductUnit entities.
 type ProductUnitQuery struct {
 	config
-	ctx        *QueryContext
-	order      []productunit.OrderOption
-	inters     []Interceptor
-	predicates []predicate.ProductUnit
-	modifiers  []func(*sql.Selector)
+	ctx          *QueryContext
+	order        []productunit.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.ProductUnit
+	withProducts *ProductQuery
+	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +62,28 @@ func (puq *ProductUnitQuery) Unique(unique bool) *ProductUnitQuery {
 func (puq *ProductUnitQuery) Order(o ...productunit.OrderOption) *ProductUnitQuery {
 	puq.order = append(puq.order, o...)
 	return puq
+}
+
+// QueryProducts chains the current query on the "products" edge.
+func (puq *ProductUnitQuery) QueryProducts() *ProductQuery {
+	query := (&ProductClient{config: puq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := puq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := puq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productunit.Table, productunit.FieldID, selector),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productunit.ProductsTable, productunit.ProductsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(puq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first ProductUnit entity from the query.
@@ -248,16 +273,28 @@ func (puq *ProductUnitQuery) Clone() *ProductUnitQuery {
 		return nil
 	}
 	return &ProductUnitQuery{
-		config:     puq.config,
-		ctx:        puq.ctx.Clone(),
-		order:      append([]productunit.OrderOption{}, puq.order...),
-		inters:     append([]Interceptor{}, puq.inters...),
-		predicates: append([]predicate.ProductUnit{}, puq.predicates...),
+		config:       puq.config,
+		ctx:          puq.ctx.Clone(),
+		order:        append([]productunit.OrderOption{}, puq.order...),
+		inters:       append([]Interceptor{}, puq.inters...),
+		predicates:   append([]predicate.ProductUnit{}, puq.predicates...),
+		withProducts: puq.withProducts.Clone(),
 		// clone intermediate query.
 		sql:       puq.sql.Clone(),
 		path:      puq.path,
 		modifiers: append([]func(*sql.Selector){}, puq.modifiers...),
 	}
+}
+
+// WithProducts tells the query-builder to eager-load the nodes that are connected to
+// the "products" edge. The optional arguments are used to configure the query builder of the edge.
+func (puq *ProductUnitQuery) WithProducts(opts ...func(*ProductQuery)) *ProductUnitQuery {
+	query := (&ProductClient{config: puq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	puq.withProducts = query
+	return puq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +373,11 @@ func (puq *ProductUnitQuery) prepareQuery(ctx context.Context) error {
 
 func (puq *ProductUnitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ProductUnit, error) {
 	var (
-		nodes = []*ProductUnit{}
-		_spec = puq.querySpec()
+		nodes       = []*ProductUnit{}
+		_spec       = puq.querySpec()
+		loadedTypes = [1]bool{
+			puq.withProducts != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ProductUnit).scanValues(nil, columns)
@@ -345,6 +385,7 @@ func (puq *ProductUnitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &ProductUnit{config: puq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(puq.modifiers) > 0 {
@@ -359,7 +400,45 @@ func (puq *ProductUnitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := puq.withProducts; query != nil {
+		if err := puq.loadProducts(ctx, query, nodes,
+			func(n *ProductUnit) { n.Edges.Products = []*Product{} },
+			func(n *ProductUnit, e *Product) { n.Edges.Products = append(n.Edges.Products, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (puq *ProductUnitQuery) loadProducts(ctx context.Context, query *ProductQuery, nodes []*ProductUnit, init func(*ProductUnit), assign func(*ProductUnit, *Product)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*ProductUnit)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(product.FieldUnitID)
+	}
+	query.Where(predicate.Product(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(productunit.ProductsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UnitID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "unit_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (puq *ProductUnitQuery) sqlCount(ctx context.Context) (int, error) {

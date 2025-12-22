@@ -18,12 +18,18 @@ type Tx struct {
 	BackendUser *BackendUserClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
 	ProductAttr *ProductAttrClient
 	// ProductAttrItem is the client for interacting with the ProductAttrItem builders.
 	ProductAttrItem *ProductAttrItemClient
+	// ProductAttrRelation is the client for interacting with the ProductAttrRelation builders.
+	ProductAttrRelation *ProductAttrRelationClient
 	// ProductSpec is the client for interacting with the ProductSpec builders.
 	ProductSpec *ProductSpecClient
+	// ProductSpecRelation is the client for interacting with the ProductSpecRelation builders.
+	ProductSpecRelation *ProductSpecRelationClient
 	// ProductTag is the client for interacting with the ProductTag builders.
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
@@ -162,9 +168,12 @@ func (tx *Tx) init() {
 	tx.AdminUser = NewAdminUserClient(tx.config)
 	tx.BackendUser = NewBackendUserClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
+	tx.Product = NewProductClient(tx.config)
 	tx.ProductAttr = NewProductAttrClient(tx.config)
 	tx.ProductAttrItem = NewProductAttrItemClient(tx.config)
+	tx.ProductAttrRelation = NewProductAttrRelationClient(tx.config)
 	tx.ProductSpec = NewProductSpecClient(tx.config)
+	tx.ProductSpecRelation = NewProductSpecRelationClient(tx.config)
 	tx.ProductTag = NewProductTagClient(tx.config)
 	tx.ProductUnit = NewProductUnitClient(tx.config)
 }

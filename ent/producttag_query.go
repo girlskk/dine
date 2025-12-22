@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -14,17 +15,19 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 )
 
 // ProductTagQuery is the builder for querying ProductTag entities.
 type ProductTagQuery struct {
 	config
-	ctx        *QueryContext
-	order      []producttag.OrderOption
-	inters     []Interceptor
-	predicates []predicate.ProductTag
-	modifiers  []func(*sql.Selector)
+	ctx          *QueryContext
+	order        []producttag.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.ProductTag
+	withProducts *ProductQuery
+	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +62,28 @@ func (ptq *ProductTagQuery) Unique(unique bool) *ProductTagQuery {
 func (ptq *ProductTagQuery) Order(o ...producttag.OrderOption) *ProductTagQuery {
 	ptq.order = append(ptq.order, o...)
 	return ptq
+}
+
+// QueryProducts chains the current query on the "products" edge.
+func (ptq *ProductTagQuery) QueryProducts() *ProductQuery {
+	query := (&ProductClient{config: ptq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := ptq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := ptq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(producttag.Table, producttag.FieldID, selector),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, producttag.ProductsTable, producttag.ProductsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(ptq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first ProductTag entity from the query.
@@ -248,16 +273,28 @@ func (ptq *ProductTagQuery) Clone() *ProductTagQuery {
 		return nil
 	}
 	return &ProductTagQuery{
-		config:     ptq.config,
-		ctx:        ptq.ctx.Clone(),
-		order:      append([]producttag.OrderOption{}, ptq.order...),
-		inters:     append([]Interceptor{}, ptq.inters...),
-		predicates: append([]predicate.ProductTag{}, ptq.predicates...),
+		config:       ptq.config,
+		ctx:          ptq.ctx.Clone(),
+		order:        append([]producttag.OrderOption{}, ptq.order...),
+		inters:       append([]Interceptor{}, ptq.inters...),
+		predicates:   append([]predicate.ProductTag{}, ptq.predicates...),
+		withProducts: ptq.withProducts.Clone(),
 		// clone intermediate query.
 		sql:       ptq.sql.Clone(),
 		path:      ptq.path,
 		modifiers: append([]func(*sql.Selector){}, ptq.modifiers...),
 	}
+}
+
+// WithProducts tells the query-builder to eager-load the nodes that are connected to
+// the "products" edge. The optional arguments are used to configure the query builder of the edge.
+func (ptq *ProductTagQuery) WithProducts(opts ...func(*ProductQuery)) *ProductTagQuery {
+	query := (&ProductClient{config: ptq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	ptq.withProducts = query
+	return ptq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +373,11 @@ func (ptq *ProductTagQuery) prepareQuery(ctx context.Context) error {
 
 func (ptq *ProductTagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ProductTag, error) {
 	var (
-		nodes = []*ProductTag{}
-		_spec = ptq.querySpec()
+		nodes       = []*ProductTag{}
+		_spec       = ptq.querySpec()
+		loadedTypes = [1]bool{
+			ptq.withProducts != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ProductTag).scanValues(nil, columns)
@@ -345,6 +385,7 @@ func (ptq *ProductTagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &ProductTag{config: ptq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(ptq.modifiers) > 0 {
@@ -359,7 +400,76 @@ func (ptq *ProductTagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := ptq.withProducts; query != nil {
+		if err := ptq.loadProducts(ctx, query, nodes,
+			func(n *ProductTag) { n.Edges.Products = []*Product{} },
+			func(n *ProductTag, e *Product) { n.Edges.Products = append(n.Edges.Products, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (ptq *ProductTagQuery) loadProducts(ctx context.Context, query *ProductQuery, nodes []*ProductTag, init func(*ProductTag), assign func(*ProductTag, *Product)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*ProductTag)
+	nids := make(map[uuid.UUID]map[*ProductTag]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(producttag.ProductsTable)
+		s.Join(joinT).On(s.C(product.FieldID), joinT.C(producttag.ProductsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(producttag.ProductsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(producttag.ProductsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*ProductTag]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Product](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "products" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
 }
 
 func (ptq *ProductTagQuery) sqlCount(ctx context.Context) (int, error) {

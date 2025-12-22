@@ -45,5 +45,6 @@ func (ProductAttr) Indexes() []ent.Index {
 func (ProductAttr) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("items", ProductAttrItem.Type).Comment("口味做法项列表"),
+		edge.To("product_attrs", ProductAttrRelation.Type),
 	}
 }

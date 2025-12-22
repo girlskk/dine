@@ -113,6 +113,78 @@ var (
 			},
 		},
 	}
+	// ProductsColumns holds the columns for the "products" table.
+	ProductsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "menu_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "mnemonic", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "shelf_life", Type: field.TypeInt, Default: 0},
+		{Name: "support_types", Type: field.TypeJSON},
+		{Name: "sale_status", Type: field.TypeEnum, Enums: []string{"on_sale", "off_sale"}, Default: "on_sale"},
+		{Name: "sale_channels", Type: field.TypeJSON},
+		{Name: "effective_date_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"daily", "custom"}},
+		{Name: "effective_start_time", Type: field.TypeTime, Nullable: true},
+		{Name: "effective_end_time", Type: field.TypeTime, Nullable: true},
+		{Name: "min_sale_quantity", Type: field.TypeInt, Nullable: true},
+		{Name: "add_sale_quantity", Type: field.TypeInt, Nullable: true},
+		{Name: "inherit_tax_rate", Type: field.TypeBool, Default: true},
+		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "inherit_stall", Type: field.TypeBool, Default: true},
+		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
+		{Name: "detail_images", Type: field.TypeJSON, Nullable: true},
+		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "category_id", Type: field.TypeUUID},
+		{Name: "unit_id", Type: field.TypeUUID},
+	}
+	// ProductsTable holds the schema information for the "products" table.
+	ProductsTable = &schema.Table{
+		Name:       "products",
+		Columns:    ProductsColumns,
+		PrimaryKey: []*schema.Column{ProductsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "products_categories_products",
+				Columns:    []*schema.Column{ProductsColumns[25]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "products_product_units_products",
+				Columns:    []*schema.Column{ProductsColumns[26]},
+				RefColumns: []*schema.Column{ProductUnitsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "product_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[3]},
+			},
+			{
+				Name:    "product_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[23]},
+			},
+			{
+				Name:    "product_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[24]},
+			},
+			{
+				Name:    "product_category_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[25]},
+			},
+		},
+	}
 	// ProductAttrsColumns holds the columns for the "product_attrs" table.
 	ProductAttrsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -186,6 +258,65 @@ var (
 			},
 		},
 	}
+	// ProductAttrRelationsColumns holds the columns for the "product_attr_relations" table.
+	ProductAttrRelationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "attr_id", Type: field.TypeUUID},
+		{Name: "attr_item_id", Type: field.TypeUUID},
+	}
+	// ProductAttrRelationsTable holds the schema information for the "product_attr_relations" table.
+	ProductAttrRelationsTable = &schema.Table{
+		Name:       "product_attr_relations",
+		Columns:    ProductAttrRelationsColumns,
+		PrimaryKey: []*schema.Column{ProductAttrRelationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_attr_relations_products_product_attrs",
+				Columns:    []*schema.Column{ProductAttrRelationsColumns[5]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "product_attr_relations_product_attrs_product_attrs",
+				Columns:    []*schema.Column{ProductAttrRelationsColumns[6]},
+				RefColumns: []*schema.Column{ProductAttrsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "product_attr_relations_product_attr_items_product_attrs",
+				Columns:    []*schema.Column{ProductAttrRelationsColumns[7]},
+				RefColumns: []*schema.Column{ProductAttrItemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productattrrelation_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[3]},
+			},
+			{
+				Name:    "productattrrelation_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[5]},
+			},
+			{
+				Name:    "productattrrelation_attr_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[6]},
+			},
+			{
+				Name:    "productattrrelation_attr_item_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[7]},
+			},
+		},
+	}
 	// ProductSpecsColumns holds the columns for the "product_specs" table.
 	ProductSpecsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -217,6 +348,61 @@ var (
 				Name:    "productspec_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductSpecsColumns[6]},
+			},
+		},
+	}
+	// ProductSpecRelationsColumns holds the columns for the "product_spec_relations" table.
+	ProductSpecRelationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "base_price", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "member_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "packing_fee_id", Type: field.TypeUUID},
+		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "other_price1", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "other_price2", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "other_price3", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "barcode", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "spec_id", Type: field.TypeUUID},
+	}
+	// ProductSpecRelationsTable holds the schema information for the "product_spec_relations" table.
+	ProductSpecRelationsTable = &schema.Table{
+		Name:       "product_spec_relations",
+		Columns:    ProductSpecRelationsColumns,
+		PrimaryKey: []*schema.Column{ProductSpecRelationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_spec_relations_products_product_specs",
+				Columns:    []*schema.Column{ProductSpecRelationsColumns[13]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "product_spec_relations_product_specs_product_specs",
+				Columns:    []*schema.Column{ProductSpecRelationsColumns[14]},
+				RefColumns: []*schema.Column{ProductSpecsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productspecrelation_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecRelationsColumns[3]},
+			},
+			{
+				Name:    "productspecrelation_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecRelationsColumns[13]},
+			},
+			{
+				Name:    "productspecrelation_spec_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecRelationsColumns[14]},
 			},
 		},
 	}
@@ -289,20 +475,58 @@ var (
 			},
 		},
 	}
+	// ProductTagRelationsColumns holds the columns for the "product_tag_relations" table.
+	ProductTagRelationsColumns = []*schema.Column{
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "tag_id", Type: field.TypeUUID},
+	}
+	// ProductTagRelationsTable holds the schema information for the "product_tag_relations" table.
+	ProductTagRelationsTable = &schema.Table{
+		Name:       "product_tag_relations",
+		Columns:    ProductTagRelationsColumns,
+		PrimaryKey: []*schema.Column{ProductTagRelationsColumns[0], ProductTagRelationsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_tag_relations_product_id",
+				Columns:    []*schema.Column{ProductTagRelationsColumns[0]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "product_tag_relations_tag_id",
+				Columns:    []*schema.Column{ProductTagRelationsColumns[1]},
+				RefColumns: []*schema.Column{ProductTagsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AdminUsersTable,
 		BackendUsersTable,
 		CategoriesTable,
+		ProductsTable,
 		ProductAttrsTable,
 		ProductAttrItemsTable,
+		ProductAttrRelationsTable,
 		ProductSpecsTable,
+		ProductSpecRelationsTable,
 		ProductTagsTable,
 		ProductUnitsTable,
+		ProductTagRelationsTable,
 	}
 )
 
 func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
+	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
+	ProductsTable.ForeignKeys[1].RefTable = ProductUnitsTable
 	ProductAttrItemsTable.ForeignKeys[0].RefTable = ProductAttrsTable
+	ProductAttrRelationsTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductAttrRelationsTable.ForeignKeys[1].RefTable = ProductAttrsTable
+	ProductAttrRelationsTable.ForeignKeys[2].RefTable = ProductAttrItemsTable
+	ProductSpecRelationsTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductSpecRelationsTable.ForeignKeys[1].RefTable = ProductSpecsTable
+	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductTagRelationsTable.ForeignKeys[1].RefTable = ProductTagsTable
 }

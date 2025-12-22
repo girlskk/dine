@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
@@ -33,8 +34,17 @@ const (
 	FieldStoreID = "store_id"
 	// FieldProductCount holds the string denoting the product_count field in the database.
 	FieldProductCount = "product_count"
+	// EdgeProducts holds the string denoting the products edge name in mutations.
+	EdgeProducts = "products"
 	// Table holds the table name of the productunit in the database.
 	Table = "product_units"
+	// ProductsTable is the table that holds the products relation/edge.
+	ProductsTable = "products"
+	// ProductsInverseTable is the table name for the Product entity.
+	// It exists in this package in order to avoid circular dependency with the "product" package.
+	ProductsInverseTable = "products"
+	// ProductsColumn is the table column denoting the products relation/edge.
+	ProductsColumn = "unit_id"
 )
 
 // Columns holds all SQL columns for productunit fields.
@@ -140,4 +150,25 @@ func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
 // ByProductCount orders the results by the product_count field.
 func ByProductCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProductCount, opts...).ToFunc()
+}
+
+// ByProductsCount orders the results by products count.
+func ByProductsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProductsStep(), opts...)
+	}
+}
+
+// ByProducts orders the results by products terms.
+func ByProducts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProductsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newProductsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProductsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProductsTable, ProductsColumn),
+	)
 }

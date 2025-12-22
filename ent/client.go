@@ -19,9 +19,12 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 )
@@ -37,12 +40,18 @@ type Client struct {
 	BackendUser *BackendUserClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
 	ProductAttr *ProductAttrClient
 	// ProductAttrItem is the client for interacting with the ProductAttrItem builders.
 	ProductAttrItem *ProductAttrItemClient
+	// ProductAttrRelation is the client for interacting with the ProductAttrRelation builders.
+	ProductAttrRelation *ProductAttrRelationClient
 	// ProductSpec is the client for interacting with the ProductSpec builders.
 	ProductSpec *ProductSpecClient
+	// ProductSpecRelation is the client for interacting with the ProductSpecRelation builders.
+	ProductSpecRelation *ProductSpecRelationClient
 	// ProductTag is the client for interacting with the ProductTag builders.
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
@@ -61,9 +70,12 @@ func (c *Client) init() {
 	c.AdminUser = NewAdminUserClient(c.config)
 	c.BackendUser = NewBackendUserClient(c.config)
 	c.Category = NewCategoryClient(c.config)
+	c.Product = NewProductClient(c.config)
 	c.ProductAttr = NewProductAttrClient(c.config)
 	c.ProductAttrItem = NewProductAttrItemClient(c.config)
+	c.ProductAttrRelation = NewProductAttrRelationClient(c.config)
 	c.ProductSpec = NewProductSpecClient(c.config)
+	c.ProductSpecRelation = NewProductSpecRelationClient(c.config)
 	c.ProductTag = NewProductTagClient(c.config)
 	c.ProductUnit = NewProductUnitClient(c.config)
 }
@@ -156,16 +168,19 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:             ctx,
-		config:          cfg,
-		AdminUser:       NewAdminUserClient(cfg),
-		BackendUser:     NewBackendUserClient(cfg),
-		Category:        NewCategoryClient(cfg),
-		ProductAttr:     NewProductAttrClient(cfg),
-		ProductAttrItem: NewProductAttrItemClient(cfg),
-		ProductSpec:     NewProductSpecClient(cfg),
-		ProductTag:      NewProductTagClient(cfg),
-		ProductUnit:     NewProductUnitClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		AdminUser:           NewAdminUserClient(cfg),
+		BackendUser:         NewBackendUserClient(cfg),
+		Category:            NewCategoryClient(cfg),
+		Product:             NewProductClient(cfg),
+		ProductAttr:         NewProductAttrClient(cfg),
+		ProductAttrItem:     NewProductAttrItemClient(cfg),
+		ProductAttrRelation: NewProductAttrRelationClient(cfg),
+		ProductSpec:         NewProductSpecClient(cfg),
+		ProductSpecRelation: NewProductSpecRelationClient(cfg),
+		ProductTag:          NewProductTagClient(cfg),
+		ProductUnit:         NewProductUnitClient(cfg),
 	}, nil
 }
 
@@ -183,16 +198,19 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:             ctx,
-		config:          cfg,
-		AdminUser:       NewAdminUserClient(cfg),
-		BackendUser:     NewBackendUserClient(cfg),
-		Category:        NewCategoryClient(cfg),
-		ProductAttr:     NewProductAttrClient(cfg),
-		ProductAttrItem: NewProductAttrItemClient(cfg),
-		ProductSpec:     NewProductSpecClient(cfg),
-		ProductTag:      NewProductTagClient(cfg),
-		ProductUnit:     NewProductUnitClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		AdminUser:           NewAdminUserClient(cfg),
+		BackendUser:         NewBackendUserClient(cfg),
+		Category:            NewCategoryClient(cfg),
+		Product:             NewProductClient(cfg),
+		ProductAttr:         NewProductAttrClient(cfg),
+		ProductAttrItem:     NewProductAttrItemClient(cfg),
+		ProductAttrRelation: NewProductAttrRelationClient(cfg),
+		ProductSpec:         NewProductSpecClient(cfg),
+		ProductSpecRelation: NewProductSpecRelationClient(cfg),
+		ProductTag:          NewProductTagClient(cfg),
+		ProductUnit:         NewProductUnitClient(cfg),
 	}, nil
 }
 
@@ -222,8 +240,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AdminUser, c.BackendUser, c.Category, c.ProductAttr, c.ProductAttrItem,
-		c.ProductSpec, c.ProductTag, c.ProductUnit,
+		c.AdminUser, c.BackendUser, c.Category, c.Product, c.ProductAttr,
+		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
+		c.ProductTag, c.ProductUnit,
 	} {
 		n.Use(hooks...)
 	}
@@ -233,8 +252,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AdminUser, c.BackendUser, c.Category, c.ProductAttr, c.ProductAttrItem,
-		c.ProductSpec, c.ProductTag, c.ProductUnit,
+		c.AdminUser, c.BackendUser, c.Category, c.Product, c.ProductAttr,
+		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
+		c.ProductTag, c.ProductUnit,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -249,12 +269,18 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.BackendUser.mutate(ctx, m)
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
+	case *ProductMutation:
+		return c.Product.mutate(ctx, m)
 	case *ProductAttrMutation:
 		return c.ProductAttr.mutate(ctx, m)
 	case *ProductAttrItemMutation:
 		return c.ProductAttrItem.mutate(ctx, m)
+	case *ProductAttrRelationMutation:
+		return c.ProductAttrRelation.mutate(ctx, m)
 	case *ProductSpecMutation:
 		return c.ProductSpec.mutate(ctx, m)
+	case *ProductSpecRelationMutation:
+		return c.ProductSpecRelation.mutate(ctx, m)
 	case *ProductTagMutation:
 		return c.ProductTag.mutate(ctx, m)
 	case *ProductUnitMutation:
@@ -674,6 +700,22 @@ func (c *CategoryClient) QueryParent(ca *Category) *CategoryQuery {
 	return query
 }
 
+// QueryProducts queries the products edge of a Category.
+func (c *CategoryClient) QueryProducts(ca *Category) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ca.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, category.ProductsTable, category.ProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ca.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *CategoryClient) Hooks() []Hook {
 	hooks := c.hooks.Category
@@ -698,6 +740,221 @@ func (c *CategoryClient) mutate(ctx context.Context, m *CategoryMutation) (Value
 		return (&CategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Category mutation op: %q", m.Op())
+	}
+}
+
+// ProductClient is a client for the Product schema.
+type ProductClient struct {
+	config
+}
+
+// NewProductClient returns a client for the Product from the given config.
+func NewProductClient(c config) *ProductClient {
+	return &ProductClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `product.Hooks(f(g(h())))`.
+func (c *ProductClient) Use(hooks ...Hook) {
+	c.hooks.Product = append(c.hooks.Product, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `product.Intercept(f(g(h())))`.
+func (c *ProductClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Product = append(c.inters.Product, interceptors...)
+}
+
+// Create returns a builder for creating a Product entity.
+func (c *ProductClient) Create() *ProductCreate {
+	mutation := newProductMutation(c.config, OpCreate)
+	return &ProductCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Product entities.
+func (c *ProductClient) CreateBulk(builders ...*ProductCreate) *ProductCreateBulk {
+	return &ProductCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProductClient) MapCreateBulk(slice any, setFunc func(*ProductCreate, int)) *ProductCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProductCreateBulk{err: fmt.Errorf("calling to ProductClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProductCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProductCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Product.
+func (c *ProductClient) Update() *ProductUpdate {
+	mutation := newProductMutation(c.config, OpUpdate)
+	return &ProductUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProductClient) UpdateOne(pr *Product) *ProductUpdateOne {
+	mutation := newProductMutation(c.config, OpUpdateOne, withProduct(pr))
+	return &ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProductClient) UpdateOneID(id uuid.UUID) *ProductUpdateOne {
+	mutation := newProductMutation(c.config, OpUpdateOne, withProductID(id))
+	return &ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Product.
+func (c *ProductClient) Delete() *ProductDelete {
+	mutation := newProductMutation(c.config, OpDelete)
+	return &ProductDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProductClient) DeleteOne(pr *Product) *ProductDeleteOne {
+	return c.DeleteOneID(pr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProductClient) DeleteOneID(id uuid.UUID) *ProductDeleteOne {
+	builder := c.Delete().Where(product.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProductDeleteOne{builder}
+}
+
+// Query returns a query builder for Product.
+func (c *ProductClient) Query() *ProductQuery {
+	return &ProductQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProduct},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Product entity by its id.
+func (c *ProductClient) Get(ctx context.Context, id uuid.UUID) (*Product, error) {
+	return c.Query().Where(product.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProductClient) GetX(ctx context.Context, id uuid.UUID) *Product {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCategory queries the category edge of a Product.
+func (c *ProductClient) QueryCategory(pr *Product) *CategoryQuery {
+	query := (&CategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.CategoryTable, product.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUnit queries the unit edge of a Product.
+func (c *ProductClient) QueryUnit(pr *Product) *ProductUnitQuery {
+	query := (&ProductUnitClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(productunit.Table, productunit.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.UnitTable, product.UnitColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTags queries the tags edge of a Product.
+func (c *ProductClient) QueryTags(pr *Product) *ProductTagQuery {
+	query := (&ProductTagClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(producttag.Table, producttag.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, product.TagsTable, product.TagsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProductSpecs queries the product_specs edge of a Product.
+func (c *ProductClient) QueryProductSpecs(pr *Product) *ProductSpecRelationQuery {
+	query := (&ProductSpecRelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(productspecrelation.Table, productspecrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.ProductSpecsTable, product.ProductSpecsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProductAttrs queries the product_attrs edge of a Product.
+func (c *ProductClient) QueryProductAttrs(pr *Product) *ProductAttrRelationQuery {
+	query := (&ProductAttrRelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(productattrrelation.Table, productattrrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.ProductAttrsTable, product.ProductAttrsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProductClient) Hooks() []Hook {
+	hooks := c.hooks.Product
+	return append(hooks[:len(hooks):len(hooks)], product.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProductClient) Interceptors() []Interceptor {
+	inters := c.inters.Product
+	return append(inters[:len(inters):len(inters)], product.Interceptors[:]...)
+}
+
+func (c *ProductClient) mutate(ctx context.Context, m *ProductMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Product mutation op: %q", m.Op())
 	}
 }
 
@@ -818,6 +1075,22 @@ func (c *ProductAttrClient) QueryItems(pa *ProductAttr) *ProductAttrItemQuery {
 			sqlgraph.From(productattr.Table, productattr.FieldID, id),
 			sqlgraph.To(productattritem.Table, productattritem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, productattr.ItemsTable, productattr.ItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProductAttrs queries the product_attrs edge of a ProductAttr.
+func (c *ProductAttrClient) QueryProductAttrs(pa *ProductAttr) *ProductAttrRelationQuery {
+	query := (&ProductAttrRelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattr.Table, productattr.FieldID, id),
+			sqlgraph.To(productattrrelation.Table, productattrrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productattr.ProductAttrsTable, productattr.ProductAttrsColumn),
 		)
 		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
 		return fromV, nil
@@ -976,6 +1249,22 @@ func (c *ProductAttrItemClient) QueryAttr(pai *ProductAttrItem) *ProductAttrQuer
 	return query
 }
 
+// QueryProductAttrs queries the product_attrs edge of a ProductAttrItem.
+func (c *ProductAttrItemClient) QueryProductAttrs(pai *ProductAttrItem) *ProductAttrRelationQuery {
+	query := (&ProductAttrRelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pai.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattritem.Table, productattritem.FieldID, id),
+			sqlgraph.To(productattrrelation.Table, productattrrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productattritem.ProductAttrsTable, productattritem.ProductAttrsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pai.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ProductAttrItemClient) Hooks() []Hook {
 	hooks := c.hooks.ProductAttrItem
@@ -1000,6 +1289,189 @@ func (c *ProductAttrItemClient) mutate(ctx context.Context, m *ProductAttrItemMu
 		return (&ProductAttrItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown ProductAttrItem mutation op: %q", m.Op())
+	}
+}
+
+// ProductAttrRelationClient is a client for the ProductAttrRelation schema.
+type ProductAttrRelationClient struct {
+	config
+}
+
+// NewProductAttrRelationClient returns a client for the ProductAttrRelation from the given config.
+func NewProductAttrRelationClient(c config) *ProductAttrRelationClient {
+	return &ProductAttrRelationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `productattrrelation.Hooks(f(g(h())))`.
+func (c *ProductAttrRelationClient) Use(hooks ...Hook) {
+	c.hooks.ProductAttrRelation = append(c.hooks.ProductAttrRelation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `productattrrelation.Intercept(f(g(h())))`.
+func (c *ProductAttrRelationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProductAttrRelation = append(c.inters.ProductAttrRelation, interceptors...)
+}
+
+// Create returns a builder for creating a ProductAttrRelation entity.
+func (c *ProductAttrRelationClient) Create() *ProductAttrRelationCreate {
+	mutation := newProductAttrRelationMutation(c.config, OpCreate)
+	return &ProductAttrRelationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProductAttrRelation entities.
+func (c *ProductAttrRelationClient) CreateBulk(builders ...*ProductAttrRelationCreate) *ProductAttrRelationCreateBulk {
+	return &ProductAttrRelationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProductAttrRelationClient) MapCreateBulk(slice any, setFunc func(*ProductAttrRelationCreate, int)) *ProductAttrRelationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProductAttrRelationCreateBulk{err: fmt.Errorf("calling to ProductAttrRelationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProductAttrRelationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProductAttrRelationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProductAttrRelation.
+func (c *ProductAttrRelationClient) Update() *ProductAttrRelationUpdate {
+	mutation := newProductAttrRelationMutation(c.config, OpUpdate)
+	return &ProductAttrRelationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProductAttrRelationClient) UpdateOne(par *ProductAttrRelation) *ProductAttrRelationUpdateOne {
+	mutation := newProductAttrRelationMutation(c.config, OpUpdateOne, withProductAttrRelation(par))
+	return &ProductAttrRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProductAttrRelationClient) UpdateOneID(id uuid.UUID) *ProductAttrRelationUpdateOne {
+	mutation := newProductAttrRelationMutation(c.config, OpUpdateOne, withProductAttrRelationID(id))
+	return &ProductAttrRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProductAttrRelation.
+func (c *ProductAttrRelationClient) Delete() *ProductAttrRelationDelete {
+	mutation := newProductAttrRelationMutation(c.config, OpDelete)
+	return &ProductAttrRelationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProductAttrRelationClient) DeleteOne(par *ProductAttrRelation) *ProductAttrRelationDeleteOne {
+	return c.DeleteOneID(par.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProductAttrRelationClient) DeleteOneID(id uuid.UUID) *ProductAttrRelationDeleteOne {
+	builder := c.Delete().Where(productattrrelation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProductAttrRelationDeleteOne{builder}
+}
+
+// Query returns a query builder for ProductAttrRelation.
+func (c *ProductAttrRelationClient) Query() *ProductAttrRelationQuery {
+	return &ProductAttrRelationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProductAttrRelation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProductAttrRelation entity by its id.
+func (c *ProductAttrRelationClient) Get(ctx context.Context, id uuid.UUID) (*ProductAttrRelation, error) {
+	return c.Query().Where(productattrrelation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProductAttrRelationClient) GetX(ctx context.Context, id uuid.UUID) *ProductAttrRelation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProduct queries the product edge of a ProductAttrRelation.
+func (c *ProductAttrRelationClient) QueryProduct(par *ProductAttrRelation) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := par.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattrrelation.Table, productattrrelation.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productattrrelation.ProductTable, productattrrelation.ProductColumn),
+		)
+		fromV = sqlgraph.Neighbors(par.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAttr queries the attr edge of a ProductAttrRelation.
+func (c *ProductAttrRelationClient) QueryAttr(par *ProductAttrRelation) *ProductAttrQuery {
+	query := (&ProductAttrClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := par.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattrrelation.Table, productattrrelation.FieldID, id),
+			sqlgraph.To(productattr.Table, productattr.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productattrrelation.AttrTable, productattrrelation.AttrColumn),
+		)
+		fromV = sqlgraph.Neighbors(par.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAttrItem queries the attr_item edge of a ProductAttrRelation.
+func (c *ProductAttrRelationClient) QueryAttrItem(par *ProductAttrRelation) *ProductAttrItemQuery {
+	query := (&ProductAttrItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := par.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattrrelation.Table, productattrrelation.FieldID, id),
+			sqlgraph.To(productattritem.Table, productattritem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productattrrelation.AttrItemTable, productattrrelation.AttrItemColumn),
+		)
+		fromV = sqlgraph.Neighbors(par.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProductAttrRelationClient) Hooks() []Hook {
+	hooks := c.hooks.ProductAttrRelation
+	return append(hooks[:len(hooks):len(hooks)], productattrrelation.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProductAttrRelationClient) Interceptors() []Interceptor {
+	inters := c.inters.ProductAttrRelation
+	return append(inters[:len(inters):len(inters)], productattrrelation.Interceptors[:]...)
+}
+
+func (c *ProductAttrRelationClient) mutate(ctx context.Context, m *ProductAttrRelationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductAttrRelationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductAttrRelationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductAttrRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductAttrRelationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProductAttrRelation mutation op: %q", m.Op())
 	}
 }
 
@@ -1111,6 +1583,22 @@ func (c *ProductSpecClient) GetX(ctx context.Context, id uuid.UUID) *ProductSpec
 	return obj
 }
 
+// QueryProductSpecs queries the product_specs edge of a ProductSpec.
+func (c *ProductSpecClient) QueryProductSpecs(ps *ProductSpec) *ProductSpecRelationQuery {
+	query := (&ProductSpecRelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ps.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productspec.Table, productspec.FieldID, id),
+			sqlgraph.To(productspecrelation.Table, productspecrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productspec.ProductSpecsTable, productspec.ProductSpecsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ps.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ProductSpecClient) Hooks() []Hook {
 	hooks := c.hooks.ProductSpec
@@ -1135,6 +1623,173 @@ func (c *ProductSpecClient) mutate(ctx context.Context, m *ProductSpecMutation) 
 		return (&ProductSpecDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown ProductSpec mutation op: %q", m.Op())
+	}
+}
+
+// ProductSpecRelationClient is a client for the ProductSpecRelation schema.
+type ProductSpecRelationClient struct {
+	config
+}
+
+// NewProductSpecRelationClient returns a client for the ProductSpecRelation from the given config.
+func NewProductSpecRelationClient(c config) *ProductSpecRelationClient {
+	return &ProductSpecRelationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `productspecrelation.Hooks(f(g(h())))`.
+func (c *ProductSpecRelationClient) Use(hooks ...Hook) {
+	c.hooks.ProductSpecRelation = append(c.hooks.ProductSpecRelation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `productspecrelation.Intercept(f(g(h())))`.
+func (c *ProductSpecRelationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProductSpecRelation = append(c.inters.ProductSpecRelation, interceptors...)
+}
+
+// Create returns a builder for creating a ProductSpecRelation entity.
+func (c *ProductSpecRelationClient) Create() *ProductSpecRelationCreate {
+	mutation := newProductSpecRelationMutation(c.config, OpCreate)
+	return &ProductSpecRelationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProductSpecRelation entities.
+func (c *ProductSpecRelationClient) CreateBulk(builders ...*ProductSpecRelationCreate) *ProductSpecRelationCreateBulk {
+	return &ProductSpecRelationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProductSpecRelationClient) MapCreateBulk(slice any, setFunc func(*ProductSpecRelationCreate, int)) *ProductSpecRelationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProductSpecRelationCreateBulk{err: fmt.Errorf("calling to ProductSpecRelationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProductSpecRelationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProductSpecRelationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProductSpecRelation.
+func (c *ProductSpecRelationClient) Update() *ProductSpecRelationUpdate {
+	mutation := newProductSpecRelationMutation(c.config, OpUpdate)
+	return &ProductSpecRelationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProductSpecRelationClient) UpdateOne(psr *ProductSpecRelation) *ProductSpecRelationUpdateOne {
+	mutation := newProductSpecRelationMutation(c.config, OpUpdateOne, withProductSpecRelation(psr))
+	return &ProductSpecRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProductSpecRelationClient) UpdateOneID(id uuid.UUID) *ProductSpecRelationUpdateOne {
+	mutation := newProductSpecRelationMutation(c.config, OpUpdateOne, withProductSpecRelationID(id))
+	return &ProductSpecRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProductSpecRelation.
+func (c *ProductSpecRelationClient) Delete() *ProductSpecRelationDelete {
+	mutation := newProductSpecRelationMutation(c.config, OpDelete)
+	return &ProductSpecRelationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProductSpecRelationClient) DeleteOne(psr *ProductSpecRelation) *ProductSpecRelationDeleteOne {
+	return c.DeleteOneID(psr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProductSpecRelationClient) DeleteOneID(id uuid.UUID) *ProductSpecRelationDeleteOne {
+	builder := c.Delete().Where(productspecrelation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProductSpecRelationDeleteOne{builder}
+}
+
+// Query returns a query builder for ProductSpecRelation.
+func (c *ProductSpecRelationClient) Query() *ProductSpecRelationQuery {
+	return &ProductSpecRelationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProductSpecRelation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProductSpecRelation entity by its id.
+func (c *ProductSpecRelationClient) Get(ctx context.Context, id uuid.UUID) (*ProductSpecRelation, error) {
+	return c.Query().Where(productspecrelation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProductSpecRelationClient) GetX(ctx context.Context, id uuid.UUID) *ProductSpecRelation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProduct queries the product edge of a ProductSpecRelation.
+func (c *ProductSpecRelationClient) QueryProduct(psr *ProductSpecRelation) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := psr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productspecrelation.Table, productspecrelation.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productspecrelation.ProductTable, productspecrelation.ProductColumn),
+		)
+		fromV = sqlgraph.Neighbors(psr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySpec queries the spec edge of a ProductSpecRelation.
+func (c *ProductSpecRelationClient) QuerySpec(psr *ProductSpecRelation) *ProductSpecQuery {
+	query := (&ProductSpecClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := psr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productspecrelation.Table, productspecrelation.FieldID, id),
+			sqlgraph.To(productspec.Table, productspec.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productspecrelation.SpecTable, productspecrelation.SpecColumn),
+		)
+		fromV = sqlgraph.Neighbors(psr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProductSpecRelationClient) Hooks() []Hook {
+	hooks := c.hooks.ProductSpecRelation
+	return append(hooks[:len(hooks):len(hooks)], productspecrelation.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProductSpecRelationClient) Interceptors() []Interceptor {
+	inters := c.inters.ProductSpecRelation
+	return append(inters[:len(inters):len(inters)], productspecrelation.Interceptors[:]...)
+}
+
+func (c *ProductSpecRelationClient) mutate(ctx context.Context, m *ProductSpecRelationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductSpecRelationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductSpecRelationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductSpecRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductSpecRelationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProductSpecRelation mutation op: %q", m.Op())
 	}
 }
 
@@ -1244,6 +1899,22 @@ func (c *ProductTagClient) GetX(ctx context.Context, id uuid.UUID) *ProductTag {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryProducts queries the products edge of a ProductTag.
+func (c *ProductTagClient) QueryProducts(pt *ProductTag) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pt.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(producttag.Table, producttag.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, producttag.ProductsTable, producttag.ProductsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pt.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1381,6 +2052,22 @@ func (c *ProductUnitClient) GetX(ctx context.Context, id uuid.UUID) *ProductUnit
 	return obj
 }
 
+// QueryProducts queries the products edge of a ProductUnit.
+func (c *ProductUnitClient) QueryProducts(pu *ProductUnit) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productunit.Table, productunit.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productunit.ProductsTable, productunit.ProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ProductUnitClient) Hooks() []Hook {
 	hooks := c.hooks.ProductUnit
@@ -1411,11 +2098,13 @@ func (c *ProductUnitClient) mutate(ctx context.Context, m *ProductUnitMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AdminUser, BackendUser, Category, ProductAttr, ProductAttrItem, ProductSpec,
-		ProductTag, ProductUnit []ent.Hook
+		AdminUser, BackendUser, Category, Product, ProductAttr, ProductAttrItem,
+		ProductAttrRelation, ProductSpec, ProductSpecRelation, ProductTag,
+		ProductUnit []ent.Hook
 	}
 	inters struct {
-		AdminUser, BackendUser, Category, ProductAttr, ProductAttrItem, ProductSpec,
-		ProductTag, ProductUnit []ent.Interceptor
+		AdminUser, BackendUser, Category, Product, ProductAttr, ProductAttrItem,
+		ProductAttrRelation, ProductSpec, ProductSpecRelation, ProductTag,
+		ProductUnit []ent.Interceptor
 	}
 )

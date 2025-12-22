@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -29,8 +30,17 @@ const (
 	FieldStoreID = "store_id"
 	// FieldProductCount holds the string denoting the product_count field in the database.
 	FieldProductCount = "product_count"
+	// EdgeProductSpecs holds the string denoting the product_specs edge name in mutations.
+	EdgeProductSpecs = "product_specs"
 	// Table holds the table name of the productspec in the database.
 	Table = "product_specs"
+	// ProductSpecsTable is the table that holds the product_specs relation/edge.
+	ProductSpecsTable = "product_spec_relations"
+	// ProductSpecsInverseTable is the table name for the ProductSpecRelation entity.
+	// It exists in this package in order to avoid circular dependency with the "productspecrelation" package.
+	ProductSpecsInverseTable = "product_spec_relations"
+	// ProductSpecsColumn is the table column denoting the product_specs relation/edge.
+	ProductSpecsColumn = "spec_id"
 )
 
 // Columns holds all SQL columns for productspec fields.
@@ -120,4 +130,25 @@ func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
 // ByProductCount orders the results by the product_count field.
 func ByProductCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProductCount, opts...).ToFunc()
+}
+
+// ByProductSpecsCount orders the results by product_specs count.
+func ByProductSpecsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProductSpecsStep(), opts...)
+	}
+}
+
+// ByProductSpecs orders the results by product_specs terms.
+func ByProductSpecs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProductSpecsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newProductSpecsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProductSpecsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProductSpecsTable, ProductSpecsColumn),
+	)
 }

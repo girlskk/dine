@@ -45,6 +45,18 @@ func (f CategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CategoryMutation", m)
 }
 
+// The ProductFunc type is an adapter to allow the use of ordinary
+// function as Product mutator.
+type ProductFunc func(context.Context, *ent.ProductMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProductFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProductMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductMutation", m)
+}
+
 // The ProductAttrFunc type is an adapter to allow the use of ordinary
 // function as ProductAttr mutator.
 type ProductAttrFunc func(context.Context, *ent.ProductAttrMutation) (ent.Value, error)
@@ -69,6 +81,18 @@ func (f ProductAttrItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductAttrItemMutation", m)
 }
 
+// The ProductAttrRelationFunc type is an adapter to allow the use of ordinary
+// function as ProductAttrRelation mutator.
+type ProductAttrRelationFunc func(context.Context, *ent.ProductAttrRelationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProductAttrRelationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProductAttrRelationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductAttrRelationMutation", m)
+}
+
 // The ProductSpecFunc type is an adapter to allow the use of ordinary
 // function as ProductSpec mutator.
 type ProductSpecFunc func(context.Context, *ent.ProductSpecMutation) (ent.Value, error)
@@ -79,6 +103,18 @@ func (f ProductSpecFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductSpecMutation", m)
+}
+
+// The ProductSpecRelationFunc type is an adapter to allow the use of ordinary
+// function as ProductSpecRelation mutator.
+type ProductSpecRelationFunc func(context.Context, *ent.ProductSpecRelationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProductSpecRelationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProductSpecRelationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductSpecRelationMutation", m)
 }
 
 // The ProductTagFunc type is an adapter to allow the use of ordinary

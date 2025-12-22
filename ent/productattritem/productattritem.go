@@ -35,6 +35,8 @@ const (
 	FieldProductCount = "product_count"
 	// EdgeAttr holds the string denoting the attr edge name in mutations.
 	EdgeAttr = "attr"
+	// EdgeProductAttrs holds the string denoting the product_attrs edge name in mutations.
+	EdgeProductAttrs = "product_attrs"
 	// Table holds the table name of the productattritem in the database.
 	Table = "product_attr_items"
 	// AttrTable is the table that holds the attr relation/edge.
@@ -44,6 +46,13 @@ const (
 	AttrInverseTable = "product_attrs"
 	// AttrColumn is the table column denoting the attr relation/edge.
 	AttrColumn = "attr_id"
+	// ProductAttrsTable is the table that holds the product_attrs relation/edge.
+	ProductAttrsTable = "product_attr_relations"
+	// ProductAttrsInverseTable is the table name for the ProductAttrRelation entity.
+	// It exists in this package in order to avoid circular dependency with the "productattrrelation" package.
+	ProductAttrsInverseTable = "product_attr_relations"
+	// ProductAttrsColumn is the table column denoting the product_attrs relation/edge.
+	ProductAttrsColumn = "attr_item_id"
 )
 
 // Columns holds all SQL columns for productattritem fields.
@@ -153,10 +162,31 @@ func ByAttrField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAttrStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByProductAttrsCount orders the results by product_attrs count.
+func ByProductAttrsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProductAttrsStep(), opts...)
+	}
+}
+
+// ByProductAttrs orders the results by product_attrs terms.
+func ByProductAttrs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProductAttrsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newAttrStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AttrInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, AttrTable, AttrColumn),
+	)
+}
+func newProductAttrsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProductAttrsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProductAttrsTable, ProductAttrsColumn),
 	)
 }

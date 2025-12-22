@@ -17,17 +17,19 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
 )
 
 // ProductAttrQuery is the builder for querying ProductAttr entities.
 type ProductAttrQuery struct {
 	config
-	ctx        *QueryContext
-	order      []productattr.OrderOption
-	inters     []Interceptor
-	predicates []predicate.ProductAttr
-	withItems  *ProductAttrItemQuery
-	modifiers  []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []productattr.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.ProductAttr
+	withItems        *ProductAttrItemQuery
+	withProductAttrs *ProductAttrRelationQuery
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -79,6 +81,28 @@ func (paq *ProductAttrQuery) QueryItems() *ProductAttrItemQuery {
 			sqlgraph.From(productattr.Table, productattr.FieldID, selector),
 			sqlgraph.To(productattritem.Table, productattritem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, productattr.ItemsTable, productattr.ItemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(paq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProductAttrs chains the current query on the "product_attrs" edge.
+func (paq *ProductAttrQuery) QueryProductAttrs() *ProductAttrRelationQuery {
+	query := (&ProductAttrRelationClient{config: paq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := paq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := paq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productattr.Table, productattr.FieldID, selector),
+			sqlgraph.To(productattrrelation.Table, productattrrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, productattr.ProductAttrsTable, productattr.ProductAttrsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(paq.driver.Dialect(), step)
 		return fromU, nil
@@ -273,12 +297,13 @@ func (paq *ProductAttrQuery) Clone() *ProductAttrQuery {
 		return nil
 	}
 	return &ProductAttrQuery{
-		config:     paq.config,
-		ctx:        paq.ctx.Clone(),
-		order:      append([]productattr.OrderOption{}, paq.order...),
-		inters:     append([]Interceptor{}, paq.inters...),
-		predicates: append([]predicate.ProductAttr{}, paq.predicates...),
-		withItems:  paq.withItems.Clone(),
+		config:           paq.config,
+		ctx:              paq.ctx.Clone(),
+		order:            append([]productattr.OrderOption{}, paq.order...),
+		inters:           append([]Interceptor{}, paq.inters...),
+		predicates:       append([]predicate.ProductAttr{}, paq.predicates...),
+		withItems:        paq.withItems.Clone(),
+		withProductAttrs: paq.withProductAttrs.Clone(),
 		// clone intermediate query.
 		sql:       paq.sql.Clone(),
 		path:      paq.path,
@@ -294,6 +319,17 @@ func (paq *ProductAttrQuery) WithItems(opts ...func(*ProductAttrItemQuery)) *Pro
 		opt(query)
 	}
 	paq.withItems = query
+	return paq
+}
+
+// WithProductAttrs tells the query-builder to eager-load the nodes that are connected to
+// the "product_attrs" edge. The optional arguments are used to configure the query builder of the edge.
+func (paq *ProductAttrQuery) WithProductAttrs(opts ...func(*ProductAttrRelationQuery)) *ProductAttrQuery {
+	query := (&ProductAttrRelationClient{config: paq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	paq.withProductAttrs = query
 	return paq
 }
 
@@ -375,8 +411,9 @@ func (paq *ProductAttrQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*ProductAttr{}
 		_spec       = paq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			paq.withItems != nil,
+			paq.withProductAttrs != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -407,6 +444,13 @@ func (paq *ProductAttrQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := paq.withProductAttrs; query != nil {
+		if err := paq.loadProductAttrs(ctx, query, nodes,
+			func(n *ProductAttr) { n.Edges.ProductAttrs = []*ProductAttrRelation{} },
+			func(n *ProductAttr, e *ProductAttrRelation) { n.Edges.ProductAttrs = append(n.Edges.ProductAttrs, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -425,6 +469,36 @@ func (paq *ProductAttrQuery) loadItems(ctx context.Context, query *ProductAttrIt
 	}
 	query.Where(predicate.ProductAttrItem(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(productattr.ItemsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AttrID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "attr_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (paq *ProductAttrQuery) loadProductAttrs(ctx context.Context, query *ProductAttrRelationQuery, nodes []*ProductAttr, init func(*ProductAttr), assign func(*ProductAttr, *ProductAttrRelation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*ProductAttr)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(productattrrelation.FieldAttrID)
+	}
+	query.Where(predicate.ProductAttrRelation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(productattr.ProductAttrsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

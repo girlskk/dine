@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -35,5 +36,13 @@ func (ProductTag) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("merchant_id"),
 		index.Fields("store_id"),
+	}
+}
+
+// Edges of the ProductTag.
+func (ProductTag) Edges() []ent.Edge {
+	return []ent.Edge{
+		// M -> M：商品与标签的关联
+		edge.From("products", Product.Type).Ref("tags").Comment("关联的商品"),
 	}
 }

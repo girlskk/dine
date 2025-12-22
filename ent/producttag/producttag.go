@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -29,8 +30,15 @@ const (
 	FieldStoreID = "store_id"
 	// FieldProductCount holds the string denoting the product_count field in the database.
 	FieldProductCount = "product_count"
+	// EdgeProducts holds the string denoting the products edge name in mutations.
+	EdgeProducts = "products"
 	// Table holds the table name of the producttag in the database.
 	Table = "product_tags"
+	// ProductsTable is the table that holds the products relation/edge. The primary key declared below.
+	ProductsTable = "product_tag_relations"
+	// ProductsInverseTable is the table name for the Product entity.
+	// It exists in this package in order to avoid circular dependency with the "product" package.
+	ProductsInverseTable = "products"
 )
 
 // Columns holds all SQL columns for producttag fields.
@@ -44,6 +52,12 @@ var Columns = []string{
 	FieldStoreID,
 	FieldProductCount,
 }
+
+var (
+	// ProductsPrimaryKey and ProductsColumn2 are the table columns denoting the
+	// primary key for the products relation (M2M).
+	ProductsPrimaryKey = []string{"product_id", "tag_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -120,4 +134,25 @@ func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
 // ByProductCount orders the results by the product_count field.
 func ByProductCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProductCount, opts...).ToFunc()
+}
+
+// ByProductsCount orders the results by products count.
+func ByProductsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProductsStep(), opts...)
+	}
+}
+
+// ByProducts orders the results by products terms.
+func ByProducts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProductsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newProductsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProductsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, ProductsTable, ProductsPrimaryKey...),
+	)
 }
