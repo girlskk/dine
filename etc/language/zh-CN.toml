@@ -35,3 +35,36 @@ other = "商品分类有子分类，不能删除"
 
 [CATEGORY_DELETE_HAS_PRODUCTS]
 other = "商品分类有商品，不能删除"
+
+[MERCHANT_NAME_EXISTS]
+other = "商户名称已存在"
+
+[STORE_NAME_EXISTS]
+other = "门店名称已存在"
+
+[STORE_BUSINESS_HOURS_CONFLICT]
+other = "门店营业时间冲突"
+
+[STORE_BUSINESS_HOURS_TIME_INVALID]
+other = "门店营业时间无效（开始时间不能晚于结束时间）"
+
+[STORE_DINING_PERIOD_CONFLICT]
+other = "门店用餐时段时间冲突"
+
+[STORE_DINING_PERIOD_TIME_INVALID]
+other = "门店用餐时段时间无效（开始时间不能晚于结束时间）"
+
+[STORE_DINING_PERIOD_NAME_EXISTS]
+other = "门店用餐时段名称已存在"
+
+[STORE_SHIFT_TIME_CONFLICT]
+other = "门店班次时间冲突"
+
+[STORE_SHIFT_TIME_TIME_INVALID]
+other = "门店班次时间无效（开始时间不能晚于结束时间）"
+
+[STORE_SHIFT_TIME_NAME_EXISTS]
+other = "门店班次名称已存在"
+
+[SUCCESS]
+other = "成功"

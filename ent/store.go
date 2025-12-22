@@ -49,6 +49,8 @@ type Store struct {
 	BusinessModel domain.BusinessModel `json:"business_model,omitempty"`
 	// 业态类型
 	BusinessTypeID uuid.UUID `json:"business_type_id,omitempty"`
+	// 门店位置编号
+	LocationNumber string `json:"location_number,omitempty"`
 	// 联系人
 	ContactName string `json:"contact_name,omitempty"`
 	// 联系电话
@@ -200,7 +202,7 @@ func (*Store) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case store.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldBusinessHours, store.FieldDiningPeriods, store.FieldShiftTimes, store.FieldAddress, store.FieldLng, store.FieldLat:
+		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldLocationNumber, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldBusinessHours, store.FieldDiningPeriods, store.FieldShiftTimes, store.FieldAddress, store.FieldLng, store.FieldLat:
 			values[i] = new(sql.NullString)
 		case store.FieldCreatedAt, store.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -292,6 +294,12 @@ func (s *Store) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field business_type_id", values[i])
 			} else if value != nil {
 				s.BusinessTypeID = *value
+			}
+		case store.FieldLocationNumber:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field location_number", values[i])
+			} else if value.Valid {
+				s.LocationNumber = value.String
 			}
 		case store.FieldContactName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -516,6 +524,9 @@ func (s *Store) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("business_type_id=")
 	builder.WriteString(fmt.Sprintf("%v", s.BusinessTypeID))
+	builder.WriteString(", ")
+	builder.WriteString("location_number=")
+	builder.WriteString(s.LocationNumber)
 	builder.WriteString(", ")
 	builder.WriteString("contact_name=")
 	builder.WriteString(s.ContactName)

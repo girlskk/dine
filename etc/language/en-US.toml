@@ -36,3 +36,33 @@ other = "Product category has children, cannot delete"
 
 [CATEGORY_DELETE_HAS_PRODUCTS]
 other = "Product category has products, cannot delete"
+
+[MERCHANT_NAME_EXISTS]
+other = "Merchant name already exists"
+
+[STORE_NAME_EXISTS]
+other = "Store name already exists"
+
+[STORE_BUSINESS_HOURS_CONFLICT]
+other = "Store business hours conflict"
+
+[STORE_BUSINESS_HOURS_TIME_INVALID]
+other = "Store business hours time is invalid (start time must be earlier than end time)"
+
+[STORE_DINING_PERIOD_CONFLICT]
+other = "Store dining period time conflict"
+
+[STORE_DINING_PERIOD_TIME_INVALID]
+other = "Store dining period time is invalid (start time must be earlier than end time)"
+
+[STORE_DINING_PERIOD_NAME_EXISTS]
+other = "Store dining period name already exists"
+
+[STORE_SHIFT_TIME_CONFLICT]
+other = "Store shift time conflict"
+
+[STORE_SHIFT_TIME_TIME_INVALID]
+other = "Store shift time is invalid (start time must be earlier than end time)"
+
+[STORE_SHIFT_TIME_NAME_EXISTS]
+other = "Store shift time name already exists"

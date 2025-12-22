@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -22,8 +24,25 @@ func NewMerchantRenewalRepository(client *ent.Client) *MerchantRenewalRepository
 	}
 }
 
-func (repo *MerchantRenewalRepository) GetByMerchant(ctx context.Context, merchantId uuid.UUID) (renewals []*domain.MerchantRenewal, err error) {
-	//TODO implement me
+func (repo *MerchantRenewalRepository) GetByMerchant(ctx context.Context, merchantId uuid.UUID) (domainRenewals []*domain.MerchantRenewal, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantRenewalRepository.GetByMerchant")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	renewals, err := repo.Client.MerchantRenewal.
+		Query().
+		Where(merchantrenewal.MerchantID(merchantId)).
+		Order(ent.Desc(merchantrenewal.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to query merchantRenewal: %w", err)
+		return
+	}
+
+	domainRenewals = lo.Map(renewals, func(item *ent.MerchantRenewal, _ int) *domain.MerchantRenewal {
+		return convertMerchantRenewal(item)
+	})
 	return
 }
 
@@ -50,4 +69,20 @@ func (repo *MerchantRenewalRepository) Create(ctx context.Context, merchantRenew
 		return
 	}
 	return
+}
+
+// convertMerchantRenewal converts ent model to domain model.
+func convertMerchantRenewal(item *ent.MerchantRenewal) *domain.MerchantRenewal {
+	if item == nil {
+		return nil
+	}
+	return &domain.MerchantRenewal{
+		ID:                   item.ID,
+		MerchantID:           item.MerchantID,
+		PurchaseDuration:     item.PurchaseDuration,
+		PurchaseDurationUnit: item.PurchaseDurationUnit,
+		OperatorName:         item.OperatorName,
+		OperatorAccount:      item.OperatorAccount,
+		CreatedAt:            item.CreatedAt,
+	}
 }

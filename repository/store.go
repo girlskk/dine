@@ -56,6 +56,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetStatus(domainStore.Status).
 		SetBusinessModel(domainStore.BusinessModel).
 		SetBusinessTypeID(domainStore.BusinessTypeID).
+		SetLocationNumber(domainStore.LocationNumber).
 		SetContactName(domainStore.ContactName).
 		SetContactPhone(domainStore.ContactPhone).
 		SetUnifiedSocialCreditCode(domainStore.UnifiedSocialCreditCode).
@@ -75,6 +76,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetAddress(domainStore.Address.Address).
 		SetLng(domainStore.Address.Lng).
 		SetLat(domainStore.Address.Lat).
+		SetAdminUserID(domainStore.AdminUserID).
 		Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create store: %w", err)
@@ -116,6 +118,7 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		SetStatus(domainStore.Status).
 		SetBusinessModel(domainStore.BusinessModel).
 		SetBusinessTypeID(domainStore.BusinessTypeID).
+		SetLocationNumber(domainStore.LocationNumber).
 		SetContactName(domainStore.ContactName).
 		SetContactPhone(domainStore.ContactPhone).
 		SetUnifiedSocialCreditCode(domainStore.UnifiedSocialCreditCode).
@@ -172,6 +175,7 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 
 	em, err := repo.Client.Store.Query().
 		Where(store.ID(id)).
+		WithMerchant().
 		WithCountry().
 		WithProvince().
 		WithCity().
@@ -181,6 +185,36 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 		Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
+	}
+	return convertStore(em), nil
+}
+
+func (repo *StoreRepository) FindStoreMerchant(ctx context.Context, merchantID uuid.UUID) (domainStore *domain.Store, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.FindStoreMerchant")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if merchantID == uuid.Nil {
+		err = fmt.Errorf("merchantID is nil")
+		return
+	}
+
+	em, err := repo.Client.Store.Query().
+		Where(store.MerchantIDEQ(merchantID)).
+		WithCountry().
+		WithProvince().
+		WithCity().
+		WithDistrict().
+		WithAdminUser().
+		WithMerchantBusinessType().
+		Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
+	}
+	if err != nil {
+		err = fmt.Errorf("failed to find store by merchant id: %w", err)
+		return
 	}
 	return convertStore(em), nil
 }
@@ -201,7 +235,9 @@ func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.P
 	}
 
 	query := repo.filterBuildQuery(filter)
-
+	query.
+		WithMerchant(). // 加载商户信息
+		WithProvince()  // 加载省信息
 	total, err = query.Clone().Count(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to count: %w", err)
@@ -219,6 +255,42 @@ func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.P
 
 	domainStores = lo.Map(stores, func(store *ent.Store, _ int) *domain.Store {
 		return convertStore(store)
+	})
+	return
+}
+
+func (repo *StoreRepository) CountStoresByMerchantID(ctx context.Context, merchantIDs []uuid.UUID) (storeCounts []*domain.MerchantStoreCount, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.CountStoresByMerchantID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if len(merchantIDs) == 0 {
+		err = fmt.Errorf("merchantIDs is empty")
+		return
+	}
+
+	type result struct {
+		MerchantID uuid.UUID `json:"merchant_id"`
+		Count      int       `json:"count"`
+	}
+
+	var results []result
+	err = repo.Client.Store.Query().
+		Where(store.MerchantIDIn(merchantIDs...)).
+		GroupBy(store.FieldMerchantID).
+		Aggregate(ent.Count()).
+		Scan(ctx, &results)
+	if err != nil {
+		err = fmt.Errorf("failed to query merchant store counts: %w", err)
+		return
+	}
+
+	storeCounts = lo.Map(results, func(r result, _ int) *domain.MerchantStoreCount {
+		return &domain.MerchantStoreCount{
+			MerchantID: r.MerchantID,
+			StoreCount: r.Count,
+		}
 	})
 	return
 }
@@ -281,6 +353,7 @@ func convertStore(es *ent.Store) *domain.Store {
 		Status:                  es.Status,
 		BusinessModel:           es.BusinessModel,
 		BusinessTypeID:          es.BusinessTypeID,
+		LocationNumber:          es.LocationNumber,
 		ContactName:             es.ContactName,
 		ContactPhone:            es.ContactPhone,
 		UnifiedSocialCreditCode: es.UnifiedSocialCreditCode,
@@ -295,6 +368,9 @@ func convertStore(es *ent.Store) *domain.Store {
 		UpdatedAt:               es.UpdatedAt,
 	}
 
+	if es.Edges.Merchant != nil {
+		repoStore.MerchantName = es.Edges.Merchant.MerchantName
+	}
 	_ = json.Unmarshal([]byte(es.BusinessHours), &repoStore.BusinessHours)
 	_ = json.Unmarshal([]byte(es.DiningPeriods), &repoStore.DiningPeriods)
 	_ = json.Unmarshal([]byte(es.ShiftTimes), &repoStore.ShiftTimes)

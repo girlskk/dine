@@ -814,8 +814,26 @@ func init() {
 	store.DefaultStoreCode = storeDescStoreCode.Default.(string)
 	// store.StoreCodeValidator is a validator for the "store_code" field. It is called by the builders before save.
 	store.StoreCodeValidator = storeDescStoreCode.Validators[0].(func(string) error)
+	// storeDescLocationNumber is the schema descriptor for location_number field.
+	storeDescLocationNumber := storeFields[8].Descriptor()
+	// store.LocationNumberValidator is a validator for the "location_number" field. It is called by the builders before save.
+	store.LocationNumberValidator = func() func(string) error {
+		validators := storeDescLocationNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(location_number string) error {
+			for _, fn := range fns {
+				if err := fn(location_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// storeDescContactName is the schema descriptor for contact_name field.
-	storeDescContactName := storeFields[8].Descriptor()
+	storeDescContactName := storeFields[9].Descriptor()
 	// store.DefaultContactName holds the default value on creation for the contact_name field.
 	store.DefaultContactName = storeDescContactName.Default.(string)
 	// store.ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
@@ -835,7 +853,7 @@ func init() {
 		}
 	}()
 	// storeDescContactPhone is the schema descriptor for contact_phone field.
-	storeDescContactPhone := storeFields[9].Descriptor()
+	storeDescContactPhone := storeFields[10].Descriptor()
 	// store.DefaultContactPhone holds the default value on creation for the contact_phone field.
 	store.DefaultContactPhone = storeDescContactPhone.Default.(string)
 	// store.ContactPhoneValidator is a validator for the "contact_phone" field. It is called by the builders before save.
@@ -855,7 +873,7 @@ func init() {
 		}
 	}()
 	// storeDescUnifiedSocialCreditCode is the schema descriptor for unified_social_credit_code field.
-	storeDescUnifiedSocialCreditCode := storeFields[10].Descriptor()
+	storeDescUnifiedSocialCreditCode := storeFields[11].Descriptor()
 	// store.DefaultUnifiedSocialCreditCode holds the default value on creation for the unified_social_credit_code field.
 	store.DefaultUnifiedSocialCreditCode = storeDescUnifiedSocialCreditCode.Default.(string)
 	// store.UnifiedSocialCreditCodeValidator is a validator for the "unified_social_credit_code" field. It is called by the builders before save.
@@ -875,7 +893,7 @@ func init() {
 		}
 	}()
 	// storeDescStoreLogo is the schema descriptor for store_logo field.
-	storeDescStoreLogo := storeFields[11].Descriptor()
+	storeDescStoreLogo := storeFields[12].Descriptor()
 	// store.DefaultStoreLogo holds the default value on creation for the store_logo field.
 	store.DefaultStoreLogo = storeDescStoreLogo.Default.(string)
 	// store.StoreLogoValidator is a validator for the "store_logo" field. It is called by the builders before save.
@@ -895,7 +913,7 @@ func init() {
 		}
 	}()
 	// storeDescBusinessLicenseURL is the schema descriptor for business_license_url field.
-	storeDescBusinessLicenseURL := storeFields[12].Descriptor()
+	storeDescBusinessLicenseURL := storeFields[13].Descriptor()
 	// store.DefaultBusinessLicenseURL holds the default value on creation for the business_license_url field.
 	store.DefaultBusinessLicenseURL = storeDescBusinessLicenseURL.Default.(string)
 	// store.BusinessLicenseURLValidator is a validator for the "business_license_url" field. It is called by the builders before save.
@@ -915,7 +933,7 @@ func init() {
 		}
 	}()
 	// storeDescStorefrontURL is the schema descriptor for storefront_url field.
-	storeDescStorefrontURL := storeFields[13].Descriptor()
+	storeDescStorefrontURL := storeFields[14].Descriptor()
 	// store.DefaultStorefrontURL holds the default value on creation for the storefront_url field.
 	store.DefaultStorefrontURL = storeDescStorefrontURL.Default.(string)
 	// store.StorefrontURLValidator is a validator for the "storefront_url" field. It is called by the builders before save.
@@ -935,7 +953,7 @@ func init() {
 		}
 	}()
 	// storeDescCashierDeskURL is the schema descriptor for cashier_desk_url field.
-	storeDescCashierDeskURL := storeFields[14].Descriptor()
+	storeDescCashierDeskURL := storeFields[15].Descriptor()
 	// store.DefaultCashierDeskURL holds the default value on creation for the cashier_desk_url field.
 	store.DefaultCashierDeskURL = storeDescCashierDeskURL.Default.(string)
 	// store.CashierDeskURLValidator is a validator for the "cashier_desk_url" field. It is called by the builders before save.
@@ -955,7 +973,7 @@ func init() {
 		}
 	}()
 	// storeDescDiningEnvironmentURL is the schema descriptor for dining_environment_url field.
-	storeDescDiningEnvironmentURL := storeFields[15].Descriptor()
+	storeDescDiningEnvironmentURL := storeFields[16].Descriptor()
 	// store.DefaultDiningEnvironmentURL holds the default value on creation for the dining_environment_url field.
 	store.DefaultDiningEnvironmentURL = storeDescDiningEnvironmentURL.Default.(string)
 	// store.DiningEnvironmentURLValidator is a validator for the "dining_environment_url" field. It is called by the builders before save.
@@ -975,7 +993,7 @@ func init() {
 		}
 	}()
 	// storeDescFoodOperationLicenseURL is the schema descriptor for food_operation_license_url field.
-	storeDescFoodOperationLicenseURL := storeFields[16].Descriptor()
+	storeDescFoodOperationLicenseURL := storeFields[17].Descriptor()
 	// store.DefaultFoodOperationLicenseURL holds the default value on creation for the food_operation_license_url field.
 	store.DefaultFoodOperationLicenseURL = storeDescFoodOperationLicenseURL.Default.(string)
 	// store.FoodOperationLicenseURLValidator is a validator for the "food_operation_license_url" field. It is called by the builders before save.
@@ -995,21 +1013,21 @@ func init() {
 		}
 	}()
 	// storeDescBusinessHours is the schema descriptor for business_hours field.
-	storeDescBusinessHours := storeFields[17].Descriptor()
+	storeDescBusinessHours := storeFields[18].Descriptor()
 	// store.DefaultBusinessHours holds the default value on creation for the business_hours field.
 	store.DefaultBusinessHours = storeDescBusinessHours.Default.(string)
 	// store.BusinessHoursValidator is a validator for the "business_hours" field. It is called by the builders before save.
 	store.BusinessHoursValidator = storeDescBusinessHours.Validators[0].(func(string) error)
 	// storeDescDiningPeriods is the schema descriptor for dining_periods field.
-	storeDescDiningPeriods := storeFields[18].Descriptor()
+	storeDescDiningPeriods := storeFields[19].Descriptor()
 	// store.DiningPeriodsValidator is a validator for the "dining_periods" field. It is called by the builders before save.
 	store.DiningPeriodsValidator = storeDescDiningPeriods.Validators[0].(func(string) error)
 	// storeDescShiftTimes is the schema descriptor for shift_times field.
-	storeDescShiftTimes := storeFields[19].Descriptor()
+	storeDescShiftTimes := storeFields[20].Descriptor()
 	// store.ShiftTimesValidator is a validator for the "shift_times" field. It is called by the builders before save.
 	store.ShiftTimesValidator = storeDescShiftTimes.Validators[0].(func(string) error)
 	// storeDescAddress is the schema descriptor for address field.
-	storeDescAddress := storeFields[24].Descriptor()
+	storeDescAddress := storeFields[25].Descriptor()
 	// store.DefaultAddress holds the default value on creation for the address field.
 	store.DefaultAddress = storeDescAddress.Default.(string)
 	// store.AddressValidator is a validator for the "address" field. It is called by the builders before save.
@@ -1029,7 +1047,7 @@ func init() {
 		}
 	}()
 	// storeDescLng is the schema descriptor for lng field.
-	storeDescLng := storeFields[25].Descriptor()
+	storeDescLng := storeFields[26].Descriptor()
 	// store.DefaultLng holds the default value on creation for the lng field.
 	store.DefaultLng = storeDescLng.Default.(string)
 	// store.LngValidator is a validator for the "lng" field. It is called by the builders before save.
@@ -1049,7 +1067,7 @@ func init() {
 		}
 	}()
 	// storeDescLat is the schema descriptor for lat field.
-	storeDescLat := storeFields[26].Descriptor()
+	storeDescLat := storeFields[27].Descriptor()
 	// store.DefaultLat holds the default value on creation for the lat field.
 	store.DefaultLat = storeDescLat.Default.(string)
 	// store.LatValidator is a validator for the "lat" field. It is called by the builders before save.

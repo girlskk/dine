@@ -40,6 +40,8 @@ const (
 	FieldBusinessModel = "business_model"
 	// FieldBusinessTypeID holds the string denoting the business_type_id field in the database.
 	FieldBusinessTypeID = "business_type_id"
+	// FieldLocationNumber holds the string denoting the location_number field in the database.
+	FieldLocationNumber = "location_number"
 	// FieldContactName holds the string denoting the contact_name field in the database.
 	FieldContactName = "contact_name"
 	// FieldContactPhone holds the string denoting the contact_phone field in the database.
@@ -161,6 +163,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldBusinessModel,
 	FieldBusinessTypeID,
+	FieldLocationNumber,
 	FieldContactName,
 	FieldContactPhone,
 	FieldUnifiedSocialCreditCode,
@@ -225,6 +228,8 @@ var (
 	DefaultStoreCode string
 	// StoreCodeValidator is a validator for the "store_code" field. It is called by the builders before save.
 	StoreCodeValidator func(string) error
+	// LocationNumberValidator is a validator for the "location_number" field. It is called by the builders before save.
+	LocationNumberValidator func(string) error
 	// DefaultContactName holds the default value on creation for the "contact_name" field.
 	DefaultContactName string
 	// ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
@@ -366,6 +371,11 @@ func ByBusinessModel(opts ...sql.OrderTermOption) OrderOption {
 // ByBusinessTypeID orders the results by the business_type_id field.
 func ByBusinessTypeID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBusinessTypeID, opts...).ToFunc()
+}
+
+// ByLocationNumber orders the results by the location_number field.
+func ByLocationNumber(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLocationNumber, opts...).ToFunc()
 }
 
 // ByContactName orders the results by the contact_name field.

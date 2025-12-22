@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -180,8 +181,39 @@ func (interactor *MerchantInteractor) UpdateMerchantAndStore(ctx context.Context
 	return
 }
 
+func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context, updateField domain.MerchantSimpleUpdateType, domainUMerchant *domain.UpdateMerchantParams) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantInteractor.MerchantSimpleUpdate")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if domainUMerchant == nil {
+		return domain.ParamsError(errors.New("domainUMerchant is required"))
+	}
+	merchant, err := interactor.DataStore.MerchantRepo().FindByID(ctx, domainUMerchant.ID)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			err = domain.ParamsError(domain.ErrMerchantNotExists)
+			return
+		}
+		return
+	}
+	switch updateField {
+	case domain.MerchantSimpleUpdateTypeStatus:
+		if merchant.Status == domainUMerchant.Status {
+			return
+		}
+		merchant.Status = domainUMerchant.Status
+
+	default:
+		return domain.ParamsError(fmt.Errorf("unsupported update field: %v", updateField))
+	}
+
+	return interactor.DataStore.MerchantRepo().Update(ctx, merchant)
+}
+
 func (interactor *MerchantInteractor) updateMerchant(ctx context.Context, domainMerchant *domain.Merchant, domainStore *domain.Store) (err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "MerchantInteractor.UpdateMerchant")
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantInteractor.updateMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -253,7 +285,25 @@ func (interactor *MerchantInteractor) GetMerchants(ctx context.Context, pager *u
 		err = fmt.Errorf("failed to get merchants: %w", err)
 		return
 	}
+	merchantIds := lo.Map(domainMerchants, func(item *domain.Merchant, _ int) uuid.UUID {
+		return item.ID
+	})
 
+	merchantStoreCounts, err := interactor.DataStore.StoreRepo().CountStoresByMerchantID(ctx, merchantIds)
+	if err != nil {
+		err = fmt.Errorf("failed to count stores by merchant ids: %w", err)
+		return
+	}
+
+	storeCountMap := lo.SliceToMap(merchantStoreCounts, func(item *domain.MerchantStoreCount) (uuid.UUID, int) {
+		return item.MerchantID, item.StoreCount
+	})
+
+	for _, m := range domainMerchants {
+		if count, ok := storeCountMap[m.ID]; ok {
+			m.StoreCount = count
+		}
+	}
 	return
 }
 

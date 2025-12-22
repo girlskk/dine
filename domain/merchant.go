@@ -90,6 +90,12 @@ func (s MerchantStatus) ToString() string {
 	}
 }
 
+type MerchantSimpleUpdateType string
+
+const (
+	MerchantSimpleUpdateTypeStatus MerchantSimpleUpdateType = "status" // 状态
+)
+
 type Merchant struct {
 	ID                uuid.UUID      `json:"id"`
 	MerchantCode      string         `json:"merchant_code"`       // 商户编号(保留字段)
@@ -108,6 +114,7 @@ type Merchant struct {
 	LoginPassword     string         `json:"login_password"`      // 登录密码(加密存储)
 	AdminUserID       uuid.UUID      `json:"admin_user_id"`       // 登陆账号 ID
 	Address           *Address       `json:"address"`             // 地址
+	StoreCount        int            `json:"store_count"`         // 关联门店数量(仅品牌商户有效)
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 }
@@ -157,6 +164,7 @@ type MerchantInteractor interface {
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
 	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
+	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateType, domainUMerchant *UpdateMerchantParams) (err error)
 }
 
 type MerchantListFilter struct {

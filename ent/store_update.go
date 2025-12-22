@@ -161,6 +161,20 @@ func (su *StoreUpdate) SetNillableBusinessTypeID(u *uuid.UUID) *StoreUpdate {
 	return su
 }
 
+// SetLocationNumber sets the "location_number" field.
+func (su *StoreUpdate) SetLocationNumber(s string) *StoreUpdate {
+	su.mutation.SetLocationNumber(s)
+	return su
+}
+
+// SetNillableLocationNumber sets the "location_number" field if the given value is not nil.
+func (su *StoreUpdate) SetNillableLocationNumber(s *string) *StoreUpdate {
+	if s != nil {
+		su.SetLocationNumber(*s)
+	}
+	return su
+}
+
 // SetContactName sets the "contact_name" field.
 func (su *StoreUpdate) SetContactName(s string) *StoreUpdate {
 	su.mutation.SetContactName(s)
@@ -591,6 +605,11 @@ func (su *StoreUpdate) check() error {
 			return &ValidationError{Name: "business_model", err: fmt.Errorf(`ent: validator failed for field "Store.business_model": %w`, err)}
 		}
 	}
+	if v, ok := su.mutation.LocationNumber(); ok {
+		if err := store.LocationNumberValidator(v); err != nil {
+			return &ValidationError{Name: "location_number", err: fmt.Errorf(`ent: validator failed for field "Store.location_number": %w`, err)}
+		}
+	}
 	if v, ok := su.mutation.ContactName(); ok {
 		if err := store.ContactNameValidator(v); err != nil {
 			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Store.contact_name": %w`, err)}
@@ -722,6 +741,9 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
+	}
+	if value, ok := su.mutation.LocationNumber(); ok {
+		_spec.SetField(store.FieldLocationNumber, field.TypeString, value)
 	}
 	if value, ok := su.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)
@@ -1056,6 +1078,20 @@ func (suo *StoreUpdateOne) SetBusinessTypeID(u uuid.UUID) *StoreUpdateOne {
 func (suo *StoreUpdateOne) SetNillableBusinessTypeID(u *uuid.UUID) *StoreUpdateOne {
 	if u != nil {
 		suo.SetBusinessTypeID(*u)
+	}
+	return suo
+}
+
+// SetLocationNumber sets the "location_number" field.
+func (suo *StoreUpdateOne) SetLocationNumber(s string) *StoreUpdateOne {
+	suo.mutation.SetLocationNumber(s)
+	return suo
+}
+
+// SetNillableLocationNumber sets the "location_number" field if the given value is not nil.
+func (suo *StoreUpdateOne) SetNillableLocationNumber(s *string) *StoreUpdateOne {
+	if s != nil {
+		suo.SetLocationNumber(*s)
 	}
 	return suo
 }
@@ -1503,6 +1539,11 @@ func (suo *StoreUpdateOne) check() error {
 			return &ValidationError{Name: "business_model", err: fmt.Errorf(`ent: validator failed for field "Store.business_model": %w`, err)}
 		}
 	}
+	if v, ok := suo.mutation.LocationNumber(); ok {
+		if err := store.LocationNumberValidator(v); err != nil {
+			return &ValidationError{Name: "location_number", err: fmt.Errorf(`ent: validator failed for field "Store.location_number": %w`, err)}
+		}
+	}
 	if v, ok := suo.mutation.ContactName(); ok {
 		if err := store.ContactNameValidator(v); err != nil {
 			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Store.contact_name": %w`, err)}
@@ -1651,6 +1692,9 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	}
 	if value, ok := suo.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
+	}
+	if value, ok := suo.mutation.LocationNumber(); ok {
+		_spec.SetField(store.FieldLocationNumber, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)

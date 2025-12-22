@@ -47,6 +47,10 @@ func (Store) Fields() []ent.Field {
 			Comment("经营模式：直营 加盟"),
 		field.UUID("business_type_id", uuid.UUID{}).
 			Comment("业态类型"),
+		field.String("location_number").
+			NotEmpty().
+			MaxLen(255).
+			Comment("门店位置编号"),
 		field.String("contact_name").
 			NotEmpty().
 			Default("").

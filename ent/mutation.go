@@ -10853,6 +10853,7 @@ type StoreMutation struct {
 	store_code                    *string
 	status                        *domain.StoreStatus
 	business_model                *domain.BusinessModel
+	location_number               *string
 	contact_name                  *string
 	contact_phone                 *string
 	unified_social_credit_code    *string
@@ -11406,6 +11407,42 @@ func (m *StoreMutation) OldBusinessTypeID(ctx context.Context) (v uuid.UUID, err
 // ResetBusinessTypeID resets all changes to the "business_type_id" field.
 func (m *StoreMutation) ResetBusinessTypeID() {
 	m.merchant_business_type = nil
+}
+
+// SetLocationNumber sets the "location_number" field.
+func (m *StoreMutation) SetLocationNumber(s string) {
+	m.location_number = &s
+}
+
+// LocationNumber returns the value of the "location_number" field in the mutation.
+func (m *StoreMutation) LocationNumber() (r string, exists bool) {
+	v := m.location_number
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocationNumber returns the old "location_number" field's value of the Store entity.
+// If the Store object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StoreMutation) OldLocationNumber(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocationNumber is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocationNumber requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocationNumber: %w", err)
+	}
+	return oldValue.LocationNumber, nil
+}
+
+// ResetLocationNumber resets all changes to the "location_number" field.
+func (m *StoreMutation) ResetLocationNumber() {
+	m.location_number = nil
 }
 
 // SetContactName sets the "contact_name" field.
@@ -12416,7 +12453,7 @@ func (m *StoreMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StoreMutation) Fields() []string {
-	fields := make([]string, 0, 31)
+	fields := make([]string, 0, 32)
 	if m.created_at != nil {
 		fields = append(fields, store.FieldCreatedAt)
 	}
@@ -12449,6 +12486,9 @@ func (m *StoreMutation) Fields() []string {
 	}
 	if m.merchant_business_type != nil {
 		fields = append(fields, store.FieldBusinessTypeID)
+	}
+	if m.location_number != nil {
+		fields = append(fields, store.FieldLocationNumber)
 	}
 	if m.contact_name != nil {
 		fields = append(fields, store.FieldContactName)
@@ -12540,6 +12580,8 @@ func (m *StoreMutation) Field(name string) (ent.Value, bool) {
 		return m.BusinessModel()
 	case store.FieldBusinessTypeID:
 		return m.BusinessTypeID()
+	case store.FieldLocationNumber:
+		return m.LocationNumber()
 	case store.FieldContactName:
 		return m.ContactName()
 	case store.FieldContactPhone:
@@ -12611,6 +12653,8 @@ func (m *StoreMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldBusinessModel(ctx)
 	case store.FieldBusinessTypeID:
 		return m.OldBusinessTypeID(ctx)
+	case store.FieldLocationNumber:
+		return m.OldLocationNumber(ctx)
 	case store.FieldContactName:
 		return m.OldContactName(ctx)
 	case store.FieldContactPhone:
@@ -12736,6 +12780,13 @@ func (m *StoreMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBusinessTypeID(v)
+		return nil
+	case store.FieldLocationNumber:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocationNumber(v)
 		return nil
 	case store.FieldContactName:
 		v, ok := value.(string)
@@ -13000,6 +13051,9 @@ func (m *StoreMutation) ResetField(name string) error {
 		return nil
 	case store.FieldBusinessTypeID:
 		m.ResetBusinessTypeID()
+		return nil
+	case store.FieldLocationNumber:
+		m.ResetLocationNumber()
 		return nil
 	case store.FieldContactName:
 		m.ResetContactName()

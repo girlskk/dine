@@ -48,6 +48,9 @@ var Module = fx.Module(
 	fx.Provide(
 		asHandler(handler.NewMerchantHandler),
 	),
+	fx.Provide(
+		asHandler(handler.NewStoreHandler),
+	),
 )
 
 func asHandler(f any) any {

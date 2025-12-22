@@ -9,6 +9,19 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
+var (
+	ErrStoreNameExists               = errors.New("门店名称已存在")
+	ErrStoreNotExists                = errors.New("门店不存在")
+	ErrStoreBusinessHoursConflict    = errors.New("门店营业时间段时间重复")
+	ErrStoreBusinessHoursTimeInvalid = errors.New("门店营业时间段开始时间需早于结束时间")
+	ErrStoreDiningPeriodConflict     = errors.New("门店就餐时段时间重复")
+	ErrStoreDiningPeriodTimeInvalid  = errors.New("门店就餐时段开始时间需早于结束时间")
+	ErrStoreDiningPeriodNameExists   = errors.New("门店就餐时段名称已存在")
+	ErrStoreShiftTimeConflict        = errors.New("门店班次时间重复")
+	ErrStoreShiftTimeTimeInvalid     = errors.New("门店班次开始时间需早于结束时间")
+	ErrStoreShiftTimeNameExists      = errors.New("门店班次名称已存在")
+)
+
 type StoreListOrderByType int
 
 const (
@@ -86,9 +99,16 @@ func (b BusinessModel) ToString() string {
 	}
 }
 
+type StoreSimpleUpdateType string
+
+const (
+	StoreSimpleUpdateTypeStatus StoreSimpleUpdateType = "status" // 状态更新
+)
+
 type Store struct {
 	ID                      uuid.UUID        `json:"id"`
 	MerchantID              uuid.UUID        `json:"merchant_id"`                // 商户 ID
+	MerchantName            string           `json:"merchant_name"`              // 商户名称
 	AdminPhoneNumber        string           `json:"admin_phone_number"`         // 管理员手机号
 	StoreName               string           `json:"store_name"`                 // 门店名称,长度不超过30个字
 	StoreShortName          string           `json:"store_short_name"`           // 门店简称
@@ -97,6 +117,7 @@ type Store struct {
 	BusinessModel           BusinessModel    `json:"business_model"`             // 经营模式：直营 加盟
 	BusinessTypeID          uuid.UUID        `json:"business_type_id"`           // 业态类型
 	BusinessTypeName        string           `json:"business_type_name"`         // 业务类型名称
+	LocationNumber          string           `json:"location_number"`            // 门店位置编号
 	ContactName             string           `json:"contact_name"`               // 联系人
 	ContactPhone            string           `json:"contact_phone"`              // 联系电话
 	UnifiedSocialCreditCode string           `json:"unified_social_credit_code"` // 统一社会信用代码
@@ -121,11 +142,13 @@ type Store struct {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_repository.go -package=mock . StoreRepository
 type StoreRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
+	FindStoreMerchant(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
 	Create(ctx context.Context, domainStore *Store) (err error)
 	Update(ctx context.Context, domainStore *Store) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
 	ExistsStore(ctx context.Context, existsStoreParams *ExistsStoreParams) (exists bool, err error)
+	CountStoresByMerchantID(ctx context.Context, merchantIDs []uuid.UUID) (storeCounts []*MerchantStoreCount, err error)
 }
 
 type StoreInteractor interface {
@@ -134,12 +157,9 @@ type StoreInteractor interface {
 	DeleteStore(ctx context.Context, id uuid.UUID) (err error)
 	GetStore(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
+	GetStoreByMerchantID(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
+	StoreSimpleUpdate(ctx context.Context, updateField StoreSimpleUpdateType, domainUStoreParams *UpdateStoreParams) (err error)
 }
-
-var (
-	ErrStoreNameExists = errors.New("门店名称已存在")
-	ErrStoreNotExists  = errors.New("门店不存在")
-)
 
 type StoreListFilter struct {
 	StoreName        string        `json:"store_name"`         // 门店名称
@@ -162,6 +182,7 @@ type CreateStoreParams struct {
 	Status                  StoreStatus      `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel    `json:"business_model"`             // 经营模式：直营 加盟
 	BusinessTypeID          uuid.UUID        `json:"business_type_id"`           // 业态类型
+	LocationNumber          string           `json:"location_number"`            // 门店位置编号
 	ContactName             string           `json:"contact_name"`               // 联系人
 	ContactPhone            string           `json:"contact_phone"`              // 联系电话
 	UnifiedSocialCreditCode string           `json:"unified_social_credit_code"` // 统一社会信用代码
@@ -188,6 +209,7 @@ type UpdateStoreParams struct {
 	Status                  StoreStatus      `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel    `json:"business_model"`             // 经营模式：直营 加盟
 	BusinessTypeID          uuid.UUID        `json:"business_type_id"`           // 业态类型
+	LocationNumber          string           `json:"location_number"`            // 门店位置编号
 	ContactName             string           `json:"contact_name"`               // 联系人
 	ContactPhone            string           `json:"contact_phone"`              // 联系电话
 	UnifiedSocialCreditCode string           `json:"unified_social_credit_code"` // 统一社会信用代码
@@ -204,7 +226,10 @@ type UpdateStoreParams struct {
 	ShiftTimes              []*ShiftTime     `json:"shift_times"`                // 班次时间
 	Address                 *Address         `json:"address"`                    // 地址
 }
-
+type MerchantStoreCount struct {
+	MerchantID uuid.UUID `json:"merchant_id"` // 商户 ID
+	StoreCount int       `json:"store_count"` // 门店数量
+}
 type ExistsStoreParams struct {
 	MerchantID uuid.UUID `json:"merchant_id"` // 商户 ID
 	StoreName  string    `json:"store_name"`  // 门店名称

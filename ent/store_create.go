@@ -154,6 +154,12 @@ func (sc *StoreCreate) SetBusinessTypeID(u uuid.UUID) *StoreCreate {
 	return sc
 }
 
+// SetLocationNumber sets the "location_number" field.
+func (sc *StoreCreate) SetLocationNumber(s string) *StoreCreate {
+	sc.mutation.SetLocationNumber(s)
+	return sc
+}
+
 // SetContactName sets the "contact_name" field.
 func (sc *StoreCreate) SetContactName(s string) *StoreCreate {
 	sc.mutation.SetContactName(s)
@@ -663,6 +669,14 @@ func (sc *StoreCreate) check() error {
 	if _, ok := sc.mutation.BusinessTypeID(); !ok {
 		return &ValidationError{Name: "business_type_id", err: errors.New(`ent: missing required field "Store.business_type_id"`)}
 	}
+	if _, ok := sc.mutation.LocationNumber(); !ok {
+		return &ValidationError{Name: "location_number", err: errors.New(`ent: missing required field "Store.location_number"`)}
+	}
+	if v, ok := sc.mutation.LocationNumber(); ok {
+		if err := store.LocationNumberValidator(v); err != nil {
+			return &ValidationError{Name: "location_number", err: fmt.Errorf(`ent: validator failed for field "Store.location_number": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.ContactName(); !ok {
 		return &ValidationError{Name: "contact_name", err: errors.New(`ent: missing required field "Store.contact_name"`)}
 	}
@@ -866,6 +880,10 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
 		_node.BusinessModel = value
+	}
+	if value, ok := sc.mutation.LocationNumber(); ok {
+		_spec.SetField(store.FieldLocationNumber, field.TypeString, value)
+		_node.LocationNumber = value
 	}
 	if value, ok := sc.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)
@@ -1209,6 +1227,18 @@ func (u *StoreUpsert) SetBusinessTypeID(v uuid.UUID) *StoreUpsert {
 // UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateBusinessTypeID() *StoreUpsert {
 	u.SetExcluded(store.FieldBusinessTypeID)
+	return u
+}
+
+// SetLocationNumber sets the "location_number" field.
+func (u *StoreUpsert) SetLocationNumber(v string) *StoreUpsert {
+	u.Set(store.FieldLocationNumber, v)
+	return u
+}
+
+// UpdateLocationNumber sets the "location_number" field to the value that was provided on create.
+func (u *StoreUpsert) UpdateLocationNumber() *StoreUpsert {
+	u.SetExcluded(store.FieldLocationNumber)
 	return u
 }
 
@@ -1651,6 +1681,20 @@ func (u *StoreUpsertOne) SetBusinessTypeID(v uuid.UUID) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateBusinessTypeID() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateBusinessTypeID()
+	})
+}
+
+// SetLocationNumber sets the "location_number" field.
+func (u *StoreUpsertOne) SetLocationNumber(v string) *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetLocationNumber(v)
+	})
+}
+
+// UpdateLocationNumber sets the "location_number" field to the value that was provided on create.
+func (u *StoreUpsertOne) UpdateLocationNumber() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateLocationNumber()
 	})
 }
 
@@ -2302,6 +2346,20 @@ func (u *StoreUpsertBulk) SetBusinessTypeID(v uuid.UUID) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateBusinessTypeID() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateBusinessTypeID()
+	})
+}
+
+// SetLocationNumber sets the "location_number" field.
+func (u *StoreUpsertBulk) SetLocationNumber(v string) *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.SetLocationNumber(v)
+	})
+}
+
+// UpdateLocationNumber sets the "location_number" field to the value that was provided on create.
+func (u *StoreUpsertBulk) UpdateLocationNumber() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.UpdateLocationNumber()
 	})
 }
 

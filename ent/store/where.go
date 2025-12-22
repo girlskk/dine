@@ -102,6 +102,11 @@ func BusinessTypeID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldBusinessTypeID, v))
 }
 
+// LocationNumber applies equality check predicate on the "location_number" field. It's identical to LocationNumberEQ.
+func LocationNumber(v string) predicate.Store {
+	return predicate.Store(sql.FieldEQ(FieldLocationNumber, v))
+}
+
 // ContactName applies equality check predicate on the "contact_name" field. It's identical to ContactNameEQ.
 func ContactName(v string) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldContactName, v))
@@ -680,6 +685,71 @@ func BusinessTypeIDIn(vs ...uuid.UUID) predicate.Store {
 // BusinessTypeIDNotIn applies the NotIn predicate on the "business_type_id" field.
 func BusinessTypeIDNotIn(vs ...uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldBusinessTypeID, vs...))
+}
+
+// LocationNumberEQ applies the EQ predicate on the "location_number" field.
+func LocationNumberEQ(v string) predicate.Store {
+	return predicate.Store(sql.FieldEQ(FieldLocationNumber, v))
+}
+
+// LocationNumberNEQ applies the NEQ predicate on the "location_number" field.
+func LocationNumberNEQ(v string) predicate.Store {
+	return predicate.Store(sql.FieldNEQ(FieldLocationNumber, v))
+}
+
+// LocationNumberIn applies the In predicate on the "location_number" field.
+func LocationNumberIn(vs ...string) predicate.Store {
+	return predicate.Store(sql.FieldIn(FieldLocationNumber, vs...))
+}
+
+// LocationNumberNotIn applies the NotIn predicate on the "location_number" field.
+func LocationNumberNotIn(vs ...string) predicate.Store {
+	return predicate.Store(sql.FieldNotIn(FieldLocationNumber, vs...))
+}
+
+// LocationNumberGT applies the GT predicate on the "location_number" field.
+func LocationNumberGT(v string) predicate.Store {
+	return predicate.Store(sql.FieldGT(FieldLocationNumber, v))
+}
+
+// LocationNumberGTE applies the GTE predicate on the "location_number" field.
+func LocationNumberGTE(v string) predicate.Store {
+	return predicate.Store(sql.FieldGTE(FieldLocationNumber, v))
+}
+
+// LocationNumberLT applies the LT predicate on the "location_number" field.
+func LocationNumberLT(v string) predicate.Store {
+	return predicate.Store(sql.FieldLT(FieldLocationNumber, v))
+}
+
+// LocationNumberLTE applies the LTE predicate on the "location_number" field.
+func LocationNumberLTE(v string) predicate.Store {
+	return predicate.Store(sql.FieldLTE(FieldLocationNumber, v))
+}
+
+// LocationNumberContains applies the Contains predicate on the "location_number" field.
+func LocationNumberContains(v string) predicate.Store {
+	return predicate.Store(sql.FieldContains(FieldLocationNumber, v))
+}
+
+// LocationNumberHasPrefix applies the HasPrefix predicate on the "location_number" field.
+func LocationNumberHasPrefix(v string) predicate.Store {
+	return predicate.Store(sql.FieldHasPrefix(FieldLocationNumber, v))
+}
+
+// LocationNumberHasSuffix applies the HasSuffix predicate on the "location_number" field.
+func LocationNumberHasSuffix(v string) predicate.Store {
+	return predicate.Store(sql.FieldHasSuffix(FieldLocationNumber, v))
+}
+
+// LocationNumberEqualFold applies the EqualFold predicate on the "location_number" field.
+func LocationNumberEqualFold(v string) predicate.Store {
+	return predicate.Store(sql.FieldEqualFold(FieldLocationNumber, v))
+}
+
+// LocationNumberContainsFold applies the ContainsFold predicate on the "location_number" field.
+func LocationNumberContainsFold(v string) predicate.Store {
+	return predicate.Store(sql.FieldContainsFold(FieldLocationNumber, v))
 }
 
 // ContactNameEQ applies the EQ predicate on the "contact_name" field.

@@ -202,7 +202,7 @@ func (repo *MerchantRepository) CountMerchant(ctx context.Context) (merchantCoun
 	}()
 
 	now := time.Now().UTC()
-	var counts struct {
+	var counts []struct {
 		BrandCount   int `sql:"brand_count"`
 		StoreCount   int `sql:"store_count"`
 		ExpiredCount int `sql:"expired_count"`
@@ -238,10 +238,15 @@ func (repo *MerchantRepository) CountMerchant(ctx context.Context) (merchantCoun
 		return
 	}
 
+	if len(counts) == 0 {
+		merchantCount = &domain.MerchantCount{}
+		return
+	}
+
 	merchantCount = &domain.MerchantCount{
-		MerchantTypeBrand: counts.BrandCount,
-		MerchantTypeStore: counts.StoreCount,
-		Expired:           counts.ExpiredCount,
+		MerchantTypeBrand: counts[0].BrandCount,
+		MerchantTypeStore: counts[0].StoreCount,
+		Expired:           counts[0].ExpiredCount,
 	}
 	return
 }
