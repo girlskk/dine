@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -21,6 +22,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 )
 
 // ProductUpdate is the builder for updating Product entities.
@@ -61,6 +64,20 @@ func (pu *ProductUpdate) SetNillableDeletedAt(i *int64) *ProductUpdate {
 // AddDeletedAt adds i to the "deleted_at" field.
 func (pu *ProductUpdate) AddDeletedAt(i int64) *ProductUpdate {
 	pu.mutation.AddDeletedAt(i)
+	return pu
+}
+
+// SetType sets the "type" field.
+func (pu *ProductUpdate) SetType(dt domain.ProductType) *ProductUpdate {
+	pu.mutation.SetType(dt)
+	return pu
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableType(dt *domain.ProductType) *ProductUpdate {
+	if dt != nil {
+		pu.SetType(*dt)
+	}
 	return pu
 }
 
@@ -427,6 +444,46 @@ func (pu *ProductUpdate) SetNillableDescription(s *string) *ProductUpdate {
 	return pu
 }
 
+// SetEstimatedCostPrice sets the "estimated_cost_price" field.
+func (pu *ProductUpdate) SetEstimatedCostPrice(d decimal.Decimal) *ProductUpdate {
+	pu.mutation.SetEstimatedCostPrice(d)
+	return pu
+}
+
+// SetNillableEstimatedCostPrice sets the "estimated_cost_price" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableEstimatedCostPrice(d *decimal.Decimal) *ProductUpdate {
+	if d != nil {
+		pu.SetEstimatedCostPrice(*d)
+	}
+	return pu
+}
+
+// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
+func (pu *ProductUpdate) ClearEstimatedCostPrice() *ProductUpdate {
+	pu.mutation.ClearEstimatedCostPrice()
+	return pu
+}
+
+// SetDeliveryCostPrice sets the "delivery_cost_price" field.
+func (pu *ProductUpdate) SetDeliveryCostPrice(d decimal.Decimal) *ProductUpdate {
+	pu.mutation.SetDeliveryCostPrice(d)
+	return pu
+}
+
+// SetNillableDeliveryCostPrice sets the "delivery_cost_price" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableDeliveryCostPrice(d *decimal.Decimal) *ProductUpdate {
+	if d != nil {
+		pu.SetDeliveryCostPrice(*d)
+	}
+	return pu
+}
+
+// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
+func (pu *ProductUpdate) ClearDeliveryCostPrice() *ProductUpdate {
+	pu.mutation.ClearDeliveryCostPrice()
+	return pu
+}
+
 // SetCategory sets the "category" edge to the Category entity.
 func (pu *ProductUpdate) SetCategory(c *Category) *ProductUpdate {
 	return pu.SetCategoryID(c.ID)
@@ -480,6 +537,36 @@ func (pu *ProductUpdate) AddProductAttrs(p ...*ProductAttrRelation) *ProductUpda
 		ids[i] = p[i].ID
 	}
 	return pu.AddProductAttrIDs(ids...)
+}
+
+// AddSetMealGroupIDs adds the "set_meal_groups" edge to the SetMealGroup entity by IDs.
+func (pu *ProductUpdate) AddSetMealGroupIDs(ids ...uuid.UUID) *ProductUpdate {
+	pu.mutation.AddSetMealGroupIDs(ids...)
+	return pu
+}
+
+// AddSetMealGroups adds the "set_meal_groups" edges to the SetMealGroup entity.
+func (pu *ProductUpdate) AddSetMealGroups(s ...*SetMealGroup) *ProductUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pu.AddSetMealGroupIDs(ids...)
+}
+
+// AddSetMealDetailIDs adds the "set_meal_details" edge to the SetMealDetail entity by IDs.
+func (pu *ProductUpdate) AddSetMealDetailIDs(ids ...uuid.UUID) *ProductUpdate {
+	pu.mutation.AddSetMealDetailIDs(ids...)
+	return pu
+}
+
+// AddSetMealDetails adds the "set_meal_details" edges to the SetMealDetail entity.
+func (pu *ProductUpdate) AddSetMealDetails(s ...*SetMealDetail) *ProductUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pu.AddSetMealDetailIDs(ids...)
 }
 
 // Mutation returns the ProductMutation object of the builder.
@@ -562,6 +649,48 @@ func (pu *ProductUpdate) RemoveProductAttrs(p ...*ProductAttrRelation) *ProductU
 	return pu.RemoveProductAttrIDs(ids...)
 }
 
+// ClearSetMealGroups clears all "set_meal_groups" edges to the SetMealGroup entity.
+func (pu *ProductUpdate) ClearSetMealGroups() *ProductUpdate {
+	pu.mutation.ClearSetMealGroups()
+	return pu
+}
+
+// RemoveSetMealGroupIDs removes the "set_meal_groups" edge to SetMealGroup entities by IDs.
+func (pu *ProductUpdate) RemoveSetMealGroupIDs(ids ...uuid.UUID) *ProductUpdate {
+	pu.mutation.RemoveSetMealGroupIDs(ids...)
+	return pu
+}
+
+// RemoveSetMealGroups removes "set_meal_groups" edges to SetMealGroup entities.
+func (pu *ProductUpdate) RemoveSetMealGroups(s ...*SetMealGroup) *ProductUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pu.RemoveSetMealGroupIDs(ids...)
+}
+
+// ClearSetMealDetails clears all "set_meal_details" edges to the SetMealDetail entity.
+func (pu *ProductUpdate) ClearSetMealDetails() *ProductUpdate {
+	pu.mutation.ClearSetMealDetails()
+	return pu
+}
+
+// RemoveSetMealDetailIDs removes the "set_meal_details" edge to SetMealDetail entities by IDs.
+func (pu *ProductUpdate) RemoveSetMealDetailIDs(ids ...uuid.UUID) *ProductUpdate {
+	pu.mutation.RemoveSetMealDetailIDs(ids...)
+	return pu
+}
+
+// RemoveSetMealDetails removes "set_meal_details" edges to SetMealDetail entities.
+func (pu *ProductUpdate) RemoveSetMealDetails(s ...*SetMealDetail) *ProductUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pu.RemoveSetMealDetailIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (pu *ProductUpdate) Save(ctx context.Context) (int, error) {
 	if err := pu.defaults(); err != nil {
@@ -606,6 +735,11 @@ func (pu *ProductUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (pu *ProductUpdate) check() error {
+	if v, ok := pu.mutation.GetType(); ok {
+		if err := product.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Product.type": %w`, err)}
+		}
+	}
 	if v, ok := pu.mutation.Name(); ok {
 		if err := product.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
@@ -671,6 +805,9 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(product.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if value, ok := pu.mutation.GetType(); ok {
+		_spec.SetField(product.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := pu.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
@@ -779,6 +916,18 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.Description(); ok {
 		_spec.SetField(product.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.EstimatedCostPrice(); ok {
+		_spec.SetField(product.FieldEstimatedCostPrice, field.TypeOther, value)
+	}
+	if pu.mutation.EstimatedCostPriceCleared() {
+		_spec.ClearField(product.FieldEstimatedCostPrice, field.TypeOther)
+	}
+	if value, ok := pu.mutation.DeliveryCostPrice(); ok {
+		_spec.SetField(product.FieldDeliveryCostPrice, field.TypeOther, value)
+	}
+	if pu.mutation.DeliveryCostPriceCleared() {
+		_spec.ClearField(product.FieldDeliveryCostPrice, field.TypeOther)
 	}
 	if pu.mutation.StoreIDCleared() {
 		_spec.ClearField(product.FieldStoreID, field.TypeUUID)
@@ -976,6 +1125,96 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if pu.mutation.SetMealGroupsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealGroupsTable,
+			Columns: []string{product.SetMealGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealgroup.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedSetMealGroupsIDs(); len(nodes) > 0 && !pu.mutation.SetMealGroupsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealGroupsTable,
+			Columns: []string{product.SetMealGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealgroup.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.SetMealGroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealGroupsTable,
+			Columns: []string{product.SetMealGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealgroup.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.SetMealDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealDetailsTable,
+			Columns: []string{product.SetMealDetailsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedSetMealDetailsIDs(); len(nodes) > 0 && !pu.mutation.SetMealDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealDetailsTable,
+			Columns: []string{product.SetMealDetailsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.SetMealDetailsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealDetailsTable,
+			Columns: []string{product.SetMealDetailsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(pu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1022,6 +1261,20 @@ func (puo *ProductUpdateOne) SetNillableDeletedAt(i *int64) *ProductUpdateOne {
 // AddDeletedAt adds i to the "deleted_at" field.
 func (puo *ProductUpdateOne) AddDeletedAt(i int64) *ProductUpdateOne {
 	puo.mutation.AddDeletedAt(i)
+	return puo
+}
+
+// SetType sets the "type" field.
+func (puo *ProductUpdateOne) SetType(dt domain.ProductType) *ProductUpdateOne {
+	puo.mutation.SetType(dt)
+	return puo
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableType(dt *domain.ProductType) *ProductUpdateOne {
+	if dt != nil {
+		puo.SetType(*dt)
+	}
 	return puo
 }
 
@@ -1388,6 +1641,46 @@ func (puo *ProductUpdateOne) SetNillableDescription(s *string) *ProductUpdateOne
 	return puo
 }
 
+// SetEstimatedCostPrice sets the "estimated_cost_price" field.
+func (puo *ProductUpdateOne) SetEstimatedCostPrice(d decimal.Decimal) *ProductUpdateOne {
+	puo.mutation.SetEstimatedCostPrice(d)
+	return puo
+}
+
+// SetNillableEstimatedCostPrice sets the "estimated_cost_price" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableEstimatedCostPrice(d *decimal.Decimal) *ProductUpdateOne {
+	if d != nil {
+		puo.SetEstimatedCostPrice(*d)
+	}
+	return puo
+}
+
+// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
+func (puo *ProductUpdateOne) ClearEstimatedCostPrice() *ProductUpdateOne {
+	puo.mutation.ClearEstimatedCostPrice()
+	return puo
+}
+
+// SetDeliveryCostPrice sets the "delivery_cost_price" field.
+func (puo *ProductUpdateOne) SetDeliveryCostPrice(d decimal.Decimal) *ProductUpdateOne {
+	puo.mutation.SetDeliveryCostPrice(d)
+	return puo
+}
+
+// SetNillableDeliveryCostPrice sets the "delivery_cost_price" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableDeliveryCostPrice(d *decimal.Decimal) *ProductUpdateOne {
+	if d != nil {
+		puo.SetDeliveryCostPrice(*d)
+	}
+	return puo
+}
+
+// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
+func (puo *ProductUpdateOne) ClearDeliveryCostPrice() *ProductUpdateOne {
+	puo.mutation.ClearDeliveryCostPrice()
+	return puo
+}
+
 // SetCategory sets the "category" edge to the Category entity.
 func (puo *ProductUpdateOne) SetCategory(c *Category) *ProductUpdateOne {
 	return puo.SetCategoryID(c.ID)
@@ -1441,6 +1734,36 @@ func (puo *ProductUpdateOne) AddProductAttrs(p ...*ProductAttrRelation) *Product
 		ids[i] = p[i].ID
 	}
 	return puo.AddProductAttrIDs(ids...)
+}
+
+// AddSetMealGroupIDs adds the "set_meal_groups" edge to the SetMealGroup entity by IDs.
+func (puo *ProductUpdateOne) AddSetMealGroupIDs(ids ...uuid.UUID) *ProductUpdateOne {
+	puo.mutation.AddSetMealGroupIDs(ids...)
+	return puo
+}
+
+// AddSetMealGroups adds the "set_meal_groups" edges to the SetMealGroup entity.
+func (puo *ProductUpdateOne) AddSetMealGroups(s ...*SetMealGroup) *ProductUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return puo.AddSetMealGroupIDs(ids...)
+}
+
+// AddSetMealDetailIDs adds the "set_meal_details" edge to the SetMealDetail entity by IDs.
+func (puo *ProductUpdateOne) AddSetMealDetailIDs(ids ...uuid.UUID) *ProductUpdateOne {
+	puo.mutation.AddSetMealDetailIDs(ids...)
+	return puo
+}
+
+// AddSetMealDetails adds the "set_meal_details" edges to the SetMealDetail entity.
+func (puo *ProductUpdateOne) AddSetMealDetails(s ...*SetMealDetail) *ProductUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return puo.AddSetMealDetailIDs(ids...)
 }
 
 // Mutation returns the ProductMutation object of the builder.
@@ -1523,6 +1846,48 @@ func (puo *ProductUpdateOne) RemoveProductAttrs(p ...*ProductAttrRelation) *Prod
 	return puo.RemoveProductAttrIDs(ids...)
 }
 
+// ClearSetMealGroups clears all "set_meal_groups" edges to the SetMealGroup entity.
+func (puo *ProductUpdateOne) ClearSetMealGroups() *ProductUpdateOne {
+	puo.mutation.ClearSetMealGroups()
+	return puo
+}
+
+// RemoveSetMealGroupIDs removes the "set_meal_groups" edge to SetMealGroup entities by IDs.
+func (puo *ProductUpdateOne) RemoveSetMealGroupIDs(ids ...uuid.UUID) *ProductUpdateOne {
+	puo.mutation.RemoveSetMealGroupIDs(ids...)
+	return puo
+}
+
+// RemoveSetMealGroups removes "set_meal_groups" edges to SetMealGroup entities.
+func (puo *ProductUpdateOne) RemoveSetMealGroups(s ...*SetMealGroup) *ProductUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return puo.RemoveSetMealGroupIDs(ids...)
+}
+
+// ClearSetMealDetails clears all "set_meal_details" edges to the SetMealDetail entity.
+func (puo *ProductUpdateOne) ClearSetMealDetails() *ProductUpdateOne {
+	puo.mutation.ClearSetMealDetails()
+	return puo
+}
+
+// RemoveSetMealDetailIDs removes the "set_meal_details" edge to SetMealDetail entities by IDs.
+func (puo *ProductUpdateOne) RemoveSetMealDetailIDs(ids ...uuid.UUID) *ProductUpdateOne {
+	puo.mutation.RemoveSetMealDetailIDs(ids...)
+	return puo
+}
+
+// RemoveSetMealDetails removes "set_meal_details" edges to SetMealDetail entities.
+func (puo *ProductUpdateOne) RemoveSetMealDetails(s ...*SetMealDetail) *ProductUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return puo.RemoveSetMealDetailIDs(ids...)
+}
+
 // Where appends a list predicates to the ProductUpdate builder.
 func (puo *ProductUpdateOne) Where(ps ...predicate.Product) *ProductUpdateOne {
 	puo.mutation.Where(ps...)
@@ -1580,6 +1945,11 @@ func (puo *ProductUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (puo *ProductUpdateOne) check() error {
+	if v, ok := puo.mutation.GetType(); ok {
+		if err := product.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Product.type": %w`, err)}
+		}
+	}
 	if v, ok := puo.mutation.Name(); ok {
 		if err := product.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Product.name": %w`, err)}
@@ -1662,6 +2032,9 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if value, ok := puo.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(product.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if value, ok := puo.mutation.GetType(); ok {
+		_spec.SetField(product.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := puo.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
@@ -1770,6 +2143,18 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if value, ok := puo.mutation.Description(); ok {
 		_spec.SetField(product.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.EstimatedCostPrice(); ok {
+		_spec.SetField(product.FieldEstimatedCostPrice, field.TypeOther, value)
+	}
+	if puo.mutation.EstimatedCostPriceCleared() {
+		_spec.ClearField(product.FieldEstimatedCostPrice, field.TypeOther)
+	}
+	if value, ok := puo.mutation.DeliveryCostPrice(); ok {
+		_spec.SetField(product.FieldDeliveryCostPrice, field.TypeOther, value)
+	}
+	if puo.mutation.DeliveryCostPriceCleared() {
+		_spec.ClearField(product.FieldDeliveryCostPrice, field.TypeOther)
 	}
 	if puo.mutation.StoreIDCleared() {
 		_spec.ClearField(product.FieldStoreID, field.TypeUUID)
@@ -1960,6 +2345,96 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(productattrrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.SetMealGroupsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealGroupsTable,
+			Columns: []string{product.SetMealGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealgroup.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedSetMealGroupsIDs(); len(nodes) > 0 && !puo.mutation.SetMealGroupsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealGroupsTable,
+			Columns: []string{product.SetMealGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealgroup.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.SetMealGroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealGroupsTable,
+			Columns: []string{product.SetMealGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealgroup.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.SetMealDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealDetailsTable,
+			Columns: []string{product.SetMealDetailsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedSetMealDetailsIDs(); len(nodes) > 0 && !puo.mutation.SetMealDetailsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealDetailsTable,
+			Columns: []string{product.SetMealDetailsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.SetMealDetailsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealDetailsTable,
+			Columns: []string{product.SetMealDetailsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

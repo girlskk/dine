@@ -27,6 +27,7 @@ type Repository struct {
 	productRepo        *ProductRepository
 	productAttrRelRepo *ProductAttrRelRepository
 	productSpecRelRepo *ProductSpecRelRepository
+	setMealGroupRepo   *SetMealGroupRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -189,4 +190,13 @@ func (repo *Repository) ProductSpecRelRepo() domain.ProductSpecRelRepository {
 		repo.productSpecRelRepo = NewProductSpecRelRepository(repo.client)
 	}
 	return repo.productSpecRelRepo
+}
+
+func (repo *Repository) SetMealGroupRepo() domain.SetMealGroupRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.setMealGroupRepo == nil {
+		repo.setMealGroupRepo = NewSetMealGroupRepository(repo.client)
+	}
+	return repo.setMealGroupRepo
 }

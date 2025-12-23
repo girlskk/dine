@@ -2,10 +2,12 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
@@ -27,10 +29,11 @@ func (Product) Mixin() []ent.Mixin {
 func (Product) Fields() []ent.Field {
 	return []ent.Field{
 		// 基础信息
+		field.Enum("type").GoType(domain.ProductType("")).Default(string(domain.ProductTypeNormal)).Comment("商品类型：normal（普通商品）、set_meal（套餐商品）"),
 		field.String("name").MaxLen(255).NotEmpty().Comment("商品名称"),
 		field.UUID("category_id", uuid.UUID{}).Comment("分类ID（支持一级分类和二级分类）"),
 		field.UUID("menu_id", uuid.UUID{}).Optional().Comment("菜单ID"),
-		field.String("mnemonic").MaxLen(255).NotEmpty().Default("").Comment("助记词"),
+		field.String("mnemonic").MaxLen(255).Default("").Comment("助记词"),
 		field.Int("shelf_life").Default(0).Comment("保质期（单位：天）"),
 		field.JSON("support_types", []domain.ProductSupportType{}).Comment("支持类型（堂食、外带）"),
 		// 属性关联
@@ -55,6 +58,24 @@ func (Product) Fields() []ent.Field {
 		field.String("main_image").MaxLen(512).Default("").Comment("主图（可选，一张图片）"),
 		field.JSON("detail_images", []string{}).Optional().Comment("详情图片（可选，多张）"),
 		field.String("description").MaxLen(2000).Default("").Comment("菜品描述（可选）"),
+
+		// 套餐信息
+		field.Other("estimated_cost_price", decimal.Decimal{}).
+			SchemaType(map[string]string{
+				dialect.MySQL:  "DECIMAL(10,2)",
+				dialect.SQLite: "NUMERIC",
+			}).
+			Optional().
+			Nillable().
+			Comment("预估成本价（可选，单位：分，仅套餐商品使用）"),
+		field.Other("delivery_cost_price", decimal.Decimal{}).
+			SchemaType(map[string]string{
+				dialect.MySQL:  "DECIMAL(10,2)",
+				dialect.SQLite: "NUMERIC",
+			}).
+			Optional().
+			Nillable().
+			Comment("外卖成本价（可选，单位：分，仅套餐商品使用）"),
 
 		// 商户和门店
 		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("品牌商ID"),
@@ -85,5 +106,11 @@ func (Product) Edges() []ent.Edge {
 
 		// 商品口味做法
 		edge.To("product_attrs", ProductAttrRelation.Type),
+
+		// 套餐组
+		edge.To("set_meal_groups", SetMealGroup.Type),
+
+		// 套餐组详情
+		edge.To("set_meal_details", SetMealDetail.Type),
 	}
 }

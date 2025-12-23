@@ -119,6 +119,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "menu_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "mnemonic", Type: field.TypeString, Size: 255, Default: ""},
@@ -138,6 +139,8 @@ var (
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "detail_images", Type: field.TypeJSON, Nullable: true},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
+		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "delivery_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "category_id", Type: field.TypeUUID},
@@ -151,13 +154,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "products_categories_products",
-				Columns:    []*schema.Column{ProductsColumns[25]},
+				Columns:    []*schema.Column{ProductsColumns[28]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "products_product_units_products",
-				Columns:    []*schema.Column{ProductsColumns[26]},
+				Columns:    []*schema.Column{ProductsColumns[29]},
 				RefColumns: []*schema.Column{ProductUnitsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -171,17 +174,17 @@ var (
 			{
 				Name:    "product_merchant_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProductsColumns[23]},
+				Columns: []*schema.Column{ProductsColumns[26]},
 			},
 			{
 				Name:    "product_store_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProductsColumns[24]},
+				Columns: []*schema.Column{ProductsColumns[27]},
 			},
 			{
 				Name:    "product_category_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProductsColumns[25]},
+				Columns: []*schema.Column{ProductsColumns[28]},
 			},
 		},
 	}
@@ -475,6 +478,91 @@ var (
 			},
 		},
 	}
+	// SetMealDetailsColumns holds the columns for the "set_meal_details" table.
+	SetMealDetailsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "quantity", Type: field.TypeInt, Default: 1},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "optional_product_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "group_id", Type: field.TypeUUID},
+	}
+	// SetMealDetailsTable holds the schema information for the "set_meal_details" table.
+	SetMealDetailsTable = &schema.Table{
+		Name:       "set_meal_details",
+		Columns:    SetMealDetailsColumns,
+		PrimaryKey: []*schema.Column{SetMealDetailsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "set_meal_details_products_set_meal_details",
+				Columns:    []*schema.Column{SetMealDetailsColumns[7]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "set_meal_details_set_meal_groups_details",
+				Columns:    []*schema.Column{SetMealDetailsColumns[8]},
+				RefColumns: []*schema.Column{SetMealGroupsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "setmealdetail_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealDetailsColumns[3]},
+			},
+			{
+				Name:    "setmealdetail_group_id",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealDetailsColumns[8]},
+			},
+			{
+				Name:    "setmealdetail_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealDetailsColumns[7]},
+			},
+		},
+	}
+	// SetMealGroupsColumns holds the columns for the "set_meal_groups" table.
+	SetMealGroupsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "selection_type", Type: field.TypeEnum, Enums: []string{"fixed", "optional"}, Default: "fixed"},
+		{Name: "product_id", Type: field.TypeUUID},
+	}
+	// SetMealGroupsTable holds the schema information for the "set_meal_groups" table.
+	SetMealGroupsTable = &schema.Table{
+		Name:       "set_meal_groups",
+		Columns:    SetMealGroupsColumns,
+		PrimaryKey: []*schema.Column{SetMealGroupsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "set_meal_groups_products_set_meal_groups",
+				Columns:    []*schema.Column{SetMealGroupsColumns[6]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "setmealgroup_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealGroupsColumns[3]},
+			},
+			{
+				Name:    "setmealgroup_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealGroupsColumns[6]},
+			},
+		},
+	}
 	// ProductTagRelationsColumns holds the columns for the "product_tag_relations" table.
 	ProductTagRelationsColumns = []*schema.Column{
 		{Name: "product_id", Type: field.TypeUUID},
@@ -513,6 +601,8 @@ var (
 		ProductSpecRelationsTable,
 		ProductTagsTable,
 		ProductUnitsTable,
+		SetMealDetailsTable,
+		SetMealGroupsTable,
 		ProductTagRelationsTable,
 	}
 )
@@ -527,6 +617,9 @@ func init() {
 	ProductAttrRelationsTable.ForeignKeys[2].RefTable = ProductAttrItemsTable
 	ProductSpecRelationsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductSpecRelationsTable.ForeignKeys[1].RefTable = ProductSpecsTable
+	SetMealDetailsTable.ForeignKeys[0].RefTable = ProductsTable
+	SetMealDetailsTable.ForeignKeys[1].RefTable = SetMealGroupsTable
+	SetMealGroupsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductTagRelationsTable.ForeignKeys[1].RefTable = ProductTagsTable
 }

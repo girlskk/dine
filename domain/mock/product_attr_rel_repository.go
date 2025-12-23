@@ -5,7 +5,11 @@
 package mock
 
 import (
+	context "context"
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
+	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 // MockProductAttrRelRepository is a mock of ProductAttrRelRepository interface.
@@ -29,4 +33,18 @@ func NewMockProductAttrRelRepository(ctrl *gomock.Controller) *MockProductAttrRe
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockProductAttrRelRepository) EXPECT() *MockProductAttrRelRepositoryMockRecorder {
 	return m.recorder
+}
+
+// CreateBulk mocks base method.
+func (m *MockProductAttrRelRepository) CreateBulk(arg0 context.Context, arg1 domain.ProductAttrRelations) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBulk", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateBulk indicates an expected call of CreateBulk.
+func (mr *MockProductAttrRelRepositoryMockRecorder) CreateBulk(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulk", reflect.TypeOf((*MockProductAttrRelRepository)(nil).CreateBulk), arg0, arg1)
 }

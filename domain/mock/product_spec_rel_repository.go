@@ -5,7 +5,11 @@
 package mock
 
 import (
+	context "context"
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
+	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 // MockProductSpecRelRepository is a mock of ProductSpecRelRepository interface.
@@ -29,4 +33,18 @@ func NewMockProductSpecRelRepository(ctrl *gomock.Controller) *MockProductSpecRe
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockProductSpecRelRepository) EXPECT() *MockProductSpecRelRepositoryMockRecorder {
 	return m.recorder
+}
+
+// CreateBulk mocks base method.
+func (m *MockProductSpecRelRepository) CreateBulk(arg0 context.Context, arg1 domain.ProductSpecRelations) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBulk", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateBulk indicates an expected call of CreateBulk.
+func (mr *MockProductSpecRelRepositoryMockRecorder) CreateBulk(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulk", reflect.TypeOf((*MockProductSpecRelRepository)(nil).CreateBulk), arg0, arg1)
 }

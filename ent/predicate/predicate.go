@@ -38,3 +38,9 @@ type ProductTag func(*sql.Selector)
 
 // ProductUnit is the predicate function for productunit builders.
 type ProductUnit func(*sql.Selector)
+
+// SetMealDetail is the predicate function for setmealdetail builders.
+type SetMealDetail func(*sql.Selector)
+
+// SetMealGroup is the predicate function for setmealgroup builders.
+type SetMealGroup func(*sql.Selector)

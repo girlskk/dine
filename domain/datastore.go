@@ -17,6 +17,7 @@ type DataStore interface {
 	ProductRepo() ProductRepository
 	ProductAttrRelRepo() ProductAttrRelRepository
 	ProductSpecRelRepo() ProductSpecRelRepository
+	SetMealGroupRepo() SetMealGroupRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

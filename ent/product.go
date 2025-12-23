@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
@@ -29,6 +30,8 @@ type Product struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// 删除时间
 	DeletedAt int64 `json:"deleted_at,omitempty"`
+	// 商品类型：normal（普通商品）、set_meal（套餐商品）
+	Type domain.ProductType `json:"type,omitempty"`
 	// 商品名称
 	Name string `json:"name,omitempty"`
 	// 分类ID（支持一级分类和二级分类）
@@ -71,6 +74,10 @@ type Product struct {
 	DetailImages []string `json:"detail_images,omitempty"`
 	// 菜品描述（可选）
 	Description string `json:"description,omitempty"`
+	// 预估成本价（可选，单位：分，仅套餐商品使用）
+	EstimatedCostPrice *decimal.Decimal `json:"estimated_cost_price,omitempty"`
+	// 外卖成本价（可选，单位：分，仅套餐商品使用）
+	DeliveryCostPrice *decimal.Decimal `json:"delivery_cost_price,omitempty"`
 	// 品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 门店ID
@@ -93,9 +100,13 @@ type ProductEdges struct {
 	ProductSpecs []*ProductSpecRelation `json:"product_specs,omitempty"`
 	// ProductAttrs holds the value of the product_attrs edge.
 	ProductAttrs []*ProductAttrRelation `json:"product_attrs,omitempty"`
+	// SetMealGroups holds the value of the set_meal_groups edge.
+	SetMealGroups []*SetMealGroup `json:"set_meal_groups,omitempty"`
+	// SetMealDetails holds the value of the set_meal_details edge.
+	SetMealDetails []*SetMealDetail `json:"set_meal_details,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [7]bool
 }
 
 // CategoryOrErr returns the Category value or an error if the edge
@@ -147,18 +158,38 @@ func (e ProductEdges) ProductAttrsOrErr() ([]*ProductAttrRelation, error) {
 	return nil, &NotLoadedError{edge: "product_attrs"}
 }
 
+// SetMealGroupsOrErr returns the SetMealGroups value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductEdges) SetMealGroupsOrErr() ([]*SetMealGroup, error) {
+	if e.loadedTypes[5] {
+		return e.SetMealGroups, nil
+	}
+	return nil, &NotLoadedError{edge: "set_meal_groups"}
+}
+
+// SetMealDetailsOrErr returns the SetMealDetails value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductEdges) SetMealDetailsOrErr() ([]*SetMealDetail, error) {
+	if e.loadedTypes[6] {
+		return e.SetMealDetails, nil
+	}
+	return nil, &NotLoadedError{edge: "set_meal_details"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Product) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case product.FieldEstimatedCostPrice, product.FieldDeliveryCostPrice:
+			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
 		case product.FieldSupportTypes, product.FieldSaleChannels, product.FieldDetailImages:
 			values[i] = new([]byte)
 		case product.FieldInheritTaxRate, product.FieldInheritStall:
 			values[i] = new(sql.NullBool)
 		case product.FieldDeletedAt, product.FieldShelfLife, product.FieldMinSaleQuantity, product.FieldAddSaleQuantity:
 			values[i] = new(sql.NullInt64)
-		case product.FieldName, product.FieldMnemonic, product.FieldSaleStatus, product.FieldEffectiveDateType, product.FieldMainImage, product.FieldDescription:
+		case product.FieldType, product.FieldName, product.FieldMnemonic, product.FieldSaleStatus, product.FieldEffectiveDateType, product.FieldMainImage, product.FieldDescription:
 			values[i] = new(sql.NullString)
 		case product.FieldCreatedAt, product.FieldUpdatedAt, product.FieldEffectiveStartTime, product.FieldEffectiveEndTime:
 			values[i] = new(sql.NullTime)
@@ -202,6 +233,12 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				pr.DeletedAt = value.Int64
+			}
+		case product.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				pr.Type = domain.ProductType(value.String)
 			}
 		case product.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -337,6 +374,20 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Description = value.String
 			}
+		case product.FieldEstimatedCostPrice:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field estimated_cost_price", values[i])
+			} else if value.Valid {
+				pr.EstimatedCostPrice = new(decimal.Decimal)
+				*pr.EstimatedCostPrice = *value.S.(*decimal.Decimal)
+			}
+		case product.FieldDeliveryCostPrice:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field delivery_cost_price", values[i])
+			} else if value.Valid {
+				pr.DeliveryCostPrice = new(decimal.Decimal)
+				*pr.DeliveryCostPrice = *value.S.(*decimal.Decimal)
+			}
 		case product.FieldMerchantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
@@ -387,6 +438,16 @@ func (pr *Product) QueryProductAttrs() *ProductAttrRelationQuery {
 	return NewProductClient(pr.config).QueryProductAttrs(pr)
 }
 
+// QuerySetMealGroups queries the "set_meal_groups" edge of the Product entity.
+func (pr *Product) QuerySetMealGroups() *SetMealGroupQuery {
+	return NewProductClient(pr.config).QuerySetMealGroups(pr)
+}
+
+// QuerySetMealDetails queries the "set_meal_details" edge of the Product entity.
+func (pr *Product) QuerySetMealDetails() *SetMealDetailQuery {
+	return NewProductClient(pr.config).QuerySetMealDetails(pr)
+}
+
 // Update returns a builder for updating this Product.
 // Note that you need to call Product.Unwrap() before calling this method if this Product
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -418,6 +479,9 @@ func (pr *Product) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", pr.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Type))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(pr.Name)
@@ -485,6 +549,16 @@ func (pr *Product) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(pr.Description)
+	builder.WriteString(", ")
+	if v := pr.EstimatedCostPrice; v != nil {
+		builder.WriteString("estimated_cost_price=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := pr.DeliveryCostPrice; v != nil {
+		builder.WriteString("delivery_cost_price=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", pr.MerchantID))

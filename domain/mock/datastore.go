@@ -214,3 +214,17 @@ func (mr *MockDataStoreMockRecorder) ProductUnitRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductUnitRepo", reflect.TypeOf((*MockDataStore)(nil).ProductUnitRepo))
 }
+
+// SetMealGroupRepo mocks base method.
+func (m *MockDataStore) SetMealGroupRepo() domain.SetMealGroupRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetMealGroupRepo")
+	ret0, _ := ret[0].(domain.SetMealGroupRepository)
+	return ret0
+}
+
+// SetMealGroupRepo indicates an expected call of SetMealGroupRepo.
+func (mr *MockDataStoreMockRecorder) SetMealGroupRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMealGroupRepo", reflect.TypeOf((*MockDataStore)(nil).SetMealGroupRepo))
+}

@@ -21,21 +21,25 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 )
 
 // ProductQuery is the builder for querying Product entities.
 type ProductQuery struct {
 	config
-	ctx              *QueryContext
-	order            []product.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.Product
-	withCategory     *CategoryQuery
-	withUnit         *ProductUnitQuery
-	withTags         *ProductTagQuery
-	withProductSpecs *ProductSpecRelationQuery
-	withProductAttrs *ProductAttrRelationQuery
-	modifiers        []func(*sql.Selector)
+	ctx                *QueryContext
+	order              []product.OrderOption
+	inters             []Interceptor
+	predicates         []predicate.Product
+	withCategory       *CategoryQuery
+	withUnit           *ProductUnitQuery
+	withTags           *ProductTagQuery
+	withProductSpecs   *ProductSpecRelationQuery
+	withProductAttrs   *ProductAttrRelationQuery
+	withSetMealGroups  *SetMealGroupQuery
+	withSetMealDetails *SetMealDetailQuery
+	modifiers          []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -175,6 +179,50 @@ func (pq *ProductQuery) QueryProductAttrs() *ProductAttrRelationQuery {
 			sqlgraph.From(product.Table, product.FieldID, selector),
 			sqlgraph.To(productattrrelation.Table, productattrrelation.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, product.ProductAttrsTable, product.ProductAttrsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySetMealGroups chains the current query on the "set_meal_groups" edge.
+func (pq *ProductQuery) QuerySetMealGroups() *SetMealGroupQuery {
+	query := (&SetMealGroupClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, selector),
+			sqlgraph.To(setmealgroup.Table, setmealgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.SetMealGroupsTable, product.SetMealGroupsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySetMealDetails chains the current query on the "set_meal_details" edge.
+func (pq *ProductQuery) QuerySetMealDetails() *SetMealDetailQuery {
+	query := (&SetMealDetailClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, selector),
+			sqlgraph.To(setmealdetail.Table, setmealdetail.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.SetMealDetailsTable, product.SetMealDetailsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -369,16 +417,18 @@ func (pq *ProductQuery) Clone() *ProductQuery {
 		return nil
 	}
 	return &ProductQuery{
-		config:           pq.config,
-		ctx:              pq.ctx.Clone(),
-		order:            append([]product.OrderOption{}, pq.order...),
-		inters:           append([]Interceptor{}, pq.inters...),
-		predicates:       append([]predicate.Product{}, pq.predicates...),
-		withCategory:     pq.withCategory.Clone(),
-		withUnit:         pq.withUnit.Clone(),
-		withTags:         pq.withTags.Clone(),
-		withProductSpecs: pq.withProductSpecs.Clone(),
-		withProductAttrs: pq.withProductAttrs.Clone(),
+		config:             pq.config,
+		ctx:                pq.ctx.Clone(),
+		order:              append([]product.OrderOption{}, pq.order...),
+		inters:             append([]Interceptor{}, pq.inters...),
+		predicates:         append([]predicate.Product{}, pq.predicates...),
+		withCategory:       pq.withCategory.Clone(),
+		withUnit:           pq.withUnit.Clone(),
+		withTags:           pq.withTags.Clone(),
+		withProductSpecs:   pq.withProductSpecs.Clone(),
+		withProductAttrs:   pq.withProductAttrs.Clone(),
+		withSetMealGroups:  pq.withSetMealGroups.Clone(),
+		withSetMealDetails: pq.withSetMealDetails.Clone(),
 		// clone intermediate query.
 		sql:       pq.sql.Clone(),
 		path:      pq.path,
@@ -438,6 +488,28 @@ func (pq *ProductQuery) WithProductAttrs(opts ...func(*ProductAttrRelationQuery)
 		opt(query)
 	}
 	pq.withProductAttrs = query
+	return pq
+}
+
+// WithSetMealGroups tells the query-builder to eager-load the nodes that are connected to
+// the "set_meal_groups" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProductQuery) WithSetMealGroups(opts ...func(*SetMealGroupQuery)) *ProductQuery {
+	query := (&SetMealGroupClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withSetMealGroups = query
+	return pq
+}
+
+// WithSetMealDetails tells the query-builder to eager-load the nodes that are connected to
+// the "set_meal_details" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProductQuery) WithSetMealDetails(opts ...func(*SetMealDetailQuery)) *ProductQuery {
+	query := (&SetMealDetailClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withSetMealDetails = query
 	return pq
 }
 
@@ -519,12 +591,14 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 	var (
 		nodes       = []*Product{}
 		_spec       = pq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [7]bool{
 			pq.withCategory != nil,
 			pq.withUnit != nil,
 			pq.withTags != nil,
 			pq.withProductSpecs != nil,
 			pq.withProductAttrs != nil,
+			pq.withSetMealGroups != nil,
+			pq.withSetMealDetails != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -578,6 +652,20 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 		if err := pq.loadProductAttrs(ctx, query, nodes,
 			func(n *Product) { n.Edges.ProductAttrs = []*ProductAttrRelation{} },
 			func(n *Product, e *ProductAttrRelation) { n.Edges.ProductAttrs = append(n.Edges.ProductAttrs, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withSetMealGroups; query != nil {
+		if err := pq.loadSetMealGroups(ctx, query, nodes,
+			func(n *Product) { n.Edges.SetMealGroups = []*SetMealGroup{} },
+			func(n *Product, e *SetMealGroup) { n.Edges.SetMealGroups = append(n.Edges.SetMealGroups, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withSetMealDetails; query != nil {
+		if err := pq.loadSetMealDetails(ctx, query, nodes,
+			func(n *Product) { n.Edges.SetMealDetails = []*SetMealDetail{} },
+			func(n *Product, e *SetMealDetail) { n.Edges.SetMealDetails = append(n.Edges.SetMealDetails, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -748,6 +836,66 @@ func (pq *ProductQuery) loadProductAttrs(ctx context.Context, query *ProductAttr
 	}
 	query.Where(predicate.ProductAttrRelation(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(product.ProductAttrsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProductID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "product_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (pq *ProductQuery) loadSetMealGroups(ctx context.Context, query *SetMealGroupQuery, nodes []*Product, init func(*Product), assign func(*Product, *SetMealGroup)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Product)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(setmealgroup.FieldProductID)
+	}
+	query.Where(predicate.SetMealGroup(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(product.SetMealGroupsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProductID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "product_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (pq *ProductQuery) loadSetMealDetails(ctx context.Context, query *SetMealDetailQuery, nodes []*Product, init func(*Product), assign func(*Product, *SetMealDetail)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Product)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(setmealdetail.FieldProductID)
+	}
+	query.Where(predicate.SetMealDetail(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(product.SetMealDetailsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

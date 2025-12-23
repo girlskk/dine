@@ -24,6 +24,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldCategoryID holds the string denoting the category_id field in the database.
@@ -66,6 +68,10 @@ const (
 	FieldDetailImages = "detail_images"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldEstimatedCostPrice holds the string denoting the estimated_cost_price field in the database.
+	FieldEstimatedCostPrice = "estimated_cost_price"
+	// FieldDeliveryCostPrice holds the string denoting the delivery_cost_price field in the database.
+	FieldDeliveryCostPrice = "delivery_cost_price"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
@@ -80,6 +86,10 @@ const (
 	EdgeProductSpecs = "product_specs"
 	// EdgeProductAttrs holds the string denoting the product_attrs edge name in mutations.
 	EdgeProductAttrs = "product_attrs"
+	// EdgeSetMealGroups holds the string denoting the set_meal_groups edge name in mutations.
+	EdgeSetMealGroups = "set_meal_groups"
+	// EdgeSetMealDetails holds the string denoting the set_meal_details edge name in mutations.
+	EdgeSetMealDetails = "set_meal_details"
 	// Table holds the table name of the product in the database.
 	Table = "products"
 	// CategoryTable is the table that holds the category relation/edge.
@@ -115,6 +125,20 @@ const (
 	ProductAttrsInverseTable = "product_attr_relations"
 	// ProductAttrsColumn is the table column denoting the product_attrs relation/edge.
 	ProductAttrsColumn = "product_id"
+	// SetMealGroupsTable is the table that holds the set_meal_groups relation/edge.
+	SetMealGroupsTable = "set_meal_groups"
+	// SetMealGroupsInverseTable is the table name for the SetMealGroup entity.
+	// It exists in this package in order to avoid circular dependency with the "setmealgroup" package.
+	SetMealGroupsInverseTable = "set_meal_groups"
+	// SetMealGroupsColumn is the table column denoting the set_meal_groups relation/edge.
+	SetMealGroupsColumn = "product_id"
+	// SetMealDetailsTable is the table that holds the set_meal_details relation/edge.
+	SetMealDetailsTable = "set_meal_details"
+	// SetMealDetailsInverseTable is the table name for the SetMealDetail entity.
+	// It exists in this package in order to avoid circular dependency with the "setmealdetail" package.
+	SetMealDetailsInverseTable = "set_meal_details"
+	// SetMealDetailsColumn is the table column denoting the set_meal_details relation/edge.
+	SetMealDetailsColumn = "product_id"
 )
 
 // Columns holds all SQL columns for product fields.
@@ -123,6 +147,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldType,
 	FieldName,
 	FieldCategoryID,
 	FieldMenuID,
@@ -144,6 +169,8 @@ var Columns = []string{
 	FieldMainImage,
 	FieldDetailImages,
 	FieldDescription,
+	FieldEstimatedCostPrice,
+	FieldDeliveryCostPrice,
 	FieldMerchantID,
 	FieldStoreID,
 }
@@ -204,6 +231,18 @@ var (
 	DefaultID func() uuid.UUID
 )
 
+const DefaultType domain.ProductType = "normal"
+
+// TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
+func TypeValidator(_type domain.ProductType) error {
+	switch _type {
+	case "normal", "set_meal":
+		return nil
+	default:
+		return fmt.Errorf("product: invalid enum value for type field: %q", _type)
+	}
+}
+
 const DefaultSaleStatus domain.ProductSaleStatus = "on_sale"
 
 // SaleStatusValidator is a validator for the "sale_status" field enum values. It is called by the builders before save.
@@ -247,6 +286,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
 // ByName orders the results by the name field.
@@ -339,6 +383,16 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
+// ByEstimatedCostPrice orders the results by the estimated_cost_price field.
+func ByEstimatedCostPrice(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEstimatedCostPrice, opts...).ToFunc()
+}
+
+// ByDeliveryCostPrice orders the results by the delivery_cost_price field.
+func ByDeliveryCostPrice(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeliveryCostPrice, opts...).ToFunc()
+}
+
 // ByMerchantID orders the results by the merchant_id field.
 func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
@@ -404,6 +458,34 @@ func ByProductAttrs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProductAttrsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// BySetMealGroupsCount orders the results by set_meal_groups count.
+func BySetMealGroupsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSetMealGroupsStep(), opts...)
+	}
+}
+
+// BySetMealGroups orders the results by set_meal_groups terms.
+func BySetMealGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSetMealGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySetMealDetailsCount orders the results by set_meal_details count.
+func BySetMealDetailsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSetMealDetailsStep(), opts...)
+	}
+}
+
+// BySetMealDetails orders the results by set_meal_details terms.
+func BySetMealDetails(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSetMealDetailsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCategoryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -437,5 +519,19 @@ func newProductAttrsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProductAttrsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProductAttrsTable, ProductAttrsColumn),
+	)
+}
+func newSetMealGroupsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SetMealGroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SetMealGroupsTable, SetMealGroupsColumn),
+	)
+}
+func newSetMealDetailsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SetMealDetailsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SetMealDetailsTable, SetMealDetailsColumn),
 	)
 }

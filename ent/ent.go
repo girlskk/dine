@@ -23,6 +23,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -94,6 +96,8 @@ func checkColumn(table, column string) error {
 			productspecrelation.Table: productspecrelation.ValidColumn,
 			producttag.Table:          producttag.ValidColumn,
 			productunit.Table:         productunit.ValidColumn,
+			setmealdetail.Table:       setmealdetail.ValidColumn,
+			setmealgroup.Table:        setmealgroup.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

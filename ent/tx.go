@@ -34,6 +34,10 @@ type Tx struct {
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
 	ProductUnit *ProductUnitClient
+	// SetMealDetail is the client for interacting with the SetMealDetail builders.
+	SetMealDetail *SetMealDetailClient
+	// SetMealGroup is the client for interacting with the SetMealGroup builders.
+	SetMealGroup *SetMealGroupClient
 
 	// lazily loaded.
 	client     *Client
@@ -176,6 +180,8 @@ func (tx *Tx) init() {
 	tx.ProductSpecRelation = NewProductSpecRelationClient(tx.config)
 	tx.ProductTag = NewProductTagClient(tx.config)
 	tx.ProductUnit = NewProductUnitClient(tx.config)
+	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
+	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

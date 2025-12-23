@@ -67,3 +67,63 @@ type ProductAttrRelationReq struct {
 	AttrItemID uuid.UUID `json:"attr_item_id" binding:"required"` // 口味做法项ID（必选）
 	IsDefault  bool      `json:"is_default"`                      // 是否默认项
 }
+
+// SetMealCreateReq 创建套餐商品请求
+type SetMealCreateReq struct {
+	// 基础信息
+	Name         string                      `json:"name" binding:"required,max=255"` // 商品名称（必选）
+	CategoryID   uuid.UUID                   `json:"category_id" binding:"required"`  // 分类ID（必选）
+	MenuID       *uuid.UUID                  `json:"menu_id,omitempty"`               // 菜单ID（可选）
+	Mnemonic     string                      `json:"mnemonic,omitempty"`              // 助记词（可选）
+	ShelfLife    int                         `json:"shelf_life,omitempty"`            // 保质期（可选，单位：天）
+	SupportTypes []domain.ProductSupportType `json:"support_types,omitempty"`         // 支持类型（可选，堂食、外带）
+
+	// 属性关联
+	UnitID uuid.UUID `json:"unit_id" binding:"required"` // 单位ID（必选）
+
+	// 售卖信息
+	SaleStatus         domain.ProductSaleStatus `json:"sale_status" binding:"required,oneof=on_sale off_sale"`     // 售卖状态（必选）
+	SaleChannels       []domain.SaleChannel     `json:"sale_channels,omitempty"`                                   // 售卖渠道（可选，可多选）
+	EffectiveDateType  domain.EffectiveDateType `json:"effective_date_type" binding:"required,oneof=daily custom"` // 生效日期类型
+	EffectiveStartTime *time.Time               `json:"effective_start_time,omitempty"`                            // 生效开始时间（可选）
+	EffectiveEndTime   *time.Time               `json:"effective_end_time,omitempty"`                              // 生效结束时间（可选）
+	MinSaleQuantity    int                      `json:"min_sale_quantity" binding:"required,min=1"`                // 起售份数（必选）
+	AddSaleQuantity    int                      `json:"add_sale_quantity" binding:"required,min=1"`                // 加售份数（必选）
+
+	// 其他信息
+	InheritTaxRate bool       `json:"inherit_tax_rate"`      // 是否继承原分类税率（必选）
+	TaxRateID      *uuid.UUID `json:"tax_rate_id,omitempty"` // 指定税率ID（可选）
+	InheritStall   bool       `json:"inherit_stall"`         // 是否继承原出品部门（必选）
+	StallID        *uuid.UUID `json:"stall_id,omitempty"`    // 指定出品部门ID（可选）
+
+	// 展示信息
+	MainImage    string   `json:"main_image,omitempty"`    // 主图（可选）
+	DetailImages []string `json:"detail_images,omitempty"` // 详情图片（可选，多张）
+	Description  string   `json:"description,omitempty"`   // 菜品描述（可选）
+
+	// 关联信息
+	SpecRelations []ProductSpecRelationReq `json:"spec_relations" binding:"required,min=1,dive"` // 商品规格关联列表（必选，至少一个）
+	TagIDs        []uuid.UUID              `json:"tag_ids,omitempty"`                            // 商品标签ID列表（可选）
+
+	// 套餐属性
+	ComboEstimatedCostPrice *decimal.Decimal `json:"combo_estimated_cost_price,omitempty"` // 预估成本价（可选，单位：分）
+	ComboDeliveryCostPrice  *decimal.Decimal `json:"combo_delivery_cost_price,omitempty"`  // 外卖成本价（可选，单位：分）
+
+	// 套餐组（必选，至少一个）
+	Groups []SetMealGroupReq `json:"groups" binding:"required,min=1,dive"` // 套餐组列表（必选，至少一个）
+}
+
+// SetMealGroupReq 套餐组请求
+type SetMealGroupReq struct {
+	Name          string                           `json:"name" binding:"required,max=255"`       // 套餐组名称（必选）
+	SelectionType domain.SetMealGroupSelectionType `json:"selection_type"`                        // 点单限制：fixed（固定分组）、optional（可选套餐），默认 fixed
+	Details       []SetMealDetailReq               `json:"details" binding:"required,min=1,dive"` // 套餐组详情列表（必选，至少一个）
+}
+
+// SetMealDetailReq 套餐组详情请求
+type SetMealDetailReq struct {
+	ProductID          uuid.UUID   `json:"product_id" binding:"required"`     // 商品ID（必选）
+	Quantity           int         `json:"quantity" binding:"required,min=1"` // 数量（必选，必须为正整数）
+	IsDefault          bool        `json:"is_default"`                        // 是否默认（必选，每个套餐组中只能有一个默认项）
+	OptionalProductIDs []uuid.UUID `json:"optional_product_ids,omitempty"`    // 备选商品ID列表（可选，多选）
+}

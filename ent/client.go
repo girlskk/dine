@@ -27,6 +27,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 )
 
 // Client is the client that holds all ent builders.
@@ -56,6 +58,10 @@ type Client struct {
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
 	ProductUnit *ProductUnitClient
+	// SetMealDetail is the client for interacting with the SetMealDetail builders.
+	SetMealDetail *SetMealDetailClient
+	// SetMealGroup is the client for interacting with the SetMealGroup builders.
+	SetMealGroup *SetMealGroupClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -78,6 +84,8 @@ func (c *Client) init() {
 	c.ProductSpecRelation = NewProductSpecRelationClient(c.config)
 	c.ProductTag = NewProductTagClient(c.config)
 	c.ProductUnit = NewProductUnitClient(c.config)
+	c.SetMealDetail = NewSetMealDetailClient(c.config)
+	c.SetMealGroup = NewSetMealGroupClient(c.config)
 }
 
 type (
@@ -181,6 +189,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ProductSpecRelation: NewProductSpecRelationClient(cfg),
 		ProductTag:          NewProductTagClient(cfg),
 		ProductUnit:         NewProductUnitClient(cfg),
+		SetMealDetail:       NewSetMealDetailClient(cfg),
+		SetMealGroup:        NewSetMealGroupClient(cfg),
 	}, nil
 }
 
@@ -211,6 +221,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ProductSpecRelation: NewProductSpecRelationClient(cfg),
 		ProductTag:          NewProductTagClient(cfg),
 		ProductUnit:         NewProductUnitClient(cfg),
+		SetMealDetail:       NewSetMealDetailClient(cfg),
+		SetMealGroup:        NewSetMealGroupClient(cfg),
 	}, nil
 }
 
@@ -242,7 +254,7 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AdminUser, c.BackendUser, c.Category, c.Product, c.ProductAttr,
 		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
-		c.ProductTag, c.ProductUnit,
+		c.ProductTag, c.ProductUnit, c.SetMealDetail, c.SetMealGroup,
 	} {
 		n.Use(hooks...)
 	}
@@ -254,7 +266,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AdminUser, c.BackendUser, c.Category, c.Product, c.ProductAttr,
 		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
-		c.ProductTag, c.ProductUnit,
+		c.ProductTag, c.ProductUnit, c.SetMealDetail, c.SetMealGroup,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -285,6 +297,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ProductTag.mutate(ctx, m)
 	case *ProductUnitMutation:
 		return c.ProductUnit.mutate(ctx, m)
+	case *SetMealDetailMutation:
+		return c.SetMealDetail.mutate(ctx, m)
+	case *SetMealGroupMutation:
+		return c.SetMealGroup.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -924,6 +940,38 @@ func (c *ProductClient) QueryProductAttrs(pr *Product) *ProductAttrRelationQuery
 			sqlgraph.From(product.Table, product.FieldID, id),
 			sqlgraph.To(productattrrelation.Table, productattrrelation.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, product.ProductAttrsTable, product.ProductAttrsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySetMealGroups queries the set_meal_groups edge of a Product.
+func (c *ProductClient) QuerySetMealGroups(pr *Product) *SetMealGroupQuery {
+	query := (&SetMealGroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(setmealgroup.Table, setmealgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.SetMealGroupsTable, product.SetMealGroupsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySetMealDetails queries the set_meal_details edge of a Product.
+func (c *ProductClient) QuerySetMealDetails(pr *Product) *SetMealDetailQuery {
+	query := (&SetMealDetailClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(setmealdetail.Table, setmealdetail.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.SetMealDetailsTable, product.SetMealDetailsColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -2095,16 +2143,350 @@ func (c *ProductUnitClient) mutate(ctx context.Context, m *ProductUnitMutation) 
 	}
 }
 
+// SetMealDetailClient is a client for the SetMealDetail schema.
+type SetMealDetailClient struct {
+	config
+}
+
+// NewSetMealDetailClient returns a client for the SetMealDetail from the given config.
+func NewSetMealDetailClient(c config) *SetMealDetailClient {
+	return &SetMealDetailClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `setmealdetail.Hooks(f(g(h())))`.
+func (c *SetMealDetailClient) Use(hooks ...Hook) {
+	c.hooks.SetMealDetail = append(c.hooks.SetMealDetail, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `setmealdetail.Intercept(f(g(h())))`.
+func (c *SetMealDetailClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SetMealDetail = append(c.inters.SetMealDetail, interceptors...)
+}
+
+// Create returns a builder for creating a SetMealDetail entity.
+func (c *SetMealDetailClient) Create() *SetMealDetailCreate {
+	mutation := newSetMealDetailMutation(c.config, OpCreate)
+	return &SetMealDetailCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SetMealDetail entities.
+func (c *SetMealDetailClient) CreateBulk(builders ...*SetMealDetailCreate) *SetMealDetailCreateBulk {
+	return &SetMealDetailCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SetMealDetailClient) MapCreateBulk(slice any, setFunc func(*SetMealDetailCreate, int)) *SetMealDetailCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SetMealDetailCreateBulk{err: fmt.Errorf("calling to SetMealDetailClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SetMealDetailCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SetMealDetailCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SetMealDetail.
+func (c *SetMealDetailClient) Update() *SetMealDetailUpdate {
+	mutation := newSetMealDetailMutation(c.config, OpUpdate)
+	return &SetMealDetailUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SetMealDetailClient) UpdateOne(smd *SetMealDetail) *SetMealDetailUpdateOne {
+	mutation := newSetMealDetailMutation(c.config, OpUpdateOne, withSetMealDetail(smd))
+	return &SetMealDetailUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SetMealDetailClient) UpdateOneID(id uuid.UUID) *SetMealDetailUpdateOne {
+	mutation := newSetMealDetailMutation(c.config, OpUpdateOne, withSetMealDetailID(id))
+	return &SetMealDetailUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SetMealDetail.
+func (c *SetMealDetailClient) Delete() *SetMealDetailDelete {
+	mutation := newSetMealDetailMutation(c.config, OpDelete)
+	return &SetMealDetailDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SetMealDetailClient) DeleteOne(smd *SetMealDetail) *SetMealDetailDeleteOne {
+	return c.DeleteOneID(smd.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SetMealDetailClient) DeleteOneID(id uuid.UUID) *SetMealDetailDeleteOne {
+	builder := c.Delete().Where(setmealdetail.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SetMealDetailDeleteOne{builder}
+}
+
+// Query returns a query builder for SetMealDetail.
+func (c *SetMealDetailClient) Query() *SetMealDetailQuery {
+	return &SetMealDetailQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSetMealDetail},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SetMealDetail entity by its id.
+func (c *SetMealDetailClient) Get(ctx context.Context, id uuid.UUID) (*SetMealDetail, error) {
+	return c.Query().Where(setmealdetail.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SetMealDetailClient) GetX(ctx context.Context, id uuid.UUID) *SetMealDetail {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryGroup queries the group edge of a SetMealDetail.
+func (c *SetMealDetailClient) QueryGroup(smd *SetMealDetail) *SetMealGroupQuery {
+	query := (&SetMealGroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := smd.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(setmealdetail.Table, setmealdetail.FieldID, id),
+			sqlgraph.To(setmealgroup.Table, setmealgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, setmealdetail.GroupTable, setmealdetail.GroupColumn),
+		)
+		fromV = sqlgraph.Neighbors(smd.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProduct queries the product edge of a SetMealDetail.
+func (c *SetMealDetailClient) QueryProduct(smd *SetMealDetail) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := smd.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(setmealdetail.Table, setmealdetail.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, setmealdetail.ProductTable, setmealdetail.ProductColumn),
+		)
+		fromV = sqlgraph.Neighbors(smd.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SetMealDetailClient) Hooks() []Hook {
+	hooks := c.hooks.SetMealDetail
+	return append(hooks[:len(hooks):len(hooks)], setmealdetail.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *SetMealDetailClient) Interceptors() []Interceptor {
+	inters := c.inters.SetMealDetail
+	return append(inters[:len(inters):len(inters)], setmealdetail.Interceptors[:]...)
+}
+
+func (c *SetMealDetailClient) mutate(ctx context.Context, m *SetMealDetailMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SetMealDetailCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SetMealDetailUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SetMealDetailUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SetMealDetailDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SetMealDetail mutation op: %q", m.Op())
+	}
+}
+
+// SetMealGroupClient is a client for the SetMealGroup schema.
+type SetMealGroupClient struct {
+	config
+}
+
+// NewSetMealGroupClient returns a client for the SetMealGroup from the given config.
+func NewSetMealGroupClient(c config) *SetMealGroupClient {
+	return &SetMealGroupClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `setmealgroup.Hooks(f(g(h())))`.
+func (c *SetMealGroupClient) Use(hooks ...Hook) {
+	c.hooks.SetMealGroup = append(c.hooks.SetMealGroup, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `setmealgroup.Intercept(f(g(h())))`.
+func (c *SetMealGroupClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SetMealGroup = append(c.inters.SetMealGroup, interceptors...)
+}
+
+// Create returns a builder for creating a SetMealGroup entity.
+func (c *SetMealGroupClient) Create() *SetMealGroupCreate {
+	mutation := newSetMealGroupMutation(c.config, OpCreate)
+	return &SetMealGroupCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SetMealGroup entities.
+func (c *SetMealGroupClient) CreateBulk(builders ...*SetMealGroupCreate) *SetMealGroupCreateBulk {
+	return &SetMealGroupCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SetMealGroupClient) MapCreateBulk(slice any, setFunc func(*SetMealGroupCreate, int)) *SetMealGroupCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SetMealGroupCreateBulk{err: fmt.Errorf("calling to SetMealGroupClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SetMealGroupCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SetMealGroupCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SetMealGroup.
+func (c *SetMealGroupClient) Update() *SetMealGroupUpdate {
+	mutation := newSetMealGroupMutation(c.config, OpUpdate)
+	return &SetMealGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SetMealGroupClient) UpdateOne(smg *SetMealGroup) *SetMealGroupUpdateOne {
+	mutation := newSetMealGroupMutation(c.config, OpUpdateOne, withSetMealGroup(smg))
+	return &SetMealGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SetMealGroupClient) UpdateOneID(id uuid.UUID) *SetMealGroupUpdateOne {
+	mutation := newSetMealGroupMutation(c.config, OpUpdateOne, withSetMealGroupID(id))
+	return &SetMealGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SetMealGroup.
+func (c *SetMealGroupClient) Delete() *SetMealGroupDelete {
+	mutation := newSetMealGroupMutation(c.config, OpDelete)
+	return &SetMealGroupDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SetMealGroupClient) DeleteOne(smg *SetMealGroup) *SetMealGroupDeleteOne {
+	return c.DeleteOneID(smg.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SetMealGroupClient) DeleteOneID(id uuid.UUID) *SetMealGroupDeleteOne {
+	builder := c.Delete().Where(setmealgroup.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SetMealGroupDeleteOne{builder}
+}
+
+// Query returns a query builder for SetMealGroup.
+func (c *SetMealGroupClient) Query() *SetMealGroupQuery {
+	return &SetMealGroupQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSetMealGroup},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SetMealGroup entity by its id.
+func (c *SetMealGroupClient) Get(ctx context.Context, id uuid.UUID) (*SetMealGroup, error) {
+	return c.Query().Where(setmealgroup.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SetMealGroupClient) GetX(ctx context.Context, id uuid.UUID) *SetMealGroup {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProduct queries the product edge of a SetMealGroup.
+func (c *SetMealGroupClient) QueryProduct(smg *SetMealGroup) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := smg.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(setmealgroup.Table, setmealgroup.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, setmealgroup.ProductTable, setmealgroup.ProductColumn),
+		)
+		fromV = sqlgraph.Neighbors(smg.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDetails queries the details edge of a SetMealGroup.
+func (c *SetMealGroupClient) QueryDetails(smg *SetMealGroup) *SetMealDetailQuery {
+	query := (&SetMealDetailClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := smg.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(setmealgroup.Table, setmealgroup.FieldID, id),
+			sqlgraph.To(setmealdetail.Table, setmealdetail.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, setmealgroup.DetailsTable, setmealgroup.DetailsColumn),
+		)
+		fromV = sqlgraph.Neighbors(smg.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SetMealGroupClient) Hooks() []Hook {
+	hooks := c.hooks.SetMealGroup
+	return append(hooks[:len(hooks):len(hooks)], setmealgroup.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *SetMealGroupClient) Interceptors() []Interceptor {
+	inters := c.inters.SetMealGroup
+	return append(inters[:len(inters):len(inters)], setmealgroup.Interceptors[:]...)
+}
+
+func (c *SetMealGroupClient) mutate(ctx context.Context, m *SetMealGroupMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SetMealGroupCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SetMealGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SetMealGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SetMealGroupDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SetMealGroup mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
 		AdminUser, BackendUser, Category, Product, ProductAttr, ProductAttrItem,
-		ProductAttrRelation, ProductSpec, ProductSpecRelation, ProductTag,
-		ProductUnit []ent.Hook
+		ProductAttrRelation, ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
+		SetMealDetail, SetMealGroup []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, Product, ProductAttr, ProductAttrItem,
-		ProductAttrRelation, ProductSpec, ProductSpecRelation, ProductTag,
-		ProductUnit []ent.Interceptor
+		ProductAttrRelation, ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
+		SetMealDetail, SetMealGroup []ent.Interceptor
 	}
 )

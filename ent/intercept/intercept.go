@@ -20,6 +20,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 )
 
 // The Query interface represents an operation that queries a graph.
@@ -375,6 +377,60 @@ func (f TraverseProductUnit) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ProductUnitQuery", q)
 }
 
+// The SetMealDetailFunc type is an adapter to allow the use of ordinary function as a Querier.
+type SetMealDetailFunc func(context.Context, *ent.SetMealDetailQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f SetMealDetailFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.SetMealDetailQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.SetMealDetailQuery", q)
+}
+
+// The TraverseSetMealDetail type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseSetMealDetail func(context.Context, *ent.SetMealDetailQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseSetMealDetail) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseSetMealDetail) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.SetMealDetailQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.SetMealDetailQuery", q)
+}
+
+// The SetMealGroupFunc type is an adapter to allow the use of ordinary function as a Querier.
+type SetMealGroupFunc func(context.Context, *ent.SetMealGroupQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f SetMealGroupFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.SetMealGroupQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.SetMealGroupQuery", q)
+}
+
+// The TraverseSetMealGroup type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseSetMealGroup func(context.Context, *ent.SetMealGroupQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseSetMealGroup) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseSetMealGroup) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.SetMealGroupQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.SetMealGroupQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
@@ -400,6 +456,10 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.ProductTagQuery, predicate.ProductTag, producttag.OrderOption]{typ: ent.TypeProductTag, tq: q}, nil
 	case *ent.ProductUnitQuery:
 		return &query[*ent.ProductUnitQuery, predicate.ProductUnit, productunit.OrderOption]{typ: ent.TypeProductUnit, tq: q}, nil
+	case *ent.SetMealDetailQuery:
+		return &query[*ent.SetMealDetailQuery, predicate.SetMealDetail, setmealdetail.OrderOption]{typ: ent.TypeSetMealDetail, tq: q}, nil
+	case *ent.SetMealGroupQuery:
+		return &query[*ent.SetMealGroupQuery, predicate.SetMealGroup, setmealgroup.OrderOption]{typ: ent.TypeSetMealGroup, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}

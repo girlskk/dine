@@ -19,6 +19,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -224,7 +226,7 @@ func init() {
 	// product.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	product.DefaultDeletedAt = productDescDeletedAt.Default.(int64)
 	// productDescName is the schema descriptor for name field.
-	productDescName := productFields[0].Descriptor()
+	productDescName := productFields[1].Descriptor()
 	// product.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	product.NameValidator = func() func(string) error {
 		validators := productDescName.Validators
@@ -242,45 +244,31 @@ func init() {
 		}
 	}()
 	// productDescMnemonic is the schema descriptor for mnemonic field.
-	productDescMnemonic := productFields[3].Descriptor()
+	productDescMnemonic := productFields[4].Descriptor()
 	// product.DefaultMnemonic holds the default value on creation for the mnemonic field.
 	product.DefaultMnemonic = productDescMnemonic.Default.(string)
 	// product.MnemonicValidator is a validator for the "mnemonic" field. It is called by the builders before save.
-	product.MnemonicValidator = func() func(string) error {
-		validators := productDescMnemonic.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(mnemonic string) error {
-			for _, fn := range fns {
-				if err := fn(mnemonic); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	product.MnemonicValidator = productDescMnemonic.Validators[0].(func(string) error)
 	// productDescShelfLife is the schema descriptor for shelf_life field.
-	productDescShelfLife := productFields[4].Descriptor()
+	productDescShelfLife := productFields[5].Descriptor()
 	// product.DefaultShelfLife holds the default value on creation for the shelf_life field.
 	product.DefaultShelfLife = productDescShelfLife.Default.(int)
 	// productDescInheritTaxRate is the schema descriptor for inherit_tax_rate field.
-	productDescInheritTaxRate := productFields[14].Descriptor()
+	productDescInheritTaxRate := productFields[15].Descriptor()
 	// product.DefaultInheritTaxRate holds the default value on creation for the inherit_tax_rate field.
 	product.DefaultInheritTaxRate = productDescInheritTaxRate.Default.(bool)
 	// productDescInheritStall is the schema descriptor for inherit_stall field.
-	productDescInheritStall := productFields[16].Descriptor()
+	productDescInheritStall := productFields[17].Descriptor()
 	// product.DefaultInheritStall holds the default value on creation for the inherit_stall field.
 	product.DefaultInheritStall = productDescInheritStall.Default.(bool)
 	// productDescMainImage is the schema descriptor for main_image field.
-	productDescMainImage := productFields[18].Descriptor()
+	productDescMainImage := productFields[19].Descriptor()
 	// product.DefaultMainImage holds the default value on creation for the main_image field.
 	product.DefaultMainImage = productDescMainImage.Default.(string)
 	// product.MainImageValidator is a validator for the "main_image" field. It is called by the builders before save.
 	product.MainImageValidator = productDescMainImage.Validators[0].(func(string) error)
 	// productDescDescription is the schema descriptor for description field.
-	productDescDescription := productFields[20].Descriptor()
+	productDescDescription := productFields[21].Descriptor()
 	// product.DefaultDescription holds the default value on creation for the description field.
 	product.DefaultDescription = productDescDescription.Default.(string)
 	// product.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
@@ -644,6 +632,94 @@ func init() {
 	productunitDescID := productunitMixinFields0[0].Descriptor()
 	// productunit.DefaultID holds the default value on creation for the id field.
 	productunit.DefaultID = productunitDescID.Default.(func() uuid.UUID)
+	setmealdetailMixin := schema.SetMealDetail{}.Mixin()
+	setmealdetailMixinHooks2 := setmealdetailMixin[2].Hooks()
+	setmealdetail.Hooks[0] = setmealdetailMixinHooks2[0]
+	setmealdetailMixinInters2 := setmealdetailMixin[2].Interceptors()
+	setmealdetail.Interceptors[0] = setmealdetailMixinInters2[0]
+	setmealdetailMixinFields0 := setmealdetailMixin[0].Fields()
+	_ = setmealdetailMixinFields0
+	setmealdetailMixinFields1 := setmealdetailMixin[1].Fields()
+	_ = setmealdetailMixinFields1
+	setmealdetailMixinFields2 := setmealdetailMixin[2].Fields()
+	_ = setmealdetailMixinFields2
+	setmealdetailFields := schema.SetMealDetail{}.Fields()
+	_ = setmealdetailFields
+	// setmealdetailDescCreatedAt is the schema descriptor for created_at field.
+	setmealdetailDescCreatedAt := setmealdetailMixinFields1[0].Descriptor()
+	// setmealdetail.DefaultCreatedAt holds the default value on creation for the created_at field.
+	setmealdetail.DefaultCreatedAt = setmealdetailDescCreatedAt.Default.(func() time.Time)
+	// setmealdetailDescUpdatedAt is the schema descriptor for updated_at field.
+	setmealdetailDescUpdatedAt := setmealdetailMixinFields1[1].Descriptor()
+	// setmealdetail.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	setmealdetail.DefaultUpdatedAt = setmealdetailDescUpdatedAt.Default.(func() time.Time)
+	// setmealdetail.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	setmealdetail.UpdateDefaultUpdatedAt = setmealdetailDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// setmealdetailDescDeletedAt is the schema descriptor for deleted_at field.
+	setmealdetailDescDeletedAt := setmealdetailMixinFields2[0].Descriptor()
+	// setmealdetail.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	setmealdetail.DefaultDeletedAt = setmealdetailDescDeletedAt.Default.(int64)
+	// setmealdetailDescQuantity is the schema descriptor for quantity field.
+	setmealdetailDescQuantity := setmealdetailFields[2].Descriptor()
+	// setmealdetail.DefaultQuantity holds the default value on creation for the quantity field.
+	setmealdetail.DefaultQuantity = setmealdetailDescQuantity.Default.(int)
+	// setmealdetailDescIsDefault is the schema descriptor for is_default field.
+	setmealdetailDescIsDefault := setmealdetailFields[3].Descriptor()
+	// setmealdetail.DefaultIsDefault holds the default value on creation for the is_default field.
+	setmealdetail.DefaultIsDefault = setmealdetailDescIsDefault.Default.(bool)
+	// setmealdetailDescID is the schema descriptor for id field.
+	setmealdetailDescID := setmealdetailMixinFields0[0].Descriptor()
+	// setmealdetail.DefaultID holds the default value on creation for the id field.
+	setmealdetail.DefaultID = setmealdetailDescID.Default.(func() uuid.UUID)
+	setmealgroupMixin := schema.SetMealGroup{}.Mixin()
+	setmealgroupMixinHooks2 := setmealgroupMixin[2].Hooks()
+	setmealgroup.Hooks[0] = setmealgroupMixinHooks2[0]
+	setmealgroupMixinInters2 := setmealgroupMixin[2].Interceptors()
+	setmealgroup.Interceptors[0] = setmealgroupMixinInters2[0]
+	setmealgroupMixinFields0 := setmealgroupMixin[0].Fields()
+	_ = setmealgroupMixinFields0
+	setmealgroupMixinFields1 := setmealgroupMixin[1].Fields()
+	_ = setmealgroupMixinFields1
+	setmealgroupMixinFields2 := setmealgroupMixin[2].Fields()
+	_ = setmealgroupMixinFields2
+	setmealgroupFields := schema.SetMealGroup{}.Fields()
+	_ = setmealgroupFields
+	// setmealgroupDescCreatedAt is the schema descriptor for created_at field.
+	setmealgroupDescCreatedAt := setmealgroupMixinFields1[0].Descriptor()
+	// setmealgroup.DefaultCreatedAt holds the default value on creation for the created_at field.
+	setmealgroup.DefaultCreatedAt = setmealgroupDescCreatedAt.Default.(func() time.Time)
+	// setmealgroupDescUpdatedAt is the schema descriptor for updated_at field.
+	setmealgroupDescUpdatedAt := setmealgroupMixinFields1[1].Descriptor()
+	// setmealgroup.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	setmealgroup.DefaultUpdatedAt = setmealgroupDescUpdatedAt.Default.(func() time.Time)
+	// setmealgroup.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	setmealgroup.UpdateDefaultUpdatedAt = setmealgroupDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// setmealgroupDescDeletedAt is the schema descriptor for deleted_at field.
+	setmealgroupDescDeletedAt := setmealgroupMixinFields2[0].Descriptor()
+	// setmealgroup.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	setmealgroup.DefaultDeletedAt = setmealgroupDescDeletedAt.Default.(int64)
+	// setmealgroupDescName is the schema descriptor for name field.
+	setmealgroupDescName := setmealgroupFields[1].Descriptor()
+	// setmealgroup.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	setmealgroup.NameValidator = func() func(string) error {
+		validators := setmealgroupDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// setmealgroupDescID is the schema descriptor for id field.
+	setmealgroupDescID := setmealgroupMixinFields0[0].Descriptor()
+	// setmealgroup.DefaultID holds the default value on creation for the id field.
+	setmealgroup.DefaultID = setmealgroupDescID.Default.(func() uuid.UUID)
 }
 
 const (

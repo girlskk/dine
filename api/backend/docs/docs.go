@@ -61,7 +61,7 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "商品"
+                    "商品管理"
                 ],
                 "summary": "创建普通商品",
                 "parameters": [
@@ -378,6 +378,35 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/product/setmeal": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品管理"
+                ],
+                "summary": "创建套餐商品",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.SetMealCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -1426,6 +1455,25 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery"
             ]
         },
+        "domain.SetMealGroupSelectionType": {
+            "type": "string",
+            "enum": [
+                "fixed",
+                "optional"
+            ],
+            "x-enum-comments": {
+                "SetMealGroupSelectionTypeFixed": "固定分组",
+                "SetMealGroupSelectionTypeOptional": "可选套餐"
+            },
+            "x-enum-descriptions": [
+                "固定分组",
+                "可选套餐"
+            ],
+            "x-enum-varnames": [
+                "SetMealGroupSelectionTypeFixed",
+                "SetMealGroupSelectionTypeOptional"
+            ]
+        },
         "types.CategoryCreateChildReq": {
             "type": "object",
             "required": [
@@ -1963,6 +2011,224 @@ const docTemplate = `{
                     "enum": [
                         "quantity",
                         "weight"
+                    ]
+                }
+            }
+        },
+        "types.SetMealCreateReq": {
+            "type": "object",
+            "required": [
+                "add_sale_quantity",
+                "category_id",
+                "effective_date_type",
+                "groups",
+                "min_sale_quantity",
+                "name",
+                "sale_status",
+                "spec_relations",
+                "unit_id"
+            ],
+            "properties": {
+                "add_sale_quantity": {
+                    "description": "加售份数（必选）",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "category_id": {
+                    "description": "分类ID（必选）",
+                    "type": "string"
+                },
+                "combo_delivery_cost_price": {
+                    "description": "外卖成本价（可选，单位：分）",
+                    "type": "number"
+                },
+                "combo_estimated_cost_price": {
+                    "description": "套餐属性",
+                    "type": "number"
+                },
+                "description": {
+                    "description": "菜品描述（可选）",
+                    "type": "string"
+                },
+                "detail_images": {
+                    "description": "详情图片（可选，多张）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "effective_date_type": {
+                    "description": "生效日期类型",
+                    "enum": [
+                        "daily",
+                        "custom"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.EffectiveDateType"
+                        }
+                    ]
+                },
+                "effective_end_time": {
+                    "description": "生效结束时间（可选）",
+                    "type": "string"
+                },
+                "effective_start_time": {
+                    "description": "生效开始时间（可选）",
+                    "type": "string"
+                },
+                "groups": {
+                    "description": "套餐组（必选，至少一个）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.SetMealGroupReq"
+                    }
+                },
+                "inherit_stall": {
+                    "description": "是否继承原出品部门（必选）",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "其他信息",
+                    "type": "boolean"
+                },
+                "main_image": {
+                    "description": "展示信息",
+                    "type": "string"
+                },
+                "menu_id": {
+                    "description": "菜单ID（可选）",
+                    "type": "string"
+                },
+                "min_sale_quantity": {
+                    "description": "起售份数（必选）",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "mnemonic": {
+                    "description": "助记词（可选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "基础信息",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sale_channels": {
+                    "description": "售卖渠道（可选，可多选）",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SaleChannel"
+                    }
+                },
+                "sale_status": {
+                    "description": "售卖信息",
+                    "enum": [
+                        "on_sale",
+                        "off_sale"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductSaleStatus"
+                        }
+                    ]
+                },
+                "shelf_life": {
+                    "description": "保质期（可选，单位：天）",
+                    "type": "integer"
+                },
+                "spec_relations": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.ProductSpecRelationReq"
+                    }
+                },
+                "stall_id": {
+                    "description": "指定出品部门ID（可选）",
+                    "type": "string"
+                },
+                "support_types": {
+                    "description": "支持类型（可选，堂食、外带）",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSupportType"
+                    }
+                },
+                "tag_ids": {
+                    "description": "商品标签ID列表（可选）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tax_rate_id": {
+                    "description": "指定税率ID（可选）",
+                    "type": "string"
+                },
+                "unit_id": {
+                    "description": "属性关联",
+                    "type": "string"
+                }
+            }
+        },
+        "types.SetMealDetailReq": {
+            "type": "object",
+            "required": [
+                "product_id",
+                "quantity"
+            ],
+            "properties": {
+                "is_default": {
+                    "description": "是否默认（必选，每个套餐组中只能有一个默认项）",
+                    "type": "boolean"
+                },
+                "optional_product_ids": {
+                    "description": "备选商品ID列表（可选，多选）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "product_id": {
+                    "description": "商品ID（必选）",
+                    "type": "string"
+                },
+                "quantity": {
+                    "description": "数量（必选，必须为正整数）",
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "types.SetMealGroupReq": {
+            "type": "object",
+            "required": [
+                "details",
+                "name"
+            ],
+            "properties": {
+                "details": {
+                    "description": "套餐组详情列表（必选，至少一个）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.SetMealDetailReq"
+                    }
+                },
+                "name": {
+                    "description": "套餐组名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "selection_type": {
+                    "description": "点单限制：fixed（固定分组）、optional（可选套餐），默认 fixed",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.SetMealGroupSelectionType"
+                        }
                     ]
                 }
             }

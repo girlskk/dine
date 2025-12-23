@@ -7,8 +7,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *ProductInteractor) Create(ctx context.Context, product *domain.Product) (err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.Create")
+func (i *ProductInteractor) CreateSetMeal(ctx context.Context, product *domain.Product) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.CreateSetMeal")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -21,6 +21,7 @@ func (i *ProductInteractor) Create(ctx context.Context, product *domain.Product)
 		if err = validateProductBusinessRules(ctx, ds, product); err != nil {
 			return err
 		}
+
 		// 创建商品
 		err := ds.ProductRepo().Create(ctx, product)
 		if err != nil {
@@ -35,14 +36,26 @@ func (i *ProductInteractor) Create(ctx context.Context, product *domain.Product)
 			}
 		}
 
-		// 创建口味做法关联
-		if len(product.AttrRelations) > 0 {
-			err = ds.ProductAttrRelRepo().CreateBulk(ctx, product.AttrRelations)
+		// 批量创建套餐组
+		err = ds.SetMealGroupRepo().CreateGroups(ctx, product.Groups)
+		if err != nil {
+			return err
+		}
+
+		// 批量创建套餐组详情
+		allDetails := make([]*domain.SetMealDetail, 0)
+		for _, group := range product.Groups {
+			allDetails = append(allDetails, group.Details...)
+		}
+		if len(allDetails) > 0 {
+			err = ds.SetMealGroupRepo().CreateDetails(ctx, allDetails)
 			if err != nil {
 				return err
 			}
 		}
+
 		return nil
 	})
-	return err
+
+	return nil
 }

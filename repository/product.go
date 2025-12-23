@@ -49,6 +49,7 @@ func (repo *ProductRepository) Create(ctx context.Context, p *domain.Product) (e
 	builder := repo.Client.Product.Create().
 		SetID(p.ID).
 		SetName(p.Name).
+		SetType(p.Type).
 		SetMerchantID(p.MerchantID).
 		SetCategoryID(p.CategoryID).
 		SetUnitID(p.UnitID).
@@ -63,6 +64,14 @@ func (repo *ProductRepository) Create(ctx context.Context, p *domain.Product) (e
 		SetInheritStall(p.InheritStall).
 		SetMainImage(p.MainImage).
 		SetDescription(p.Description)
+
+	// 套餐属性（仅套餐商品使用）
+	if p.EstimatedCostPrice != nil {
+		builder = builder.SetEstimatedCostPrice(*p.EstimatedCostPrice)
+	}
+	if p.DeliveryCostPrice != nil {
+		builder = builder.SetDeliveryCostPrice(*p.DeliveryCostPrice)
+	}
 
 	// 可选字段
 	if p.StoreID != uuid.Nil {
@@ -134,6 +143,18 @@ func (repo *ProductRepository) Update(ctx context.Context, p *domain.Product) (e
 		SetMainImage(p.MainImage).
 		SetDescription(p.Description)
 
+	// 套餐属性（仅套餐商品使用）
+	if p.EstimatedCostPrice != nil {
+		builder = builder.SetEstimatedCostPrice(*p.EstimatedCostPrice)
+	} else {
+		builder = builder.ClearEstimatedCostPrice()
+	}
+	if p.DeliveryCostPrice != nil {
+		builder = builder.SetDeliveryCostPrice(*p.DeliveryCostPrice)
+	} else {
+		builder = builder.ClearDeliveryCostPrice()
+	}
+
 	// 可选字段
 	if p.MenuID != uuid.Nil {
 		builder = builder.SetMenuID(p.MenuID)
@@ -204,6 +225,25 @@ func (repo *ProductRepository) Exists(ctx context.Context, params domain.Product
 	return exists, err
 }
 
+func (repo *ProductRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (res domain.Products, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.ListByIDs")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Product.Query().Where(product.IDIn(ids...))
+	entProducts, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.Products, 0, len(entProducts))
+	for _, p := range entProducts {
+		res = append(res, convertProductToDomain(p))
+	}
+	return res, nil
+}
+
 // ============================================
 // 转换函数
 // ============================================
@@ -218,6 +258,7 @@ func convertProductToDomain(ep *ent.Product) *domain.Product {
 		Name:              ep.Name,
 		MerchantID:        ep.MerchantID,
 		StoreID:           ep.StoreID,
+		Type:              ep.Type,
 		CategoryID:        ep.CategoryID,
 		MenuID:            ep.MenuID,
 		Mnemonic:          ep.Mnemonic,
@@ -240,6 +281,12 @@ func convertProductToDomain(ep *ent.Product) *domain.Product {
 	}
 
 	// 可选字段
+	if ep.EstimatedCostPrice != nil {
+		p.EstimatedCostPrice = ep.EstimatedCostPrice
+	}
+	if ep.DeliveryCostPrice != nil {
+		p.DeliveryCostPrice = ep.DeliveryCostPrice
+	}
 	if ep.EffectiveStartTime != nil {
 		p.EffectiveStartTime = ep.EffectiveStartTime
 	}

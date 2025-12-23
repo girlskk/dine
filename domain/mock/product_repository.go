@@ -94,6 +94,21 @@ func (mr *MockProductRepositoryMockRecorder) FindByID(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockProductRepository)(nil).FindByID), arg0, arg1)
 }
 
+// ListByIDs mocks base method.
+func (m *MockProductRepository) ListByIDs(arg0 context.Context, arg1 []uuid.UUID) (domain.Products, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByIDs", arg0, arg1)
+	ret0, _ := ret[0].(domain.Products)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListByIDs indicates an expected call of ListByIDs.
+func (mr *MockProductRepositoryMockRecorder) ListByIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByIDs", reflect.TypeOf((*MockProductRepository)(nil).ListByIDs), arg0, arg1)
+}
+
 // Update mocks base method.
 func (m *MockProductRepository) Update(arg0 context.Context, arg1 *domain.Product) error {
 	m.ctrl.T.Helper()

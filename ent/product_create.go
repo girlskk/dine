@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
@@ -20,6 +21,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 )
 
 // ProductCreate is the builder for creating a Product entity.
@@ -68,6 +71,20 @@ func (pc *ProductCreate) SetDeletedAt(i int64) *ProductCreate {
 func (pc *ProductCreate) SetNillableDeletedAt(i *int64) *ProductCreate {
 	if i != nil {
 		pc.SetDeletedAt(*i)
+	}
+	return pc
+}
+
+// SetType sets the "type" field.
+func (pc *ProductCreate) SetType(dt domain.ProductType) *ProductCreate {
+	pc.mutation.SetType(dt)
+	return pc
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableType(dt *domain.ProductType) *ProductCreate {
+	if dt != nil {
+		pc.SetType(*dt)
 	}
 	return pc
 }
@@ -318,6 +335,34 @@ func (pc *ProductCreate) SetNillableDescription(s *string) *ProductCreate {
 	return pc
 }
 
+// SetEstimatedCostPrice sets the "estimated_cost_price" field.
+func (pc *ProductCreate) SetEstimatedCostPrice(d decimal.Decimal) *ProductCreate {
+	pc.mutation.SetEstimatedCostPrice(d)
+	return pc
+}
+
+// SetNillableEstimatedCostPrice sets the "estimated_cost_price" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableEstimatedCostPrice(d *decimal.Decimal) *ProductCreate {
+	if d != nil {
+		pc.SetEstimatedCostPrice(*d)
+	}
+	return pc
+}
+
+// SetDeliveryCostPrice sets the "delivery_cost_price" field.
+func (pc *ProductCreate) SetDeliveryCostPrice(d decimal.Decimal) *ProductCreate {
+	pc.mutation.SetDeliveryCostPrice(d)
+	return pc
+}
+
+// SetNillableDeliveryCostPrice sets the "delivery_cost_price" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableDeliveryCostPrice(d *decimal.Decimal) *ProductCreate {
+	if d != nil {
+		pc.SetDeliveryCostPrice(*d)
+	}
+	return pc
+}
+
 // SetMerchantID sets the "merchant_id" field.
 func (pc *ProductCreate) SetMerchantID(u uuid.UUID) *ProductCreate {
 	pc.mutation.SetMerchantID(u)
@@ -407,6 +452,36 @@ func (pc *ProductCreate) AddProductAttrs(p ...*ProductAttrRelation) *ProductCrea
 	return pc.AddProductAttrIDs(ids...)
 }
 
+// AddSetMealGroupIDs adds the "set_meal_groups" edge to the SetMealGroup entity by IDs.
+func (pc *ProductCreate) AddSetMealGroupIDs(ids ...uuid.UUID) *ProductCreate {
+	pc.mutation.AddSetMealGroupIDs(ids...)
+	return pc
+}
+
+// AddSetMealGroups adds the "set_meal_groups" edges to the SetMealGroup entity.
+func (pc *ProductCreate) AddSetMealGroups(s ...*SetMealGroup) *ProductCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pc.AddSetMealGroupIDs(ids...)
+}
+
+// AddSetMealDetailIDs adds the "set_meal_details" edge to the SetMealDetail entity by IDs.
+func (pc *ProductCreate) AddSetMealDetailIDs(ids ...uuid.UUID) *ProductCreate {
+	pc.mutation.AddSetMealDetailIDs(ids...)
+	return pc
+}
+
+// AddSetMealDetails adds the "set_meal_details" edges to the SetMealDetail entity.
+func (pc *ProductCreate) AddSetMealDetails(s ...*SetMealDetail) *ProductCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pc.AddSetMealDetailIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (pc *ProductCreate) Mutation() *ProductMutation {
 	return pc.mutation
@@ -462,6 +537,10 @@ func (pc *ProductCreate) defaults() error {
 		v := product.DefaultDeletedAt
 		pc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := pc.mutation.GetType(); !ok {
+		v := product.DefaultType
+		pc.mutation.SetType(v)
+	}
 	if _, ok := pc.mutation.Mnemonic(); !ok {
 		v := product.DefaultMnemonic
 		pc.mutation.SetMnemonic(v)
@@ -510,6 +589,14 @@ func (pc *ProductCreate) check() error {
 	}
 	if _, ok := pc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Product.deleted_at"`)}
+	}
+	if _, ok := pc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Product.type"`)}
+	}
+	if v, ok := pc.mutation.GetType(); ok {
+		if err := product.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Product.type": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Product.name"`)}
@@ -634,6 +721,10 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		_spec.SetField(product.FieldDeletedAt, field.TypeInt64, value)
 		_node.DeletedAt = value
 	}
+	if value, ok := pc.mutation.GetType(); ok {
+		_spec.SetField(product.FieldType, field.TypeEnum, value)
+		_node.Type = value
+	}
 	if value, ok := pc.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -709,6 +800,14 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Description(); ok {
 		_spec.SetField(product.FieldDescription, field.TypeString, value)
 		_node.Description = value
+	}
+	if value, ok := pc.mutation.EstimatedCostPrice(); ok {
+		_spec.SetField(product.FieldEstimatedCostPrice, field.TypeOther, value)
+		_node.EstimatedCostPrice = &value
+	}
+	if value, ok := pc.mutation.DeliveryCostPrice(); ok {
+		_spec.SetField(product.FieldDeliveryCostPrice, field.TypeOther, value)
+		_node.DeliveryCostPrice = &value
 	}
 	if value, ok := pc.mutation.MerchantID(); ok {
 		_spec.SetField(product.FieldMerchantID, field.TypeUUID, value)
@@ -800,6 +899,38 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := pc.mutation.SetMealGroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealGroupsTable,
+			Columns: []string{product.SetMealGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealgroup.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.SetMealDetailsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.SetMealDetailsTable,
+			Columns: []string{product.SetMealDetailsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -879,6 +1010,18 @@ func (u *ProductUpsert) UpdateDeletedAt() *ProductUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *ProductUpsert) AddDeletedAt(v int64) *ProductUpsert {
 	u.Add(product.FieldDeletedAt, v)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *ProductUpsert) SetType(v domain.ProductType) *ProductUpsert {
+	u.Set(product.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *ProductUpsert) UpdateType() *ProductUpsert {
+	u.SetExcluded(product.FieldType)
 	return u
 }
 
@@ -1206,6 +1349,42 @@ func (u *ProductUpsert) UpdateDescription() *ProductUpsert {
 	return u
 }
 
+// SetEstimatedCostPrice sets the "estimated_cost_price" field.
+func (u *ProductUpsert) SetEstimatedCostPrice(v decimal.Decimal) *ProductUpsert {
+	u.Set(product.FieldEstimatedCostPrice, v)
+	return u
+}
+
+// UpdateEstimatedCostPrice sets the "estimated_cost_price" field to the value that was provided on create.
+func (u *ProductUpsert) UpdateEstimatedCostPrice() *ProductUpsert {
+	u.SetExcluded(product.FieldEstimatedCostPrice)
+	return u
+}
+
+// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
+func (u *ProductUpsert) ClearEstimatedCostPrice() *ProductUpsert {
+	u.SetNull(product.FieldEstimatedCostPrice)
+	return u
+}
+
+// SetDeliveryCostPrice sets the "delivery_cost_price" field.
+func (u *ProductUpsert) SetDeliveryCostPrice(v decimal.Decimal) *ProductUpsert {
+	u.Set(product.FieldDeliveryCostPrice, v)
+	return u
+}
+
+// UpdateDeliveryCostPrice sets the "delivery_cost_price" field to the value that was provided on create.
+func (u *ProductUpsert) UpdateDeliveryCostPrice() *ProductUpsert {
+	u.SetExcluded(product.FieldDeliveryCostPrice)
+	return u
+}
+
+// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
+func (u *ProductUpsert) ClearDeliveryCostPrice() *ProductUpsert {
+	u.SetNull(product.FieldDeliveryCostPrice)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1295,6 +1474,20 @@ func (u *ProductUpsertOne) AddDeletedAt(v int64) *ProductUpsertOne {
 func (u *ProductUpsertOne) UpdateDeletedAt() *ProductUpsertOne {
 	return u.Update(func(s *ProductUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *ProductUpsertOne) SetType(v domain.ProductType) *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *ProductUpsertOne) UpdateType() *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateType()
 	})
 }
 
@@ -1676,6 +1869,48 @@ func (u *ProductUpsertOne) UpdateDescription() *ProductUpsertOne {
 	})
 }
 
+// SetEstimatedCostPrice sets the "estimated_cost_price" field.
+func (u *ProductUpsertOne) SetEstimatedCostPrice(v decimal.Decimal) *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetEstimatedCostPrice(v)
+	})
+}
+
+// UpdateEstimatedCostPrice sets the "estimated_cost_price" field to the value that was provided on create.
+func (u *ProductUpsertOne) UpdateEstimatedCostPrice() *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateEstimatedCostPrice()
+	})
+}
+
+// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
+func (u *ProductUpsertOne) ClearEstimatedCostPrice() *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.ClearEstimatedCostPrice()
+	})
+}
+
+// SetDeliveryCostPrice sets the "delivery_cost_price" field.
+func (u *ProductUpsertOne) SetDeliveryCostPrice(v decimal.Decimal) *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetDeliveryCostPrice(v)
+	})
+}
+
+// UpdateDeliveryCostPrice sets the "delivery_cost_price" field to the value that was provided on create.
+func (u *ProductUpsertOne) UpdateDeliveryCostPrice() *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateDeliveryCostPrice()
+	})
+}
+
+// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
+func (u *ProductUpsertOne) ClearDeliveryCostPrice() *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.ClearDeliveryCostPrice()
+	})
+}
+
 // Exec executes the query.
 func (u *ProductUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -1932,6 +2167,20 @@ func (u *ProductUpsertBulk) AddDeletedAt(v int64) *ProductUpsertBulk {
 func (u *ProductUpsertBulk) UpdateDeletedAt() *ProductUpsertBulk {
 	return u.Update(func(s *ProductUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *ProductUpsertBulk) SetType(v domain.ProductType) *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *ProductUpsertBulk) UpdateType() *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateType()
 	})
 }
 
@@ -2310,6 +2559,48 @@ func (u *ProductUpsertBulk) SetDescription(v string) *ProductUpsertBulk {
 func (u *ProductUpsertBulk) UpdateDescription() *ProductUpsertBulk {
 	return u.Update(func(s *ProductUpsert) {
 		s.UpdateDescription()
+	})
+}
+
+// SetEstimatedCostPrice sets the "estimated_cost_price" field.
+func (u *ProductUpsertBulk) SetEstimatedCostPrice(v decimal.Decimal) *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetEstimatedCostPrice(v)
+	})
+}
+
+// UpdateEstimatedCostPrice sets the "estimated_cost_price" field to the value that was provided on create.
+func (u *ProductUpsertBulk) UpdateEstimatedCostPrice() *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateEstimatedCostPrice()
+	})
+}
+
+// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
+func (u *ProductUpsertBulk) ClearEstimatedCostPrice() *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.ClearEstimatedCostPrice()
+	})
+}
+
+// SetDeliveryCostPrice sets the "delivery_cost_price" field.
+func (u *ProductUpsertBulk) SetDeliveryCostPrice(v decimal.Decimal) *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetDeliveryCostPrice(v)
+	})
+}
+
+// UpdateDeliveryCostPrice sets the "delivery_cost_price" field to the value that was provided on create.
+func (u *ProductUpsertBulk) UpdateDeliveryCostPrice() *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateDeliveryCostPrice()
+	})
+}
+
+// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
+func (u *ProductUpsertBulk) ClearDeliveryCostPrice() *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.ClearDeliveryCostPrice()
 	})
 }
 

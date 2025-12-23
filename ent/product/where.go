@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -152,6 +153,16 @@ func Description(v string) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldDescription, v))
 }
 
+// EstimatedCostPrice applies equality check predicate on the "estimated_cost_price" field. It's identical to EstimatedCostPriceEQ.
+func EstimatedCostPrice(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldEstimatedCostPrice, v))
+}
+
+// DeliveryCostPrice applies equality check predicate on the "delivery_cost_price" field. It's identical to DeliveryCostPriceEQ.
+func DeliveryCostPrice(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldDeliveryCostPrice, v))
+}
+
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
 func MerchantID(v uuid.UUID) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldMerchantID, v))
@@ -280,6 +291,36 @@ func DeletedAtLT(v int64) predicate.Product {
 // DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
 func DeletedAtLTE(v int64) predicate.Product {
 	return predicate.Product(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v domain.ProductType) predicate.Product {
+	vc := v
+	return predicate.Product(sql.FieldEQ(FieldType, vc))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v domain.ProductType) predicate.Product {
+	vc := v
+	return predicate.Product(sql.FieldNEQ(FieldType, vc))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...domain.ProductType) predicate.Product {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Product(sql.FieldIn(FieldType, v...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...domain.ProductType) predicate.Product {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Product(sql.FieldNotIn(FieldType, v...))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -1072,6 +1113,106 @@ func DescriptionContainsFold(v string) predicate.Product {
 	return predicate.Product(sql.FieldContainsFold(FieldDescription, v))
 }
 
+// EstimatedCostPriceEQ applies the EQ predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceEQ(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldEstimatedCostPrice, v))
+}
+
+// EstimatedCostPriceNEQ applies the NEQ predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceNEQ(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldNEQ(FieldEstimatedCostPrice, v))
+}
+
+// EstimatedCostPriceIn applies the In predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceIn(vs ...decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldIn(FieldEstimatedCostPrice, vs...))
+}
+
+// EstimatedCostPriceNotIn applies the NotIn predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceNotIn(vs ...decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldNotIn(FieldEstimatedCostPrice, vs...))
+}
+
+// EstimatedCostPriceGT applies the GT predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceGT(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldGT(FieldEstimatedCostPrice, v))
+}
+
+// EstimatedCostPriceGTE applies the GTE predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceGTE(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldGTE(FieldEstimatedCostPrice, v))
+}
+
+// EstimatedCostPriceLT applies the LT predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceLT(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldLT(FieldEstimatedCostPrice, v))
+}
+
+// EstimatedCostPriceLTE applies the LTE predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceLTE(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldLTE(FieldEstimatedCostPrice, v))
+}
+
+// EstimatedCostPriceIsNil applies the IsNil predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceIsNil() predicate.Product {
+	return predicate.Product(sql.FieldIsNull(FieldEstimatedCostPrice))
+}
+
+// EstimatedCostPriceNotNil applies the NotNil predicate on the "estimated_cost_price" field.
+func EstimatedCostPriceNotNil() predicate.Product {
+	return predicate.Product(sql.FieldNotNull(FieldEstimatedCostPrice))
+}
+
+// DeliveryCostPriceEQ applies the EQ predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceEQ(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldDeliveryCostPrice, v))
+}
+
+// DeliveryCostPriceNEQ applies the NEQ predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceNEQ(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldNEQ(FieldDeliveryCostPrice, v))
+}
+
+// DeliveryCostPriceIn applies the In predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceIn(vs ...decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldIn(FieldDeliveryCostPrice, vs...))
+}
+
+// DeliveryCostPriceNotIn applies the NotIn predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceNotIn(vs ...decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldNotIn(FieldDeliveryCostPrice, vs...))
+}
+
+// DeliveryCostPriceGT applies the GT predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceGT(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldGT(FieldDeliveryCostPrice, v))
+}
+
+// DeliveryCostPriceGTE applies the GTE predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceGTE(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldGTE(FieldDeliveryCostPrice, v))
+}
+
+// DeliveryCostPriceLT applies the LT predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceLT(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldLT(FieldDeliveryCostPrice, v))
+}
+
+// DeliveryCostPriceLTE applies the LTE predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceLTE(v decimal.Decimal) predicate.Product {
+	return predicate.Product(sql.FieldLTE(FieldDeliveryCostPrice, v))
+}
+
+// DeliveryCostPriceIsNil applies the IsNil predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceIsNil() predicate.Product {
+	return predicate.Product(sql.FieldIsNull(FieldDeliveryCostPrice))
+}
+
+// DeliveryCostPriceNotNil applies the NotNil predicate on the "delivery_cost_price" field.
+func DeliveryCostPriceNotNil() predicate.Product {
+	return predicate.Product(sql.FieldNotNull(FieldDeliveryCostPrice))
+}
+
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
 func MerchantIDEQ(v uuid.UUID) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldMerchantID, v))
@@ -1269,6 +1410,52 @@ func HasProductAttrs() predicate.Product {
 func HasProductAttrsWith(preds ...predicate.ProductAttrRelation) predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
 		step := newProductAttrsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSetMealGroups applies the HasEdge predicate on the "set_meal_groups" edge.
+func HasSetMealGroups() predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SetMealGroupsTable, SetMealGroupsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSetMealGroupsWith applies the HasEdge predicate on the "set_meal_groups" edge with a given conditions (other predicates).
+func HasSetMealGroupsWith(preds ...predicate.SetMealGroup) predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := newSetMealGroupsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSetMealDetails applies the HasEdge predicate on the "set_meal_details" edge.
+func HasSetMealDetails() predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SetMealDetailsTable, SetMealDetailsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSetMealDetailsWith applies the HasEdge predicate on the "set_meal_details" edge with a given conditions (other predicates).
+func HasSetMealDetailsWith(preds ...predicate.SetMealDetail) predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := newSetMealDetailsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
