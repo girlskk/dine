@@ -10,6 +10,7 @@ type DataStore interface {
 	AdminUserRepo() AdminUserRepository
 	CategoryRepo() CategoryRepository
 	BackendUserRepo() BackendUserRepository
+	OrderRepo() OrderRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

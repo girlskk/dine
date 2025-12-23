@@ -116,3 +116,17 @@ func (mr *MockDataStoreMockRecorder) IsTransactionActive() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsTransactionActive", reflect.TypeOf((*MockDataStore)(nil).IsTransactionActive))
 }
+
+// OrderRepo mocks base method.
+func (m *MockDataStore) OrderRepo() domain.OrderRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrderRepo")
+	ret0, _ := ret[0].(domain.OrderRepository)
+	return ret0
+}
+
+// OrderRepo indicates an expected call of OrderRepo.
+func (mr *MockDataStoreMockRecorder) OrderRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrderRepo", reflect.TypeOf((*MockDataStore)(nil).OrderRepo))
+}
