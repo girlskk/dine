@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"gitlab.jiguang.d
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
@@ -14,7 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
-	"github.com/samber/lo"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 var _ domain.ProductRepository = (*ProductRepository)(nil)
@@ -69,12 +68,12 @@ func (repo *ProductRepository) GetDetail(ctx context.Context, id uuid.UUID) (res
 			return nil, domain.NotFoundError(domain.ErrProductNotExists)
 		}
 		return nil, err
+	}
 
-	
 	res = convertProductDetailToDomain(ep)
 
+	// 套餐组商品备选商品
 	if len(res.Groups) > 0 {
-    if len(res.Groups) > 0 {
 		optionalProductIDs := make([]uuid.UUID, 0)
 		for _, group := range res.Groups {
 			for _, detail := range group.Details {
@@ -84,8 +83,8 @@ func (repo *ProductRepository) GetDetail(ctx context.Context, id uuid.UUID) (res
 			}
 		}
 		optionalProductsMap := make(map[uuid.UUID]*domain.Product)
+		optionalProductIDs = lo.Uniq(optionalProductIDs)
 		if len(optionalProductIDs) > 0 {
-        if len(optionalProductIDs) > 0 {
 			optionalProducts, err := repo.ListByIDs(ctx, optionalProductIDs)
 			if err != nil {
 				return nil, err
@@ -94,8 +93,8 @@ func (repo *ProductRepository) GetDetail(ctx context.Context, id uuid.UUID) (res
 				optionalProductsMap[product.ID] = product
 			}
 		}
+
 		for _, group := range res.Groups {
-		for _, group:= range res.Groups {
 			for _, detail := range group.Details {
 				if len(detail.OptionalProductIDs) > 0 {
 					detail.OptionalProducts = make(domain.Products, 0)
