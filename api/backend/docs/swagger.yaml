@@ -1590,6 +1590,21 @@ paths:
       tags:
       - 商品管理
   /product/{id}:
+    delete:
+      parameters:
+      - description: 商品ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除商品
+      tags:
+      - 商品管理
     put:
       parameters:
       - description: 商品ID
@@ -1609,6 +1624,38 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新普通商品
+      tags:
+      - 商品管理
+  /product/{id}/off-sale:
+    put:
+      parameters:
+      - description: 商品ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 停售商品
+      tags:
+      - 商品管理
+  /product/{id}/on-sale:
+    put:
+      parameters:
+      - description: 商品ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 启售商品
       tags:
       - 商品管理
   /product/attr:

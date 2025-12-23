@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
@@ -62,6 +63,48 @@ func (m *MockProductInteractor) CreateSetMeal(arg0 context.Context, arg1 *domain
 func (mr *MockProductInteractorMockRecorder) CreateSetMeal(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSetMeal", reflect.TypeOf((*MockProductInteractor)(nil).CreateSetMeal), arg0, arg1)
+}
+
+// Delete mocks base method.
+func (m *MockProductInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockProductInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductInteractor)(nil).Delete), arg0, arg1)
+}
+
+// OffSale mocks base method.
+func (m *MockProductInteractor) OffSale(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OffSale", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// OffSale indicates an expected call of OffSale.
+func (mr *MockProductInteractorMockRecorder) OffSale(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OffSale", reflect.TypeOf((*MockProductInteractor)(nil).OffSale), arg0, arg1)
+}
+
+// OnSale mocks base method.
+func (m *MockProductInteractor) OnSale(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OnSale", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// OnSale indicates an expected call of OnSale.
+func (mr *MockProductInteractorMockRecorder) OnSale(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnSale", reflect.TypeOf((*MockProductInteractor)(nil).OnSale), arg0, arg1)
 }
 
 // PagedListBySearch mocks base method.

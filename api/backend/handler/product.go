@@ -34,7 +34,9 @@ func (h *ProductHandler) Routes(r gin.IRouter) {
 	r.GET("", h.List())
 	r.PUT("/:id", h.Update())
 	r.PUT("/setmeal/:id", h.UpdateSetMeal())
-	// r.DELETE("/:id", h.Delete())
+	r.DELETE("/:id", h.Delete())
+	r.PUT("/:id/off-sale", h.OffSale())
+	r.PUT("/:id/on-sale", h.OnSale())
 	// r.GET("/:id", h.GetDetail())
 }
 
@@ -725,6 +727,120 @@ func (h *ProductHandler) UpdateSetMeal() gin.HandlerFunc {
 				return
 			}
 			err = fmt.Errorf("failed to update set meal: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Delete
+//
+//	@Tags		商品管理
+//	@Security	BearerAuth
+//	@Summary	删除商品
+//	@Param		id	path	string	true	"商品ID"
+//	@Success	200
+//	@Router		/product/{id} [delete]
+func (h *ProductHandler) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductHandler.Delete")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取商品ID
+		idStr := c.Param("id")
+		productID, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.ProductInteractor.Delete(ctx, productID)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to delete product: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// OffSale
+//
+//	@Tags		商品管理
+//	@Security	BearerAuth
+//	@Summary	停售商品
+//	@Param		id	path	string	true	"商品ID"
+//	@Success	200
+//	@Router		/product/{id}/off-sale [put]
+func (h *ProductHandler) OffSale() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductHandler.OffSale")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取商品ID
+		idStr := c.Param("id")
+		productID, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.ProductInteractor.OffSale(ctx, productID)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to off sale product: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// OnSale
+//
+//	@Tags		商品管理
+//	@Security	BearerAuth
+//	@Summary	启售商品
+//	@Param		id	path	string	true	"商品ID"
+//	@Success	200
+//	@Router		/product/{id}/on-sale [put]
+func (h *ProductHandler) OnSale() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductHandler.OnSale")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取商品ID
+		idStr := c.Param("id")
+		productID, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.ProductInteractor.OnSale(ctx, productID)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to on sale product: %w", err)
 			c.Error(err)
 			return
 		}
