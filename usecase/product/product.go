@@ -332,3 +332,21 @@ func (i *ProductInteractor) PagedListBySearch(
 
 	return i.DS.ProductRepo().PagedListBySearch(ctx, page, params)
 }
+
+func (i *ProductInteractor) GetDetail(ctx context.Context, id uuid.UUID) (product *domain.Product, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	// 获取商品详情（包含所有关联数据）
+	product, err = i.DS.ProductRepo().GetDetail(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return nil, domain.ParamsError(domain.ErrProductNotExists)
+		}
+		return nil, err
+	}
+
+	return product, nil
+}

@@ -37,7 +37,7 @@ func (h *ProductHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.PUT("/:id/off-sale", h.OffSale())
 	r.PUT("/:id/on-sale", h.OnSale())
-	// r.GET("/:id", h.GetDetail())
+	r.GET("/:id", h.GetDetail())
 }
 
 func (h *ProductHandler) NoAuths() []string {
@@ -846,5 +846,43 @@ func (h *ProductHandler) OnSale() gin.HandlerFunc {
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+// GetDetail
+//
+//	@Tags		商品管理
+//	@Security	BearerAuth
+//	@Summary	获取商品详情
+//	@Param		id	path		string			true	"商品ID"
+//	@Success	200	{object}	domain.Product	"成功"
+//	@Router		/product/{id} [get]
+func (h *ProductHandler) GetDetail() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductHandler.GetDetail")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取商品ID
+		idStr := c.Param("id")
+		productID, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		product, err := h.ProductInteractor.GetDetail(ctx, productID)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to get product detail: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, product)
 	}
 }

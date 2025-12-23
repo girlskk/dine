@@ -79,6 +79,21 @@ func (mr *MockProductInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductInteractor)(nil).Delete), arg0, arg1)
 }
 
+// GetDetail mocks base method.
+func (m *MockProductInteractor) GetDetail(arg0 context.Context, arg1 uuid.UUID) (*domain.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDetail", arg0, arg1)
+	ret0, _ := ret[0].(*domain.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDetail indicates an expected call of GetDetail.
+func (mr *MockProductInteractorMockRecorder) GetDetail(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockProductInteractor)(nil).GetDetail), arg0, arg1)
+}
+
 // OffSale mocks base method.
 func (m *MockProductInteractor) OffSale(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()

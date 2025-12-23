@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
+	"gitlab.jiguang.d
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
@@ -12,7 +14,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
+	"github.com/samber/lo"
 )
 
 var _ domain.ProductRepository = (*ProductRepository)(nil)
@@ -42,6 +44,68 @@ func (repo *ProductRepository) FindByID(ctx context.Context, id uuid.UUID) (res 
 	}
 
 	res = convertProductToDomain(ep)
+	return res, nil
+}
+
+func (repo *ProductRepository) GetDetail(ctx context.Context, id uuid.UUID) (res *domain.Product, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	ep, err := repo.Client.Product.Query().
+		Where(product.IDEQ(id)).
+		WithCategory().
+		WithUnit().
+		WithTags().
+		WithProductSpecs().
+		WithProductAttrs().
+		WithSetMealGroups(func(query *ent.SetMealGroupQuery) {
+			query.WithDetails()
+		}).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrProductNotExists)
+		}
+		return nil, err
+
+	
+	res = convertProductDetailToDomain(ep)
+
+	if len(res.Groups) > 0 {
+    if len(res.Groups) > 0 {
+		optionalProductIDs := make([]uuid.UUID, 0)
+		for _, group := range res.Groups {
+			for _, detail := range group.Details {
+				if len(detail.OptionalProductIDs) > 0 {
+					optionalProductIDs = append(optionalProductIDs, detail.OptionalProductIDs...)
+				}
+			}
+		}
+		optionalProductsMap := make(map[uuid.UUID]*domain.Product)
+		if len(optionalProductIDs) > 0 {
+        if len(optionalProductIDs) > 0 {
+			optionalProducts, err := repo.ListByIDs(ctx, optionalProductIDs)
+			if err != nil {
+				return nil, err
+			}
+			for _, product := range optionalProducts {
+				optionalProductsMap[product.ID] = product
+			}
+		}
+		for _, group := range res.Groups {
+		for _, group:= range res.Groups {
+			for _, detail := range group.Details {
+				if len(detail.OptionalProductIDs) > 0 {
+					detail.OptionalProducts = make(domain.Products, 0)
+					for _, optionalProductID := range detail.OptionalProductIDs {
+						detail.OptionalProducts = append(detail.OptionalProducts, optionalProductsMap[optionalProductID])
+					}
+				}
+			}
+		}
+	}
 	return res, nil
 }
 
@@ -453,6 +517,25 @@ func convertProductToDomain(ep *ent.Product) *domain.Product {
 		p.Tags = make(domain.ProductTags, 0, len(ep.Edges.Tags))
 		for _, tag := range ep.Edges.Tags {
 			p.Tags = append(p.Tags, convertProductTagToDomain(tag))
+		}
+	}
+
+	return p
+}
+
+// convertProductDetailToDomain 转换商品详情（包含所有关联数据）
+func convertProductDetailToDomain(ep *ent.Product) *domain.Product {
+	if ep == nil {
+		return nil
+	}
+
+	p := convertProductToDomain(ep)
+
+	// 套餐组字段（仅套餐商品）
+	if len(ep.Edges.SetMealGroups) > 0 {
+		p.Groups = make(domain.SetMealGroups, 0, len(ep.Edges.SetMealGroups))
+		for _, group := range ep.Edges.SetMealGroups {
+			p.Groups = append(p.Groups, convertSetMealGroupToDomain(group))
 		}
 	}
 

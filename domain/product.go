@@ -54,6 +54,7 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/product_repository.go -package=mock . ProductRepository
 type ProductRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*Product, error)
+	GetDetail(ctx context.Context, id uuid.UUID) (*Product, error)
 	Create(ctx context.Context, product *Product) error
 	Update(ctx context.Context, product *Product) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -74,7 +75,7 @@ type ProductInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	OffSale(ctx context.Context, id uuid.UUID) error
 	OnSale(ctx context.Context, id uuid.UUID) error
-	// GetDetail(ctx context.Context, id uuid.UUID) (*Product, error)
+	GetDetail(ctx context.Context, id uuid.UUID) (*Product, error)
 }
 
 // ------------------------------------------------------------

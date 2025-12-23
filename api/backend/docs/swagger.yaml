@@ -1605,6 +1605,23 @@ paths:
       summary: 删除商品
       tags:
       - 商品管理
+    get:
+      parameters:
+      - description: 商品ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.Product'
+      security:
+      - BearerAuth: []
+      summary: 获取商品详情
+      tags:
+      - 商品管理
     put:
       parameters:
       - description: 商品ID
