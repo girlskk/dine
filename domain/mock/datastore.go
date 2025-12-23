@@ -117,6 +117,20 @@ func (mr *MockDataStoreMockRecorder) IsTransactionActive() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsTransactionActive", reflect.TypeOf((*MockDataStore)(nil).IsTransactionActive))
 }
 
+// ProductAttrRelRepo mocks base method.
+func (m *MockDataStore) ProductAttrRelRepo() domain.ProductAttrRelRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductAttrRelRepo")
+	ret0, _ := ret[0].(domain.ProductAttrRelRepository)
+	return ret0
+}
+
+// ProductAttrRelRepo indicates an expected call of ProductAttrRelRepo.
+func (mr *MockDataStoreMockRecorder) ProductAttrRelRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductAttrRelRepo", reflect.TypeOf((*MockDataStore)(nil).ProductAttrRelRepo))
+}
+
 // ProductAttrRepo mocks base method.
 func (m *MockDataStore) ProductAttrRepo() domain.ProductAttrRepository {
 	m.ctrl.T.Helper()
@@ -129,6 +143,34 @@ func (m *MockDataStore) ProductAttrRepo() domain.ProductAttrRepository {
 func (mr *MockDataStoreMockRecorder) ProductAttrRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductAttrRepo", reflect.TypeOf((*MockDataStore)(nil).ProductAttrRepo))
+}
+
+// ProductRepo mocks base method.
+func (m *MockDataStore) ProductRepo() domain.ProductRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductRepo")
+	ret0, _ := ret[0].(domain.ProductRepository)
+	return ret0
+}
+
+// ProductRepo indicates an expected call of ProductRepo.
+func (mr *MockDataStoreMockRecorder) ProductRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductRepo", reflect.TypeOf((*MockDataStore)(nil).ProductRepo))
+}
+
+// ProductSpecRelRepo mocks base method.
+func (m *MockDataStore) ProductSpecRelRepo() domain.ProductSpecRelRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductSpecRelRepo")
+	ret0, _ := ret[0].(domain.ProductSpecRelRepository)
+	return ret0
+}
+
+// ProductSpecRelRepo indicates an expected call of ProductSpecRelRepo.
+func (mr *MockDataStoreMockRecorder) ProductSpecRelRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductSpecRelRepo", reflect.TypeOf((*MockDataStore)(nil).ProductSpecRelRepo))
 }
 
 // ProductSpecRepo mocks base method.

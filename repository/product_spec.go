@@ -172,6 +172,27 @@ func (repo *ProductSpecRepository) PagedListBySearch(
 	}, nil
 }
 
+func (repo *ProductSpecRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (res domain.ProductSpecs, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductSpecRepository.ListByIDs")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.ProductSpec.Query().Where(productspec.IDIn(ids...))
+
+	entSpecs, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.ProductSpecs, 0, len(entSpecs))
+	for _, s := range entSpecs {
+		res = append(res, convertProductSpecToDomain(s))
+	}
+
+	return res, nil
+}
+
 func convertProductSpecToDomain(es *ent.ProductSpec) *domain.ProductSpec {
 	if es == nil {
 		return nil

@@ -39,6 +39,7 @@ type ProductAttrRepository interface {
 	SaveItems(ctx context.Context, items []*ProductAttrItem) error // 批量保存（新增或更新，如果ID存在则覆盖）
 	DeleteItem(ctx context.Context, id uuid.UUID) error
 	DeleteItems(ctx context.Context, ids []uuid.UUID) error
+	ListItemsByIDs(ctx context.Context, ids []uuid.UUID) (ProductAttrItems, error)
 }
 
 // ProductAttrInteractor 商品口味做法用例接口

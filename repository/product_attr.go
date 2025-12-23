@@ -284,6 +284,26 @@ func (repo *ProductAttrRepository) DeleteItems(ctx context.Context, ids []uuid.U
 	return err
 }
 
+func (repo *ProductAttrRepository) ListItemsByIDs(ctx context.Context, ids []uuid.UUID) (res domain.ProductAttrItems, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductAttrRepository.ListItemsByIDs")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.ProductAttrItem.Query().Where(productattritem.IDIn(ids...))
+
+	entItems, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.ProductAttrItems, 0, len(entItems))
+	for _, i := range entItems {
+		res = append(res, convertProductAttrItemToDomain(i))
+	}
+	return res, nil
+}
+
 // ============================================
 // 转换函数
 // ============================================

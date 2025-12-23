@@ -172,6 +172,26 @@ func (repo *ProductTagRepository) PagedListBySearch(
 	}, nil
 }
 
+func (repo *ProductTagRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (res domain.ProductTags, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductTagRepository.ListByIDs")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.ProductTag.Query().Where(producttag.IDIn(ids...))
+
+	entTags, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.ProductTags, 0, len(entTags))
+	for _, t := range entTags {
+		res = append(res, convertProductTagToDomain(t))
+	}
+	return res, nil
+}
+
 func convertProductTagToDomain(et *ent.ProductTag) *domain.ProductTag {
 	if et == nil {
 		return nil

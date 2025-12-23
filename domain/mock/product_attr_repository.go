@@ -92,6 +92,20 @@ func (mr *MockProductAttrRepositoryMockRecorder) DeleteItem(arg0, arg1 interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteItem", reflect.TypeOf((*MockProductAttrRepository)(nil).DeleteItem), arg0, arg1)
 }
 
+// DeleteItems mocks base method.
+func (m *MockProductAttrRepository) DeleteItems(arg0 context.Context, arg1 []uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteItems", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteItems indicates an expected call of DeleteItems.
+func (mr *MockProductAttrRepositoryMockRecorder) DeleteItems(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteItems", reflect.TypeOf((*MockProductAttrRepository)(nil).DeleteItems), arg0, arg1)
+}
+
 // Exists mocks base method.
 func (m *MockProductAttrRepository) Exists(arg0 context.Context, arg1 domain.ProductAttrExistsParams) (bool, error) {
 	m.ctrl.T.Helper()
@@ -165,6 +179,21 @@ func (m *MockProductAttrRepository) ListBySearch(arg0 context.Context, arg1 doma
 func (mr *MockProductAttrRepositoryMockRecorder) ListBySearch(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockProductAttrRepository)(nil).ListBySearch), arg0, arg1)
+}
+
+// ListItemsByIDs mocks base method.
+func (m *MockProductAttrRepository) ListItemsByIDs(arg0 context.Context, arg1 []uuid.UUID) (domain.ProductAttrItems, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListItemsByIDs", arg0, arg1)
+	ret0, _ := ret[0].(domain.ProductAttrItems)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListItemsByIDs indicates an expected call of ListItemsByIDs.
+func (mr *MockProductAttrRepositoryMockRecorder) ListItemsByIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListItemsByIDs", reflect.TypeOf((*MockProductAttrRepository)(nil).ListItemsByIDs), arg0, arg1)
 }
 
 // SaveItems mocks base method.

@@ -394,7 +394,7 @@ func (psrc *ProductSpecRelationCreate) createSpec() (*ProductSpecRelation, *sqlg
 	}
 	if value, ok := psrc.mutation.MemberPrice(); ok {
 		_spec.SetField(productspecrelation.FieldMemberPrice, field.TypeOther, value)
-		_node.MemberPrice = value
+		_node.MemberPrice = &value
 	}
 	if value, ok := psrc.mutation.PackingFeeID(); ok {
 		_spec.SetField(productspecrelation.FieldPackingFeeID, field.TypeUUID, value)
@@ -402,19 +402,19 @@ func (psrc *ProductSpecRelationCreate) createSpec() (*ProductSpecRelation, *sqlg
 	}
 	if value, ok := psrc.mutation.EstimatedCostPrice(); ok {
 		_spec.SetField(productspecrelation.FieldEstimatedCostPrice, field.TypeOther, value)
-		_node.EstimatedCostPrice = value
+		_node.EstimatedCostPrice = &value
 	}
 	if value, ok := psrc.mutation.OtherPrice1(); ok {
 		_spec.SetField(productspecrelation.FieldOtherPrice1, field.TypeOther, value)
-		_node.OtherPrice1 = value
+		_node.OtherPrice1 = &value
 	}
 	if value, ok := psrc.mutation.OtherPrice2(); ok {
 		_spec.SetField(productspecrelation.FieldOtherPrice2, field.TypeOther, value)
-		_node.OtherPrice2 = value
+		_node.OtherPrice2 = &value
 	}
 	if value, ok := psrc.mutation.OtherPrice3(); ok {
 		_spec.SetField(productspecrelation.FieldOtherPrice3, field.TypeOther, value)
-		_node.OtherPrice3 = value
+		_node.OtherPrice3 = &value
 	}
 	if value, ok := psrc.mutation.Barcode(); ok {
 		_spec.SetField(productspecrelation.FieldBarcode, field.TypeString, value)

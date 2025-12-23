@@ -20,6 +20,7 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/product_tag_repository.go -package=mock . ProductTagRepository
 type ProductTagRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*ProductTag, error)
+	ListByIDs(ctx context.Context, ids []uuid.UUID) (ProductTags, error)
 	Create(ctx context.Context, tag *ProductTag) error
 	Update(ctx context.Context, tag *ProductTag) error
 	Delete(ctx context.Context, id uuid.UUID) error

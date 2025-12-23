@@ -9150,7 +9150,7 @@ func (m *ProductSpecRelationMutation) MemberPrice() (r decimal.Decimal, exists b
 // OldMemberPrice returns the old "member_price" field's value of the ProductSpecRelation entity.
 // If the ProductSpecRelation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductSpecRelationMutation) OldMemberPrice(ctx context.Context) (v decimal.Decimal, err error) {
+func (m *ProductSpecRelationMutation) OldMemberPrice(ctx context.Context) (v *decimal.Decimal, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMemberPrice is only allowed on UpdateOne operations")
 	}
@@ -9235,7 +9235,7 @@ func (m *ProductSpecRelationMutation) EstimatedCostPrice() (r decimal.Decimal, e
 // OldEstimatedCostPrice returns the old "estimated_cost_price" field's value of the ProductSpecRelation entity.
 // If the ProductSpecRelation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductSpecRelationMutation) OldEstimatedCostPrice(ctx context.Context) (v decimal.Decimal, err error) {
+func (m *ProductSpecRelationMutation) OldEstimatedCostPrice(ctx context.Context) (v *decimal.Decimal, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEstimatedCostPrice is only allowed on UpdateOne operations")
 	}
@@ -9284,7 +9284,7 @@ func (m *ProductSpecRelationMutation) OtherPrice1() (r decimal.Decimal, exists b
 // OldOtherPrice1 returns the old "other_price1" field's value of the ProductSpecRelation entity.
 // If the ProductSpecRelation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductSpecRelationMutation) OldOtherPrice1(ctx context.Context) (v decimal.Decimal, err error) {
+func (m *ProductSpecRelationMutation) OldOtherPrice1(ctx context.Context) (v *decimal.Decimal, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOtherPrice1 is only allowed on UpdateOne operations")
 	}
@@ -9333,7 +9333,7 @@ func (m *ProductSpecRelationMutation) OtherPrice2() (r decimal.Decimal, exists b
 // OldOtherPrice2 returns the old "other_price2" field's value of the ProductSpecRelation entity.
 // If the ProductSpecRelation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductSpecRelationMutation) OldOtherPrice2(ctx context.Context) (v decimal.Decimal, err error) {
+func (m *ProductSpecRelationMutation) OldOtherPrice2(ctx context.Context) (v *decimal.Decimal, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOtherPrice2 is only allowed on UpdateOne operations")
 	}
@@ -9382,7 +9382,7 @@ func (m *ProductSpecRelationMutation) OtherPrice3() (r decimal.Decimal, exists b
 // OldOtherPrice3 returns the old "other_price3" field's value of the ProductSpecRelation entity.
 // If the ProductSpecRelation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductSpecRelationMutation) OldOtherPrice3(ctx context.Context) (v decimal.Decimal, err error) {
+func (m *ProductSpecRelationMutation) OldOtherPrice3(ctx context.Context) (v *decimal.Decimal, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOtherPrice3 is only allowed on UpdateOne operations")
 	}

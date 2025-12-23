@@ -35,17 +35,17 @@ type ProductSpecRelation struct {
 	// 基础价格（必选，单位：分）
 	BasePrice decimal.Decimal `json:"base_price,omitempty"`
 	// 会员价（可选，单位：分）
-	MemberPrice decimal.Decimal `json:"member_price,omitempty"`
+	MemberPrice *decimal.Decimal `json:"member_price,omitempty"`
 	// 打包费ID（引用费用配置）
 	PackingFeeID uuid.UUID `json:"packing_fee_id,omitempty"`
 	// 预估成本价（可选，单位：分）
-	EstimatedCostPrice decimal.Decimal `json:"estimated_cost_price,omitempty"`
+	EstimatedCostPrice *decimal.Decimal `json:"estimated_cost_price,omitempty"`
 	// 其他价格1（可选，单位：分）
-	OtherPrice1 decimal.Decimal `json:"other_price1,omitempty"`
+	OtherPrice1 *decimal.Decimal `json:"other_price1,omitempty"`
 	// 其他价格2（可选，单位：分）
-	OtherPrice2 decimal.Decimal `json:"other_price2,omitempty"`
+	OtherPrice2 *decimal.Decimal `json:"other_price2,omitempty"`
 	// 其他价格3（可选，单位：分）
-	OtherPrice3 decimal.Decimal `json:"other_price3,omitempty"`
+	OtherPrice3 *decimal.Decimal `json:"other_price3,omitempty"`
 	// 条形码（可选，字符串，无限制）
 	Barcode string `json:"barcode,omitempty"`
 	// 是否默认项（规格必须至少有一个默认项）
@@ -94,7 +94,9 @@ func (*ProductSpecRelation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case productspecrelation.FieldBasePrice, productspecrelation.FieldMemberPrice, productspecrelation.FieldEstimatedCostPrice, productspecrelation.FieldOtherPrice1, productspecrelation.FieldOtherPrice2, productspecrelation.FieldOtherPrice3:
+		case productspecrelation.FieldMemberPrice, productspecrelation.FieldEstimatedCostPrice, productspecrelation.FieldOtherPrice1, productspecrelation.FieldOtherPrice2, productspecrelation.FieldOtherPrice3:
+			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
+		case productspecrelation.FieldBasePrice:
 			values[i] = new(decimal.Decimal)
 		case productspecrelation.FieldIsDefault:
 			values[i] = new(sql.NullBool)
@@ -164,10 +166,11 @@ func (psr *ProductSpecRelation) assignValues(columns []string, values []any) err
 				psr.BasePrice = *value
 			}
 		case productspecrelation.FieldMemberPrice:
-			if value, ok := values[i].(*decimal.Decimal); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field member_price", values[i])
-			} else if value != nil {
-				psr.MemberPrice = *value
+			} else if value.Valid {
+				psr.MemberPrice = new(decimal.Decimal)
+				*psr.MemberPrice = *value.S.(*decimal.Decimal)
 			}
 		case productspecrelation.FieldPackingFeeID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -176,28 +179,32 @@ func (psr *ProductSpecRelation) assignValues(columns []string, values []any) err
 				psr.PackingFeeID = *value
 			}
 		case productspecrelation.FieldEstimatedCostPrice:
-			if value, ok := values[i].(*decimal.Decimal); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field estimated_cost_price", values[i])
-			} else if value != nil {
-				psr.EstimatedCostPrice = *value
+			} else if value.Valid {
+				psr.EstimatedCostPrice = new(decimal.Decimal)
+				*psr.EstimatedCostPrice = *value.S.(*decimal.Decimal)
 			}
 		case productspecrelation.FieldOtherPrice1:
-			if value, ok := values[i].(*decimal.Decimal); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field other_price1", values[i])
-			} else if value != nil {
-				psr.OtherPrice1 = *value
+			} else if value.Valid {
+				psr.OtherPrice1 = new(decimal.Decimal)
+				*psr.OtherPrice1 = *value.S.(*decimal.Decimal)
 			}
 		case productspecrelation.FieldOtherPrice2:
-			if value, ok := values[i].(*decimal.Decimal); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field other_price2", values[i])
-			} else if value != nil {
-				psr.OtherPrice2 = *value
+			} else if value.Valid {
+				psr.OtherPrice2 = new(decimal.Decimal)
+				*psr.OtherPrice2 = *value.S.(*decimal.Decimal)
 			}
 		case productspecrelation.FieldOtherPrice3:
-			if value, ok := values[i].(*decimal.Decimal); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field other_price3", values[i])
-			} else if value != nil {
-				psr.OtherPrice3 = *value
+			} else if value.Valid {
+				psr.OtherPrice3 = new(decimal.Decimal)
+				*psr.OtherPrice3 = *value.S.(*decimal.Decimal)
 			}
 		case productspecrelation.FieldBarcode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -275,23 +282,33 @@ func (psr *ProductSpecRelation) String() string {
 	builder.WriteString("base_price=")
 	builder.WriteString(fmt.Sprintf("%v", psr.BasePrice))
 	builder.WriteString(", ")
-	builder.WriteString("member_price=")
-	builder.WriteString(fmt.Sprintf("%v", psr.MemberPrice))
+	if v := psr.MemberPrice; v != nil {
+		builder.WriteString("member_price=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("packing_fee_id=")
 	builder.WriteString(fmt.Sprintf("%v", psr.PackingFeeID))
 	builder.WriteString(", ")
-	builder.WriteString("estimated_cost_price=")
-	builder.WriteString(fmt.Sprintf("%v", psr.EstimatedCostPrice))
+	if v := psr.EstimatedCostPrice; v != nil {
+		builder.WriteString("estimated_cost_price=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("other_price1=")
-	builder.WriteString(fmt.Sprintf("%v", psr.OtherPrice1))
+	if v := psr.OtherPrice1; v != nil {
+		builder.WriteString("other_price1=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("other_price2=")
-	builder.WriteString(fmt.Sprintf("%v", psr.OtherPrice2))
+	if v := psr.OtherPrice2; v != nil {
+		builder.WriteString("other_price2=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("other_price3=")
-	builder.WriteString(fmt.Sprintf("%v", psr.OtherPrice3))
+	if v := psr.OtherPrice3; v != nil {
+		builder.WriteString("other_price3=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("barcode=")
 	builder.WriteString(psr.Barcode)

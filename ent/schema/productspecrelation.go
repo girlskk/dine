@@ -42,6 +42,7 @@ func (ProductSpecRelation) Fields() []ent.Field {
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
+			Nillable().
 			Comment("会员价（可选，单位：分）"),
 		field.UUID("packing_fee_id", uuid.UUID{}).Comment("打包费ID（引用费用配置）"),
 		field.Other("estimated_cost_price", decimal.Decimal{}).
@@ -50,6 +51,7 @@ func (ProductSpecRelation) Fields() []ent.Field {
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
+			Nillable().
 			Comment("预估成本价（可选，单位：分）"),
 		field.Other("other_price1", decimal.Decimal{}).
 			SchemaType(map[string]string{
@@ -57,6 +59,7 @@ func (ProductSpecRelation) Fields() []ent.Field {
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
+			Nillable().
 			Comment("其他价格1（可选，单位：分）"),
 		field.Other("other_price2", decimal.Decimal{}).
 			SchemaType(map[string]string{
@@ -64,6 +67,7 @@ func (ProductSpecRelation) Fields() []ent.Field {
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
+			Nillable().
 			Comment("其他价格2（可选，单位：分）"),
 		field.Other("other_price3", decimal.Decimal{}).
 			SchemaType(map[string]string{
@@ -71,6 +75,7 @@ func (ProductSpecRelation) Fields() []ent.Field {
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
+			Nillable().
 			Comment("其他价格3（可选，单位：分）"),
 		field.String("barcode").MaxLen(255).Default("").Comment("条形码（可选，字符串，无限制）"),
 		field.Bool("is_default").Default(false).Comment("是否默认项（规格必须至少有一个默认项）"),

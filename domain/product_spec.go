@@ -25,6 +25,7 @@ type ProductSpecRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProductSpecExistsParams) (bool, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSpecSearchParams) (*ProductSpecSearchRes, error)
+	ListByIDs(ctx context.Context, ids []uuid.UUID) (ProductSpecs, error)
 }
 
 // ProductSpecInteractor 商品规格用例接口

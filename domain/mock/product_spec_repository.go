@@ -95,6 +95,21 @@ func (mr *MockProductSpecRepositoryMockRecorder) FindByID(arg0, arg1 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockProductSpecRepository)(nil).FindByID), arg0, arg1)
 }
 
+// ListByIDs mocks base method.
+func (m *MockProductSpecRepository) ListByIDs(arg0 context.Context, arg1 []uuid.UUID) (domain.ProductSpecs, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByIDs", arg0, arg1)
+	ret0, _ := ret[0].(domain.ProductSpecs)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListByIDs indicates an expected call of ListByIDs.
+func (mr *MockProductSpecRepositoryMockRecorder) ListByIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByIDs", reflect.TypeOf((*MockProductSpecRepository)(nil).ListByIDs), arg0, arg1)
+}
+
 // PagedListBySearch mocks base method.
 func (m *MockProductSpecRepository) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.ProductSpecSearchParams) (*domain.ProductSpecSearchRes, error) {
 	m.ctrl.T.Helper()
