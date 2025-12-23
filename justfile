@@ -21,11 +21,11 @@ proto name:
 
 # 生成迁移文件
 migrate name:
-    atlas migrate diff {{name}} \
-        --dir {{MIGRATION_DIR}} \
-        --to "ent://ent/schema" \
-        --dev-url {{DEV_DB}} \
-        --format "{{'{{'}} sql . \"  \" {{'}}'}}"
+    go run -mod=mod ent/migrate/main.go {{name}}
+
+# 格式化SQL文件
+format_migration file:
+    sql-formatter {{file}} --output {{file}} && just migrate_hash
 
 # 生成手动迁移文件
 migrate_manual name:
