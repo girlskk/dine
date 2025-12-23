@@ -33,6 +33,7 @@ func (h *ProductHandler) Routes(r gin.IRouter) {
 	r.POST("/setmeal", h.CreateSetMeal())
 	r.GET("", h.List())
 	r.PUT("/:id", h.Update())
+	r.PUT("/setmeal/:id", h.UpdateSetMeal())
 	// r.DELETE("/:id", h.Delete())
 	// r.GET("/:id", h.GetDetail())
 }
@@ -555,15 +556,175 @@ func (h *ProductHandler) Update() gin.HandlerFunc {
 				c.Error(errorx.New(http.StatusConflict, errcode.ProductNameExists, err))
 				return
 			}
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to update product: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// UpdateSetMeal
+//
+//	@Tags		商品管理
+//	@Security	BearerAuth
+//	@Summary	更新套餐商品
+//	@Param		id		path	string					true	"商品ID"
+//	@Param		data	body	types.SetMealUpdateReq	true	"请求信息"
+//	@Success	200
+//	@Router		/product/setmeal/{id} [put]
+func (h *ProductHandler) UpdateSetMeal() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductHandler.UpdateSetMeal")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取商品ID
+		idStr := c.Param("id")
+		productID, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid product id: %w", err)))
+			return
+		}
+
+		var req types.SetMealUpdateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := domain.FromBackendUserContext(ctx)
+
+		// 构建 domain.Product
+		product := &domain.Product{
+			ID:                productID,
+			Type:              domain.ProductTypeSetMeal,
+			Name:              req.Name,
+			MerchantID:        user.MerchantID,
+			CategoryID:        req.CategoryID,
+			UnitID:            req.UnitID,
+			Mnemonic:          req.Mnemonic,
+			ShelfLife:         req.ShelfLife,
+			SupportTypes:      req.SupportTypes,
+			SaleStatus:        req.SaleStatus,
+			SaleChannels:      req.SaleChannels,
+			EffectiveDateType: req.EffectiveDateType,
+			MinSaleQuantity:   req.MinSaleQuantity,
+			AddSaleQuantity:   req.AddSaleQuantity,
+			InheritTaxRate:    req.InheritTaxRate,
+			InheritStall:      req.InheritStall,
+			MainImage:         req.MainImage,
+			DetailImages:      req.DetailImages,
+			Description:       req.Description,
+		}
+
+		// 可选字段
+		if req.MenuID != nil {
+			product.MenuID = *req.MenuID
+		}
+		if req.EffectiveStartTime != nil {
+			product.EffectiveStartTime = req.EffectiveStartTime
+		}
+		if req.EffectiveEndTime != nil {
+			product.EffectiveEndTime = req.EffectiveEndTime
+		}
+		if req.TaxRateID != nil {
+			product.TaxRateID = *req.TaxRateID
+		}
+		if req.StallID != nil {
+			product.StallID = *req.StallID
+		}
+		// 套餐属性
+		if req.ComboEstimatedCostPrice != nil {
+			product.EstimatedCostPrice = req.ComboEstimatedCostPrice
+		}
+		if req.ComboDeliveryCostPrice != nil {
+			product.DeliveryCostPrice = req.ComboDeliveryCostPrice
+		}
+
+		// 转换规格关联
+		product.SpecRelations = make(domain.ProductSpecRelations, 0, len(req.SpecRelations))
+		for _, specRelReq := range req.SpecRelations {
+			specRel := &domain.ProductSpecRelation{
+				ID:           uuid.New(),
+				ProductID:    product.ID,
+				SpecID:       specRelReq.SpecID,
+				BasePrice:    specRelReq.BasePrice,
+				PackingFeeID: specRelReq.PackingFeeID,
+				Barcode:      specRelReq.Barcode,
+				IsDefault:    specRelReq.IsDefault,
+			}
+
+			if specRelReq.MemberPrice != nil {
+				specRel.MemberPrice = specRelReq.MemberPrice
+			}
+			if specRelReq.EstimatedCostPrice != nil {
+				specRel.EstimatedCostPrice = specRelReq.EstimatedCostPrice
+			}
+			if specRelReq.OtherPrice1 != nil {
+				specRel.OtherPrice1 = specRelReq.OtherPrice1
+			}
+			if specRelReq.OtherPrice2 != nil {
+				specRel.OtherPrice2 = specRelReq.OtherPrice2
+			}
+			if specRelReq.OtherPrice3 != nil {
+				specRel.OtherPrice3 = specRelReq.OtherPrice3
+			}
+
+			product.SpecRelations = append(product.SpecRelations, specRel)
+		}
+
+		// 转换标签
+		if len(req.TagIDs) > 0 {
+			product.Tags = make(domain.ProductTags, 0, len(req.TagIDs))
+			for _, tagID := range req.TagIDs {
+				product.Tags = append(product.Tags, &domain.ProductTag{
+					ID: tagID,
+				})
+			}
+		}
+
+		// 转换套餐组
+		groups := make(domain.SetMealGroups, 0, len(req.Groups))
+		for _, groupReq := range req.Groups {
+			group := &domain.SetMealGroup{
+				ID:            uuid.New(),
+				ProductID:     product.ID,
+				Name:          groupReq.Name,
+				SelectionType: groupReq.SelectionType,
+			}
+			for _, detailReq := range groupReq.Details {
+				detail := &domain.SetMealDetail{
+					ID:                 uuid.New(),
+					GroupID:            group.ID,
+					ProductID:          detailReq.ProductID,
+					Quantity:           detailReq.Quantity,
+					IsDefault:          detailReq.IsDefault,
+					OptionalProductIDs: detailReq.OptionalProductIDs,
+				}
+				group.Details = append(group.Details, detail)
+			}
+			groups = append(groups, group)
+		}
+		product.Groups = groups
+
+		err = h.ProductInteractor.UpdateSetMeal(ctx, product)
+		if err != nil {
+			if errors.Is(err, domain.ErrProductNameExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.ProductNameExists, err))
 				return
 			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
 			}
-			err = fmt.Errorf("failed to update product: %w", err)
+			err = fmt.Errorf("failed to update set meal: %w", err)
 			c.Error(err)
 			return
 		}

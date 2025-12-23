@@ -3,8 +3,12 @@ package repository
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
+	setmealdetail "gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	setmealgroup "gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -75,6 +79,45 @@ func (repo *SetMealGroupRepository) CreateDetails(ctx context.Context, details [
 
 	_, err = repo.Client.SetMealDetail.CreateBulk(builders...).Save(ctx)
 	return err
+}
+
+// DeleteByProductID 根据商品ID删除套餐组和套餐组详情（物理删除）
+func (repo *SetMealGroupRepository) DeleteByProductID(ctx context.Context, productID uuid.UUID) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "SetMealGroupRepository.DeleteByProductID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	// 使用 SkipSoftDelete context 确保物理删除（硬删除）
+	skipSoftDeleteCtx := schematype.SkipSoftDelete(ctx)
+
+	// 查询该商品下的所有套餐组ID
+	groupIDs, err := repo.Client.SetMealGroup.Query().
+		Where(setmealgroup.ProductIDEQ(productID)).
+		IDs(skipSoftDeleteCtx)
+	if err != nil {
+		return err
+	}
+
+	// 先删除套餐组详情（因为套餐组详情有外键关联到套餐组）
+	if len(groupIDs) > 0 {
+		_, err = repo.Client.SetMealDetail.Delete().
+			Where(setmealdetail.GroupIDIn(groupIDs...)).
+			Exec(skipSoftDeleteCtx)
+		if err != nil {
+			return err
+		}
+	}
+
+	// 再删除套餐组
+	_, err = repo.Client.SetMealGroup.Delete().
+		Where(setmealgroup.ProductIDEQ(productID)).
+		Exec(skipSoftDeleteCtx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ============================================

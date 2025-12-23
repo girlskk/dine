@@ -70,6 +70,7 @@ type ProductInteractor interface {
 	CreateSetMeal(ctx context.Context, product *Product) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
 	Update(ctx context.Context, product *Product) error
+	UpdateSetMeal(ctx context.Context, product *Product) error
 	// Delete(ctx context.Context, id uuid.UUID) error
 	// GetDetail(ctx context.Context, id uuid.UUID) (*Product, error)
 }

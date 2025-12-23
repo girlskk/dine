@@ -7,8 +7,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *ProductInteractor) Update(ctx context.Context, product *domain.Product) (err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.Update")
+func (i *ProductInteractor) UpdateSetMeal(ctx context.Context, product *domain.Product) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.UpdateSetMeal")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
@@ -39,7 +39,12 @@ func (i *ProductInteractor) Update(ctx context.Context, product *domain.Product)
 			return err
 		}
 
-		// 更新商品基本信息（同时清除旧的关联）
+		// 删除旧的套餐组和套餐组详情（物理删除）
+		if err = ds.SetMealGroupRepo().DeleteByProductID(ctx, product.ID); err != nil {
+			return err
+		}
+
+		// 更新商品基本信息（同时清除旧的规格关联）
 		if err = ds.ProductRepo().Update(ctx, product); err != nil {
 			return err
 		}
@@ -51,9 +56,20 @@ func (i *ProductInteractor) Update(ctx context.Context, product *domain.Product)
 			}
 		}
 
-		// 创建新的口味做法关联
-		if len(product.AttrRelations) > 0 {
-			if err = ds.ProductAttrRelRepo().CreateBulk(ctx, product.AttrRelations); err != nil {
+		// 批量创建套餐组
+		if len(product.Groups) > 0 {
+			if err = ds.SetMealGroupRepo().CreateGroups(ctx, product.Groups); err != nil {
+				return err
+			}
+		}
+
+		// 批量创建套餐组详情
+		allDetails := make([]*domain.SetMealDetail, 0)
+		for _, group := range product.Groups {
+			allDetails = append(allDetails, group.Details...)
+		}
+		if len(allDetails) > 0 {
+			if err = ds.SetMealGroupRepo().CreateDetails(ctx, allDetails); err != nil {
 				return err
 			}
 		}

@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
@@ -61,4 +62,18 @@ func (m *MockSetMealGroupRepository) CreateGroups(arg0 context.Context, arg1 []*
 func (mr *MockSetMealGroupRepositoryMockRecorder) CreateGroups(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroups", reflect.TypeOf((*MockSetMealGroupRepository)(nil).CreateGroups), arg0, arg1)
+}
+
+// DeleteByProductID mocks base method.
+func (m *MockSetMealGroupRepository) DeleteByProductID(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteByProductID", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteByProductID indicates an expected call of DeleteByProductID.
+func (mr *MockSetMealGroupRepositoryMockRecorder) DeleteByProductID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByProductID", reflect.TypeOf((*MockSetMealGroupRepository)(nil).DeleteByProductID), arg0, arg1)
 }

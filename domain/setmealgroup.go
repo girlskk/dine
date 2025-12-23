@@ -88,6 +88,7 @@ type SetMealDetails []*SetMealDetail
 type SetMealGroupRepository interface {
 	// 套餐组相关操作
 	CreateGroups(ctx context.Context, groups []*SetMealGroup) error
+	DeleteByProductID(ctx context.Context, productID uuid.UUID) error
 	// 套餐组详情相关操作
 	CreateDetails(ctx context.Context, details []*SetMealDetail) error
 }

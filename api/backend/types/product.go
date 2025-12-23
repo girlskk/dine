@@ -143,3 +143,6 @@ type ProductListReq struct {
 	Page       int    `form:"page" binding:"omitempty,min=1"`                         // 页码
 	Size       int    `form:"size" binding:"omitempty,min=1"`                         // 每页数量
 }
+
+// SetMealUpdateReq 更新套餐商品请求
+type SetMealUpdateReq *SetMealCreateReq

@@ -92,3 +92,17 @@ func (mr *MockProductInteractorMockRecorder) Update(arg0, arg1 interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductInteractor)(nil).Update), arg0, arg1)
 }
+
+// UpdateSetMeal mocks base method.
+func (m *MockProductInteractor) UpdateSetMeal(arg0 context.Context, arg1 *domain.Product) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSetMeal", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateSetMeal indicates an expected call of UpdateSetMeal.
+func (mr *MockProductInteractorMockRecorder) UpdateSetMeal(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSetMeal", reflect.TypeOf((*MockProductInteractor)(nil).UpdateSetMeal), arg0, arg1)
+}
