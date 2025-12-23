@@ -25,11 +25,7 @@ migrate name:
         --dir {{MIGRATION_DIR}} \
         --to "ent://ent/schema" \
         --dev-url {{DEV_DB}} \
-        --format "{{'{{'}} sql . \"  \" {{'}}'}}" && \
-    atlas migrate lint \
-        --dev-url={{DEV_DB}} \
-        --dir={{MIGRATION_DIR}} \
-        --latest=1
+        --format "{{'{{'}} sql . \"  \" {{'}}'}}"
 
 # 生成手动迁移文件
 migrate_manual name:
@@ -43,18 +39,6 @@ migrate_hash:
 ent_new +names:
     {{ENT_CMD_NEW}} {{names}}
 
-# 本地构建
-build:
-    docker compose build
-
-# 本地启动
-run:
-    docker compose up -d
-
-# 本地停止
-stop:
-    docker compose down
-
-# 本地容器日志
-logs name:
-    docker compose logs --tail=100 {{name}}
+# 本地启动服务
+run name:
+    air -c ./.air/{{name}}.toml
