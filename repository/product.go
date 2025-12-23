@@ -320,6 +320,11 @@ func (repo *ProductRepository) PagedListBySearch(
 		return nil, err
 	}
 
+	// 预加载关联数据
+	query = query.
+		WithCategory().    // 预加载分类信息
+		WithProductSpecs() // 预加载规格信息
+
 	// 分页处理
 	query = query.
 		Offset(page.Offset()).
@@ -397,14 +402,22 @@ func convertProductToDomain(ep *ent.Product) *domain.Product {
 		p.DetailImages = ep.DetailImages
 	}
 
+	// 分类信息
+	if ep.Edges.Category != nil {
+		p.Category = convertCategoryToDomain(ep.Edges.Category)
+	}
+
 	// 规格字段
 	for _, spec := range ep.Edges.ProductSpecs {
 		p.SpecRelations = append(p.SpecRelations, convertProductSpecRelationToDomain(spec))
 	}
+
+	// 口味做法字段
 	for _, attr := range ep.Edges.ProductAttrs {
 		p.AttrRelations = append(p.AttrRelations, convertProductAttrRelationToDomain(attr))
 	}
 
+	// 标签字段
 	if len(ep.Edges.Tags) > 0 {
 		p.Tags = make(domain.ProductTags, 0, len(ep.Edges.Tags))
 		for _, tag := range ep.Edges.Tags {

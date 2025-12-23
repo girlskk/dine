@@ -212,6 +212,7 @@ type Product struct {
 	AttrRelations ProductAttrRelations `json:"attr_relations,omitempty"` // 商品口味做法关联列表
 	Tags          ProductTags          `json:"tags,omitempty"`           // 商品标签列表
 	Groups        SetMealGroups        `json:"groups,omitempty"`         // 套餐组列表
+	Category      *Category            `json:"category,omitempty"`       // 分类
 }
 
 // Products 商品集合
