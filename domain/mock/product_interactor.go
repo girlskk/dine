@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
+	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockProductInteractor is a mock of ProductInteractor interface.
@@ -61,4 +62,19 @@ func (m *MockProductInteractor) CreateSetMeal(arg0 context.Context, arg1 *domain
 func (mr *MockProductInteractorMockRecorder) CreateSetMeal(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSetMeal", reflect.TypeOf((*MockProductInteractor)(nil).CreateSetMeal), arg0, arg1)
+}
+
+// PagedListBySearch mocks base method.
+func (m *MockProductInteractor) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.ProductSearchParams) (*domain.ProductSearchRes, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PagedListBySearch", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.ProductSearchRes)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PagedListBySearch indicates an expected call of PagedListBySearch.
+func (mr *MockProductInteractorMockRecorder) PagedListBySearch(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListBySearch", reflect.TypeOf((*MockProductInteractor)(nil).PagedListBySearch), arg0, arg1, arg2)
 }

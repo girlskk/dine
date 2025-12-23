@@ -11,6 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
+	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockProductRepository is a mock of ProductRepository interface.
@@ -107,6 +108,21 @@ func (m *MockProductRepository) ListByIDs(arg0 context.Context, arg1 []uuid.UUID
 func (mr *MockProductRepositoryMockRecorder) ListByIDs(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByIDs", reflect.TypeOf((*MockProductRepository)(nil).ListByIDs), arg0, arg1)
+}
+
+// PagedListBySearch mocks base method.
+func (m *MockProductRepository) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.ProductSearchParams) (*domain.ProductSearchRes, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PagedListBySearch", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.ProductSearchRes)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PagedListBySearch indicates an expected call of PagedListBySearch.
+func (mr *MockProductRepositoryMockRecorder) PagedListBySearch(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListBySearch", reflect.TypeOf((*MockProductRepository)(nil).PagedListBySearch), arg0, arg1, arg2)
 }
 
 // Update mocks base method.

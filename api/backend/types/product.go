@@ -127,3 +127,16 @@ type SetMealDetailReq struct {
 	IsDefault          bool        `json:"is_default"`                        // 是否默认（必选，每个套餐组中只能有一个默认项）
 	OptionalProductIDs []uuid.UUID `json:"optional_product_ids,omitempty"`    // 备选商品ID列表（可选，多选）
 }
+
+// ProductListReq 查询商品列表请求
+type ProductListReq struct {
+	Name       string `form:"name" binding:"omitempty,max=255"`                       // 商品名称（可选，模糊匹配）
+	SaleStatus string `form:"sale_status" binding:"omitempty,oneof=on_sale off_sale"` // 售卖状态（可选：on_sale-在售、off_sale-停售，空字符串表示全部）
+	Type       string `form:"type" binding:"omitempty,oneof=normal set_meal"`         // 商品类型（可选：normal-普通商品、set_meal-套餐商品，空字符串表示全部）
+	CategoryID string `form:"category_id"`                                            // 分类ID（可选，支持一级分类和二级分类）
+	StallID    string `form:"stall_id"`                                               // 出品部门ID（可选）
+	StartAt    string `form:"start_at"`                                               // 创建开始时间（可选）
+	EndAt      string `form:"end_at"`                                                 // 创建结束时间（可选，最长支持1年跨度）
+	Page       int    `form:"page" binding:"omitempty,min=1"`                         // 页码
+	Size       int    `form:"size" binding:"omitempty,min=1"`                         // 每页数量
+}

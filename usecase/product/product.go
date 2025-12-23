@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 var _ domain.ProductInteractor = (*ProductInteractor)(nil)
@@ -315,4 +317,17 @@ func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, prod
 	}
 
 	return nil
+}
+
+func (i *ProductInteractor) PagedListBySearch(
+	ctx context.Context,
+	page *upagination.Pagination,
+	params domain.ProductSearchParams,
+) (res *domain.ProductSearchRes, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.PagedListBySearch")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	return i.DS.ProductRepo().PagedListBySearch(ctx, page, params)
 }

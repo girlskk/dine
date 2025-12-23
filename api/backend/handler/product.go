@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 type ProductHandler struct {
@@ -29,10 +31,10 @@ func (h *ProductHandler) Routes(r gin.IRouter) {
 	r = r.Group("product")
 	r.POST("", h.Create())
 	r.POST("/setmeal", h.CreateSetMeal())
+	r.GET("", h.List())
 	// r.PUT("/:id", h.Update())
 	// r.DELETE("/:id", h.Delete())
 	// r.GET("/:id", h.GetDetail())
-	// r.GET("", h.List())
 }
 
 func (h *ProductHandler) NoAuths() []string {
@@ -330,5 +332,90 @@ func (h *ProductHandler) CreateSetMeal() gin.HandlerFunc {
 			return
 		}
 		response.Ok(c, nil)
+	}
+}
+
+// List
+//
+//	@Tags		商品管理
+//	@Security	BearerAuth
+//	@Summary	查询商品列表
+//	@Param		data	query		types.ProductListReq	true	"请求信息"
+//	@Success	200		{object}	domain.ProductSearchRes	"成功"
+//	@Router		/product [get]
+func (h *ProductHandler) List() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductHandler.List")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.ProductListReq
+		if err := c.ShouldBindQuery(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		page := upagination.New(req.Page, req.Size)
+		user := domain.FromBackendUserContext(ctx)
+
+		startAt, err := time.Parse(time.DateOnly, req.StartAt)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		endAt, err := time.Parse(time.DateOnly, req.EndAt)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		params := domain.ProductSearchParams{
+			MerchantID: user.MerchantID,
+			Name:       req.Name,
+			StartAt:    &startAt,
+			EndAt:      &endAt,
+		}
+
+		// 转换UUID
+		if req.CategoryID != "" {
+			categoryID, err := uuid.Parse(req.CategoryID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.CategoryID = categoryID
+		}
+
+		if req.StallID != "" {
+			stallID, err := uuid.Parse(req.StallID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.StallID = stallID
+		}
+
+		// 售卖状态
+		if req.SaleStatus != "" {
+			params.SaleStatus = domain.ProductSaleStatus(req.SaleStatus)
+		}
+
+		// 商品类型
+		if req.Type != "" {
+			params.Type = domain.ProductType(req.Type)
+		}
+
+		res, err := h.ProductInteractor.PagedListBySearch(ctx, page, params)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			} else {
+				err = fmt.Errorf("failed to list products: %w", err)
+				c.Error(err)
+			}
+			return
+		}
+
+		response.Ok(c, res)
 	}
 }

@@ -6,7 +6,9 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -242,6 +244,104 @@ func (repo *ProductRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (
 		res = append(res, convertProductToDomain(p))
 	}
 	return res, nil
+}
+
+func (repo *ProductRepository) PagedListBySearch(
+	ctx context.Context,
+	page *upagination.Pagination,
+	params domain.ProductSearchParams,
+) (res *domain.ProductSearchRes, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.PagedListBySearch")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Product.Query()
+
+	// 必填条件：品牌商ID
+	if params.MerchantID != uuid.Nil {
+		query.Where(product.MerchantID(params.MerchantID))
+	}
+
+	// 可选条件：门店ID
+	if params.StoreID != uuid.Nil {
+		query.Where(product.StoreID(params.StoreID))
+	}
+
+	// 可选条件：商品名称（模糊匹配）
+	if params.Name != "" {
+		query.Where(product.NameContains(params.Name))
+	}
+
+	// 可选条件：售卖状态
+	if params.SaleStatus != "" {
+		query.Where(product.SaleStatusEQ(params.SaleStatus))
+	}
+
+	// 可选条件：商品类型
+	if params.Type != "" {
+		query.Where(product.TypeEQ(params.Type))
+	}
+
+	// 可选条件：分类ID（支持一级分类和二级分类）
+	if params.CategoryID != uuid.Nil {
+		query.Where(product.CategoryIDEQ(params.CategoryID))
+	}
+
+	// 可选条件：出品部门ID
+	// 需要同时考虑：
+	// 1. 商品直接指定了出品部门（InheritStall = false 且 StallID = 查询的 StallID）
+	// 2. 或者商品继承了分类的出品部门（InheritStall = true），且分类的出品部门等于查询的 StallID
+	if params.StallID != uuid.Nil {
+		query.Where(product.Or(
+			// 商品直接指定了出品部门
+			product.And(
+				product.InheritStallEQ(false),
+				product.StallIDEQ(params.StallID),
+			),
+			// 商品继承了分类的出品部门
+			product.And(
+				product.InheritStallEQ(true),
+				product.HasCategoryWith(category.StallIDEQ(params.StallID)),
+			),
+		))
+	}
+
+	// 可选条件：创建时间范围
+	if params.StartAt != nil {
+		query.Where(product.CreatedAtGTE(util.DayStart(*params.StartAt)))
+	}
+	if params.EndAt != nil {
+		query.Where(product.CreatedAtLTE(util.DayEnd(*params.EndAt)))
+	}
+	// 获取总数
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 分页处理
+	query = query.
+		Offset(page.Offset()).
+		Limit(page.Size)
+
+	// 按创建时间倒序排列
+	entProducts, err := query.Order(ent.Desc(product.FieldCreatedAt)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.Products, 0, len(entProducts))
+	for _, p := range entProducts {
+		items = append(items, convertProductToDomain(p))
+	}
+
+	page.SetTotal(total)
+
+	return &domain.ProductSearchRes{
+		Pagination: page,
+		Items:      items,
+	}, nil
 }
 
 // ============================================
