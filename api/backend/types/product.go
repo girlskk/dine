@@ -68,6 +68,9 @@ type ProductAttrRelationReq struct {
 	IsDefault  bool      `json:"is_default"`                      // 是否默认项
 }
 
+// ProductUpdateReq 更新商品请求
+type ProductUpdateReq *ProductCreateReq
+
 // SetMealCreateReq 创建套餐商品请求
 type SetMealCreateReq struct {
 	// 基础信息

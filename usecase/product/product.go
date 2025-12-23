@@ -179,11 +179,12 @@ func validateProductParams(product *domain.Product) (err error) {
 }
 
 // validateProductBusinessRules 校验商品业务规则
-func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, product *domain.Product) error {
+func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, product *domain.Product, excludeID uuid.UUID) error {
 	// 1. 验证商品名称在当前商户下是否唯一
 	exists, err := ds.ProductRepo().Exists(ctx, domain.ProductExistsParams{
 		MerchantID: product.MerchantID,
 		Name:       product.Name,
+		ExcludeID:  excludeID,
 	})
 	if err != nil {
 		return err

@@ -3,6 +3,7 @@ package product
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -18,7 +19,7 @@ func (i *ProductInteractor) CreateSetMeal(ctx context.Context, product *domain.P
 	}
 
 	err = i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		if err = validateProductBusinessRules(ctx, ds, product); err != nil {
+		if err = validateProductBusinessRules(ctx, ds, product, uuid.Nil); err != nil {
 			return err
 		}
 

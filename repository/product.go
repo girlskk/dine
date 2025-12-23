@@ -8,6 +8,9 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -129,6 +132,23 @@ func (repo *ProductRepository) Update(ctx context.Context, p *domain.Product) (e
 		util.SpanErrFinish(span, err)
 	}()
 
+	// 先删除旧的规格关联和口味做法关联记录（使用 DELETE，而不是 SET NULL）
+	// 注意：这里需要在事务中执行，由 UseCase 层保证
+	skipSoftDeleteCtx := schematype.SkipSoftDelete(ctx)
+	_, err = repo.Client.ProductSpecRelation.Delete().
+		Where(productspecrelation.ProductIDEQ(p.ID)).
+		Exec(skipSoftDeleteCtx)
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.Client.ProductAttrRelation.Delete().
+		Where(productattrrelation.ProductIDEQ(p.ID)).
+		Exec(skipSoftDeleteCtx)
+	if err != nil {
+		return err
+	}
+
 	builder := repo.Client.Product.UpdateOneID(p.ID).
 		SetName(p.Name).
 		SetCategoryID(p.CategoryID).
@@ -192,6 +212,17 @@ func (repo *ProductRepository) Update(ctx context.Context, p *domain.Product) (e
 		builder = builder.SetDetailImages(p.DetailImages)
 	} else {
 		builder = builder.ClearDetailImages()
+	}
+
+	// 更新标签
+	if len(p.Tags) > 0 {
+		tagIDs := make([]uuid.UUID, 0, len(p.Tags))
+		for _, tag := range p.Tags {
+			tagIDs = append(tagIDs, tag.ID)
+		}
+		builder = builder.ClearTags().AddTagIDs(tagIDs...)
+	} else {
+		builder = builder.ClearTags()
 	}
 
 	_, err = builder.Save(ctx)
