@@ -90,14 +90,7 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		SetBusinessTypeID(domainMerchant.BusinessTypeID).
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
-		SetStatus(domainMerchant.Status).
-		SetCountryID(domainMerchant.Address.CountryID).
-		SetProvinceID(domainMerchant.Address.ProvinceID).
-		SetCityID(domainMerchant.Address.CityID).
-		SetDistrictID(domainMerchant.Address.DistrictID).
-		SetAddress(domainMerchant.Address.Address).
-		SetLng(domainMerchant.Address.Lng).
-		SetLat(domainMerchant.Address.Lat)
+		SetStatus(domainMerchant.Status)
 
 	if domainMerchant.Address != nil {
 		uc.SetCountryID(domainMerchant.Address.CountryID).

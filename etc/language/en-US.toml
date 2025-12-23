@@ -66,3 +66,9 @@ other = "Store shift time is invalid (start time must be earlier than end time)"
 
 [STORE_SHIFT_TIME_NAME_EXISTS]
 other = "Store shift time name already exists"
+
+[REMARK_NAME_EXISTS]
+other = "Remark name already exists"
+
+[REMARK_DELETE_SYSTEM]
+other = "Cannot delete system built-in remark"

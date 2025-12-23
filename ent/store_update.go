@@ -19,6 +19,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -496,6 +497,21 @@ func (su *StoreUpdate) SetDistrict(d *District) *StoreUpdate {
 	return su.SetDistrictID(d.ID)
 }
 
+// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
+func (su *StoreUpdate) AddRemarkIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddRemarkIDs(ids...)
+	return su
+}
+
+// AddRemarks adds the "remarks" edges to the Remark entity.
+func (su *StoreUpdate) AddRemarks(r ...*Remark) *StoreUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return su.AddRemarkIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
@@ -529,6 +545,27 @@ func (su *StoreUpdate) ClearCity() *StoreUpdate {
 func (su *StoreUpdate) ClearDistrict() *StoreUpdate {
 	su.mutation.ClearDistrict()
 	return su
+}
+
+// ClearRemarks clears all "remarks" edges to the Remark entity.
+func (su *StoreUpdate) ClearRemarks() *StoreUpdate {
+	su.mutation.ClearRemarks()
+	return su
+}
+
+// RemoveRemarkIDs removes the "remarks" edge to Remark entities by IDs.
+func (su *StoreUpdate) RemoveRemarkIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveRemarkIDs(ids...)
+	return su
+}
+
+// RemoveRemarks removes "remarks" edges to Remark entities.
+func (su *StoreUpdate) RemoveRemarks(r ...*Remark) *StoreUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return su.RemoveRemarkIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -928,6 +965,51 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RemarksTable,
+			Columns: []string{store.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedRemarksIDs(); len(nodes) > 0 && !su.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RemarksTable,
+			Columns: []string{store.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemarksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RemarksTable,
+			Columns: []string{store.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1417,6 +1499,21 @@ func (suo *StoreUpdateOne) SetDistrict(d *District) *StoreUpdateOne {
 	return suo.SetDistrictID(d.ID)
 }
 
+// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
+func (suo *StoreUpdateOne) AddRemarkIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddRemarkIDs(ids...)
+	return suo
+}
+
+// AddRemarks adds the "remarks" edges to the Remark entity.
+func (suo *StoreUpdateOne) AddRemarks(r ...*Remark) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return suo.AddRemarkIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
@@ -1450,6 +1547,27 @@ func (suo *StoreUpdateOne) ClearCity() *StoreUpdateOne {
 func (suo *StoreUpdateOne) ClearDistrict() *StoreUpdateOne {
 	suo.mutation.ClearDistrict()
 	return suo
+}
+
+// ClearRemarks clears all "remarks" edges to the Remark entity.
+func (suo *StoreUpdateOne) ClearRemarks() *StoreUpdateOne {
+	suo.mutation.ClearRemarks()
+	return suo
+}
+
+// RemoveRemarkIDs removes the "remarks" edge to Remark entities by IDs.
+func (suo *StoreUpdateOne) RemoveRemarkIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveRemarkIDs(ids...)
+	return suo
+}
+
+// RemoveRemarks removes "remarks" edges to Remark entities.
+func (suo *StoreUpdateOne) RemoveRemarks(r ...*Remark) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return suo.RemoveRemarkIDs(ids...)
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -1879,6 +1997,51 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RemarksTable,
+			Columns: []string{store.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedRemarksIDs(); len(nodes) > 0 && !suo.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RemarksTable,
+			Columns: []string{store.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemarksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RemarksTable,
+			Columns: []string{store.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

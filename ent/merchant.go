@@ -94,9 +94,13 @@ type MerchantEdges struct {
 	City *City `json:"city,omitempty"`
 	// District holds the value of the district edge.
 	District *District `json:"district,omitempty"`
+	// RemarkCategories holds the value of the remark_categories edge.
+	RemarkCategories []*RemarkCategory `json:"remark_categories,omitempty"`
+	// Remarks holds the value of the remarks edge.
+	Remarks []*Remark `json:"remarks,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [10]bool
 }
 
 // StoresOrErr returns the Stores value or an error if the edge
@@ -181,6 +185,24 @@ func (e MerchantEdges) DistrictOrErr() (*District, error) {
 		return nil, &NotFoundError{label: district.Label}
 	}
 	return nil, &NotLoadedError{edge: "district"}
+}
+
+// RemarkCategoriesOrErr returns the RemarkCategories value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) RemarkCategoriesOrErr() ([]*RemarkCategory, error) {
+	if e.loadedTypes[8] {
+		return e.RemarkCategories, nil
+	}
+	return nil, &NotLoadedError{edge: "remark_categories"}
+}
+
+// RemarksOrErr returns the Remarks value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) RemarksOrErr() ([]*Remark, error) {
+	if e.loadedTypes[9] {
+		return e.Remarks, nil
+	}
+	return nil, &NotLoadedError{edge: "remarks"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -401,6 +423,16 @@ func (m *Merchant) QueryCity() *CityQuery {
 // QueryDistrict queries the "district" edge of the Merchant entity.
 func (m *Merchant) QueryDistrict() *DistrictQuery {
 	return NewMerchantClient(m.config).QueryDistrict(m)
+}
+
+// QueryRemarkCategories queries the "remark_categories" edge of the Merchant entity.
+func (m *Merchant) QueryRemarkCategories() *RemarkCategoryQuery {
+	return NewMerchantClient(m.config).QueryRemarkCategories(m)
+}
+
+// QueryRemarks queries the "remarks" edge of the Merchant entity.
+func (m *Merchant) QueryRemarks() *RemarkQuery {
+	return NewMerchantClient(m.config).QueryRemarks(m)
 }
 
 // Update returns a builder for updating this Merchant.

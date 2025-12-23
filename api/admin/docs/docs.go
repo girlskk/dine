@@ -294,55 +294,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/merchant/simple_update": {
-            "post": {
-                "description": "简单字段更新（目前仅状态）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Merchant"
-                ],
-                "summary": "商户简单更新",
-                "parameters": [
-                    {
-                        "description": "商户简单更新请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.MerchantSimpleUpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/merchant/merchant/store": {
             "post": {
                 "description": "创建门店商户（商户 + 门店）",
@@ -550,6 +501,53 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "简单字段更新（目前仅状态）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "商户简单更新",
+                "parameters": [
+                    {
+                        "description": "商户简单更新请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.MerchantSimpleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
             }
         },
         "/merchant/store": {
@@ -735,55 +733,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/store/simple_update": {
-            "post": {
-                "description": "简单字段更新（目前仅状态）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Store"
-                ],
-                "summary": "门店简单更新",
-                "parameters": [
-                    {
-                        "description": "门店简单更新请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.StoreSimpleUpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/merchant/store/{id}": {
             "get": {
                 "description": "根据门店ID获取门店信息",
@@ -929,6 +878,53 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "简单字段更新（目前仅状态）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store"
+                ],
+                "summary": "门店简单更新",
+                "parameters": [
+                    {
+                        "description": "门店简单更新请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StoreSimpleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1497,6 +1493,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string"
+                },
                 "login_account": {
                     "description": "登录账号",
                     "type": "string"
@@ -1557,6 +1557,18 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.StoreSimpleUpdateType": {
+            "type": "string",
+            "enum": [
+                "status"
+            ],
+            "x-enum-comments": {
+                "StoreSimpleUpdateTypeStatus": "状态更新"
+            },
+            "x-enum-varnames": [
+                "StoreSimpleUpdateTypeStatus"
+            ]
+        },
         "domain.StoreStatus": {
             "type": "string",
             "enum": [
@@ -1590,23 +1602,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -1786,6 +1784,7 @@ const docTemplate = `{
                 "business_model",
                 "business_type_id",
                 "dining_periods",
+                "location_number",
                 "login_account",
                 "login_password",
                 "merchant_id",
@@ -1862,6 +1861,11 @@ const docTemplate = `{
                     "description": "食品经营许可证照片地址",
                     "type": "string",
                     "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "login_account": {
                     "description": "登录账号",
@@ -2014,15 +2018,10 @@ const docTemplate = `{
         "types.MerchantSimpleUpdateReq": {
             "type": "object",
             "required": [
-                "merchant_id",
-                "simple_update"
+                "simple_update_type"
             ],
             "properties": {
-                "merchant_id": {
-                    "description": "商户 ID",
-                    "type": "string"
-                },
-                "simple_update": {
+                "simple_update_type": {
                     "description": "简单更新类型",
                     "enum": [
                         "status"
@@ -2126,10 +2125,21 @@ const docTemplate = `{
         "types.StoreSimpleUpdateReq": {
             "type": "object",
             "required": [
-                "status",
-                "store_id"
+                "simple_update_type",
+                "status"
             ],
             "properties": {
+                "simple_update_type": {
+                    "description": "简单更新类型",
+                    "enum": [
+                        "status"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimpleUpdateType"
+                        }
+                    ]
+                },
                 "status": {
                     "description": "营业/停业",
                     "allOf": [
@@ -2137,10 +2147,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/domain.StoreStatus"
                         }
                     ]
-                },
-                "store_id": {
-                    "description": "门店 ID",
-                    "type": "string"
                 }
             }
         },
@@ -2239,6 +2245,7 @@ const docTemplate = `{
                 "business_model",
                 "business_type_id",
                 "dining_periods",
+                "location_number",
                 "login_account",
                 "login_password",
                 "shift_times",
@@ -2314,6 +2321,11 @@ const docTemplate = `{
                     "description": "食品经营许可证照片地址",
                     "type": "string",
                     "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "login_account": {
                     "description": "登录账号",

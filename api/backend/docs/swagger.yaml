@@ -1,5 +1,41 @@
 basePath: /api/v1
 definitions:
+  domain.Address:
+    properties:
+      address:
+        description: 详细地址
+        type: string
+      city_id:
+        description: 城市 ID
+        type: string
+      city_name:
+        description: 城市名称
+        type: string
+      country_id:
+        description: 国家/地区 ID
+        type: string
+      country_name:
+        description: 国家/地区 名称
+        type: string
+      district_id:
+        description: 区县 ID
+        type: string
+      district_name:
+        description: 区县名称
+        type: string
+      lat:
+        description: 纬度
+        type: string
+      lng:
+        description: 经度
+        type: string
+      province_id:
+        description: 省份 ID
+        type: string
+      province_name:
+        description: 省份名称
+        type: string
+    type: object
   domain.BackendUser:
     properties:
       id:
@@ -65,11 +101,92 @@ definitions:
     type: object
   domain.Merchant:
     properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/domain.Address'
+        description: 地址
+      admin_phone_number:
+        description: 管理员手机号
+        type: string
+      admin_user_id:
+        description: 登陆账号 ID
+        type: string
+      brand_name:
+        description: 品牌名称
+        type: string
+      business_type_id:
+        description: 业务类型
+        type: string
+      business_type_name:
+        description: 业务类型名称
+        type: string
+      created_at:
+        type: string
+      description:
+        description: 商户描述(保留字段)
+        type: string
+      expire_utc:
+        description: UTC 时区的过期时间
+        type: string
       id:
+        type: string
+      login_account:
+        description: 登录账号
+        type: string
+      login_password:
+        description: 登录密码(加密存储)
+        type: string
+      merchant_code:
+        description: 商户编号(保留字段)
+        type: string
+      merchant_logo:
+        description: logo 图片地址
+        type: string
+      merchant_name:
+        description: 商户名称,最长不得超过50个字
+        type: string
+      merchant_short_name:
+        description: 商户简称
+        type: string
+      merchant_type:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantType'
+        description: '商户类型: 品牌商户,门店商户'
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantStatus'
+        description: '状态: 正常,停用,过期'
+      store_count:
+        description: 关联门店数量(仅品牌商户有效)
         type: integer
-      name:
+      updated_at:
         type: string
     type: object
+  domain.MerchantStatus:
+    enum:
+    - active
+    - expired
+    - disabled
+    type: string
+    x-enum-comments:
+      MerchantStatusActive: 已激活
+      MerchantStatusDisabled: 已禁用
+      MerchantStatusExpired: 已过期
+    x-enum-varnames:
+    - MerchantStatusActive
+    - MerchantStatusExpired
+    - MerchantStatusDisabled
+  domain.MerchantType:
+    enum:
+    - brand
+    - store
+    type: string
+    x-enum-comments:
+      MerchantTypeBrand: 品牌商户
+      MerchantTypeStore: 门店商户
+    x-enum-varnames:
+    - MerchantTypeBrand
+    - MerchantTypeStore
   domain.ObjectStorageScene:
     enum:
     - store
@@ -88,14 +205,6 @@ definitions:
       ObjectStorageSceneReconciliationDetailExport: 财务对账单明细导出
       ObjectStorageSceneReconciliationListExport: 财务对账单导出
       ObjectStorageSceneStore: 门店
-    x-enum-descriptions:
-    - 门店
-    - 商品
-    - 订单列表导出
-    - 财务对账单导出
-    - 财务对账单明细导出
-    - 积分结算单导出
-    - 积分结算单明细导出
     x-enum-varnames:
     - ObjectStorageSceneStore
     - ObjectStorageSceneProduct
@@ -104,6 +213,60 @@ definitions:
     - ObjectStorageSceneReconciliationDetailExport
     - ObjectStorageScenePointSettlementListExport
     - ObjectStorageScenePointSettlementDetailExport
+  domain.Remark:
+    properties:
+      category_id:
+        description: 分类ID
+        type: string
+      category_name:
+        description: 分类名称
+        type: string
+      created_at:
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 品牌商ID，仅品牌备注需要
+        type: string
+      name:
+        description: 备注名称
+        type: string
+      remark_type:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkType'
+        description: 备注类型：系统/品牌
+      sort_order:
+        description: 排序，值越小越靠前
+        type: integer
+      store_id:
+        description: 门店 ID
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.RemarkSimpleUpdateType:
+    enum:
+    - enabled
+    type: string
+    x-enum-varnames:
+    - RemarkSimpleUpdateTypeEnabled
+  domain.RemarkType:
+    enum:
+    - system
+    - brand
+    type: string
+    x-enum-varnames:
+    - RemarkTypeSystem
+    - RemarkTypeBrand
+  response.Response:
+    properties:
+      code:
+        type: string
+      data: {}
+    type: object
   types.CategoryCreateChildReq:
     properties:
       inherit_stall:
@@ -203,6 +366,93 @@ definitions:
         type: string
       x_oss_signature_version:
         type: string
+    type: object
+  types.RemarkCreateReq:
+    properties:
+      category_id:
+        description: 备注类型
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      name:
+        description: 备注名称
+        maxLength: 255
+        type: string
+      remark_type:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkType'
+        description: 备注归属方
+        enum:
+        - system
+        - brand
+      sort_order:
+        description: 排序，越小越靠前
+        minimum: 0
+        type: integer
+      store_id:
+        description: 可选，品牌级可为空
+        type: string
+    required:
+    - category_id
+    - name
+    - remark_type
+    type: object
+  types.RemarkListResp:
+    properties:
+      remarks:
+        description: 备注列表
+        items:
+          $ref: '#/definitions/domain.Remark'
+        type: array
+      total:
+        description: 备注总数
+        type: integer
+    type: object
+  types.RemarkSimpleUpdateReq:
+    properties:
+      enabled:
+        description: 启用状态
+        type: boolean
+      simple_update_type:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkSimpleUpdateType'
+        description: 简单更新类型
+        enum:
+        - status
+    required:
+    - simple_update_type
+    type: object
+  types.RemarkUpdateReq:
+    properties:
+      category_id:
+        description: 备注类型
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      name:
+        description: 备注名称
+        maxLength: 255
+        type: string
+      remark_type:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkType'
+        description: 备注归属方
+        enum:
+        - system
+        - brand
+      sort_order:
+        description: 排序，越小越靠前
+        minimum: 0
+        type: integer
+      store_id:
+        description: 可选，品牌级可为空
+        type: string
+    required:
+    - category_id
+    - name
+    - remark_type
     type: object
   types.UpdateCategoryReq:
     properties:
@@ -350,6 +600,242 @@ paths:
       summary: 更新商品分类
       tags:
       - 商品分类
+  /remark:
+    get:
+      description: 分页查询备注列表
+      parameters:
+      - description: 备注类型
+        in: query
+        name: category_id
+        type: string
+      - description: 启用状态
+        in: query
+        name: enabled
+        type: boolean
+      - description: 备注名称
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 备注创建方
+        enum:
+        - system
+        - brand
+        in: query
+        name: remark_type
+        type: string
+        x-enum-varnames:
+        - RemarkTypeSystem
+        - RemarkTypeBrand
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 门店 ID
+        in: query
+        name: store_id
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.RemarkListResp'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取备注列表
+      tags:
+      - 备注
+    post:
+      consumes:
+      - application/json
+      description: 创建备注
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RemarkCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建备注
+      tags:
+      - 备注
+  /remark/{id}:
+    delete:
+      description: 删除备注
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除备注
+      tags:
+      - 备注
+    get:
+      description: 根据备注ID获取详情
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Remark'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取备注详情
+      tags:
+      - 备注
+    patch:
+      consumes:
+      - application/json
+      description: 快速切换启用状态
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RemarkSimpleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 快速切换启用状态
+      tags:
+      - 备注
+    put:
+      consumes:
+      - application/json
+      description: 更新备注
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RemarkUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新备注
+      tags:
+      - 备注
   /user/info:
     post:
       consumes:

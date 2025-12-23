@@ -21,6 +21,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -469,6 +470,21 @@ func (sc *StoreCreate) SetCity(c *City) *StoreCreate {
 // SetDistrict sets the "district" edge to the District entity.
 func (sc *StoreCreate) SetDistrict(d *District) *StoreCreate {
 	return sc.SetDistrictID(d.ID)
+}
+
+// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
+func (sc *StoreCreate) AddRemarkIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddRemarkIDs(ids...)
+	return sc
+}
+
+// AddRemarks adds the "remarks" edges to the Remark entity.
+func (sc *StoreCreate) AddRemarks(r ...*Remark) *StoreCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return sc.AddRemarkIDs(ids...)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -1062,6 +1078,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.DistrictID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.RemarksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RemarksTable,
+			Columns: []string{store.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

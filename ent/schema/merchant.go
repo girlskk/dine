@@ -130,6 +130,8 @@ func (Merchant) Edges() []ent.Edge {
 			Ref("merchants").
 			Field("district_id").
 			Unique(),
+		edge.To("remark_categories", RemarkCategory.Type),
+		edge.To("remarks", Remark.Type),
 	}
 }
 

@@ -22,6 +22,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -387,6 +389,36 @@ func (mc *MerchantCreate) SetCity(c *City) *MerchantCreate {
 // SetDistrict sets the "district" edge to the District entity.
 func (mc *MerchantCreate) SetDistrict(d *District) *MerchantCreate {
 	return mc.SetDistrictID(d.ID)
+}
+
+// AddRemarkCategoryIDs adds the "remark_categories" edge to the RemarkCategory entity by IDs.
+func (mc *MerchantCreate) AddRemarkCategoryIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddRemarkCategoryIDs(ids...)
+	return mc
+}
+
+// AddRemarkCategories adds the "remark_categories" edges to the RemarkCategory entity.
+func (mc *MerchantCreate) AddRemarkCategories(r ...*RemarkCategory) *MerchantCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mc.AddRemarkCategoryIDs(ids...)
+}
+
+// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
+func (mc *MerchantCreate) AddRemarkIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddRemarkIDs(ids...)
+	return mc
+}
+
+// AddRemarks adds the "remarks" edges to the Remark entity.
+func (mc *MerchantCreate) AddRemarks(r ...*Remark) *MerchantCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mc.AddRemarkIDs(ids...)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -845,6 +877,38 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.DistrictID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.RemarkCategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarkCategoriesTable,
+			Columns: []string{merchant.RemarkCategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.RemarksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarksTable,
+			Columns: []string{merchant.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

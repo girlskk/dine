@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
@@ -56,5 +57,11 @@ func (MerchantRenewal) Mixin() []ent.Mixin {
 		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
 		schematype.SoftDeleteMixin{},
+	}
+}
+
+func (MerchantRenewal) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("merchant_id"),
 	}
 }

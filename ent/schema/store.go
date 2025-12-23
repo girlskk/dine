@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
@@ -180,6 +181,7 @@ func (Store) Edges() []ent.Edge {
 			Ref("stores").
 			Field("district_id").
 			Unique(),
+		edge.To("remarks", Remark.Type),
 	}
 }
 
@@ -188,5 +190,11 @@ func (Store) Mixin() []ent.Mixin {
 		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
 		schematype.SoftDeleteMixin{},
+	}
+}
+
+func (Store) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("merchant_id"),
 	}
 }

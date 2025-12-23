@@ -32,6 +32,10 @@ type Tx struct {
 	MerchantRenewal *MerchantRenewalClient
 	// Province is the client for interacting with the Province builders.
 	Province *ProvinceClient
+	// Remark is the client for interacting with the Remark builders.
+	Remark *RemarkClient
+	// RemarkCategory is the client for interacting with the RemarkCategory builders.
+	RemarkCategory *RemarkCategoryClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
 
@@ -175,6 +179,8 @@ func (tx *Tx) init() {
 	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
 	tx.Province = NewProvinceClient(tx.config)
+	tx.Remark = NewRemarkClient(tx.config)
+	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
 }
 

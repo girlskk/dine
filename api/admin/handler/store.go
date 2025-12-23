@@ -27,11 +27,11 @@ func NewStoreHandler(storeInteractor domain.StoreInteractor) *StoreHandler {
 func (h *StoreHandler) Routes(r gin.IRouter) {
 	r = r.Group("merchant/store")
 	r.POST("", h.CreateStore())
-	r.PUT(":id", h.UpdateStore())
-	r.DELETE(":id", h.DeleteStore())
-	r.GET(":id", h.GetStore())
+	r.PUT("/:id", h.UpdateStore())
+	r.DELETE("/:id", h.DeleteStore())
+	r.GET("/:id", h.GetStore())
 	r.GET("/list", h.GetStores())
-	r.POST("/simple_update", h.StoreSimpleUpdate())
+	r.PATCH("/:id", h.StoreSimpleUpdate())
 }
 
 // CreateStore 创建门店
@@ -337,7 +337,7 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		404		{object}	response.Response
 //	@Failure		500		{object}	response.Response
-//	@Router			/merchant/store/simple_update [post]
+//	@Router			/merchant/store/{id} [patch]
 func (h *StoreHandler) StoreSimpleUpdate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -350,9 +350,15 @@ func (h *StoreHandler) StoreSimpleUpdate() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
+		storeIDStr := c.Param("id")
+		storeID, err := uuid.Parse(storeIDStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
 
-		updateParams := &domain.UpdateStoreParams{ID: req.StoreID, Status: req.Status}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateTypeStatus, updateParams); err != nil {
+		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: req.Status}
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, req.SimpleUpdateType, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

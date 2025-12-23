@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
@@ -66,5 +67,11 @@ func (District) Mixin() []ent.Mixin {
 		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
 		schematype.SoftDeleteMixin{},
+	}
+}
+
+func (District) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("city_id", "province_id", "country_id"),
 	}
 }

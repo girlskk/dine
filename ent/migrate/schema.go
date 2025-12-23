@@ -150,6 +150,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{CitiesColumns[3]},
 			},
+			{
+				Name:    "city_province_id_country_id",
+				Unique:  false,
+				Columns: []*schema.Column{CitiesColumns[7], CitiesColumns[6]},
+			},
 		},
 	}
 	// CountriesColumns holds the columns for the "countries" table.
@@ -216,6 +221,11 @@ var (
 				Name:    "district_deleted_at",
 				Unique:  false,
 				Columns: []*schema.Column{DistrictsColumns[3]},
+			},
+			{
+				Name:    "district_city_id_province_id_country_id",
+				Unique:  false,
+				Columns: []*schema.Column{DistrictsColumns[6], DistrictsColumns[8], DistrictsColumns[7]},
 			},
 		},
 	}
@@ -349,6 +359,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{MerchantRenewalsColumns[3]},
 			},
+			{
+				Name:    "merchantrenewal_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MerchantRenewalsColumns[8]},
+			},
 		},
 	}
 	// ProvincesColumns holds the columns for the "provinces" table.
@@ -379,6 +394,106 @@ var (
 				Name:    "province_deleted_at",
 				Unique:  false,
 				Columns: []*schema.Column{ProvincesColumns[3]},
+			},
+		},
+	}
+	// RemarksColumns holds the columns for the "remarks" table.
+	RemarksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "remark_type", Type: field.TypeEnum, Enums: []string{"system", "brand"}},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "category_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// RemarksTable holds the schema information for the "remarks" table.
+	RemarksTable = &schema.Table{
+		Name:       "remarks",
+		Columns:    RemarksColumns,
+		PrimaryKey: []*schema.Column{RemarksColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "remarks_merchants_remarks",
+				Columns:    []*schema.Column{RemarksColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "remarks_remark_categories_remarks",
+				Columns:    []*schema.Column{RemarksColumns[9]},
+				RefColumns: []*schema.Column{RemarkCategoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "remarks_stores_remarks",
+				Columns:    []*schema.Column{RemarksColumns[10]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "remark_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[3]},
+			},
+			{
+				Name:    "remark_category_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[9]},
+			},
+			{
+				Name:    "remark_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[8]},
+			},
+			{
+				Name:    "remark_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[10]},
+			},
+		},
+	}
+	// RemarkCategoriesColumns holds the columns for the "remark_categories" table.
+	RemarkCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "remark_scene", Type: field.TypeEnum, Enums: []string{"whole_order", "item", "cancel_reason", "discount", "gift", "rebill", "refund_reject"}},
+		{Name: "description", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// RemarkCategoriesTable holds the schema information for the "remark_categories" table.
+	RemarkCategoriesTable = &schema.Table{
+		Name:       "remark_categories",
+		Columns:    RemarkCategoriesColumns,
+		PrimaryKey: []*schema.Column{RemarkCategoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "remark_categories_merchants_remark_categories",
+				Columns:    []*schema.Column{RemarkCategoriesColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "remarkcategory_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RemarkCategoriesColumns[3]},
+			},
+			{
+				Name:    "remarkcategory_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarkCategoriesColumns[8]},
 			},
 		},
 	}
@@ -473,6 +588,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{StoresColumns[3]},
 			},
+			{
+				Name:    "store_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{StoresColumns[30]},
+			},
 		},
 	}
 	// Tables holds all the tables in the schema.
@@ -487,6 +607,8 @@ var (
 		MerchantBusinessTypesTable,
 		MerchantRenewalsTable,
 		ProvincesTable,
+		RemarksTable,
+		RemarkCategoriesTable,
 		StoresTable,
 	}
 )
@@ -506,6 +628,10 @@ func init() {
 	MerchantsTable.ForeignKeys[5].RefTable = ProvincesTable
 	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
 	ProvincesTable.ForeignKeys[0].RefTable = CountriesTable
+	RemarksTable.ForeignKeys[0].RefTable = MerchantsTable
+	RemarksTable.ForeignKeys[1].RefTable = RemarkCategoriesTable
+	RemarksTable.ForeignKeys[2].RefTable = StoresTable
+	RemarkCategoriesTable.ForeignKeys[0].RefTable = MerchantsTable
 	StoresTable.ForeignKeys[0].RefTable = AdminUsersTable
 	StoresTable.ForeignKeys[1].RefTable = CitiesTable
 	StoresTable.ForeignKeys[2].RefTable = CountriesTable

@@ -36,5 +36,11 @@ type MerchantRenewal func(*sql.Selector)
 // Province is the predicate function for province builders.
 type Province func(*sql.Selector)
 
+// Remark is the predicate function for remark builders.
+type Remark func(*sql.Selector)
+
+// RemarkCategory is the predicate function for remarkcategory builders.
+type RemarkCategory func(*sql.Selector)
+
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)

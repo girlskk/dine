@@ -78,6 +78,10 @@ const (
 	EdgeCity = "city"
 	// EdgeDistrict holds the string denoting the district edge name in mutations.
 	EdgeDistrict = "district"
+	// EdgeRemarkCategories holds the string denoting the remark_categories edge name in mutations.
+	EdgeRemarkCategories = "remark_categories"
+	// EdgeRemarks holds the string denoting the remarks edge name in mutations.
+	EdgeRemarks = "remarks"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
 	// StoresTable is the table that holds the stores relation/edge.
@@ -136,6 +140,20 @@ const (
 	DistrictInverseTable = "districts"
 	// DistrictColumn is the table column denoting the district relation/edge.
 	DistrictColumn = "district_id"
+	// RemarkCategoriesTable is the table that holds the remark_categories relation/edge.
+	RemarkCategoriesTable = "remark_categories"
+	// RemarkCategoriesInverseTable is the table name for the RemarkCategory entity.
+	// It exists in this package in order to avoid circular dependency with the "remarkcategory" package.
+	RemarkCategoriesInverseTable = "remark_categories"
+	// RemarkCategoriesColumn is the table column denoting the remark_categories relation/edge.
+	RemarkCategoriesColumn = "merchant_id"
+	// RemarksTable is the table that holds the remarks relation/edge.
+	RemarksTable = "remarks"
+	// RemarksInverseTable is the table name for the Remark entity.
+	// It exists in this package in order to avoid circular dependency with the "remark" package.
+	RemarksInverseTable = "remarks"
+	// RemarksColumn is the table column denoting the remarks relation/edge.
+	RemarksColumn = "merchant_id"
 )
 
 // Columns holds all SQL columns for merchant fields.
@@ -442,6 +460,34 @@ func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDistrictStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByRemarkCategoriesCount orders the results by remark_categories count.
+func ByRemarkCategoriesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRemarkCategoriesStep(), opts...)
+	}
+}
+
+// ByRemarkCategories orders the results by remark_categories terms.
+func ByRemarkCategories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRemarkCategoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRemarksCount orders the results by remarks count.
+func ByRemarksCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRemarksStep(), opts...)
+	}
+}
+
+// ByRemarks orders the results by remarks terms.
+func ByRemarks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRemarksStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newStoresStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -496,5 +542,19 @@ func newDistrictStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DistrictInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
+	)
+}
+func newRemarkCategoriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RemarkCategoriesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RemarkCategoriesTable, RemarkCategoriesColumn),
+	)
+}
+func newRemarksStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RemarksInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
 	)
 }

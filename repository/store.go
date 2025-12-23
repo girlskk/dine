@@ -30,6 +30,10 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("domainStore is nil")
 		return
 	}
+	if domainStore.Address == nil {
+		err = fmt.Errorf("address is nil")
+		return
+	}
 
 	businessHoursByte, err := json.Marshal(domainStore.BusinessHours)
 	if err != nil {
@@ -94,7 +98,10 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("domainStore is nil")
 		return
 	}
-
+	if domainStore.Address == nil {
+		err = fmt.Errorf("address is nil")
+		return
+	}
 	businessHoursByte, err := json.Marshal(domainStore.BusinessHours)
 	if err != nil {
 		err = fmt.Errorf("failed to marshal business hours: %w", err)
@@ -160,7 +167,7 @@ func (repo *StoreRepository) Delete(ctx context.Context, id uuid.UUID) (err erro
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
 		}
-		err = fmt.Errorf("failed to delete merchant: %w", err)
+		err = fmt.Errorf("failed to delete store: %w", err)
 		return
 	}
 
@@ -308,6 +315,9 @@ func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams 
 
 	query := repo.Client.Store.Query().
 		Where(store.StoreNameEQ(existsStoreParams.StoreName))
+	if existsStoreParams.MerchantID != uuid.Nil {
+		query = query.Where(store.MerchantIDEQ(existsStoreParams.MerchantID))
+	}
 	if existsStoreParams.ExcludeID != uuid.Nil {
 		query = query.Where(store.IDNEQ(existsStoreParams.ExcludeID))
 	}

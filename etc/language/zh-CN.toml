@@ -66,5 +66,8 @@ other = "门店班次时间无效（开始时间不能晚于结束时间）"
 [STORE_SHIFT_TIME_NAME_EXISTS]
 other = "门店班次名称已存在"
 
-[SUCCESS]
-other = "成功"
+[REMARK_NAME_EXISTS]
+other = "备注名称已存在"
+
+[REMARK_DELETE_SYSTEM]
+other = "不能删除系统内置备注"

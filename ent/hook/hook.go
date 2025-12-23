@@ -129,6 +129,30 @@ func (f ProvinceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProvinceMutation", m)
 }
 
+// The RemarkFunc type is an adapter to allow the use of ordinary
+// function as Remark mutator.
+type RemarkFunc func(context.Context, *ent.RemarkMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RemarkFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RemarkMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RemarkMutation", m)
+}
+
+// The RemarkCategoryFunc type is an adapter to allow the use of ordinary
+// function as RemarkCategory mutator.
+type RemarkCategoryFunc func(context.Context, *ent.RemarkCategoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RemarkCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RemarkCategoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RemarkCategoryMutation", m)
+}
+
 // The StoreFunc type is an adapter to allow the use of ordinary
 // function as Store mutator.
 type StoreFunc func(context.Context, *ent.StoreMutation) (ent.Value, error)

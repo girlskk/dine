@@ -19,6 +19,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -348,6 +350,60 @@ func (f TraverseProvince) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ProvinceQuery", q)
 }
 
+// The RemarkFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RemarkFunc func(context.Context, *ent.RemarkQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RemarkFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RemarkQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RemarkQuery", q)
+}
+
+// The TraverseRemark type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRemark func(context.Context, *ent.RemarkQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRemark) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRemark) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RemarkQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RemarkQuery", q)
+}
+
+// The RemarkCategoryFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RemarkCategoryFunc func(context.Context, *ent.RemarkCategoryQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RemarkCategoryFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RemarkCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RemarkCategoryQuery", q)
+}
+
+// The TraverseRemarkCategory type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRemarkCategory func(context.Context, *ent.RemarkCategoryQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRemarkCategory) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRemarkCategory) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RemarkCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RemarkCategoryQuery", q)
+}
+
 // The StoreFunc type is an adapter to allow the use of ordinary function as a Querier.
 type StoreFunc func(context.Context, *ent.StoreQuery) (ent.Value, error)
 
@@ -398,6 +454,10 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.MerchantRenewalQuery, predicate.MerchantRenewal, merchantrenewal.OrderOption]{typ: ent.TypeMerchantRenewal, tq: q}, nil
 	case *ent.ProvinceQuery:
 		return &query[*ent.ProvinceQuery, predicate.Province, province.OrderOption]{typ: ent.TypeProvince, tq: q}, nil
+	case *ent.RemarkQuery:
+		return &query[*ent.RemarkQuery, predicate.Remark, remark.OrderOption]{typ: ent.TypeRemark, tq: q}, nil
+	case *ent.RemarkCategoryQuery:
+		return &query[*ent.RemarkCategoryQuery, predicate.RemarkCategory, remarkcategory.OrderOption]{typ: ent.TypeRemarkCategory, tq: q}, nil
 	case *ent.StoreQuery:
 		return &query[*ent.StoreQuery, predicate.Store, store.OrderOption]{typ: ent.TypeStore, tq: q}, nil
 	default:

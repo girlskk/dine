@@ -2028,6 +2028,29 @@ func HasDistrictWith(preds ...predicate.District) predicate.Store {
 	})
 }
 
+// HasRemarks applies the HasEdge predicate on the "remarks" edge.
+func HasRemarks() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRemarksWith applies the HasEdge predicate on the "remarks" edge with a given conditions (other predicates).
+func HasRemarksWith(preds ...predicate.Remark) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newRemarksStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Store) predicate.Store {
 	return predicate.Store(sql.AndPredicates(predicates...))

@@ -21,6 +21,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -408,6 +410,36 @@ func (mu *MerchantUpdate) SetDistrict(d *District) *MerchantUpdate {
 	return mu.SetDistrictID(d.ID)
 }
 
+// AddRemarkCategoryIDs adds the "remark_categories" edge to the RemarkCategory entity by IDs.
+func (mu *MerchantUpdate) AddRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddRemarkCategoryIDs(ids...)
+	return mu
+}
+
+// AddRemarkCategories adds the "remark_categories" edges to the RemarkCategory entity.
+func (mu *MerchantUpdate) AddRemarkCategories(r ...*RemarkCategory) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mu.AddRemarkCategoryIDs(ids...)
+}
+
+// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
+func (mu *MerchantUpdate) AddRemarkIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddRemarkIDs(ids...)
+	return mu
+}
+
+// AddRemarks adds the "remarks" edges to the Remark entity.
+func (mu *MerchantUpdate) AddRemarks(r ...*Remark) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mu.AddRemarkIDs(ids...)
+}
+
 // Mutation returns the MerchantMutation object of the builder.
 func (mu *MerchantUpdate) Mutation() *MerchantMutation {
 	return mu.mutation
@@ -483,6 +515,48 @@ func (mu *MerchantUpdate) ClearCity() *MerchantUpdate {
 func (mu *MerchantUpdate) ClearDistrict() *MerchantUpdate {
 	mu.mutation.ClearDistrict()
 	return mu
+}
+
+// ClearRemarkCategories clears all "remark_categories" edges to the RemarkCategory entity.
+func (mu *MerchantUpdate) ClearRemarkCategories() *MerchantUpdate {
+	mu.mutation.ClearRemarkCategories()
+	return mu
+}
+
+// RemoveRemarkCategoryIDs removes the "remark_categories" edge to RemarkCategory entities by IDs.
+func (mu *MerchantUpdate) RemoveRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveRemarkCategoryIDs(ids...)
+	return mu
+}
+
+// RemoveRemarkCategories removes "remark_categories" edges to RemarkCategory entities.
+func (mu *MerchantUpdate) RemoveRemarkCategories(r ...*RemarkCategory) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mu.RemoveRemarkCategoryIDs(ids...)
+}
+
+// ClearRemarks clears all "remarks" edges to the Remark entity.
+func (mu *MerchantUpdate) ClearRemarks() *MerchantUpdate {
+	mu.mutation.ClearRemarks()
+	return mu
+}
+
+// RemoveRemarkIDs removes the "remarks" edge to Remark entities by IDs.
+func (mu *MerchantUpdate) RemoveRemarkIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveRemarkIDs(ids...)
+	return mu
+}
+
+// RemoveRemarks removes "remarks" edges to Remark entities.
+func (mu *MerchantUpdate) RemoveRemarks(r ...*Remark) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mu.RemoveRemarkIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -902,6 +976,96 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.RemarkCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarkCategoriesTable,
+			Columns: []string{merchant.RemarkCategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedRemarkCategoriesIDs(); len(nodes) > 0 && !mu.mutation.RemarkCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarkCategoriesTable,
+			Columns: []string{merchant.RemarkCategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemarkCategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarkCategoriesTable,
+			Columns: []string{merchant.RemarkCategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarksTable,
+			Columns: []string{merchant.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedRemarksIDs(); len(nodes) > 0 && !mu.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarksTable,
+			Columns: []string{merchant.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemarksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarksTable,
+			Columns: []string{merchant.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(mu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1294,6 +1458,36 @@ func (muo *MerchantUpdateOne) SetDistrict(d *District) *MerchantUpdateOne {
 	return muo.SetDistrictID(d.ID)
 }
 
+// AddRemarkCategoryIDs adds the "remark_categories" edge to the RemarkCategory entity by IDs.
+func (muo *MerchantUpdateOne) AddRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddRemarkCategoryIDs(ids...)
+	return muo
+}
+
+// AddRemarkCategories adds the "remark_categories" edges to the RemarkCategory entity.
+func (muo *MerchantUpdateOne) AddRemarkCategories(r ...*RemarkCategory) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return muo.AddRemarkCategoryIDs(ids...)
+}
+
+// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
+func (muo *MerchantUpdateOne) AddRemarkIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddRemarkIDs(ids...)
+	return muo
+}
+
+// AddRemarks adds the "remarks" edges to the Remark entity.
+func (muo *MerchantUpdateOne) AddRemarks(r ...*Remark) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return muo.AddRemarkIDs(ids...)
+}
+
 // Mutation returns the MerchantMutation object of the builder.
 func (muo *MerchantUpdateOne) Mutation() *MerchantMutation {
 	return muo.mutation
@@ -1369,6 +1563,48 @@ func (muo *MerchantUpdateOne) ClearCity() *MerchantUpdateOne {
 func (muo *MerchantUpdateOne) ClearDistrict() *MerchantUpdateOne {
 	muo.mutation.ClearDistrict()
 	return muo
+}
+
+// ClearRemarkCategories clears all "remark_categories" edges to the RemarkCategory entity.
+func (muo *MerchantUpdateOne) ClearRemarkCategories() *MerchantUpdateOne {
+	muo.mutation.ClearRemarkCategories()
+	return muo
+}
+
+// RemoveRemarkCategoryIDs removes the "remark_categories" edge to RemarkCategory entities by IDs.
+func (muo *MerchantUpdateOne) RemoveRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveRemarkCategoryIDs(ids...)
+	return muo
+}
+
+// RemoveRemarkCategories removes "remark_categories" edges to RemarkCategory entities.
+func (muo *MerchantUpdateOne) RemoveRemarkCategories(r ...*RemarkCategory) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return muo.RemoveRemarkCategoryIDs(ids...)
+}
+
+// ClearRemarks clears all "remarks" edges to the Remark entity.
+func (muo *MerchantUpdateOne) ClearRemarks() *MerchantUpdateOne {
+	muo.mutation.ClearRemarks()
+	return muo
+}
+
+// RemoveRemarkIDs removes the "remarks" edge to Remark entities by IDs.
+func (muo *MerchantUpdateOne) RemoveRemarkIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveRemarkIDs(ids...)
+	return muo
+}
+
+// RemoveRemarks removes "remarks" edges to Remark entities.
+func (muo *MerchantUpdateOne) RemoveRemarks(r ...*Remark) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return muo.RemoveRemarkIDs(ids...)
 }
 
 // Where appends a list predicates to the MerchantUpdate builder.
@@ -1811,6 +2047,96 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.RemarkCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarkCategoriesTable,
+			Columns: []string{merchant.RemarkCategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedRemarkCategoriesIDs(); len(nodes) > 0 && !muo.mutation.RemarkCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarkCategoriesTable,
+			Columns: []string{merchant.RemarkCategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemarkCategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarkCategoriesTable,
+			Columns: []string{merchant.RemarkCategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarksTable,
+			Columns: []string{merchant.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedRemarksIDs(); len(nodes) > 0 && !muo.mutation.RemarksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarksTable,
+			Columns: []string{merchant.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemarksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RemarksTable,
+			Columns: []string{merchant.RemarksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

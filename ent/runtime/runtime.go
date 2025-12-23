@@ -17,6 +17,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
@@ -721,6 +723,122 @@ func init() {
 	provinceDescID := provinceMixinFields0[0].Descriptor()
 	// province.DefaultID holds the default value on creation for the id field.
 	province.DefaultID = provinceDescID.Default.(func() uuid.UUID)
+	remarkMixin := schema.Remark{}.Mixin()
+	remarkMixinHooks2 := remarkMixin[2].Hooks()
+	remark.Hooks[0] = remarkMixinHooks2[0]
+	remarkMixinInters2 := remarkMixin[2].Interceptors()
+	remark.Interceptors[0] = remarkMixinInters2[0]
+	remarkMixinFields0 := remarkMixin[0].Fields()
+	_ = remarkMixinFields0
+	remarkMixinFields1 := remarkMixin[1].Fields()
+	_ = remarkMixinFields1
+	remarkMixinFields2 := remarkMixin[2].Fields()
+	_ = remarkMixinFields2
+	remarkFields := schema.Remark{}.Fields()
+	_ = remarkFields
+	// remarkDescCreatedAt is the schema descriptor for created_at field.
+	remarkDescCreatedAt := remarkMixinFields1[0].Descriptor()
+	// remark.DefaultCreatedAt holds the default value on creation for the created_at field.
+	remark.DefaultCreatedAt = remarkDescCreatedAt.Default.(func() time.Time)
+	// remarkDescUpdatedAt is the schema descriptor for updated_at field.
+	remarkDescUpdatedAt := remarkMixinFields1[1].Descriptor()
+	// remark.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	remark.DefaultUpdatedAt = remarkDescUpdatedAt.Default.(func() time.Time)
+	// remark.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	remark.UpdateDefaultUpdatedAt = remarkDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// remarkDescDeletedAt is the schema descriptor for deleted_at field.
+	remarkDescDeletedAt := remarkMixinFields2[0].Descriptor()
+	// remark.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	remark.DefaultDeletedAt = remarkDescDeletedAt.Default.(int64)
+	// remarkDescName is the schema descriptor for name field.
+	remarkDescName := remarkFields[0].Descriptor()
+	// remark.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	remark.NameValidator = func() func(string) error {
+		validators := remarkDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// remarkDescEnabled is the schema descriptor for enabled field.
+	remarkDescEnabled := remarkFields[2].Descriptor()
+	// remark.DefaultEnabled holds the default value on creation for the enabled field.
+	remark.DefaultEnabled = remarkDescEnabled.Default.(bool)
+	// remarkDescSortOrder is the schema descriptor for sort_order field.
+	remarkDescSortOrder := remarkFields[3].Descriptor()
+	// remark.DefaultSortOrder holds the default value on creation for the sort_order field.
+	remark.DefaultSortOrder = remarkDescSortOrder.Default.(int)
+	// remarkDescID is the schema descriptor for id field.
+	remarkDescID := remarkMixinFields0[0].Descriptor()
+	// remark.DefaultID holds the default value on creation for the id field.
+	remark.DefaultID = remarkDescID.Default.(func() uuid.UUID)
+	remarkcategoryMixin := schema.RemarkCategory{}.Mixin()
+	remarkcategoryMixinHooks2 := remarkcategoryMixin[2].Hooks()
+	remarkcategory.Hooks[0] = remarkcategoryMixinHooks2[0]
+	remarkcategoryMixinInters2 := remarkcategoryMixin[2].Interceptors()
+	remarkcategory.Interceptors[0] = remarkcategoryMixinInters2[0]
+	remarkcategoryMixinFields0 := remarkcategoryMixin[0].Fields()
+	_ = remarkcategoryMixinFields0
+	remarkcategoryMixinFields1 := remarkcategoryMixin[1].Fields()
+	_ = remarkcategoryMixinFields1
+	remarkcategoryMixinFields2 := remarkcategoryMixin[2].Fields()
+	_ = remarkcategoryMixinFields2
+	remarkcategoryFields := schema.RemarkCategory{}.Fields()
+	_ = remarkcategoryFields
+	// remarkcategoryDescCreatedAt is the schema descriptor for created_at field.
+	remarkcategoryDescCreatedAt := remarkcategoryMixinFields1[0].Descriptor()
+	// remarkcategory.DefaultCreatedAt holds the default value on creation for the created_at field.
+	remarkcategory.DefaultCreatedAt = remarkcategoryDescCreatedAt.Default.(func() time.Time)
+	// remarkcategoryDescUpdatedAt is the schema descriptor for updated_at field.
+	remarkcategoryDescUpdatedAt := remarkcategoryMixinFields1[1].Descriptor()
+	// remarkcategory.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	remarkcategory.DefaultUpdatedAt = remarkcategoryDescUpdatedAt.Default.(func() time.Time)
+	// remarkcategory.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	remarkcategory.UpdateDefaultUpdatedAt = remarkcategoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// remarkcategoryDescDeletedAt is the schema descriptor for deleted_at field.
+	remarkcategoryDescDeletedAt := remarkcategoryMixinFields2[0].Descriptor()
+	// remarkcategory.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	remarkcategory.DefaultDeletedAt = remarkcategoryDescDeletedAt.Default.(int64)
+	// remarkcategoryDescName is the schema descriptor for name field.
+	remarkcategoryDescName := remarkcategoryFields[0].Descriptor()
+	// remarkcategory.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	remarkcategory.NameValidator = func() func(string) error {
+		validators := remarkcategoryDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// remarkcategoryDescDescription is the schema descriptor for description field.
+	remarkcategoryDescDescription := remarkcategoryFields[3].Descriptor()
+	// remarkcategory.DefaultDescription holds the default value on creation for the description field.
+	remarkcategory.DefaultDescription = remarkcategoryDescDescription.Default.(string)
+	// remarkcategory.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	remarkcategory.DescriptionValidator = remarkcategoryDescDescription.Validators[0].(func(string) error)
+	// remarkcategoryDescSortOrder is the schema descriptor for sort_order field.
+	remarkcategoryDescSortOrder := remarkcategoryFields[4].Descriptor()
+	// remarkcategory.DefaultSortOrder holds the default value on creation for the sort_order field.
+	remarkcategory.DefaultSortOrder = remarkcategoryDescSortOrder.Default.(int)
+	// remarkcategoryDescID is the schema descriptor for id field.
+	remarkcategoryDescID := remarkcategoryMixinFields0[0].Descriptor()
+	// remarkcategory.DefaultID holds the default value on creation for the id field.
+	remarkcategory.DefaultID = remarkcategoryDescID.Default.(func() uuid.UUID)
 	storeMixin := schema.Store{}.Mixin()
 	storeMixinHooks2 := storeMixin[2].Hooks()
 	store.Hooks[0] = storeMixinHooks2[0]

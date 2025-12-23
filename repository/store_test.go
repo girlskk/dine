@@ -180,7 +180,7 @@ func (s *StoreRepositoryTestSuite) newStore(tag string) (*domain.Store, storeLoc
 
 func (s *StoreRepositoryTestSuite) TestStore_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
-		store, _, businessType, admin, merchant := s.newStore(uuid.NewString())
+		store, loc, businessType, admin, merchant := s.newStore(uuid.NewString())
 
 		err := s.repo.Create(s.ctx, store)
 		require.NoError(t, err)
@@ -198,10 +198,27 @@ func (s *StoreRepositoryTestSuite) TestStore_Create() {
 		require.Equal(t, store.StoreName, saved.StoreName)
 		require.Equal(t, store.StoreShortName, saved.StoreShortName)
 		require.Equal(t, store.Status, saved.Status)
+
+		found, err := s.repo.FindByID(s.ctx, store.ID)
+		require.NoError(t, err)
+		require.Len(t, found.BusinessHours, 1)
+		require.Len(t, found.DiningPeriods, 1)
+		require.Len(t, found.ShiftTimes, 1)
+		require.Equal(t, loc.countryName, found.Address.CountryName)
+		require.Equal(t, loc.provinceName, found.Address.ProvinceName)
+		require.Equal(t, loc.cityName, found.Address.CityName)
+		require.Equal(t, loc.districtName, found.Address.DistrictName)
 	})
 
 	s.T().Run("参数为空", func(t *testing.T) {
 		err := s.repo.Create(s.ctx, nil)
+		require.Error(t, err)
+	})
+
+	s.T().Run("地址为空", func(t *testing.T) {
+		store, _, _, _, _ := s.newStore(uuid.NewString())
+		store.Address = nil
+		err := s.repo.Create(s.ctx, store)
 		require.Error(t, err)
 	})
 }
@@ -217,6 +234,8 @@ func (s *StoreRepositoryTestSuite) TestStore_Update() {
 	store.Address.Lng = "122.00"
 	store.Address.Lat = "32.00"
 	store.BusinessHours = []*domain.BusinessHours{{Weekdays: []time.Weekday{time.Wednesday}, StartTime: "10:00:00", EndTime: "19:00:00"}}
+	store.DiningPeriods = []*domain.DiningPeriod{{Name: "晚餐", StartTime: "17:00:00", EndTime: "21:00:00"}}
+	store.ShiftTimes = []*domain.ShiftTime{{Name: "晚班", StartTime: "16:00:00", EndTime: "23:00:00"}}
 
 	err := s.repo.Update(s.ctx, store)
 	require.NoError(s.T(), err)
@@ -228,11 +247,28 @@ func (s *StoreRepositoryTestSuite) TestStore_Update() {
 	require.Equal(s.T(), store.Address.Lng, updated.Lng)
 	require.Equal(s.T(), store.Address.Lat, updated.Lat)
 
+	found, err := s.repo.FindByID(s.ctx, store.ID)
+	require.NoError(s.T(), err)
+	require.Len(s.T(), found.BusinessHours, 1)
+	require.Equal(s.T(), "10:00:00", found.BusinessHours[0].StartTime)
+	require.Len(s.T(), found.DiningPeriods, 1)
+	require.Equal(s.T(), "晚餐", found.DiningPeriods[0].Name)
+	require.Len(s.T(), found.ShiftTimes, 1)
+	require.Equal(s.T(), "晚班", found.ShiftTimes[0].Name)
+
 	s.T().Run("不存在的ID", func(t *testing.T) {
 		missing, _, _, _, _ := s.newStore(uuid.NewString())
 		err := s.repo.Update(s.ctx, missing)
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
+	})
+
+	s.T().Run("地址为空", func(t *testing.T) {
+		storeNilAddr, _, _, _, _ := s.newStore(uuid.NewString())
+		require.NoError(t, s.repo.Create(s.ctx, storeNilAddr))
+		storeNilAddr.Address = nil
+		err := s.repo.Update(s.ctx, storeNilAddr)
+		require.Error(t, err)
 	})
 }
 
@@ -276,6 +312,8 @@ func (s *StoreRepositoryTestSuite) TestStore_FindByID() {
 		require.Equal(t, loc.cityName, found.Address.CityName)
 		require.Equal(t, loc.districtName, found.Address.DistrictName)
 		require.Len(t, found.BusinessHours, 1)
+		require.Len(t, found.DiningPeriods, 1)
+		require.Len(t, found.ShiftTimes, 1)
 	})
 
 	s.T().Run("记录不存在", func(t *testing.T) {
@@ -296,15 +334,35 @@ func (s *StoreRepositoryTestSuite) TestStore_GetStores() {
 	store2.Status = domain.StoreStatusClosed
 	require.NoError(s.T(), s.repo.Create(s.ctx, store2))
 
+	// 新增按商户过滤的店铺，确保过滤条件被覆盖
+	extraTag := uuid.NewString()
+	storeByMerchant, _, _, _, merchantFilter := s.newStore(extraTag)
+	storeByMerchant.Status = domain.StoreStatusOpen
+	require.NoError(s.T(), s.repo.Create(s.ctx, storeByMerchant))
+
 	s.T().Run("正常分页查询", func(t *testing.T) {
 		pager := upagination.New(1, 10)
 		filter := &domain.StoreListFilter{Status: domain.StoreStatusOpen}
 
 		stores, total, err := s.repo.GetStores(s.ctx, pager, filter, domain.NewStoreListOrderByCreatedAt(false))
 		require.NoError(t, err)
+		require.Equal(t, 2, total)
+		require.Len(t, stores, 2)
+
+		names := map[string]bool{stores[0].StoreName: true, stores[1].StoreName: true}
+		require.True(t, names[store1.StoreName])
+		require.True(t, names[storeByMerchant.StoreName])
+	})
+
+	s.T().Run("按商户过滤", func(t *testing.T) {
+		pager := upagination.New(1, 10)
+		filter := &domain.StoreListFilter{MerchantID: merchantFilter.ID}
+
+		stores, total, err := s.repo.GetStores(s.ctx, pager, filter, domain.NewStoreListOrderByCreatedAt(false))
+		require.NoError(t, err)
 		require.Equal(t, 1, total)
 		require.Len(t, stores, 1)
-		require.Equal(t, store1.StoreName, stores[0].StoreName)
+		require.Equal(t, storeByMerchant.StoreName, stores[0].StoreName)
 	})
 
 	s.T().Run("缺少参数", func(t *testing.T) {
@@ -318,7 +376,7 @@ func (s *StoreRepositoryTestSuite) TestStore_GetStores() {
 
 func (s *StoreRepositoryTestSuite) TestStore_ExistsStore() {
 	tag := uuid.NewString()
-	store, _, _, _, _ := s.newStore(tag)
+	store, _, _, _, merchant := s.newStore(tag)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store))
 
 	s.T().Run("已存在", func(t *testing.T) {
@@ -333,8 +391,95 @@ func (s *StoreRepositoryTestSuite) TestStore_ExistsStore() {
 		require.False(t, exists)
 	})
 
+	s.T().Run("该商户已存在", func(t *testing.T) {
+		exists, err := s.repo.ExistsStore(s.ctx, &domain.ExistsStoreParams{MerchantID: merchant.ID, StoreName: store.StoreName})
+		require.NoError(t, err)
+		require.True(t, exists)
+	})
+
+	s.T().Run("按商户过滤不存在", func(t *testing.T) {
+		anotherTag := uuid.NewString()
+		otherStore, _, _, _, otherMerchant := s.newStore(anotherTag)
+		require.NoError(t, s.repo.Create(s.ctx, otherStore))
+
+		exists, err := s.repo.ExistsStore(s.ctx, &domain.ExistsStoreParams{StoreName: store.StoreName, MerchantID: otherMerchant.ID})
+		require.NoError(t, err)
+		require.False(t, exists)
+	})
+
 	s.T().Run("参数为空", func(t *testing.T) {
 		_, err := s.repo.ExistsStore(s.ctx, nil)
 		require.Error(t, err)
+	})
+}
+
+func (s *StoreRepositoryTestSuite) TestStore_FindStoreMerchant() {
+	tag := uuid.NewString()
+	store, _, _, _, merchant := s.newStore(tag)
+	require.NoError(s.T(), s.repo.Create(s.ctx, store))
+
+	s.T().Run("查询成功", func(t *testing.T) {
+		found, err := s.repo.FindStoreMerchant(s.ctx, merchant.ID)
+		require.NoError(t, err)
+		require.Equal(t, store.ID, found.ID)
+	})
+
+	s.T().Run("merchantID为空", func(t *testing.T) {
+		_, err := s.repo.FindStoreMerchant(s.ctx, uuid.Nil)
+		require.Error(t, err)
+	})
+
+	s.T().Run("不存在的merchant", func(t *testing.T) {
+		_, err := s.repo.FindStoreMerchant(s.ctx, uuid.New())
+		require.Error(t, err)
+		require.True(t, domain.IsNotFound(err))
+	})
+}
+
+func (s *StoreRepositoryTestSuite) TestStore_CountStoresByMerchantID() {
+	tag1 := uuid.NewString()
+	store1, _, businessType1, admin1, merchant1 := s.newStore(tag1)
+	require.NoError(s.T(), s.repo.Create(s.ctx, store1))
+
+	tag2 := uuid.NewString()
+	store2, _, _, _, merchant2 := s.newStore(tag2)
+	require.NoError(s.T(), s.repo.Create(s.ctx, store2))
+
+	tag3 := uuid.NewString()
+	store3, _, _, _, _ := s.newStore(tag3)
+	store3.MerchantID = merchant1.ID
+	store3.BusinessTypeID = businessType1.ID
+	store3.AdminUserID = admin1.ID
+	require.NoError(s.T(), s.repo.Create(s.ctx, store3))
+
+	s.T().Run("统计成功", func(t *testing.T) {
+		counts, err := s.repo.CountStoresByMerchantID(s.ctx, []uuid.UUID{merchant1.ID, merchant2.ID})
+		require.NoError(t, err)
+		require.Len(t, counts, 2)
+
+		m := map[uuid.UUID]int{}
+		for _, c := range counts {
+			m[c.MerchantID] = c.StoreCount
+		}
+		require.Equal(t, 2, m[merchant1.ID])
+		require.Equal(t, 1, m[merchant2.ID])
+	})
+
+	s.T().Run("空参数", func(t *testing.T) {
+		_, err := s.repo.CountStoresByMerchantID(s.ctx, []uuid.UUID{})
+		require.Error(t, err)
+	})
+
+	s.T().Run("包含不存在的merchantID", func(t *testing.T) {
+		missing := uuid.New()
+		counts, err := s.repo.CountStoresByMerchantID(s.ctx, []uuid.UUID{merchant1.ID, missing})
+		require.NoError(t, err)
+
+		m := map[uuid.UUID]int{}
+		for _, c := range counts {
+			m[c.MerchantID] = c.StoreCount
+		}
+		require.Equal(t, 2, m[merchant1.ID])
+		require.NotContains(t, m, missing)
 	})
 }

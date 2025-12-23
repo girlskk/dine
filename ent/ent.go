@@ -22,6 +22,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -93,6 +95,8 @@ func checkColumn(table, column string) error {
 			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,
 			merchantrenewal.Table:      merchantrenewal.ValidColumn,
 			province.Table:             province.ValidColumn,
+			remark.Table:               remark.ValidColumn,
+			remarkcategory.Table:       remarkcategory.ValidColumn,
 			store.Table:                store.ValidColumn,
 		})
 	})

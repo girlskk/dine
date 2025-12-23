@@ -1381,6 +1381,52 @@ func HasDistrictWith(preds ...predicate.District) predicate.Merchant {
 	})
 }
 
+// HasRemarkCategories applies the HasEdge predicate on the "remark_categories" edge.
+func HasRemarkCategories() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RemarkCategoriesTable, RemarkCategoriesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRemarkCategoriesWith applies the HasEdge predicate on the "remark_categories" edge with a given conditions (other predicates).
+func HasRemarkCategoriesWith(preds ...predicate.RemarkCategory) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newRemarkCategoriesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRemarks applies the HasEdge predicate on the "remarks" edge.
+func HasRemarks() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRemarksWith applies the HasEdge predicate on the "remarks" edge with a given conditions (other predicates).
+func HasRemarksWith(preds ...predicate.Remark) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newRemarksStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Merchant) predicate.Merchant {
 	return predicate.Merchant(sql.AndPredicates(predicates...))

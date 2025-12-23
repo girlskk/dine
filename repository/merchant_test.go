@@ -191,6 +191,20 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Update() {
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
 	})
+
+	s.T().Run("地址为空不应panic", func(t *testing.T) {
+		tag := uuid.NewString()
+		merchantNoAddr, _, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+		require.NoError(t, s.repo.Create(s.ctx, merchantNoAddr))
+
+		merchantNoAddr.Address = nil
+
+		err := s.repo.Update(s.ctx, merchantNoAddr)
+		require.NoError(t, err)
+
+		updated := s.client.Merchant.GetX(s.ctx, merchantNoAddr.ID)
+		require.Equal(t, merchantNoAddr.MerchantName, updated.MerchantName)
+	})
 }
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_Delete() {

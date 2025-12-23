@@ -23,6 +23,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -41,6 +43,8 @@ type MerchantQuery struct {
 	withProvince             *ProvinceQuery
 	withCity                 *CityQuery
 	withDistrict             *DistrictQuery
+	withRemarkCategories     *RemarkCategoryQuery
+	withRemarks              *RemarkQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -254,6 +258,50 @@ func (mq *MerchantQuery) QueryDistrict() *DistrictQuery {
 	return query
 }
 
+// QueryRemarkCategories chains the current query on the "remark_categories" edge.
+func (mq *MerchantQuery) QueryRemarkCategories() *RemarkCategoryQuery {
+	query := (&RemarkCategoryClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(remarkcategory.Table, remarkcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarkCategoriesTable, merchant.RemarkCategoriesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRemarks chains the current query on the "remarks" edge.
+func (mq *MerchantQuery) QueryRemarks() *RemarkQuery {
+	query := (&RemarkClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(remark.Table, remark.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarksTable, merchant.RemarksColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Merchant entity from the query.
 // Returns a *NotFoundError when no Merchant was found.
 func (mq *MerchantQuery) First(ctx context.Context) (*Merchant, error) {
@@ -454,6 +502,8 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		withProvince:             mq.withProvince.Clone(),
 		withCity:                 mq.withCity.Clone(),
 		withDistrict:             mq.withDistrict.Clone(),
+		withRemarkCategories:     mq.withRemarkCategories.Clone(),
+		withRemarks:              mq.withRemarks.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
 		path:      mq.path,
@@ -549,6 +599,28 @@ func (mq *MerchantQuery) WithDistrict(opts ...func(*DistrictQuery)) *MerchantQue
 	return mq
 }
 
+// WithRemarkCategories tells the query-builder to eager-load the nodes that are connected to
+// the "remark_categories" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithRemarkCategories(opts ...func(*RemarkCategoryQuery)) *MerchantQuery {
+	query := (&RemarkCategoryClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withRemarkCategories = query
+	return mq
+}
+
+// WithRemarks tells the query-builder to eager-load the nodes that are connected to
+// the "remarks" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithRemarks(opts ...func(*RemarkQuery)) *MerchantQuery {
+	query := (&RemarkClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withRemarks = query
+	return mq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -627,7 +699,7 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [10]bool{
 			mq.withStores != nil,
 			mq.withMerchantRenewals != nil,
 			mq.withMerchantBusinessType != nil,
@@ -636,6 +708,8 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			mq.withProvince != nil,
 			mq.withCity != nil,
 			mq.withDistrict != nil,
+			mq.withRemarkCategories != nil,
+			mq.withRemarks != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -706,6 +780,20 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	if query := mq.withDistrict; query != nil {
 		if err := mq.loadDistrict(ctx, query, nodes, nil,
 			func(n *Merchant, e *District) { n.Edges.District = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withRemarkCategories; query != nil {
+		if err := mq.loadRemarkCategories(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.RemarkCategories = []*RemarkCategory{} },
+			func(n *Merchant, e *RemarkCategory) { n.Edges.RemarkCategories = append(n.Edges.RemarkCategories, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withRemarks; query != nil {
+		if err := mq.loadRemarks(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.Remarks = []*Remark{} },
+			func(n *Merchant, e *Remark) { n.Edges.Remarks = append(n.Edges.Remarks, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -943,6 +1031,66 @@ func (mq *MerchantQuery) loadDistrict(ctx context.Context, query *DistrictQuery,
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadRemarkCategories(ctx context.Context, query *RemarkCategoryQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *RemarkCategory)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(remarkcategory.FieldMerchantID)
+	}
+	query.Where(predicate.RemarkCategory(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.RemarkCategoriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadRemarks(ctx context.Context, query *RemarkQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Remark)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(remark.FieldMerchantID)
+	}
+	query.Where(predicate.Remark(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.RemarksColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

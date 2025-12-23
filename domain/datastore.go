@@ -14,6 +14,8 @@ type DataStore interface {
 	StoreRepo() StoreRepository
 	MerchantRenewalRepo() MerchantRenewalRepository
 	MerchantBusinessTypeRepo() MerchantBusinessTypeRepository
+	RemarkRepo() RemarkRepository
+	RemarkCategoryRepo() RemarkCategoryRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

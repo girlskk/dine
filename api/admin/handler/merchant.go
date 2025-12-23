@@ -36,7 +36,7 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 	r.GET("/:id", h.GetMerchant())
 	r.GET("/list", h.GetMerchants())
 	r.POST("/renewal", h.MerchantRenewal())
-	r.POST("/simple_update", h.MerchantSimpleUpdate())
+	r.PATCH("/:id", h.MerchantSimpleUpdate())
 }
 
 // CreateBrandMerchant 创建品牌商户
@@ -612,7 +612,7 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		404		{object}	response.Response
 //	@Failure		500		{object}	response.Response
-//	@Router			/merchant/merchant/simple_update [post]
+//	@Router			/merchant/merchant/{id} [patch]
 func (h *MerchantHandler) MerchantSimpleUpdate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -626,9 +626,17 @@ func (h *MerchantHandler) MerchantSimpleUpdate() gin.HandlerFunc {
 			return
 		}
 
-		updateParams := &domain.UpdateMerchantParams{ID: req.MerchantID, Status: req.Status}
+		// 从路径参数获取商户 ID
+		merchantIDStr := c.Param("id")
+		merchantID, err := uuid.Parse(merchantIDStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
 
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, req.SimpleUpdate, updateParams); err != nil {
+		updateParams := &domain.UpdateMerchantParams{ID: merchantID, Status: req.Status}
+
+		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, req.SimpleUpdateType, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

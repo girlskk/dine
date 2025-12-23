@@ -26,6 +26,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -54,6 +56,10 @@ type Client struct {
 	MerchantRenewal *MerchantRenewalClient
 	// Province is the client for interacting with the Province builders.
 	Province *ProvinceClient
+	// Remark is the client for interacting with the Remark builders.
+	Remark *RemarkClient
+	// RemarkCategory is the client for interacting with the RemarkCategory builders.
+	RemarkCategory *RemarkCategoryClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
 }
@@ -77,6 +83,8 @@ func (c *Client) init() {
 	c.MerchantBusinessType = NewMerchantBusinessTypeClient(c.config)
 	c.MerchantRenewal = NewMerchantRenewalClient(c.config)
 	c.Province = NewProvinceClient(c.config)
+	c.Remark = NewRemarkClient(c.config)
+	c.RemarkCategory = NewRemarkCategoryClient(c.config)
 	c.Store = NewStoreClient(c.config)
 }
 
@@ -180,6 +188,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
 		MerchantRenewal:      NewMerchantRenewalClient(cfg),
 		Province:             NewProvinceClient(cfg),
+		Remark:               NewRemarkClient(cfg),
+		RemarkCategory:       NewRemarkCategoryClient(cfg),
 		Store:                NewStoreClient(cfg),
 	}, nil
 }
@@ -210,6 +220,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
 		MerchantRenewal:      NewMerchantRenewalClient(cfg),
 		Province:             NewProvinceClient(cfg),
+		Remark:               NewRemarkClient(cfg),
+		RemarkCategory:       NewRemarkCategoryClient(cfg),
 		Store:                NewStoreClient(cfg),
 	}, nil
 }
@@ -241,7 +253,8 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Store,
+		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Remark,
+		c.RemarkCategory, c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -252,7 +265,8 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Store,
+		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Remark,
+		c.RemarkCategory, c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -281,6 +295,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.MerchantRenewal.mutate(ctx, m)
 	case *ProvinceMutation:
 		return c.Province.mutate(ctx, m)
+	case *RemarkMutation:
+		return c.Remark.mutate(ctx, m)
+	case *RemarkCategoryMutation:
+		return c.RemarkCategory.mutate(ctx, m)
 	case *StoreMutation:
 		return c.Store.mutate(ctx, m)
 	default:
@@ -1638,6 +1656,38 @@ func (c *MerchantClient) QueryDistrict(m *Merchant) *DistrictQuery {
 	return query
 }
 
+// QueryRemarkCategories queries the remark_categories edge of a Merchant.
+func (c *MerchantClient) QueryRemarkCategories(m *Merchant) *RemarkCategoryQuery {
+	query := (&RemarkCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(remarkcategory.Table, remarkcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarkCategoriesTable, merchant.RemarkCategoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRemarks queries the remarks edge of a Merchant.
+func (c *MerchantClient) QueryRemarks(m *Merchant) *RemarkQuery {
+	query := (&RemarkClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(remark.Table, remark.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarksTable, merchant.RemarksColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *MerchantClient) Hooks() []Hook {
 	hooks := c.hooks.Merchant
@@ -2198,6 +2248,356 @@ func (c *ProvinceClient) mutate(ctx context.Context, m *ProvinceMutation) (Value
 	}
 }
 
+// RemarkClient is a client for the Remark schema.
+type RemarkClient struct {
+	config
+}
+
+// NewRemarkClient returns a client for the Remark from the given config.
+func NewRemarkClient(c config) *RemarkClient {
+	return &RemarkClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `remark.Hooks(f(g(h())))`.
+func (c *RemarkClient) Use(hooks ...Hook) {
+	c.hooks.Remark = append(c.hooks.Remark, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `remark.Intercept(f(g(h())))`.
+func (c *RemarkClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Remark = append(c.inters.Remark, interceptors...)
+}
+
+// Create returns a builder for creating a Remark entity.
+func (c *RemarkClient) Create() *RemarkCreate {
+	mutation := newRemarkMutation(c.config, OpCreate)
+	return &RemarkCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Remark entities.
+func (c *RemarkClient) CreateBulk(builders ...*RemarkCreate) *RemarkCreateBulk {
+	return &RemarkCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RemarkClient) MapCreateBulk(slice any, setFunc func(*RemarkCreate, int)) *RemarkCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RemarkCreateBulk{err: fmt.Errorf("calling to RemarkClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RemarkCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RemarkCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Remark.
+func (c *RemarkClient) Update() *RemarkUpdate {
+	mutation := newRemarkMutation(c.config, OpUpdate)
+	return &RemarkUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RemarkClient) UpdateOne(r *Remark) *RemarkUpdateOne {
+	mutation := newRemarkMutation(c.config, OpUpdateOne, withRemark(r))
+	return &RemarkUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RemarkClient) UpdateOneID(id uuid.UUID) *RemarkUpdateOne {
+	mutation := newRemarkMutation(c.config, OpUpdateOne, withRemarkID(id))
+	return &RemarkUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Remark.
+func (c *RemarkClient) Delete() *RemarkDelete {
+	mutation := newRemarkMutation(c.config, OpDelete)
+	return &RemarkDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RemarkClient) DeleteOne(r *Remark) *RemarkDeleteOne {
+	return c.DeleteOneID(r.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RemarkClient) DeleteOneID(id uuid.UUID) *RemarkDeleteOne {
+	builder := c.Delete().Where(remark.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RemarkDeleteOne{builder}
+}
+
+// Query returns a query builder for Remark.
+func (c *RemarkClient) Query() *RemarkQuery {
+	return &RemarkQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRemark},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Remark entity by its id.
+func (c *RemarkClient) Get(ctx context.Context, id uuid.UUID) (*Remark, error) {
+	return c.Query().Where(remark.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RemarkClient) GetX(ctx context.Context, id uuid.UUID) *Remark {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRemarkCategory queries the remark_category edge of a Remark.
+func (c *RemarkClient) QueryRemarkCategory(r *Remark) *RemarkCategoryQuery {
+	query := (&RemarkCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(remark.Table, remark.FieldID, id),
+			sqlgraph.To(remarkcategory.Table, remarkcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, remark.RemarkCategoryTable, remark.RemarkCategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMerchant queries the merchant edge of a Remark.
+func (c *RemarkClient) QueryMerchant(r *Remark) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(remark.Table, remark.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, remark.MerchantTable, remark.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a Remark.
+func (c *RemarkClient) QueryStore(r *Remark) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(remark.Table, remark.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, remark.StoreTable, remark.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RemarkClient) Hooks() []Hook {
+	hooks := c.hooks.Remark
+	return append(hooks[:len(hooks):len(hooks)], remark.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RemarkClient) Interceptors() []Interceptor {
+	inters := c.inters.Remark
+	return append(inters[:len(inters):len(inters)], remark.Interceptors[:]...)
+}
+
+func (c *RemarkClient) mutate(ctx context.Context, m *RemarkMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RemarkCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RemarkUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RemarkUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RemarkDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Remark mutation op: %q", m.Op())
+	}
+}
+
+// RemarkCategoryClient is a client for the RemarkCategory schema.
+type RemarkCategoryClient struct {
+	config
+}
+
+// NewRemarkCategoryClient returns a client for the RemarkCategory from the given config.
+func NewRemarkCategoryClient(c config) *RemarkCategoryClient {
+	return &RemarkCategoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `remarkcategory.Hooks(f(g(h())))`.
+func (c *RemarkCategoryClient) Use(hooks ...Hook) {
+	c.hooks.RemarkCategory = append(c.hooks.RemarkCategory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `remarkcategory.Intercept(f(g(h())))`.
+func (c *RemarkCategoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RemarkCategory = append(c.inters.RemarkCategory, interceptors...)
+}
+
+// Create returns a builder for creating a RemarkCategory entity.
+func (c *RemarkCategoryClient) Create() *RemarkCategoryCreate {
+	mutation := newRemarkCategoryMutation(c.config, OpCreate)
+	return &RemarkCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RemarkCategory entities.
+func (c *RemarkCategoryClient) CreateBulk(builders ...*RemarkCategoryCreate) *RemarkCategoryCreateBulk {
+	return &RemarkCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RemarkCategoryClient) MapCreateBulk(slice any, setFunc func(*RemarkCategoryCreate, int)) *RemarkCategoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RemarkCategoryCreateBulk{err: fmt.Errorf("calling to RemarkCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RemarkCategoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RemarkCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RemarkCategory.
+func (c *RemarkCategoryClient) Update() *RemarkCategoryUpdate {
+	mutation := newRemarkCategoryMutation(c.config, OpUpdate)
+	return &RemarkCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RemarkCategoryClient) UpdateOne(rc *RemarkCategory) *RemarkCategoryUpdateOne {
+	mutation := newRemarkCategoryMutation(c.config, OpUpdateOne, withRemarkCategory(rc))
+	return &RemarkCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RemarkCategoryClient) UpdateOneID(id uuid.UUID) *RemarkCategoryUpdateOne {
+	mutation := newRemarkCategoryMutation(c.config, OpUpdateOne, withRemarkCategoryID(id))
+	return &RemarkCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RemarkCategory.
+func (c *RemarkCategoryClient) Delete() *RemarkCategoryDelete {
+	mutation := newRemarkCategoryMutation(c.config, OpDelete)
+	return &RemarkCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RemarkCategoryClient) DeleteOne(rc *RemarkCategory) *RemarkCategoryDeleteOne {
+	return c.DeleteOneID(rc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RemarkCategoryClient) DeleteOneID(id uuid.UUID) *RemarkCategoryDeleteOne {
+	builder := c.Delete().Where(remarkcategory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RemarkCategoryDeleteOne{builder}
+}
+
+// Query returns a query builder for RemarkCategory.
+func (c *RemarkCategoryClient) Query() *RemarkCategoryQuery {
+	return &RemarkCategoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRemarkCategory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RemarkCategory entity by its id.
+func (c *RemarkCategoryClient) Get(ctx context.Context, id uuid.UUID) (*RemarkCategory, error) {
+	return c.Query().Where(remarkcategory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RemarkCategoryClient) GetX(ctx context.Context, id uuid.UUID) *RemarkCategory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRemarks queries the remarks edge of a RemarkCategory.
+func (c *RemarkCategoryClient) QueryRemarks(rc *RemarkCategory) *RemarkQuery {
+	query := (&RemarkClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := rc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(remarkcategory.Table, remarkcategory.FieldID, id),
+			sqlgraph.To(remark.Table, remark.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, remarkcategory.RemarksTable, remarkcategory.RemarksColumn),
+		)
+		fromV = sqlgraph.Neighbors(rc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMerchant queries the merchant edge of a RemarkCategory.
+func (c *RemarkCategoryClient) QueryMerchant(rc *RemarkCategory) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := rc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(remarkcategory.Table, remarkcategory.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, remarkcategory.MerchantTable, remarkcategory.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(rc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RemarkCategoryClient) Hooks() []Hook {
+	hooks := c.hooks.RemarkCategory
+	return append(hooks[:len(hooks):len(hooks)], remarkcategory.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RemarkCategoryClient) Interceptors() []Interceptor {
+	inters := c.inters.RemarkCategory
+	return append(inters[:len(inters):len(inters)], remarkcategory.Interceptors[:]...)
+}
+
+func (c *RemarkCategoryClient) mutate(ctx context.Context, m *RemarkCategoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RemarkCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RemarkCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RemarkCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RemarkCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RemarkCategory mutation op: %q", m.Op())
+	}
+}
+
 // StoreClient is a client for the Store schema.
 type StoreClient struct {
 	config
@@ -2418,6 +2818,22 @@ func (c *StoreClient) QueryDistrict(s *Store) *DistrictQuery {
 	return query
 }
 
+// QueryRemarks queries the remarks edge of a Store.
+func (c *StoreClient) QueryRemarks(s *Store) *RemarkQuery {
+	query := (&RemarkClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(remark.Table, remark.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.RemarksTable, store.RemarksColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StoreClient) Hooks() []Hook {
 	hooks := c.hooks.Store
@@ -2449,10 +2865,12 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 type (
 	hooks struct {
 		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Province, Store []ent.Hook
+		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory,
+		Store []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Province, Store []ent.Interceptor
+		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory,
+		Store []ent.Interceptor
 	}
 )
