@@ -3,7 +3,14 @@ package usecasefx
 import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/category"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/order"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/product"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/productattr"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/productspec"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/producttag"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/userauth"
 	"go.uber.org/fx"
 )
@@ -22,6 +29,34 @@ var Module = fx.Module(
 		fx.Annotate(
 			userauth.NewBackendUserInteractor,
 			fx.As(new(domain.BackendUserInteractor)),
+		),
+		fx.Annotate(
+			productunit.NewProductUnitInteractor,
+			fx.As(new(domain.ProductUnitInteractor)),
+		),
+		fx.Annotate(
+			productspec.NewProductSpecInteractor,
+			fx.As(new(domain.ProductSpecInteractor)),
+		),
+		fx.Annotate(
+			producttag.NewProductTagInteractor,
+			fx.As(new(domain.ProductTagInteractor)),
+		),
+		fx.Annotate(
+			productattr.NewProductAttrInteractor,
+			fx.As(new(domain.ProductAttrInteractor)),
+		),
+		fx.Annotate(
+			product.NewProductInteractor,
+			fx.As(new(domain.ProductInteractor)),
+		),
+		fx.Annotate(
+			merchant.NewMerchantInteractor,
+			fx.As(new(domain.MerchantInteractor)),
+		),
+		fx.Annotate(
+			store.NewStoreInteractor,
+			fx.As(new(domain.StoreInteractor)),
 		),
 		fx.Annotate(
 			order.NewOrderInteractor,

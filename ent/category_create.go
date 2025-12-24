@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 )
 
 // CategoryCreate is the builder for creating a Category entity.
@@ -222,6 +223,21 @@ func (cc *CategoryCreate) AddChildren(c ...*Category) *CategoryCreate {
 // SetParent sets the "parent" edge to the Category entity.
 func (cc *CategoryCreate) SetParent(c *Category) *CategoryCreate {
 	return cc.SetParentID(c.ID)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (cc *CategoryCreate) AddProductIDs(ids ...uuid.UUID) *CategoryCreate {
+	cc.mutation.AddProductIDs(ids...)
+	return cc
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (cc *CategoryCreate) AddProducts(p ...*Product) *CategoryCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cc.AddProductIDs(ids...)
 }
 
 // Mutation returns the CategoryMutation object of the builder.
@@ -454,6 +470,22 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ParentID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

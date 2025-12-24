@@ -17,6 +17,7 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
+		{Name: "account_type", Type: field.TypeString, Default: "normal"},
 	}
 	// AdminUsersTable holds the schema information for the "admin_users" table.
 	AdminUsersTable = &schema.Table{
@@ -110,6 +111,962 @@ var (
 				Name:    "category_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{CategoriesColumns[6]},
+			},
+		},
+	}
+	// CitiesColumns holds the columns for the "cities" table.
+	CitiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "country_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID},
+	}
+	// CitiesTable holds the schema information for the "cities" table.
+	CitiesTable = &schema.Table{
+		Name:       "cities",
+		Columns:    CitiesColumns,
+		PrimaryKey: []*schema.Column{CitiesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "cities_countries_cities",
+				Columns:    []*schema.Column{CitiesColumns[6]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "cities_provinces_cities",
+				Columns:    []*schema.Column{CitiesColumns[7]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "city_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{CitiesColumns[3]},
+			},
+			{
+				Name:    "city_province_id_country_id",
+				Unique:  false,
+				Columns: []*schema.Column{CitiesColumns[7], CitiesColumns[6]},
+			},
+		},
+	}
+	// CountriesColumns holds the columns for the "countries" table.
+	CountriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+	}
+	// CountriesTable holds the schema information for the "countries" table.
+	CountriesTable = &schema.Table{
+		Name:       "countries",
+		Columns:    CountriesColumns,
+		PrimaryKey: []*schema.Column{CountriesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "country_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{CountriesColumns[3]},
+			},
+		},
+	}
+	// DistrictsColumns holds the columns for the "districts" table.
+	DistrictsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "city_id", Type: field.TypeUUID},
+		{Name: "country_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID},
+	}
+	// DistrictsTable holds the schema information for the "districts" table.
+	DistrictsTable = &schema.Table{
+		Name:       "districts",
+		Columns:    DistrictsColumns,
+		PrimaryKey: []*schema.Column{DistrictsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "districts_cities_districts",
+				Columns:    []*schema.Column{DistrictsColumns[6]},
+				RefColumns: []*schema.Column{CitiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "districts_countries_districts",
+				Columns:    []*schema.Column{DistrictsColumns[7]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "districts_provinces_districts",
+				Columns:    []*schema.Column{DistrictsColumns[8]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "district_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{DistrictsColumns[3]},
+			},
+			{
+				Name:    "district_city_id_province_id_country_id",
+				Unique:  false,
+				Columns: []*schema.Column{DistrictsColumns[6], DistrictsColumns[8], DistrictsColumns[7]},
+			},
+		},
+	}
+	// MerchantsColumns holds the columns for the "merchants" table.
+	MerchantsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_code", Type: field.TypeString, Default: ""},
+		{Name: "merchant_name", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "merchant_short_name", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "merchant_type", Type: field.TypeEnum, Enums: []string{"brand", "store"}},
+		{Name: "brand_name", Type: field.TypeString, Default: ""},
+		{Name: "admin_phone_number", Type: field.TypeString, Size: 20, Default: ""},
+		{Name: "expire_utc", Type: field.TypeTime, Nullable: true},
+		{Name: "merchant_logo", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "description", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "expired", "disabled"}},
+		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "lng", Type: field.TypeString, Default: ""},
+		{Name: "lat", Type: field.TypeString, Default: ""},
+		{Name: "admin_user_id", Type: field.TypeUUID},
+		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "business_type_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// MerchantsTable holds the schema information for the "merchants" table.
+	MerchantsTable = &schema.Table{
+		Name:       "merchants",
+		Columns:    MerchantsColumns,
+		PrimaryKey: []*schema.Column{MerchantsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "merchants_admin_users_merchant",
+				Columns:    []*schema.Column{MerchantsColumns[17]},
+				RefColumns: []*schema.Column{AdminUsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "merchants_cities_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[18]},
+				RefColumns: []*schema.Column{CitiesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "merchants_countries_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[19]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "merchants_districts_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[20]},
+				RefColumns: []*schema.Column{DistrictsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "merchants_merchant_business_types_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[21]},
+				RefColumns: []*schema.Column{MerchantBusinessTypesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "merchants_provinces_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[22]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "merchant_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{MerchantsColumns[3]},
+			},
+		},
+	}
+	// MerchantBusinessTypesColumns holds the columns for the "merchant_business_types" table.
+	MerchantBusinessTypesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "type_code", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "type_name", Type: field.TypeString, Size: 50, Default: ""},
+	}
+	// MerchantBusinessTypesTable holds the schema information for the "merchant_business_types" table.
+	MerchantBusinessTypesTable = &schema.Table{
+		Name:       "merchant_business_types",
+		Columns:    MerchantBusinessTypesColumns,
+		PrimaryKey: []*schema.Column{MerchantBusinessTypesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "merchantbusinesstype_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{MerchantBusinessTypesColumns[3]},
+			},
+		},
+	}
+	// MerchantRenewalsColumns holds the columns for the "merchant_renewals" table.
+	MerchantRenewalsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "purchase_duration", Type: field.TypeInt, Default: 0},
+		{Name: "purchase_duration_unit", Type: field.TypeEnum, Enums: []string{"day", "month", "year", "week"}},
+		{Name: "operator_name", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "operator_account", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "merchant_id", Type: field.TypeUUID},
+	}
+	// MerchantRenewalsTable holds the schema information for the "merchant_renewals" table.
+	MerchantRenewalsTable = &schema.Table{
+		Name:       "merchant_renewals",
+		Columns:    MerchantRenewalsColumns,
+		PrimaryKey: []*schema.Column{MerchantRenewalsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "merchant_renewals_merchants_merchant_renewals",
+				Columns:    []*schema.Column{MerchantRenewalsColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "merchantrenewal_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{MerchantRenewalsColumns[3]},
+			},
+			{
+				Name:    "merchantrenewal_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MerchantRenewalsColumns[8]},
+			},
+		},
+	}
+	// ProductsColumns holds the columns for the "products" table.
+	ProductsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "menu_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "mnemonic", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "shelf_life", Type: field.TypeInt, Default: 0},
+		{Name: "support_types", Type: field.TypeJSON},
+		{Name: "sale_status", Type: field.TypeEnum, Enums: []string{"on_sale", "off_sale"}, Default: "on_sale"},
+		{Name: "sale_channels", Type: field.TypeJSON},
+		{Name: "effective_date_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"daily", "custom"}},
+		{Name: "effective_start_time", Type: field.TypeTime, Nullable: true},
+		{Name: "effective_end_time", Type: field.TypeTime, Nullable: true},
+		{Name: "min_sale_quantity", Type: field.TypeInt, Nullable: true},
+		{Name: "add_sale_quantity", Type: field.TypeInt, Nullable: true},
+		{Name: "inherit_tax_rate", Type: field.TypeBool, Default: true},
+		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "inherit_stall", Type: field.TypeBool, Default: true},
+		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
+		{Name: "detail_images", Type: field.TypeJSON, Nullable: true},
+		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
+		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "delivery_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "category_id", Type: field.TypeUUID},
+		{Name: "unit_id", Type: field.TypeUUID},
+	}
+	// ProductsTable holds the schema information for the "products" table.
+	ProductsTable = &schema.Table{
+		Name:       "products",
+		Columns:    ProductsColumns,
+		PrimaryKey: []*schema.Column{ProductsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "products_categories_products",
+				Columns:    []*schema.Column{ProductsColumns[28]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "products_product_units_products",
+				Columns:    []*schema.Column{ProductsColumns[29]},
+				RefColumns: []*schema.Column{ProductUnitsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "product_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[3]},
+			},
+			{
+				Name:    "product_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[26]},
+			},
+			{
+				Name:    "product_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[27]},
+			},
+			{
+				Name:    "product_category_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[28]},
+			},
+		},
+	}
+	// ProductAttrsColumns holds the columns for the "product_attrs" table.
+	ProductAttrsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "channels", Type: field.TypeJSON},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductAttrsTable holds the schema information for the "product_attrs" table.
+	ProductAttrsTable = &schema.Table{
+		Name:       "product_attrs",
+		Columns:    ProductAttrsColumns,
+		PrimaryKey: []*schema.Column{ProductAttrsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productattr_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrsColumns[3]},
+			},
+			{
+				Name:    "productattr_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrsColumns[6]},
+			},
+			{
+				Name:    "productattr_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrsColumns[7]},
+			},
+		},
+	}
+	// ProductAttrItemsColumns holds the columns for the "product_attr_items" table.
+	ProductAttrItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "image", Type: field.TypeString, Size: 512, Default: ""},
+		{Name: "base_price", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+		{Name: "attr_id", Type: field.TypeUUID},
+	}
+	// ProductAttrItemsTable holds the schema information for the "product_attr_items" table.
+	ProductAttrItemsTable = &schema.Table{
+		Name:       "product_attr_items",
+		Columns:    ProductAttrItemsColumns,
+		PrimaryKey: []*schema.Column{ProductAttrItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_attr_items_product_attrs_items",
+				Columns:    []*schema.Column{ProductAttrItemsColumns[8]},
+				RefColumns: []*schema.Column{ProductAttrsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productattritem_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrItemsColumns[3]},
+			},
+			{
+				Name:    "productattritem_attr_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrItemsColumns[8]},
+			},
+		},
+	}
+	// ProductAttrRelationsColumns holds the columns for the "product_attr_relations" table.
+	ProductAttrRelationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "attr_id", Type: field.TypeUUID},
+		{Name: "attr_item_id", Type: field.TypeUUID},
+	}
+	// ProductAttrRelationsTable holds the schema information for the "product_attr_relations" table.
+	ProductAttrRelationsTable = &schema.Table{
+		Name:       "product_attr_relations",
+		Columns:    ProductAttrRelationsColumns,
+		PrimaryKey: []*schema.Column{ProductAttrRelationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_attr_relations_products_product_attrs",
+				Columns:    []*schema.Column{ProductAttrRelationsColumns[5]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "product_attr_relations_product_attrs_product_attrs",
+				Columns:    []*schema.Column{ProductAttrRelationsColumns[6]},
+				RefColumns: []*schema.Column{ProductAttrsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "product_attr_relations_product_attr_items_product_attrs",
+				Columns:    []*schema.Column{ProductAttrRelationsColumns[7]},
+				RefColumns: []*schema.Column{ProductAttrItemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productattrrelation_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[3]},
+			},
+			{
+				Name:    "productattrrelation_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[5]},
+			},
+			{
+				Name:    "productattrrelation_attr_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[6]},
+			},
+			{
+				Name:    "productattrrelation_attr_item_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductAttrRelationsColumns[7]},
+			},
+		},
+	}
+	// ProductSpecsColumns holds the columns for the "product_specs" table.
+	ProductSpecsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductSpecsTable holds the schema information for the "product_specs" table.
+	ProductSpecsTable = &schema.Table{
+		Name:       "product_specs",
+		Columns:    ProductSpecsColumns,
+		PrimaryKey: []*schema.Column{ProductSpecsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productspec_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecsColumns[3]},
+			},
+			{
+				Name:    "productspec_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecsColumns[5]},
+			},
+			{
+				Name:    "productspec_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecsColumns[6]},
+			},
+		},
+	}
+	// ProductSpecRelationsColumns holds the columns for the "product_spec_relations" table.
+	ProductSpecRelationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "base_price", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "member_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "packing_fee_id", Type: field.TypeUUID},
+		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "other_price1", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "other_price2", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "other_price3", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "barcode", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "spec_id", Type: field.TypeUUID},
+	}
+	// ProductSpecRelationsTable holds the schema information for the "product_spec_relations" table.
+	ProductSpecRelationsTable = &schema.Table{
+		Name:       "product_spec_relations",
+		Columns:    ProductSpecRelationsColumns,
+		PrimaryKey: []*schema.Column{ProductSpecRelationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_spec_relations_products_product_specs",
+				Columns:    []*schema.Column{ProductSpecRelationsColumns[13]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "product_spec_relations_product_specs_product_specs",
+				Columns:    []*schema.Column{ProductSpecRelationsColumns[14]},
+				RefColumns: []*schema.Column{ProductSpecsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productspecrelation_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecRelationsColumns[3]},
+			},
+			{
+				Name:    "productspecrelation_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecRelationsColumns[13]},
+			},
+			{
+				Name:    "productspecrelation_spec_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductSpecRelationsColumns[14]},
+			},
+		},
+	}
+	// ProductTagsColumns holds the columns for the "product_tags" table.
+	ProductTagsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductTagsTable holds the schema information for the "product_tags" table.
+	ProductTagsTable = &schema.Table{
+		Name:       "product_tags",
+		Columns:    ProductTagsColumns,
+		PrimaryKey: []*schema.Column{ProductTagsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "producttag_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductTagsColumns[3]},
+			},
+			{
+				Name:    "producttag_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductTagsColumns[5]},
+			},
+			{
+				Name:    "producttag_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductTagsColumns[6]},
+			},
+		},
+	}
+	// ProductUnitsColumns holds the columns for the "product_units" table.
+	ProductUnitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"quantity", "weight"}},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProductUnitsTable holds the schema information for the "product_units" table.
+	ProductUnitsTable = &schema.Table{
+		Name:       "product_units",
+		Columns:    ProductUnitsColumns,
+		PrimaryKey: []*schema.Column{ProductUnitsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "productunit_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProductUnitsColumns[3]},
+			},
+			{
+				Name:    "productunit_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductUnitsColumns[6]},
+			},
+			{
+				Name:    "productunit_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProductUnitsColumns[7]},
+			},
+		},
+	}
+	// ProvincesColumns holds the columns for the "provinces" table.
+	ProvincesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "country_id", Type: field.TypeUUID},
+	}
+	// ProvincesTable holds the schema information for the "provinces" table.
+	ProvincesTable = &schema.Table{
+		Name:       "provinces",
+		Columns:    ProvincesColumns,
+		PrimaryKey: []*schema.Column{ProvincesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "provinces_countries_provinces",
+				Columns:    []*schema.Column{ProvincesColumns[6]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "province_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProvincesColumns[3]},
+			},
+		},
+	}
+	// RemarksColumns holds the columns for the "remarks" table.
+	RemarksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "remark_type", Type: field.TypeEnum, Enums: []string{"system", "brand"}},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "category_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// RemarksTable holds the schema information for the "remarks" table.
+	RemarksTable = &schema.Table{
+		Name:       "remarks",
+		Columns:    RemarksColumns,
+		PrimaryKey: []*schema.Column{RemarksColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "remarks_merchants_remarks",
+				Columns:    []*schema.Column{RemarksColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "remarks_remark_categories_remarks",
+				Columns:    []*schema.Column{RemarksColumns[9]},
+				RefColumns: []*schema.Column{RemarkCategoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "remarks_stores_remarks",
+				Columns:    []*schema.Column{RemarksColumns[10]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "remark_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[3]},
+			},
+			{
+				Name:    "remark_category_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[9]},
+			},
+			{
+				Name:    "remark_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[8]},
+			},
+			{
+				Name:    "remark_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarksColumns[10]},
+			},
+		},
+	}
+	// RemarkCategoriesColumns holds the columns for the "remark_categories" table.
+	RemarkCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "remark_scene", Type: field.TypeEnum, Enums: []string{"whole_order", "item", "cancel_reason", "discount", "gift", "rebill", "refund_reject"}},
+		{Name: "description", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// RemarkCategoriesTable holds the schema information for the "remark_categories" table.
+	RemarkCategoriesTable = &schema.Table{
+		Name:       "remark_categories",
+		Columns:    RemarkCategoriesColumns,
+		PrimaryKey: []*schema.Column{RemarkCategoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "remark_categories_merchants_remark_categories",
+				Columns:    []*schema.Column{RemarkCategoriesColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "remarkcategory_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RemarkCategoriesColumns[3]},
+			},
+			{
+				Name:    "remarkcategory_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RemarkCategoriesColumns[8]},
+			},
+		},
+	}
+	// SetMealDetailsColumns holds the columns for the "set_meal_details" table.
+	SetMealDetailsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "quantity", Type: field.TypeInt, Default: 1},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "optional_product_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "group_id", Type: field.TypeUUID},
+	}
+	// SetMealDetailsTable holds the schema information for the "set_meal_details" table.
+	SetMealDetailsTable = &schema.Table{
+		Name:       "set_meal_details",
+		Columns:    SetMealDetailsColumns,
+		PrimaryKey: []*schema.Column{SetMealDetailsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "set_meal_details_products_set_meal_details",
+				Columns:    []*schema.Column{SetMealDetailsColumns[7]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "set_meal_details_set_meal_groups_details",
+				Columns:    []*schema.Column{SetMealDetailsColumns[8]},
+				RefColumns: []*schema.Column{SetMealGroupsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "setmealdetail_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealDetailsColumns[3]},
+			},
+			{
+				Name:    "setmealdetail_group_id",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealDetailsColumns[8]},
+			},
+			{
+				Name:    "setmealdetail_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealDetailsColumns[7]},
+			},
+		},
+	}
+	// SetMealGroupsColumns holds the columns for the "set_meal_groups" table.
+	SetMealGroupsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "selection_type", Type: field.TypeEnum, Enums: []string{"fixed", "optional"}, Default: "fixed"},
+		{Name: "product_id", Type: field.TypeUUID},
+	}
+	// SetMealGroupsTable holds the schema information for the "set_meal_groups" table.
+	SetMealGroupsTable = &schema.Table{
+		Name:       "set_meal_groups",
+		Columns:    SetMealGroupsColumns,
+		PrimaryKey: []*schema.Column{SetMealGroupsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "set_meal_groups_products_set_meal_groups",
+				Columns:    []*schema.Column{SetMealGroupsColumns[6]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "setmealgroup_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealGroupsColumns[3]},
+			},
+			{
+				Name:    "setmealgroup_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{SetMealGroupsColumns[6]},
+			},
+		},
+	}
+	// StoresColumns holds the columns for the "stores" table.
+	StoresColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "admin_phone_number", Type: field.TypeString, Size: 20, Default: ""},
+		{Name: "store_name", Type: field.TypeString, Size: 30, Default: ""},
+		{Name: "store_short_name", Type: field.TypeString, Size: 30, Default: ""},
+		{Name: "store_code", Type: field.TypeString, Default: ""},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"open", "closed"}},
+		{Name: "business_model", Type: field.TypeEnum, Enums: []string{"direct", "franchisee"}},
+		{Name: "location_number", Type: field.TypeString, Size: 255},
+		{Name: "contact_name", Type: field.TypeString, Size: 20, Default: ""},
+		{Name: "contact_phone", Type: field.TypeString, Size: 20, Default: ""},
+		{Name: "unified_social_credit_code", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "store_logo", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "business_license_url", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "storefront_url", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "cashier_desk_url", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "dining_environment_url", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "food_operation_license_url", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "business_hours", Type: field.TypeString, Default: ""},
+		{Name: "dining_periods", Type: field.TypeString},
+		{Name: "shift_times", Type: field.TypeString},
+		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "lng", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "lat", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "admin_user_id", Type: field.TypeUUID},
+		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "business_type_id", Type: field.TypeUUID},
+		{Name: "province_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// StoresTable holds the schema information for the "stores" table.
+	StoresTable = &schema.Table{
+		Name:       "stores",
+		Columns:    StoresColumns,
+		PrimaryKey: []*schema.Column{StoresColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "stores_admin_users_store",
+				Columns:    []*schema.Column{StoresColumns[26]},
+				RefColumns: []*schema.Column{AdminUsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "stores_cities_stores",
+				Columns:    []*schema.Column{StoresColumns[27]},
+				RefColumns: []*schema.Column{CitiesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "stores_countries_stores",
+				Columns:    []*schema.Column{StoresColumns[28]},
+				RefColumns: []*schema.Column{CountriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "stores_districts_stores",
+				Columns:    []*schema.Column{StoresColumns[29]},
+				RefColumns: []*schema.Column{DistrictsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "stores_merchants_stores",
+				Columns:    []*schema.Column{StoresColumns[30]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "stores_merchant_business_types_stores",
+				Columns:    []*schema.Column{StoresColumns[31]},
+				RefColumns: []*schema.Column{MerchantBusinessTypesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "stores_provinces_stores",
+				Columns:    []*schema.Column{StoresColumns[32]},
+				RefColumns: []*schema.Column{ProvincesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "store_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{StoresColumns[3]},
+			},
+			{
+				Name:    "store_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{StoresColumns[30]},
+			},
+		},
+	}
+	// ProductTagRelationsColumns holds the columns for the "product_tag_relations" table.
+	ProductTagRelationsColumns = []*schema.Column{
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "tag_id", Type: field.TypeUUID},
+	}
+	// ProductTagRelationsTable holds the schema information for the "product_tag_relations" table.
+	ProductTagRelationsTable = &schema.Table{
+		Name:       "product_tag_relations",
+		Columns:    ProductTagRelationsColumns,
+		PrimaryKey: []*schema.Column{ProductTagRelationsColumns[0], ProductTagRelationsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_tag_relations_product_id",
+				Columns:    []*schema.Column{ProductTagRelationsColumns[0]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "product_tag_relations_tag_id",
+				Columns:    []*schema.Column{ProductTagRelationsColumns[1]},
+				RefColumns: []*schema.Column{ProductTagsColumns[0]},
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -224,10 +1181,68 @@ var (
 		AdminUsersTable,
 		BackendUsersTable,
 		CategoriesTable,
+		CitiesTable,
+		CountriesTable,
+		DistrictsTable,
+		MerchantsTable,
+		MerchantBusinessTypesTable,
+		MerchantRenewalsTable,
+		ProductsTable,
+		ProductAttrsTable,
+		ProductAttrItemsTable,
+		ProductAttrRelationsTable,
+		ProductSpecsTable,
+		ProductSpecRelationsTable,
+		ProductTagsTable,
+		ProductUnitsTable,
+		ProvincesTable,
+		RemarksTable,
+		RemarkCategoriesTable,
+		SetMealDetailsTable,
+		SetMealGroupsTable,
+		StoresTable,
+		ProductTagRelationsTable,
 		OrdersTable,
 	}
 )
 
 func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
+	CitiesTable.ForeignKeys[0].RefTable = CountriesTable
+	CitiesTable.ForeignKeys[1].RefTable = ProvincesTable
+	DistrictsTable.ForeignKeys[0].RefTable = CitiesTable
+	DistrictsTable.ForeignKeys[1].RefTable = CountriesTable
+	DistrictsTable.ForeignKeys[2].RefTable = ProvincesTable
+	MerchantsTable.ForeignKeys[0].RefTable = AdminUsersTable
+	MerchantsTable.ForeignKeys[1].RefTable = CitiesTable
+	MerchantsTable.ForeignKeys[2].RefTable = CountriesTable
+	MerchantsTable.ForeignKeys[3].RefTable = DistrictsTable
+	MerchantsTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
+	MerchantsTable.ForeignKeys[5].RefTable = ProvincesTable
+	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
+	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
+	ProductsTable.ForeignKeys[1].RefTable = ProductUnitsTable
+	ProductAttrItemsTable.ForeignKeys[0].RefTable = ProductAttrsTable
+	ProductAttrRelationsTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductAttrRelationsTable.ForeignKeys[1].RefTable = ProductAttrsTable
+	ProductAttrRelationsTable.ForeignKeys[2].RefTable = ProductAttrItemsTable
+	ProductSpecRelationsTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductSpecRelationsTable.ForeignKeys[1].RefTable = ProductSpecsTable
+	ProvincesTable.ForeignKeys[0].RefTable = CountriesTable
+	RemarksTable.ForeignKeys[0].RefTable = MerchantsTable
+	RemarksTable.ForeignKeys[1].RefTable = RemarkCategoriesTable
+	RemarksTable.ForeignKeys[2].RefTable = StoresTable
+	RemarkCategoriesTable.ForeignKeys[0].RefTable = MerchantsTable
+	SetMealDetailsTable.ForeignKeys[0].RefTable = ProductsTable
+	SetMealDetailsTable.ForeignKeys[1].RefTable = SetMealGroupsTable
+	SetMealGroupsTable.ForeignKeys[0].RefTable = ProductsTable
+	StoresTable.ForeignKeys[0].RefTable = AdminUsersTable
+	StoresTable.ForeignKeys[1].RefTable = CitiesTable
+	StoresTable.ForeignKeys[2].RefTable = CountriesTable
+	StoresTable.ForeignKeys[3].RefTable = DistrictsTable
+	StoresTable.ForeignKeys[4].RefTable = MerchantsTable
+	StoresTable.ForeignKeys[5].RefTable = MerchantBusinessTypesTable
+	StoresTable.ForeignKeys[6].RefTable = ProvincesTable
+	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductTagRelationsTable.ForeignKeys[1].RefTable = ProductTagsTable
 }

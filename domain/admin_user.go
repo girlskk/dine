@@ -30,10 +30,11 @@ type AdminUserInteractor interface {
 }
 
 type AdminUser struct {
-	ID             uuid.UUID `json:"id"`
-	Username       string    `json:"username"` // 用户名
-	HashedPassword string    `json:"-"`        // 密码哈希
-	Nickname       string    `json:"nickname"` // 昵称
+	ID             uuid.UUID            `json:"id"`
+	Username       string               `json:"username"`     // 用户名
+	HashedPassword string               `json:"-"`            // 密码哈希
+	Nickname       string               `json:"nickname"`     // 昵称
+	AccountType    AdminUserAccountType `json:"account_type"` // 账户类型 // normal: 普通管理员, super_admin: 超级管理员
 }
 
 func (u *AdminUser) SetPassword(password string) error {
@@ -67,3 +68,10 @@ func FromAdminUserContext(ctx context.Context) *AdminUser {
 	}
 	return nil
 }
+
+type AdminUserAccountType string
+
+const (
+	AdminUserAccountTypeNormal     AdminUserAccountType = "normal"      // 普通管理员
+	AdminUserAccountTypeSuperAdmin AdminUserAccountType = "super_admin" // 超级管理员
+)

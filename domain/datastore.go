@@ -10,6 +10,20 @@ type DataStore interface {
 	AdminUserRepo() AdminUserRepository
 	CategoryRepo() CategoryRepository
 	BackendUserRepo() BackendUserRepository
+	ProductUnitRepo() ProductUnitRepository
+	ProductSpecRepo() ProductSpecRepository
+	ProductTagRepo() ProductTagRepository
+	ProductAttrRepo() ProductAttrRepository
+	ProductRepo() ProductRepository
+	ProductAttrRelRepo() ProductAttrRelRepository
+	ProductSpecRelRepo() ProductSpecRelRepository
+	SetMealGroupRepo() SetMealGroupRepository
+	MerchantRepo() MerchantRepository
+	StoreRepo() StoreRepository
+	MerchantRenewalRepo() MerchantRenewalRepository
+	MerchantBusinessTypeRepo() MerchantBusinessTypeRepository
+	RemarkRepo() RemarkRepository
+	RemarkCategoryRepo() RemarkCategoryRepository
 	OrderRepo() OrderRepository
 }
 

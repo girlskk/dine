@@ -97,9 +97,9 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 func (h *UserHandler) Logout() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		span, ctx := opentracing.StartSpanFromContext(ctx, "UserHandler.Login")
+		span, ctx := opentracing.StartSpanFromContext(ctx, "UserHandler.Logout")
 		defer span.Finish()
-		logger := logging.FromContext(ctx).Named("UserHandler.Login")
+		logger := logging.FromContext(ctx).Named("UserHandler.Logout")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 

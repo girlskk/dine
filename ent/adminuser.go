@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 )
 
@@ -30,8 +31,42 @@ type AdminUser struct {
 	// 密码哈希
 	HashedPassword string `json:"hashed_password,omitempty"`
 	// 昵称
-	Nickname     string `json:"nickname,omitempty"`
+	Nickname string `json:"nickname,omitempty"`
+	// 账户类型
+	AccountType domain.AdminUserAccountType `json:"account_type,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AdminUserQuery when eager-loading is set.
+	Edges        AdminUserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// AdminUserEdges holds the relations/edges for other nodes in the graph.
+type AdminUserEdges struct {
+	// Merchant holds the value of the merchant edge.
+	Merchant []*Merchant `json:"merchant,omitempty"`
+	// Store holds the value of the store edge.
+	Store []*Store `json:"store,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// MerchantOrErr returns the Merchant value or an error if the edge
+// was not loaded in eager-loading.
+func (e AdminUserEdges) MerchantOrErr() ([]*Merchant, error) {
+	if e.loadedTypes[0] {
+		return e.Merchant, nil
+	}
+	return nil, &NotLoadedError{edge: "merchant"}
+}
+
+// StoreOrErr returns the Store value or an error if the edge
+// was not loaded in eager-loading.
+func (e AdminUserEdges) StoreOrErr() ([]*Store, error) {
+	if e.loadedTypes[1] {
+		return e.Store, nil
+	}
+	return nil, &NotLoadedError{edge: "store"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -41,7 +76,7 @@ func (*AdminUser) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case adminuser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname:
+		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname, adminuser.FieldAccountType:
 			values[i] = new(sql.NullString)
 		case adminuser.FieldCreatedAt, adminuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -104,6 +139,12 @@ func (au *AdminUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				au.Nickname = value.String
 			}
+		case adminuser.FieldAccountType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field account_type", values[i])
+			} else if value.Valid {
+				au.AccountType = domain.AdminUserAccountType(value.String)
+			}
 		default:
 			au.selectValues.Set(columns[i], values[i])
 		}
@@ -115,6 +156,16 @@ func (au *AdminUser) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (au *AdminUser) Value(name string) (ent.Value, error) {
 	return au.selectValues.Get(name)
+}
+
+// QueryMerchant queries the "merchant" edge of the AdminUser entity.
+func (au *AdminUser) QueryMerchant() *MerchantQuery {
+	return NewAdminUserClient(au.config).QueryMerchant(au)
+}
+
+// QueryStore queries the "store" edge of the AdminUser entity.
+func (au *AdminUser) QueryStore() *StoreQuery {
+	return NewAdminUserClient(au.config).QueryStore(au)
 }
 
 // Update returns a builder for updating this AdminUser.
@@ -157,6 +208,9 @@ func (au *AdminUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(au.Nickname)
+	builder.WriteString(", ")
+	builder.WriteString("account_type=")
+	builder.WriteString(fmt.Sprintf("%v", au.AccountType))
 	builder.WriteByte(')')
 	return builder.String()
 }
