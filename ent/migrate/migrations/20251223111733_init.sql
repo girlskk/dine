@@ -11,6 +11,7 @@ CREATE TABLE `admin_users` (
   INDEX `adminuser_deleted_at` (`deleted_at`),
   UNIQUE INDEX `adminuser_username_deleted_at` (`username`, `deleted_at`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_bin;
+
 -- Create "backend_users" table
 CREATE TABLE `backend_users` (
   `id` char(36) NOT NULL,
@@ -25,6 +26,7 @@ CREATE TABLE `backend_users` (
   INDEX `backenduser_deleted_at` (`deleted_at`),
   UNIQUE INDEX `backenduser_username_deleted_at` (`username`, `deleted_at`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_bin;
+
 -- Create "categories" table
 CREATE TABLE `categories` (
   `id` char(36) NOT NULL,
@@ -45,6 +47,5 @@ CREATE TABLE `categories` (
   INDEX `categories_categories_children` (`parent_id`),
   INDEX `category_deleted_at` (`deleted_at`),
   INDEX `category_merchant_id` (`merchant_id`),
-  INDEX `category_store_id` (`store_id`),
-  CONSTRAINT `categories_categories_children` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON UPDATE NO ACTION ON DELETE SET NULL
+  INDEX `category_store_id` (`store_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_bin;
