@@ -45,6 +45,78 @@ func (f CategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CategoryMutation", m)
 }
 
+// The CityFunc type is an adapter to allow the use of ordinary
+// function as City mutator.
+type CityFunc func(context.Context, *ent.CityMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CityFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CityMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CityMutation", m)
+}
+
+// The CountryFunc type is an adapter to allow the use of ordinary
+// function as Country mutator.
+type CountryFunc func(context.Context, *ent.CountryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CountryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CountryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CountryMutation", m)
+}
+
+// The DistrictFunc type is an adapter to allow the use of ordinary
+// function as District mutator.
+type DistrictFunc func(context.Context, *ent.DistrictMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DistrictFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DistrictMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DistrictMutation", m)
+}
+
+// The MerchantFunc type is an adapter to allow the use of ordinary
+// function as Merchant mutator.
+type MerchantFunc func(context.Context, *ent.MerchantMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MerchantFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MerchantMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MerchantMutation", m)
+}
+
+// The MerchantBusinessTypeFunc type is an adapter to allow the use of ordinary
+// function as MerchantBusinessType mutator.
+type MerchantBusinessTypeFunc func(context.Context, *ent.MerchantBusinessTypeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MerchantBusinessTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MerchantBusinessTypeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MerchantBusinessTypeMutation", m)
+}
+
+// The MerchantRenewalFunc type is an adapter to allow the use of ordinary
+// function as MerchantRenewal mutator.
+type MerchantRenewalFunc func(context.Context, *ent.MerchantRenewalMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MerchantRenewalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MerchantRenewalMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MerchantRenewalMutation", m)
+}
+
 // The ProductFunc type is an adapter to allow the use of ordinary
 // function as Product mutator.
 type ProductFunc func(context.Context, *ent.ProductMutation) (ent.Value, error)
@@ -141,6 +213,42 @@ func (f ProductUnitFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductUnitMutation", m)
 }
 
+// The ProvinceFunc type is an adapter to allow the use of ordinary
+// function as Province mutator.
+type ProvinceFunc func(context.Context, *ent.ProvinceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProvinceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProvinceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProvinceMutation", m)
+}
+
+// The RemarkFunc type is an adapter to allow the use of ordinary
+// function as Remark mutator.
+type RemarkFunc func(context.Context, *ent.RemarkMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RemarkFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RemarkMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RemarkMutation", m)
+}
+
+// The RemarkCategoryFunc type is an adapter to allow the use of ordinary
+// function as RemarkCategory mutator.
+type RemarkCategoryFunc func(context.Context, *ent.RemarkCategoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RemarkCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RemarkCategoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RemarkCategoryMutation", m)
+}
+
 // The SetMealDetailFunc type is an adapter to allow the use of ordinary
 // function as SetMealDetail mutator.
 type SetMealDetailFunc func(context.Context, *ent.SetMealDetailMutation) (ent.Value, error)
@@ -163,6 +271,18 @@ func (f SetMealGroupFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SetMealGroupMutation", m)
+}
+
+// The StoreFunc type is an adapter to allow the use of ordinary
+// function as Store mutator.
+type StoreFunc func(context.Context, *ent.StoreMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f StoreFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.StoreMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StoreMutation", m)
 }
 
 // Condition is a hook condition function.
