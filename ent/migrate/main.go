@@ -36,12 +36,8 @@ func main() {
 	if len(os.Args) != 2 {
 		log.Fatalln("migration name is required. Use: 'go run -mod=mod ent/migrate/main.go <name>'")
 	}
-	// Allow overriding the MySQL DSN; default matches docker-compose (root/pass on localhost:3306, db=dine).
-	dsn := os.Getenv("MIGRATE_DSN")
-	if dsn == "" {
-		dsn = "mysql://root:pass@localhost:33061/dine"
-	}
-	err = migrate.NamedDiff(ctx, dsn, os.Args[1], opts...)
+	// Generate migrations using Atlas support for MySQL (note the Ent dialect option passed above).
+	err = migrate.NamedDiff(ctx, "mysql://root@localhost:3306/test", os.Args[1], opts...)
 	if err != nil {
 		log.Fatalf("failed generating migration file: %v", err)
 	}
