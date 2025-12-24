@@ -21,9 +21,19 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -94,9 +104,19 @@ func checkColumn(table, column string) error {
 			merchant.Table:             merchant.ValidColumn,
 			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,
 			merchantrenewal.Table:      merchantrenewal.ValidColumn,
+			product.Table:              product.ValidColumn,
+			productattr.Table:          productattr.ValidColumn,
+			productattritem.Table:      productattritem.ValidColumn,
+			productattrrelation.Table:  productattrrelation.ValidColumn,
+			productspec.Table:          productspec.ValidColumn,
+			productspecrelation.Table:  productspecrelation.ValidColumn,
+			producttag.Table:           producttag.ValidColumn,
+			productunit.Table:          productunit.ValidColumn,
 			province.Table:             province.ValidColumn,
 			remark.Table:               remark.ValidColumn,
 			remarkcategory.Table:       remarkcategory.ValidColumn,
+			setmealdetail.Table:        setmealdetail.ValidColumn,
+			setmealgroup.Table:         setmealgroup.ValidColumn,
 			store.Table:                store.ValidColumn,
 		})
 	})

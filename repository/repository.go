@@ -20,6 +20,14 @@ type Repository struct {
 	adminUserRepo            *AdminUserRepository
 	categoryRepo             *CategoryRepository
 	backendUserRepo          *BackendUserRepository
+	productUnitRepo          *ProductUnitRepository
+	productSpecRepo          *ProductSpecRepository
+	productTagRepo           *ProductTagRepository
+	productAttrRepo          *ProductAttrRepository
+	productRepo              *ProductRepository
+	productAttrRelRepo       *ProductAttrRelRepository
+	productSpecRelRepo       *ProductSpecRelRepository
+	setMealGroupRepo         *SetMealGroupRepository
 	merchantRepo             *MerchantRepository
 	storeRepo                *StoreRepository
 	merchantRenewalRepo      *MerchantRenewalRepository
@@ -125,6 +133,78 @@ func (repo *Repository) BackendUserRepo() domain.BackendUserRepository {
 		repo.backendUserRepo = NewBackendUserRepository(repo.client)
 	}
 	return repo.backendUserRepo
+}
+
+func (repo *Repository) ProductUnitRepo() domain.ProductUnitRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productUnitRepo == nil {
+		repo.productUnitRepo = NewProductUnitRepository(repo.client)
+	}
+	return repo.productUnitRepo
+}
+
+func (repo *Repository) ProductSpecRepo() domain.ProductSpecRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productSpecRepo == nil {
+		repo.productSpecRepo = NewProductSpecRepository(repo.client)
+	}
+	return repo.productSpecRepo
+}
+
+func (repo *Repository) ProductTagRepo() domain.ProductTagRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productTagRepo == nil {
+		repo.productTagRepo = NewProductTagRepository(repo.client)
+	}
+	return repo.productTagRepo
+}
+
+func (repo *Repository) ProductAttrRepo() domain.ProductAttrRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productAttrRepo == nil {
+		repo.productAttrRepo = NewProductAttrRepository(repo.client)
+	}
+	return repo.productAttrRepo
+}
+
+func (repo *Repository) ProductRepo() domain.ProductRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productRepo == nil {
+		repo.productRepo = NewProductRepository(repo.client)
+	}
+	return repo.productRepo
+}
+
+func (repo *Repository) ProductAttrRelRepo() domain.ProductAttrRelRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productAttrRelRepo == nil {
+		repo.productAttrRelRepo = NewProductAttrRelRepository(repo.client)
+	}
+	return repo.productAttrRelRepo
+}
+
+func (repo *Repository) ProductSpecRelRepo() domain.ProductSpecRelRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productSpecRelRepo == nil {
+		repo.productSpecRelRepo = NewProductSpecRelRepository(repo.client)
+	}
+	return repo.productSpecRelRepo
+}
+
+func (repo *Repository) SetMealGroupRepo() domain.SetMealGroupRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.setMealGroupRepo == nil {
+		repo.setMealGroupRepo = NewSetMealGroupRepository(repo.client)
+	}
+	return repo.setMealGroupRepo
 }
 
 func (repo *Repository) MerchantRepo() domain.MerchantRepository {

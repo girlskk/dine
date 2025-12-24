@@ -47,6 +47,11 @@ var Module = fx.Module(
 	fx.Provide(
 		asHandler(handler.NewUserHandler),
 		asHandler(handler.NewCategoryHandler),
+		asHandler(handler.NewProductUnitHandler),
+		asHandler(handler.NewProductSpecHandler),
+		asHandler(handler.NewProductTagHandler),
+		asHandler(handler.NewProductAttrHandler),
+		asHandler(handler.NewProductHandler),
 		asHandler(handler.NewRemarkHandler),
 	),
 )

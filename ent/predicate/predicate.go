@@ -33,6 +33,30 @@ type MerchantBusinessType func(*sql.Selector)
 // MerchantRenewal is the predicate function for merchantrenewal builders.
 type MerchantRenewal func(*sql.Selector)
 
+// Product is the predicate function for product builders.
+type Product func(*sql.Selector)
+
+// ProductAttr is the predicate function for productattr builders.
+type ProductAttr func(*sql.Selector)
+
+// ProductAttrItem is the predicate function for productattritem builders.
+type ProductAttrItem func(*sql.Selector)
+
+// ProductAttrRelation is the predicate function for productattrrelation builders.
+type ProductAttrRelation func(*sql.Selector)
+
+// ProductSpec is the predicate function for productspec builders.
+type ProductSpec func(*sql.Selector)
+
+// ProductSpecRelation is the predicate function for productspecrelation builders.
+type ProductSpecRelation func(*sql.Selector)
+
+// ProductTag is the predicate function for producttag builders.
+type ProductTag func(*sql.Selector)
+
+// ProductUnit is the predicate function for productunit builders.
+type ProductUnit func(*sql.Selector)
+
 // Province is the predicate function for province builders.
 type Province func(*sql.Selector)
 
@@ -41,6 +65,12 @@ type Remark func(*sql.Selector)
 
 // RemarkCategory is the predicate function for remarkcategory builders.
 type RemarkCategory func(*sql.Selector)
+
+// SetMealDetail is the predicate function for setmealdetail builders.
+type SetMealDetail func(*sql.Selector)
+
+// SetMealGroup is the predicate function for setmealgroup builders.
+type SetMealGroup func(*sql.Selector)
 
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)

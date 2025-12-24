@@ -116,3 +116,199 @@ func (mr *MockDataStoreMockRecorder) IsTransactionActive() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsTransactionActive", reflect.TypeOf((*MockDataStore)(nil).IsTransactionActive))
 }
+
+// MerchantBusinessTypeRepo mocks base method.
+func (m *MockDataStore) MerchantBusinessTypeRepo() domain.MerchantBusinessTypeRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MerchantBusinessTypeRepo")
+	ret0, _ := ret[0].(domain.MerchantBusinessTypeRepository)
+	return ret0
+}
+
+// MerchantBusinessTypeRepo indicates an expected call of MerchantBusinessTypeRepo.
+func (mr *MockDataStoreMockRecorder) MerchantBusinessTypeRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantBusinessTypeRepo", reflect.TypeOf((*MockDataStore)(nil).MerchantBusinessTypeRepo))
+}
+
+// MerchantRenewalRepo mocks base method.
+func (m *MockDataStore) MerchantRenewalRepo() domain.MerchantRenewalRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MerchantRenewalRepo")
+	ret0, _ := ret[0].(domain.MerchantRenewalRepository)
+	return ret0
+}
+
+// MerchantRenewalRepo indicates an expected call of MerchantRenewalRepo.
+func (mr *MockDataStoreMockRecorder) MerchantRenewalRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantRenewalRepo", reflect.TypeOf((*MockDataStore)(nil).MerchantRenewalRepo))
+}
+
+// MerchantRepo mocks base method.
+func (m *MockDataStore) MerchantRepo() domain.MerchantRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MerchantRepo")
+	ret0, _ := ret[0].(domain.MerchantRepository)
+	return ret0
+}
+
+// MerchantRepo indicates an expected call of MerchantRepo.
+func (mr *MockDataStoreMockRecorder) MerchantRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantRepo", reflect.TypeOf((*MockDataStore)(nil).MerchantRepo))
+}
+
+// ProductAttrRelRepo mocks base method.
+func (m *MockDataStore) ProductAttrRelRepo() domain.ProductAttrRelRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductAttrRelRepo")
+	ret0, _ := ret[0].(domain.ProductAttrRelRepository)
+	return ret0
+}
+
+// ProductAttrRelRepo indicates an expected call of ProductAttrRelRepo.
+func (mr *MockDataStoreMockRecorder) ProductAttrRelRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductAttrRelRepo", reflect.TypeOf((*MockDataStore)(nil).ProductAttrRelRepo))
+}
+
+// ProductAttrRepo mocks base method.
+func (m *MockDataStore) ProductAttrRepo() domain.ProductAttrRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductAttrRepo")
+	ret0, _ := ret[0].(domain.ProductAttrRepository)
+	return ret0
+}
+
+// ProductAttrRepo indicates an expected call of ProductAttrRepo.
+func (mr *MockDataStoreMockRecorder) ProductAttrRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductAttrRepo", reflect.TypeOf((*MockDataStore)(nil).ProductAttrRepo))
+}
+
+// ProductRepo mocks base method.
+func (m *MockDataStore) ProductRepo() domain.ProductRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductRepo")
+	ret0, _ := ret[0].(domain.ProductRepository)
+	return ret0
+}
+
+// ProductRepo indicates an expected call of ProductRepo.
+func (mr *MockDataStoreMockRecorder) ProductRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductRepo", reflect.TypeOf((*MockDataStore)(nil).ProductRepo))
+}
+
+// ProductSpecRelRepo mocks base method.
+func (m *MockDataStore) ProductSpecRelRepo() domain.ProductSpecRelRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductSpecRelRepo")
+	ret0, _ := ret[0].(domain.ProductSpecRelRepository)
+	return ret0
+}
+
+// ProductSpecRelRepo indicates an expected call of ProductSpecRelRepo.
+func (mr *MockDataStoreMockRecorder) ProductSpecRelRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductSpecRelRepo", reflect.TypeOf((*MockDataStore)(nil).ProductSpecRelRepo))
+}
+
+// ProductSpecRepo mocks base method.
+func (m *MockDataStore) ProductSpecRepo() domain.ProductSpecRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductSpecRepo")
+	ret0, _ := ret[0].(domain.ProductSpecRepository)
+	return ret0
+}
+
+// ProductSpecRepo indicates an expected call of ProductSpecRepo.
+func (mr *MockDataStoreMockRecorder) ProductSpecRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductSpecRepo", reflect.TypeOf((*MockDataStore)(nil).ProductSpecRepo))
+}
+
+// ProductTagRepo mocks base method.
+func (m *MockDataStore) ProductTagRepo() domain.ProductTagRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductTagRepo")
+	ret0, _ := ret[0].(domain.ProductTagRepository)
+	return ret0
+}
+
+// ProductTagRepo indicates an expected call of ProductTagRepo.
+func (mr *MockDataStoreMockRecorder) ProductTagRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductTagRepo", reflect.TypeOf((*MockDataStore)(nil).ProductTagRepo))
+}
+
+// ProductUnitRepo mocks base method.
+func (m *MockDataStore) ProductUnitRepo() domain.ProductUnitRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProductUnitRepo")
+	ret0, _ := ret[0].(domain.ProductUnitRepository)
+	return ret0
+}
+
+// ProductUnitRepo indicates an expected call of ProductUnitRepo.
+func (mr *MockDataStoreMockRecorder) ProductUnitRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductUnitRepo", reflect.TypeOf((*MockDataStore)(nil).ProductUnitRepo))
+}
+
+// RemarkCategoryRepo mocks base method.
+func (m *MockDataStore) RemarkCategoryRepo() domain.RemarkCategoryRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemarkCategoryRepo")
+	ret0, _ := ret[0].(domain.RemarkCategoryRepository)
+	return ret0
+}
+
+// RemarkCategoryRepo indicates an expected call of RemarkCategoryRepo.
+func (mr *MockDataStoreMockRecorder) RemarkCategoryRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemarkCategoryRepo", reflect.TypeOf((*MockDataStore)(nil).RemarkCategoryRepo))
+}
+
+// RemarkRepo mocks base method.
+func (m *MockDataStore) RemarkRepo() domain.RemarkRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemarkRepo")
+	ret0, _ := ret[0].(domain.RemarkRepository)
+	return ret0
+}
+
+// RemarkRepo indicates an expected call of RemarkRepo.
+func (mr *MockDataStoreMockRecorder) RemarkRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemarkRepo", reflect.TypeOf((*MockDataStore)(nil).RemarkRepo))
+}
+
+// SetMealGroupRepo mocks base method.
+func (m *MockDataStore) SetMealGroupRepo() domain.SetMealGroupRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetMealGroupRepo")
+	ret0, _ := ret[0].(domain.SetMealGroupRepository)
+	return ret0
+}
+
+// SetMealGroupRepo indicates an expected call of SetMealGroupRepo.
+func (mr *MockDataStoreMockRecorder) SetMealGroupRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMealGroupRepo", reflect.TypeOf((*MockDataStore)(nil).SetMealGroupRepo))
+}
+
+// StoreRepo mocks base method.
+func (m *MockDataStore) StoreRepo() domain.StoreRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StoreRepo")
+	ret0, _ := ret[0].(domain.StoreRepository)
+	return ret0
+}
+
+// StoreRepo indicates an expected call of StoreRepo.
+func (mr *MockDataStoreMockRecorder) StoreRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreRepo", reflect.TypeOf((*MockDataStore)(nil).StoreRepo))
+}
