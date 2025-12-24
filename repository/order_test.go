@@ -39,7 +39,7 @@ func (s *OrderTestSuite) newTestOrder(storeID, orderNo string) *domain.Order {
 		BusinessDate: "2025-12-22",
 		OrderNo:      orderNo,
 		DiningMode:   domain.DiningModeDineIn,
-		Store:        &domain.OrderStore{StoreID: storeID},
+		Store:        &domain.OrderStore{StoreID: storeUUID},
 		Cart:         &[]domain.OrderProduct{},
 		Products:     &[]domain.OrderProduct{},
 		Amount:       &domain.OrderAmount{},
@@ -81,7 +81,7 @@ func (s *OrderTestSuite) TestOrder_Create() {
 		require.Equal(t, order.BusinessDate, dbOrder.BusinessDate)
 		require.Equal(t, order.OrderNo, dbOrder.OrderNo)
 		require.Equal(t, domain.DiningModeDineIn, dbOrder.DiningMode)
-		require.Contains(t, string(dbOrder.Store), order.Store.StoreID)
+		require.Contains(t, string(dbOrder.Store), order.Store.StoreID.String())
 	})
 
 	s.T().Run("唯一键冲突返回 Conflict", func(t *testing.T) {
