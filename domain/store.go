@@ -139,6 +139,11 @@ type Store struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type StoreSimple struct {
+	ID        uuid.UUID `json:"id"`
+	StoreName string    `json:"store_name"` // 门店名称
+}
+
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_repository.go -package=mock . StoreRepository
 type StoreRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)

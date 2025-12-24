@@ -117,6 +117,20 @@ func (mr *MockDataStoreMockRecorder) IsTransactionActive() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsTransactionActive", reflect.TypeOf((*MockDataStore)(nil).IsTransactionActive))
 }
 
+// MenuRepo mocks base method.
+func (m *MockDataStore) MenuRepo() domain.MenuRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MenuRepo")
+	ret0, _ := ret[0].(domain.MenuRepository)
+	return ret0
+}
+
+// MenuRepo indicates an expected call of MenuRepo.
+func (mr *MockDataStoreMockRecorder) MenuRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MenuRepo", reflect.TypeOf((*MockDataStore)(nil).MenuRepo))
+}
+
 // MerchantBusinessTypeRepo mocks base method.
 func (m *MockDataStore) MerchantBusinessTypeRepo() domain.MerchantBusinessTypeRepository {
 	m.ctrl.T.Helper()

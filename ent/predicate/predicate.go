@@ -24,6 +24,12 @@ type Country func(*sql.Selector)
 // District is the predicate function for district builders.
 type District func(*sql.Selector)
 
+// Menu is the predicate function for menu builders.
+type Menu func(*sql.Selector)
+
+// MenuItem is the predicate function for menuitem builders.
+type MenuItem func(*sql.Selector)
+
 // Merchant is the predicate function for merchant builders.
 type Merchant func(*sql.Selector)
 

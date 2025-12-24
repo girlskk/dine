@@ -90,6 +90,8 @@ const (
 	EdgeSetMealGroups = "set_meal_groups"
 	// EdgeSetMealDetails holds the string denoting the set_meal_details edge name in mutations.
 	EdgeSetMealDetails = "set_meal_details"
+	// EdgeMenuItems holds the string denoting the menu_items edge name in mutations.
+	EdgeMenuItems = "menu_items"
 	// Table holds the table name of the product in the database.
 	Table = "products"
 	// CategoryTable is the table that holds the category relation/edge.
@@ -139,6 +141,13 @@ const (
 	SetMealDetailsInverseTable = "set_meal_details"
 	// SetMealDetailsColumn is the table column denoting the set_meal_details relation/edge.
 	SetMealDetailsColumn = "product_id"
+	// MenuItemsTable is the table that holds the menu_items relation/edge.
+	MenuItemsTable = "menu_items"
+	// MenuItemsInverseTable is the table name for the MenuItem entity.
+	// It exists in this package in order to avoid circular dependency with the "menuitem" package.
+	MenuItemsInverseTable = "menu_items"
+	// MenuItemsColumn is the table column denoting the menu_items relation/edge.
+	MenuItemsColumn = "product_id"
 )
 
 // Columns holds all SQL columns for product fields.
@@ -486,6 +495,20 @@ func BySetMealDetails(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSetMealDetailsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMenuItemsCount orders the results by menu_items count.
+func ByMenuItemsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMenuItemsStep(), opts...)
+	}
+}
+
+// ByMenuItems orders the results by menu_items terms.
+func ByMenuItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMenuItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCategoryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -533,5 +556,12 @@ func newSetMealDetailsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SetMealDetailsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SetMealDetailsTable, SetMealDetailsColumn),
+	)
+}
+func newMenuItemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MenuItemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MenuItemsTable, MenuItemsColumn),
 	)
 }

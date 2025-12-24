@@ -115,9 +115,11 @@ type StoreEdges struct {
 	District *District `json:"district,omitempty"`
 	// Remarks holds the value of the remarks edge.
 	Remarks []*Remark `json:"remarks,omitempty"`
+	// 关联的菜单
+	Menus []*Menu `json:"menus,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [9]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -204,6 +206,15 @@ func (e StoreEdges) RemarksOrErr() ([]*Remark, error) {
 		return e.Remarks, nil
 	}
 	return nil, &NotLoadedError{edge: "remarks"}
+}
+
+// MenusOrErr returns the Menus value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) MenusOrErr() ([]*Menu, error) {
+	if e.loadedTypes[8] {
+		return e.Menus, nil
+	}
+	return nil, &NotLoadedError{edge: "menus"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -483,6 +494,11 @@ func (s *Store) QueryDistrict() *DistrictQuery {
 // QueryRemarks queries the "remarks" edge of the Store entity.
 func (s *Store) QueryRemarks() *RemarkQuery {
 	return NewStoreClient(s.config).QueryRemarks(s)
+}
+
+// QueryMenus queries the "menus" edge of the Store entity.
+func (s *Store) QueryMenus() *MenuQuery {
+	return NewStoreClient(s.config).QueryMenus(s)
 }
 
 // Update returns a builder for updating this Store.
