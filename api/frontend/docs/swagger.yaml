@@ -79,9 +79,6 @@ definitions:
         type: integer
       meta:
         description: 卡券扩展信息
-        items:
-          type: integer
-        type: array
     type: object
   types.CreateOrderReq:
     properties:
@@ -246,16 +243,13 @@ definitions:
         type: string
       meta:
         description: 扩展信息
-        items:
-          type: integer
-        type: array
     type: object
   types.ListOrderResp:
     properties:
       items:
         description: 列表数据
         items:
-          $ref: '#/definitions/types.Order'
+          $ref: '#/definitions/types.OrderResp'
         type: array
       pagination:
         allOf:
@@ -280,7 +274,7 @@ definitions:
         description: 会员手机号
         type: string
     type: object
-  types.Order:
+  types.OrderResp:
     properties:
       amount:
         allOf:
@@ -319,7 +313,7 @@ definitions:
           $ref: '#/definitions/types.Fee'
         type: array
       fulfillment_status:
-        description: 外卖/配送状态
+        description: 交付状态
         type: string
       guest_count:
         description: 用餐人数（堂食）
@@ -475,9 +469,6 @@ definitions:
         type: string
       options:
         description: 做法/加料（结构化）
-        items:
-          type: integer
-        type: array
       order_item_id:
         description: 订单内明细ID
         type: string
@@ -542,9 +533,6 @@ definitions:
         type: integer
       meta:
         description: 促销扩展信息
-        items:
-          type: integer
-        type: array
       promotion_id:
         description: 促销ID
         type: string
@@ -634,9 +622,6 @@ definitions:
     properties:
       meta:
         description: 扩展信息
-        items:
-          type: integer
-        type: array
       rate:
         description: 税率（万分比，如 600 表示 6%）
         type: integer
@@ -674,6 +659,7 @@ definitions:
           $ref: '#/definitions/types.Coupon'
         type: array
       dining_mode:
+        description: 堂食/外卖（DINE_IN/TAKEAWAY）
         enum:
         - DINE_IN
         - TAKEAWAY
@@ -714,6 +700,7 @@ definitions:
         - MERGED
         type: string
       order_type:
+        description: 订单类型（SALE/REFUND/PARTIAL_REFUND）
         enum:
         - SALE
         - REFUND
@@ -890,7 +877,7 @@ paths:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/types.Order'
+            $ref: '#/definitions/types.OrderResp'
       security:
       - BearerAuth: []
       summary: 创建订单
@@ -931,7 +918,7 @@ paths:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/types.Order'
+            $ref: '#/definitions/types.OrderResp'
       security:
       - BearerAuth: []
       summary: 获取订单详情
@@ -958,7 +945,7 @@ paths:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/types.Order'
+            $ref: '#/definitions/types.OrderResp'
       security:
       - BearerAuth: []
       summary: 更新订单

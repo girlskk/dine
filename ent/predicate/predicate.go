@@ -33,6 +33,9 @@ type MerchantBusinessType func(*sql.Selector)
 // MerchantRenewal is the predicate function for merchantrenewal builders.
 type MerchantRenewal func(*sql.Selector)
 
+// Order is the predicate function for order builders.
+type Order func(*sql.Selector)
+
 // Product is the predicate function for product builders.
 type Product func(*sql.Selector)
 
@@ -74,6 +77,3 @@ type SetMealGroup func(*sql.Selector)
 
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)
-
-// Order is the predicate function for order builders.
-type Order func(*sql.Selector)

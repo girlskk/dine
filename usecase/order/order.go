@@ -2,7 +2,6 @@ package order
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -37,10 +36,10 @@ func (interactor *OrderInteractor) Create(ctx context.Context, order *domain.Ord
 	if order.ID == uuid.Nil {
 		order.ID = uuid.New()
 	}
-	if order.MerchantID == "" {
+	if order.MerchantID == uuid.Nil {
 		return nil, domain.ParamsErrorf("merchant_id is required")
 	}
-	if order.StoreID == "" {
+	if order.StoreID == uuid.Nil {
 		return nil, domain.ParamsErrorf("store_id is required")
 	}
 	if order.BusinessDate == "" {
@@ -134,24 +133,18 @@ func (interactor *OrderInteractor) List(ctx context.Context, params domain.Order
 }
 
 func (interactor *OrderInteractor) generateOrderNo(ctx context.Context, o *domain.Order) (orderNo string, err error) {
-	type storeSnapshot struct {
-		StoreNo string `json:"store_no,omitempty"`
-	}
-
 	storeNo := ""
-	if len(o.Store) > 0 {
-		var st storeSnapshot
-		_ = json.Unmarshal(o.Store, &st)
-		storeNo = st.StoreNo
+	if o.Store != nil {
+		storeNo = o.Store.StoreNo
 	}
 
 	storePart := storeNo
 	if storePart == "" {
-		storePart = o.StoreID
+		storePart = o.StoreID.String()
 	}
 
 	datePart := strings.ReplaceAll(o.BusinessDate, "-", "")
-	prefix := fmt.Sprintf("%s:%s", domain.DailySequencePrefixOrderNo, o.StoreID)
+	prefix := fmt.Sprintf("%s:%s", domain.DailySequencePrefixOrderNo, o.StoreID.String())
 	seq, err := interactor.Seq.Next(ctx, prefix)
 	if err != nil {
 		return "", err

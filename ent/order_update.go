@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -107,15 +108,15 @@ func (ou *OrderUpdate) SetNillableOrderNo(s *string) *OrderUpdate {
 }
 
 // SetOrderType sets the "order_type" field.
-func (ou *OrderUpdate) SetOrderType(ot order.OrderType) *OrderUpdate {
-	ou.mutation.SetOrderType(ot)
+func (ou *OrderUpdate) SetOrderType(dt domain.OrderType) *OrderUpdate {
+	ou.mutation.SetOrderType(dt)
 	return ou
 }
 
 // SetNillableOrderType sets the "order_type" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableOrderType(ot *order.OrderType) *OrderUpdate {
-	if ot != nil {
-		ou.SetOrderType(*ot)
+func (ou *OrderUpdate) SetNillableOrderType(dt *domain.OrderType) *OrderUpdate {
+	if dt != nil {
+		ou.SetOrderType(*dt)
 	}
 	return ou
 }
@@ -299,57 +300,57 @@ func (ou *OrderUpdate) ClearPaidBy() *OrderUpdate {
 }
 
 // SetDiningMode sets the "dining_mode" field.
-func (ou *OrderUpdate) SetDiningMode(om order.DiningMode) *OrderUpdate {
-	ou.mutation.SetDiningMode(om)
+func (ou *OrderUpdate) SetDiningMode(dm domain.DiningMode) *OrderUpdate {
+	ou.mutation.SetDiningMode(dm)
 	return ou
 }
 
 // SetNillableDiningMode sets the "dining_mode" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableDiningMode(om *order.DiningMode) *OrderUpdate {
-	if om != nil {
-		ou.SetDiningMode(*om)
+func (ou *OrderUpdate) SetNillableDiningMode(dm *domain.DiningMode) *OrderUpdate {
+	if dm != nil {
+		ou.SetDiningMode(*dm)
 	}
 	return ou
 }
 
 // SetOrderStatus sets the "order_status" field.
-func (ou *OrderUpdate) SetOrderStatus(os order.OrderStatus) *OrderUpdate {
-	ou.mutation.SetOrderStatus(os)
+func (ou *OrderUpdate) SetOrderStatus(ds domain.OrderStatus) *OrderUpdate {
+	ou.mutation.SetOrderStatus(ds)
 	return ou
 }
 
 // SetNillableOrderStatus sets the "order_status" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableOrderStatus(os *order.OrderStatus) *OrderUpdate {
-	if os != nil {
-		ou.SetOrderStatus(*os)
+func (ou *OrderUpdate) SetNillableOrderStatus(ds *domain.OrderStatus) *OrderUpdate {
+	if ds != nil {
+		ou.SetOrderStatus(*ds)
 	}
 	return ou
 }
 
 // SetPaymentStatus sets the "payment_status" field.
-func (ou *OrderUpdate) SetPaymentStatus(os order.PaymentStatus) *OrderUpdate {
-	ou.mutation.SetPaymentStatus(os)
+func (ou *OrderUpdate) SetPaymentStatus(ds domain.PaymentStatus) *OrderUpdate {
+	ou.mutation.SetPaymentStatus(ds)
 	return ou
 }
 
 // SetNillablePaymentStatus sets the "payment_status" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillablePaymentStatus(os *order.PaymentStatus) *OrderUpdate {
-	if os != nil {
-		ou.SetPaymentStatus(*os)
+func (ou *OrderUpdate) SetNillablePaymentStatus(ds *domain.PaymentStatus) *OrderUpdate {
+	if ds != nil {
+		ou.SetPaymentStatus(*ds)
 	}
 	return ou
 }
 
 // SetFulfillmentStatus sets the "fulfillment_status" field.
-func (ou *OrderUpdate) SetFulfillmentStatus(os order.FulfillmentStatus) *OrderUpdate {
-	ou.mutation.SetFulfillmentStatus(os)
+func (ou *OrderUpdate) SetFulfillmentStatus(ds domain.FulfillmentStatus) *OrderUpdate {
+	ou.mutation.SetFulfillmentStatus(ds)
 	return ou
 }
 
 // SetNillableFulfillmentStatus sets the "fulfillment_status" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableFulfillmentStatus(os *order.FulfillmentStatus) *OrderUpdate {
-	if os != nil {
-		ou.SetFulfillmentStatus(*os)
+func (ou *OrderUpdate) SetNillableFulfillmentStatus(ds *domain.FulfillmentStatus) *OrderUpdate {
+	if ds != nil {
+		ou.SetFulfillmentStatus(*ds)
 	}
 	return ou
 }
@@ -361,15 +362,15 @@ func (ou *OrderUpdate) ClearFulfillmentStatus() *OrderUpdate {
 }
 
 // SetTableStatus sets the "table_status" field.
-func (ou *OrderUpdate) SetTableStatus(os order.TableStatus) *OrderUpdate {
-	ou.mutation.SetTableStatus(os)
+func (ou *OrderUpdate) SetTableStatus(ds domain.TableStatus) *OrderUpdate {
+	ou.mutation.SetTableStatus(ds)
 	return ou
 }
 
 // SetNillableTableStatus sets the "table_status" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableTableStatus(os *order.TableStatus) *OrderUpdate {
-	if os != nil {
-		ou.SetTableStatus(*os)
+func (ou *OrderUpdate) SetNillableTableStatus(ds *domain.TableStatus) *OrderUpdate {
+	if ds != nil {
+		ou.SetTableStatus(*ds)
 	}
 	return ou
 }
@@ -1240,15 +1241,15 @@ func (ouo *OrderUpdateOne) SetNillableOrderNo(s *string) *OrderUpdateOne {
 }
 
 // SetOrderType sets the "order_type" field.
-func (ouo *OrderUpdateOne) SetOrderType(ot order.OrderType) *OrderUpdateOne {
-	ouo.mutation.SetOrderType(ot)
+func (ouo *OrderUpdateOne) SetOrderType(dt domain.OrderType) *OrderUpdateOne {
+	ouo.mutation.SetOrderType(dt)
 	return ouo
 }
 
 // SetNillableOrderType sets the "order_type" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableOrderType(ot *order.OrderType) *OrderUpdateOne {
-	if ot != nil {
-		ouo.SetOrderType(*ot)
+func (ouo *OrderUpdateOne) SetNillableOrderType(dt *domain.OrderType) *OrderUpdateOne {
+	if dt != nil {
+		ouo.SetOrderType(*dt)
 	}
 	return ouo
 }
@@ -1432,57 +1433,57 @@ func (ouo *OrderUpdateOne) ClearPaidBy() *OrderUpdateOne {
 }
 
 // SetDiningMode sets the "dining_mode" field.
-func (ouo *OrderUpdateOne) SetDiningMode(om order.DiningMode) *OrderUpdateOne {
-	ouo.mutation.SetDiningMode(om)
+func (ouo *OrderUpdateOne) SetDiningMode(dm domain.DiningMode) *OrderUpdateOne {
+	ouo.mutation.SetDiningMode(dm)
 	return ouo
 }
 
 // SetNillableDiningMode sets the "dining_mode" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableDiningMode(om *order.DiningMode) *OrderUpdateOne {
-	if om != nil {
-		ouo.SetDiningMode(*om)
+func (ouo *OrderUpdateOne) SetNillableDiningMode(dm *domain.DiningMode) *OrderUpdateOne {
+	if dm != nil {
+		ouo.SetDiningMode(*dm)
 	}
 	return ouo
 }
 
 // SetOrderStatus sets the "order_status" field.
-func (ouo *OrderUpdateOne) SetOrderStatus(os order.OrderStatus) *OrderUpdateOne {
-	ouo.mutation.SetOrderStatus(os)
+func (ouo *OrderUpdateOne) SetOrderStatus(ds domain.OrderStatus) *OrderUpdateOne {
+	ouo.mutation.SetOrderStatus(ds)
 	return ouo
 }
 
 // SetNillableOrderStatus sets the "order_status" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableOrderStatus(os *order.OrderStatus) *OrderUpdateOne {
-	if os != nil {
-		ouo.SetOrderStatus(*os)
+func (ouo *OrderUpdateOne) SetNillableOrderStatus(ds *domain.OrderStatus) *OrderUpdateOne {
+	if ds != nil {
+		ouo.SetOrderStatus(*ds)
 	}
 	return ouo
 }
 
 // SetPaymentStatus sets the "payment_status" field.
-func (ouo *OrderUpdateOne) SetPaymentStatus(os order.PaymentStatus) *OrderUpdateOne {
-	ouo.mutation.SetPaymentStatus(os)
+func (ouo *OrderUpdateOne) SetPaymentStatus(ds domain.PaymentStatus) *OrderUpdateOne {
+	ouo.mutation.SetPaymentStatus(ds)
 	return ouo
 }
 
 // SetNillablePaymentStatus sets the "payment_status" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillablePaymentStatus(os *order.PaymentStatus) *OrderUpdateOne {
-	if os != nil {
-		ouo.SetPaymentStatus(*os)
+func (ouo *OrderUpdateOne) SetNillablePaymentStatus(ds *domain.PaymentStatus) *OrderUpdateOne {
+	if ds != nil {
+		ouo.SetPaymentStatus(*ds)
 	}
 	return ouo
 }
 
 // SetFulfillmentStatus sets the "fulfillment_status" field.
-func (ouo *OrderUpdateOne) SetFulfillmentStatus(os order.FulfillmentStatus) *OrderUpdateOne {
-	ouo.mutation.SetFulfillmentStatus(os)
+func (ouo *OrderUpdateOne) SetFulfillmentStatus(ds domain.FulfillmentStatus) *OrderUpdateOne {
+	ouo.mutation.SetFulfillmentStatus(ds)
 	return ouo
 }
 
 // SetNillableFulfillmentStatus sets the "fulfillment_status" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableFulfillmentStatus(os *order.FulfillmentStatus) *OrderUpdateOne {
-	if os != nil {
-		ouo.SetFulfillmentStatus(*os)
+func (ouo *OrderUpdateOne) SetNillableFulfillmentStatus(ds *domain.FulfillmentStatus) *OrderUpdateOne {
+	if ds != nil {
+		ouo.SetFulfillmentStatus(*ds)
 	}
 	return ouo
 }
@@ -1494,15 +1495,15 @@ func (ouo *OrderUpdateOne) ClearFulfillmentStatus() *OrderUpdateOne {
 }
 
 // SetTableStatus sets the "table_status" field.
-func (ouo *OrderUpdateOne) SetTableStatus(os order.TableStatus) *OrderUpdateOne {
-	ouo.mutation.SetTableStatus(os)
+func (ouo *OrderUpdateOne) SetTableStatus(ds domain.TableStatus) *OrderUpdateOne {
+	ouo.mutation.SetTableStatus(ds)
 	return ouo
 }
 
 // SetNillableTableStatus sets the "table_status" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableTableStatus(os *order.TableStatus) *OrderUpdateOne {
-	if os != nil {
-		ouo.SetTableStatus(*os)
+func (ouo *OrderUpdateOne) SetNillableTableStatus(ds *domain.TableStatus) *OrderUpdateOne {
+	if ds != nil {
+		ouo.SetTableStatus(*ds)
 	}
 	return ouo
 }

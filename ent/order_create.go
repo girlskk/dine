@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 )
 
@@ -68,14 +69,14 @@ func (oc *OrderCreate) SetNillableDeletedAt(i *int64) *OrderCreate {
 }
 
 // SetMerchantID sets the "merchant_id" field.
-func (oc *OrderCreate) SetMerchantID(s string) *OrderCreate {
-	oc.mutation.SetMerchantID(s)
+func (oc *OrderCreate) SetMerchantID(u uuid.UUID) *OrderCreate {
+	oc.mutation.SetMerchantID(u)
 	return oc
 }
 
 // SetStoreID sets the "store_id" field.
-func (oc *OrderCreate) SetStoreID(s string) *OrderCreate {
-	oc.mutation.SetStoreID(s)
+func (oc *OrderCreate) SetStoreID(u uuid.UUID) *OrderCreate {
+	oc.mutation.SetStoreID(u)
 	return oc
 }
 
@@ -106,15 +107,15 @@ func (oc *OrderCreate) SetOrderNo(s string) *OrderCreate {
 }
 
 // SetOrderType sets the "order_type" field.
-func (oc *OrderCreate) SetOrderType(ot order.OrderType) *OrderCreate {
-	oc.mutation.SetOrderType(ot)
+func (oc *OrderCreate) SetOrderType(dt domain.OrderType) *OrderCreate {
+	oc.mutation.SetOrderType(dt)
 	return oc
 }
 
 // SetNillableOrderType sets the "order_type" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableOrderType(ot *order.OrderType) *OrderCreate {
-	if ot != nil {
-		oc.SetOrderType(*ot)
+func (oc *OrderCreate) SetNillableOrderType(dt *domain.OrderType) *OrderCreate {
+	if dt != nil {
+		oc.SetOrderType(*dt)
 	}
 	return oc
 }
@@ -238,63 +239,63 @@ func (oc *OrderCreate) SetNillablePaidBy(s *string) *OrderCreate {
 }
 
 // SetDiningMode sets the "dining_mode" field.
-func (oc *OrderCreate) SetDiningMode(om order.DiningMode) *OrderCreate {
-	oc.mutation.SetDiningMode(om)
+func (oc *OrderCreate) SetDiningMode(dm domain.DiningMode) *OrderCreate {
+	oc.mutation.SetDiningMode(dm)
 	return oc
 }
 
 // SetOrderStatus sets the "order_status" field.
-func (oc *OrderCreate) SetOrderStatus(os order.OrderStatus) *OrderCreate {
-	oc.mutation.SetOrderStatus(os)
+func (oc *OrderCreate) SetOrderStatus(ds domain.OrderStatus) *OrderCreate {
+	oc.mutation.SetOrderStatus(ds)
 	return oc
 }
 
 // SetNillableOrderStatus sets the "order_status" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableOrderStatus(os *order.OrderStatus) *OrderCreate {
-	if os != nil {
-		oc.SetOrderStatus(*os)
+func (oc *OrderCreate) SetNillableOrderStatus(ds *domain.OrderStatus) *OrderCreate {
+	if ds != nil {
+		oc.SetOrderStatus(*ds)
 	}
 	return oc
 }
 
 // SetPaymentStatus sets the "payment_status" field.
-func (oc *OrderCreate) SetPaymentStatus(os order.PaymentStatus) *OrderCreate {
-	oc.mutation.SetPaymentStatus(os)
+func (oc *OrderCreate) SetPaymentStatus(ds domain.PaymentStatus) *OrderCreate {
+	oc.mutation.SetPaymentStatus(ds)
 	return oc
 }
 
 // SetNillablePaymentStatus sets the "payment_status" field if the given value is not nil.
-func (oc *OrderCreate) SetNillablePaymentStatus(os *order.PaymentStatus) *OrderCreate {
-	if os != nil {
-		oc.SetPaymentStatus(*os)
+func (oc *OrderCreate) SetNillablePaymentStatus(ds *domain.PaymentStatus) *OrderCreate {
+	if ds != nil {
+		oc.SetPaymentStatus(*ds)
 	}
 	return oc
 }
 
 // SetFulfillmentStatus sets the "fulfillment_status" field.
-func (oc *OrderCreate) SetFulfillmentStatus(os order.FulfillmentStatus) *OrderCreate {
-	oc.mutation.SetFulfillmentStatus(os)
+func (oc *OrderCreate) SetFulfillmentStatus(ds domain.FulfillmentStatus) *OrderCreate {
+	oc.mutation.SetFulfillmentStatus(ds)
 	return oc
 }
 
 // SetNillableFulfillmentStatus sets the "fulfillment_status" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableFulfillmentStatus(os *order.FulfillmentStatus) *OrderCreate {
-	if os != nil {
-		oc.SetFulfillmentStatus(*os)
+func (oc *OrderCreate) SetNillableFulfillmentStatus(ds *domain.FulfillmentStatus) *OrderCreate {
+	if ds != nil {
+		oc.SetFulfillmentStatus(*ds)
 	}
 	return oc
 }
 
 // SetTableStatus sets the "table_status" field.
-func (oc *OrderCreate) SetTableStatus(os order.TableStatus) *OrderCreate {
-	oc.mutation.SetTableStatus(os)
+func (oc *OrderCreate) SetTableStatus(ds domain.TableStatus) *OrderCreate {
+	oc.mutation.SetTableStatus(ds)
 	return oc
 }
 
 // SetNillableTableStatus sets the "table_status" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableTableStatus(os *order.TableStatus) *OrderCreate {
-	if os != nil {
-		oc.SetTableStatus(*os)
+func (oc *OrderCreate) SetNillableTableStatus(ds *domain.TableStatus) *OrderCreate {
+	if ds != nil {
+		oc.SetTableStatus(*ds)
 	}
 	return oc
 }
@@ -606,18 +607,8 @@ func (oc *OrderCreate) check() error {
 	if _, ok := oc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "Order.merchant_id"`)}
 	}
-	if v, ok := oc.mutation.MerchantID(); ok {
-		if err := order.MerchantIDValidator(v); err != nil {
-			return &ValidationError{Name: "merchant_id", err: fmt.Errorf(`ent: validator failed for field "Order.merchant_id": %w`, err)}
-		}
-	}
 	if _, ok := oc.mutation.StoreID(); !ok {
 		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "Order.store_id"`)}
-	}
-	if v, ok := oc.mutation.StoreID(); ok {
-		if err := order.StoreIDValidator(v); err != nil {
-			return &ValidationError{Name: "store_id", err: fmt.Errorf(`ent: validator failed for field "Order.store_id": %w`, err)}
-		}
 	}
 	if _, ok := oc.mutation.BusinessDate(); !ok {
 		return &ValidationError{Name: "business_date", err: errors.New(`ent: missing required field "Order.business_date"`)}
@@ -747,11 +738,11 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = value
 	}
 	if value, ok := oc.mutation.MerchantID(); ok {
-		_spec.SetField(order.FieldMerchantID, field.TypeString, value)
+		_spec.SetField(order.FieldMerchantID, field.TypeUUID, value)
 		_node.MerchantID = value
 	}
 	if value, ok := oc.mutation.StoreID(); ok {
-		_spec.SetField(order.FieldStoreID, field.TypeString, value)
+		_spec.SetField(order.FieldStoreID, field.TypeUUID, value)
 		_node.StoreID = value
 	}
 	if value, ok := oc.mutation.BusinessDate(); ok {
@@ -1035,7 +1026,7 @@ func (u *OrderUpsert) UpdateOrderNo() *OrderUpsert {
 }
 
 // SetOrderType sets the "order_type" field.
-func (u *OrderUpsert) SetOrderType(v order.OrderType) *OrderUpsert {
+func (u *OrderUpsert) SetOrderType(v domain.OrderType) *OrderUpsert {
 	u.Set(order.FieldOrderType, v)
 	return u
 }
@@ -1209,7 +1200,7 @@ func (u *OrderUpsert) ClearPaidBy() *OrderUpsert {
 }
 
 // SetDiningMode sets the "dining_mode" field.
-func (u *OrderUpsert) SetDiningMode(v order.DiningMode) *OrderUpsert {
+func (u *OrderUpsert) SetDiningMode(v domain.DiningMode) *OrderUpsert {
 	u.Set(order.FieldDiningMode, v)
 	return u
 }
@@ -1221,7 +1212,7 @@ func (u *OrderUpsert) UpdateDiningMode() *OrderUpsert {
 }
 
 // SetOrderStatus sets the "order_status" field.
-func (u *OrderUpsert) SetOrderStatus(v order.OrderStatus) *OrderUpsert {
+func (u *OrderUpsert) SetOrderStatus(v domain.OrderStatus) *OrderUpsert {
 	u.Set(order.FieldOrderStatus, v)
 	return u
 }
@@ -1233,7 +1224,7 @@ func (u *OrderUpsert) UpdateOrderStatus() *OrderUpsert {
 }
 
 // SetPaymentStatus sets the "payment_status" field.
-func (u *OrderUpsert) SetPaymentStatus(v order.PaymentStatus) *OrderUpsert {
+func (u *OrderUpsert) SetPaymentStatus(v domain.PaymentStatus) *OrderUpsert {
 	u.Set(order.FieldPaymentStatus, v)
 	return u
 }
@@ -1245,7 +1236,7 @@ func (u *OrderUpsert) UpdatePaymentStatus() *OrderUpsert {
 }
 
 // SetFulfillmentStatus sets the "fulfillment_status" field.
-func (u *OrderUpsert) SetFulfillmentStatus(v order.FulfillmentStatus) *OrderUpsert {
+func (u *OrderUpsert) SetFulfillmentStatus(v domain.FulfillmentStatus) *OrderUpsert {
 	u.Set(order.FieldFulfillmentStatus, v)
 	return u
 }
@@ -1263,7 +1254,7 @@ func (u *OrderUpsert) ClearFulfillmentStatus() *OrderUpsert {
 }
 
 // SetTableStatus sets the "table_status" field.
-func (u *OrderUpsert) SetTableStatus(v order.TableStatus) *OrderUpsert {
+func (u *OrderUpsert) SetTableStatus(v domain.TableStatus) *OrderUpsert {
 	u.Set(order.FieldTableStatus, v)
 	return u
 }
@@ -1770,7 +1761,7 @@ func (u *OrderUpsertOne) UpdateOrderNo() *OrderUpsertOne {
 }
 
 // SetOrderType sets the "order_type" field.
-func (u *OrderUpsertOne) SetOrderType(v order.OrderType) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetOrderType(v domain.OrderType) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetOrderType(v)
 	})
@@ -1973,7 +1964,7 @@ func (u *OrderUpsertOne) ClearPaidBy() *OrderUpsertOne {
 }
 
 // SetDiningMode sets the "dining_mode" field.
-func (u *OrderUpsertOne) SetDiningMode(v order.DiningMode) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetDiningMode(v domain.DiningMode) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetDiningMode(v)
 	})
@@ -1987,7 +1978,7 @@ func (u *OrderUpsertOne) UpdateDiningMode() *OrderUpsertOne {
 }
 
 // SetOrderStatus sets the "order_status" field.
-func (u *OrderUpsertOne) SetOrderStatus(v order.OrderStatus) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetOrderStatus(v domain.OrderStatus) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetOrderStatus(v)
 	})
@@ -2001,7 +1992,7 @@ func (u *OrderUpsertOne) UpdateOrderStatus() *OrderUpsertOne {
 }
 
 // SetPaymentStatus sets the "payment_status" field.
-func (u *OrderUpsertOne) SetPaymentStatus(v order.PaymentStatus) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetPaymentStatus(v domain.PaymentStatus) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPaymentStatus(v)
 	})
@@ -2015,7 +2006,7 @@ func (u *OrderUpsertOne) UpdatePaymentStatus() *OrderUpsertOne {
 }
 
 // SetFulfillmentStatus sets the "fulfillment_status" field.
-func (u *OrderUpsertOne) SetFulfillmentStatus(v order.FulfillmentStatus) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetFulfillmentStatus(v domain.FulfillmentStatus) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetFulfillmentStatus(v)
 	})
@@ -2036,7 +2027,7 @@ func (u *OrderUpsertOne) ClearFulfillmentStatus() *OrderUpsertOne {
 }
 
 // SetTableStatus sets the "table_status" field.
-func (u *OrderUpsertOne) SetTableStatus(v order.TableStatus) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetTableStatus(v domain.TableStatus) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetTableStatus(v)
 	})
@@ -2771,7 +2762,7 @@ func (u *OrderUpsertBulk) UpdateOrderNo() *OrderUpsertBulk {
 }
 
 // SetOrderType sets the "order_type" field.
-func (u *OrderUpsertBulk) SetOrderType(v order.OrderType) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetOrderType(v domain.OrderType) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetOrderType(v)
 	})
@@ -2974,7 +2965,7 @@ func (u *OrderUpsertBulk) ClearPaidBy() *OrderUpsertBulk {
 }
 
 // SetDiningMode sets the "dining_mode" field.
-func (u *OrderUpsertBulk) SetDiningMode(v order.DiningMode) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetDiningMode(v domain.DiningMode) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetDiningMode(v)
 	})
@@ -2988,7 +2979,7 @@ func (u *OrderUpsertBulk) UpdateDiningMode() *OrderUpsertBulk {
 }
 
 // SetOrderStatus sets the "order_status" field.
-func (u *OrderUpsertBulk) SetOrderStatus(v order.OrderStatus) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetOrderStatus(v domain.OrderStatus) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetOrderStatus(v)
 	})
@@ -3002,7 +2993,7 @@ func (u *OrderUpsertBulk) UpdateOrderStatus() *OrderUpsertBulk {
 }
 
 // SetPaymentStatus sets the "payment_status" field.
-func (u *OrderUpsertBulk) SetPaymentStatus(v order.PaymentStatus) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetPaymentStatus(v domain.PaymentStatus) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPaymentStatus(v)
 	})
@@ -3016,7 +3007,7 @@ func (u *OrderUpsertBulk) UpdatePaymentStatus() *OrderUpsertBulk {
 }
 
 // SetFulfillmentStatus sets the "fulfillment_status" field.
-func (u *OrderUpsertBulk) SetFulfillmentStatus(v order.FulfillmentStatus) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetFulfillmentStatus(v domain.FulfillmentStatus) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetFulfillmentStatus(v)
 	})
@@ -3037,7 +3028,7 @@ func (u *OrderUpsertBulk) ClearFulfillmentStatus() *OrderUpsertBulk {
 }
 
 // SetTableStatus sets the "table_status" field.
-func (u *OrderUpsertBulk) SetTableStatus(v order.TableStatus) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetTableStatus(v domain.TableStatus) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetTableStatus(v)
 	})

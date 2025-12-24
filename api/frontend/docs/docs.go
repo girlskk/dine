@@ -153,7 +153,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/types.Order"
+                            "$ref": "#/definitions/types.OrderResp"
                         }
                     }
                 }
@@ -189,7 +189,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/types.Order"
+                            "$ref": "#/definitions/types.OrderResp"
                         }
                     }
                 }
@@ -232,7 +232,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/types.Order"
+                            "$ref": "#/definitions/types.OrderResp"
                         }
                     }
                 }
@@ -378,11 +378,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "meta": {
-                    "description": "卡券扩展信息",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "description": "卡券扩展信息"
                 }
             }
         },
@@ -612,11 +608,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "meta": {
-                    "description": "扩展信息",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "description": "扩展信息"
                 }
             }
         },
@@ -627,7 +619,7 @@ const docTemplate = `{
                     "description": "列表数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/types.Order"
+                        "$ref": "#/definitions/types.OrderResp"
                     }
                 },
                 "pagination": {
@@ -665,7 +657,7 @@ const docTemplate = `{
                 }
             }
         },
-        "types.Order": {
+        "types.OrderResp": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -726,7 +718,7 @@ const docTemplate = `{
                     }
                 },
                 "fulfillment_status": {
-                    "description": "外卖/配送状态",
+                    "description": "交付状态",
                     "type": "string"
                 },
                 "guest_count": {
@@ -956,11 +948,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "options": {
-                    "description": "做法/加料（结构化）",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "description": "做法/加料（结构化）"
                 },
                 "order_item_id": {
                     "description": "订单内明细ID",
@@ -1047,11 +1035,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "meta": {
-                    "description": "促销扩展信息",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "description": "促销扩展信息"
                 },
                 "promotion_id": {
                     "description": "促销ID",
@@ -1174,11 +1158,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "meta": {
-                    "description": "扩展信息",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "description": "扩展信息"
                 },
                 "rate": {
                     "description": "税率（万分比，如 600 表示 6%）",
@@ -1233,6 +1213,7 @@ const docTemplate = `{
                     }
                 },
                 "dining_mode": {
+                    "description": "堂食/外卖（DINE_IN/TAKEAWAY）",
                     "type": "string",
                     "enum": [
                         "DINE_IN",
@@ -1286,6 +1267,7 @@ const docTemplate = `{
                     ]
                 },
                 "order_type": {
+                    "description": "订单类型（SALE/REFUND/PARTIAL_REFUND）",
                     "type": "string",
                     "enum": [
                         "SALE",

@@ -105,6 +105,7 @@ func checkColumn(table, column string) error {
 			merchant.Table:             merchant.ValidColumn,
 			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,
 			merchantrenewal.Table:      merchantrenewal.ValidColumn,
+			order.Table:                order.ValidColumn,
 			product.Table:              product.ValidColumn,
 			productattr.Table:          productattr.ValidColumn,
 			productattritem.Table:      productattritem.ValidColumn,
@@ -119,7 +120,6 @@ func checkColumn(table, column string) error {
 			setmealdetail.Table:        setmealdetail.ValidColumn,
 			setmealgroup.Table:         setmealgroup.ValidColumn,
 			store.Table:                store.ValidColumn,
-			order.Table:                order.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

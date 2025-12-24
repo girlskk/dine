@@ -683,6 +683,73 @@ func init() {
 	merchantrenewalDescID := merchantrenewalMixinFields0[0].Descriptor()
 	// merchantrenewal.DefaultID holds the default value on creation for the id field.
 	merchantrenewal.DefaultID = merchantrenewalDescID.Default.(func() uuid.UUID)
+	orderMixin := schema.Order{}.Mixin()
+	orderMixinHooks2 := orderMixin[2].Hooks()
+	order.Hooks[0] = orderMixinHooks2[0]
+	orderMixinInters2 := orderMixin[2].Interceptors()
+	order.Interceptors[0] = orderMixinInters2[0]
+	orderMixinFields0 := orderMixin[0].Fields()
+	_ = orderMixinFields0
+	orderMixinFields1 := orderMixin[1].Fields()
+	_ = orderMixinFields1
+	orderMixinFields2 := orderMixin[2].Fields()
+	_ = orderMixinFields2
+	orderFields := schema.Order{}.Fields()
+	_ = orderFields
+	// orderDescCreatedAt is the schema descriptor for created_at field.
+	orderDescCreatedAt := orderMixinFields1[0].Descriptor()
+	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
+	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
+	// orderDescUpdatedAt is the schema descriptor for updated_at field.
+	orderDescUpdatedAt := orderMixinFields1[1].Descriptor()
+	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
+	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	order.UpdateDefaultUpdatedAt = orderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// orderDescDeletedAt is the schema descriptor for deleted_at field.
+	orderDescDeletedAt := orderMixinFields2[0].Descriptor()
+	// order.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	order.DefaultDeletedAt = orderDescDeletedAt.Default.(int64)
+	// orderDescBusinessDate is the schema descriptor for business_date field.
+	orderDescBusinessDate := orderFields[2].Descriptor()
+	// order.BusinessDateValidator is a validator for the "business_date" field. It is called by the builders before save.
+	order.BusinessDateValidator = orderDescBusinessDate.Validators[0].(func(string) error)
+	// orderDescOrderNo is the schema descriptor for order_no field.
+	orderDescOrderNo := orderFields[4].Descriptor()
+	// order.OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
+	order.OrderNoValidator = orderDescOrderNo.Validators[0].(func(string) error)
+	// orderDescStore is the schema descriptor for store field.
+	orderDescStore := orderFields[26].Descriptor()
+	// order.DefaultStore holds the default value on creation for the store field.
+	order.DefaultStore = orderDescStore.Default.(json.RawMessage)
+	// orderDescChannel is the schema descriptor for channel field.
+	orderDescChannel := orderFields[27].Descriptor()
+	// order.DefaultChannel holds the default value on creation for the channel field.
+	order.DefaultChannel = orderDescChannel.Default.(json.RawMessage)
+	// orderDescPos is the schema descriptor for pos field.
+	orderDescPos := orderFields[28].Descriptor()
+	// order.DefaultPos holds the default value on creation for the pos field.
+	order.DefaultPos = orderDescPos.Default.(json.RawMessage)
+	// orderDescCashier is the schema descriptor for cashier field.
+	orderDescCashier := orderFields[29].Descriptor()
+	// order.DefaultCashier holds the default value on creation for the cashier field.
+	order.DefaultCashier = orderDescCashier.Default.(json.RawMessage)
+	// orderDescCart is the schema descriptor for cart field.
+	orderDescCart := orderFields[32].Descriptor()
+	// order.DefaultCart holds the default value on creation for the cart field.
+	order.DefaultCart = orderDescCart.Default.(json.RawMessage)
+	// orderDescProducts is the schema descriptor for products field.
+	orderDescProducts := orderFields[33].Descriptor()
+	// order.DefaultProducts holds the default value on creation for the products field.
+	order.DefaultProducts = orderDescProducts.Default.(json.RawMessage)
+	// orderDescAmount is the schema descriptor for amount field.
+	orderDescAmount := orderFields[40].Descriptor()
+	// order.DefaultAmount holds the default value on creation for the amount field.
+	order.DefaultAmount = orderDescAmount.Default.(json.RawMessage)
+	// orderDescID is the schema descriptor for id field.
+	orderDescID := orderMixinFields0[0].Descriptor()
+	// order.DefaultID holds the default value on creation for the id field.
+	order.DefaultID = orderDescID.Default.(func() uuid.UUID)
 	productMixin := schema.Product{}.Mixin()
 	productMixinHooks2 := productMixin[2].Hooks()
 	product.Hooks[0] = productMixinHooks2[0]
@@ -1743,81 +1810,6 @@ func init() {
 	storeDescID := storeMixinFields0[0].Descriptor()
 	// store.DefaultID holds the default value on creation for the id field.
 	store.DefaultID = storeDescID.Default.(func() uuid.UUID)
-	orderMixin := schema.Order{}.Mixin()
-	orderMixinHooks2 := orderMixin[2].Hooks()
-	order.Hooks[0] = orderMixinHooks2[0]
-	orderMixinInters2 := orderMixin[2].Interceptors()
-	order.Interceptors[0] = orderMixinInters2[0]
-	orderMixinFields0 := orderMixin[0].Fields()
-	_ = orderMixinFields0
-	orderMixinFields1 := orderMixin[1].Fields()
-	_ = orderMixinFields1
-	orderMixinFields2 := orderMixin[2].Fields()
-	_ = orderMixinFields2
-	orderFields := schema.Order{}.Fields()
-	_ = orderFields
-	// orderDescCreatedAt is the schema descriptor for created_at field.
-	orderDescCreatedAt := orderMixinFields1[0].Descriptor()
-	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
-	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
-	// orderDescUpdatedAt is the schema descriptor for updated_at field.
-	orderDescUpdatedAt := orderMixinFields1[1].Descriptor()
-	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
-	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	order.UpdateDefaultUpdatedAt = orderDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// orderDescDeletedAt is the schema descriptor for deleted_at field.
-	orderDescDeletedAt := orderMixinFields2[0].Descriptor()
-	// order.DefaultDeletedAt holds the default value on creation for the deleted_at field.
-	order.DefaultDeletedAt = orderDescDeletedAt.Default.(int64)
-	// orderDescMerchantID is the schema descriptor for merchant_id field.
-	orderDescMerchantID := orderFields[0].Descriptor()
-	// order.MerchantIDValidator is a validator for the "merchant_id" field. It is called by the builders before save.
-	order.MerchantIDValidator = orderDescMerchantID.Validators[0].(func(string) error)
-	// orderDescStoreID is the schema descriptor for store_id field.
-	orderDescStoreID := orderFields[1].Descriptor()
-	// order.StoreIDValidator is a validator for the "store_id" field. It is called by the builders before save.
-	order.StoreIDValidator = orderDescStoreID.Validators[0].(func(string) error)
-	// orderDescBusinessDate is the schema descriptor for business_date field.
-	orderDescBusinessDate := orderFields[2].Descriptor()
-	// order.BusinessDateValidator is a validator for the "business_date" field. It is called by the builders before save.
-	order.BusinessDateValidator = orderDescBusinessDate.Validators[0].(func(string) error)
-	// orderDescOrderNo is the schema descriptor for order_no field.
-	orderDescOrderNo := orderFields[4].Descriptor()
-	// order.OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
-	order.OrderNoValidator = orderDescOrderNo.Validators[0].(func(string) error)
-	// orderDescStore is the schema descriptor for store field.
-	orderDescStore := orderFields[26].Descriptor()
-	// order.DefaultStore holds the default value on creation for the store field.
-	order.DefaultStore = orderDescStore.Default.(json.RawMessage)
-	// orderDescChannel is the schema descriptor for channel field.
-	orderDescChannel := orderFields[27].Descriptor()
-	// order.DefaultChannel holds the default value on creation for the channel field.
-	order.DefaultChannel = orderDescChannel.Default.(json.RawMessage)
-	// orderDescPos is the schema descriptor for pos field.
-	orderDescPos := orderFields[28].Descriptor()
-	// order.DefaultPos holds the default value on creation for the pos field.
-	order.DefaultPos = orderDescPos.Default.(json.RawMessage)
-	// orderDescCashier is the schema descriptor for cashier field.
-	orderDescCashier := orderFields[29].Descriptor()
-	// order.DefaultCashier holds the default value on creation for the cashier field.
-	order.DefaultCashier = orderDescCashier.Default.(json.RawMessage)
-	// orderDescCart is the schema descriptor for cart field.
-	orderDescCart := orderFields[32].Descriptor()
-	// order.DefaultCart holds the default value on creation for the cart field.
-	order.DefaultCart = orderDescCart.Default.(json.RawMessage)
-	// orderDescProducts is the schema descriptor for products field.
-	orderDescProducts := orderFields[33].Descriptor()
-	// order.DefaultProducts holds the default value on creation for the products field.
-	order.DefaultProducts = orderDescProducts.Default.(json.RawMessage)
-	// orderDescAmount is the schema descriptor for amount field.
-	orderDescAmount := orderFields[40].Descriptor()
-	// order.DefaultAmount holds the default value on creation for the amount field.
-	order.DefaultAmount = orderDescAmount.Default.(json.RawMessage)
-	// orderDescID is the schema descriptor for id field.
-	orderDescID := orderMixinFields0[0].Descriptor()
-	// order.DefaultID holds the default value on creation for the id field.
-	order.DefaultID = orderDescID.Default.(func() uuid.UUID)
 }
 
 const (

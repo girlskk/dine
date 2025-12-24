@@ -6,6 +6,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
@@ -25,14 +27,14 @@ func (Order) Mixin() []ent.Mixin {
 // Fields of the Order.
 func (Order) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("merchant_id").NotEmpty().Immutable().Comment("品牌商ID"),
-		field.String("store_id").NotEmpty().Immutable().Comment("门店ID"),
+		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("品牌商ID"),
+		field.UUID("store_id", uuid.UUID{}).Immutable().Comment("门店ID"),
 
 		field.String("business_date").NotEmpty().Comment("营业日（门店营业日，字符串）"),
 		field.String("shift_no").Optional().Comment("班次号"),
 		field.String("order_no").NotEmpty().Comment("订单号（门店内唯一可读编号）"),
 
-		field.Enum("order_type").Values("SALE", "REFUND", "PARTIAL_REFUND").Default("SALE").Comment("订单类型：SALE=销售单；REFUND=退单；PARTIAL_REFUND=部分退款单"),
+		field.Enum("order_type").GoType(domain.OrderType("")).Default(string(domain.OrderTypeSale)).Comment("订单类型：SALE=销售单；REFUND=退单；PARTIAL_REFUND=部分退款单"),
 		field.String("origin_order_id").Optional().Comment("原正单订单ID（退款/部分退款单使用）"),
 		field.JSON("refund", json.RawMessage{}).Optional().Comment("退款单信息（包含原单信息与退款原因）"),
 
@@ -45,35 +47,11 @@ func (Order) Fields() []ent.Field {
 		field.String("placed_by").Optional().Comment("下单操作员ID"),
 		field.String("paid_by").Optional().Comment("收款/支付确认操作员ID"),
 
-		field.Enum("dining_mode").Values("DINE_IN", "TAKEAWAY").Comment("就餐模式：DINE_IN=堂食；TAKEAWAY=外卖（自取/配送）"),
-		field.Enum("order_status").Values(
-			"DRAFT",
-			"PLACED",
-			"IN_PROGRESS",
-			"READY",
-			"COMPLETED",
-			"CANCELLED",
-			"VOIDED",
-			"MERGED",
-		).Default("DRAFT").Comment("订单业务状态：DRAFT=草稿/购物车；PLACED=已下单；IN_PROGRESS=制作中；READY=可取餐；COMPLETED=已完成；CANCELLED=已取消；VOIDED=已作废；MERGED=已合并"),
-		field.Enum("payment_status").Values(
-			"UNPAID",
-			"PAYING",
-			"PARTIALLY_PAID",
-			"PAID",
-			"PARTIALLY_REFUNDED",
-			"REFUNDED",
-		).Default("UNPAID").Comment("支付状态：UNPAID=未支付；PAYING=支付中；PARTIALLY_PAID=部分支付；PAID=已支付；PARTIALLY_REFUNDED=部分退款；REFUNDED=全额退款"),
-		field.Enum("fulfillment_status").Values(
-			"NONE",
-			"IN_RESTAURANT",
-			"SERVED",
-			"PICKUP_PENDING",
-			"PICKED_UP",
-			"DELIVERING",
-			"DELIVERED",
-		).Optional().Comment("交付状态：NONE=无；IN_RESTAURANT=店内用餐；SERVED=已上齐；PICKUP_PENDING=待取餐；PICKED_UP=已取餐；DELIVERING=配送中；DELIVERED=已送达"),
-		field.Enum("table_status").Values("OPENED", "TRANSFERRED", "RELEASED").Optional().Comment("桌位状态：OPENED=已开台；TRANSFERRED=已转台；RELEASED=已释放"),
+		field.Enum("dining_mode").GoType(domain.DiningMode("")).Comment("就餐模式：DINE_IN=堂食；TAKEAWAY=外卖（自取/配送）"),
+		field.Enum("order_status").GoType(domain.OrderStatus("")).Default(string(domain.OrderStatusDraft)).Comment("订单业务状态：DRAFT=草稿/购物车；PLACED=已下单；IN_PROGRESS=制作中；READY=可取餐；COMPLETED=已完成；CANCELLED=已取消；VOIDED=已作废；MERGED=已合并"),
+		field.Enum("payment_status").GoType(domain.PaymentStatus("")).Default(string(domain.PaymentStatusUnpaid)).Comment("支付状态：UNPAID=未支付；PAYING=支付中；PARTIALLY_PAID=部分支付；PAID=已支付；PARTIALLY_REFUNDED=部分退款；REFUNDED=全额退款"),
+		field.Enum("fulfillment_status").GoType(domain.FulfillmentStatus("")).Optional().Comment("交付状态：NONE=无；IN_RESTAURANT=店内用餐；SERVED=已上齐；PICKUP_PENDING=待取餐；PICKED_UP=已取餐；DELIVERING=配送中；DELIVERED=已送达"),
+		field.Enum("table_status").GoType(domain.TableStatus("")).Optional().Comment("桌位状态：OPENED=已开台；TRANSFERRED=已转台；RELEASED=已释放"),
 
 		field.String("table_id").Optional().Comment("桌位ID（堂食）"),
 		field.String("table_name").Optional().Comment("桌位名称（堂食，如A01/1号桌）"),

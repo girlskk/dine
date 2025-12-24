@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 const (
@@ -184,10 +185,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt int64
-	// MerchantIDValidator is a validator for the "merchant_id" field. It is called by the builders before save.
-	MerchantIDValidator func(string) error
-	// StoreIDValidator is a validator for the "store_id" field. It is called by the builders before save.
-	StoreIDValidator func(string) error
 	// BusinessDateValidator is a validator for the "business_date" field. It is called by the builders before save.
 	BusinessDateValidator func(string) error
 	// OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
@@ -210,164 +207,66 @@ var (
 	DefaultID func() uuid.UUID
 )
 
-// OrderType defines the type for the "order_type" enum field.
-type OrderType string
-
-// OrderTypeSALE is the default value of the OrderType enum.
-const DefaultOrderType = OrderTypeSALE
-
-// OrderType values.
-const (
-	OrderTypeSALE           OrderType = "SALE"
-	OrderTypeREFUND         OrderType = "REFUND"
-	OrderTypePARTIAL_REFUND OrderType = "PARTIAL_REFUND"
-)
-
-func (ot OrderType) String() string {
-	return string(ot)
-}
+const DefaultOrderType domain.OrderType = "SALE"
 
 // OrderTypeValidator is a validator for the "order_type" field enum values. It is called by the builders before save.
-func OrderTypeValidator(ot OrderType) error {
+func OrderTypeValidator(ot domain.OrderType) error {
 	switch ot {
-	case OrderTypeSALE, OrderTypeREFUND, OrderTypePARTIAL_REFUND:
+	case "SALE", "REFUND", "PARTIAL_REFUND":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for order_type field: %q", ot)
 	}
 }
 
-// DiningMode defines the type for the "dining_mode" enum field.
-type DiningMode string
-
-// DiningMode values.
-const (
-	DiningModeDINE_IN  DiningMode = "DINE_IN"
-	DiningModeTAKEAWAY DiningMode = "TAKEAWAY"
-)
-
-func (dm DiningMode) String() string {
-	return string(dm)
-}
-
 // DiningModeValidator is a validator for the "dining_mode" field enum values. It is called by the builders before save.
-func DiningModeValidator(dm DiningMode) error {
+func DiningModeValidator(dm domain.DiningMode) error {
 	switch dm {
-	case DiningModeDINE_IN, DiningModeTAKEAWAY:
+	case "DINE_IN", "TAKEAWAY":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for dining_mode field: %q", dm)
 	}
 }
 
-// OrderStatus defines the type for the "order_status" enum field.
-type OrderStatus string
-
-// OrderStatusDRAFT is the default value of the OrderStatus enum.
-const DefaultOrderStatus = OrderStatusDRAFT
-
-// OrderStatus values.
-const (
-	OrderStatusDRAFT       OrderStatus = "DRAFT"
-	OrderStatusPLACED      OrderStatus = "PLACED"
-	OrderStatusIN_PROGRESS OrderStatus = "IN_PROGRESS"
-	OrderStatusREADY       OrderStatus = "READY"
-	OrderStatusCOMPLETED   OrderStatus = "COMPLETED"
-	OrderStatusCANCELLED   OrderStatus = "CANCELLED"
-	OrderStatusVOIDED      OrderStatus = "VOIDED"
-	OrderStatusMERGED      OrderStatus = "MERGED"
-)
-
-func (os OrderStatus) String() string {
-	return string(os)
-}
+const DefaultOrderStatus domain.OrderStatus = "DRAFT"
 
 // OrderStatusValidator is a validator for the "order_status" field enum values. It is called by the builders before save.
-func OrderStatusValidator(os OrderStatus) error {
+func OrderStatusValidator(os domain.OrderStatus) error {
 	switch os {
-	case OrderStatusDRAFT, OrderStatusPLACED, OrderStatusIN_PROGRESS, OrderStatusREADY, OrderStatusCOMPLETED, OrderStatusCANCELLED, OrderStatusVOIDED, OrderStatusMERGED:
+	case "DRAFT", "PLACED", "IN_PROGRESS", "READY", "COMPLETED", "CANCELLED", "VOIDED", "MERGED":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for order_status field: %q", os)
 	}
 }
 
-// PaymentStatus defines the type for the "payment_status" enum field.
-type PaymentStatus string
-
-// PaymentStatusUNPAID is the default value of the PaymentStatus enum.
-const DefaultPaymentStatus = PaymentStatusUNPAID
-
-// PaymentStatus values.
-const (
-	PaymentStatusUNPAID             PaymentStatus = "UNPAID"
-	PaymentStatusPAYING             PaymentStatus = "PAYING"
-	PaymentStatusPARTIALLY_PAID     PaymentStatus = "PARTIALLY_PAID"
-	PaymentStatusPAID               PaymentStatus = "PAID"
-	PaymentStatusPARTIALLY_REFUNDED PaymentStatus = "PARTIALLY_REFUNDED"
-	PaymentStatusREFUNDED           PaymentStatus = "REFUNDED"
-)
-
-func (ps PaymentStatus) String() string {
-	return string(ps)
-}
+const DefaultPaymentStatus domain.PaymentStatus = "UNPAID"
 
 // PaymentStatusValidator is a validator for the "payment_status" field enum values. It is called by the builders before save.
-func PaymentStatusValidator(ps PaymentStatus) error {
+func PaymentStatusValidator(ps domain.PaymentStatus) error {
 	switch ps {
-	case PaymentStatusUNPAID, PaymentStatusPAYING, PaymentStatusPARTIALLY_PAID, PaymentStatusPAID, PaymentStatusPARTIALLY_REFUNDED, PaymentStatusREFUNDED:
+	case "UNPAID", "PAYING", "PARTIALLY_PAID", "PAID", "PARTIALLY_REFUNDED", "REFUNDED":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for payment_status field: %q", ps)
 	}
 }
 
-// FulfillmentStatus defines the type for the "fulfillment_status" enum field.
-type FulfillmentStatus string
-
-// FulfillmentStatus values.
-const (
-	FulfillmentStatusNONE           FulfillmentStatus = "NONE"
-	FulfillmentStatusIN_RESTAURANT  FulfillmentStatus = "IN_RESTAURANT"
-	FulfillmentStatusSERVED         FulfillmentStatus = "SERVED"
-	FulfillmentStatusPICKUP_PENDING FulfillmentStatus = "PICKUP_PENDING"
-	FulfillmentStatusPICKED_UP      FulfillmentStatus = "PICKED_UP"
-	FulfillmentStatusDELIVERING     FulfillmentStatus = "DELIVERING"
-	FulfillmentStatusDELIVERED      FulfillmentStatus = "DELIVERED"
-)
-
-func (fs FulfillmentStatus) String() string {
-	return string(fs)
-}
-
 // FulfillmentStatusValidator is a validator for the "fulfillment_status" field enum values. It is called by the builders before save.
-func FulfillmentStatusValidator(fs FulfillmentStatus) error {
+func FulfillmentStatusValidator(fs domain.FulfillmentStatus) error {
 	switch fs {
-	case FulfillmentStatusNONE, FulfillmentStatusIN_RESTAURANT, FulfillmentStatusSERVED, FulfillmentStatusPICKUP_PENDING, FulfillmentStatusPICKED_UP, FulfillmentStatusDELIVERING, FulfillmentStatusDELIVERED:
+	case "NONE", "IN_RESTAURANT", "SERVED", "PICKUP_PENDING", "PICKED_UP", "DELIVERING", "DELIVERED":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for fulfillment_status field: %q", fs)
 	}
 }
 
-// TableStatus defines the type for the "table_status" enum field.
-type TableStatus string
-
-// TableStatus values.
-const (
-	TableStatusOPENED      TableStatus = "OPENED"
-	TableStatusTRANSFERRED TableStatus = "TRANSFERRED"
-	TableStatusRELEASED    TableStatus = "RELEASED"
-)
-
-func (ts TableStatus) String() string {
-	return string(ts)
-}
-
 // TableStatusValidator is a validator for the "table_status" field enum values. It is called by the builders before save.
-func TableStatusValidator(ts TableStatus) error {
+func TableStatusValidator(ts domain.TableStatus) error {
 	switch ts {
-	case TableStatusOPENED, TableStatusTRANSFERRED, TableStatusRELEASED:
+	case "OPENED", "TRANSFERRED", "RELEASED":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for table_status field: %q", ts)

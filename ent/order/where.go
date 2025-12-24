@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -71,12 +72,12 @@ func DeletedAt(v int64) predicate.Order {
 }
 
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
-func MerchantID(v string) predicate.Order {
+func MerchantID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldMerchantID, v))
 }
 
 // StoreID applies equality check predicate on the "store_id" field. It's identical to StoreIDEQ.
-func StoreID(v string) predicate.Order {
+func StoreID(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldStoreID, v))
 }
 
@@ -286,133 +287,83 @@ func DeletedAtLTE(v int64) predicate.Order {
 }
 
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
-func MerchantIDEQ(v string) predicate.Order {
+func MerchantIDEQ(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldMerchantID, v))
 }
 
 // MerchantIDNEQ applies the NEQ predicate on the "merchant_id" field.
-func MerchantIDNEQ(v string) predicate.Order {
+func MerchantIDNEQ(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldNEQ(FieldMerchantID, v))
 }
 
 // MerchantIDIn applies the In predicate on the "merchant_id" field.
-func MerchantIDIn(vs ...string) predicate.Order {
+func MerchantIDIn(vs ...uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldIn(FieldMerchantID, vs...))
 }
 
 // MerchantIDNotIn applies the NotIn predicate on the "merchant_id" field.
-func MerchantIDNotIn(vs ...string) predicate.Order {
+func MerchantIDNotIn(vs ...uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldNotIn(FieldMerchantID, vs...))
 }
 
 // MerchantIDGT applies the GT predicate on the "merchant_id" field.
-func MerchantIDGT(v string) predicate.Order {
+func MerchantIDGT(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldGT(FieldMerchantID, v))
 }
 
 // MerchantIDGTE applies the GTE predicate on the "merchant_id" field.
-func MerchantIDGTE(v string) predicate.Order {
+func MerchantIDGTE(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldGTE(FieldMerchantID, v))
 }
 
 // MerchantIDLT applies the LT predicate on the "merchant_id" field.
-func MerchantIDLT(v string) predicate.Order {
+func MerchantIDLT(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldLT(FieldMerchantID, v))
 }
 
 // MerchantIDLTE applies the LTE predicate on the "merchant_id" field.
-func MerchantIDLTE(v string) predicate.Order {
+func MerchantIDLTE(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldLTE(FieldMerchantID, v))
 }
 
-// MerchantIDContains applies the Contains predicate on the "merchant_id" field.
-func MerchantIDContains(v string) predicate.Order {
-	return predicate.Order(sql.FieldContains(FieldMerchantID, v))
-}
-
-// MerchantIDHasPrefix applies the HasPrefix predicate on the "merchant_id" field.
-func MerchantIDHasPrefix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasPrefix(FieldMerchantID, v))
-}
-
-// MerchantIDHasSuffix applies the HasSuffix predicate on the "merchant_id" field.
-func MerchantIDHasSuffix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasSuffix(FieldMerchantID, v))
-}
-
-// MerchantIDEqualFold applies the EqualFold predicate on the "merchant_id" field.
-func MerchantIDEqualFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldEqualFold(FieldMerchantID, v))
-}
-
-// MerchantIDContainsFold applies the ContainsFold predicate on the "merchant_id" field.
-func MerchantIDContainsFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldContainsFold(FieldMerchantID, v))
-}
-
 // StoreIDEQ applies the EQ predicate on the "store_id" field.
-func StoreIDEQ(v string) predicate.Order {
+func StoreIDEQ(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldStoreID, v))
 }
 
 // StoreIDNEQ applies the NEQ predicate on the "store_id" field.
-func StoreIDNEQ(v string) predicate.Order {
+func StoreIDNEQ(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldNEQ(FieldStoreID, v))
 }
 
 // StoreIDIn applies the In predicate on the "store_id" field.
-func StoreIDIn(vs ...string) predicate.Order {
+func StoreIDIn(vs ...uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldIn(FieldStoreID, vs...))
 }
 
 // StoreIDNotIn applies the NotIn predicate on the "store_id" field.
-func StoreIDNotIn(vs ...string) predicate.Order {
+func StoreIDNotIn(vs ...uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldNotIn(FieldStoreID, vs...))
 }
 
 // StoreIDGT applies the GT predicate on the "store_id" field.
-func StoreIDGT(v string) predicate.Order {
+func StoreIDGT(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldGT(FieldStoreID, v))
 }
 
 // StoreIDGTE applies the GTE predicate on the "store_id" field.
-func StoreIDGTE(v string) predicate.Order {
+func StoreIDGTE(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldGTE(FieldStoreID, v))
 }
 
 // StoreIDLT applies the LT predicate on the "store_id" field.
-func StoreIDLT(v string) predicate.Order {
+func StoreIDLT(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldLT(FieldStoreID, v))
 }
 
 // StoreIDLTE applies the LTE predicate on the "store_id" field.
-func StoreIDLTE(v string) predicate.Order {
+func StoreIDLTE(v uuid.UUID) predicate.Order {
 	return predicate.Order(sql.FieldLTE(FieldStoreID, v))
-}
-
-// StoreIDContains applies the Contains predicate on the "store_id" field.
-func StoreIDContains(v string) predicate.Order {
-	return predicate.Order(sql.FieldContains(FieldStoreID, v))
-}
-
-// StoreIDHasPrefix applies the HasPrefix predicate on the "store_id" field.
-func StoreIDHasPrefix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasPrefix(FieldStoreID, v))
-}
-
-// StoreIDHasSuffix applies the HasSuffix predicate on the "store_id" field.
-func StoreIDHasSuffix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasSuffix(FieldStoreID, v))
-}
-
-// StoreIDEqualFold applies the EqualFold predicate on the "store_id" field.
-func StoreIDEqualFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldEqualFold(FieldStoreID, v))
-}
-
-// StoreIDContainsFold applies the ContainsFold predicate on the "store_id" field.
-func StoreIDContainsFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldContainsFold(FieldStoreID, v))
 }
 
 // BusinessDateEQ applies the EQ predicate on the "business_date" field.
@@ -621,23 +572,33 @@ func OrderNoContainsFold(v string) predicate.Order {
 }
 
 // OrderTypeEQ applies the EQ predicate on the "order_type" field.
-func OrderTypeEQ(v OrderType) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOrderType, v))
+func OrderTypeEQ(v domain.OrderType) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldOrderType, vc))
 }
 
 // OrderTypeNEQ applies the NEQ predicate on the "order_type" field.
-func OrderTypeNEQ(v OrderType) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldOrderType, v))
+func OrderTypeNEQ(v domain.OrderType) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldOrderType, vc))
 }
 
 // OrderTypeIn applies the In predicate on the "order_type" field.
-func OrderTypeIn(vs ...OrderType) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldOrderType, vs...))
+func OrderTypeIn(vs ...domain.OrderType) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldOrderType, v...))
 }
 
 // OrderTypeNotIn applies the NotIn predicate on the "order_type" field.
-func OrderTypeNotIn(vs ...OrderType) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldOrderType, vs...))
+func OrderTypeNotIn(vs ...domain.OrderType) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldOrderType, v...))
 }
 
 // OriginOrderIDEQ applies the EQ predicate on the "origin_order_id" field.
@@ -1151,83 +1112,123 @@ func PaidByContainsFold(v string) predicate.Order {
 }
 
 // DiningModeEQ applies the EQ predicate on the "dining_mode" field.
-func DiningModeEQ(v DiningMode) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldDiningMode, v))
+func DiningModeEQ(v domain.DiningMode) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldDiningMode, vc))
 }
 
 // DiningModeNEQ applies the NEQ predicate on the "dining_mode" field.
-func DiningModeNEQ(v DiningMode) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldDiningMode, v))
+func DiningModeNEQ(v domain.DiningMode) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldDiningMode, vc))
 }
 
 // DiningModeIn applies the In predicate on the "dining_mode" field.
-func DiningModeIn(vs ...DiningMode) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldDiningMode, vs...))
+func DiningModeIn(vs ...domain.DiningMode) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldDiningMode, v...))
 }
 
 // DiningModeNotIn applies the NotIn predicate on the "dining_mode" field.
-func DiningModeNotIn(vs ...DiningMode) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldDiningMode, vs...))
+func DiningModeNotIn(vs ...domain.DiningMode) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldDiningMode, v...))
 }
 
 // OrderStatusEQ applies the EQ predicate on the "order_status" field.
-func OrderStatusEQ(v OrderStatus) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOrderStatus, v))
+func OrderStatusEQ(v domain.OrderStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldOrderStatus, vc))
 }
 
 // OrderStatusNEQ applies the NEQ predicate on the "order_status" field.
-func OrderStatusNEQ(v OrderStatus) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldOrderStatus, v))
+func OrderStatusNEQ(v domain.OrderStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldOrderStatus, vc))
 }
 
 // OrderStatusIn applies the In predicate on the "order_status" field.
-func OrderStatusIn(vs ...OrderStatus) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldOrderStatus, vs...))
+func OrderStatusIn(vs ...domain.OrderStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldOrderStatus, v...))
 }
 
 // OrderStatusNotIn applies the NotIn predicate on the "order_status" field.
-func OrderStatusNotIn(vs ...OrderStatus) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldOrderStatus, vs...))
+func OrderStatusNotIn(vs ...domain.OrderStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldOrderStatus, v...))
 }
 
 // PaymentStatusEQ applies the EQ predicate on the "payment_status" field.
-func PaymentStatusEQ(v PaymentStatus) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldPaymentStatus, v))
+func PaymentStatusEQ(v domain.PaymentStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldPaymentStatus, vc))
 }
 
 // PaymentStatusNEQ applies the NEQ predicate on the "payment_status" field.
-func PaymentStatusNEQ(v PaymentStatus) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldPaymentStatus, v))
+func PaymentStatusNEQ(v domain.PaymentStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldPaymentStatus, vc))
 }
 
 // PaymentStatusIn applies the In predicate on the "payment_status" field.
-func PaymentStatusIn(vs ...PaymentStatus) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldPaymentStatus, vs...))
+func PaymentStatusIn(vs ...domain.PaymentStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldPaymentStatus, v...))
 }
 
 // PaymentStatusNotIn applies the NotIn predicate on the "payment_status" field.
-func PaymentStatusNotIn(vs ...PaymentStatus) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldPaymentStatus, vs...))
+func PaymentStatusNotIn(vs ...domain.PaymentStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldPaymentStatus, v...))
 }
 
 // FulfillmentStatusEQ applies the EQ predicate on the "fulfillment_status" field.
-func FulfillmentStatusEQ(v FulfillmentStatus) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldFulfillmentStatus, v))
+func FulfillmentStatusEQ(v domain.FulfillmentStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldFulfillmentStatus, vc))
 }
 
 // FulfillmentStatusNEQ applies the NEQ predicate on the "fulfillment_status" field.
-func FulfillmentStatusNEQ(v FulfillmentStatus) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldFulfillmentStatus, v))
+func FulfillmentStatusNEQ(v domain.FulfillmentStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldFulfillmentStatus, vc))
 }
 
 // FulfillmentStatusIn applies the In predicate on the "fulfillment_status" field.
-func FulfillmentStatusIn(vs ...FulfillmentStatus) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldFulfillmentStatus, vs...))
+func FulfillmentStatusIn(vs ...domain.FulfillmentStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldFulfillmentStatus, v...))
 }
 
 // FulfillmentStatusNotIn applies the NotIn predicate on the "fulfillment_status" field.
-func FulfillmentStatusNotIn(vs ...FulfillmentStatus) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldFulfillmentStatus, vs...))
+func FulfillmentStatusNotIn(vs ...domain.FulfillmentStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldFulfillmentStatus, v...))
 }
 
 // FulfillmentStatusIsNil applies the IsNil predicate on the "fulfillment_status" field.
@@ -1241,23 +1242,33 @@ func FulfillmentStatusNotNil() predicate.Order {
 }
 
 // TableStatusEQ applies the EQ predicate on the "table_status" field.
-func TableStatusEQ(v TableStatus) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldTableStatus, v))
+func TableStatusEQ(v domain.TableStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldTableStatus, vc))
 }
 
 // TableStatusNEQ applies the NEQ predicate on the "table_status" field.
-func TableStatusNEQ(v TableStatus) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldTableStatus, v))
+func TableStatusNEQ(v domain.TableStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldTableStatus, vc))
 }
 
 // TableStatusIn applies the In predicate on the "table_status" field.
-func TableStatusIn(vs ...TableStatus) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldTableStatus, vs...))
+func TableStatusIn(vs ...domain.TableStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldTableStatus, v...))
 }
 
 // TableStatusNotIn applies the NotIn predicate on the "table_status" field.
-func TableStatusNotIn(vs ...TableStatus) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldTableStatus, vs...))
+func TableStatusNotIn(vs ...domain.TableStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldTableStatus, v...))
 }
 
 // TableStatusIsNil applies the IsNil predicate on the "table_status" field.

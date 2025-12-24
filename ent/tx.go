@@ -30,6 +30,8 @@ type Tx struct {
 	MerchantBusinessType *MerchantBusinessTypeClient
 	// MerchantRenewal is the client for interacting with the MerchantRenewal builders.
 	MerchantRenewal *MerchantRenewalClient
+	// Order is the client for interacting with the Order builders.
+	Order *OrderClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
@@ -58,8 +60,6 @@ type Tx struct {
 	SetMealGroup *SetMealGroupClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
-	// Order is the client for interacting with the Order builders.
-	Order *OrderClient
 
 	// lazily loaded.
 	client     *Client
@@ -200,6 +200,7 @@ func (tx *Tx) init() {
 	tx.Merchant = NewMerchantClient(tx.config)
 	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
+	tx.Order = NewOrderClient(tx.config)
 	tx.Product = NewProductClient(tx.config)
 	tx.ProductAttr = NewProductAttrClient(tx.config)
 	tx.ProductAttrItem = NewProductAttrItemClient(tx.config)
@@ -214,7 +215,6 @@ func (tx *Tx) init() {
 	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
 	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
-	tx.Order = NewOrderClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

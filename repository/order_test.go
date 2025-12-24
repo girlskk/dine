@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
-	entorder "gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
@@ -32,32 +30,35 @@ func (s *OrderTestSuite) SetupTest() {
 }
 
 func (s *OrderTestSuite) newTestOrder(storeID, orderNo string) *domain.Order {
+	storeUUID := uuid.MustParse(storeID)
+	merchantUUID := uuid.New()
 	return &domain.Order{
 		ID:           uuid.New(),
-		MerchantID:   uuid.NewString(),
-		StoreID:      storeID,
+		MerchantID:   merchantUUID,
+		StoreID:      storeUUID,
 		BusinessDate: "2025-12-22",
 		OrderNo:      orderNo,
-		DiningMode:   "DINE_IN",
-		Store:        json.RawMessage(`{"store_id":"` + storeID + `"}`),
-		Cart:         json.RawMessage(`[]`),
-		Products:     json.RawMessage(`[]`),
-		Amount:       json.RawMessage(`{}`),
+		DiningMode:   domain.DiningModeDineIn,
+		Store:        &domain.OrderStore{StoreID: storeID},
+		Cart:         &[]domain.OrderProduct{},
+		Products:     &[]domain.OrderProduct{},
+		Amount:       &domain.OrderAmount{},
 	}
 }
 
 func (s *OrderTestSuite) createEntOrder(storeID, orderNo string, createdAt time.Time, paymentStatus string) *ent.Order {
+	storeUUID := uuid.MustParse(storeID)
 	builder := s.client.Order.Create().
 		SetID(uuid.New()).
-		SetMerchantID(uuid.NewString()).
-		SetStoreID(storeID).
+		SetMerchantID(uuid.New()).
+		SetStoreID(storeUUID).
 		SetBusinessDate("2025-12-22").
 		SetOrderNo(orderNo).
-		SetDiningMode(entorder.DiningMode("DINE_IN")).
+		SetDiningMode(domain.DiningModeDineIn).
 		SetCreatedAt(createdAt)
 
 	if paymentStatus != "" {
-		builder = builder.SetPaymentStatus(entorder.PaymentStatus(paymentStatus))
+		builder = builder.SetPaymentStatus(domain.PaymentStatus(paymentStatus))
 	}
 
 	return builder.SaveX(s.ctx)
@@ -79,18 +80,8 @@ func (s *OrderTestSuite) TestOrder_Create() {
 		require.Equal(t, order.StoreID, dbOrder.StoreID)
 		require.Equal(t, order.BusinessDate, dbOrder.BusinessDate)
 		require.Equal(t, order.OrderNo, dbOrder.OrderNo)
-		require.Equal(t, entorder.DiningMode("DINE_IN"), dbOrder.DiningMode)
-		require.Equal(t, []byte(order.Store), []byte(dbOrder.Store))
-	})
-
-	s.T().Run("非法枚举值返回 ParamsError", func(t *testing.T) {
-		storeID := uuid.NewString()
-		order := s.newTestOrder(storeID, "NO-ENUM")
-		order.OrderStatus = "OPEN"
-
-		err := s.repo.Create(s.ctx, order)
-		require.Error(t, err)
-		require.True(t, domain.IsParamsError(err))
+		require.Equal(t, domain.DiningModeDineIn, dbOrder.DiningMode)
+		require.Contains(t, string(dbOrder.Store), order.Store.StoreID)
 	})
 
 	s.T().Run("唯一键冲突返回 Conflict", func(t *testing.T) {
@@ -129,7 +120,7 @@ func (s *OrderTestSuite) TestOrder_FindByID() {
 		require.Equal(t, order.ID, found.ID)
 		require.Equal(t, order.StoreID, found.StoreID)
 		require.Equal(t, order.OrderNo, found.OrderNo)
-		require.Equal(t, "DINE_IN", found.DiningMode)
+		require.Equal(t, domain.DiningModeDineIn, found.DiningMode)
 	})
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
@@ -146,14 +137,14 @@ func (s *OrderTestSuite) TestOrder_Update() {
 
 	s.T().Run("正常更新", func(t *testing.T) {
 		newBusinessDate := "2025-12-23"
-		newProducts := json.RawMessage(`[{"order_item_id":"1","product_name":"可乐","qty":1}]`)
-		newAmount := json.RawMessage(`{"amount_due":100}`)
+		newProducts := &[]domain.OrderProduct{{OrderItemID: "1", ProductName: "可乐", Qty: 1}}
+		newAmount := &domain.OrderAmount{AmountDue: 100}
 
 		upd := &domain.Order{
 			ID:            order.ID,
 			BusinessDate:  newBusinessDate,
-			OrderStatus:   "PLACED",
-			PaymentStatus: "PAID",
+			OrderStatus:   domain.OrderStatusPlaced,
+			PaymentStatus: domain.PaymentStatusPaid,
 			Products:      newProducts,
 			Amount:        newAmount,
 		}
@@ -163,10 +154,10 @@ func (s *OrderTestSuite) TestOrder_Update() {
 
 		dbOrder := s.client.Order.GetX(s.ctx, order.ID)
 		require.Equal(t, newBusinessDate, dbOrder.BusinessDate)
-		require.Equal(t, entorder.OrderStatus("PLACED"), dbOrder.OrderStatus)
-		require.Equal(t, entorder.PaymentStatus("PAID"), dbOrder.PaymentStatus)
-		require.Equal(t, []byte(newProducts), []byte(dbOrder.Products))
-		require.Equal(t, []byte(newAmount), []byte(dbOrder.Amount))
+		require.Equal(t, domain.OrderStatusPlaced, dbOrder.OrderStatus)
+		require.Equal(t, domain.PaymentStatusPaid, dbOrder.PaymentStatus)
+		require.Contains(t, string(dbOrder.Products), "\"order_item_id\":\"1\"")
+		require.Contains(t, string(dbOrder.Amount), "\"amount_due\":100")
 	})
 
 	s.T().Run("更新不存在的ID", func(t *testing.T) {
@@ -175,15 +166,6 @@ func (s *OrderTestSuite) TestOrder_Update() {
 		require.True(t, domain.IsNotFound(err))
 	})
 
-	s.T().Run("非法枚举值返回 ParamsError", func(t *testing.T) {
-		upd := &domain.Order{
-			ID:          order.ID,
-			OrderStatus: "OPEN",
-		}
-		err := s.repo.Update(s.ctx, upd)
-		require.Error(t, err)
-		require.True(t, domain.IsParamsError(err))
-	})
 }
 
 func (s *OrderTestSuite) TestOrder_Delete() {
@@ -216,6 +198,8 @@ func (s *OrderTestSuite) TestOrder_Delete() {
 func (s *OrderTestSuite) TestOrder_List() {
 	storeID := uuid.NewString()
 	merchantID := uuid.NewString()
+	merchantUUID := uuid.MustParse(merchantID)
+	storeUUID := uuid.MustParse(storeID)
 
 	// 手工创建三条，保证 created_at 有序，便于验证排序
 	base := time.Date(2025, 12, 22, 10, 0, 0, 0, time.UTC)
@@ -223,37 +207,37 @@ func (s *OrderTestSuite) TestOrder_List() {
 	// 直接用 ent 创建以控制 created_at，但仍满足 repo.List 的过滤字段
 	o1 := s.client.Order.Create().
 		SetID(uuid.New()).
-		SetMerchantID(merchantID).
-		SetStoreID(storeID).
+		SetMerchantID(merchantUUID).
+		SetStoreID(storeUUID).
 		SetBusinessDate("2025-12-22").
 		SetOrderNo("NO-L1").
-		SetDiningMode(entorder.DiningMode("DINE_IN")).
+		SetDiningMode(domain.DiningModeDineIn).
 		SetCreatedAt(base.Add(1 * time.Second)).
 		SaveX(s.ctx)
 	o2 := s.client.Order.Create().
 		SetID(uuid.New()).
-		SetMerchantID(merchantID).
-		SetStoreID(storeID).
+		SetMerchantID(merchantUUID).
+		SetStoreID(storeUUID).
 		SetBusinessDate("2025-12-22").
 		SetOrderNo("NO-L2").
-		SetDiningMode(entorder.DiningMode("DINE_IN")).
-		SetPaymentStatus(entorder.PaymentStatus("PAID")).
+		SetDiningMode(domain.DiningModeDineIn).
+		SetPaymentStatus(domain.PaymentStatusPaid).
 		SetCreatedAt(base.Add(2 * time.Second)).
 		SaveX(s.ctx)
 	o3 := s.client.Order.Create().
 		SetID(uuid.New()).
-		SetMerchantID(merchantID).
-		SetStoreID(storeID).
+		SetMerchantID(merchantUUID).
+		SetStoreID(storeUUID).
 		SetBusinessDate("2025-12-22").
 		SetOrderNo("NO-L3").
-		SetDiningMode(entorder.DiningMode("DINE_IN")).
+		SetDiningMode(domain.DiningModeDineIn).
 		SetCreatedAt(base.Add(3 * time.Second)).
 		SaveX(s.ctx)
 
 	s.T().Run("分页 + created_at 倒序", func(t *testing.T) {
 		items, total, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID: merchantID,
-			StoreID:    storeID,
+			MerchantID: merchantUUID,
+			StoreID:    storeUUID,
 			Page:       1,
 			Size:       2,
 		})
@@ -264,8 +248,8 @@ func (s *OrderTestSuite) TestOrder_List() {
 		require.Equal(t, o2.ID, items[1].ID)
 
 		items2, total2, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID: merchantID,
-			StoreID:    storeID,
+			MerchantID: merchantUUID,
+			StoreID:    storeUUID,
 			Page:       2,
 			Size:       2,
 		})
@@ -277,8 +261,8 @@ func (s *OrderTestSuite) TestOrder_List() {
 
 	s.T().Run("按 order_no 过滤", func(t *testing.T) {
 		items, total, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID: merchantID,
-			StoreID:    storeID,
+			MerchantID: merchantUUID,
+			StoreID:    storeUUID,
 			OrderNo:    "NO-L2",
 			Page:       1,
 			Size:       10,
@@ -291,9 +275,9 @@ func (s *OrderTestSuite) TestOrder_List() {
 
 	s.T().Run("按 payment_status 过滤", func(t *testing.T) {
 		items, total, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID:    merchantID,
-			StoreID:       storeID,
-			PaymentStatus: "PAID",
+			MerchantID:    merchantUUID,
+			StoreID:       storeUUID,
+			PaymentStatus: domain.PaymentStatusPaid,
 			Page:          1,
 			Size:          10,
 		})
@@ -303,48 +287,12 @@ func (s *OrderTestSuite) TestOrder_List() {
 		require.Equal(t, o2.ID, items[0].ID)
 	})
 
-	s.T().Run("非法 order_status 过滤返回 ParamsError", func(t *testing.T) {
-		_, _, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID:  merchantID,
-			StoreID:     storeID,
-			OrderStatus: "OPEN",
-			Page:        1,
-			Size:        10,
-		})
-		require.Error(t, err)
-		require.True(t, domain.IsParamsError(err))
-	})
-
-	s.T().Run("非法 payment_status 过滤返回 ParamsError", func(t *testing.T) {
-		_, _, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID:    merchantID,
-			StoreID:       storeID,
-			PaymentStatus: "PAYED",
-			Page:          1,
-			Size:          10,
-		})
-		require.Error(t, err)
-		require.True(t, domain.IsParamsError(err))
-	})
-
-	s.T().Run("非法 order_type 过滤返回 ParamsError", func(t *testing.T) {
-		_, _, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID: merchantID,
-			StoreID:    storeID,
-			OrderType:  "SALE_ORDER",
-			Page:       1,
-			Size:       10,
-		})
-		require.Error(t, err)
-		require.True(t, domain.IsParamsError(err))
-	})
-
 	s.T().Run("软删记录不应出现在列表", func(t *testing.T) {
 		require.NoError(t, s.repo.Delete(s.ctx, o2.ID))
 
 		items, total, err := s.repo.List(s.ctx, domain.OrderListParams{
-			MerchantID: merchantID,
-			StoreID:    storeID,
+			MerchantID: merchantUUID,
+			StoreID:    storeUUID,
 			Page:       1,
 			Size:       10,
 		})

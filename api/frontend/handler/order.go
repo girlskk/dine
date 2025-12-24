@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -44,7 +43,7 @@ func (h *OrderHandler) NoAuths() []string {
 //	@Accept		json
 //	@Produce	json
 //	@Param		data	body		types.CreateOrderReq	true	"请求信息"
-//	@Success	200		{object}	types.Order				"成功"
+//	@Success	200		{object}	types.OrderResp			"成功"
 //	@Router		/orders [post]
 func (h *OrderHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -59,20 +58,23 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			return
 		}
 
+		merchantID := req.MerchantID
+		storeID := req.StoreID
+
 		o := &domain.Order{
 			ID:                uuid.New(),
-			MerchantID:        req.MerchantID,
-			StoreID:           req.StoreID,
+			MerchantID:        merchantID,
+			StoreID:           storeID,
 			BusinessDate:      req.BusinessDate,
 			ShiftNo:           req.ShiftNo,
 			OrderNo:           req.OrderNo,
-			OrderType:         req.OrderType,
-			OriginOrderID:     req.OriginOrderID,
-			DiningMode:        req.DiningMode,
-			OrderStatus:       req.OrderStatus,
-			PaymentStatus:     req.PaymentStatus,
-			FulfillmentStatus: req.FulfillmentStatus,
-			TableStatus:       req.TableStatus,
+			OrderType:         domain.OrderType(req.OrderType),
+			OriginOrderID:     req.OriginOrderID.String(),
+			DiningMode:        domain.DiningMode(req.DiningMode),
+			OrderStatus:       domain.OrderStatus(req.OrderStatus),
+			PaymentStatus:     domain.PaymentStatus(req.PaymentStatus),
+			FulfillmentStatus: domain.FulfillmentStatus(req.FulfillmentStatus),
+			TableStatus:       domain.TableStatus(req.TableStatus),
 			TableID:           req.TableID,
 			TableName:         req.TableName,
 			TableCapacity:     req.TableCapacity,
@@ -82,14 +84,7 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			PaidBy:            req.PaidBy,
 		}
 
-		if req.Refund != nil {
-			b, err := json.Marshal(req.Refund)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal refund: %w", err))
-				return
-			}
-			o.Refund = b
-		}
+		o.Refund = toDomainRefund(req.Refund)
 
 		if req.OpenedAt != nil {
 			o.OpenedAt = req.OpenedAt
@@ -104,136 +99,24 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			o.CompletedAt = req.CompletedAt
 		}
 
-		if req.Store != nil {
-			b, err := json.Marshal(req.Store)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal store: %w", err))
-				return
-			}
-			o.Store = b
-		} else {
-			b, err := json.Marshal(&types.Store{StoreID: req.StoreID})
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal store: %w", err))
-				return
-			}
-			o.Store = b
+		o.Store = toDomainStore(req.Store)
+		if o.Store == nil {
+			o.Store = &domain.OrderStore{StoreID: req.StoreID}
 		}
-
-		if req.Channel != nil {
-			b, err := json.Marshal(req.Channel)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal channel: %w", err))
-				return
-			}
-			o.Channel = b
-		}
-		if req.POS != nil {
-			b, err := json.Marshal(req.POS)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal pos: %w", err))
-				return
-			}
-			o.Pos = b
-		}
-		if req.Cashier != nil {
-			b, err := json.Marshal(req.Cashier)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal cashier: %w", err))
-				return
-			}
-			o.Cashier = b
-		}
-
-		if req.Member != nil {
-			b, err := json.Marshal(req.Member)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal member: %w", err))
-				return
-			}
-			o.Member = b
-		}
-		if req.Takeaway != nil {
-			b, err := json.Marshal(req.Takeaway)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal takeaway: %w", err))
-				return
-			}
-			o.Takeaway = b
-		}
-
-		if req.Cart != nil {
-			b, err := json.Marshal(req.Cart)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal cart: %w", err))
-				return
-			}
-			o.Cart = b
-		}
-		if req.Products != nil {
-			b, err := json.Marshal(req.Products)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal products: %w", err))
-				return
-			}
-			o.Products = b
-		}
-		if req.Promotions != nil {
-			b, err := json.Marshal(req.Promotions)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal promotions: %w", err))
-				return
-			}
-			o.Promotions = b
-		}
-		if req.Coupons != nil {
-			b, err := json.Marshal(req.Coupons)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal coupons: %w", err))
-				return
-			}
-			o.Coupons = b
-		}
-		if req.TaxRates != nil {
-			b, err := json.Marshal(req.TaxRates)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal tax_rates: %w", err))
-				return
-			}
-			o.TaxRates = b
-		}
-		if req.Fees != nil {
-			b, err := json.Marshal(req.Fees)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal fees: %w", err))
-				return
-			}
-			o.Fees = b
-		}
-		if req.Payments != nil {
-			b, err := json.Marshal(req.Payments)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal payments: %w", err))
-				return
-			}
-			o.Payments = b
-		}
-		if req.RefundsProducts != nil {
-			b, err := json.Marshal(req.RefundsProducts)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal refunds_products: %w", err))
-				return
-			}
-			o.RefundsProducts = b
-		}
-		if req.Amount != nil {
-			b, err := json.Marshal(req.Amount)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal amount: %w", err))
-				return
-			}
-			o.Amount = b
-		}
+		o.Channel = toDomainChannel(req.Channel)
+		o.Pos = toDomainPOS(req.POS)
+		o.Cashier = toDomainCashier(req.Cashier)
+		o.Member = toDomainMember(req.Member)
+		o.Takeaway = toDomainTakeaway(req.Takeaway)
+		o.Cart = toDomainProducts(req.Cart)
+		o.Products = toDomainProducts(req.Products)
+		o.Promotions = toDomainPromotions(req.Promotions)
+		o.Coupons = toDomainCoupons(req.Coupons)
+		o.TaxRates = toDomainTaxRates(req.TaxRates)
+		o.Fees = toDomainFees(req.Fees)
+		o.Payments = toDomainPayments(req.Payments)
+		o.RefundsProducts = toDomainProducts(req.RefundsProducts)
+		o.Amount = toDomainAmount(req.Amount)
 
 		created, err := h.OrderInteractor.Create(ctx, o)
 		if err != nil {
@@ -266,8 +149,8 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 //	@Summary	获取订单详情
 //	@Accept		json
 //	@Produce	json
-//	@Param		id	path		string		true	"订单ID"
-//	@Success	200	{object}	types.Order	"成功"
+//	@Param		id	path		string			true	"订单ID"
+//	@Success	200	{object}	types.OrderResp	"成功"
 //	@Router		/orders/{id} [get]
 func (h *OrderHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -311,7 +194,7 @@ func (h *OrderHandler) Get() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		id		path		string					true	"订单ID"
 //	@Param		data	body		types.UpdateOrderReq	true	"请求信息"
-//	@Success	200		{object}	types.Order				"成功"
+//	@Success	200		{object}	types.OrderResp			"成功"
 //	@Router		/orders/{id} [put]
 func (h *OrderHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -344,34 +227,29 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 			o.OrderNo = *req.OrderNo
 		}
 		if req.OrderType != nil {
-			o.OrderType = *req.OrderType
+			o.OrderType = domain.OrderType(*req.OrderType)
 		}
 		if req.OriginOrderID != nil {
-			o.OriginOrderID = *req.OriginOrderID
+			o.OriginOrderID = req.OriginOrderID.String()
 		}
 		if req.Refund != nil {
-			b, err := json.Marshal(req.Refund)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal refund: %w", err))
-				return
-			}
-			o.Refund = b
+			o.Refund = toDomainRefund(req.Refund)
 		}
 
 		if req.DiningMode != nil {
-			o.DiningMode = *req.DiningMode
+			o.DiningMode = domain.DiningMode(*req.DiningMode)
 		}
 		if req.OrderStatus != nil {
-			o.OrderStatus = *req.OrderStatus
+			o.OrderStatus = domain.OrderStatus(*req.OrderStatus)
 		}
 		if req.PaymentStatus != nil {
-			o.PaymentStatus = *req.PaymentStatus
+			o.PaymentStatus = domain.PaymentStatus(*req.PaymentStatus)
 		}
 		if req.FulfillmentStatus != nil {
-			o.FulfillmentStatus = *req.FulfillmentStatus
+			o.FulfillmentStatus = domain.FulfillmentStatus(*req.FulfillmentStatus)
 		}
 		if req.TableStatus != nil {
-			o.TableStatus = *req.TableStatus
+			o.TableStatus = domain.TableStatus(*req.TableStatus)
 		}
 
 		if req.TableID != nil {
@@ -410,125 +288,49 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 		}
 
 		if req.Store != nil {
-			b, err := json.Marshal(req.Store)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal store: %w", err))
-				return
-			}
-			o.Store = b
+			o.Store = toDomainStore(req.Store)
 		}
 		if req.Channel != nil {
-			b, err := json.Marshal(req.Channel)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal channel: %w", err))
-				return
-			}
-			o.Channel = b
+			o.Channel = toDomainChannel(req.Channel)
 		}
 		if req.POS != nil {
-			b, err := json.Marshal(req.POS)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal pos: %w", err))
-				return
-			}
-			o.Pos = b
+			o.Pos = toDomainPOS(req.POS)
 		}
 		if req.Cashier != nil {
-			b, err := json.Marshal(req.Cashier)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal cashier: %w", err))
-				return
-			}
-			o.Cashier = b
+			o.Cashier = toDomainCashier(req.Cashier)
 		}
 		if req.Member != nil {
-			b, err := json.Marshal(req.Member)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal member: %w", err))
-				return
-			}
-			o.Member = b
+			o.Member = toDomainMember(req.Member)
 		}
 		if req.Takeaway != nil {
-			b, err := json.Marshal(req.Takeaway)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal takeaway: %w", err))
-				return
-			}
-			o.Takeaway = b
+			o.Takeaway = toDomainTakeaway(req.Takeaway)
 		}
-
 		if req.Cart != nil {
-			b, err := json.Marshal(req.Cart)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal cart: %w", err))
-				return
-			}
-			o.Cart = b
+			o.Cart = toDomainProducts(req.Cart)
 		}
 		if req.Products != nil {
-			b, err := json.Marshal(req.Products)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal products: %w", err))
-				return
-			}
-			o.Products = b
+			o.Products = toDomainProducts(req.Products)
 		}
 		if req.Promotions != nil {
-			b, err := json.Marshal(req.Promotions)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal promotions: %w", err))
-				return
-			}
-			o.Promotions = b
+			o.Promotions = toDomainPromotions(req.Promotions)
 		}
 		if req.Coupons != nil {
-			b, err := json.Marshal(req.Coupons)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal coupons: %w", err))
-				return
-			}
-			o.Coupons = b
+			o.Coupons = toDomainCoupons(req.Coupons)
 		}
 		if req.TaxRates != nil {
-			b, err := json.Marshal(req.TaxRates)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal tax_rates: %w", err))
-				return
-			}
-			o.TaxRates = b
+			o.TaxRates = toDomainTaxRates(req.TaxRates)
 		}
 		if req.Fees != nil {
-			b, err := json.Marshal(req.Fees)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal fees: %w", err))
-				return
-			}
-			o.Fees = b
+			o.Fees = toDomainFees(req.Fees)
 		}
 		if req.Payments != nil {
-			b, err := json.Marshal(req.Payments)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal payments: %w", err))
-				return
-			}
-			o.Payments = b
+			o.Payments = toDomainPayments(req.Payments)
 		}
 		if req.RefundsProducts != nil {
-			b, err := json.Marshal(req.RefundsProducts)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal refunds_products: %w", err))
-				return
-			}
-			o.RefundsProducts = b
+			o.RefundsProducts = toDomainProducts(req.RefundsProducts)
 		}
 		if req.Amount != nil {
-			b, err := json.Marshal(req.Amount)
-			if err != nil {
-				c.Error(fmt.Errorf("failed to marshal amount: %w", err))
-				return
-			}
-			o.Amount = b
+			o.Amount = toDomainAmount(req.Amount)
 		}
 
 		updated, err := h.OrderInteractor.Update(ctx, o)
@@ -606,9 +408,9 @@ func (h *OrderHandler) Delete() gin.HandlerFunc {
 //	@Param		store_id		query		string				true	"门店ID"
 //	@Param		business_date	query		string				false	"营业日"
 //	@Param		order_no		query		string				false	"订单号"
-//	@Param		order_type		query		string				false	"订单类型" Enums(SALE,REFUND,PARTIAL_REFUND)
-//	@Param		order_status	query		string				false	"订单状态" Enums(DRAFT,PLACED,IN_PROGRESS,READY,COMPLETED,CANCELLED,VOIDED,MERGED)
-//	@Param		payment_status	query		string				false	"支付状态" Enums(UNPAID,PAYING,PARTIALLY_PAID,PAID,PARTIALLY_REFUNDED,REFUNDED)
+//	@Param		order_type		query		string				false	"订单类型"	Enums(SALE,REFUND,PARTIAL_REFUND)
+//	@Param		order_status	query		string				false	"订单状态"	Enums(DRAFT,PLACED,IN_PROGRESS,READY,COMPLETED,CANCELLED,VOIDED,MERGED)
+//	@Param		payment_status	query		string				false	"支付状态"	Enums(UNPAID,PAYING,PARTIALLY_PAID,PAID,PARTIALLY_REFUNDED,REFUNDED)
 //	@Param		page			query		int					false	"页码"
 //	@Param		size			query		int					false	"每页数量"
 //	@Success	200				{object}	types.ListOrderResp	"成功"
@@ -626,17 +428,23 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 			return
 		}
 
+		merchantUUID := req.MerchantID
+		storeUUID := req.StoreID
+
 		params := domain.OrderListParams{
-			MerchantID:    req.MerchantID,
-			StoreID:       req.StoreID,
+			MerchantID:    merchantUUID,
+			StoreID:       storeUUID,
 			BusinessDate:  req.BusinessDate,
 			OrderNo:       req.OrderNo,
-			OrderType:     req.OrderType,
-			OrderStatus:   req.OrderStatus,
-			PaymentStatus: req.PaymentStatus,
+			OrderType:     domain.OrderType(req.OrderType),
+			OrderStatus:   domain.OrderStatus(req.OrderStatus),
+			PaymentStatus: domain.PaymentStatus(req.PaymentStatus),
 			Page:          req.Page,
 			Size:          req.Size,
 		}
+
+		params.MerchantID = merchantUUID
+		params.StoreID = storeUUID
 
 		items, total, err := h.OrderInteractor.List(ctx, params)
 		if err != nil {
@@ -648,7 +456,7 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 			return
 		}
 
-		resItems := make([]*types.Order, 0, len(items))
+		resItems := make([]*types.OrderResp, 0, len(items))
 		for _, o := range items {
 			it, err := convertDomainOrderToResp(o)
 			if err != nil {
@@ -668,131 +476,48 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 	}
 }
 
-func convertDomainOrderToResp(o *domain.Order) (*types.Order, error) {
+func convertDomainOrderToResp(o *domain.Order) (*types.OrderResp, error) {
 	if o == nil {
 		return nil, nil
 	}
 
-	var store types.Store
-	if len(o.Store) > 0 {
-		if err := json.Unmarshal(o.Store, &store); err != nil {
-			return nil, err
-		}
-	}
-	var channel types.Channel
-	if len(o.Channel) > 0 {
-		if err := json.Unmarshal(o.Channel, &channel); err != nil {
-			return nil, err
-		}
-	}
-	var pos types.POS
-	if len(o.Pos) > 0 {
-		if err := json.Unmarshal(o.Pos, &pos); err != nil {
-			return nil, err
-		}
-	}
-	var cashier types.Cashier
-	if len(o.Cashier) > 0 {
-		if err := json.Unmarshal(o.Cashier, &cashier); err != nil {
-			return nil, err
-		}
-	}
-
-	var refund types.Refund
-	if len(o.Refund) > 0 {
-		if err := json.Unmarshal(o.Refund, &refund); err != nil {
-			return nil, err
-		}
-	}
-	var member types.Member
-	if len(o.Member) > 0 {
-		if err := json.Unmarshal(o.Member, &member); err != nil {
-			return nil, err
-		}
-	}
-	var takeaway types.Takeaway
-	if len(o.Takeaway) > 0 {
-		if err := json.Unmarshal(o.Takeaway, &takeaway); err != nil {
-			return nil, err
-		}
-	}
-
-	var cart []types.Product
-	if len(o.Cart) > 0 {
-		if err := json.Unmarshal(o.Cart, &cart); err != nil {
-			return nil, err
-		}
-	}
-	var products []types.Product
-	if len(o.Products) > 0 {
-		if err := json.Unmarshal(o.Products, &products); err != nil {
-			return nil, err
-		}
-	}
+	store := toTypesStore(o.Store)
+	channel := toTypesChannel(o.Channel)
+	pos := toTypesPOS(o.Pos)
+	cashier := toTypesCashier(o.Cashier)
+	refund := toTypesRefund(o.Refund)
+	member := toTypesMember(o.Member)
+	takeaway := toTypesTakeaway(o.Takeaway)
+	cart := toTypesProducts(o.Cart)
+	products := toTypesProducts(o.Products)
 	if products == nil {
 		products = make([]types.Product, 0)
 	}
+	promotions := toTypesPromotions(o.Promotions)
+	coupons := toTypesCoupons(o.Coupons)
+	taxRates := toTypesTaxRates(o.TaxRates)
+	fees := toTypesFees(o.Fees)
+	payments := toTypesPayments(o.Payments)
+	refundsProducts := toTypesProducts(o.RefundsProducts)
+	amount := toTypesAmount(o.Amount)
 
-	var promotions []types.Promotion
-	if len(o.Promotions) > 0 {
-		if err := json.Unmarshal(o.Promotions, &promotions); err != nil {
-			return nil, err
-		}
-	}
-	var coupons []types.Coupon
-	if len(o.Coupons) > 0 {
-		if err := json.Unmarshal(o.Coupons, &coupons); err != nil {
-			return nil, err
-		}
-	}
-	var taxRates []types.TaxRate
-	if len(o.TaxRates) > 0 {
-		if err := json.Unmarshal(o.TaxRates, &taxRates); err != nil {
-			return nil, err
-		}
-	}
-	var fees []types.Fee
-	if len(o.Fees) > 0 {
-		if err := json.Unmarshal(o.Fees, &fees); err != nil {
-			return nil, err
-		}
-	}
-	var payments []types.Payment
-	if len(o.Payments) > 0 {
-		if err := json.Unmarshal(o.Payments, &payments); err != nil {
-			return nil, err
-		}
-	}
-	var refundsProducts []types.Product
-	if len(o.RefundsProducts) > 0 {
-		if err := json.Unmarshal(o.RefundsProducts, &refundsProducts); err != nil {
-			return nil, err
-		}
-	}
-	var amount types.Amount
-	if len(o.Amount) > 0 {
-		if err := json.Unmarshal(o.Amount, &amount); err != nil {
-			return nil, err
-		}
-	}
-
-	res := &types.Order{
-		OrderID:           o.ID.String(),
+	res := &types.OrderResp{
+		OrderID:           o.ID,
 		MerchantID:        o.MerchantID,
 		Store:             store,
 		BusinessDate:      o.BusinessDate,
 		ShiftNo:           o.ShiftNo,
 		OrderNo:           o.OrderNo,
-		OrderType:         o.OrderType,
+		OrderType:         string(o.OrderType),
 		Refund:            refund,
-		DiningMode:        o.DiningMode,
+		DiningMode:        string(o.DiningMode),
 		Channel:           channel,
 		POS:               pos,
 		Cashier:           cashier,
-		OrderStatus:       o.OrderStatus,
-		PaymentStatus:     o.PaymentStatus,
-		FulfillmentStatus: o.FulfillmentStatus,
-		TableStatus:       o.TableStatus,
+		OrderStatus:       string(o.OrderStatus),
+		PaymentStatus:     string(o.PaymentStatus),
+		FulfillmentStatus: string(o.FulfillmentStatus),
+		TableStatus:       string(o.TableStatus),
 		TableID:           o.TableID,
 		TableName:         o.TableName,
 		TableCapacity:     o.TableCapacity,
@@ -828,4 +553,436 @@ func convertDomainOrderToResp(o *domain.Order) (*types.Order, error) {
 	res.PaidBy = o.PaidBy
 
 	return res, nil
+}
+
+func toDomainRefund(r *types.Refund) *domain.OrderRefund {
+	if r == nil {
+		return nil
+	}
+	return &domain.OrderRefund{
+		OriginOrderID: r.OriginOrderID,
+		OriginOrderNo: r.OriginOrderNo,
+		Reason:        r.Reason,
+	}
+}
+
+func toDomainMember(m *types.Member) *domain.OrderMember {
+	if m == nil {
+		return nil
+	}
+	return &domain.OrderMember{
+		MemberID:        m.MemberID,
+		MemberNo:        m.MemberNo,
+		MemberName:      m.MemberName,
+		MemberPhone:     m.MemberPhone,
+		MemberLevelName: m.MemberLevelName,
+	}
+}
+
+func toDomainStore(s *types.Store) *domain.OrderStore {
+	if s == nil {
+		return nil
+	}
+	return &domain.OrderStore{
+		StoreID:      s.StoreID,
+		StoreNo:      s.StoreNo,
+		StoreName:    s.StoreName,
+		StorePhone:   s.StorePhone,
+		StoreAddress: s.StoreAddress,
+	}
+}
+
+func toDomainChannel(ch *types.Channel) *domain.OrderChannel {
+	if ch == nil {
+		return nil
+	}
+	return &domain.OrderChannel{Code: ch.Code, Name: ch.Name}
+}
+
+func toDomainCashier(ca *types.Cashier) *domain.OrderCashier {
+	if ca == nil {
+		return nil
+	}
+	return &domain.OrderCashier{CashierID: ca.CashierID, CashierName: ca.CashierName}
+}
+
+func toDomainPOS(p *types.POS) *domain.OrderPOS {
+	if p == nil {
+		return nil
+	}
+	return &domain.OrderPOS{PosID: p.PosID, PosCode: p.PosCode, DeviceID: p.DeviceID}
+}
+
+func toDomainTakeaway(tk *types.Takeaway) *domain.OrderTakeaway {
+	if tk == nil {
+		return nil
+	}
+	return &domain.OrderTakeaway{
+		TakeawayType:       tk.TakeawayType,
+		ContactName:        tk.ContactName,
+		ContactPhone:       tk.ContactPhone,
+		PickupNo:           tk.PickupNo,
+		PickupEtaAt:        tk.PickupEtaAt,
+		DeliveryAddress:    tk.DeliveryAddress,
+		DeliveryFee:        tk.DeliveryFee,
+		DeliveryPlatform:   tk.DeliveryPlatform,
+		DeliveryOrderNo:    tk.DeliveryOrderNo,
+		DeliveryTrackingNo: tk.DeliveryTrackingNo,
+		DeliveryStatus:     tk.DeliveryStatus,
+		DeliveryRiderName:  tk.DeliveryRiderName,
+		DeliveryRiderPhone: tk.DeliveryRiderPhone,
+		DeliveryRemark:     tk.DeliveryRemark,
+	}
+}
+
+func toDomainPromotion(p types.Promotion) domain.OrderPromotion {
+	return domain.OrderPromotion{
+		PromotionID:    p.PromotionID,
+		PromotionName:  p.PromotionName,
+		PromotionType:  p.PromotionType,
+		DiscountAmount: p.DiscountAmount,
+		Meta:           p.Meta,
+	}
+}
+
+func toDomainProduct(p types.Product) domain.OrderProduct {
+	promotions := make([]domain.OrderPromotion, 0, len(p.Promotions))
+	for _, pr := range p.Promotions {
+		promotions = append(promotions, toDomainPromotion(pr))
+	}
+	return domain.OrderProduct{
+		OrderItemID:       p.OrderItemID,
+		Index:             p.Index,
+		RefundReason:      p.RefundReason,
+		RefundedBy:        p.RefundedBy,
+		RefundedAt:        p.RefundedAt,
+		Promotions:        promotions,
+		PromotionDiscount: p.PromotionDiscount,
+		ProductID:         p.ProductID,
+		ProductName:       p.ProductName,
+		SkuID:             p.SkuID,
+		SkuName:           p.SkuName,
+		Qty:               p.Qty,
+		Price:             p.Price,
+		Subtotal:          p.Subtotal,
+		DiscountAmount:    p.DiscountAmount,
+		AmountBeforeTax:   p.AmountBeforeTax,
+		TaxRate:           p.TaxRate,
+		Tax:               p.Tax,
+		AmountAfterTax:    p.AmountAfterTax,
+		Total:             p.Total,
+		VoidQty:           p.VoidQty,
+		VoidAmount:        p.VoidAmount,
+		Note:              p.Note,
+		Options:           p.Options,
+	}
+}
+
+func toDomainProducts(ps *[]types.Product) *[]domain.OrderProduct {
+	if ps == nil {
+		return nil
+	}
+	res := make([]domain.OrderProduct, 0, len(*ps))
+	for _, p := range *ps {
+		res = append(res, toDomainProduct(p))
+	}
+	return &res
+}
+
+func toDomainPromotions(ps *[]types.Promotion) *[]domain.OrderPromotion {
+	if ps == nil {
+		return nil
+	}
+	res := make([]domain.OrderPromotion, 0, len(*ps))
+	for _, p := range *ps {
+		res = append(res, toDomainPromotion(p))
+	}
+	return &res
+}
+
+func toDomainCoupons(cs *[]types.Coupon) *[]domain.OrderCoupon {
+	if cs == nil {
+		return nil
+	}
+	res := make([]domain.OrderCoupon, 0, len(*cs))
+	for _, c := range *cs {
+		res = append(res, domain.OrderCoupon{
+			CouponID:       c.CouponID,
+			CouponName:     c.CouponName,
+			CouponType:     c.CouponType,
+			CouponCode:     c.CouponCode,
+			DiscountAmount: c.DiscountAmount,
+			Meta:           c.Meta,
+		})
+	}
+	return &res
+}
+
+func toDomainTaxRates(ts *[]types.TaxRate) *[]domain.OrderTaxRate {
+	if ts == nil {
+		return nil
+	}
+	res := make([]domain.OrderTaxRate, 0, len(*ts))
+	for _, t := range *ts {
+		res = append(res, domain.OrderTaxRate{
+			TaxRateID:     t.TaxRateID,
+			TaxRateName:   t.TaxRateName,
+			Rate:          t.Rate,
+			TaxableAmount: t.TaxableAmount,
+			TaxAmount:     t.TaxAmount,
+			Meta:          t.Meta,
+		})
+	}
+	return &res
+}
+
+func toDomainFees(fs *[]types.Fee) *[]domain.OrderFee {
+	if fs == nil {
+		return nil
+	}
+	res := make([]domain.OrderFee, 0, len(*fs))
+	for _, f := range *fs {
+		res = append(res, domain.OrderFee{
+			FeeID:   f.FeeID,
+			FeeName: f.FeeName,
+			FeeType: f.FeeType,
+			Amount:  f.Amount,
+			Meta:    f.Meta,
+		})
+	}
+	return &res
+}
+
+func toDomainPayments(ps *[]types.Payment) *[]domain.OrderPayment {
+	if ps == nil {
+		return nil
+	}
+	res := make([]domain.OrderPayment, 0, len(*ps))
+	for _, p := range *ps {
+		res = append(res, domain.OrderPayment{
+			PaymentNo:     p.PaymentNo,
+			PaymentMethod: p.PaymentMethod,
+			PaymentAmount: p.PaymentAmount,
+			POS:           domain.OrderPOS{PosID: p.POS.PosID, PosCode: p.POS.PosCode, DeviceID: p.POS.DeviceID},
+			Cashier:       domain.OrderCashier{CashierID: p.Cashier.CashierID, CashierName: p.Cashier.CashierName},
+			PaidAt:        p.PaidAt,
+		})
+	}
+	return &res
+}
+
+func toDomainAmount(a *types.Amount) *domain.OrderAmount {
+	if a == nil {
+		return nil
+	}
+	return &domain.OrderAmount{
+		ItemsSubtotal:          a.ItemsSubtotal,
+		DiscountTotal:          a.DiscountTotal,
+		PromotionDiscountTotal: a.PromotionDiscountTotal,
+		VoucherDiscountTotal:   a.VoucherDiscountTotal,
+		TaxTotal:               a.TaxTotal,
+		ServiceFeeTotal:        a.ServiceFeeTotal,
+		DeliveryFee:            a.DeliveryFee,
+		FeeTotal:               a.FeeTotal,
+		RoundingAmount:         a.RoundingAmount,
+		AmountDue:              a.AmountDue,
+		AmountPaid:             a.AmountPaid,
+		ChangeAmount:           a.ChangeAmount,
+		AmountRefunded:         a.AmountRefunded,
+	}
+}
+
+func toTypesStore(s *domain.OrderStore) types.Store {
+	if s == nil {
+		return types.Store{}
+	}
+	return types.Store{StoreID: s.StoreID, StoreNo: s.StoreNo, StoreName: s.StoreName, StorePhone: s.StorePhone, StoreAddress: s.StoreAddress}
+}
+
+func toTypesChannel(ch *domain.OrderChannel) types.Channel {
+	if ch == nil {
+		return types.Channel{}
+	}
+	return types.Channel{Code: ch.Code, Name: ch.Name}
+}
+
+func toTypesCashier(ca *domain.OrderCashier) types.Cashier {
+	if ca == nil {
+		return types.Cashier{}
+	}
+	return types.Cashier{CashierID: ca.CashierID, CashierName: ca.CashierName}
+}
+
+func toTypesPOS(p *domain.OrderPOS) types.POS {
+	if p == nil {
+		return types.POS{}
+	}
+	return types.POS{PosID: p.PosID, PosCode: p.PosCode, DeviceID: p.DeviceID}
+}
+
+func toTypesMember(m *domain.OrderMember) types.Member {
+	if m == nil {
+		return types.Member{}
+	}
+	return types.Member{MemberID: m.MemberID, MemberNo: m.MemberNo, MemberName: m.MemberName, MemberPhone: m.MemberPhone, MemberLevelName: m.MemberLevelName}
+}
+
+func toTypesTakeaway(tk *domain.OrderTakeaway) types.Takeaway {
+	if tk == nil {
+		return types.Takeaway{}
+	}
+	return types.Takeaway{
+		TakeawayType:       tk.TakeawayType,
+		ContactName:        tk.ContactName,
+		ContactPhone:       tk.ContactPhone,
+		PickupNo:           tk.PickupNo,
+		PickupEtaAt:        tk.PickupEtaAt,
+		DeliveryAddress:    tk.DeliveryAddress,
+		DeliveryFee:        tk.DeliveryFee,
+		DeliveryPlatform:   tk.DeliveryPlatform,
+		DeliveryOrderNo:    tk.DeliveryOrderNo,
+		DeliveryTrackingNo: tk.DeliveryTrackingNo,
+		DeliveryStatus:     tk.DeliveryStatus,
+		DeliveryRiderName:  tk.DeliveryRiderName,
+		DeliveryRiderPhone: tk.DeliveryRiderPhone,
+		DeliveryRemark:     tk.DeliveryRemark,
+	}
+}
+
+func toTypesRefund(r *domain.OrderRefund) types.Refund {
+	if r == nil {
+		return types.Refund{}
+	}
+	return types.Refund{OriginOrderID: r.OriginOrderID, OriginOrderNo: r.OriginOrderNo, Reason: r.Reason}
+}
+
+func toTypesPromotion(p domain.OrderPromotion) types.Promotion {
+	return types.Promotion{PromotionID: p.PromotionID, PromotionName: p.PromotionName, PromotionType: p.PromotionType, DiscountAmount: p.DiscountAmount, Meta: p.Meta}
+}
+
+func toTypesProduct(p domain.OrderProduct) types.Product {
+	promotions := make([]types.Promotion, 0, len(p.Promotions))
+	for _, pr := range p.Promotions {
+		promotions = append(promotions, toTypesPromotion(pr))
+	}
+	return types.Product{
+		OrderItemID:       p.OrderItemID,
+		Index:             p.Index,
+		RefundReason:      p.RefundReason,
+		RefundedBy:        p.RefundedBy,
+		RefundedAt:        p.RefundedAt,
+		Promotions:        promotions,
+		PromotionDiscount: p.PromotionDiscount,
+		ProductID:         p.ProductID,
+		ProductName:       p.ProductName,
+		SkuID:             p.SkuID,
+		SkuName:           p.SkuName,
+		Qty:               p.Qty,
+		Price:             p.Price,
+		Subtotal:          p.Subtotal,
+		DiscountAmount:    p.DiscountAmount,
+		AmountBeforeTax:   p.AmountBeforeTax,
+		TaxRate:           p.TaxRate,
+		Tax:               p.Tax,
+		AmountAfterTax:    p.AmountAfterTax,
+		Total:             p.Total,
+		VoidQty:           p.VoidQty,
+		VoidAmount:        p.VoidAmount,
+		Note:              p.Note,
+		Options:           p.Options,
+	}
+}
+
+func toTypesProducts(ps *[]domain.OrderProduct) []types.Product {
+	if ps == nil {
+		return nil
+	}
+	res := make([]types.Product, 0, len(*ps))
+	for _, p := range *ps {
+		res = append(res, toTypesProduct(p))
+	}
+	return res
+}
+
+func toTypesPromotions(ps *[]domain.OrderPromotion) []types.Promotion {
+	if ps == nil {
+		return nil
+	}
+	res := make([]types.Promotion, 0, len(*ps))
+	for _, p := range *ps {
+		res = append(res, toTypesPromotion(p))
+	}
+	return res
+}
+
+func toTypesCoupons(cs *[]domain.OrderCoupon) []types.Coupon {
+	if cs == nil {
+		return nil
+	}
+	res := make([]types.Coupon, 0, len(*cs))
+	for _, c := range *cs {
+		res = append(res, types.Coupon{CouponID: c.CouponID, CouponName: c.CouponName, CouponType: c.CouponType, CouponCode: c.CouponCode, DiscountAmount: c.DiscountAmount, Meta: c.Meta})
+	}
+	return res
+}
+
+func toTypesTaxRates(ts *[]domain.OrderTaxRate) []types.TaxRate {
+	if ts == nil {
+		return nil
+	}
+	res := make([]types.TaxRate, 0, len(*ts))
+	for _, t := range *ts {
+		res = append(res, types.TaxRate{TaxRateID: t.TaxRateID, TaxRateName: t.TaxRateName, Rate: t.Rate, TaxableAmount: t.TaxableAmount, TaxAmount: t.TaxAmount, Meta: t.Meta})
+	}
+	return res
+}
+
+func toTypesFees(fs *[]domain.OrderFee) []types.Fee {
+	if fs == nil {
+		return nil
+	}
+	res := make([]types.Fee, 0, len(*fs))
+	for _, f := range *fs {
+		res = append(res, types.Fee{FeeID: f.FeeID, FeeName: f.FeeName, FeeType: f.FeeType, Amount: f.Amount, Meta: f.Meta})
+	}
+	return res
+}
+
+func toTypesPayments(ps *[]domain.OrderPayment) []types.Payment {
+	if ps == nil {
+		return nil
+	}
+	res := make([]types.Payment, 0, len(*ps))
+	for _, p := range *ps {
+		res = append(res, types.Payment{
+			PaymentNo:     p.PaymentNo,
+			PaymentMethod: p.PaymentMethod,
+			PaymentAmount: p.PaymentAmount,
+			POS:           types.POS{PosID: p.POS.PosID, PosCode: p.POS.PosCode, DeviceID: p.POS.DeviceID},
+			Cashier:       types.Cashier{CashierID: p.Cashier.CashierID, CashierName: p.Cashier.CashierName},
+			PaidAt:        p.PaidAt,
+		})
+	}
+	return res
+}
+
+func toTypesAmount(a *domain.OrderAmount) types.Amount {
+	if a == nil {
+		return types.Amount{}
+	}
+	return types.Amount{
+		ItemsSubtotal:          a.ItemsSubtotal,
+		DiscountTotal:          a.DiscountTotal,
+		PromotionDiscountTotal: a.PromotionDiscountTotal,
+		VoucherDiscountTotal:   a.VoucherDiscountTotal,
+		TaxTotal:               a.TaxTotal,
+		ServiceFeeTotal:        a.ServiceFeeTotal,
+		DeliveryFee:            a.DeliveryFee,
+		FeeTotal:               a.FeeTotal,
+		RoundingAmount:         a.RoundingAmount,
+		AmountDue:              a.AmountDue,
+		AmountPaid:             a.AmountPaid,
+		ChangeAmount:           a.ChangeAmount,
+		AmountRefunded:         a.AmountRefunded,
+	}
 }

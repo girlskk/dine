@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	entsql "entgo.io/ent/dialect/sql"
@@ -37,7 +38,11 @@ func (repo *OrderRepository) FindByID(ctx context.Context, id uuid.UUID) (res *d
 		return nil, fmt.Errorf("failed to get order: %w", err)
 	}
 
-	return convertOrderToDomain(eo), nil
+	res, err = convertOrderToDomain(eo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert order: %w", err)
+	}
+	return res, nil
 }
 
 func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err error) {
@@ -51,7 +56,7 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		SetStoreID(o.StoreID).
 		SetBusinessDate(o.BusinessDate).
 		SetOrderNo(o.OrderNo).
-		SetDiningMode(entorder.DiningMode(o.DiningMode))
+		SetDiningMode(o.DiningMode)
 
 	if o.ID != uuid.Nil {
 		builder = builder.SetID(o.ID)
@@ -60,13 +65,17 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetShiftNo(o.ShiftNo)
 	}
 	if o.OrderType != "" {
-		builder = builder.SetOrderType(entorder.OrderType(o.OrderType))
+		builder = builder.SetOrderType(o.OrderType)
 	}
 	if o.OriginOrderID != "" {
 		builder = builder.SetOriginOrderID(o.OriginOrderID)
 	}
-	if len(o.Refund) > 0 {
-		builder = builder.SetRefund(o.Refund)
+	if o.Refund != nil {
+		b, mErr := json.Marshal(o.Refund)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal refund: %w", mErr)
+		}
+		builder = builder.SetRefund(b)
 	}
 
 	if o.OpenedAt != nil {
@@ -93,16 +102,16 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 	}
 
 	if o.OrderStatus != "" {
-		builder = builder.SetOrderStatus(entorder.OrderStatus(o.OrderStatus))
+		builder = builder.SetOrderStatus(o.OrderStatus)
 	}
 	if o.PaymentStatus != "" {
-		builder = builder.SetPaymentStatus(entorder.PaymentStatus(o.PaymentStatus))
+		builder = builder.SetPaymentStatus(o.PaymentStatus)
 	}
 	if o.FulfillmentStatus != "" {
-		builder = builder.SetFulfillmentStatus(entorder.FulfillmentStatus(o.FulfillmentStatus))
+		builder = builder.SetFulfillmentStatus(o.FulfillmentStatus)
 	}
 	if o.TableStatus != "" {
-		builder = builder.SetTableStatus(entorder.TableStatus(o.TableStatus))
+		builder = builder.SetTableStatus(o.TableStatus)
 	}
 
 	if o.TableID != "" {
@@ -125,52 +134,112 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetMergedAt(*o.MergedAt)
 	}
 
-	if len(o.Store) > 0 {
-		builder = builder.SetStore(o.Store)
+	if o.Store != nil {
+		b, mErr := json.Marshal(o.Store)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal store: %w", mErr)
+		}
+		builder = builder.SetStore(b)
 	}
-	if len(o.Channel) > 0 {
-		builder = builder.SetChannel(o.Channel)
+	if o.Channel != nil {
+		b, mErr := json.Marshal(o.Channel)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal channel: %w", mErr)
+		}
+		builder = builder.SetChannel(b)
 	}
-	if len(o.Pos) > 0 {
-		builder = builder.SetPos(o.Pos)
+	if o.Pos != nil {
+		b, mErr := json.Marshal(o.Pos)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal pos: %w", mErr)
+		}
+		builder = builder.SetPos(b)
 	}
-	if len(o.Cashier) > 0 {
-		builder = builder.SetCashier(o.Cashier)
+	if o.Cashier != nil {
+		b, mErr := json.Marshal(o.Cashier)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal cashier: %w", mErr)
+		}
+		builder = builder.SetCashier(b)
 	}
 
-	if len(o.Member) > 0 {
-		builder = builder.SetMember(o.Member)
+	if o.Member != nil {
+		b, mErr := json.Marshal(o.Member)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal member: %w", mErr)
+		}
+		builder = builder.SetMember(b)
 	}
-	if len(o.Takeaway) > 0 {
-		builder = builder.SetTakeaway(o.Takeaway)
+	if o.Takeaway != nil {
+		b, mErr := json.Marshal(o.Takeaway)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal takeaway: %w", mErr)
+		}
+		builder = builder.SetTakeaway(b)
 	}
 
-	if len(o.Cart) > 0 {
-		builder = builder.SetCart(o.Cart)
+	if o.Cart != nil {
+		b, mErr := json.Marshal(*o.Cart)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal cart: %w", mErr)
+		}
+		builder = builder.SetCart(b)
 	}
-	if len(o.Products) > 0 {
-		builder = builder.SetProducts(o.Products)
+	if o.Products != nil {
+		b, mErr := json.Marshal(*o.Products)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal products: %w", mErr)
+		}
+		builder = builder.SetProducts(b)
 	}
-	if len(o.Promotions) > 0 {
-		builder = builder.SetPromotions(o.Promotions)
+	if o.Promotions != nil {
+		b, mErr := json.Marshal(*o.Promotions)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal promotions: %w", mErr)
+		}
+		builder = builder.SetPromotions(b)
 	}
-	if len(o.Coupons) > 0 {
-		builder = builder.SetCoupons(o.Coupons)
+	if o.Coupons != nil {
+		b, mErr := json.Marshal(*o.Coupons)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal coupons: %w", mErr)
+		}
+		builder = builder.SetCoupons(b)
 	}
-	if len(o.TaxRates) > 0 {
-		builder = builder.SetTaxRates(o.TaxRates)
+	if o.TaxRates != nil {
+		b, mErr := json.Marshal(*o.TaxRates)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal tax_rates: %w", mErr)
+		}
+		builder = builder.SetTaxRates(b)
 	}
-	if len(o.Fees) > 0 {
-		builder = builder.SetFees(o.Fees)
+	if o.Fees != nil {
+		b, mErr := json.Marshal(*o.Fees)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal fees: %w", mErr)
+		}
+		builder = builder.SetFees(b)
 	}
-	if len(o.Payments) > 0 {
-		builder = builder.SetPayments(o.Payments)
+	if o.Payments != nil {
+		b, mErr := json.Marshal(*o.Payments)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal payments: %w", mErr)
+		}
+		builder = builder.SetPayments(b)
 	}
-	if len(o.RefundsProducts) > 0 {
-		builder = builder.SetRefundsProducts(o.RefundsProducts)
+	if o.RefundsProducts != nil {
+		b, mErr := json.Marshal(*o.RefundsProducts)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal refunds_products: %w", mErr)
+		}
+		builder = builder.SetRefundsProducts(b)
 	}
-	if len(o.Amount) > 0 {
-		builder = builder.SetAmount(o.Amount)
+	if o.Amount != nil {
+		b, mErr := json.Marshal(o.Amount)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal amount: %w", mErr)
+		}
+		builder = builder.SetAmount(b)
 	}
 
 	created, err := builder.Save(ctx)
@@ -210,13 +279,17 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	}
 
 	if o.OrderType != "" {
-		builder = builder.SetOrderType(entorder.OrderType(o.OrderType))
+		builder = builder.SetOrderType(domain.OrderType(o.OrderType))
 	}
 	if o.OriginOrderID != "" {
 		builder = builder.SetOriginOrderID(o.OriginOrderID)
 	}
-	if len(o.Refund) > 0 {
-		builder = builder.SetRefund(o.Refund)
+	if o.Refund != nil {
+		b, mErr := json.Marshal(o.Refund)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal refund: %w", mErr)
+		}
+		builder = builder.SetRefund(b)
 	}
 
 	if o.OpenedAt != nil {
@@ -243,19 +316,19 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	}
 
 	if o.DiningMode != "" {
-		builder = builder.SetDiningMode(entorder.DiningMode(o.DiningMode))
+		builder = builder.SetDiningMode(o.DiningMode)
 	}
 	if o.OrderStatus != "" {
-		builder = builder.SetOrderStatus(entorder.OrderStatus(o.OrderStatus))
+		builder = builder.SetOrderStatus(o.OrderStatus)
 	}
 	if o.PaymentStatus != "" {
-		builder = builder.SetPaymentStatus(entorder.PaymentStatus(o.PaymentStatus))
+		builder = builder.SetPaymentStatus(o.PaymentStatus)
 	}
 	if o.FulfillmentStatus != "" {
-		builder = builder.SetFulfillmentStatus(entorder.FulfillmentStatus(o.FulfillmentStatus))
+		builder = builder.SetFulfillmentStatus(o.FulfillmentStatus)
 	}
 	if o.TableStatus != "" {
-		builder = builder.SetTableStatus(entorder.TableStatus(o.TableStatus))
+		builder = builder.SetTableStatus(o.TableStatus)
 	}
 
 	if o.TableID != "" {
@@ -278,50 +351,110 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetMergedAt(*o.MergedAt)
 	}
 
-	if len(o.Store) > 0 {
-		builder = builder.SetStore(o.Store)
+	if o.Store != nil {
+		b, mErr := json.Marshal(o.Store)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal store: %w", mErr)
+		}
+		builder = builder.SetStore(b)
 	}
-	if len(o.Channel) > 0 {
-		builder = builder.SetChannel(o.Channel)
+	if o.Channel != nil {
+		b, mErr := json.Marshal(o.Channel)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal channel: %w", mErr)
+		}
+		builder = builder.SetChannel(b)
 	}
-	if len(o.Pos) > 0 {
-		builder = builder.SetPos(o.Pos)
+	if o.Pos != nil {
+		b, mErr := json.Marshal(o.Pos)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal pos: %w", mErr)
+		}
+		builder = builder.SetPos(b)
 	}
-	if len(o.Cashier) > 0 {
-		builder = builder.SetCashier(o.Cashier)
+	if o.Cashier != nil {
+		b, mErr := json.Marshal(o.Cashier)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal cashier: %w", mErr)
+		}
+		builder = builder.SetCashier(b)
 	}
-	if len(o.Member) > 0 {
-		builder = builder.SetMember(o.Member)
+	if o.Member != nil {
+		b, mErr := json.Marshal(o.Member)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal member: %w", mErr)
+		}
+		builder = builder.SetMember(b)
 	}
-	if len(o.Takeaway) > 0 {
-		builder = builder.SetTakeaway(o.Takeaway)
+	if o.Takeaway != nil {
+		b, mErr := json.Marshal(o.Takeaway)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal takeaway: %w", mErr)
+		}
+		builder = builder.SetTakeaway(b)
 	}
-	if len(o.Cart) > 0 {
-		builder = builder.SetCart(o.Cart)
+	if o.Cart != nil {
+		b, mErr := json.Marshal(*o.Cart)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal cart: %w", mErr)
+		}
+		builder = builder.SetCart(b)
 	}
-	if len(o.Products) > 0 {
-		builder = builder.SetProducts(o.Products)
+	if o.Products != nil {
+		b, mErr := json.Marshal(*o.Products)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal products: %w", mErr)
+		}
+		builder = builder.SetProducts(b)
 	}
-	if len(o.Promotions) > 0 {
-		builder = builder.SetPromotions(o.Promotions)
+	if o.Promotions != nil {
+		b, mErr := json.Marshal(*o.Promotions)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal promotions: %w", mErr)
+		}
+		builder = builder.SetPromotions(b)
 	}
-	if len(o.Coupons) > 0 {
-		builder = builder.SetCoupons(o.Coupons)
+	if o.Coupons != nil {
+		b, mErr := json.Marshal(*o.Coupons)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal coupons: %w", mErr)
+		}
+		builder = builder.SetCoupons(b)
 	}
-	if len(o.TaxRates) > 0 {
-		builder = builder.SetTaxRates(o.TaxRates)
+	if o.TaxRates != nil {
+		b, mErr := json.Marshal(*o.TaxRates)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal tax_rates: %w", mErr)
+		}
+		builder = builder.SetTaxRates(b)
 	}
-	if len(o.Fees) > 0 {
-		builder = builder.SetFees(o.Fees)
+	if o.Fees != nil {
+		b, mErr := json.Marshal(*o.Fees)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal fees: %w", mErr)
+		}
+		builder = builder.SetFees(b)
 	}
-	if len(o.Payments) > 0 {
-		builder = builder.SetPayments(o.Payments)
+	if o.Payments != nil {
+		b, mErr := json.Marshal(*o.Payments)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal payments: %w", mErr)
+		}
+		builder = builder.SetPayments(b)
 	}
-	if len(o.RefundsProducts) > 0 {
-		builder = builder.SetRefundsProducts(o.RefundsProducts)
+	if o.RefundsProducts != nil {
+		b, mErr := json.Marshal(*o.RefundsProducts)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal refunds_products: %w", mErr)
+		}
+		builder = builder.SetRefundsProducts(b)
 	}
-	if len(o.Amount) > 0 {
-		builder = builder.SetAmount(o.Amount)
+	if o.Amount != nil {
+		b, mErr := json.Marshal(o.Amount)
+		if mErr != nil {
+			return fmt.Errorf("failed to marshal amount: %w", mErr)
+		}
+		builder = builder.SetAmount(b)
 	}
 
 	updated, err := builder.Save(ctx)
@@ -364,27 +497,11 @@ func (repo *OrderRepository) List(ctx context.Context, params domain.OrderListPa
 		util.SpanErrFinish(span, err)
 	}()
 
-	if params.OrderType != "" {
-		if vErr := entorder.OrderTypeValidator(entorder.OrderType(params.OrderType)); vErr != nil {
-			return nil, 0, domain.ParamsError(fmt.Errorf("invalid order_type: %w", vErr))
-		}
-	}
-	if params.OrderStatus != "" {
-		if vErr := entorder.OrderStatusValidator(entorder.OrderStatus(params.OrderStatus)); vErr != nil {
-			return nil, 0, domain.ParamsError(fmt.Errorf("invalid order_status: %w", vErr))
-		}
-	}
-	if params.PaymentStatus != "" {
-		if vErr := entorder.PaymentStatusValidator(entorder.PaymentStatus(params.PaymentStatus)); vErr != nil {
-			return nil, 0, domain.ParamsError(fmt.Errorf("invalid payment_status: %w", vErr))
-		}
-	}
-
 	query := repo.Client.Order.Query()
-	if params.MerchantID != "" {
+	if params.MerchantID != uuid.Nil {
 		query.Where(entorder.MerchantID(params.MerchantID))
 	}
-	if params.StoreID != "" {
+	if params.StoreID != uuid.Nil {
 		query.Where(entorder.StoreID(params.StoreID))
 	}
 	if params.BusinessDate != "" {
@@ -394,13 +511,13 @@ func (repo *OrderRepository) List(ctx context.Context, params domain.OrderListPa
 		query.Where(entorder.OrderNo(params.OrderNo))
 	}
 	if params.OrderType != "" {
-		query.Where(entorder.OrderTypeEQ(entorder.OrderType(params.OrderType)))
+		query.Where(entorder.OrderTypeEQ(params.OrderType))
 	}
 	if params.OrderStatus != "" {
-		query.Where(entorder.OrderStatusEQ(entorder.OrderStatus(params.OrderStatus)))
+		query.Where(entorder.OrderStatusEQ(params.OrderStatus))
 	}
 	if params.PaymentStatus != "" {
-		query.Where(entorder.PaymentStatusEQ(entorder.PaymentStatus(params.PaymentStatus)))
+		query.Where(entorder.PaymentStatusEQ(params.PaymentStatus))
 	}
 
 	pageInfo := upagination.New(params.Page, params.Size)
@@ -421,21 +538,156 @@ func (repo *OrderRepository) List(ctx context.Context, params domain.OrderListPa
 
 	res = make([]*domain.Order, 0, len(items))
 	for _, eo := range items {
-		res = append(res, convertOrderToDomain(eo))
+		o, cErr := convertOrderToDomain(eo)
+		if cErr != nil {
+			return nil, 0, fmt.Errorf("failed to convert order: %w", cErr)
+		}
+		res = append(res, o)
 	}
 	return res, total, nil
 }
 
-func convertOrderToDomain(eo *ent.Order) *domain.Order {
+func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 	if eo == nil {
-		return nil
+		return nil, nil
+	}
+
+	var refund *domain.OrderRefund
+	if len(eo.Refund) > 0 {
+		var v domain.OrderRefund
+		if uErr := json.Unmarshal(eo.Refund, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal refund: %w", uErr)
+		}
+		refund = &v
+	}
+
+	var store *domain.OrderStore
+	if len(eo.Store) > 0 {
+		var v domain.OrderStore
+		if uErr := json.Unmarshal(eo.Store, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal store: %w", uErr)
+		}
+		store = &v
+	}
+	var channel *domain.OrderChannel
+	if len(eo.Channel) > 0 {
+		var v domain.OrderChannel
+		if uErr := json.Unmarshal(eo.Channel, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal channel: %w", uErr)
+		}
+		channel = &v
+	}
+	var pos *domain.OrderPOS
+	if len(eo.Pos) > 0 {
+		var v domain.OrderPOS
+		if uErr := json.Unmarshal(eo.Pos, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal pos: %w", uErr)
+		}
+		pos = &v
+	}
+	var cashier *domain.OrderCashier
+	if len(eo.Cashier) > 0 {
+		var v domain.OrderCashier
+		if uErr := json.Unmarshal(eo.Cashier, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal cashier: %w", uErr)
+		}
+		cashier = &v
+	}
+
+	var member *domain.OrderMember
+	if len(eo.Member) > 0 {
+		var v domain.OrderMember
+		if uErr := json.Unmarshal(eo.Member, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal member: %w", uErr)
+		}
+		member = &v
+	}
+	var takeaway *domain.OrderTakeaway
+	if len(eo.Takeaway) > 0 {
+		var v domain.OrderTakeaway
+		if uErr := json.Unmarshal(eo.Takeaway, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal takeaway: %w", uErr)
+		}
+		takeaway = &v
+	}
+
+	var cart *[]domain.OrderProduct
+	if len(eo.Cart) > 0 {
+		var v []domain.OrderProduct
+		if uErr := json.Unmarshal(eo.Cart, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal cart: %w", uErr)
+		}
+		cart = &v
+	}
+	var products *[]domain.OrderProduct
+	if len(eo.Products) > 0 {
+		var v []domain.OrderProduct
+		if uErr := json.Unmarshal(eo.Products, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal products: %w", uErr)
+		}
+		products = &v
+	}
+	var promotions *[]domain.OrderPromotion
+	if len(eo.Promotions) > 0 {
+		var v []domain.OrderPromotion
+		if uErr := json.Unmarshal(eo.Promotions, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal promotions: %w", uErr)
+		}
+		promotions = &v
+	}
+	var coupons *[]domain.OrderCoupon
+	if len(eo.Coupons) > 0 {
+		var v []domain.OrderCoupon
+		if uErr := json.Unmarshal(eo.Coupons, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal coupons: %w", uErr)
+		}
+		coupons = &v
+	}
+	var taxRates *[]domain.OrderTaxRate
+	if len(eo.TaxRates) > 0 {
+		var v []domain.OrderTaxRate
+		if uErr := json.Unmarshal(eo.TaxRates, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal tax_rates: %w", uErr)
+		}
+		taxRates = &v
+	}
+	var fees *[]domain.OrderFee
+	if len(eo.Fees) > 0 {
+		var v []domain.OrderFee
+		if uErr := json.Unmarshal(eo.Fees, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal fees: %w", uErr)
+		}
+		fees = &v
+	}
+	var payments *[]domain.OrderPayment
+	if len(eo.Payments) > 0 {
+		var v []domain.OrderPayment
+		if uErr := json.Unmarshal(eo.Payments, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal payments: %w", uErr)
+		}
+		payments = &v
+	}
+	var refundsProducts *[]domain.OrderProduct
+	if len(eo.RefundsProducts) > 0 {
+		var v []domain.OrderProduct
+		if uErr := json.Unmarshal(eo.RefundsProducts, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal refunds_products: %w", uErr)
+		}
+		refundsProducts = &v
+	}
+	var amount *domain.OrderAmount
+	if len(eo.Amount) > 0 {
+		var v domain.OrderAmount
+		if uErr := json.Unmarshal(eo.Amount, &v); uErr != nil {
+			return nil, fmt.Errorf("failed to unmarshal amount: %w", uErr)
+		}
+		amount = &v
 	}
 
 	return &domain.Order{
 		ID:        eo.ID,
 		CreatedAt: eo.CreatedAt,
 		UpdatedAt: eo.UpdatedAt,
-		DeletedAt: eo.DeletedAt,
 
 		MerchantID: eo.MerchantID,
 		StoreID:    eo.StoreID,
@@ -444,9 +696,9 @@ func convertOrderToDomain(eo *ent.Order) *domain.Order {
 		ShiftNo:      eo.ShiftNo,
 		OrderNo:      eo.OrderNo,
 
-		OrderType:     eo.OrderType.String(),
+		OrderType:     domain.OrderType(eo.OrderType),
 		OriginOrderID: eo.OriginOrderID,
-		Refund:        eo.Refund,
+		Refund:        refund,
 
 		OpenedAt:    eo.OpenedAt,
 		PlacedAt:    eo.PlacedAt,
@@ -457,11 +709,11 @@ func convertOrderToDomain(eo *ent.Order) *domain.Order {
 		PlacedBy: eo.PlacedBy,
 		PaidBy:   eo.PaidBy,
 
-		DiningMode:        eo.DiningMode.String(),
-		OrderStatus:       eo.OrderStatus.String(),
-		PaymentStatus:     eo.PaymentStatus.String(),
-		FulfillmentStatus: eo.FulfillmentStatus.String(),
-		TableStatus:       eo.TableStatus.String(),
+		DiningMode:        domain.DiningMode(eo.DiningMode),
+		OrderStatus:       domain.OrderStatus(eo.OrderStatus),
+		PaymentStatus:     domain.PaymentStatus(eo.PaymentStatus),
+		FulfillmentStatus: domain.FulfillmentStatus(eo.FulfillmentStatus),
+		TableStatus:       domain.TableStatus(eo.TableStatus),
 
 		TableID:       eo.TableID,
 		TableName:     eo.TableName,
@@ -471,22 +723,22 @@ func convertOrderToDomain(eo *ent.Order) *domain.Order {
 		MergedToOrderID: eo.MergedToOrderID,
 		MergedAt:        eo.MergedAt,
 
-		Store:   eo.Store,
-		Channel: eo.Channel,
-		Pos:     eo.Pos,
-		Cashier: eo.Cashier,
+		Store:   store,
+		Channel: channel,
+		Pos:     pos,
+		Cashier: cashier,
 
-		Member:   eo.Member,
-		Takeaway: eo.Takeaway,
+		Member:   member,
+		Takeaway: takeaway,
 
-		Cart:            eo.Cart,
-		Products:        eo.Products,
-		Promotions:      eo.Promotions,
-		Coupons:         eo.Coupons,
-		TaxRates:        eo.TaxRates,
-		Fees:            eo.Fees,
-		Payments:        eo.Payments,
-		RefundsProducts: eo.RefundsProducts,
-		Amount:          eo.Amount,
-	}
+		Cart:            cart,
+		Products:        products,
+		Promotions:      promotions,
+		Coupons:         coupons,
+		TaxRates:        taxRates,
+		Fees:            fees,
+		Payments:        payments,
+		RefundsProducts: refundsProducts,
+		Amount:          amount,
+	}, nil
 }
