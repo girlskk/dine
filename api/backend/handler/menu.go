@@ -112,7 +112,7 @@ func (h *MenuHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		response.Ok(c, menu)
+		response.Ok(c, nil)
 	}
 }
 

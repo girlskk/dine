@@ -19,8 +19,7 @@ var (
 	ErrMenuNameExists         = errors.New("菜单名称已存在")
 	ErrMenuStoreBound         = errors.New("门店已绑定其他菜单")
 	ErrMenuHasStores          = errors.New("菜单下有关联门店，不能删除")
-	ErrMenuItemProductExists  = errors.New("菜品已在菜单中")
-	ErrMenuItemProductInvalid = errors.New("菜品无效，必须是普通商品且属于当前品牌商")
+	ErrMenuItemProductInvalid = errors.New("菜品无效，必须属于当前品牌商")
 )
 
 // ------------------------------------------------------------

@@ -2055,8 +2055,17 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.Menu"
                     }
                 },
-                "pagination": {
-                    "$ref": "#/definitions/upagination.Pagination"
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
                 }
             }
         },
@@ -4484,23 +4493,6 @@ const docTemplate = `{
                 "tax_rate_id": {
                     "description": "税率ID",
                     "type": "string"
-                }
-            }
-        },
-        "upagination.Pagination": {
-            "type": "object",
-            "properties": {
-                "page": {
-                    "description": "页码",
-                    "type": "integer"
-                },
-                "size": {
-                    "description": "每页数量",
-                    "type": "integer"
-                },
-                "total": {
-                    "description": "总页数",
-                    "type": "integer"
                 }
             }
         }

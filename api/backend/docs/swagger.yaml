@@ -220,8 +220,15 @@ definitions:
         items:
           $ref: '#/definitions/domain.Menu'
         type: array
-      pagination:
-        $ref: '#/definitions/upagination.Pagination'
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
     type: object
   domain.Merchant:
     properties:
@@ -1949,18 +1956,6 @@ definitions:
       tax_rate_id:
         description: 税率ID
         type: string
-    type: object
-  upagination.Pagination:
-    properties:
-      page:
-        description: 页码
-        type: integer
-      size:
-        description: 每页数量
-        type: integer
-      total:
-        description: 总页数
-        type: integer
     type: object
 info:
   contact: {}
