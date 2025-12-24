@@ -35,11 +35,6 @@ type BackendUser struct {
 	Merchant *Merchant `json:"merchant,omitempty"` // 所属品牌商
 }
 
-type Merchant struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 func (u *BackendUser) SetPassword(password string) error {
 	hashed, err := util.HashPassword(password)
 	if err != nil {

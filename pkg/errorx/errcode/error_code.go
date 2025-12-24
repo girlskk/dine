@@ -43,4 +43,17 @@ const (
 
 	// 商品
 	ProductNameExists ErrCode = "PRODUCT_NAME_EXISTS" // 商品名称已存在
+
+	MerchantNameExists            ErrCode = "MERCHANT_NAME_EXISTS"              // 商户名称已存在
+	StoreNameExists               ErrCode = "STORE_NAME_EXISTS"                 // 门店名称已存在
+	StoreBusinessHoursConflict    ErrCode = "STORE_BUSINESS_HOURS_CONFLICT"     // 门店营业时间冲突
+	StoreBusinessHoursTimeInvalid ErrCode = "STORE_BUSINESS_HOURS_TIME_INVALID" // 门店营业时间无效,开始时间不能晚于结束时间
+	StoreDiningPeriodConflict     ErrCode = "STORE_DINING_PERIOD_CONFLICT"      // 门店用餐时段时间冲突
+	StoreDiningPeriodTimeInvalid  ErrCode = "STORE_DINING_PERIOD_TIME_INVALID"  // 门店用餐时段时间无效,开始时间不能晚于结束时间
+	StoreDiningPeriodNameExists   ErrCode = "STORE_DINING_PERIOD_NAME_EXISTS"   // 门店用餐时段名称已存在
+	StoreShiftTimeConflict        ErrCode = "STORE_SHIFT_TIME_CONFLICT"         // 门店班次时间冲突
+	StoreShiftTimeTimeInvalid     ErrCode = "STORE_SHIFT_TIME_TIME_INVALID"     // 门店班次时间无效,开始时间不能晚于结束时间
+	StoreShiftTimeNameExists      ErrCode = "STORE_SHIFT_TIME_NAME_EXISTS"      // 门店班次名称已存在
+	RemarkNameExists              ErrCode = "REMARK_NAME_EXISTS"                // 备注名称已存在
+	RemarkDeleteSystem            ErrCode = "REMARK_DELETE_SYSTEM"              // 不能删除系统内置备注
 )
