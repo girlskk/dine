@@ -43,7 +43,8 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 //
 //	@Summary		创建品牌商户
 //	@Description	创建品牌商户
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.CreateMerchantReq	true	"创建品牌商户请求"
@@ -114,7 +115,8 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 //
 //	@Summary		创建门店商户
 //	@Description	创建门店商户（商户 + 门店）
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.CreateStoreMerchantReq	true	"创建门店商户请求"
@@ -214,7 +216,8 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 //
 //	@Summary		更新品牌商户
 //	@Description	更新品牌商户
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string					true	"商户ID"
@@ -292,7 +295,8 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 //
 //	@Summary		更新门店商户
 //	@Description	更新门店商户（商户 + 门店）
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string							true	"商户ID"
@@ -402,7 +406,8 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 //
 //	@Summary		删除商户
 //	@Description	删除商户
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path	string	true	"商户ID"
@@ -445,7 +450,8 @@ func (h *MerchantHandler) DeleteMerchant() gin.HandlerFunc {
 //
 //	@Summary		获取商户信息
 //	@Description	根据商户ID获取商户信息
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"商户ID"
@@ -503,7 +509,8 @@ func (h *MerchantHandler) GetMerchant() gin.HandlerFunc {
 //
 //	@Summary		商户列表
 //	@Description	分页查询商户列表
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Produce		json
 //	@Param			data	query		types.MerchantListReq	true	"商户列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.MerchantListResp}
@@ -555,7 +562,8 @@ func (h *MerchantHandler) GetMerchants() gin.HandlerFunc {
 //
 //	@Summary		商户续期
 //	@Description	商户续费续期
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.MerchantRenewalReq	true	"商户续期请求"
@@ -600,14 +608,15 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 	}
 }
 
-// MerchantSimpleUpdate 商户简单更新
+// MerchantSimpleUpdate 更新商户信息
 //
-//	@Summary		商户简单更新
+//	@Summary		更新商户信息
 //	@Description	简单字段更新（目前仅状态）
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body	types.MerchantSimpleUpdateReq	true	"商户简单更新请求"
+//	@Param			data	body	types.MerchantSimpleUpdateReq	true	"更新商户信息请求"
 //	@Success		200		"No Content"
 //	@Failure		400		{object}	response.Response
 //	@Failure		404		{object}	response.Response

@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/merchant/merchant/brand": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "创建品牌商户",
                 "consumes": [
                     "application/json"
@@ -25,7 +30,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "创建品牌商户",
                 "parameters": [
@@ -66,6 +71,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/brand/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "更新品牌商户",
                 "consumes": [
                     "application/json"
@@ -74,7 +84,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "更新品牌商户",
                 "parameters": [
@@ -122,12 +132,17 @@ const docTemplate = `{
         },
         "/merchant/merchant/list": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "分页查询商户列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "商户列表",
                 "parameters": [
@@ -247,6 +262,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/renewal": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "商户续费续期",
                 "consumes": [
                     "application/json"
@@ -255,7 +275,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "商户续期",
                 "parameters": [
@@ -296,6 +316,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/store": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "创建门店商户（商户 + 门店）",
                 "consumes": [
                     "application/json"
@@ -304,7 +329,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "创建门店商户",
                 "parameters": [
@@ -345,6 +370,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/store/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "更新门店商户（商户 + 门店）",
                 "consumes": [
                     "application/json"
@@ -353,7 +383,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "更新门店商户",
                 "parameters": [
@@ -401,6 +431,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "根据商户ID获取商户信息",
                 "consumes": [
                     "application/json"
@@ -409,7 +444,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "获取商户信息",
                 "parameters": [
@@ -461,6 +496,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "删除商户",
                 "consumes": [
                     "application/json"
@@ -469,7 +509,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "删除商户",
                 "parameters": [
@@ -503,6 +543,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "简单字段更新（目前仅状态）",
                 "consumes": [
                     "application/json"
@@ -511,12 +556,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
-                "summary": "商户简单更新",
+                "summary": "更新商户信息",
                 "parameters": [
                     {
-                        "description": "商户简单更新请求",
+                        "description": "更新商户信息请求",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -552,6 +597,11 @@ const docTemplate = `{
         },
         "/merchant/store": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "创建单个门店",
                 "consumes": [
                     "application/json"
@@ -560,7 +610,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "创建门店",
                 "parameters": [
@@ -601,12 +651,17 @@ const docTemplate = `{
         },
         "/merchant/store/list": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "分页查询门店列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "门店列表",
                 "parameters": [
@@ -735,6 +790,11 @@ const docTemplate = `{
         },
         "/merchant/store/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "根据门店ID获取门店信息",
                 "consumes": [
                     "application/json"
@@ -743,7 +803,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "获取门店",
                 "parameters": [
@@ -795,6 +855,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "更新单个门店",
                 "consumes": [
                     "application/json"
@@ -803,7 +868,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "更新门店",
                 "parameters": [
@@ -849,6 +914,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "删除单个门店",
                 "consumes": [
                     "application/json"
@@ -857,7 +927,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "删除门店",
                 "parameters": [
@@ -891,6 +961,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "简单字段更新（目前仅状态）",
                 "consumes": [
                     "application/json"
@@ -899,7 +974,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "门店简单更新",
                 "parameters": [

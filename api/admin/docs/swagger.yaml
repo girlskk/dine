@@ -959,9 +959,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 删除商户
       tags:
-      - Merchant
+      - 商户管理-商户
     get:
       consumes:
       - application/json
@@ -996,15 +998,17 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 获取商户信息
       tags:
-      - Merchant
+      - 商户管理-商户
     patch:
       consumes:
       - application/json
       description: 简单字段更新（目前仅状态）
       parameters:
-      - description: 商户简单更新请求
+      - description: 更新商户信息请求
         in: body
         name: data
         required: true
@@ -1027,9 +1031,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: 商户简单更新
+      security:
+      - BearerAuth: []
+      summary: 更新商户信息
       tags:
-      - Merchant
+      - 商户管理-商户
   /merchant/merchant/brand:
     post:
       consumes:
@@ -1059,9 +1065,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 创建品牌商户
       tags:
-      - Merchant
+      - 商户管理-商户
   /merchant/merchant/brand/{id}:
     put:
       consumes:
@@ -1096,9 +1104,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 更新品牌商户
       tags:
-      - Merchant
+      - 商户管理-商户
   /merchant/merchant/list:
     get:
       description: 分页查询商户列表
@@ -1178,9 +1188,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 商户列表
       tags:
-      - Merchant
+      - 商户管理-商户
   /merchant/merchant/renewal:
     post:
       consumes:
@@ -1210,9 +1222,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 商户续期
       tags:
-      - Merchant
+      - 商户管理-商户
   /merchant/merchant/store:
     post:
       consumes:
@@ -1242,9 +1256,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 创建门店商户
       tags:
-      - Merchant
+      - 商户管理-商户
   /merchant/merchant/store/{id}:
     put:
       consumes:
@@ -1279,9 +1295,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 更新门店商户
       tags:
-      - Merchant
+      - 商户管理-商户
   /merchant/store:
     post:
       consumes:
@@ -1311,9 +1329,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 创建门店
       tags:
-      - Store
+      - 商户管理-门店
   /merchant/store/{id}:
     delete:
       consumes:
@@ -1340,9 +1360,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 删除门店
       tags:
-      - Store
+      - 商户管理-门店
     get:
       consumes:
       - application/json
@@ -1377,9 +1399,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 获取门店
       tags:
-      - Store
+      - 商户管理-门店
     patch:
       consumes:
       - application/json
@@ -1408,9 +1432,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 门店简单更新
       tags:
-      - Store
+      - 商户管理-门店
     put:
       consumes:
       - application/json
@@ -1444,9 +1470,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 更新门店
       tags:
-      - Store
+      - 商户管理-门店
   /merchant/store/list:
     get:
       description: 分页查询门店列表
@@ -1531,9 +1559,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: 门店列表
       tags:
-      - Store
+      - 商户管理-门店
   /oss/token:
     post:
       consumes:

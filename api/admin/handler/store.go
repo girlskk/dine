@@ -38,7 +38,8 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 //
 //	@Summary		创建门店
 //	@Description	创建单个门店
-//	@Tags			Store
+//	@Tags			商户管理-门店
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.CreateStoreReq	true	"创建门店请求"
@@ -110,7 +111,8 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 //
 //	@Summary		更新门店
 //	@Description	更新单个门店
-//	@Tags			Store
+//	@Tags			商户管理-门店
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string					true	"门店ID"
@@ -194,7 +196,8 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 //
 //	@Summary		删除门店
 //	@Description	删除单个门店
-//	@Tags			Store
+//	@Tags			商户管理-门店
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
@@ -234,7 +237,8 @@ func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 //
 //	@Summary		获取门店
 //	@Description	根据门店ID获取门店信息
-//	@Tags			Store
+//	@Tags			商户管理-门店
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"门店ID"
@@ -275,7 +279,8 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 //
 //	@Summary		门店列表
 //	@Description	分页查询门店列表
-//	@Tags			Store
+//	@Tags			商户管理-门店
+//	@Security		BearerAuth
 //	@Produce		json
 //	@Param			data	query		types.StoreListReq	true	"门店列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.StoreListResp}
@@ -329,7 +334,8 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 //
 //	@Summary		门店简单更新
 //	@Description	简单字段更新（目前仅状态）
-//	@Tags			Store
+//	@Tags			商户管理-门店
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.StoreSimpleUpdateReq	true	"门店简单更新请求"
