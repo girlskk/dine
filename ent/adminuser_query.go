@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -14,17 +15,21 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // AdminUserQuery is the builder for querying AdminUser entities.
 type AdminUserQuery struct {
 	config
-	ctx        *QueryContext
-	order      []adminuser.OrderOption
-	inters     []Interceptor
-	predicates []predicate.AdminUser
-	modifiers  []func(*sql.Selector)
+	ctx          *QueryContext
+	order        []adminuser.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.AdminUser
+	withMerchant *MerchantQuery
+	withStore    *StoreQuery
+	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +64,50 @@ func (auq *AdminUserQuery) Unique(unique bool) *AdminUserQuery {
 func (auq *AdminUserQuery) Order(o ...adminuser.OrderOption) *AdminUserQuery {
 	auq.order = append(auq.order, o...)
 	return auq
+}
+
+// QueryMerchant chains the current query on the "merchant" edge.
+func (auq *AdminUserQuery) QueryMerchant() *MerchantQuery {
+	query := (&MerchantClient{config: auq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := auq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := auq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adminuser.Table, adminuser.FieldID, selector),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, adminuser.MerchantTable, adminuser.MerchantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(auq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStore chains the current query on the "store" edge.
+func (auq *AdminUserQuery) QueryStore() *StoreQuery {
+	query := (&StoreClient{config: auq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := auq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := auq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adminuser.Table, adminuser.FieldID, selector),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, adminuser.StoreTable, adminuser.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(auq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first AdminUser entity from the query.
@@ -248,16 +297,40 @@ func (auq *AdminUserQuery) Clone() *AdminUserQuery {
 		return nil
 	}
 	return &AdminUserQuery{
-		config:     auq.config,
-		ctx:        auq.ctx.Clone(),
-		order:      append([]adminuser.OrderOption{}, auq.order...),
-		inters:     append([]Interceptor{}, auq.inters...),
-		predicates: append([]predicate.AdminUser{}, auq.predicates...),
+		config:       auq.config,
+		ctx:          auq.ctx.Clone(),
+		order:        append([]adminuser.OrderOption{}, auq.order...),
+		inters:       append([]Interceptor{}, auq.inters...),
+		predicates:   append([]predicate.AdminUser{}, auq.predicates...),
+		withMerchant: auq.withMerchant.Clone(),
+		withStore:    auq.withStore.Clone(),
 		// clone intermediate query.
 		sql:       auq.sql.Clone(),
 		path:      auq.path,
 		modifiers: append([]func(*sql.Selector){}, auq.modifiers...),
 	}
+}
+
+// WithMerchant tells the query-builder to eager-load the nodes that are connected to
+// the "merchant" edge. The optional arguments are used to configure the query builder of the edge.
+func (auq *AdminUserQuery) WithMerchant(opts ...func(*MerchantQuery)) *AdminUserQuery {
+	query := (&MerchantClient{config: auq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	auq.withMerchant = query
+	return auq
+}
+
+// WithStore tells the query-builder to eager-load the nodes that are connected to
+// the "store" edge. The optional arguments are used to configure the query builder of the edge.
+func (auq *AdminUserQuery) WithStore(opts ...func(*StoreQuery)) *AdminUserQuery {
+	query := (&StoreClient{config: auq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	auq.withStore = query
+	return auq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +409,12 @@ func (auq *AdminUserQuery) prepareQuery(ctx context.Context) error {
 
 func (auq *AdminUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AdminUser, error) {
 	var (
-		nodes = []*AdminUser{}
-		_spec = auq.querySpec()
+		nodes       = []*AdminUser{}
+		_spec       = auq.querySpec()
+		loadedTypes = [2]bool{
+			auq.withMerchant != nil,
+			auq.withStore != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*AdminUser).scanValues(nil, columns)
@@ -345,6 +422,7 @@ func (auq *AdminUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*A
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &AdminUser{config: auq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(auq.modifiers) > 0 {
@@ -359,7 +437,82 @@ func (auq *AdminUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*A
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := auq.withMerchant; query != nil {
+		if err := auq.loadMerchant(ctx, query, nodes,
+			func(n *AdminUser) { n.Edges.Merchant = []*Merchant{} },
+			func(n *AdminUser, e *Merchant) { n.Edges.Merchant = append(n.Edges.Merchant, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := auq.withStore; query != nil {
+		if err := auq.loadStore(ctx, query, nodes,
+			func(n *AdminUser) { n.Edges.Store = []*Store{} },
+			func(n *AdminUser, e *Store) { n.Edges.Store = append(n.Edges.Store, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (auq *AdminUserQuery) loadMerchant(ctx context.Context, query *MerchantQuery, nodes []*AdminUser, init func(*AdminUser), assign func(*AdminUser, *Merchant)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*AdminUser)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(merchant.FieldAdminUserID)
+	}
+	query.Where(predicate.Merchant(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(adminuser.MerchantColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AdminUserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "admin_user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (auq *AdminUserQuery) loadStore(ctx context.Context, query *StoreQuery, nodes []*AdminUser, init func(*AdminUser), assign func(*AdminUser, *Store)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*AdminUser)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(store.FieldAdminUserID)
+	}
+	query.Where(predicate.Store(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(adminuser.StoreColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AdminUserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "admin_user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (auq *AdminUserQuery) sqlCount(ctx context.Context) (int, error) {

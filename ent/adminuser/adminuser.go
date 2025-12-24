@@ -7,7 +7,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 const (
@@ -27,8 +29,28 @@ const (
 	FieldHashedPassword = "hashed_password"
 	// FieldNickname holds the string denoting the nickname field in the database.
 	FieldNickname = "nickname"
+	// FieldAccountType holds the string denoting the account_type field in the database.
+	FieldAccountType = "account_type"
+	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
+	EdgeMerchant = "merchant"
+	// EdgeStore holds the string denoting the store edge name in mutations.
+	EdgeStore = "store"
 	// Table holds the table name of the adminuser in the database.
 	Table = "admin_users"
+	// MerchantTable is the table that holds the merchant relation/edge.
+	MerchantTable = "merchants"
+	// MerchantInverseTable is the table name for the Merchant entity.
+	// It exists in this package in order to avoid circular dependency with the "merchant" package.
+	MerchantInverseTable = "merchants"
+	// MerchantColumn is the table column denoting the merchant relation/edge.
+	MerchantColumn = "admin_user_id"
+	// StoreTable is the table that holds the store relation/edge.
+	StoreTable = "stores"
+	// StoreInverseTable is the table name for the Store entity.
+	// It exists in this package in order to avoid circular dependency with the "store" package.
+	StoreInverseTable = "stores"
+	// StoreColumn is the table column denoting the store relation/edge.
+	StoreColumn = "admin_user_id"
 )
 
 // Columns holds all SQL columns for adminuser fields.
@@ -40,6 +62,7 @@ var Columns = []string{
 	FieldUsername,
 	FieldHashedPassword,
 	FieldNickname,
+	FieldAccountType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -72,6 +95,10 @@ var (
 	UsernameValidator func(string) error
 	// HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	HashedPasswordValidator func(string) error
+	// DefaultAccountType holds the default value on creation for the "account_type" field.
+	DefaultAccountType domain.AdminUserAccountType
+	// AccountTypeValidator is a validator for the "account_type" field. It is called by the builders before save.
+	AccountTypeValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -112,4 +139,51 @@ func ByHashedPassword(opts ...sql.OrderTermOption) OrderOption {
 // ByNickname orders the results by the nickname field.
 func ByNickname(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNickname, opts...).ToFunc()
+}
+
+// ByAccountType orders the results by the account_type field.
+func ByAccountType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccountType, opts...).ToFunc()
+}
+
+// ByMerchantCount orders the results by merchant count.
+func ByMerchantCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMerchantStep(), opts...)
+	}
+}
+
+// ByMerchant orders the results by merchant terms.
+func ByMerchant(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByStoreCount orders the results by store count.
+func ByStoreCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStoreStep(), opts...)
+	}
+}
+
+// ByStore orders the results by store terms.
+func ByStore(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStoreStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newMerchantStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MerchantInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MerchantTable, MerchantColumn),
+	)
+}
+func newStoreStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StoreInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StoreTable, StoreColumn),
+	)
 }

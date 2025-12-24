@@ -13,13 +13,19 @@ import (
 var _ domain.DataStore = (*Repository)(nil)
 
 type Repository struct {
-	transactionActive bool
-	hooks             []func()
-	mu                sync.Mutex
-	client            *ent.Client
-	adminUserRepo     *AdminUserRepository
-	categoryRepo      *CategoryRepository
-	backendUserRepo   *BackendUserRepository
+	transactionActive        bool
+	hooks                    []func()
+	mu                       sync.Mutex
+	client                   *ent.Client
+	adminUserRepo            *AdminUserRepository
+	categoryRepo             *CategoryRepository
+	backendUserRepo          *BackendUserRepository
+	merchantRepo             *MerchantRepository
+	storeRepo                *StoreRepository
+	merchantRenewalRepo      *MerchantRenewalRepository
+	merchantBusinessTypeRepo *MerchantBusinessTypeRepository
+	remarkRepo               *RemarkRepository
+	remarkCategoryRepo       *RemarkCategoryRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -119,4 +125,58 @@ func (repo *Repository) BackendUserRepo() domain.BackendUserRepository {
 		repo.backendUserRepo = NewBackendUserRepository(repo.client)
 	}
 	return repo.backendUserRepo
+}
+
+func (repo *Repository) MerchantRepo() domain.MerchantRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantRepo == nil {
+		repo.merchantRepo = NewMerchantRepository(repo.client)
+	}
+	return repo.merchantRepo
+}
+
+func (repo *Repository) StoreRepo() domain.StoreRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.storeRepo == nil {
+		repo.storeRepo = NewStoreRepository(repo.client)
+	}
+	return repo.storeRepo
+}
+
+func (repo *Repository) MerchantRenewalRepo() domain.MerchantRenewalRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantRenewalRepo == nil {
+		repo.merchantRenewalRepo = NewMerchantRenewalRepository(repo.client)
+	}
+	return repo.merchantRenewalRepo
+}
+
+func (repo *Repository) MerchantBusinessTypeRepo() domain.MerchantBusinessTypeRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantBusinessTypeRepo == nil {
+		repo.merchantBusinessTypeRepo = NewMerchantBusinessTypeRepository(repo.client)
+	}
+	return repo.merchantBusinessTypeRepo
+}
+
+func (repo *Repository) RemarkRepo() domain.RemarkRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.remarkRepo == nil {
+		repo.remarkRepo = NewRemarkRepository(repo.client)
+	}
+	return repo.remarkRepo
+}
+
+func (repo *Repository) RemarkCategoryRepo() domain.RemarkCategoryRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.remarkCategoryRepo == nil {
+		repo.remarkCategoryRepo = NewRemarkCategoryRepository(repo.client)
+	}
+	return repo.remarkCategoryRepo
 }

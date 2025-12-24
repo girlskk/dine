@@ -18,6 +18,26 @@ type Tx struct {
 	BackendUser *BackendUserClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// City is the client for interacting with the City builders.
+	City *CityClient
+	// Country is the client for interacting with the Country builders.
+	Country *CountryClient
+	// District is the client for interacting with the District builders.
+	District *DistrictClient
+	// Merchant is the client for interacting with the Merchant builders.
+	Merchant *MerchantClient
+	// MerchantBusinessType is the client for interacting with the MerchantBusinessType builders.
+	MerchantBusinessType *MerchantBusinessTypeClient
+	// MerchantRenewal is the client for interacting with the MerchantRenewal builders.
+	MerchantRenewal *MerchantRenewalClient
+	// Province is the client for interacting with the Province builders.
+	Province *ProvinceClient
+	// Remark is the client for interacting with the Remark builders.
+	Remark *RemarkClient
+	// RemarkCategory is the client for interacting with the RemarkCategory builders.
+	RemarkCategory *RemarkCategoryClient
+	// Store is the client for interacting with the Store builders.
+	Store *StoreClient
 
 	// lazily loaded.
 	client     *Client
@@ -152,6 +172,16 @@ func (tx *Tx) init() {
 	tx.AdminUser = NewAdminUserClient(tx.config)
 	tx.BackendUser = NewBackendUserClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
+	tx.City = NewCityClient(tx.config)
+	tx.Country = NewCountryClient(tx.config)
+	tx.District = NewDistrictClient(tx.config)
+	tx.Merchant = NewMerchantClient(tx.config)
+	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
+	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
+	tx.Province = NewProvinceClient(tx.config)
+	tx.Remark = NewRemarkClient(tx.config)
+	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
+	tx.Store = NewStoreClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

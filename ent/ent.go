@@ -15,6 +15,16 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -75,9 +85,19 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			adminuser.Table:   adminuser.ValidColumn,
-			backenduser.Table: backenduser.ValidColumn,
-			category.Table:    category.ValidColumn,
+			adminuser.Table:            adminuser.ValidColumn,
+			backenduser.Table:          backenduser.ValidColumn,
+			category.Table:             category.ValidColumn,
+			city.Table:                 city.ValidColumn,
+			country.Table:              country.ValidColumn,
+			district.Table:             district.ValidColumn,
+			merchant.Table:             merchant.ValidColumn,
+			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,
+			merchantrenewal.Table:      merchantrenewal.ValidColumn,
+			province.Table:             province.ValidColumn,
+			remark.Table:               remark.ValidColumn,
+			remarkcategory.Table:       remarkcategory.ValidColumn,
+			store.Table:                store.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

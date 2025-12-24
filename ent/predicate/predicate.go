@@ -14,3 +14,33 @@ type BackendUser func(*sql.Selector)
 
 // Category is the predicate function for category builders.
 type Category func(*sql.Selector)
+
+// City is the predicate function for city builders.
+type City func(*sql.Selector)
+
+// Country is the predicate function for country builders.
+type Country func(*sql.Selector)
+
+// District is the predicate function for district builders.
+type District func(*sql.Selector)
+
+// Merchant is the predicate function for merchant builders.
+type Merchant func(*sql.Selector)
+
+// MerchantBusinessType is the predicate function for merchantbusinesstype builders.
+type MerchantBusinessType func(*sql.Selector)
+
+// MerchantRenewal is the predicate function for merchantrenewal builders.
+type MerchantRenewal func(*sql.Selector)
+
+// Province is the predicate function for province builders.
+type Province func(*sql.Selector)
+
+// Remark is the predicate function for remark builders.
+type Remark func(*sql.Selector)
+
+// RemarkCategory is the predicate function for remarkcategory builders.
+type RemarkCategory func(*sql.Selector)
+
+// Store is the predicate function for store builders.
+type Store func(*sql.Selector)
