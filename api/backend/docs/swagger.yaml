@@ -216,7 +216,7 @@ definitions:
   domain.Remark:
     properties:
       category_id:
-        description: 分类ID
+        description: 分类 ID
         type: string
       category_name:
         description: 分类名称
@@ -247,6 +247,60 @@ definitions:
       updated_at:
         type: string
     type: object
+  domain.RemarkCategory:
+    properties:
+      created_at:
+        type: string
+      description:
+        description: 分类描述
+        type: string
+      id:
+        type: string
+      merchant_id:
+        description: 品牌商ID，可为空表示系统级分类
+        type: string
+      name:
+        description: 分类名称
+        type: string
+      remark_count:
+        description: 该分类下备注数量
+        type: integer
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景：整单备注/单品备注/退菜原因等
+      sort_order:
+        description: 排序，值越小越靠前
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  domain.RemarkScene:
+    enum:
+    - whole_order
+    - item
+    - cancel_reason
+    - discount
+    - gift
+    - rebill
+    - refund_reject
+    type: string
+    x-enum-comments:
+      RemarkSceneCancelReason: 退菜原因
+      RemarkSceneDiscount: 优惠原因
+      RemarkSceneGift: 赠菜原��
+      RemarkSceneItem: 单品备注
+      RemarkSceneRebill: 反结账原因
+      RemarkSceneRefundReject: 拒绝退款
+      RemarkSceneWholeOrder: 整单备注
+    x-enum-varnames:
+    - RemarkSceneWholeOrder
+    - RemarkSceneItem
+    - RemarkSceneCancelReason
+    - RemarkSceneDiscount
+    - RemarkSceneGift
+    - RemarkSceneRebill
+    - RemarkSceneRefundReject
   domain.RemarkSimpleUpdateType:
     enum:
     - enabled
@@ -257,10 +311,81 @@ definitions:
     enum:
     - system
     - brand
+    - store
     type: string
+    x-enum-comments:
+      RemarkTypeBrand: 商户备注
+      RemarkTypeStore: 门店备注
+      RemarkTypeSystem: 系统备注
     x-enum-varnames:
     - RemarkTypeSystem
     - RemarkTypeBrand
+    - RemarkTypeStore
+  domain.Stall:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      enabled:
+        description: 使用状态
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 商户 ID
+        type: string
+      name:
+        description: 出品部门名称
+        type: string
+      print_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallPrintType'
+        description: 打印类型 ：receipt/label
+      sort_order:
+        description: 排序
+        type: integer
+      stall_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallType'
+        description: system/brand/store
+      store_id:
+        description: 门店 ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.StallPrintType:
+    enum:
+    - receipt
+    - label
+    type: string
+    x-enum-comments:
+      StallPrintTypeLabel: 标签
+      StallPrintTypeReceipt: 小票/收据
+    x-enum-varnames:
+    - StallPrintTypeReceipt
+    - StallPrintTypeLabel
+  domain.StallSimpleUpdateType:
+    enum:
+    - enabled
+    type: string
+    x-enum-varnames:
+    - StallSimpleUpdateTypeEnabled
+  domain.StallType:
+    enum:
+    - system
+    - brand
+    - store
+    type: string
+    x-enum-comments:
+      StallTypeBrand: 品牌出品部门
+      StallTypeStore: 门店出品部门
+      StallTypeSystem: 系统出品部门
+    x-enum-varnames:
+    - StallTypeSystem
+    - StallTypeBrand
+    - StallTypeStore
   response.Response:
     properties:
       code:
@@ -367,6 +492,69 @@ definitions:
       x_oss_signature_version:
         type: string
     type: object
+  types.RemarkCategoryCreateReq:
+    properties:
+      description:
+        description: 分类描述
+        maxLength: 255
+        type: string
+      name:
+        description: 分类名称
+        maxLength: 50
+        type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
+      sort_order:
+        description: 排序，越小越靠前
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - remark_scene
+    type: object
+  types.RemarkCategoryListResp:
+    properties:
+      remark_categories:
+        items:
+          $ref: '#/definitions/domain.RemarkCategory'
+        type: array
+    type: object
+  types.RemarkCategoryUpdateReq:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
+      sort_order:
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - remark_scene
+    type: object
   types.RemarkCreateReq:
     properties:
       category_id:
@@ -379,13 +567,6 @@ definitions:
         description: 备注名称
         maxLength: 255
         type: string
-      remark_type:
-        allOf:
-        - $ref: '#/definitions/domain.RemarkType'
-        description: 备注归属方
-        enum:
-        - system
-        - brand
       sort_order:
         description: 排序，越小越靠前
         minimum: 0
@@ -396,7 +577,6 @@ definitions:
     required:
     - category_id
     - name
-    - remark_type
     type: object
   types.RemarkListResp:
     properties:
@@ -425,9 +605,6 @@ definitions:
     type: object
   types.RemarkUpdateReq:
     properties:
-      category_id:
-        description: 备注类型
-        type: string
       enabled:
         description: 是否启用
         type: boolean
@@ -435,24 +612,81 @@ definitions:
         description: 备注名称
         maxLength: 255
         type: string
-      remark_type:
-        allOf:
-        - $ref: '#/definitions/domain.RemarkType'
-        description: 备注归属方
-        enum:
-        - system
-        - brand
       sort_order:
         description: 排序，越小越靠前
         minimum: 0
         type: integer
-      store_id:
-        description: 可选，品牌级可为空
-        type: string
     required:
-    - category_id
     - name
-    - remark_type
+    type: object
+  types.StallCreateReq:
+    properties:
+      enabled:
+        description: 是否启用
+        type: boolean
+      name:
+        description: 出品部门名称
+        maxLength: 20
+        type: string
+      print_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallPrintType'
+        description: 打印类型
+        enum:
+        - receipt
+        - label
+      sort_order:
+        description: 排序
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - print_type
+    type: object
+  types.StallListResp:
+    properties:
+      stalls:
+        description: 出品部门列表
+        items:
+          $ref: '#/definitions/domain.Stall'
+        type: array
+      total:
+        description: 出品部门总数
+        type: integer
+    type: object
+  types.StallSimpleUpdateReq:
+    properties:
+      enabled:
+        description: 启用状态
+        type: boolean
+      simple_update_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallSimpleUpdateType'
+        description: 更新的字段名称
+        enum:
+        - enabled
+    required:
+    - simple_update_type
+    type: object
+  types.StallUpdateReq:
+    properties:
+      enabled:
+        type: boolean
+      name:
+        maxLength: 20
+        type: string
+      print_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallPrintType'
+        enum:
+        - receipt
+        - label
+      sort_order:
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - print_type
     type: object
   types.UpdateCategoryReq:
     properties:
@@ -620,16 +854,6 @@ paths:
         in: query
         name: page
         type: integer
-      - description: 备注创建方
-        enum:
-        - system
-        - brand
-        in: query
-        name: remark_type
-        type: string
-        x-enum-varnames:
-        - RemarkTypeSystem
-        - RemarkTypeBrand
       - description: 每页数量
         in: query
         name: size
@@ -660,7 +884,7 @@ paths:
       - BearerAuth: []
       summary: 获取备注列表
       tags:
-      - 备注
+      - 前厅管理
     post:
       consumes:
       - application/json
@@ -693,7 +917,7 @@ paths:
       - BearerAuth: []
       summary: 创建备注
       tags:
-      - 备注
+      - 前厅管理
   /remark/{id}:
     delete:
       description: 删除备注
@@ -724,7 +948,7 @@ paths:
       - BearerAuth: []
       summary: 删除备注
       tags:
-      - 备注
+      - 前厅管理
     get:
       description: 根据备注ID获取详情
       parameters:
@@ -759,18 +983,18 @@ paths:
       - BearerAuth: []
       summary: 获取备注详情
       tags:
-      - 备注
+      - 前厅管理
     patch:
       consumes:
       - application/json
-      description: 快速切换启用状态
+      description: 快速切换启用状态，
       parameters:
       - description: 备注ID
         in: path
         name: id
         required: true
         type: string
-      - description: 请求信息
+      - description: 更新备注单个字段信息请求信息
         in: body
         name: data
         required: true
@@ -795,9 +1019,9 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
-      summary: 快速切换启用状态
+      summary: 更新备注单个字段信息
       tags:
-      - 备注
+      - 前厅管理
     put:
       consumes:
       - application/json
@@ -835,7 +1059,364 @@ paths:
       - BearerAuth: []
       summary: 更新备注
       tags:
-      - 备注
+      - 前厅管理
+  /remark_category:
+    get:
+      description: 获取备注分类列表
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.RemarkCategoryListResp'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取备注分类列表
+      tags:
+      - 前厅管理
+    post:
+      consumes:
+      - application/json
+      description: 创建备注分类
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RemarkCategoryCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建备注分类
+      tags:
+      - 前厅管理
+  /remark_category/{id}:
+    delete:
+      description: 删除备注分类
+      parameters:
+      - description: 备注分类ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除备注分类
+      tags:
+      - 前厅管理
+    put:
+      consumes:
+      - application/json
+      description: 更新备注分类
+      parameters:
+      - description: 备注分类ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RemarkCategoryUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新备注分类
+      tags:
+      - 前厅管理
+  /restaurant/stall:
+    get:
+      description: 分页查询出品部门列表
+      parameters:
+      - description: 启用状态
+        in: query
+        name: enabled
+        type: boolean
+      - description: 名称模糊查询
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 打印类型
+        enum:
+        - receipt
+        - label
+        in: query
+        name: print_type
+        type: string
+        x-enum-comments:
+          StallPrintTypeLabel: 标签
+          StallPrintTypeReceipt: 小票/收据
+        x-enum-varnames:
+        - StallPrintTypeReceipt
+        - StallPrintTypeLabel
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.StallListResp'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取出品部门列表
+      tags:
+      - 后厨管理
+    post:
+      consumes:
+      - application/json
+      description: 创建出品部门
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StallCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建出品部门
+      tags:
+      - 后厨管理
+  /restaurant/stall/{id}:
+    delete:
+      description: 删除出品部门
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除出品部门
+      tags:
+      - 后厨管理
+    get:
+      description: 根据出品部门ID获取详情
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Stall'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取出品部门详情
+      tags:
+      - 后厨管理
+    patch:
+      consumes:
+      - application/json
+      description: 快速切换启用状态
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新出品部门单个字段信息请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StallSimpleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新出品部门单个字段信息
+      tags:
+      - 后厨管理
+    put:
+      consumes:
+      - application/json
+      description: 更新出品部门
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StallUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新出品部门
+      tags:
+      - 后厨管理
   /user/info:
     post:
       consumes:

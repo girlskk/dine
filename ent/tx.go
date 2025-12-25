@@ -36,6 +36,8 @@ type Tx struct {
 	Remark *RemarkClient
 	// RemarkCategory is the client for interacting with the RemarkCategory builders.
 	RemarkCategory *RemarkCategoryClient
+	// Stall is the client for interacting with the Stall builders.
+	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
 
@@ -181,6 +183,7 @@ func (tx *Tx) init() {
 	tx.Province = NewProvinceClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
+	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
 }
 

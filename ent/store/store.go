@@ -98,6 +98,8 @@ const (
 	EdgeDistrict = "district"
 	// EdgeRemarks holds the string denoting the remarks edge name in mutations.
 	EdgeRemarks = "remarks"
+	// EdgeStalls holds the string denoting the stalls edge name in mutations.
+	EdgeStalls = "stalls"
 	// Table holds the table name of the store in the database.
 	Table = "stores"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -156,6 +158,13 @@ const (
 	RemarksInverseTable = "remarks"
 	// RemarksColumn is the table column denoting the remarks relation/edge.
 	RemarksColumn = "store_id"
+	// StallsTable is the table that holds the stalls relation/edge.
+	StallsTable = "stalls"
+	// StallsInverseTable is the table name for the Stall entity.
+	// It exists in this package in order to avoid circular dependency with the "stall" package.
+	StallsInverseTable = "stalls"
+	// StallsColumn is the table column denoting the stalls relation/edge.
+	StallsColumn = "store_id"
 )
 
 // Columns holds all SQL columns for store fields.
@@ -549,6 +558,20 @@ func ByRemarks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRemarksStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByStallsCount orders the results by stalls count.
+func ByStallsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStallsStep(), opts...)
+	}
+}
+
+// ByStalls orders the results by stalls terms.
+func ByStalls(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStallsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -603,5 +626,12 @@ func newRemarksStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RemarksInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
+	)
+}
+func newStallsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StallsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StallsTable, StallsColumn),
 	)
 }

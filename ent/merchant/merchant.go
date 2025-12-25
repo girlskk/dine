@@ -62,10 +62,6 @@ const (
 	FieldLat = "lat"
 	// FieldAdminUserID holds the string denoting the admin_user_id field in the database.
 	FieldAdminUserID = "admin_user_id"
-	// EdgeStores holds the string denoting the stores edge name in mutations.
-	EdgeStores = "stores"
-	// EdgeMerchantRenewals holds the string denoting the merchant_renewals edge name in mutations.
-	EdgeMerchantRenewals = "merchant_renewals"
 	// EdgeMerchantBusinessType holds the string denoting the merchant_business_type edge name in mutations.
 	EdgeMerchantBusinessType = "merchant_business_type"
 	// EdgeAdminUser holds the string denoting the admin_user edge name in mutations.
@@ -78,26 +74,18 @@ const (
 	EdgeCity = "city"
 	// EdgeDistrict holds the string denoting the district edge name in mutations.
 	EdgeDistrict = "district"
+	// EdgeStores holds the string denoting the stores edge name in mutations.
+	EdgeStores = "stores"
+	// EdgeMerchantRenewals holds the string denoting the merchant_renewals edge name in mutations.
+	EdgeMerchantRenewals = "merchant_renewals"
 	// EdgeRemarkCategories holds the string denoting the remark_categories edge name in mutations.
 	EdgeRemarkCategories = "remark_categories"
 	// EdgeRemarks holds the string denoting the remarks edge name in mutations.
 	EdgeRemarks = "remarks"
+	// EdgeStalls holds the string denoting the stalls edge name in mutations.
+	EdgeStalls = "stalls"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
-	// StoresTable is the table that holds the stores relation/edge.
-	StoresTable = "stores"
-	// StoresInverseTable is the table name for the Store entity.
-	// It exists in this package in order to avoid circular dependency with the "store" package.
-	StoresInverseTable = "stores"
-	// StoresColumn is the table column denoting the stores relation/edge.
-	StoresColumn = "merchant_id"
-	// MerchantRenewalsTable is the table that holds the merchant_renewals relation/edge.
-	MerchantRenewalsTable = "merchant_renewals"
-	// MerchantRenewalsInverseTable is the table name for the MerchantRenewal entity.
-	// It exists in this package in order to avoid circular dependency with the "merchantrenewal" package.
-	MerchantRenewalsInverseTable = "merchant_renewals"
-	// MerchantRenewalsColumn is the table column denoting the merchant_renewals relation/edge.
-	MerchantRenewalsColumn = "merchant_id"
 	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
 	MerchantBusinessTypeTable = "merchants"
 	// MerchantBusinessTypeInverseTable is the table name for the MerchantBusinessType entity.
@@ -140,6 +128,20 @@ const (
 	DistrictInverseTable = "districts"
 	// DistrictColumn is the table column denoting the district relation/edge.
 	DistrictColumn = "district_id"
+	// StoresTable is the table that holds the stores relation/edge.
+	StoresTable = "stores"
+	// StoresInverseTable is the table name for the Store entity.
+	// It exists in this package in order to avoid circular dependency with the "store" package.
+	StoresInverseTable = "stores"
+	// StoresColumn is the table column denoting the stores relation/edge.
+	StoresColumn = "merchant_id"
+	// MerchantRenewalsTable is the table that holds the merchant_renewals relation/edge.
+	MerchantRenewalsTable = "merchant_renewals"
+	// MerchantRenewalsInverseTable is the table name for the MerchantRenewal entity.
+	// It exists in this package in order to avoid circular dependency with the "merchantrenewal" package.
+	MerchantRenewalsInverseTable = "merchant_renewals"
+	// MerchantRenewalsColumn is the table column denoting the merchant_renewals relation/edge.
+	MerchantRenewalsColumn = "merchant_id"
 	// RemarkCategoriesTable is the table that holds the remark_categories relation/edge.
 	RemarkCategoriesTable = "remark_categories"
 	// RemarkCategoriesInverseTable is the table name for the RemarkCategory entity.
@@ -154,6 +156,13 @@ const (
 	RemarksInverseTable = "remarks"
 	// RemarksColumn is the table column denoting the remarks relation/edge.
 	RemarksColumn = "merchant_id"
+	// StallsTable is the table that holds the stalls relation/edge.
+	StallsTable = "stalls"
+	// StallsInverseTable is the table name for the Stall entity.
+	// It exists in this package in order to avoid circular dependency with the "stall" package.
+	StallsInverseTable = "stalls"
+	// StallsColumn is the table column denoting the stalls relation/edge.
+	StallsColumn = "merchant_id"
 )
 
 // Columns holds all SQL columns for merchant fields.
@@ -391,34 +400,6 @@ func ByAdminUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAdminUserID, opts...).ToFunc()
 }
 
-// ByStoresCount orders the results by stores count.
-func ByStoresCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newStoresStep(), opts...)
-	}
-}
-
-// ByStores orders the results by stores terms.
-func ByStores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newStoresStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByMerchantRenewalsCount orders the results by merchant_renewals count.
-func ByMerchantRenewalsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newMerchantRenewalsStep(), opts...)
-	}
-}
-
-// ByMerchantRenewals orders the results by merchant_renewals terms.
-func ByMerchantRenewals(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMerchantRenewalsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByMerchantBusinessTypeField orders the results by merchant_business_type field.
 func ByMerchantBusinessTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -461,6 +442,34 @@ func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByStoresCount orders the results by stores count.
+func ByStoresCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStoresStep(), opts...)
+	}
+}
+
+// ByStores orders the results by stores terms.
+func ByStores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStoresStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByMerchantRenewalsCount orders the results by merchant_renewals count.
+func ByMerchantRenewalsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMerchantRenewalsStep(), opts...)
+	}
+}
+
+// ByMerchantRenewals orders the results by merchant_renewals terms.
+func ByMerchantRenewals(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMerchantRenewalsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByRemarkCategoriesCount orders the results by remark_categories count.
 func ByRemarkCategoriesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -488,19 +497,19 @@ func ByRemarks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRemarksStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newStoresStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(StoresInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, StoresTable, StoresColumn),
-	)
+
+// ByStallsCount orders the results by stalls count.
+func ByStallsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStallsStep(), opts...)
+	}
 }
-func newMerchantRenewalsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MerchantRenewalsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, MerchantRenewalsTable, MerchantRenewalsColumn),
-	)
+
+// ByStalls orders the results by stalls terms.
+func ByStalls(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStallsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newMerchantBusinessTypeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -544,6 +553,20 @@ func newDistrictStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
 	)
 }
+func newStoresStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StoresInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StoresTable, StoresColumn),
+	)
+}
+func newMerchantRenewalsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MerchantRenewalsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MerchantRenewalsTable, MerchantRenewalsColumn),
+	)
+}
 func newRemarkCategoriesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -556,5 +579,12 @@ func newRemarksStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RemarksInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
+	)
+}
+func newStallsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StallsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StallsTable, StallsColumn),
 	)
 }

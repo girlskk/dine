@@ -78,10 +78,6 @@ type Merchant struct {
 
 // MerchantEdges holds the relations/edges for other nodes in the graph.
 type MerchantEdges struct {
-	// Stores holds the value of the stores edge.
-	Stores []*Store `json:"stores,omitempty"`
-	// MerchantRenewals holds the value of the merchant_renewals edge.
-	MerchantRenewals []*MerchantRenewal `json:"merchant_renewals,omitempty"`
 	// MerchantBusinessType holds the value of the merchant_business_type edge.
 	MerchantBusinessType *MerchantBusinessType `json:"merchant_business_type,omitempty"`
 	// AdminUser holds the value of the admin_user edge.
@@ -94,31 +90,19 @@ type MerchantEdges struct {
 	City *City `json:"city,omitempty"`
 	// District holds the value of the district edge.
 	District *District `json:"district,omitempty"`
+	// Stores holds the value of the stores edge.
+	Stores []*Store `json:"stores,omitempty"`
+	// MerchantRenewals holds the value of the merchant_renewals edge.
+	MerchantRenewals []*MerchantRenewal `json:"merchant_renewals,omitempty"`
 	// RemarkCategories holds the value of the remark_categories edge.
 	RemarkCategories []*RemarkCategory `json:"remark_categories,omitempty"`
 	// Remarks holds the value of the remarks edge.
 	Remarks []*Remark `json:"remarks,omitempty"`
+	// Stalls holds the value of the stalls edge.
+	Stalls []*Stall `json:"stalls,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [10]bool
-}
-
-// StoresOrErr returns the Stores value or an error if the edge
-// was not loaded in eager-loading.
-func (e MerchantEdges) StoresOrErr() ([]*Store, error) {
-	if e.loadedTypes[0] {
-		return e.Stores, nil
-	}
-	return nil, &NotLoadedError{edge: "stores"}
-}
-
-// MerchantRenewalsOrErr returns the MerchantRenewals value or an error if the edge
-// was not loaded in eager-loading.
-func (e MerchantEdges) MerchantRenewalsOrErr() ([]*MerchantRenewal, error) {
-	if e.loadedTypes[1] {
-		return e.MerchantRenewals, nil
-	}
-	return nil, &NotLoadedError{edge: "merchant_renewals"}
+	loadedTypes [11]bool
 }
 
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
@@ -126,7 +110,7 @@ func (e MerchantEdges) MerchantRenewalsOrErr() ([]*MerchantRenewal, error) {
 func (e MerchantEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error) {
 	if e.MerchantBusinessType != nil {
 		return e.MerchantBusinessType, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: merchantbusinesstype.Label}
 	}
 	return nil, &NotLoadedError{edge: "merchant_business_type"}
@@ -137,7 +121,7 @@ func (e MerchantEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error
 func (e MerchantEdges) AdminUserOrErr() (*AdminUser, error) {
 	if e.AdminUser != nil {
 		return e.AdminUser, nil
-	} else if e.loadedTypes[3] {
+	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: adminuser.Label}
 	}
 	return nil, &NotLoadedError{edge: "admin_user"}
@@ -148,7 +132,7 @@ func (e MerchantEdges) AdminUserOrErr() (*AdminUser, error) {
 func (e MerchantEdges) CountryOrErr() (*Country, error) {
 	if e.Country != nil {
 		return e.Country, nil
-	} else if e.loadedTypes[4] {
+	} else if e.loadedTypes[2] {
 		return nil, &NotFoundError{label: country.Label}
 	}
 	return nil, &NotLoadedError{edge: "country"}
@@ -159,7 +143,7 @@ func (e MerchantEdges) CountryOrErr() (*Country, error) {
 func (e MerchantEdges) ProvinceOrErr() (*Province, error) {
 	if e.Province != nil {
 		return e.Province, nil
-	} else if e.loadedTypes[5] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: province.Label}
 	}
 	return nil, &NotLoadedError{edge: "province"}
@@ -170,7 +154,7 @@ func (e MerchantEdges) ProvinceOrErr() (*Province, error) {
 func (e MerchantEdges) CityOrErr() (*City, error) {
 	if e.City != nil {
 		return e.City, nil
-	} else if e.loadedTypes[6] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: city.Label}
 	}
 	return nil, &NotLoadedError{edge: "city"}
@@ -181,10 +165,28 @@ func (e MerchantEdges) CityOrErr() (*City, error) {
 func (e MerchantEdges) DistrictOrErr() (*District, error) {
 	if e.District != nil {
 		return e.District, nil
-	} else if e.loadedTypes[7] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: district.Label}
 	}
 	return nil, &NotLoadedError{edge: "district"}
+}
+
+// StoresOrErr returns the Stores value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) StoresOrErr() ([]*Store, error) {
+	if e.loadedTypes[6] {
+		return e.Stores, nil
+	}
+	return nil, &NotLoadedError{edge: "stores"}
+}
+
+// MerchantRenewalsOrErr returns the MerchantRenewals value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) MerchantRenewalsOrErr() ([]*MerchantRenewal, error) {
+	if e.loadedTypes[7] {
+		return e.MerchantRenewals, nil
+	}
+	return nil, &NotLoadedError{edge: "merchant_renewals"}
 }
 
 // RemarkCategoriesOrErr returns the RemarkCategories value or an error if the edge
@@ -203,6 +205,15 @@ func (e MerchantEdges) RemarksOrErr() ([]*Remark, error) {
 		return e.Remarks, nil
 	}
 	return nil, &NotLoadedError{edge: "remarks"}
+}
+
+// StallsOrErr returns the Stalls value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) StallsOrErr() ([]*Stall, error) {
+	if e.loadedTypes[10] {
+		return e.Stalls, nil
+	}
+	return nil, &NotLoadedError{edge: "stalls"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -385,16 +396,6 @@ func (m *Merchant) Value(name string) (ent.Value, error) {
 	return m.selectValues.Get(name)
 }
 
-// QueryStores queries the "stores" edge of the Merchant entity.
-func (m *Merchant) QueryStores() *StoreQuery {
-	return NewMerchantClient(m.config).QueryStores(m)
-}
-
-// QueryMerchantRenewals queries the "merchant_renewals" edge of the Merchant entity.
-func (m *Merchant) QueryMerchantRenewals() *MerchantRenewalQuery {
-	return NewMerchantClient(m.config).QueryMerchantRenewals(m)
-}
-
 // QueryMerchantBusinessType queries the "merchant_business_type" edge of the Merchant entity.
 func (m *Merchant) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
 	return NewMerchantClient(m.config).QueryMerchantBusinessType(m)
@@ -425,6 +426,16 @@ func (m *Merchant) QueryDistrict() *DistrictQuery {
 	return NewMerchantClient(m.config).QueryDistrict(m)
 }
 
+// QueryStores queries the "stores" edge of the Merchant entity.
+func (m *Merchant) QueryStores() *StoreQuery {
+	return NewMerchantClient(m.config).QueryStores(m)
+}
+
+// QueryMerchantRenewals queries the "merchant_renewals" edge of the Merchant entity.
+func (m *Merchant) QueryMerchantRenewals() *MerchantRenewalQuery {
+	return NewMerchantClient(m.config).QueryMerchantRenewals(m)
+}
+
 // QueryRemarkCategories queries the "remark_categories" edge of the Merchant entity.
 func (m *Merchant) QueryRemarkCategories() *RemarkCategoryQuery {
 	return NewMerchantClient(m.config).QueryRemarkCategories(m)
@@ -433,6 +444,11 @@ func (m *Merchant) QueryRemarkCategories() *RemarkCategoryQuery {
 // QueryRemarks queries the "remarks" edge of the Merchant entity.
 func (m *Merchant) QueryRemarks() *RemarkQuery {
 	return NewMerchantClient(m.config).QueryRemarks(m)
+}
+
+// QueryStalls queries the "stalls" edge of the Merchant entity.
+func (m *Merchant) QueryStalls() *StallQuery {
+	return NewMerchantClient(m.config).QueryStalls(m)
 }
 
 // Update returns a builder for updating this Merchant.

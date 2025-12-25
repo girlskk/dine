@@ -404,7 +404,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 50},
-		{Name: "remark_type", Type: field.TypeEnum, Enums: []string{"system", "brand"}},
+		{Name: "remark_type", Type: field.TypeEnum, Enums: []string{"system", "brand", "store"}},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
 		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
@@ -494,6 +494,62 @@ var (
 				Name:    "remarkcategory_merchant_id",
 				Unique:  false,
 				Columns: []*schema.Column{RemarkCategoriesColumns[8]},
+			},
+		},
+	}
+	// StallsColumns holds the columns for the "stalls" table.
+	StallsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 20},
+		{Name: "stall_type", Type: field.TypeEnum, Enums: []string{"system", "brand", "store"}},
+		{Name: "print_type", Type: field.TypeEnum, Enums: []string{"receipt", "label"}},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "sort_order", Type: field.TypeInt, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// StallsTable holds the schema information for the "stalls" table.
+	StallsTable = &schema.Table{
+		Name:       "stalls",
+		Columns:    StallsColumns,
+		PrimaryKey: []*schema.Column{StallsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "stalls_merchants_stalls",
+				Columns:    []*schema.Column{StallsColumns[9]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "stalls_stores_stalls",
+				Columns:    []*schema.Column{StallsColumns[10]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "stall_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{StallsColumns[3]},
+			},
+			{
+				Name:    "stall_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{StallsColumns[9]},
+			},
+			{
+				Name:    "stall_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{StallsColumns[10]},
+			},
+			{
+				Name:    "idx_stall_name_merchant_store_deleted",
+				Unique:  true,
+				Columns: []*schema.Column{StallsColumns[4], StallsColumns[9], StallsColumns[10], StallsColumns[3]},
 			},
 		},
 	}
@@ -609,6 +665,7 @@ var (
 		ProvincesTable,
 		RemarksTable,
 		RemarkCategoriesTable,
+		StallsTable,
 		StoresTable,
 	}
 )
@@ -632,6 +689,8 @@ func init() {
 	RemarksTable.ForeignKeys[1].RefTable = RemarkCategoriesTable
 	RemarksTable.ForeignKeys[2].RefTable = StoresTable
 	RemarkCategoriesTable.ForeignKeys[0].RefTable = MerchantsTable
+	StallsTable.ForeignKeys[0].RefTable = MerchantsTable
+	StallsTable.ForeignKeys[1].RefTable = StoresTable
 	StoresTable.ForeignKeys[0].RefTable = AdminUsersTable
 	StoresTable.ForeignKeys[1].RefTable = CitiesTable
 	StoresTable.ForeignKeys[2].RefTable = CountriesTable

@@ -98,8 +98,6 @@ func (Merchant) Fields() []ent.Field {
 // Edges of the Merchant.
 func (Merchant) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("stores", Store.Type),
-		edge.To("merchant_renewals", MerchantRenewal.Type),
 		// 业态类型
 		edge.From("merchant_business_type", MerchantBusinessType.Type).
 			Ref("merchants").
@@ -130,8 +128,11 @@ func (Merchant) Edges() []ent.Edge {
 			Ref("merchants").
 			Field("district_id").
 			Unique(),
+		edge.To("stores", Store.Type),
+		edge.To("merchant_renewals", MerchantRenewal.Type),
 		edge.To("remark_categories", RemarkCategory.Type),
 		edge.To("remarks", Remark.Type),
+		edge.To("stalls", Stall.Type),
 	}
 }
 

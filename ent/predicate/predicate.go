@@ -42,5 +42,8 @@ type Remark func(*sql.Selector)
 // RemarkCategory is the predicate function for remarkcategory builders.
 type RemarkCategory func(*sql.Selector)
 
+// Stall is the predicate function for stall builders.
+type Stall func(*sql.Selector)
+
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)

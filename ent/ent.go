@@ -24,6 +24,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -97,6 +98,7 @@ func checkColumn(table, column string) error {
 			province.Table:             province.ValidColumn,
 			remark.Table:               remark.ValidColumn,
 			remarkcategory.Table:       remarkcategory.ValidColumn,
+			stall.Table:                stall.ValidColumn,
 			store.Table:                store.ValidColumn,
 		})
 	})

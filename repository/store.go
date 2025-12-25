@@ -51,7 +51,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		return
 	}
 
-	_, err = repo.Client.Store.Create().SetID(domainStore.ID).
+	created, err := repo.Client.Store.Create().SetID(domainStore.ID).
 		SetMerchantID(domainStore.MerchantID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
@@ -86,6 +86,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("failed to create store: %w", err)
 		return
 	}
+	domainStore.CreatedAt = created.CreatedAt
 	return
 }
 
@@ -117,7 +118,7 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("failed to marshal shift times: %w", err)
 		return
 	}
-	_, err = repo.Client.Store.UpdateOneID(domainStore.ID).
+	updated, err := repo.Client.Store.UpdateOneID(domainStore.ID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
 		SetStoreShortName(domainStore.StoreShortName).
@@ -149,10 +150,12 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to update store: %w", err)
 		return
 	}
+	domainStore.UpdatedAt = updated.UpdatedAt
 	return
 }
 
@@ -166,6 +169,7 @@ func (repo *StoreRepository) Delete(ctx context.Context, id uuid.UUID) (err erro
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to delete store: %w", err)
 		return
@@ -190,10 +194,16 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 		WithAdminUser().
 		WithMerchantBusinessType().
 		Only(ctx)
-	if ent.IsNotFound(err) {
-		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(domain.ErrStoreNotExists)
+			return
+		}
+		err = fmt.Errorf("failed to find store by id: %w", err)
+		return
 	}
-	return convertStore(em), nil
+	domainStore = convertStore(em)
+	return
 }
 
 func (repo *StoreRepository) FindStoreMerchant(ctx context.Context, merchantID uuid.UUID) (domainStore *domain.Store, err error) {
@@ -223,7 +233,8 @@ func (repo *StoreRepository) FindStoreMerchant(ctx context.Context, merchantID u
 		err = fmt.Errorf("failed to find store by merchant id: %w", err)
 		return
 	}
-	return convertStore(em), nil
+	domainStore = convertStore(em)
+	return
 }
 
 func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.Pagination, filter *domain.StoreListFilter, orderBys ...domain.StoreListOrderBy) (domainStores []*domain.Store, total int, err error) {

@@ -21,6 +21,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -404,6 +405,33 @@ func (f TraverseRemarkCategory) Traverse(ctx context.Context, q ent.Query) error
 	return fmt.Errorf("unexpected query type %T. expect *ent.RemarkCategoryQuery", q)
 }
 
+// The StallFunc type is an adapter to allow the use of ordinary function as a Querier.
+type StallFunc func(context.Context, *ent.StallQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f StallFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.StallQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.StallQuery", q)
+}
+
+// The TraverseStall type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseStall func(context.Context, *ent.StallQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseStall) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseStall) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.StallQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.StallQuery", q)
+}
+
 // The StoreFunc type is an adapter to allow the use of ordinary function as a Querier.
 type StoreFunc func(context.Context, *ent.StoreQuery) (ent.Value, error)
 
@@ -458,6 +486,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.RemarkQuery, predicate.Remark, remark.OrderOption]{typ: ent.TypeRemark, tq: q}, nil
 	case *ent.RemarkCategoryQuery:
 		return &query[*ent.RemarkCategoryQuery, predicate.RemarkCategory, remarkcategory.OrderOption]{typ: ent.TypeRemarkCategory, tq: q}, nil
+	case *ent.StallQuery:
+		return &query[*ent.StallQuery, predicate.Stall, stall.OrderOption]{typ: ent.TypeStall, tq: q}, nil
 	case *ent.StoreQuery:
 		return &query[*ent.StoreQuery, predicate.Store, store.OrderOption]{typ: ent.TypeStore, tq: q}, nil
 	default:

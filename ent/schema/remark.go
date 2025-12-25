@@ -33,6 +33,7 @@ func (Remark) Fields() []ent.Field {
 
 		field.Enum("remark_type").
 			GoType(domain.RemarkType("")).
+			Immutable().
 			Comment("备注类型：系统、品牌"),
 
 		field.Bool("enabled").
@@ -44,14 +45,17 @@ func (Remark) Fields() []ent.Field {
 			Comment("排序，值越小越靠前"),
 
 		field.UUID("category_id", uuid.UUID{}).
+			Immutable().
 			Comment("备注分类ID"),
 
 		field.UUID("merchant_id", uuid.UUID{}).
 			Optional().
+			Immutable().
 			Comment("品牌商ID，仅品牌备注需要"),
 
 		field.UUID("store_id", uuid.UUID{}).
 			Optional().
+			Immutable().
 			Comment("门店ID，保留字段"),
 	}
 }
@@ -71,16 +75,17 @@ func (Remark) Edges() []ent.Edge {
 			Ref("remarks").
 			Field("category_id").
 			Unique().
+			Immutable().
 			Required(),
-
 		edge.From("merchant", Merchant.Type).
 			Ref("remarks").
 			Field("merchant_id").
+			Immutable().
 			Unique(),
-
 		edge.From("store", Store.Type).
 			Ref("remarks").
 			Field("store_id").
+			Immutable().
 			Unique(),
 	}
 }

@@ -110,20 +110,22 @@ func (repo *RemarkCategoryRepository) Delete(ctx context.Context, id uuid.UUID) 
 	return
 }
 
-func (repo *RemarkCategoryRepository) GetRemarkCategories(ctx context.Context, filter domain.RemarkCategoryListFilter) (domainRemarkCategories domain.RemarkCategories, err error) {
+func (repo *RemarkCategoryRepository) GetRemarkCategories(ctx context.Context, filter *domain.RemarkCategoryListFilter) (domainRemarkCategories domain.RemarkCategories, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "RemarkCategoryRepository.List")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
+	if filter == nil {
+		filter = &domain.RemarkCategoryListFilter{}
+	}
 	query := repo.Client.RemarkCategory.Query()
 	if filter.MerchantID != uuid.Nil {
-		query = query.Where(remarkcategory.MerchantID(filter.MerchantID))
+		query = query.Where(remarkcategory.Or(remarkcategory.MerchantID(filter.MerchantID), remarkcategory.MerchantIDIsNil(), remarkcategory.MerchantID(uuid.Nil)))
 	}
-	if filter.RemarkScene != "" {
-		query = query.Where(remarkcategory.RemarkSceneEQ(filter.RemarkScene))
-	}
-	remarkCategories, err := query.Order(remarkcategory.BySortOrder()).All(ctx)
+
+	remarkCategories, err := query.Order(remarkcategory.BySortOrder()).
+		All(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to query remark category: %w", err)
 		return nil, err
@@ -143,9 +145,6 @@ func (repo *RemarkCategoryRepository) Exists(ctx context.Context, params domain.
 	query := repo.Client.RemarkCategory.Query()
 	if params.MerchantID != uuid.Nil {
 		query = query.Where(remarkcategory.MerchantID(params.MerchantID))
-	}
-	if params.RemarkScene != "" {
-		query = query.Where(remarkcategory.RemarkSceneEQ(params.RemarkScene))
 	}
 	if params.Name != "" {
 		query = query.Where(remarkcategory.Name(params.Name))

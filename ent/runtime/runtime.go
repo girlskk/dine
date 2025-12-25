@@ -20,6 +20,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -839,6 +840,63 @@ func init() {
 	remarkcategoryDescID := remarkcategoryMixinFields0[0].Descriptor()
 	// remarkcategory.DefaultID holds the default value on creation for the id field.
 	remarkcategory.DefaultID = remarkcategoryDescID.Default.(func() uuid.UUID)
+	stallMixin := schema.Stall{}.Mixin()
+	stallMixinHooks2 := stallMixin[2].Hooks()
+	stall.Hooks[0] = stallMixinHooks2[0]
+	stallMixinInters2 := stallMixin[2].Interceptors()
+	stall.Interceptors[0] = stallMixinInters2[0]
+	stallMixinFields0 := stallMixin[0].Fields()
+	_ = stallMixinFields0
+	stallMixinFields1 := stallMixin[1].Fields()
+	_ = stallMixinFields1
+	stallMixinFields2 := stallMixin[2].Fields()
+	_ = stallMixinFields2
+	stallFields := schema.Stall{}.Fields()
+	_ = stallFields
+	// stallDescCreatedAt is the schema descriptor for created_at field.
+	stallDescCreatedAt := stallMixinFields1[0].Descriptor()
+	// stall.DefaultCreatedAt holds the default value on creation for the created_at field.
+	stall.DefaultCreatedAt = stallDescCreatedAt.Default.(func() time.Time)
+	// stallDescUpdatedAt is the schema descriptor for updated_at field.
+	stallDescUpdatedAt := stallMixinFields1[1].Descriptor()
+	// stall.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	stall.DefaultUpdatedAt = stallDescUpdatedAt.Default.(func() time.Time)
+	// stall.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	stall.UpdateDefaultUpdatedAt = stallDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// stallDescDeletedAt is the schema descriptor for deleted_at field.
+	stallDescDeletedAt := stallMixinFields2[0].Descriptor()
+	// stall.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	stall.DefaultDeletedAt = stallDescDeletedAt.Default.(int64)
+	// stallDescName is the schema descriptor for name field.
+	stallDescName := stallFields[0].Descriptor()
+	// stall.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	stall.NameValidator = func() func(string) error {
+		validators := stallDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// stallDescEnabled is the schema descriptor for enabled field.
+	stallDescEnabled := stallFields[3].Descriptor()
+	// stall.DefaultEnabled holds the default value on creation for the enabled field.
+	stall.DefaultEnabled = stallDescEnabled.Default.(bool)
+	// stallDescSortOrder is the schema descriptor for sort_order field.
+	stallDescSortOrder := stallFields[4].Descriptor()
+	// stall.DefaultSortOrder holds the default value on creation for the sort_order field.
+	stall.DefaultSortOrder = stallDescSortOrder.Default.(int)
+	// stallDescID is the schema descriptor for id field.
+	stallDescID := stallMixinFields0[0].Descriptor()
+	// stall.DefaultID holds the default value on creation for the id field.
+	stall.DefaultID = stallDescID.Default.(func() uuid.UUID)
 	storeMixin := schema.Store{}.Mixin()
 	storeMixinHooks2 := storeMixin[2].Hooks()
 	store.Hooks[0] = storeMixinHooks2[0]

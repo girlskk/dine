@@ -182,6 +182,7 @@ func (Store) Edges() []ent.Edge {
 			Field("district_id").
 			Unique(),
 		edge.To("remarks", Remark.Type),
+		edge.To("stalls", Stall.Type),
 	}
 }
 

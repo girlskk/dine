@@ -2051,6 +2051,29 @@ func HasRemarksWith(preds ...predicate.Remark) predicate.Store {
 	})
 }
 
+// HasStalls applies the HasEdge predicate on the "stalls" edge.
+func HasStalls() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StallsTable, StallsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStallsWith applies the HasEdge predicate on the "stalls" edge with a given conditions (other predicates).
+func HasStallsWith(preds ...predicate.Stall) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newStallsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Store) predicate.Store {
 	return predicate.Store(sql.AndPredicates(predicates...))

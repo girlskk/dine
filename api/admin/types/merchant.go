@@ -96,3 +96,9 @@ type MerchantSimpleUpdateReq struct {
 	SimpleUpdateType domain.MerchantSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
 	Status           domain.MerchantStatus           `json:"status" binding:"omitempty"`                         // 状态: 正常,停用,过期
 }
+
+type MerchantCount struct {
+	MerchantTypeBrand int `json:"merchant_type_brand"` // 品牌商户数量
+	MerchantTypeStore int `json:"merchant_type_store"` // 门店商户数量
+	Expired           int `json:"expired"`             // 过期商户数量
+}

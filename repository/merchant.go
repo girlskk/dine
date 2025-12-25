@@ -38,7 +38,7 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		return
 	}
 
-	mc := repo.Client.Merchant.Create().SetID(domainMerchant.ID).
+	builder := repo.Client.Merchant.Create().SetID(domainMerchant.ID).
 		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
 		SetMerchantShortName(domainMerchant.MerchantShortName).
@@ -52,7 +52,7 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetStatus(domainMerchant.Status).
 		SetAdminUserID(domainMerchant.AdminUserID)
 	if domainMerchant.Address != nil {
-		mc.SetCountryID(domainMerchant.Address.CountryID).
+		builder.SetCountryID(domainMerchant.Address.CountryID).
 			SetProvinceID(domainMerchant.Address.ProvinceID).
 			SetCityID(domainMerchant.Address.CityID).
 			SetDistrictID(domainMerchant.Address.DistrictID).
@@ -60,11 +60,12 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 			SetLng(domainMerchant.Address.Lng).
 			SetLat(domainMerchant.Address.Lat)
 	}
-	_, err = mc.Save(ctx)
+	created, err := builder.Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create merchant: %w", err)
 		return
 	}
+	domainMerchant.CreatedAt = created.CreatedAt
 	return
 }
 
@@ -79,7 +80,7 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		return
 	}
 
-	uc := repo.Client.Merchant.UpdateOneID(domainMerchant.ID).
+	builder := repo.Client.Merchant.UpdateOneID(domainMerchant.ID).
 		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
 		SetMerchantShortName(domainMerchant.MerchantShortName).
@@ -93,7 +94,7 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		SetStatus(domainMerchant.Status)
 
 	if domainMerchant.Address != nil {
-		uc.SetCountryID(domainMerchant.Address.CountryID).
+		builder.SetCountryID(domainMerchant.Address.CountryID).
 			SetProvinceID(domainMerchant.Address.ProvinceID).
 			SetCityID(domainMerchant.Address.CityID).
 			SetDistrictID(domainMerchant.Address.DistrictID).
@@ -101,14 +102,16 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 			SetLng(domainMerchant.Address.Lng).
 			SetLat(domainMerchant.Address.Lat)
 	}
-	_, err = uc.Save(ctx)
+	updated, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to update merchant: %w", err)
 		return
 	}
+	domainMerchant.UpdatedAt = updated.UpdatedAt
 	return
 }
 
@@ -122,6 +125,7 @@ func (repo *MerchantRepository) Delete(ctx context.Context, id uuid.UUID) (err e
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to delete merchant: %w", err)
 		return
@@ -145,10 +149,17 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id uuid.UUID) (dom
 		WithAdminUser().
 		WithMerchantBusinessType().
 		Only(ctx)
-	if ent.IsNotFound(err) {
-		return nil, domain.NotFoundError(domain.ErrMerchantNotExists)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(domain.ErrMerchantNotExists)
+			return
+		}
+		err = fmt.Errorf("failed to find merchant by id: %w", err)
+		return
 	}
-	return convertMerchant(em), nil
+
+	domainMerchant = convertMerchant(em)
+	return
 }
 
 func (repo *MerchantRepository) GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *domain.MerchantListFilter, orderBys ...domain.MerchantListOrderBy) (domainMerchants []*domain.Merchant, total int, err error) {
@@ -179,7 +190,7 @@ func (repo *MerchantRepository) GetMerchants(ctx context.Context, pager *upagina
 		All(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to query merchants: %w", err)
-		return nil, 0, err
+		return
 	}
 
 	domainMerchants = lo.Map(merchants, func(merchant *ent.Merchant, _ int) *domain.Merchant {

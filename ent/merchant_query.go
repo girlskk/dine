@@ -25,6 +25,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -35,16 +36,17 @@ type MerchantQuery struct {
 	order                    []merchant.OrderOption
 	inters                   []Interceptor
 	predicates               []predicate.Merchant
-	withStores               *StoreQuery
-	withMerchantRenewals     *MerchantRenewalQuery
 	withMerchantBusinessType *MerchantBusinessTypeQuery
 	withAdminUser            *AdminUserQuery
 	withCountry              *CountryQuery
 	withProvince             *ProvinceQuery
 	withCity                 *CityQuery
 	withDistrict             *DistrictQuery
+	withStores               *StoreQuery
+	withMerchantRenewals     *MerchantRenewalQuery
 	withRemarkCategories     *RemarkCategoryQuery
 	withRemarks              *RemarkQuery
+	withStalls               *StallQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -80,50 +82,6 @@ func (mq *MerchantQuery) Unique(unique bool) *MerchantQuery {
 func (mq *MerchantQuery) Order(o ...merchant.OrderOption) *MerchantQuery {
 	mq.order = append(mq.order, o...)
 	return mq
-}
-
-// QueryStores chains the current query on the "stores" edge.
-func (mq *MerchantQuery) QueryStores() *StoreQuery {
-	query := (&StoreClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoresTable, merchant.StoresColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryMerchantRenewals chains the current query on the "merchant_renewals" edge.
-func (mq *MerchantQuery) QueryMerchantRenewals() *MerchantRenewalQuery {
-	query := (&MerchantRenewalClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(merchantrenewal.Table, merchantrenewal.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.MerchantRenewalsTable, merchant.MerchantRenewalsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryMerchantBusinessType chains the current query on the "merchant_business_type" edge.
@@ -258,6 +216,50 @@ func (mq *MerchantQuery) QueryDistrict() *DistrictQuery {
 	return query
 }
 
+// QueryStores chains the current query on the "stores" edge.
+func (mq *MerchantQuery) QueryStores() *StoreQuery {
+	query := (&StoreClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoresTable, merchant.StoresColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMerchantRenewals chains the current query on the "merchant_renewals" edge.
+func (mq *MerchantQuery) QueryMerchantRenewals() *MerchantRenewalQuery {
+	query := (&MerchantRenewalClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(merchantrenewal.Table, merchantrenewal.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.MerchantRenewalsTable, merchant.MerchantRenewalsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryRemarkCategories chains the current query on the "remark_categories" edge.
 func (mq *MerchantQuery) QueryRemarkCategories() *RemarkCategoryQuery {
 	query := (&RemarkCategoryClient{config: mq.config}).Query()
@@ -295,6 +297,28 @@ func (mq *MerchantQuery) QueryRemarks() *RemarkQuery {
 			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
 			sqlgraph.To(remark.Table, remark.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarksTable, merchant.RemarksColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStalls chains the current query on the "stalls" edge.
+func (mq *MerchantQuery) QueryStalls() *StallQuery {
+	query := (&StallClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StallsTable, merchant.StallsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -494,43 +518,22 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		order:                    append([]merchant.OrderOption{}, mq.order...),
 		inters:                   append([]Interceptor{}, mq.inters...),
 		predicates:               append([]predicate.Merchant{}, mq.predicates...),
-		withStores:               mq.withStores.Clone(),
-		withMerchantRenewals:     mq.withMerchantRenewals.Clone(),
 		withMerchantBusinessType: mq.withMerchantBusinessType.Clone(),
 		withAdminUser:            mq.withAdminUser.Clone(),
 		withCountry:              mq.withCountry.Clone(),
 		withProvince:             mq.withProvince.Clone(),
 		withCity:                 mq.withCity.Clone(),
 		withDistrict:             mq.withDistrict.Clone(),
+		withStores:               mq.withStores.Clone(),
+		withMerchantRenewals:     mq.withMerchantRenewals.Clone(),
 		withRemarkCategories:     mq.withRemarkCategories.Clone(),
 		withRemarks:              mq.withRemarks.Clone(),
+		withStalls:               mq.withStalls.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
 		path:      mq.path,
 		modifiers: append([]func(*sql.Selector){}, mq.modifiers...),
 	}
-}
-
-// WithStores tells the query-builder to eager-load the nodes that are connected to
-// the "stores" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithStores(opts ...func(*StoreQuery)) *MerchantQuery {
-	query := (&StoreClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withStores = query
-	return mq
-}
-
-// WithMerchantRenewals tells the query-builder to eager-load the nodes that are connected to
-// the "merchant_renewals" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithMerchantRenewals(opts ...func(*MerchantRenewalQuery)) *MerchantQuery {
-	query := (&MerchantRenewalClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withMerchantRenewals = query
-	return mq
 }
 
 // WithMerchantBusinessType tells the query-builder to eager-load the nodes that are connected to
@@ -599,6 +602,28 @@ func (mq *MerchantQuery) WithDistrict(opts ...func(*DistrictQuery)) *MerchantQue
 	return mq
 }
 
+// WithStores tells the query-builder to eager-load the nodes that are connected to
+// the "stores" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithStores(opts ...func(*StoreQuery)) *MerchantQuery {
+	query := (&StoreClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withStores = query
+	return mq
+}
+
+// WithMerchantRenewals tells the query-builder to eager-load the nodes that are connected to
+// the "merchant_renewals" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithMerchantRenewals(opts ...func(*MerchantRenewalQuery)) *MerchantQuery {
+	query := (&MerchantRenewalClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withMerchantRenewals = query
+	return mq
+}
+
 // WithRemarkCategories tells the query-builder to eager-load the nodes that are connected to
 // the "remark_categories" edge. The optional arguments are used to configure the query builder of the edge.
 func (mq *MerchantQuery) WithRemarkCategories(opts ...func(*RemarkCategoryQuery)) *MerchantQuery {
@@ -618,6 +643,17 @@ func (mq *MerchantQuery) WithRemarks(opts ...func(*RemarkQuery)) *MerchantQuery 
 		opt(query)
 	}
 	mq.withRemarks = query
+	return mq
+}
+
+// WithStalls tells the query-builder to eager-load the nodes that are connected to
+// the "stalls" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithStalls(opts ...func(*StallQuery)) *MerchantQuery {
+	query := (&StallClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withStalls = query
 	return mq
 }
 
@@ -699,17 +735,18 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [10]bool{
-			mq.withStores != nil,
-			mq.withMerchantRenewals != nil,
+		loadedTypes = [11]bool{
 			mq.withMerchantBusinessType != nil,
 			mq.withAdminUser != nil,
 			mq.withCountry != nil,
 			mq.withProvince != nil,
 			mq.withCity != nil,
 			mq.withDistrict != nil,
+			mq.withStores != nil,
+			mq.withMerchantRenewals != nil,
 			mq.withRemarkCategories != nil,
 			mq.withRemarks != nil,
+			mq.withStalls != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -732,20 +769,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
-	}
-	if query := mq.withStores; query != nil {
-		if err := mq.loadStores(ctx, query, nodes,
-			func(n *Merchant) { n.Edges.Stores = []*Store{} },
-			func(n *Merchant, e *Store) { n.Edges.Stores = append(n.Edges.Stores, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := mq.withMerchantRenewals; query != nil {
-		if err := mq.loadMerchantRenewals(ctx, query, nodes,
-			func(n *Merchant) { n.Edges.MerchantRenewals = []*MerchantRenewal{} },
-			func(n *Merchant, e *MerchantRenewal) { n.Edges.MerchantRenewals = append(n.Edges.MerchantRenewals, e) }); err != nil {
-			return nil, err
-		}
 	}
 	if query := mq.withMerchantBusinessType; query != nil {
 		if err := mq.loadMerchantBusinessType(ctx, query, nodes, nil,
@@ -783,6 +806,20 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			return nil, err
 		}
 	}
+	if query := mq.withStores; query != nil {
+		if err := mq.loadStores(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.Stores = []*Store{} },
+			func(n *Merchant, e *Store) { n.Edges.Stores = append(n.Edges.Stores, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withMerchantRenewals; query != nil {
+		if err := mq.loadMerchantRenewals(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.MerchantRenewals = []*MerchantRenewal{} },
+			func(n *Merchant, e *MerchantRenewal) { n.Edges.MerchantRenewals = append(n.Edges.MerchantRenewals, e) }); err != nil {
+			return nil, err
+		}
+	}
 	if query := mq.withRemarkCategories; query != nil {
 		if err := mq.loadRemarkCategories(ctx, query, nodes,
 			func(n *Merchant) { n.Edges.RemarkCategories = []*RemarkCategory{} },
@@ -797,69 +834,16 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			return nil, err
 		}
 	}
+	if query := mq.withStalls; query != nil {
+		if err := mq.loadStalls(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.Stalls = []*Stall{} },
+			func(n *Merchant, e *Stall) { n.Edges.Stalls = append(n.Edges.Stalls, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (mq *MerchantQuery) loadStores(ctx context.Context, query *StoreQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Store)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Merchant)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(store.FieldMerchantID)
-	}
-	query.Where(predicate.Store(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(merchant.StoresColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.MerchantID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (mq *MerchantQuery) loadMerchantRenewals(ctx context.Context, query *MerchantRenewalQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *MerchantRenewal)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Merchant)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(merchantrenewal.FieldMerchantID)
-	}
-	query.Where(predicate.MerchantRenewal(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(merchant.MerchantRenewalsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.MerchantID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
 func (mq *MerchantQuery) loadMerchantBusinessType(ctx context.Context, query *MerchantBusinessTypeQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *MerchantBusinessType)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Merchant)
@@ -1034,6 +1018,66 @@ func (mq *MerchantQuery) loadDistrict(ctx context.Context, query *DistrictQuery,
 	}
 	return nil
 }
+func (mq *MerchantQuery) loadStores(ctx context.Context, query *StoreQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Store)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(store.FieldMerchantID)
+	}
+	query.Where(predicate.Store(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.StoresColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadMerchantRenewals(ctx context.Context, query *MerchantRenewalQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *MerchantRenewal)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(merchantrenewal.FieldMerchantID)
+	}
+	query.Where(predicate.MerchantRenewal(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.MerchantRenewalsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (mq *MerchantQuery) loadRemarkCategories(ctx context.Context, query *RemarkCategoryQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *RemarkCategory)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*Merchant)
@@ -1079,6 +1123,36 @@ func (mq *MerchantQuery) loadRemarks(ctx context.Context, query *RemarkQuery, no
 	}
 	query.Where(predicate.Remark(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.RemarksColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadStalls(ctx context.Context, query *StallQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Stall)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(stall.FieldMerchantID)
+	}
+	query.Where(predicate.Stall(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.StallsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

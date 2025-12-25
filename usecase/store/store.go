@@ -64,6 +64,14 @@ func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id uuid.UUID
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+	_, err = interactor.DataStore.StoreRepo().FindByID(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			err = domain.ParamsError(domain.ErrStoreNotExists)
+			return
+		}
+		return
+	}
 
 	err = interactor.DataStore.StoreRepo().Delete(ctx, id)
 	if err != nil {

@@ -24,6 +24,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -325,36 +326,6 @@ func (mc *MerchantCreate) SetNillableID(u *uuid.UUID) *MerchantCreate {
 	return mc
 }
 
-// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
-func (mc *MerchantCreate) AddStoreIDs(ids ...uuid.UUID) *MerchantCreate {
-	mc.mutation.AddStoreIDs(ids...)
-	return mc
-}
-
-// AddStores adds the "stores" edges to the Store entity.
-func (mc *MerchantCreate) AddStores(s ...*Store) *MerchantCreate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mc.AddStoreIDs(ids...)
-}
-
-// AddMerchantRenewalIDs adds the "merchant_renewals" edge to the MerchantRenewal entity by IDs.
-func (mc *MerchantCreate) AddMerchantRenewalIDs(ids ...uuid.UUID) *MerchantCreate {
-	mc.mutation.AddMerchantRenewalIDs(ids...)
-	return mc
-}
-
-// AddMerchantRenewals adds the "merchant_renewals" edges to the MerchantRenewal entity.
-func (mc *MerchantCreate) AddMerchantRenewals(m ...*MerchantRenewal) *MerchantCreate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return mc.AddMerchantRenewalIDs(ids...)
-}
-
 // SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
 func (mc *MerchantCreate) SetMerchantBusinessTypeID(id uuid.UUID) *MerchantCreate {
 	mc.mutation.SetMerchantBusinessTypeID(id)
@@ -391,6 +362,36 @@ func (mc *MerchantCreate) SetDistrict(d *District) *MerchantCreate {
 	return mc.SetDistrictID(d.ID)
 }
 
+// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
+func (mc *MerchantCreate) AddStoreIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddStoreIDs(ids...)
+	return mc
+}
+
+// AddStores adds the "stores" edges to the Store entity.
+func (mc *MerchantCreate) AddStores(s ...*Store) *MerchantCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mc.AddStoreIDs(ids...)
+}
+
+// AddMerchantRenewalIDs adds the "merchant_renewals" edge to the MerchantRenewal entity by IDs.
+func (mc *MerchantCreate) AddMerchantRenewalIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddMerchantRenewalIDs(ids...)
+	return mc
+}
+
+// AddMerchantRenewals adds the "merchant_renewals" edges to the MerchantRenewal entity.
+func (mc *MerchantCreate) AddMerchantRenewals(m ...*MerchantRenewal) *MerchantCreate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mc.AddMerchantRenewalIDs(ids...)
+}
+
 // AddRemarkCategoryIDs adds the "remark_categories" edge to the RemarkCategory entity by IDs.
 func (mc *MerchantCreate) AddRemarkCategoryIDs(ids ...uuid.UUID) *MerchantCreate {
 	mc.mutation.AddRemarkCategoryIDs(ids...)
@@ -419,6 +420,21 @@ func (mc *MerchantCreate) AddRemarks(r ...*Remark) *MerchantCreate {
 		ids[i] = r[i].ID
 	}
 	return mc.AddRemarkIDs(ids...)
+}
+
+// AddStallIDs adds the "stalls" edge to the Stall entity by IDs.
+func (mc *MerchantCreate) AddStallIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddStallIDs(ids...)
+	return mc
+}
+
+// AddStalls adds the "stalls" edges to the Stall entity.
+func (mc *MerchantCreate) AddStalls(s ...*Stall) *MerchantCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mc.AddStallIDs(ids...)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -745,38 +761,6 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 		_spec.SetField(merchant.FieldLat, field.TypeString, value)
 		_node.Lat = value
 	}
-	if nodes := mc.mutation.StoresIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.StoresTable,
-			Columns: []string{merchant.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mc.mutation.MerchantRenewalsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.MerchantRenewalsTable,
-			Columns: []string{merchant.MerchantRenewalsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := mc.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -879,6 +863,38 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 		_node.DistrictID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := mc.mutation.StoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoresTable,
+			Columns: []string{merchant.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.MerchantRenewalsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.MerchantRenewalsTable,
+			Columns: []string{merchant.MerchantRenewalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := mc.mutation.RemarkCategoriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -904,6 +920,22 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.StallsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StallsTable,
+			Columns: []string{merchant.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

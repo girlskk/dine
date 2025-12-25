@@ -20,6 +20,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -512,6 +513,21 @@ func (su *StoreUpdate) AddRemarks(r ...*Remark) *StoreUpdate {
 	return su.AddRemarkIDs(ids...)
 }
 
+// AddStallIDs adds the "stalls" edge to the Stall entity by IDs.
+func (su *StoreUpdate) AddStallIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddStallIDs(ids...)
+	return su
+}
+
+// AddStalls adds the "stalls" edges to the Stall entity.
+func (su *StoreUpdate) AddStalls(s ...*Stall) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddStallIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
@@ -566,6 +582,27 @@ func (su *StoreUpdate) RemoveRemarks(r ...*Remark) *StoreUpdate {
 		ids[i] = r[i].ID
 	}
 	return su.RemoveRemarkIDs(ids...)
+}
+
+// ClearStalls clears all "stalls" edges to the Stall entity.
+func (su *StoreUpdate) ClearStalls() *StoreUpdate {
+	su.mutation.ClearStalls()
+	return su
+}
+
+// RemoveStallIDs removes the "stalls" edge to Stall entities by IDs.
+func (su *StoreUpdate) RemoveStallIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveStallIDs(ids...)
+	return su
+}
+
+// RemoveStalls removes "stalls" edges to Stall entities.
+func (su *StoreUpdate) RemoveStalls(s ...*Stall) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveStallIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1010,6 +1047,51 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedStallsIDs(); len(nodes) > 0 && !su.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.StallsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1514,6 +1596,21 @@ func (suo *StoreUpdateOne) AddRemarks(r ...*Remark) *StoreUpdateOne {
 	return suo.AddRemarkIDs(ids...)
 }
 
+// AddStallIDs adds the "stalls" edge to the Stall entity by IDs.
+func (suo *StoreUpdateOne) AddStallIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddStallIDs(ids...)
+	return suo
+}
+
+// AddStalls adds the "stalls" edges to the Stall entity.
+func (suo *StoreUpdateOne) AddStalls(s ...*Stall) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddStallIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
@@ -1568,6 +1665,27 @@ func (suo *StoreUpdateOne) RemoveRemarks(r ...*Remark) *StoreUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return suo.RemoveRemarkIDs(ids...)
+}
+
+// ClearStalls clears all "stalls" edges to the Stall entity.
+func (suo *StoreUpdateOne) ClearStalls() *StoreUpdateOne {
+	suo.mutation.ClearStalls()
+	return suo
+}
+
+// RemoveStallIDs removes the "stalls" edge to Stall entities by IDs.
+func (suo *StoreUpdateOne) RemoveStallIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveStallIDs(ids...)
+	return suo
+}
+
+// RemoveStalls removes "stalls" edges to Stall entities.
+func (suo *StoreUpdateOne) RemoveStalls(s ...*Stall) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveStallIDs(ids...)
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -2042,6 +2160,51 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedStallsIDs(); len(nodes) > 0 && !suo.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.StallsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

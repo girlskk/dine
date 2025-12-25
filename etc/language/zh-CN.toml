@@ -71,3 +71,10 @@ other = "备注名称已存在"
 
 [REMARK_DELETE_SYSTEM]
 other = "不能删除系统内置备注"
+
+[STALL_NOT_EXISTS]
+other = "出品部门不存在"
+
+[STALL_NAME_EXISTS]
+other = "出品部门名称已存在"
+

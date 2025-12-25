@@ -130,6 +130,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/merchant/merchant/count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取商户数量统计",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-商户"
+                ],
+                "summary": "商户数量统计",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.MerchantCount"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/merchant/merchant/list": {
             "get": {
                 "security": [
@@ -548,7 +591,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "简单字段更新（目前仅状态）",
+                "description": "修改商户状态，",
                 "consumes": [
                     "application/json"
                 ],
@@ -558,10 +601,10 @@ const docTemplate = `{
                 "tags": [
                     "商户管理-商户"
                 ],
-                "summary": "更新商户信息",
+                "summary": "更新商户单个字段信息",
                 "parameters": [
                     {
-                        "description": "更新商户信息请求",
+                        "description": "更新商户单个字段信息请求",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -966,7 +1009,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "简单字段更新（目前仅状态）",
+                "description": "修改门店状态，",
                 "consumes": [
                     "application/json"
                 ],
@@ -976,10 +1019,10 @@ const docTemplate = `{
                 "tags": [
                     "商户管理-门店"
                 ],
-                "summary": "门店简单更新",
+                "summary": "更新门店单个字段信息",
                 "parameters": [
                     {
-                        "description": "门店简单更新请求",
+                        "description": "更新门店单个字段信息请求",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -2024,6 +2067,23 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "types.MerchantCount": {
+            "type": "object",
+            "properties": {
+                "expired": {
+                    "description": "过期商户数量",
+                    "type": "integer"
+                },
+                "merchant_type_brand": {
+                    "description": "品牌商户数量",
+                    "type": "integer"
+                },
+                "merchant_type_store": {
+                    "description": "门店商户数量",
+                    "type": "integer"
                 }
             }
         },

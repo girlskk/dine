@@ -153,6 +153,18 @@ func (f RemarkCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RemarkCategoryMutation", m)
 }
 
+// The StallFunc type is an adapter to allow the use of ordinary
+// function as Stall mutator.
+type StallFunc func(context.Context, *ent.StallMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f StallFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.StallMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StallMutation", m)
+}
+
 // The StoreFunc type is an adapter to allow the use of ordinary
 // function as Store mutator.
 type StoreFunc func(context.Context, *ent.StoreMutation) (ent.Value, error)

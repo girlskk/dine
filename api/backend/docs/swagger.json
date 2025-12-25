@@ -216,7 +216,7 @@
                 ],
                 "description": "分页查询备注列表",
                 "tags": [
-                    "备注"
+                    "前厅管理"
                 ],
                 "summary": "获取备注列表",
                 "parameters": [
@@ -242,20 +242,6 @@
                         "type": "integer",
                         "description": "页码",
                         "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "system",
-                            "brand"
-                        ],
-                        "type": "string",
-                        "x-enum-varnames": [
-                            "RemarkTypeSystem",
-                            "RemarkTypeBrand"
-                        ],
-                        "description": "备注创建方",
-                        "name": "remark_type",
                         "in": "query"
                     },
                     {
@@ -318,7 +304,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "备注"
+                    "前厅管理"
                 ],
                 "summary": "创建备注",
                 "parameters": [
@@ -366,7 +352,7 @@
                 ],
                 "description": "根据备注ID获取详情",
                 "tags": [
-                    "备注"
+                    "前厅管理"
                 ],
                 "summary": "获取备注详情",
                 "parameters": [
@@ -431,7 +417,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "备注"
+                    "前厅管理"
                 ],
                 "summary": "更新备注",
                 "parameters": [
@@ -484,7 +470,7 @@
                 ],
                 "description": "删除备注",
                 "tags": [
-                    "备注"
+                    "前厅管理"
                 ],
                 "summary": "删除备注",
                 "parameters": [
@@ -529,7 +515,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "快速切换启用状态",
+                "description": "快速切换启用状态，",
                 "consumes": [
                     "application/json"
                 ],
@@ -537,13 +523,172 @@
                     "application/json"
                 ],
                 "tags": [
-                    "备注"
+                    "前厅管理"
                 ],
-                "summary": "快速切换启用状态",
+                "summary": "更新备注单个字段信息",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新备注单个字段信息请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.RemarkSimpleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/remark_category": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取备注分类列表",
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "获取备注分类列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.RemarkCategoryListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建备注分类",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "创建备注分类",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.RemarkCategoryCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/remark_category/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新备注分类",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "更新备注分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注分类ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -554,7 +699,419 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/types.RemarkSimpleUpdateReq"
+                            "$ref": "#/definitions/types.RemarkCategoryUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除备注分类",
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "删除备注分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/stall": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询出品部门列表",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "获取出品部门列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "启用状态",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "名称模糊查询",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "receipt",
+                            "label"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "StallPrintTypeLabel": "标签",
+                            "StallPrintTypeReceipt": "小票/收据"
+                        },
+                        "x-enum-varnames": [
+                            "StallPrintTypeReceipt",
+                            "StallPrintTypeLabel"
+                        ],
+                        "description": "打印类型",
+                        "name": "print_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.StallListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建出品部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "创建出品部门",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StallCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/stall/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据出品部门ID获取详情",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "获取出品部门详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Stall"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新出品部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "更新出品部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StallUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除出品部门",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "删除出品部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "快速切换启用状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "更新出品部门单个字段信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新出品部门单个字段信息请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StallSimpleUpdateReq"
                         }
                     }
                 ],
@@ -974,7 +1531,7 @@
             "type": "object",
             "properties": {
                 "category_id": {
-                    "description": "分类ID",
+                    "description": "分类 ID",
                     "type": "string"
                 },
                 "category_name": {
@@ -1020,6 +1577,78 @@
                 }
             }
         },
+        "domain.RemarkCategory": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "分类描述",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID，可为空表示系统级分类",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string"
+                },
+                "remark_count": {
+                    "description": "该分类下备注数量",
+                    "type": "integer"
+                },
+                "remark_scene": {
+                    "description": "使用场景：整单备注/单品备注/退菜原因等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序，值越小越靠前",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RemarkScene": {
+            "type": "string",
+            "enum": [
+                "whole_order",
+                "item",
+                "cancel_reason",
+                "discount",
+                "gift",
+                "rebill",
+                "refund_reject"
+            ],
+            "x-enum-comments": {
+                "RemarkSceneCancelReason": "退菜原因",
+                "RemarkSceneDiscount": "优惠原因",
+                "RemarkSceneGift": "赠菜原��",
+                "RemarkSceneItem": "单品备注",
+                "RemarkSceneRebill": "反结账原因",
+                "RemarkSceneRefundReject": "拒绝退款",
+                "RemarkSceneWholeOrder": "整单备注"
+            },
+            "x-enum-varnames": [
+                "RemarkSceneWholeOrder",
+                "RemarkSceneItem",
+                "RemarkSceneCancelReason",
+                "RemarkSceneDiscount",
+                "RemarkSceneGift",
+                "RemarkSceneRebill",
+                "RemarkSceneRefundReject"
+            ]
+        },
         "domain.RemarkSimpleUpdateType": {
             "type": "string",
             "enum": [
@@ -1033,11 +1662,112 @@
             "type": "string",
             "enum": [
                 "system",
-                "brand"
+                "brand",
+                "store"
             ],
+            "x-enum-comments": {
+                "RemarkTypeBrand": "商户备注",
+                "RemarkTypeStore": "门店备注",
+                "RemarkTypeSystem": "系统备注"
+            },
             "x-enum-varnames": [
                 "RemarkTypeSystem",
-                "RemarkTypeBrand"
+                "RemarkTypeBrand",
+                "RemarkTypeStore"
+            ]
+        },
+        "domain.Stall": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "使用状态",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "出品部门名称",
+                    "type": "string"
+                },
+                "print_type": {
+                    "description": "打印类型 ：receipt/label",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "stall_type": {
+                    "description": "system/brand/store",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallType"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StallPrintType": {
+            "type": "string",
+            "enum": [
+                "receipt",
+                "label"
+            ],
+            "x-enum-comments": {
+                "StallPrintTypeLabel": "标签",
+                "StallPrintTypeReceipt": "小票/收据"
+            },
+            "x-enum-varnames": [
+                "StallPrintTypeReceipt",
+                "StallPrintTypeLabel"
+            ]
+        },
+        "domain.StallSimpleUpdateType": {
+            "type": "string",
+            "enum": [
+                "enabled"
+            ],
+            "x-enum-varnames": [
+                "StallSimpleUpdateTypeEnabled"
+            ]
+        },
+        "domain.StallType": {
+            "type": "string",
+            "enum": [
+                "system",
+                "brand",
+                "store"
+            ],
+            "x-enum-comments": {
+                "StallTypeBrand": "品牌出品部门",
+                "StallTypeStore": "门店出品部门",
+                "StallTypeSystem": "系统出品部门"
+            },
+            "x-enum-varnames": [
+                "StallTypeSystem",
+                "StallTypeBrand",
+                "StallTypeStore"
             ]
         },
         "response.Response": {
@@ -1196,12 +1926,100 @@
                 }
             }
         },
+        "types.RemarkCategoryCreateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "remark_scene"
+            ],
+            "properties": {
+                "description": {
+                    "description": "分类描述",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "remark_scene": {
+                    "description": "使用场景",
+                    "enum": [
+                        "whole_order",
+                        "item",
+                        "cancel_reason",
+                        "discount",
+                        "gift",
+                        "rebill",
+                        "refund_reject"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序，越小越靠前",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "types.RemarkCategoryListResp": {
+            "type": "object",
+            "properties": {
+                "remark_categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RemarkCategory"
+                    }
+                }
+            }
+        },
+        "types.RemarkCategoryUpdateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "remark_scene"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "remark_scene": {
+                    "enum": [
+                        "whole_order",
+                        "item",
+                        "cancel_reason",
+                        "discount",
+                        "gift",
+                        "rebill",
+                        "refund_reject"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "types.RemarkCreateReq": {
             "type": "object",
             "required": [
                 "category_id",
-                "name",
-                "remark_type"
+                "name"
             ],
             "properties": {
                 "category_id": {
@@ -1216,18 +2034,6 @@
                     "description": "备注名称",
                     "type": "string",
                     "maxLength": 255
-                },
-                "remark_type": {
-                    "description": "备注归属方",
-                    "enum": [
-                        "system",
-                        "brand"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.RemarkType"
-                        }
-                    ]
                 },
                 "sort_order": {
                     "description": "排序，越小越靠前",
@@ -1282,15 +2088,9 @@
         "types.RemarkUpdateReq": {
             "type": "object",
             "required": [
-                "category_id",
-                "name",
-                "remark_type"
+                "name"
             ],
             "properties": {
-                "category_id": {
-                    "description": "备注类型",
-                    "type": "string"
-                },
                 "enabled": {
                     "description": "是否启用",
                     "type": "boolean"
@@ -1300,26 +2100,115 @@
                     "type": "string",
                     "maxLength": 255
                 },
-                "remark_type": {
-                    "description": "备注归属方",
-                    "enum": [
-                        "system",
-                        "brand"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.RemarkType"
-                        }
-                    ]
-                },
                 "sort_order": {
                     "description": "排序，越小越靠前",
                     "type": "integer",
                     "minimum": 0
+                }
+            }
+        },
+        "types.StallCreateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "print_type"
+            ],
+            "properties": {
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
                 },
-                "store_id": {
-                    "description": "可选，品牌级可为空",
-                    "type": "string"
+                "name": {
+                    "description": "出品部门名称",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "print_type": {
+                    "description": "打印类型",
+                    "enum": [
+                        "receipt",
+                        "label"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "types.StallListResp": {
+            "type": "object",
+            "properties": {
+                "stalls": {
+                    "description": "出品部门列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Stall"
+                    }
+                },
+                "total": {
+                    "description": "出品部门总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.StallSimpleUpdateReq": {
+            "type": "object",
+            "required": [
+                "simple_update_type"
+            ],
+            "properties": {
+                "enabled": {
+                    "description": "启用状态",
+                    "type": "boolean"
+                },
+                "simple_update_type": {
+                    "description": "更新的字段名称",
+                    "enum": [
+                        "enabled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallSimpleUpdateType"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.StallUpdateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "print_type"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "print_type": {
+                    "enum": [
+                        "receipt",
+                        "label"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },

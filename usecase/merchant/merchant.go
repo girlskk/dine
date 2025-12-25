@@ -250,6 +250,13 @@ func (interactor *MerchantInteractor) DeleteMerchant(ctx context.Context, id uui
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+	_, err = interactor.DataStore.MerchantRepo().FindByID(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrMerchantNotExists)
+		}
+		return
+	}
 	err = interactor.DataStore.MerchantRepo().Delete(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("failed to delete merchant: %w", err)

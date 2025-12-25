@@ -22,6 +22,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -485,6 +486,21 @@ func (sc *StoreCreate) AddRemarks(r ...*Remark) *StoreCreate {
 		ids[i] = r[i].ID
 	}
 	return sc.AddRemarkIDs(ids...)
+}
+
+// AddStallIDs adds the "stalls" edge to the Stall entity by IDs.
+func (sc *StoreCreate) AddStallIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddStallIDs(ids...)
+	return sc
+}
+
+// AddStalls adds the "stalls" edges to the Stall entity.
+func (sc *StoreCreate) AddStalls(s ...*Stall) *StoreCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddStallIDs(ids...)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -1089,6 +1105,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.StallsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -37,7 +37,7 @@ func (h *RemarkHandler) Routes(r gin.IRouter) {
 
 // Create 创建备注
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		创建备注
 //	@Description	创建备注
@@ -63,14 +63,13 @@ func (h *RemarkHandler) Create() gin.HandlerFunc {
 		}
 
 		user := domain.FromBackendUserContext(ctx)
-		remark := &domain.Remark{
+		remark := &domain.CreateRemarkParams{
 			Name:       req.Name,
-			RemarkType: req.RemarkType,
+			RemarkType: domain.RemarkTypeBrand,
 			Enabled:    req.Enabled,
 			SortOrder:  req.SortOrder,
 			CategoryID: req.CategoryID,
 			MerchantID: user.MerchantID,
-			StoreID:    req.StoreID,
 		}
 
 		if err := h.RemarkInteractor.Create(ctx, remark); err != nil {
@@ -93,7 +92,7 @@ func (h *RemarkHandler) Create() gin.HandlerFunc {
 
 // Update 更新备注
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		更新备注
 //	@Description	更新备注
@@ -125,16 +124,11 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
-		remark := &domain.Remark{
-			ID:         id,
-			Name:       req.Name,
-			RemarkType: req.RemarkType,
-			Enabled:    req.Enabled,
-			SortOrder:  req.SortOrder,
-			CategoryID: req.CategoryID,
-			MerchantID: user.MerchantID,
-			StoreID:    req.StoreID,
+		remark := &domain.UpdateRemarkParams{
+			ID:        id,
+			Name:      req.Name,
+			Enabled:   req.Enabled,
+			SortOrder: req.SortOrder,
 		}
 
 		if err := h.RemarkInteractor.Update(ctx, remark); err != nil {
@@ -157,7 +151,7 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 
 // Delete 删除备注
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		删除备注
 //	@Description	删除备注
@@ -205,7 +199,7 @@ func (h *RemarkHandler) Delete() gin.HandlerFunc {
 
 // Get 获取备注详情
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		获取备注详情
 //	@Description	根据备注ID获取详情
@@ -245,7 +239,7 @@ func (h *RemarkHandler) Get() gin.HandlerFunc {
 
 // GetRemarks 获取备注列表
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		获取备注列表
 //	@Description	分页查询备注列表
@@ -274,7 +268,7 @@ func (h *RemarkHandler) GetRemarks() gin.HandlerFunc {
 			MerchantID: user.MerchantID,
 			StoreID:    req.StoreID,
 			Enabled:    req.Enabled,
-			RemarkType: req.RemarkType,
+			RemarkType: domain.RemarkTypeBrand,
 		}
 
 		remarks, total, err := h.RemarkInteractor.GetRemarks(ctx, pager, filter, domain.NewRemarkOrderByCreatedAt(true))
@@ -291,16 +285,16 @@ func (h *RemarkHandler) GetRemarks() gin.HandlerFunc {
 	}
 }
 
-// RemarkSimpleUpdate 快速切换启用状态
+// RemarkSimpleUpdate 更新备注单个字段信息
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
-//	@Summary		快速切换启用状态
-//	@Description	快速切换启用状态
+//	@Summary		更新备注单个字段信息
+//	@Description	快速切换启用状态，
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string						true	"备注ID"
-//	@Param			data	body	types.RemarkSimpleUpdateReq	true	"请求信息"
+//	@Param			data	body	types.RemarkSimpleUpdateReq	true	"更新备注单个字段信息请求信息"
 //	@Success		200		"No Content"
 //	@Failure		400		{object}	response.Response
 //	@Failure		404		{object}	response.Response

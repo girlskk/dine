@@ -330,15 +330,15 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 	}
 }
 
-// StoreSimpleUpdate 门店简单更新
+// StoreSimpleUpdate 更新门店单个字段信息
 //
-//	@Summary		门店简单更新
-//	@Description	简单字段更新（目前仅状态）
+//	@Summary		更新门店单个字段信息
+//	@Description	修改门店状态，
 //	@Tags			商户管理-门店
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body	types.StoreSimpleUpdateReq	true	"门店简单更新请求"
+//	@Param			data	body	types.StoreSimpleUpdateReq	true	"更新门店单个字段信息请求"
 //	@Success		200		"No Content"
 //	@Failure		400		{object}	response.Response
 //	@Failure		404		{object}	response.Response

@@ -15,15 +15,16 @@ var (
 	ErrRemarkDeleteSystem = errors.New("系统备注不能删除")
 )
 
-type RemarkType string
+type RemarkType string // 备注归属方
 
 const (
-	RemarkTypeSystem RemarkType = "system"
-	RemarkTypeBrand  RemarkType = "brand"
+	RemarkTypeSystem RemarkType = "system" // 系统备注
+	RemarkTypeBrand  RemarkType = "brand"  // 商户备注
+	RemarkTypeStore  RemarkType = "store"  // 门店备注
 )
 
 func (RemarkType) Values() []string {
-	return []string{string(RemarkTypeSystem), string(RemarkTypeBrand)}
+	return []string{string(RemarkTypeSystem), string(RemarkTypeBrand), string(RemarkTypeStore)}
 }
 
 type RemarkScene string
@@ -97,7 +98,7 @@ type Remark struct {
 	RemarkType   RemarkType `json:"remark_type"`   // 备注类型：系统/品牌
 	Enabled      bool       `json:"enabled"`       // 是否启用
 	SortOrder    int        `json:"sort_order"`    // 排序，值越小越靠前
-	CategoryID   uuid.UUID  `json:"category_id"`   // 分类ID
+	CategoryID   uuid.UUID  `json:"category_id"`   // 分类 ID
 	CategoryName string     `json:"category_name"` // 分类名称
 	MerchantID   uuid.UUID  `json:"merchant_id"`   // 品牌商ID，仅品牌备注需要
 	StoreID      uuid.UUID  `json:"store_id"`      // 门店 ID
@@ -115,31 +116,57 @@ type RemarkRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
 	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
+	CountRemarkByCategories(ctx context.Context, params CountRemarkParams) (countRemark map[uuid.UUID]int, err error)
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/remark_interactor.go -package=mock . RemarkInteractor
 type RemarkInteractor interface {
-	Create(ctx context.Context, remark *Remark) (err error)
-	Update(ctx context.Context, remark *Remark) (err error)
+	Create(ctx context.Context, remark *CreateRemarkParams) (err error)
+	Update(ctx context.Context, remark *UpdateRemarkParams) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetRemark(ctx context.Context, id uuid.UUID) (remark *Remark, err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
 	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
 	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateType, remark *Remark) (err error)
 }
-
-type RemarkExistsParams struct {
-	CategoryID uuid.UUID
-	MerchantID uuid.UUID
-	StoreID    uuid.UUID
-	Name       string
-	ExcludeID  uuid.UUID // 更新时排除自身
+type CreateRemarkParams struct {
+	RemarkType RemarkType `json:"remark_type"` // 备注归属方
+	Name       string     `json:"name"`        // 备注名称
+	Enabled    bool       `json:"enabled"`     // 是否启用
+	SortOrder  int        `json:"sort_order"`  // 排序，越小越靠前
+	CategoryID uuid.UUID  `json:"category_id"` // 备注分类 ID
+	MerchantID uuid.UUID  `json:"merchant_id"` // 商户 ID
+	StoreID    uuid.UUID  `json:"store_id"`    // 门店 ID
 }
 
+type UpdateRemarkParams struct {
+	ID        uuid.UUID `json:"id"`         // 备注 ID
+	Name      string    `json:"name"`       // 备注名称
+	Enabled   bool      `json:"enabled"`    // 是否启用
+	SortOrder int       `json:"sort_order"` // 排序，越小越靠前
+}
+type RemarkExistsParams struct {
+	RemarkType RemarkType `json:"remark_type"` // 备注归属方
+	CategoryID uuid.UUID  `json:"category_id"` // 备注分类 ID
+	MerchantID uuid.UUID  `json:"merchant_id"` // 商户 ID
+	StoreID    uuid.UUID  `json:"store_id"`    // 门店 ID
+	Name       string     `json:"name"`        // 备注名称
+	ExcludeID  uuid.UUID  `json:"exclude_id"`  // 更新时排除自身
+}
+
+// RemarkListFilter merchant ID is required when store ID is provided
+// RemarkListFilter 备注列表过滤条件
 type RemarkListFilter struct {
-	CategoryID uuid.UUID  `json:"category_id"`
-	MerchantID uuid.UUID  `json:"merchant_id"`
-	StoreID    uuid.UUID  `json:"store_id"`
-	Enabled    *bool      `json:"enabled"` // nil: 不筛; true/false: 按状态筛
-	RemarkType RemarkType `json:"remark_type"`
+	RemarkType RemarkType `json:"remark_type"` // 备注归属方
+	CategoryID uuid.UUID  `json:"category_id"` // 备注分类 ID
+	MerchantID uuid.UUID  `json:"merchant_id"` // 商户 ID
+	StoreID    uuid.UUID  `json:"store_id"`    // 门店 ID
+	Enabled    *bool      `json:"enabled"`     // nil: 不筛; true/false: 按状态筛
+}
+
+type CountRemarkParams struct {
+	RemarkType  RemarkType  `json:"remark_type"`
+	CategoryIDs []uuid.UUID `json:"category_ids"`
+	MerchantID  uuid.UUID   `json:"merchant_id"`
+	StoreID     uuid.UUID   `json:"store_id"`
 }

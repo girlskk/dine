@@ -1197,52 +1197,6 @@ func AdminUserIDNotIn(vs ...uuid.UUID) predicate.Merchant {
 	return predicate.Merchant(sql.FieldNotIn(FieldAdminUserID, vs...))
 }
 
-// HasStores applies the HasEdge predicate on the "stores" edge.
-func HasStores() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, StoresTable, StoresColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasStoresWith applies the HasEdge predicate on the "stores" edge with a given conditions (other predicates).
-func HasStoresWith(preds ...predicate.Store) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newStoresStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasMerchantRenewals applies the HasEdge predicate on the "merchant_renewals" edge.
-func HasMerchantRenewals() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, MerchantRenewalsTable, MerchantRenewalsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasMerchantRenewalsWith applies the HasEdge predicate on the "merchant_renewals" edge with a given conditions (other predicates).
-func HasMerchantRenewalsWith(preds ...predicate.MerchantRenewal) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newMerchantRenewalsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasMerchantBusinessType applies the HasEdge predicate on the "merchant_business_type" edge.
 func HasMerchantBusinessType() predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
@@ -1381,6 +1335,52 @@ func HasDistrictWith(preds ...predicate.District) predicate.Merchant {
 	})
 }
 
+// HasStores applies the HasEdge predicate on the "stores" edge.
+func HasStores() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StoresTable, StoresColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStoresWith applies the HasEdge predicate on the "stores" edge with a given conditions (other predicates).
+func HasStoresWith(preds ...predicate.Store) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newStoresStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMerchantRenewals applies the HasEdge predicate on the "merchant_renewals" edge.
+func HasMerchantRenewals() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MerchantRenewalsTable, MerchantRenewalsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMerchantRenewalsWith applies the HasEdge predicate on the "merchant_renewals" edge with a given conditions (other predicates).
+func HasMerchantRenewalsWith(preds ...predicate.MerchantRenewal) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newMerchantRenewalsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasRemarkCategories applies the HasEdge predicate on the "remark_categories" edge.
 func HasRemarkCategories() predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
@@ -1419,6 +1419,29 @@ func HasRemarks() predicate.Merchant {
 func HasRemarksWith(preds ...predicate.Remark) predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
 		step := newRemarksStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasStalls applies the HasEdge predicate on the "stalls" edge.
+func HasStalls() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StallsTable, StallsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStallsWith applies the HasEdge predicate on the "stalls" edge with a given conditions (other predicates).
+func HasStallsWith(preds ...predicate.Stall) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newStallsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

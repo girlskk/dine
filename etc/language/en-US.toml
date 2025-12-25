@@ -72,3 +72,9 @@ other = "Remark name already exists"
 
 [REMARK_DELETE_SYSTEM]
 other = "Cannot delete system built-in remark"
+
+[STALL_NOT_EXISTS]
+other = "Stall does not exist"
+
+[STALL_NAME_EXISTS]
+other = "Stall name already exists"

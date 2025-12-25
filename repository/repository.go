@@ -26,6 +26,7 @@ type Repository struct {
 	merchantBusinessTypeRepo *MerchantBusinessTypeRepository
 	remarkRepo               *RemarkRepository
 	remarkCategoryRepo       *RemarkCategoryRepository
+	stallRepo                *StallRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -179,4 +180,13 @@ func (repo *Repository) RemarkCategoryRepo() domain.RemarkCategoryRepository {
 		repo.remarkCategoryRepo = NewRemarkCategoryRepository(repo.client)
 	}
 	return repo.remarkCategoryRepo
+}
+
+func (repo *Repository) StallRepo() domain.StallRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.stallRepo == nil {
+		repo.stallRepo = NewStallRepository(repo.client)
+	}
+	return repo.stallRepo
 }

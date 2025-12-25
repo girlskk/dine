@@ -37,6 +37,7 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 	r.GET("/list", h.GetMerchants())
 	r.POST("/renewal", h.MerchantRenewal())
 	r.PATCH("/:id", h.MerchantSimpleUpdate())
+	r.GET("/count", h.CountMerchant())
 }
 
 // CreateBrandMerchant 创建品牌商户
@@ -608,15 +609,15 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 	}
 }
 
-// MerchantSimpleUpdate 更新商户信息
+// MerchantSimpleUpdate 更新商户单个字段信息
 //
-//	@Summary		更新商户信息
-//	@Description	简单字段更新（目前仅状态）
+//	@Summary		更新商户单个字段信息
+//	@Description	修改商户状态，
 //	@Tags			商户管理-商户
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body	types.MerchantSimpleUpdateReq	true	"更新商户信息请求"
+//	@Param			data	body	types.MerchantSimpleUpdateReq	true	"更新商户单个字段信息请求"
 //	@Success		200		"No Content"
 //	@Failure		400		{object}	response.Response
 //	@Failure		404		{object}	response.Response
@@ -656,6 +657,39 @@ func (h *MerchantHandler) MerchantSimpleUpdate() gin.HandlerFunc {
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+// CountMerchant 商户数量统计
+//
+//	@Summary		商户数量统计
+//	@Description	获取商户数量统计
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	response.Response{data=types.MerchantCount}
+//	@Failure		500	{object}	response.Response
+//	@Router			/merchant/merchant/count [get]
+func (h *MerchantHandler) CountMerchant() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("MerchantHandler.CountMerchant")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		merchantCount, err := h.MerchantInteractor.CountMerchant(ctx)
+		if err != nil {
+			err = fmt.Errorf("failed to count merchants: %w", err)
+			c.Error(err)
+			return
+		}
+		resp := &types.MerchantCount{}
+		if merchantCount != nil {
+			resp.MerchantTypeBrand = merchantCount.MerchantTypeBrand
+			resp.MerchantTypeStore = merchantCount.MerchantTypeStore
+			resp.Expired = merchantCount.Expired
+		}
+		response.Ok(c, resp)
 	}
 }
 

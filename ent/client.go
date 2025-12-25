@@ -28,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -60,6 +61,8 @@ type Client struct {
 	Remark *RemarkClient
 	// RemarkCategory is the client for interacting with the RemarkCategory builders.
 	RemarkCategory *RemarkCategoryClient
+	// Stall is the client for interacting with the Stall builders.
+	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
 }
@@ -85,6 +88,7 @@ func (c *Client) init() {
 	c.Province = NewProvinceClient(c.config)
 	c.Remark = NewRemarkClient(c.config)
 	c.RemarkCategory = NewRemarkCategoryClient(c.config)
+	c.Stall = NewStallClient(c.config)
 	c.Store = NewStoreClient(c.config)
 }
 
@@ -190,6 +194,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Province:             NewProvinceClient(cfg),
 		Remark:               NewRemarkClient(cfg),
 		RemarkCategory:       NewRemarkCategoryClient(cfg),
+		Stall:                NewStallClient(cfg),
 		Store:                NewStoreClient(cfg),
 	}, nil
 }
@@ -222,6 +227,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Province:             NewProvinceClient(cfg),
 		Remark:               NewRemarkClient(cfg),
 		RemarkCategory:       NewRemarkCategoryClient(cfg),
+		Stall:                NewStallClient(cfg),
 		Store:                NewStoreClient(cfg),
 	}, nil
 }
@@ -254,7 +260,7 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
 		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Remark,
-		c.RemarkCategory, c.Store,
+		c.RemarkCategory, c.Stall, c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -266,7 +272,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
 		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Remark,
-		c.RemarkCategory, c.Store,
+		c.RemarkCategory, c.Stall, c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -299,6 +305,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Remark.mutate(ctx, m)
 	case *RemarkCategoryMutation:
 		return c.RemarkCategory.mutate(ctx, m)
+	case *StallMutation:
+		return c.Stall.mutate(ctx, m)
 	case *StoreMutation:
 		return c.Store.mutate(ctx, m)
 	default:
@@ -1528,38 +1536,6 @@ func (c *MerchantClient) GetX(ctx context.Context, id uuid.UUID) *Merchant {
 	return obj
 }
 
-// QueryStores queries the stores edge of a Merchant.
-func (c *MerchantClient) QueryStores(m *Merchant) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoresTable, merchant.StoresColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMerchantRenewals queries the merchant_renewals edge of a Merchant.
-func (c *MerchantClient) QueryMerchantRenewals(m *Merchant) *MerchantRenewalQuery {
-	query := (&MerchantRenewalClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(merchantrenewal.Table, merchantrenewal.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.MerchantRenewalsTable, merchant.MerchantRenewalsColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryMerchantBusinessType queries the merchant_business_type edge of a Merchant.
 func (c *MerchantClient) QueryMerchantBusinessType(m *Merchant) *MerchantBusinessTypeQuery {
 	query := (&MerchantBusinessTypeClient{config: c.config}).Query()
@@ -1656,6 +1632,38 @@ func (c *MerchantClient) QueryDistrict(m *Merchant) *DistrictQuery {
 	return query
 }
 
+// QueryStores queries the stores edge of a Merchant.
+func (c *MerchantClient) QueryStores(m *Merchant) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoresTable, merchant.StoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMerchantRenewals queries the merchant_renewals edge of a Merchant.
+func (c *MerchantClient) QueryMerchantRenewals(m *Merchant) *MerchantRenewalQuery {
+	query := (&MerchantRenewalClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(merchantrenewal.Table, merchantrenewal.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.MerchantRenewalsTable, merchant.MerchantRenewalsColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryRemarkCategories queries the remark_categories edge of a Merchant.
 func (c *MerchantClient) QueryRemarkCategories(m *Merchant) *RemarkCategoryQuery {
 	query := (&RemarkCategoryClient{config: c.config}).Query()
@@ -1681,6 +1689,22 @@ func (c *MerchantClient) QueryRemarks(m *Merchant) *RemarkQuery {
 			sqlgraph.From(merchant.Table, merchant.FieldID, id),
 			sqlgraph.To(remark.Table, remark.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarksTable, merchant.RemarksColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStalls queries the stalls edge of a Merchant.
+func (c *MerchantClient) QueryStalls(m *Merchant) *StallQuery {
+	query := (&StallClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StallsTable, merchant.StallsColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -2598,6 +2622,173 @@ func (c *RemarkCategoryClient) mutate(ctx context.Context, m *RemarkCategoryMuta
 	}
 }
 
+// StallClient is a client for the Stall schema.
+type StallClient struct {
+	config
+}
+
+// NewStallClient returns a client for the Stall from the given config.
+func NewStallClient(c config) *StallClient {
+	return &StallClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `stall.Hooks(f(g(h())))`.
+func (c *StallClient) Use(hooks ...Hook) {
+	c.hooks.Stall = append(c.hooks.Stall, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `stall.Intercept(f(g(h())))`.
+func (c *StallClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Stall = append(c.inters.Stall, interceptors...)
+}
+
+// Create returns a builder for creating a Stall entity.
+func (c *StallClient) Create() *StallCreate {
+	mutation := newStallMutation(c.config, OpCreate)
+	return &StallCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Stall entities.
+func (c *StallClient) CreateBulk(builders ...*StallCreate) *StallCreateBulk {
+	return &StallCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *StallClient) MapCreateBulk(slice any, setFunc func(*StallCreate, int)) *StallCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &StallCreateBulk{err: fmt.Errorf("calling to StallClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*StallCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &StallCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Stall.
+func (c *StallClient) Update() *StallUpdate {
+	mutation := newStallMutation(c.config, OpUpdate)
+	return &StallUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *StallClient) UpdateOne(s *Stall) *StallUpdateOne {
+	mutation := newStallMutation(c.config, OpUpdateOne, withStall(s))
+	return &StallUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *StallClient) UpdateOneID(id uuid.UUID) *StallUpdateOne {
+	mutation := newStallMutation(c.config, OpUpdateOne, withStallID(id))
+	return &StallUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Stall.
+func (c *StallClient) Delete() *StallDelete {
+	mutation := newStallMutation(c.config, OpDelete)
+	return &StallDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *StallClient) DeleteOne(s *Stall) *StallDeleteOne {
+	return c.DeleteOneID(s.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *StallClient) DeleteOneID(id uuid.UUID) *StallDeleteOne {
+	builder := c.Delete().Where(stall.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &StallDeleteOne{builder}
+}
+
+// Query returns a query builder for Stall.
+func (c *StallClient) Query() *StallQuery {
+	return &StallQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeStall},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Stall entity by its id.
+func (c *StallClient) Get(ctx context.Context, id uuid.UUID) (*Stall, error) {
+	return c.Query().Where(stall.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *StallClient) GetX(ctx context.Context, id uuid.UUID) *Stall {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMerchant queries the merchant edge of a Stall.
+func (c *StallClient) QueryMerchant(s *Stall) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(stall.Table, stall.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, stall.MerchantTable, stall.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a Stall.
+func (c *StallClient) QueryStore(s *Stall) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(stall.Table, stall.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, stall.StoreTable, stall.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *StallClient) Hooks() []Hook {
+	hooks := c.hooks.Stall
+	return append(hooks[:len(hooks):len(hooks)], stall.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *StallClient) Interceptors() []Interceptor {
+	inters := c.inters.Stall
+	return append(inters[:len(inters):len(inters)], stall.Interceptors[:]...)
+}
+
+func (c *StallClient) mutate(ctx context.Context, m *StallMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StallCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StallUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StallUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StallDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Stall mutation op: %q", m.Op())
+	}
+}
+
 // StoreClient is a client for the Store schema.
 type StoreClient struct {
 	config
@@ -2834,6 +3025,22 @@ func (c *StoreClient) QueryRemarks(s *Store) *RemarkQuery {
 	return query
 }
 
+// QueryStalls queries the stalls edge of a Store.
+func (c *StoreClient) QueryStalls(s *Store) *StallQuery {
+	query := (&StallClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.StallsTable, store.StallsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StoreClient) Hooks() []Hook {
 	hooks := c.hooks.Store
@@ -2865,12 +3072,12 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 type (
 	hooks struct {
 		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory,
+		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory, Stall,
 		Store []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory,
+		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory, Stall,
 		Store []ent.Interceptor
 	}
 )
