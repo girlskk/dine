@@ -79,6 +79,20 @@ func (mr *MockProductInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductInteractor)(nil).Delete), arg0, arg1)
 }
 
+// Distribute mocks base method.
+func (m *MockProductInteractor) Distribute(arg0 context.Context, arg1 domain.ProductDistributeParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Distribute", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Distribute indicates an expected call of Distribute.
+func (mr *MockProductInteractorMockRecorder) Distribute(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Distribute", reflect.TypeOf((*MockProductInteractor)(nil).Distribute), arg0, arg1)
+}
+
 // GetDetail mocks base method.
 func (m *MockProductInteractor) GetDetail(arg0 context.Context, arg1 uuid.UUID) (*domain.Product, error) {
 	m.ctrl.T.Helper()

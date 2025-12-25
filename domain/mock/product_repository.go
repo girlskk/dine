@@ -95,6 +95,21 @@ func (mr *MockProductRepositoryMockRecorder) FindByID(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockProductRepository)(nil).FindByID), arg0, arg1)
 }
 
+// FindByNameInStore mocks base method.
+func (m *MockProductRepository) FindByNameInStore(arg0 context.Context, arg1 uuid.UUID, arg2 string) (*domain.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByNameInStore", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByNameInStore indicates an expected call of FindByNameInStore.
+func (mr *MockProductRepositoryMockRecorder) FindByNameInStore(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByNameInStore", reflect.TypeOf((*MockProductRepository)(nil).FindByNameInStore), arg0, arg1, arg2)
+}
+
 // GetDetail mocks base method.
 func (m *MockProductRepository) GetDetail(arg0 context.Context, arg1 uuid.UUID) (*domain.Product, error) {
 	m.ctrl.T.Helper()

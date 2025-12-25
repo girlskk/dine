@@ -38,6 +38,7 @@ func (h *ProductHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id/off-sale", h.OffSale())
 	r.PUT("/:id/on-sale", h.OnSale())
 	r.GET("/:id", h.GetDetail())
+	r.POST("/distribute", h.Distribute())
 }
 
 func (h *ProductHandler) NoAuths() []string {
@@ -884,5 +885,51 @@ func (h *ProductHandler) GetDetail() gin.HandlerFunc {
 		}
 
 		response.Ok(c, product)
+	}
+}
+
+// Distribute
+//
+//	@Tags		商品管理
+//	@Security	BearerAuth
+//	@Summary	下发商品到门店
+//	@Param		data	body	types.ProductDistributeReq	true	"请求信息"
+//	@Success	200
+//	@Router		/product/distribute [post]
+func (h *ProductHandler) Distribute() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProductHandler.Distribute")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.ProductDistributeReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := domain.FromBackendUserContext(ctx)
+
+		params := domain.ProductDistributeParams{
+			ProductID:        req.ProductID,
+			MerchantID:       user.MerchantID,
+			StoreIDs:         req.StoreIDs,
+			DistributionRule: req.DistributionRule,
+			SaleRule:         req.SaleRule,
+		}
+
+		err := h.ProductInteractor.Distribute(ctx, params)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to distribute product: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
 	}
 }

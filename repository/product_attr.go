@@ -181,6 +181,48 @@ func (repo *ProductAttrRepository) ListBySearch(
 	return items, nil
 }
 
+func (repo *ProductAttrRepository) FindByNamesInStore(ctx context.Context, storeID uuid.UUID, names []string) (res domain.ProductAttrs, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductAttrRepository.FindByNamesInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.ProductAttr.Query().Where(productattr.StoreID(storeID)).Where(productattr.NameIn(names...))
+	entAttrs, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res = make(domain.ProductAttrs, 0, len(entAttrs))
+	for _, a := range entAttrs {
+		res = append(res, convertProductAttrToDomain(a))
+	}
+	return res, nil
+}
+
+func (repo *ProductAttrRepository) CreateBulk(ctx context.Context, attrs []*domain.ProductAttr) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductAttrRepository.CreateBulk")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	builders := make([]*ent.ProductAttrCreate, 0, len(attrs))
+	for _, attr := range attrs {
+		builder := repo.Client.ProductAttr.Create().
+			SetID(attr.ID).
+			SetName(attr.Name).
+			SetChannels(attr.Channels).
+			SetMerchantID(attr.MerchantID).
+			SetProductCount(attr.ProductCount)
+
+		if attr.StoreID != uuid.Nil {
+			builder = builder.SetStoreID(attr.StoreID)
+		}
+		builders = append(builders, builder)
+	}
+	_, err = repo.Client.ProductAttr.CreateBulk(builders...).Save(ctx)
+	return err
+}
+
 // ============================================
 // ProductAttrItem 相关操作
 // ============================================
@@ -297,6 +339,27 @@ func (repo *ProductAttrRepository) ListItemsByIDs(ctx context.Context, ids []uui
 		return nil, err
 	}
 
+	res = make(domain.ProductAttrItems, 0, len(entItems))
+	for _, i := range entItems {
+		res = append(res, convertProductAttrItemToDomain(i))
+	}
+	return res, nil
+}
+
+func (repo *ProductAttrRepository) FindItemsByNamesInAttr(ctx context.Context, attrID uuid.UUID, names []string) (res domain.ProductAttrItems, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductAttrRepository.FindItemsByNamesInAttr")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.ProductAttrItem.Query().
+		Where(productattritem.AttrID(attrID)).
+		Where(productattritem.NameIn(names...))
+
+	entItems, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
 	res = make(domain.ProductAttrItems, 0, len(entItems))
 	for _, i := range entItems {
 		res = append(res, convertProductAttrItemToDomain(i))

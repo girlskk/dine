@@ -22,10 +22,12 @@ type ProductTagRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*ProductTag, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) (ProductTags, error)
 	Create(ctx context.Context, tag *ProductTag) error
+	CreateBulk(ctx context.Context, tags ProductTags) error
 	Update(ctx context.Context, tag *ProductTag) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProductTagExistsParams) (bool, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductTagSearchParams) (*ProductTagSearchRes, error)
+	FindByNamesInStore(ctx context.Context, storeID uuid.UUID, names []string) (ProductTags, error)
 }
 
 // ProductTagInteractor 商品标签用例接口

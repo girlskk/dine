@@ -98,5 +98,10 @@ func convertProductSpecRelationToDomain(er *ent.ProductSpecRelation) *domain.Pro
 		relation.OtherPrice3 = er.OtherPrice3
 	}
 
+	// 关联信息
+	if er.Edges.Spec != nil {
+		relation.SpecName = er.Edges.Spec.Name
+	}
+
 	return relation
 }

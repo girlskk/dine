@@ -176,6 +176,26 @@ func (repo *ProductUnitRepository) PagedListBySearch(
 	}, nil
 }
 
+func (repo *ProductUnitRepository) FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (res *domain.ProductUnit, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductUnitRepository.FindByNameInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	eu, err := repo.Client.ProductUnit.Query().
+		Where(productunit.StoreID(storeID)).
+		Where(productunit.Name(name)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrProductUnitNotExists)
+		}
+		return nil, err
+	}
+
+	return convertProductUnitToDomain(eu), nil
+}
+
 func convertProductUnitToDomain(eu *ent.ProductUnit) *domain.ProductUnit {
 	if eu == nil {
 		return nil
