@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 // OrderType 订单类型
@@ -195,8 +196,8 @@ type OrderTakeaway struct {
 	PickupNo    string `json:"pickup_no,omitempty"`     // 取餐号（自取）
 	PickupEtaAt string `json:"pickup_eta_at,omitempty"` // 预计取餐时间
 
-	DeliveryAddress string `json:"delivery_address,omitempty"` // 配送地址（配送）
-	DeliveryFee     int64  `json:"delivery_fee,omitempty"`     // 配送费（分）
+	DeliveryAddress string           `json:"delivery_address,omitempty"` // 配送地址（配送）
+	DeliveryFee     *decimal.Decimal `json:"delivery_fee,omitempty"`     // 配送费
 
 	DeliveryPlatform   string `json:"delivery_platform,omitempty"`    // 配送平台（如 MEITUAN/ELEME/SELF）
 	DeliveryOrderNo    string `json:"delivery_order_no,omitempty"`    // 平台配送单号
@@ -215,8 +216,8 @@ type OrderPromotion struct {
 	PromotionName string `json:"promotion_name,omitempty"` // 促销名称
 	PromotionType string `json:"promotion_type,omitempty"` // 促销类型
 
-	DiscountAmount int64       `json:"discount_amount"` // 促销优惠金额（分）
-	Meta           interface{} `json:"meta,omitempty"`  // 促销扩展信息
+	DiscountAmount *decimal.Decimal `json:"discount_amount"` // 促销优惠金额
+	Meta           interface{}      `json:"meta,omitempty"`  // 促销扩展信息
 }
 
 // OrderFee 费用明细
@@ -225,8 +226,8 @@ type OrderFee struct {
 	FeeName string `json:"fee_name,omitempty"` // 费用名称
 	FeeType string `json:"fee_type,omitempty"` // 费用类型（TIP/PACKAGING/SURCHARGE/OTHER 等）
 
-	Amount int64       `json:"amount"`         // 费用金额（分）
-	Meta   interface{} `json:"meta,omitempty"` // 扩展信息
+	Amount *decimal.Decimal `json:"amount"`         // 费用金额
+	Meta   interface{}      `json:"meta,omitempty"` // 扩展信息
 }
 
 // OrderCoupon 卡券信息
@@ -236,8 +237,8 @@ type OrderCoupon struct {
 	CouponType string `json:"coupon_type,omitempty"` // 卡券类型
 	CouponCode string `json:"coupon_code,omitempty"` // 卡券码
 
-	DiscountAmount int64       `json:"discount_amount"` // 卡券优惠金额（分）
-	Meta           interface{} `json:"meta,omitempty"`  // 卡券扩展信息
+	DiscountAmount *decimal.Decimal `json:"discount_amount"` // 卡券优惠金额
+	Meta           interface{}      `json:"meta,omitempty"`  // 卡券扩展信息
 }
 
 // OrderTaxRate 税率信息
@@ -245,11 +246,11 @@ type OrderTaxRate struct {
 	TaxRateID   string `json:"tax_rate_id,omitempty"`   // 税率ID
 	TaxRateName string `json:"tax_rate_name,omitempty"` // 税率名称
 
-	Rate int64 `json:"rate"` // 税率（万分比，如 600 表示 6%）
+	Rate *decimal.Decimal `json:"rate"` // 税率（百分比）
 
-	TaxableAmount int64       `json:"taxable_amount"` // 计税金额（分）
-	TaxAmount     int64       `json:"tax_amount"`     // 税额（分）
-	Meta          interface{} `json:"meta,omitempty"` // 扩展信息
+	TaxableAmount *decimal.Decimal `json:"taxable_amount"` // 计税金额
+	TaxAmount     *decimal.Decimal `json:"tax_amount"`     // 税额
+	Meta          interface{}      `json:"meta,omitempty"` // 扩展信息
 }
 
 // OrderProduct 商品
@@ -262,19 +263,19 @@ type OrderProduct struct {
 	RefundedAt   time.Time `json:"refunded_at,omitempty"`   // 退菜时间
 
 	Promotions        []OrderPromotion `json:"promotions,omitempty"` // 促销明细（可叠加）
-	PromotionDiscount int64            `json:"promotion_discount"`   // 促销优惠金额（分）
+	PromotionDiscount *decimal.Decimal `json:"promotion_discount"`   // 促销优惠金额
 	Product
-	Qty             int   `json:"qty"`               // 数量
-	Subtotal        int64 `json:"subtotal"`          // 小计（分）
-	DiscountAmount  int64 `json:"discount_amount"`   // 优惠金额（分）
-	AmountBeforeTax int64 `json:"amount_before_tax"` // 税前金额（分）
-	TaxRate         int64 `json:"tax_rate"`          // 税率（万分比，如 600 表示 6%）
-	Tax             int64 `json:"tax"`               // 税额（分）
-	AmountAfterTax  int64 `json:"amount_after_tax"`  // 税后金额（分）
-	Total           int64 `json:"total"`             // 合计（分）
+	Qty             int              `json:"qty"`               // 数量
+	Subtotal        *decimal.Decimal `json:"subtotal"`          // 小计
+	DiscountAmount  *decimal.Decimal `json:"discount_amount"`   // 优惠金额
+	AmountBeforeTax *decimal.Decimal `json:"amount_before_tax"` // 税前金额
+	TaxRate         *decimal.Decimal `json:"tax_rate"`          // 税率（万分比，如 600 表示 6%）
+	Tax             *decimal.Decimal `json:"tax"`               // 税额
+	AmountAfterTax  *decimal.Decimal `json:"amount_after_tax"`  // 税后金额
+	Total           *decimal.Decimal `json:"total"`             // 合计
 
-	VoidQty    int   `json:"void_qty"`    // 已退菜数量汇总
-	VoidAmount int64 `json:"void_amount"` // 已退菜金额汇总（分）
+	VoidQty    int              `json:"void_qty"`    // 已退菜数量汇总
+	VoidAmount *decimal.Decimal `json:"void_amount"` // 已退菜金额汇总
 
 	Note    string      `json:"note,omitempty"`    // 备注
 	Options interface{} `json:"options,omitempty"` // 做法/加料
@@ -287,28 +288,28 @@ type OrderRefund struct {
 	Reason        string    `json:"reason,omitempty"`          // 退款说明
 }
 
-// OrderAmount 金额汇总（分）
+// OrderAmount 金额汇总
 type OrderAmount struct {
-	ItemsSubtotal          int64 `json:"items_subtotal"`           // 商品小计（分）
-	DiscountTotal          int64 `json:"discount_total"`           // 折扣合计（分）
-	PromotionDiscountTotal int64 `json:"promotion_discount_total"` // 促销优惠合计（分）
-	VoucherDiscountTotal   int64 `json:"voucher_discount_total"`   // 卡券优惠合计（分）
-	TaxTotal               int64 `json:"tax_total"`                // 税费合计（分）
-	ServiceFeeTotal        int64 `json:"service_fee_total"`        // 服务费合计（分）
-	DeliveryFee            int64 `json:"delivery_fee"`             // 配送费（分）
-	FeeTotal               int64 `json:"fee_total"`                // 其他费用合计（分，小费/附加费等）
-	RoundingAmount         int64 `json:"rounding_amount"`          // 舍入/抹零（分）
-	AmountDue              int64 `json:"amount_due"`               // 应收（分）
-	AmountPaid             int64 `json:"amount_paid"`              // 实收（分）
-	ChangeAmount           int64 `json:"change_amount"`            // 找零（分）
-	AmountRefunded         int64 `json:"amount_refunded"`          // 已退款（分）
+	ItemsSubtotal          *decimal.Decimal `json:"items_subtotal"`           // 商品小计
+	DiscountTotal          *decimal.Decimal `json:"discount_total"`           // 折扣合计
+	PromotionDiscountTotal *decimal.Decimal `json:"promotion_discount_total"` // 促销优惠合计
+	VoucherDiscountTotal   *decimal.Decimal `json:"voucher_discount_total"`   // 卡券优惠合计
+	TaxTotal               *decimal.Decimal `json:"tax_total"`                // 税费合计
+	ServiceFeeTotal        *decimal.Decimal `json:"service_fee_total"`        // 服务费合计
+	DeliveryFee            *decimal.Decimal `json:"delivery_fee"`             // 配送费
+	FeeTotal               *decimal.Decimal `json:"fee_total"`                // 其他费用合计（小费/附加费等）
+	RoundingAmount         *decimal.Decimal `json:"rounding_amount"`          // 舍入/抹零
+	AmountDue              *decimal.Decimal `json:"amount_due"`               // 应收
+	AmountPaid             *decimal.Decimal `json:"amount_paid"`              // 实收
+	ChangeAmount           *decimal.Decimal `json:"change_amount"`            // 找零
+	AmountRefunded         *decimal.Decimal `json:"amount_refunded"`          // 已退款
 }
 
 // OrderPayment 支付记录
 type OrderPayment struct {
-	PaymentNo     string `json:"payment_no"`     // 支付号（第三方/外部交易号）
-	PaymentMethod string `json:"payment_method"` // 支付方式
-	PaymentAmount int64  `json:"payment_amount"` // 支付金额（分）
+	PaymentNo     string           `json:"payment_no"`     // 支付号（第三方/外部交易号）
+	PaymentMethod string           `json:"payment_method"` // 支付方式
+	PaymentAmount *decimal.Decimal `json:"payment_amount"` // 支付金额
 
 	POS     OrderPOS     `json:"pos"`     // POS 终端信息
 	Cashier OrderCashier `json:"cashier"` // 收银员信息

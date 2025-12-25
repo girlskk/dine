@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -17,6 +18,10 @@ type OrderTestSuite struct {
 	RepositoryTestSuite
 	repo *OrderRepository
 	ctx  context.Context
+}
+
+func decimalPtr(d decimal.Decimal) *decimal.Decimal {
+	return &d
 }
 
 func TestOrderTestSuite(t *testing.T) {
@@ -138,7 +143,7 @@ func (s *OrderTestSuite) TestOrder_Update() {
 	s.T().Run("正常更新", func(t *testing.T) {
 		newBusinessDate := "2025-12-23"
 		newProducts := &[]domain.OrderProduct{{OrderItemID: "1", Product: domain.Product{Name: "可乐"}, Qty: 1}}
-		newAmount := &domain.OrderAmount{AmountDue: 100}
+		newAmount := &domain.OrderAmount{AmountDue: decimalPtr(decimal.NewFromInt(100))}
 
 		upd := &domain.Order{
 			ID:            order.ID,
