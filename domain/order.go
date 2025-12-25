@@ -264,9 +264,7 @@ type OrderProduct struct {
 	Promotions        []OrderPromotion `json:"promotions,omitempty"` // 促销明细（可叠加）
 	PromotionDiscount int64            `json:"promotion_discount"`   // 促销优惠金额（分）
 	Product
-	Qty int `json:"qty"` // 数量
-
-	Price           int64 `json:"price"`             // 单价（分）
+	Qty             int   `json:"qty"`               // 数量
 	Subtotal        int64 `json:"subtotal"`          // 小计（分）
 	DiscountAmount  int64 `json:"discount_amount"`   // 优惠金额（分）
 	AmountBeforeTax int64 `json:"amount_before_tax"` // 税前金额（分）
