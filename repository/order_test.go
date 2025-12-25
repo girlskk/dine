@@ -39,7 +39,7 @@ func (s *OrderTestSuite) newTestOrder(storeID, orderNo string) *domain.Order {
 		BusinessDate: "2025-12-22",
 		OrderNo:      orderNo,
 		DiningMode:   domain.DiningModeDineIn,
-		Store:        &domain.OrderStore{StoreID: storeUUID},
+		Store:        &domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID},
 		Cart:         &[]domain.OrderProduct{},
 		Products:     &[]domain.OrderProduct{},
 		Amount:       &domain.OrderAmount{},
@@ -81,7 +81,7 @@ func (s *OrderTestSuite) TestOrder_Create() {
 		require.Equal(t, order.BusinessDate, dbOrder.BusinessDate)
 		require.Equal(t, order.OrderNo, dbOrder.OrderNo)
 		require.Equal(t, domain.DiningModeDineIn, dbOrder.DiningMode)
-		require.Contains(t, string(dbOrder.Store), order.Store.StoreID.String())
+		require.Contains(t, string(dbOrder.Store), order.Store.ID.String())
 	})
 
 	s.T().Run("唯一键冲突返回 Conflict", func(t *testing.T) {
@@ -137,7 +137,7 @@ func (s *OrderTestSuite) TestOrder_Update() {
 
 	s.T().Run("正常更新", func(t *testing.T) {
 		newBusinessDate := "2025-12-23"
-		newProducts := &[]domain.OrderProduct{{OrderItemID: "1", ProductName: "可乐", Qty: 1}}
+		newProducts := &[]domain.OrderProduct{{OrderItemID: "1", Product: domain.Product{Name: "可乐"}, Qty: 1}}
 		newAmount := &domain.OrderAmount{AmountDue: 100}
 
 		upd := &domain.Order{

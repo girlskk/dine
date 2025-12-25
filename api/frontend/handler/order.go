@@ -99,23 +99,23 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			o.CompletedAt = req.CompletedAt
 		}
 
-		o.Store = toDomainStore(req.Store)
+		o.Store = req.Store
 		if o.Store == nil {
-			o.Store = &domain.OrderStore{StoreID: req.StoreID}
+			o.Store = &domain.OrderStore{ID: req.StoreID, MerchantID: req.MerchantID}
 		}
 		o.Channel = toDomainChannel(req.Channel)
 		o.Pos = toDomainPOS(req.POS)
 		o.Cashier = toDomainCashier(req.Cashier)
 		o.Member = toDomainMember(req.Member)
 		o.Takeaway = toDomainTakeaway(req.Takeaway)
-		o.Cart = toDomainProducts(req.Cart)
-		o.Products = toDomainProducts(req.Products)
+		o.Cart = req.Cart
+		o.Products = req.Products
 		o.Promotions = toDomainPromotions(req.Promotions)
 		o.Coupons = toDomainCoupons(req.Coupons)
 		o.TaxRates = toDomainTaxRates(req.TaxRates)
 		o.Fees = toDomainFees(req.Fees)
 		o.Payments = toDomainPayments(req.Payments)
-		o.RefundsProducts = toDomainProducts(req.RefundsProducts)
+		o.RefundsProducts = req.RefundsProducts
 		o.Amount = toDomainAmount(req.Amount)
 
 		created, err := h.OrderInteractor.Create(ctx, o)
@@ -288,7 +288,7 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 		}
 
 		if req.Store != nil {
-			o.Store = toDomainStore(req.Store)
+			o.Store = req.Store
 		}
 		if req.Channel != nil {
 			o.Channel = toDomainChannel(req.Channel)
@@ -306,10 +306,10 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 			o.Takeaway = toDomainTakeaway(req.Takeaway)
 		}
 		if req.Cart != nil {
-			o.Cart = toDomainProducts(req.Cart)
+			o.Cart = req.Cart
 		}
 		if req.Products != nil {
-			o.Products = toDomainProducts(req.Products)
+			o.Products = req.Products
 		}
 		if req.Promotions != nil {
 			o.Promotions = toDomainPromotions(req.Promotions)
@@ -327,7 +327,7 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 			o.Payments = toDomainPayments(req.Payments)
 		}
 		if req.RefundsProducts != nil {
-			o.RefundsProducts = toDomainProducts(req.RefundsProducts)
+			o.RefundsProducts = req.RefundsProducts
 		}
 		if req.Amount != nil {
 			o.Amount = toDomainAmount(req.Amount)
@@ -481,24 +481,27 @@ func convertDomainOrderToResp(o *domain.Order) (*types.OrderResp, error) {
 		return nil, nil
 	}
 
-	store := toTypesStore(o.Store)
+	var store domain.OrderStore
+	if o.Store != nil {
+		store = *o.Store
+	}
 	channel := toTypesChannel(o.Channel)
 	pos := toTypesPOS(o.Pos)
 	cashier := toTypesCashier(o.Cashier)
 	refund := toTypesRefund(o.Refund)
 	member := toTypesMember(o.Member)
 	takeaway := toTypesTakeaway(o.Takeaway)
-	cart := toTypesProducts(o.Cart)
-	products := toTypesProducts(o.Products)
+	cart := toOrderProducts(o.Cart)
+	products := toOrderProducts(o.Products)
 	if products == nil {
-		products = make([]types.Product, 0)
+		products = make([]domain.OrderProduct, 0)
 	}
 	promotions := toTypesPromotions(o.Promotions)
 	coupons := toTypesCoupons(o.Coupons)
 	taxRates := toTypesTaxRates(o.TaxRates)
 	fees := toTypesFees(o.Fees)
 	payments := toTypesPayments(o.Payments)
-	refundsProducts := toTypesProducts(o.RefundsProducts)
+	refundsProducts := toOrderProducts(o.RefundsProducts)
 	amount := toTypesAmount(o.Amount)
 
 	res := &types.OrderResp{
@@ -579,19 +582,6 @@ func toDomainMember(m *types.Member) *domain.OrderMember {
 	}
 }
 
-func toDomainStore(s *types.Store) *domain.OrderStore {
-	if s == nil {
-		return nil
-	}
-	return &domain.OrderStore{
-		StoreID:      s.StoreID,
-		StoreNo:      s.StoreNo,
-		StoreName:    s.StoreName,
-		StorePhone:   s.StorePhone,
-		StoreAddress: s.StoreAddress,
-	}
-}
-
 func toDomainChannel(ch *types.Channel) *domain.OrderChannel {
 	if ch == nil {
 		return nil
@@ -643,50 +633,6 @@ func toDomainPromotion(p types.Promotion) domain.OrderPromotion {
 		DiscountAmount: p.DiscountAmount,
 		Meta:           p.Meta,
 	}
-}
-
-func toDomainProduct(p types.Product) domain.OrderProduct {
-	promotions := make([]domain.OrderPromotion, 0, len(p.Promotions))
-	for _, pr := range p.Promotions {
-		promotions = append(promotions, toDomainPromotion(pr))
-	}
-	return domain.OrderProduct{
-		OrderItemID:       p.OrderItemID,
-		Index:             p.Index,
-		RefundReason:      p.RefundReason,
-		RefundedBy:        p.RefundedBy,
-		RefundedAt:        p.RefundedAt,
-		Promotions:        promotions,
-		PromotionDiscount: p.PromotionDiscount,
-		ProductID:         p.ProductID,
-		ProductName:       p.ProductName,
-		SkuID:             p.SkuID,
-		SkuName:           p.SkuName,
-		Qty:               p.Qty,
-		Price:             p.Price,
-		Subtotal:          p.Subtotal,
-		DiscountAmount:    p.DiscountAmount,
-		AmountBeforeTax:   p.AmountBeforeTax,
-		TaxRate:           p.TaxRate,
-		Tax:               p.Tax,
-		AmountAfterTax:    p.AmountAfterTax,
-		Total:             p.Total,
-		VoidQty:           p.VoidQty,
-		VoidAmount:        p.VoidAmount,
-		Note:              p.Note,
-		Options:           p.Options,
-	}
-}
-
-func toDomainProducts(ps *[]types.Product) *[]domain.OrderProduct {
-	if ps == nil {
-		return nil
-	}
-	res := make([]domain.OrderProduct, 0, len(*ps))
-	for _, p := range *ps {
-		res = append(res, toDomainProduct(p))
-	}
-	return &res
 }
 
 func toDomainPromotions(ps *[]types.Promotion) *[]domain.OrderPromotion {
@@ -792,11 +738,11 @@ func toDomainAmount(a *types.Amount) *domain.OrderAmount {
 	}
 }
 
-func toTypesStore(s *domain.OrderStore) types.Store {
-	if s == nil {
-		return types.Store{}
+func toOrderProducts(ps *[]domain.OrderProduct) []domain.OrderProduct {
+	if ps == nil {
+		return nil
 	}
-	return types.Store{StoreID: s.StoreID, StoreNo: s.StoreNo, StoreName: s.StoreName, StorePhone: s.StorePhone, StoreAddress: s.StoreAddress}
+	return *ps
 }
 
 func toTypesChannel(ch *domain.OrderChannel) types.Channel {
@@ -858,50 +804,6 @@ func toTypesRefund(r *domain.OrderRefund) types.Refund {
 
 func toTypesPromotion(p domain.OrderPromotion) types.Promotion {
 	return types.Promotion{PromotionID: p.PromotionID, PromotionName: p.PromotionName, PromotionType: p.PromotionType, DiscountAmount: p.DiscountAmount, Meta: p.Meta}
-}
-
-func toTypesProduct(p domain.OrderProduct) types.Product {
-	promotions := make([]types.Promotion, 0, len(p.Promotions))
-	for _, pr := range p.Promotions {
-		promotions = append(promotions, toTypesPromotion(pr))
-	}
-	return types.Product{
-		OrderItemID:       p.OrderItemID,
-		Index:             p.Index,
-		RefundReason:      p.RefundReason,
-		RefundedBy:        p.RefundedBy,
-		RefundedAt:        p.RefundedAt,
-		Promotions:        promotions,
-		PromotionDiscount: p.PromotionDiscount,
-		ProductID:         p.ProductID,
-		ProductName:       p.ProductName,
-		SkuID:             p.SkuID,
-		SkuName:           p.SkuName,
-		Qty:               p.Qty,
-		Price:             p.Price,
-		Subtotal:          p.Subtotal,
-		DiscountAmount:    p.DiscountAmount,
-		AmountBeforeTax:   p.AmountBeforeTax,
-		TaxRate:           p.TaxRate,
-		Tax:               p.Tax,
-		AmountAfterTax:    p.AmountAfterTax,
-		Total:             p.Total,
-		VoidQty:           p.VoidQty,
-		VoidAmount:        p.VoidAmount,
-		Note:              p.Note,
-		Options:           p.Options,
-	}
-}
-
-func toTypesProducts(ps *[]domain.OrderProduct) []types.Product {
-	if ps == nil {
-		return nil
-	}
-	res := make([]types.Product, 0, len(*ps))
-	for _, p := range *ps {
-		res = append(res, toTypesProduct(p))
-	}
-	return res
 }
 
 func toTypesPromotions(ps *[]domain.OrderPromotion) []types.Promotion {

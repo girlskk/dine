@@ -158,11 +158,12 @@ type OrderMember struct {
 
 // OrderStore 门店信息
 type OrderStore struct {
-	StoreID      uuid.UUID `json:"store_id"`                // 门店ID
-	StoreNo      string    `json:"store_no,omitempty"`      // 门店编号
-	StoreName    string    `json:"store_name,omitempty"`    // 门店名称
-	StorePhone   string    `json:"store_phone,omitempty"`   // 门店电话
-	StoreAddress string    `json:"store_address,omitempty"` // 门店地址
+	ID           uuid.UUID `json:"id"`
+	MerchantID   uuid.UUID `json:"merchant_id"`   // 商户 ID
+	StoreCode    string    `json:"store_code"`    // 门店编码(保留字段)
+	MerchantName string    `json:"merchant_name"` // 商户名称
+	ContactPhone string    `json:"contact_phone"` // 联系电话
+	StoreName    string    `json:"store_name"`    // 门店名称,长度不超过30个字
 }
 
 // OrderChannel 下单渠道信息
@@ -262,12 +263,7 @@ type OrderProduct struct {
 
 	Promotions        []OrderPromotion `json:"promotions,omitempty"` // 促销明细（可叠加）
 	PromotionDiscount int64            `json:"promotion_discount"`   // 促销优惠金额（分）
-
-	ProductID   string `json:"product_id,omitempty"` // 商品ID
-	ProductName string `json:"product_name"`         // 商品名
-	SkuID       string `json:"sku_id,omitempty"`     // SKU ID
-	SkuName     string `json:"sku_name,omitempty"`   // SKU 名称
-
+	Product
 	Qty int `json:"qty"` // 数量
 
 	Price           int64 `json:"price"`             // 单价（分）

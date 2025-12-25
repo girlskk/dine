@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"time"
 
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
@@ -14,15 +15,6 @@ type Member struct {
 	MemberName      string `json:"member_name,omitempty"`       // 会员姓名/昵称
 	MemberPhone     string `json:"member_phone,omitempty"`      // 会员手机号
 	MemberLevelName string `json:"member_level_name,omitempty"` // 会员等级名称
-}
-
-// Store 门店信息
-type Store struct {
-	StoreID      uuid.UUID `json:"store_id"`                // 门店ID
-	StoreNo      string    `json:"store_no,omitempty"`      // 门店编号
-	StoreName    string    `json:"store_name,omitempty"`    // 门店名称
-	StorePhone   string    `json:"store_phone,omitempty"`   // 门店电话
-	StoreAddress string    `json:"store_address,omitempty"` // 门店地址
 }
 
 // Channel 下单渠道信息
@@ -111,41 +103,6 @@ type TaxRate struct {
 	Meta          interface{} `json:"meta,omitempty"` // 扩展信息
 }
 
-// Product 商品
-type Product struct {
-	OrderItemID string `json:"order_item_id"`   // 订单内明细ID
-	Index       int    `json:"index,omitempty"` // 下单序号（同订单内第几次下单）
-
-	RefundReason string    `json:"refund_reason,omitempty"` // 退菜原因
-	RefundedBy   string    `json:"refunded_by,omitempty"`   // 退菜操作人
-	RefundedAt   time.Time `json:"refunded_at,omitempty"`   // 退菜时间
-
-	Promotions        []Promotion `json:"promotions,omitempty"` // 促销明细（可叠加）
-	PromotionDiscount int64       `json:"promotion_discount"`   // 促销优惠金额（分）
-
-	ProductID   string `json:"product_id,omitempty"` // 商品ID
-	ProductName string `json:"product_name"`         // 商品名（快照）
-	SkuID       string `json:"sku_id,omitempty"`     // SKU ID
-	SkuName     string `json:"sku_name,omitempty"`   // SKU 名称（快照）
-
-	Qty int `json:"qty"` // 数量
-
-	Price           int64 `json:"price"`             // 单价（分）
-	Subtotal        int64 `json:"subtotal"`          // 小计（分）
-	DiscountAmount  int64 `json:"discount_amount"`   // 优惠金额（分）
-	AmountBeforeTax int64 `json:"amount_before_tax"` // 税前金额（分）
-	TaxRate         int64 `json:"tax_rate"`          // 税率（万分比，如 600 表示 6%）
-	Tax             int64 `json:"tax"`               // 税额（分）
-	AmountAfterTax  int64 `json:"amount_after_tax"`  // 税后金额（分）
-	Total           int64 `json:"total"`             // 合计（分）
-
-	VoidQty    int   `json:"void_qty"`    // 已退菜数量汇总
-	VoidAmount int64 `json:"void_amount"` // 已退菜金额汇总（分）
-
-	Note    string      `json:"note,omitempty"`    // 备注
-	Options interface{} `json:"options,omitempty"` // 做法/加料（结构化）
-}
-
 // Refund 退款单信息（order_type=REFUND/PARTIAL_REFUND）
 type Refund struct {
 	OriginOrderID uuid.UUID `json:"origin_order_id,omitempty"` // 原正单订单ID
@@ -184,12 +141,12 @@ type Payment struct {
 
 // Receipt 结账后小票
 type Receipt struct {
-	OrderID    uuid.UUID `json:"order_id"`    // 关联订单ID
-	MerchantID uuid.UUID `json:"merchant_id"` // 品牌商ID
-	Store      Store     `json:"store"`       // 门店信息
-	Channel    Channel   `json:"channel"`     // 下单渠道
-	POS        POS       `json:"pos"`         // POS 终端信息
-	Cashier    Cashier   `json:"cashier"`     // 收银员信息
+	OrderID    uuid.UUID         `json:"order_id"`    // 关联订单ID
+	MerchantID uuid.UUID         `json:"merchant_id"` // 品牌商ID
+	Store      domain.OrderStore `json:"store"`       // 门店信息
+	Channel    Channel           `json:"channel"`     // 下单渠道
+	POS        POS               `json:"pos"`         // POS 终端信息
+	Cashier    Cashier           `json:"cashier"`     // 收银员信息
 
 	BusinessDate string `json:"business_date"` // 营业日（字符串，便于快照展示）
 
@@ -202,12 +159,12 @@ type Receipt struct {
 
 	Refund Refund `json:"refund"` // 退款单信息（退单/部分退款单）
 
-	Products   []Product   `json:"products"`             // 下单商品
-	Promotions []Promotion `json:"promotions,omitempty"` // 促销
-	Coupons    []Coupon    `json:"coupons,omitempty"`    // 卡券
-	TaxRates   []TaxRate   `json:"tax_rates,omitempty"`  // 税率
-	Fees       []Fee       `json:"fees,omitempty"`       // 费用明细
-	Payments   []Payment   `json:"payments,omitempty"`   // 支付记录
+	Products   []domain.OrderProduct `json:"products"`             // 下单商品
+	Promotions []Promotion           `json:"promotions,omitempty"` // 促销
+	Coupons    []Coupon              `json:"coupons,omitempty"`    // 卡券
+	TaxRates   []TaxRate             `json:"tax_rates,omitempty"`  // 税率
+	Fees       []Fee                 `json:"fees,omitempty"`       // 费用明细
+	Payments   []Payment             `json:"payments,omitempty"`   // 支付记录
 
 	Amount Amount `json:"amount"` // 金额汇总（分）
 }
@@ -224,11 +181,11 @@ type CreateOrderReq struct {
 	OriginOrderID uuid.UUID `json:"origin_order_id,omitempty"`                               // 原正单订单ID（退款/部分退款单使用）
 	Refund        *Refund   `json:"refund,omitempty"`                                        // 退款单信息
 
-	DiningMode string   `json:"dining_mode" binding:"required" enums:"DINE_IN,TAKEAWAY"` // 堂食/外卖（DINE_IN/TAKEAWAY）
-	Store      *Store   `json:"store,omitempty"`
-	Channel    *Channel `json:"channel,omitempty"`
-	POS        *POS     `json:"pos,omitempty"`
-	Cashier    *Cashier `json:"cashier,omitempty"`
+	DiningMode string             `json:"dining_mode" binding:"required" enums:"DINE_IN,TAKEAWAY"` // 堂食/外卖（DINE_IN/TAKEAWAY）
+	Store      *domain.OrderStore `json:"store,omitempty"`
+	Channel    *Channel           `json:"channel,omitempty"`
+	POS        *POS               `json:"pos,omitempty"`
+	Cashier    *Cashier           `json:"cashier,omitempty"`
 
 	OrderStatus       string `json:"order_status,omitempty" enums:"DRAFT,PLACED,IN_PROGRESS,READY,COMPLETED,CANCELLED,VOIDED,MERGED"`
 	PaymentStatus     string `json:"payment_status,omitempty" enums:"UNPAID,PAYING,PARTIALLY_PAID,PAID,PARTIALLY_REFUNDED,REFUNDED"`
@@ -252,14 +209,14 @@ type CreateOrderReq struct {
 	Member   *Member   `json:"member,omitempty"`
 	Takeaway *Takeaway `json:"takeaway,omitempty"`
 
-	Cart            *[]Product   `json:"cart,omitempty"`
-	Products        *[]Product   `json:"products,omitempty"`
-	Promotions      *[]Promotion `json:"promotions,omitempty"`
-	Coupons         *[]Coupon    `json:"coupons,omitempty"`
-	TaxRates        *[]TaxRate   `json:"tax_rates,omitempty"`
-	Fees            *[]Fee       `json:"fees,omitempty"`
-	Payments        *[]Payment   `json:"payments,omitempty"`
-	RefundsProducts *[]Product   `json:"refunds_products,omitempty"`
+	Cart            *[]domain.OrderProduct `json:"cart,omitempty"`
+	Products        *[]domain.OrderProduct `json:"products,omitempty"`
+	Promotions      *[]Promotion           `json:"promotions,omitempty"`
+	Coupons         *[]Coupon              `json:"coupons,omitempty"`
+	TaxRates        *[]TaxRate             `json:"tax_rates,omitempty"`
+	Fees            *[]Fee                 `json:"fees,omitempty"`
+	Payments        *[]Payment             `json:"payments,omitempty"`
+	RefundsProducts *[]domain.OrderProduct `json:"refunds_products,omitempty"`
 
 	Amount *Amount `json:"amount,omitempty"`
 }
@@ -273,11 +230,11 @@ type UpdateOrderReq struct {
 	OriginOrderID *uuid.UUID `json:"origin_order_id,omitempty"`
 	Refund        *Refund    `json:"refund,omitempty"`
 
-	DiningMode *string  `json:"dining_mode,omitempty" enums:"DINE_IN,TAKEAWAY"` // 堂食/外卖（DINE_IN/TAKEAWAY）
-	Store      *Store   `json:"store,omitempty"`
-	Channel    *Channel `json:"channel,omitempty"`
-	POS        *POS     `json:"pos,omitempty"`
-	Cashier    *Cashier `json:"cashier,omitempty"`
+	DiningMode *string            `json:"dining_mode,omitempty" enums:"DINE_IN,TAKEAWAY"` // 堂食/外卖（DINE_IN/TAKEAWAY）
+	Store      *domain.OrderStore `json:"store,omitempty"`
+	Channel    *Channel           `json:"channel,omitempty"`
+	POS        *POS               `json:"pos,omitempty"`
+	Cashier    *Cashier           `json:"cashier,omitempty"`
 
 	OrderStatus       *string `json:"order_status,omitempty" enums:"DRAFT,PLACED,IN_PROGRESS,READY,COMPLETED,CANCELLED,VOIDED,MERGED"`
 	PaymentStatus     *string `json:"payment_status,omitempty" enums:"UNPAID,PAYING,PARTIALLY_PAID,PAID,PARTIALLY_REFUNDED,REFUNDED"`
@@ -300,14 +257,14 @@ type UpdateOrderReq struct {
 	Member   *Member   `json:"member,omitempty"`
 	Takeaway *Takeaway `json:"takeaway,omitempty"`
 
-	Cart            *[]Product   `json:"cart,omitempty"`
-	Products        *[]Product   `json:"products,omitempty"`
-	Promotions      *[]Promotion `json:"promotions,omitempty"`
-	Coupons         *[]Coupon    `json:"coupons,omitempty"`
-	TaxRates        *[]TaxRate   `json:"tax_rates,omitempty"`
-	Fees            *[]Fee       `json:"fees,omitempty"`
-	Payments        *[]Payment   `json:"payments,omitempty"`
-	RefundsProducts *[]Product   `json:"refunds_products,omitempty"`
+	Cart            *[]domain.OrderProduct `json:"cart,omitempty"`
+	Products        *[]domain.OrderProduct `json:"products,omitempty"`
+	Promotions      *[]Promotion           `json:"promotions,omitempty"`
+	Coupons         *[]Coupon              `json:"coupons,omitempty"`
+	TaxRates        *[]TaxRate             `json:"tax_rates,omitempty"`
+	Fees            *[]Fee                 `json:"fees,omitempty"`
+	Payments        *[]Payment             `json:"payments,omitempty"`
+	RefundsProducts *[]domain.OrderProduct `json:"refunds_products,omitempty"`
 
 	Amount *Amount `json:"amount,omitempty"`
 }
@@ -334,8 +291,8 @@ type ListOrderResp struct {
 type OrderResp struct {
 	OrderID uuid.UUID `json:"order_id"` // 订单ID
 
-	MerchantID uuid.UUID `json:"merchant_id"` // 品牌商ID
-	Store      Store     `json:"store"`       // 门店信息
+	MerchantID uuid.UUID         `json:"merchant_id"` // 品牌商ID
+	Store      domain.OrderStore `json:"store"`       // 门店信息
 
 	BusinessDate string `json:"business_date"`      // 营业日
 	ShiftNo      string `json:"shift_no,omitempty"` // 班次号
@@ -370,14 +327,14 @@ type OrderResp struct {
 	Member   Member   `json:"member"`   // 会员信息
 	Takeaway Takeaway `json:"takeaway"` // 外卖信息（dining_mode=TAKEAWAY）
 
-	Cart            []Product   `json:"cart,omitempty"`             // 购物车（未下单商品）
-	Products        []Product   `json:"products"`                   // 下单商品
-	Promotions      []Promotion `json:"promotions,omitempty"`       // 促销
-	Coupons         []Coupon    `json:"coupons,omitempty"`          // 卡券
-	TaxRates        []TaxRate   `json:"tax_rates,omitempty"`        // 税率
-	Fees            []Fee       `json:"fees,omitempty"`             // 费用明细
-	Payments        []Payment   `json:"payments,omitempty"`         // 支付记录
-	RefundsProducts []Product   `json:"refunds_products,omitempty"` // 退菜记录
+	Cart            []domain.OrderProduct `json:"cart,omitempty"`             // 购物车（未下单商品）
+	Products        []domain.OrderProduct `json:"products"`                   // 下单商品
+	Promotions      []Promotion           `json:"promotions,omitempty"`       // 促销
+	Coupons         []Coupon              `json:"coupons,omitempty"`          // 卡券
+	TaxRates        []TaxRate             `json:"tax_rates,omitempty"`        // 税率
+	Fees            []Fee                 `json:"fees,omitempty"`             // 费用明细
+	Payments        []Payment             `json:"payments,omitempty"`         // 支付记录
+	RefundsProducts []domain.OrderProduct `json:"refunds_products,omitempty"` // 退菜记录
 
 	Amount Amount `json:"amount"` // 金额汇总（分）
 }

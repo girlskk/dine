@@ -696,7 +696,7 @@ func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 		ShiftNo:      eo.ShiftNo,
 		OrderNo:      eo.OrderNo,
 
-		OrderType:     domain.OrderType(eo.OrderType),
+		OrderType:     eo.OrderType,
 		OriginOrderID: eo.OriginOrderID,
 		Refund:        refund,
 
@@ -709,11 +709,11 @@ func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 		PlacedBy: eo.PlacedBy,
 		PaidBy:   eo.PaidBy,
 
-		DiningMode:        domain.DiningMode(eo.DiningMode),
-		OrderStatus:       domain.OrderStatus(eo.OrderStatus),
-		PaymentStatus:     domain.PaymentStatus(eo.PaymentStatus),
-		FulfillmentStatus: domain.FulfillmentStatus(eo.FulfillmentStatus),
-		TableStatus:       domain.TableStatus(eo.TableStatus),
+		DiningMode:        eo.DiningMode,
+		OrderStatus:       eo.OrderStatus,
+		PaymentStatus:     eo.PaymentStatus,
+		FulfillmentStatus: eo.FulfillmentStatus,
+		TableStatus:       eo.TableStatus,
 
 		TableID:       eo.TableID,
 		TableName:     eo.TableName,

@@ -133,14 +133,11 @@ func (interactor *OrderInteractor) List(ctx context.Context, params domain.Order
 }
 
 func (interactor *OrderInteractor) generateOrderNo(ctx context.Context, o *domain.Order) (orderNo string, err error) {
-	storeNo := ""
+	storePart := ""
 	if o.Store != nil {
-		storeNo = o.Store.StoreNo
-	}
-
-	storePart := storeNo
-	if storePart == "" {
-		storePart = o.StoreID.String()
+		if o.Store.StoreCode != "" {
+			storePart = o.Store.StoreCode
+		}
 	}
 
 	datePart := strings.ReplaceAll(o.BusinessDate, "-", "")
