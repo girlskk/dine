@@ -244,6 +244,10 @@ func (repo *MenuRepository) PagedListBySearch(
 		query.Where(menu.MerchantID(params.MerchantID))
 	}
 
+	if params.StoreID != uuid.Nil {
+		query.Where(menu.HasStoresWith(store.IDEQ(params.StoreID)))
+	}
+
 	if params.Name != "" {
 		query.Where(menu.NameContains(params.Name))
 	}

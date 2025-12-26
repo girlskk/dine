@@ -40,7 +40,7 @@ func (i *MenuInteractor) Create(ctx context.Context, menu *domain.Menu) (err err
 	})
 }
 
-func (i *MenuInteractor) Update(ctx context.Context, menu *domain.Menu) (err error) {
+func (i *MenuInteractor) Update(ctx context.Context, menu *domain.Menu, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MenuInteractor.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -48,13 +48,17 @@ func (i *MenuInteractor) Update(ctx context.Context, menu *domain.Menu) (err err
 
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		// 验证菜单存在
-		_, err := ds.MenuRepo().FindByID(ctx, menu.ID)
+		menu, err := ds.MenuRepo().FindByID(ctx, menu.ID)
 		if err != nil {
 			if domain.IsNotFound(err) {
 				return domain.ParamsError(domain.ErrMenuNotExists)
 			}
 			return err
 		}
+		if menu.MerchantID != user.GetMerchantID() {
+			return domain.ParamsError(domain.ErrMenuNotExists)
+		}
+
 		// 业务规则校验（排除自身）
 		if err = validateMenuBusinessRules(ctx, ds, menu, menu.ID); err != nil {
 			return err
@@ -64,7 +68,7 @@ func (i *MenuInteractor) Update(ctx context.Context, menu *domain.Menu) (err err
 	})
 }
 
-func (i *MenuInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (i *MenuInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MenuInteractor.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -79,6 +83,9 @@ func (i *MenuInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
 			}
 			return err
 		}
+		if menu.MerchantID != user.GetMerchantID() {
+			return domain.ParamsError(domain.ErrMenuNotExists)
+		}
 		if menu.StoreCount > 0 {
 			return domain.ParamsError(domain.ErrMenuHasStores)
 		}
@@ -88,13 +95,23 @@ func (i *MenuInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
 	})
 }
 
-func (i *MenuInteractor) GetDetail(ctx context.Context, id uuid.UUID) (res *domain.Menu, err error) {
+func (i *MenuInteractor) GetDetail(ctx context.Context, id uuid.UUID, user domain.User) (res *domain.Menu, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MenuInteractor.GetDetail")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
-	return i.DS.MenuRepo().GetDetail(ctx, id)
+	menu, err := i.DS.MenuRepo().GetDetail(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return nil, domain.ParamsError(domain.ErrMenuNotExists)
+		}
+		return nil, err
+	}
+	if menu.MerchantID != user.GetMerchantID() {
+		return nil, domain.ParamsError(domain.ErrMenuNotExists)
+	}
+	return menu, nil
 }
 
 func (i *MenuInteractor) PagedListBySearch(

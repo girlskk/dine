@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -38,7 +38,6 @@ func (h *ProductHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id/off-sale", h.OffSale())
 	r.PUT("/:id/on-sale", h.OnSale())
 	r.GET("/:id", h.GetDetail())
-	r.POST("/distribute", h.Distribute())
 }
 
 func (h *ProductHandler) NoAuths() []string {
@@ -66,7 +65,7 @@ func (h *ProductHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		// 构建 domain.Product
 		product := &domain.Product{
@@ -74,6 +73,7 @@ func (h *ProductHandler) Create() gin.HandlerFunc {
 			Type:              domain.ProductTypeNormal,
 			Name:              req.Name,
 			MerchantID:        user.MerchantID,
+			StoreID:           user.StoreID,
 			CategoryID:        req.CategoryID,
 			UnitID:            req.UnitID,
 			Mnemonic:          req.Mnemonic,
@@ -206,13 +206,14 @@ func (h *ProductHandler) CreateSetMeal() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		// 构建 domain.Product
 		product := &domain.Product{
 			ID:                uuid.New(),
 			Type:              domain.ProductTypeSetMeal,
 			Name:              req.Name,
 			MerchantID:        user.MerchantID,
+			StoreID:           user.StoreID,
 			CategoryID:        req.CategoryID,
 			UnitID:            req.UnitID,
 			Mnemonic:          req.Mnemonic,
@@ -360,7 +361,7 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 			return
 		}
 		page := upagination.New(req.Page, req.Size)
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		startAt, err := time.Parse(time.DateOnly, req.StartAt)
 		if err != nil {
@@ -374,11 +375,11 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		}
 
 		params := domain.ProductSearchParams{
-			MerchantID:   user.MerchantID,
-			OnlyMerchant: true,
-			Name:         req.Name,
-			StartAt:      &startAt,
-			EndAt:        &endAt,
+			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
+			Name:       req.Name,
+			StartAt:    &startAt,
+			EndAt:      &endAt,
 		}
 
 		// 转换UUID
@@ -455,7 +456,7 @@ func (h *ProductHandler) Update() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		// 构建 domain.Product
 		product := &domain.Product{
@@ -463,6 +464,7 @@ func (h *ProductHandler) Update() gin.HandlerFunc {
 			Type:              domain.ProductTypeNormal,
 			Name:              req.Name,
 			MerchantID:        user.MerchantID,
+			StoreID:           user.StoreID,
 			CategoryID:        req.CategoryID,
 			UnitID:            req.UnitID,
 			Mnemonic:          req.Mnemonic,
@@ -603,7 +605,7 @@ func (h *ProductHandler) UpdateSetMeal() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		// 构建 domain.Product
 		product := &domain.Product{
@@ -611,6 +613,7 @@ func (h *ProductHandler) UpdateSetMeal() gin.HandlerFunc {
 			Type:              domain.ProductTypeSetMeal,
 			Name:              req.Name,
 			MerchantID:        user.MerchantID,
+			StoreID:           user.StoreID,
 			CategoryID:        req.CategoryID,
 			UnitID:            req.UnitID,
 			Mnemonic:          req.Mnemonic,
@@ -760,7 +763,7 @@ func (h *ProductHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductInteractor.Delete(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
@@ -799,7 +802,7 @@ func (h *ProductHandler) OffSale() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductInteractor.OffSale(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
@@ -838,7 +841,7 @@ func (h *ProductHandler) OnSale() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductInteractor.OnSale(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
@@ -877,7 +880,7 @@ func (h *ProductHandler) GetDetail() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		product, err := h.ProductInteractor.GetDetail(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
@@ -890,51 +893,5 @@ func (h *ProductHandler) GetDetail() gin.HandlerFunc {
 		}
 
 		response.Ok(c, product)
-	}
-}
-
-// Distribute
-//
-//	@Tags		商品管理
-//	@Security	BearerAuth
-//	@Summary	下发商品到门店
-//	@Param		data	body	types.ProductDistributeReq	true	"请求信息"
-//	@Success	200
-//	@Router		/product/distribute [post]
-func (h *ProductHandler) Distribute() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("ProductHandler.Distribute")
-		ctx = logging.NewContext(ctx, logger)
-		c.Request = c.Request.Clone(ctx)
-
-		var req types.ProductDistributeReq
-		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-
-		user := domain.FromBackendUserContext(ctx)
-
-		params := domain.ProductDistributeParams{
-			ProductID:        req.ProductID,
-			MerchantID:       user.MerchantID,
-			StoreIDs:         req.StoreIDs,
-			DistributionRule: req.DistributionRule,
-			SaleRule:         req.SaleRule,
-		}
-
-		err := h.ProductInteractor.Distribute(ctx, params, user)
-		if err != nil {
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to distribute product: %w", err)
-			c.Error(err)
-			return
-		}
-
-		response.Ok(c, nil)
 	}
 }

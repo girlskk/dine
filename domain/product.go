@@ -74,13 +74,13 @@ type ProductInteractor interface {
 	Create(ctx context.Context, product *Product) error
 	CreateSetMeal(ctx context.Context, product *Product) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
-	Update(ctx context.Context, product *Product) error
-	UpdateSetMeal(ctx context.Context, product *Product) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	OffSale(ctx context.Context, id uuid.UUID) error
-	OnSale(ctx context.Context, id uuid.UUID) error
-	GetDetail(ctx context.Context, id uuid.UUID) (*Product, error)
-	Distribute(ctx context.Context, params ProductDistributeParams) error
+	Update(ctx context.Context, product *Product, user User) error
+	UpdateSetMeal(ctx context.Context, product *Product, user User) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
+	OffSale(ctx context.Context, id uuid.UUID, user User) error
+	OnSale(ctx context.Context, id uuid.UUID, user User) error
+	GetDetail(ctx context.Context, id uuid.UUID, user User) (*Product, error)
+	Distribute(ctx context.Context, params ProductDistributeParams, user User) error
 }
 
 // ------------------------------------------------------------
@@ -242,15 +242,16 @@ type ProductExistsParams struct {
 
 // ProductSearchParams 查询参数
 type ProductSearchParams struct {
-	MerchantID uuid.UUID         // 品牌商ID（必填）
-	StoreID    uuid.UUID         // 门店ID（可选）
-	Name       string            // 商品名称（可选，模糊匹配）
-	SaleStatus ProductSaleStatus // 售卖状态（可选，空字符串表示全部）
-	Type       ProductType       // 商品类型（可选，空字符串表示全部）
-	CategoryID uuid.UUID         // 分类ID（可选，支持一级分类和二级分类）
-	StallID    uuid.UUID         // 出品部门ID（可选）
-	StartAt    *time.Time        // 创建开始时间（可选）
-	EndAt      *time.Time        // 创建结束时间（可选，最长支持1年跨度）
+	MerchantID   uuid.UUID         // 品牌商ID（必填）
+	StoreID      uuid.UUID         // 门店ID（可选）
+	OnlyMerchant bool              // 是否只查询品牌商ID（可选）
+	Name         string            // 商品名称（可选，模糊匹配）
+	SaleStatus   ProductSaleStatus // 售卖状态（可选，空字符串表示全部）
+	Type         ProductType       // 商品类型（可选，空字符串表示全部）
+	CategoryID   uuid.UUID         // 分类ID（可选，支持一级分类和二级分类）
+	StallID      uuid.UUID         // 出品部门ID（可选）
+	StartAt      *time.Time        // 创建开始时间（可选）
+	EndAt        *time.Time        // 创建结束时间（可选，最长支持1年跨度）
 }
 
 // ProductSearchRes 查询结果

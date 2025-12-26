@@ -1972,10 +1972,6 @@
                     "description": "适用门店数量",
                     "type": "integer"
                 },
-                "store_id": {
-                    "description": "门店ID",
-                    "type": "string"
-                },
                 "stores": {
                     "description": "关联信息",
                     "type": "array",
