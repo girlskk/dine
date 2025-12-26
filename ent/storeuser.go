@@ -10,7 +10,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
@@ -33,8 +32,6 @@ type StoreUser struct {
 	HashedPassword string `json:"hashed_password,omitempty"`
 	// 昵称
 	Nickname string `json:"nickname,omitempty"`
-	// 所属品牌商 ID
-	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 所属门店 ID
 	StoreID uuid.UUID `json:"store_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -45,24 +42,11 @@ type StoreUser struct {
 
 // StoreUserEdges holds the relations/edges for other nodes in the graph.
 type StoreUserEdges struct {
-	// Merchant holds the value of the merchant edge.
-	Merchant *Merchant `json:"merchant,omitempty"`
 	// Store holds the value of the store edge.
 	Store *Store `json:"store,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// MerchantOrErr returns the Merchant value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e StoreUserEdges) MerchantOrErr() (*Merchant, error) {
-	if e.Merchant != nil {
-		return e.Merchant, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: merchant.Label}
-	}
-	return nil, &NotLoadedError{edge: "merchant"}
+	loadedTypes [1]bool
 }
 
 // StoreOrErr returns the Store value or an error if the edge
@@ -70,7 +54,7 @@ func (e StoreUserEdges) MerchantOrErr() (*Merchant, error) {
 func (e StoreUserEdges) StoreOrErr() (*Store, error) {
 	if e.Store != nil {
 		return e.Store, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: store.Label}
 	}
 	return nil, &NotLoadedError{edge: "store"}
@@ -87,7 +71,7 @@ func (*StoreUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case storeuser.FieldCreatedAt, storeuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case storeuser.FieldID, storeuser.FieldMerchantID, storeuser.FieldStoreID:
+		case storeuser.FieldID, storeuser.FieldStoreID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -146,12 +130,6 @@ func (su *StoreUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				su.Nickname = value.String
 			}
-		case storeuser.FieldMerchantID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
-			} else if value != nil {
-				su.MerchantID = *value
-			}
 		case storeuser.FieldStoreID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field store_id", values[i])
@@ -169,11 +147,6 @@ func (su *StoreUser) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (su *StoreUser) Value(name string) (ent.Value, error) {
 	return su.selectValues.Get(name)
-}
-
-// QueryMerchant queries the "merchant" edge of the StoreUser entity.
-func (su *StoreUser) QueryMerchant() *MerchantQuery {
-	return NewStoreUserClient(su.config).QueryMerchant(su)
 }
 
 // QueryStore queries the "store" edge of the StoreUser entity.
@@ -221,9 +194,6 @@ func (su *StoreUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(su.Nickname)
-	builder.WriteString(", ")
-	builder.WriteString("merchant_id=")
-	builder.WriteString(fmt.Sprintf("%v", su.MerchantID))
 	builder.WriteString(", ")
 	builder.WriteString("store_id=")
 	builder.WriteString(fmt.Sprintf("%v", su.StoreID))

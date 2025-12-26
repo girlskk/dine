@@ -53,7 +53,6 @@ func (s *MerchantRenewalRepositoryTestSuite) createStoreUser(username string, me
 		SetUsername(username).
 		SetHashedPassword("hashed").
 		SetNickname("store-user").
-		SetMerchantID(merchantID).
 		SetStoreID(storeID).
 		SaveX(s.ctx)
 }

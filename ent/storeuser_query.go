@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
@@ -22,13 +21,12 @@ import (
 // StoreUserQuery is the builder for querying StoreUser entities.
 type StoreUserQuery struct {
 	config
-	ctx          *QueryContext
-	order        []storeuser.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.StoreUser
-	withMerchant *MerchantQuery
-	withStore    *StoreQuery
-	modifiers    []func(*sql.Selector)
+	ctx        *QueryContext
+	order      []storeuser.OrderOption
+	inters     []Interceptor
+	predicates []predicate.StoreUser
+	withStore  *StoreQuery
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,28 +61,6 @@ func (suq *StoreUserQuery) Unique(unique bool) *StoreUserQuery {
 func (suq *StoreUserQuery) Order(o ...storeuser.OrderOption) *StoreUserQuery {
 	suq.order = append(suq.order, o...)
 	return suq
-}
-
-// QueryMerchant chains the current query on the "merchant" edge.
-func (suq *StoreUserQuery) QueryMerchant() *MerchantQuery {
-	query := (&MerchantClient{config: suq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := suq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := suq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(storeuser.Table, storeuser.FieldID, selector),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.MerchantTable, storeuser.MerchantColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(suq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryStore chains the current query on the "store" edge.
@@ -296,29 +272,17 @@ func (suq *StoreUserQuery) Clone() *StoreUserQuery {
 		return nil
 	}
 	return &StoreUserQuery{
-		config:       suq.config,
-		ctx:          suq.ctx.Clone(),
-		order:        append([]storeuser.OrderOption{}, suq.order...),
-		inters:       append([]Interceptor{}, suq.inters...),
-		predicates:   append([]predicate.StoreUser{}, suq.predicates...),
-		withMerchant: suq.withMerchant.Clone(),
-		withStore:    suq.withStore.Clone(),
+		config:     suq.config,
+		ctx:        suq.ctx.Clone(),
+		order:      append([]storeuser.OrderOption{}, suq.order...),
+		inters:     append([]Interceptor{}, suq.inters...),
+		predicates: append([]predicate.StoreUser{}, suq.predicates...),
+		withStore:  suq.withStore.Clone(),
 		// clone intermediate query.
 		sql:       suq.sql.Clone(),
 		path:      suq.path,
 		modifiers: append([]func(*sql.Selector){}, suq.modifiers...),
 	}
-}
-
-// WithMerchant tells the query-builder to eager-load the nodes that are connected to
-// the "merchant" edge. The optional arguments are used to configure the query builder of the edge.
-func (suq *StoreUserQuery) WithMerchant(opts ...func(*MerchantQuery)) *StoreUserQuery {
-	query := (&MerchantClient{config: suq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	suq.withMerchant = query
-	return suq
 }
 
 // WithStore tells the query-builder to eager-load the nodes that are connected to
@@ -410,8 +374,7 @@ func (suq *StoreUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	var (
 		nodes       = []*StoreUser{}
 		_spec       = suq.querySpec()
-		loadedTypes = [2]bool{
-			suq.withMerchant != nil,
+		loadedTypes = [1]bool{
 			suq.withStore != nil,
 		}
 	)
@@ -436,12 +399,6 @@ func (suq *StoreUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := suq.withMerchant; query != nil {
-		if err := suq.loadMerchant(ctx, query, nodes, nil,
-			func(n *StoreUser, e *Merchant) { n.Edges.Merchant = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := suq.withStore; query != nil {
 		if err := suq.loadStore(ctx, query, nodes, nil,
 			func(n *StoreUser, e *Store) { n.Edges.Store = e }); err != nil {
@@ -451,35 +408,6 @@ func (suq *StoreUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	return nodes, nil
 }
 
-func (suq *StoreUserQuery) loadMerchant(ctx context.Context, query *MerchantQuery, nodes []*StoreUser, init func(*StoreUser), assign func(*StoreUser, *Merchant)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*StoreUser)
-	for i := range nodes {
-		fk := nodes[i].MerchantID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(merchant.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "merchant_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (suq *StoreUserQuery) loadStore(ctx context.Context, query *StoreQuery, nodes []*StoreUser, init func(*StoreUser), assign func(*StoreUser, *Store)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*StoreUser)
@@ -537,9 +465,6 @@ func (suq *StoreUserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != storeuser.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if suq.withMerchant != nil {
-			_spec.Node.AddColumnOnce(storeuser.FieldMerchantID)
 		}
 		if suq.withStore != nil {
 			_spec.Node.AddColumnOnce(storeuser.FieldStoreID)

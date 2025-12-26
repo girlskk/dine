@@ -29,7 +29,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // MerchantQuery is the builder for querying Merchant entities.
@@ -45,7 +44,6 @@ type MerchantQuery struct {
 	withCity                 *CityQuery
 	withDistrict             *DistrictQuery
 	withBackendUsers         *BackendUserQuery
-	withStoreUsers           *StoreUserQuery
 	withStores               *StoreQuery
 	withMerchantRenewals     *MerchantRenewalQuery
 	withRemarkCategories     *RemarkCategoryQuery
@@ -215,28 +213,6 @@ func (mq *MerchantQuery) QueryBackendUsers() *BackendUserQuery {
 			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
 			sqlgraph.To(backenduser.Table, backenduser.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, merchant.BackendUsersTable, merchant.BackendUsersColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryStoreUsers chains the current query on the "store_users" edge.
-func (mq *MerchantQuery) QueryStoreUsers() *StoreUserQuery {
-	query := (&StoreUserClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(storeuser.Table, storeuser.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoreUsersTable, merchant.StoreUsersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -596,7 +572,6 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		withCity:                 mq.withCity.Clone(),
 		withDistrict:             mq.withDistrict.Clone(),
 		withBackendUsers:         mq.withBackendUsers.Clone(),
-		withStoreUsers:           mq.withStoreUsers.Clone(),
 		withStores:               mq.withStores.Clone(),
 		withMerchantRenewals:     mq.withMerchantRenewals.Clone(),
 		withRemarkCategories:     mq.withRemarkCategories.Clone(),
@@ -674,17 +649,6 @@ func (mq *MerchantQuery) WithBackendUsers(opts ...func(*BackendUserQuery)) *Merc
 		opt(query)
 	}
 	mq.withBackendUsers = query
-	return mq
-}
-
-// WithStoreUsers tells the query-builder to eager-load the nodes that are connected to
-// the "store_users" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithStoreUsers(opts ...func(*StoreUserQuery)) *MerchantQuery {
-	query := (&StoreUserClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withStoreUsers = query
 	return mq
 }
 
@@ -843,14 +807,13 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [14]bool{
+		loadedTypes = [13]bool{
 			mq.withMerchantBusinessType != nil,
 			mq.withCountry != nil,
 			mq.withProvince != nil,
 			mq.withCity != nil,
 			mq.withDistrict != nil,
 			mq.withBackendUsers != nil,
-			mq.withStoreUsers != nil,
 			mq.withStores != nil,
 			mq.withMerchantRenewals != nil,
 			mq.withRemarkCategories != nil,
@@ -915,13 +878,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 		if err := mq.loadBackendUsers(ctx, query, nodes,
 			func(n *Merchant) { n.Edges.BackendUsers = []*BackendUser{} },
 			func(n *Merchant, e *BackendUser) { n.Edges.BackendUsers = append(n.Edges.BackendUsers, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := mq.withStoreUsers; query != nil {
-		if err := mq.loadStoreUsers(ctx, query, nodes,
-			func(n *Merchant) { n.Edges.StoreUsers = []*StoreUser{} },
-			func(n *Merchant, e *StoreUser) { n.Edges.StoreUsers = append(n.Edges.StoreUsers, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1148,36 +1104,6 @@ func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUse
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "merchant_backend_users" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (mq *MerchantQuery) loadStoreUsers(ctx context.Context, query *StoreUserQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *StoreUser)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Merchant)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(storeuser.FieldMerchantID)
-	}
-	query.Where(predicate.StoreUser(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(merchant.StoreUsersColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.MerchantID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

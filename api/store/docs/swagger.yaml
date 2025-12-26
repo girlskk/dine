@@ -58,9 +58,6 @@ definitions:
     x-enum-comments:
       BusinessModelDirect: 直营
       BusinessModelFranchisee: 加盟
-    x-enum-descriptions:
-    - 直营
-    - 加盟
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
@@ -96,9 +93,6 @@ definitions:
         description: 地址
       admin_phone_number:
         description: 管理员手机号
-        type: string
-      admin_user_id:
-        description: 登陆账号 ID
         type: string
       business_hours:
         description: 营业时间段
@@ -187,6 +181,14 @@ definitions:
       updated_at:
         type: string
     type: object
+  domain.StoreSimpleUpdateType:
+    enum:
+    - status
+    type: string
+    x-enum-comments:
+      StoreSimpleUpdateTypeStatus: 状态更新
+    x-enum-varnames:
+    - StoreSimpleUpdateTypeStatus
   domain.StoreStatus:
     enum:
     - open
@@ -195,9 +197,6 @@ definitions:
     x-enum-comments:
       StoreStatusClosed: 停业
       StoreStatusOpen: 营业
-    x-enum-descriptions:
-    - 营业
-    - 停业
     x-enum-varnames:
     - StoreStatusOpen
     - StoreStatusClosed
@@ -217,6 +216,12 @@ definitions:
       username:
         type: string
     type: object
+  response.Response:
+    properties:
+      code:
+        type: string
+      data: {}
+    type: object
   time.Weekday:
     enum:
     - 0
@@ -235,6 +240,45 @@ definitions:
     - Thursday
     - Friday
     - Saturday
+  types.Address:
+    properties:
+      address:
+        description: 详细地址
+        maxLength: 100
+        type: string
+      city_id:
+        description: 城市 ID
+        type: string
+      city_name:
+        description: 城市名称
+        type: string
+      country_id:
+        description: 国家/地区 ID
+        type: string
+      country_name:
+        description: 国家/地区 名称
+        type: string
+      district_id:
+        description: 区县 ID
+        type: string
+      district_name:
+        description: 区县名称
+        type: string
+      lat:
+        description: 纬度
+        maxLength: 50
+        type: string
+      lng:
+        description: 经度
+        maxLength: 50
+        type: string
+      province_id:
+        description: 省份 ID
+        type: string
+      province_name:
+        description: 省份名称
+        type: string
+    type: object
   types.LoginReq:
     properties:
       password:
@@ -252,12 +296,243 @@ definitions:
       token:
         type: string
     type: object
+  types.StoreSimpleUpdateReq:
+    properties:
+      simple_update_type:
+        allOf:
+        - $ref: '#/definitions/domain.StoreSimpleUpdateType'
+        description: 简单更新类型
+        enum:
+        - status
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.StoreStatus'
+        description: 营业/停业
+    required:
+    - simple_update_type
+    - status
+    type: object
+  types.UpdateStoreReq:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/types.Address'
+        description: 地址
+      admin_phone_number:
+        description: 管理员手机号
+        maxLength: 20
+        type: string
+      business_hours:
+        description: 营业时间段
+        items:
+          $ref: '#/definitions/domain.BusinessHours'
+        type: array
+      business_license_url:
+        description: 营业执照图片地址
+        maxLength: 500
+        type: string
+      business_model:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessModel'
+        description: 直营/加盟
+      business_type_id:
+        description: 业态类型
+        type: string
+      cashier_desk_url:
+        description: 收银台照片地址
+        maxLength: 500
+        type: string
+      contact_name:
+        description: 联系人
+        maxLength: 255
+        type: string
+      contact_phone:
+        description: 联系电话
+        maxLength: 255
+        type: string
+      dining_environment_url:
+        description: 就餐环境照片地址
+        maxLength: 500
+        type: string
+      dining_periods:
+        description: 就餐时段
+        items:
+          $ref: '#/definitions/domain.DiningPeriod'
+        type: array
+      food_operation_license_url:
+        description: 食品经营许可证照片地址
+        maxLength: 500
+        type: string
+      location_number:
+        description: 门店位置编号
+        maxLength: 255
+        type: string
+      login_password:
+        description: 登录密码(加密存储)
+        type: string
+      shift_times:
+        description: 班次时间
+        items:
+          $ref: '#/definitions/domain.ShiftTime'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.StoreStatus'
+        description: 营业/停业
+      store_code:
+        description: 门店编码(保留字段)
+        maxLength: 50
+        type: string
+      store_logo:
+        description: logo 图片地址
+        maxLength: 500
+        type: string
+      store_name:
+        description: 门店名称,长度不超过30个字
+        maxLength: 30
+        type: string
+      store_short_name:
+        description: 门店简称
+        maxLength: 30
+        type: string
+      storefront_url:
+        description: 门店门头照片地址
+        maxLength: 500
+        type: string
+      unified_social_credit_code:
+        description: 统一社会信用代码
+        maxLength: 255
+        type: string
+    required:
+    - address
+    - admin_phone_number
+    - business_hours
+    - business_model
+    - business_type_id
+    - dining_periods
+    - location_number
+    - login_password
+    - shift_times
+    - status
+    - store_name
+    type: object
 info:
   contact: {}
   description: 供门店后台调用.
   title: 门店后台 API
   version: "1.0"
 paths:
+  /store:
+    get:
+      consumes:
+      - application/json
+      description: 根据门店ID获取门店信息
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Store'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取门店
+      tags:
+      - 门店管理
+    patch:
+      consumes:
+      - application/json
+      description: 修改门店状态
+      parameters:
+      - description: 更新门店单个字段信息请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StoreSimpleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新门店单个字段信息
+      tags:
+      - 门店管理
+    put:
+      consumes:
+      - application/json
+      description: 更新单个门店
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新门店请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.UpdateStoreReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新门店
+      tags:
+      - 门店管理
   /user/info:
     post:
       consumes:

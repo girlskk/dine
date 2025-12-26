@@ -74,8 +74,6 @@ const (
 	EdgeDistrict = "district"
 	// EdgeBackendUsers holds the string denoting the backend_users edge name in mutations.
 	EdgeBackendUsers = "backend_users"
-	// EdgeStoreUsers holds the string denoting the store_users edge name in mutations.
-	EdgeStoreUsers = "store_users"
 	// EdgeStores holds the string denoting the stores edge name in mutations.
 	EdgeStores = "stores"
 	// EdgeMerchantRenewals holds the string denoting the merchant_renewals edge name in mutations.
@@ -134,13 +132,6 @@ const (
 	BackendUsersInverseTable = "backend_users"
 	// BackendUsersColumn is the table column denoting the backend_users relation/edge.
 	BackendUsersColumn = "merchant_backend_users"
-	// StoreUsersTable is the table that holds the store_users relation/edge.
-	StoreUsersTable = "store_users"
-	// StoreUsersInverseTable is the table name for the StoreUser entity.
-	// It exists in this package in order to avoid circular dependency with the "storeuser" package.
-	StoreUsersInverseTable = "store_users"
-	// StoreUsersColumn is the table column denoting the store_users relation/edge.
-	StoreUsersColumn = "merchant_id"
 	// StoresTable is the table that holds the stores relation/edge.
 	StoresTable = "stores"
 	// StoresInverseTable is the table name for the Store entity.
@@ -476,20 +467,6 @@ func ByBackendUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByStoreUsersCount orders the results by store_users count.
-func ByStoreUsersCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newStoreUsersStep(), opts...)
-	}
-}
-
-// ByStoreUsers orders the results by store_users terms.
-func ByStoreUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newStoreUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByStoresCount orders the results by stores count.
 func ByStoresCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -627,13 +604,6 @@ func newBackendUsersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BackendUsersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, BackendUsersTable, BackendUsersColumn),
-	)
-}
-func newStoreUsersStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(StoreUsersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
 	)
 }
 func newStoresStep() *sqlgraph.Step {

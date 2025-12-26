@@ -131,7 +131,6 @@ func (s *RemarkTestSuite) ensureStore(id, merchantID uuid.UUID) *ent.Store {
 		SetUsername("store-storeUser-" + id.String()).
 		SetHashedPassword("pwd").
 		SetNickname("store-storeUser").
-		SetMerchantID(merchantID).
 		SaveX(s.ctx)
 
 	shortName := "S-" + id.String()

@@ -1327,7 +1327,6 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
-		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID},
 	}
 	// StoreUsersTable holds the schema information for the "store_users" table.
@@ -1337,14 +1336,8 @@ var (
 		PrimaryKey: []*schema.Column{StoreUsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "store_users_merchants_store_users",
-				Columns:    []*schema.Column{StoreUsersColumns[7]},
-				RefColumns: []*schema.Column{MerchantsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
 				Symbol:     "store_users_stores_store_users",
-				Columns:    []*schema.Column{StoreUsersColumns[8]},
+				Columns:    []*schema.Column{StoreUsersColumns[7]},
 				RefColumns: []*schema.Column{StoresColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1493,8 +1486,7 @@ func init() {
 	StoresTable.ForeignKeys[3].RefTable = MerchantsTable
 	StoresTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
 	StoresTable.ForeignKeys[5].RefTable = ProvincesTable
-	StoreUsersTable.ForeignKeys[0].RefTable = MerchantsTable
-	StoreUsersTable.ForeignKeys[1].RefTable = StoresTable
+	StoreUsersTable.ForeignKeys[0].RefTable = StoresTable
 	MenuStoreRelationsTable.ForeignKeys[0].RefTable = MenusTable
 	MenuStoreRelationsTable.ForeignKeys[1].RefTable = StoresTable
 	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable

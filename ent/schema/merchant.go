@@ -122,7 +122,6 @@ func (Merchant) Edges() []ent.Edge {
 			Field("district_id").
 			Unique(),
 		edge.To("backend_users", BackendUser.Type),
-		edge.To("store_users", StoreUser.Type),
 		edge.To("stores", Store.Type),
 		edge.To("merchant_renewals", MerchantRenewal.Type),
 		edge.To("remark_categories", RemarkCategory.Type),

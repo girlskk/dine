@@ -20,7 +20,6 @@ func (StoreUser) Fields() []ent.Field {
 		field.String("username").NotEmpty().MaxLen(100).Comment("用户名"),
 		field.String("hashed_password").NotEmpty().Comment("密码哈希"),
 		field.String("nickname").Comment("昵称"),
-		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("所属品牌商 ID"),
 		field.UUID("store_id", uuid.UUID{}).Immutable().Comment("所属门店 ID"),
 	}
 }
@@ -28,12 +27,6 @@ func (StoreUser) Fields() []ent.Field {
 // Edges of the StoreUser.
 func (StoreUser) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("merchant", Merchant.Type).
-			Ref("store_users").
-			Field("merchant_id").
-			Immutable().
-			Unique().
-			Required(),
 		edge.From("store", Store.Type).
 			Ref("store_users").
 			Field("store_id").

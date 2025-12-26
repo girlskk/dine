@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
@@ -86,12 +85,6 @@ func (suc *StoreUserCreate) SetNickname(s string) *StoreUserCreate {
 	return suc
 }
 
-// SetMerchantID sets the "merchant_id" field.
-func (suc *StoreUserCreate) SetMerchantID(u uuid.UUID) *StoreUserCreate {
-	suc.mutation.SetMerchantID(u)
-	return suc
-}
-
 // SetStoreID sets the "store_id" field.
 func (suc *StoreUserCreate) SetStoreID(u uuid.UUID) *StoreUserCreate {
 	suc.mutation.SetStoreID(u)
@@ -110,11 +103,6 @@ func (suc *StoreUserCreate) SetNillableID(u *uuid.UUID) *StoreUserCreate {
 		suc.SetID(*u)
 	}
 	return suc
-}
-
-// SetMerchant sets the "merchant" edge to the Merchant entity.
-func (suc *StoreUserCreate) SetMerchant(m *Merchant) *StoreUserCreate {
-	return suc.SetMerchantID(m.ID)
 }
 
 // SetStore sets the "store" edge to the Store entity.
@@ -217,14 +205,8 @@ func (suc *StoreUserCreate) check() error {
 	if _, ok := suc.mutation.Nickname(); !ok {
 		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "StoreUser.nickname"`)}
 	}
-	if _, ok := suc.mutation.MerchantID(); !ok {
-		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "StoreUser.merchant_id"`)}
-	}
 	if _, ok := suc.mutation.StoreID(); !ok {
 		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "StoreUser.store_id"`)}
-	}
-	if len(suc.mutation.MerchantIDs()) == 0 {
-		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "StoreUser.merchant"`)}
 	}
 	if len(suc.mutation.StoreIDs()) == 0 {
 		return &ValidationError{Name: "store", err: errors.New(`ent: missing required edge "StoreUser.store"`)}
@@ -288,23 +270,6 @@ func (suc *StoreUserCreate) createSpec() (*StoreUser, *sqlgraph.CreateSpec) {
 	if value, ok := suc.mutation.Nickname(); ok {
 		_spec.SetField(storeuser.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
-	}
-	if nodes := suc.mutation.MerchantIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   storeuser.MerchantTable,
-			Columns: []string{storeuser.MerchantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.MerchantID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := suc.mutation.StoreIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -460,9 +425,6 @@ func (u *StoreUserUpsertOne) UpdateNewValues() *StoreUserUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(storeuser.FieldCreatedAt)
-		}
-		if _, exists := u.create.mutation.MerchantID(); exists {
-			s.SetIgnore(storeuser.FieldMerchantID)
 		}
 		if _, exists := u.create.mutation.StoreID(); exists {
 			s.SetIgnore(storeuser.FieldStoreID)
@@ -760,9 +722,6 @@ func (u *StoreUserUpsertBulk) UpdateNewValues() *StoreUserUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(storeuser.FieldCreatedAt)
-			}
-			if _, exists := b.mutation.MerchantID(); exists {
-				s.SetIgnore(storeuser.FieldMerchantID)
 			}
 			if _, exists := b.mutation.StoreID(); exists {
 				s.SetIgnore(storeuser.FieldStoreID)

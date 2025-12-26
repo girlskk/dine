@@ -1380,29 +1380,6 @@ func HasBackendUsersWith(preds ...predicate.BackendUser) predicate.Merchant {
 	})
 }
 
-// HasStoreUsers applies the HasEdge predicate on the "store_users" edge.
-func HasStoreUsers() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasStoreUsersWith applies the HasEdge predicate on the "store_users" edge with a given conditions (other predicates).
-func HasStoreUsersWith(preds ...predicate.StoreUser) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newStoreUsersStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasStores applies the HasEdge predicate on the "stores" edge.
 func HasStores() predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {

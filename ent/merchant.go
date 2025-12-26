@@ -89,8 +89,6 @@ type MerchantEdges struct {
 	District *District `json:"district,omitempty"`
 	// BackendUsers holds the value of the backend_users edge.
 	BackendUsers []*BackendUser `json:"backend_users,omitempty"`
-	// StoreUsers holds the value of the store_users edge.
-	StoreUsers []*StoreUser `json:"store_users,omitempty"`
 	// Stores holds the value of the stores edge.
 	Stores []*Store `json:"stores,omitempty"`
 	// MerchantRenewals holds the value of the merchant_renewals edge.
@@ -107,7 +105,7 @@ type MerchantEdges struct {
 	Devices []*Device `json:"devices,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [14]bool
+	loadedTypes [13]bool
 }
 
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
@@ -174,19 +172,10 @@ func (e MerchantEdges) BackendUsersOrErr() ([]*BackendUser, error) {
 	return nil, &NotLoadedError{edge: "backend_users"}
 }
 
-// StoreUsersOrErr returns the StoreUsers value or an error if the edge
-// was not loaded in eager-loading.
-func (e MerchantEdges) StoreUsersOrErr() ([]*StoreUser, error) {
-	if e.loadedTypes[6] {
-		return e.StoreUsers, nil
-	}
-	return nil, &NotLoadedError{edge: "store_users"}
-}
-
 // StoresOrErr returns the Stores value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) StoresOrErr() ([]*Store, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[6] {
 		return e.Stores, nil
 	}
 	return nil, &NotLoadedError{edge: "stores"}
@@ -195,7 +184,7 @@ func (e MerchantEdges) StoresOrErr() ([]*Store, error) {
 // MerchantRenewalsOrErr returns the MerchantRenewals value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) MerchantRenewalsOrErr() ([]*MerchantRenewal, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[7] {
 		return e.MerchantRenewals, nil
 	}
 	return nil, &NotLoadedError{edge: "merchant_renewals"}
@@ -204,7 +193,7 @@ func (e MerchantEdges) MerchantRenewalsOrErr() ([]*MerchantRenewal, error) {
 // RemarkCategoriesOrErr returns the RemarkCategories value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) RemarkCategoriesOrErr() ([]*RemarkCategory, error) {
-	if e.loadedTypes[9] {
+	if e.loadedTypes[8] {
 		return e.RemarkCategories, nil
 	}
 	return nil, &NotLoadedError{edge: "remark_categories"}
@@ -213,7 +202,7 @@ func (e MerchantEdges) RemarkCategoriesOrErr() ([]*RemarkCategory, error) {
 // RemarksOrErr returns the Remarks value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) RemarksOrErr() ([]*Remark, error) {
-	if e.loadedTypes[10] {
+	if e.loadedTypes[9] {
 		return e.Remarks, nil
 	}
 	return nil, &NotLoadedError{edge: "remarks"}
@@ -222,7 +211,7 @@ func (e MerchantEdges) RemarksOrErr() ([]*Remark, error) {
 // StallsOrErr returns the Stalls value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) StallsOrErr() ([]*Stall, error) {
-	if e.loadedTypes[11] {
+	if e.loadedTypes[10] {
 		return e.Stalls, nil
 	}
 	return nil, &NotLoadedError{edge: "stalls"}
@@ -231,7 +220,7 @@ func (e MerchantEdges) StallsOrErr() ([]*Stall, error) {
 // AdditionalFeesOrErr returns the AdditionalFees value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) AdditionalFeesOrErr() ([]*AdditionalFee, error) {
-	if e.loadedTypes[12] {
+	if e.loadedTypes[11] {
 		return e.AdditionalFees, nil
 	}
 	return nil, &NotLoadedError{edge: "additional_fees"}
@@ -240,7 +229,7 @@ func (e MerchantEdges) AdditionalFeesOrErr() ([]*AdditionalFee, error) {
 // DevicesOrErr returns the Devices value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) DevicesOrErr() ([]*Device, error) {
-	if e.loadedTypes[13] {
+	if e.loadedTypes[12] {
 		return e.Devices, nil
 	}
 	return nil, &NotLoadedError{edge: "devices"}
@@ -454,11 +443,6 @@ func (m *Merchant) QueryDistrict() *DistrictQuery {
 // QueryBackendUsers queries the "backend_users" edge of the Merchant entity.
 func (m *Merchant) QueryBackendUsers() *BackendUserQuery {
 	return NewMerchantClient(m.config).QueryBackendUsers(m)
-}
-
-// QueryStoreUsers queries the "store_users" edge of the Merchant entity.
-func (m *Merchant) QueryStoreUsers() *StoreUserQuery {
-	return NewMerchantClient(m.config).QueryStoreUsers(m)
 }
 
 // QueryStores queries the "stores" edge of the Merchant entity.

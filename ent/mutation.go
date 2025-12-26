@@ -11269,9 +11269,6 @@ type MerchantMutation struct {
 	backend_users                 map[uuid.UUID]struct{}
 	removedbackend_users          map[uuid.UUID]struct{}
 	clearedbackend_users          bool
-	store_users                   map[uuid.UUID]struct{}
-	removedstore_users            map[uuid.UUID]struct{}
-	clearedstore_users            bool
 	stores                        map[uuid.UUID]struct{}
 	removedstores                 map[uuid.UUID]struct{}
 	clearedstores                 bool
@@ -12481,60 +12478,6 @@ func (m *MerchantMutation) ResetBackendUsers() {
 	m.removedbackend_users = nil
 }
 
-// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by ids.
-func (m *MerchantMutation) AddStoreUserIDs(ids ...uuid.UUID) {
-	if m.store_users == nil {
-		m.store_users = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.store_users[ids[i]] = struct{}{}
-	}
-}
-
-// ClearStoreUsers clears the "store_users" edge to the StoreUser entity.
-func (m *MerchantMutation) ClearStoreUsers() {
-	m.clearedstore_users = true
-}
-
-// StoreUsersCleared reports if the "store_users" edge to the StoreUser entity was cleared.
-func (m *MerchantMutation) StoreUsersCleared() bool {
-	return m.clearedstore_users
-}
-
-// RemoveStoreUserIDs removes the "store_users" edge to the StoreUser entity by IDs.
-func (m *MerchantMutation) RemoveStoreUserIDs(ids ...uuid.UUID) {
-	if m.removedstore_users == nil {
-		m.removedstore_users = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.store_users, ids[i])
-		m.removedstore_users[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedStoreUsers returns the removed IDs of the "store_users" edge to the StoreUser entity.
-func (m *MerchantMutation) RemovedStoreUsersIDs() (ids []uuid.UUID) {
-	for id := range m.removedstore_users {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// StoreUsersIDs returns the "store_users" edge IDs in the mutation.
-func (m *MerchantMutation) StoreUsersIDs() (ids []uuid.UUID) {
-	for id := range m.store_users {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetStoreUsers resets all changes to the "store_users" edge.
-func (m *MerchantMutation) ResetStoreUsers() {
-	m.store_users = nil
-	m.clearedstore_users = false
-	m.removedstore_users = nil
-}
-
 // AddStoreIDs adds the "stores" edge to the Store entity by ids.
 func (m *MerchantMutation) AddStoreIDs(ids ...uuid.UUID) {
 	if m.stores == nil {
@@ -13451,7 +13394,7 @@ func (m *MerchantMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MerchantMutation) AddedEdges() []string {
-	edges := make([]string, 0, 14)
+	edges := make([]string, 0, 13)
 	if m.merchant_business_type != nil {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
 	}
@@ -13469,9 +13412,6 @@ func (m *MerchantMutation) AddedEdges() []string {
 	}
 	if m.backend_users != nil {
 		edges = append(edges, merchant.EdgeBackendUsers)
-	}
-	if m.store_users != nil {
-		edges = append(edges, merchant.EdgeStoreUsers)
 	}
 	if m.stores != nil {
 		edges = append(edges, merchant.EdgeStores)
@@ -13527,12 +13467,6 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case merchant.EdgeStoreUsers:
-		ids := make([]ent.Value, 0, len(m.store_users))
-		for id := range m.store_users {
-			ids = append(ids, id)
-		}
-		return ids
 	case merchant.EdgeStores:
 		ids := make([]ent.Value, 0, len(m.stores))
 		for id := range m.stores {
@@ -13581,12 +13515,9 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MerchantMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 14)
+	edges := make([]string, 0, 13)
 	if m.removedbackend_users != nil {
 		edges = append(edges, merchant.EdgeBackendUsers)
-	}
-	if m.removedstore_users != nil {
-		edges = append(edges, merchant.EdgeStoreUsers)
 	}
 	if m.removedstores != nil {
 		edges = append(edges, merchant.EdgeStores)
@@ -13619,12 +13550,6 @@ func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
 	case merchant.EdgeBackendUsers:
 		ids := make([]ent.Value, 0, len(m.removedbackend_users))
 		for id := range m.removedbackend_users {
-			ids = append(ids, id)
-		}
-		return ids
-	case merchant.EdgeStoreUsers:
-		ids := make([]ent.Value, 0, len(m.removedstore_users))
-		for id := range m.removedstore_users {
 			ids = append(ids, id)
 		}
 		return ids
@@ -13676,7 +13601,7 @@ func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MerchantMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 14)
+	edges := make([]string, 0, 13)
 	if m.clearedmerchant_business_type {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
 	}
@@ -13694,9 +13619,6 @@ func (m *MerchantMutation) ClearedEdges() []string {
 	}
 	if m.clearedbackend_users {
 		edges = append(edges, merchant.EdgeBackendUsers)
-	}
-	if m.clearedstore_users {
-		edges = append(edges, merchant.EdgeStoreUsers)
 	}
 	if m.clearedstores {
 		edges = append(edges, merchant.EdgeStores)
@@ -13738,8 +13660,6 @@ func (m *MerchantMutation) EdgeCleared(name string) bool {
 		return m.cleareddistrict
 	case merchant.EdgeBackendUsers:
 		return m.clearedbackend_users
-	case merchant.EdgeStoreUsers:
-		return m.clearedstore_users
 	case merchant.EdgeStores:
 		return m.clearedstores
 	case merchant.EdgeMerchantRenewals:
@@ -13802,9 +13722,6 @@ func (m *MerchantMutation) ResetEdge(name string) error {
 		return nil
 	case merchant.EdgeBackendUsers:
 		m.ResetBackendUsers()
-		return nil
-	case merchant.EdgeStoreUsers:
-		m.ResetStoreUsers()
 		return nil
 	case merchant.EdgeStores:
 		m.ResetStores()
@@ -33750,8 +33667,6 @@ type StoreUserMutation struct {
 	hashed_password *string
 	nickname        *string
 	clearedFields   map[string]struct{}
-	merchant        *uuid.UUID
-	clearedmerchant bool
 	store           *uuid.UUID
 	clearedstore    bool
 	done            bool
@@ -34099,42 +34014,6 @@ func (m *StoreUserMutation) ResetNickname() {
 	m.nickname = nil
 }
 
-// SetMerchantID sets the "merchant_id" field.
-func (m *StoreUserMutation) SetMerchantID(u uuid.UUID) {
-	m.merchant = &u
-}
-
-// MerchantID returns the value of the "merchant_id" field in the mutation.
-func (m *StoreUserMutation) MerchantID() (r uuid.UUID, exists bool) {
-	v := m.merchant
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMerchantID returns the old "merchant_id" field's value of the StoreUser entity.
-// If the StoreUser object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StoreUserMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMerchantID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMerchantID: %w", err)
-	}
-	return oldValue.MerchantID, nil
-}
-
-// ResetMerchantID resets all changes to the "merchant_id" field.
-func (m *StoreUserMutation) ResetMerchantID() {
-	m.merchant = nil
-}
-
 // SetStoreID sets the "store_id" field.
 func (m *StoreUserMutation) SetStoreID(u uuid.UUID) {
 	m.store = &u
@@ -34169,33 +34048,6 @@ func (m *StoreUserMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err er
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *StoreUserMutation) ResetStoreID() {
 	m.store = nil
-}
-
-// ClearMerchant clears the "merchant" edge to the Merchant entity.
-func (m *StoreUserMutation) ClearMerchant() {
-	m.clearedmerchant = true
-	m.clearedFields[storeuser.FieldMerchantID] = struct{}{}
-}
-
-// MerchantCleared reports if the "merchant" edge to the Merchant entity was cleared.
-func (m *StoreUserMutation) MerchantCleared() bool {
-	return m.clearedmerchant
-}
-
-// MerchantIDs returns the "merchant" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// MerchantID instead. It exists only for internal usage by the builders.
-func (m *StoreUserMutation) MerchantIDs() (ids []uuid.UUID) {
-	if id := m.merchant; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetMerchant resets all changes to the "merchant" edge.
-func (m *StoreUserMutation) ResetMerchant() {
-	m.merchant = nil
-	m.clearedmerchant = false
 }
 
 // ClearStore clears the "store" edge to the Store entity.
@@ -34259,7 +34111,7 @@ func (m *StoreUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StoreUserMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, storeuser.FieldCreatedAt)
 	}
@@ -34277,9 +34129,6 @@ func (m *StoreUserMutation) Fields() []string {
 	}
 	if m.nickname != nil {
 		fields = append(fields, storeuser.FieldNickname)
-	}
-	if m.merchant != nil {
-		fields = append(fields, storeuser.FieldMerchantID)
 	}
 	if m.store != nil {
 		fields = append(fields, storeuser.FieldStoreID)
@@ -34304,8 +34153,6 @@ func (m *StoreUserMutation) Field(name string) (ent.Value, bool) {
 		return m.HashedPassword()
 	case storeuser.FieldNickname:
 		return m.Nickname()
-	case storeuser.FieldMerchantID:
-		return m.MerchantID()
 	case storeuser.FieldStoreID:
 		return m.StoreID()
 	}
@@ -34329,8 +34176,6 @@ func (m *StoreUserMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldHashedPassword(ctx)
 	case storeuser.FieldNickname:
 		return m.OldNickname(ctx)
-	case storeuser.FieldMerchantID:
-		return m.OldMerchantID(ctx)
 	case storeuser.FieldStoreID:
 		return m.OldStoreID(ctx)
 	}
@@ -34383,13 +34228,6 @@ func (m *StoreUserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNickname(v)
-		return nil
-	case storeuser.FieldMerchantID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMerchantID(v)
 		return nil
 	case storeuser.FieldStoreID:
 		v, ok := value.(uuid.UUID)
@@ -34480,9 +34318,6 @@ func (m *StoreUserMutation) ResetField(name string) error {
 	case storeuser.FieldNickname:
 		m.ResetNickname()
 		return nil
-	case storeuser.FieldMerchantID:
-		m.ResetMerchantID()
-		return nil
 	case storeuser.FieldStoreID:
 		m.ResetStoreID()
 		return nil
@@ -34492,10 +34327,7 @@ func (m *StoreUserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StoreUserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.merchant != nil {
-		edges = append(edges, storeuser.EdgeMerchant)
-	}
+	edges := make([]string, 0, 1)
 	if m.store != nil {
 		edges = append(edges, storeuser.EdgeStore)
 	}
@@ -34506,10 +34338,6 @@ func (m *StoreUserMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *StoreUserMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case storeuser.EdgeMerchant:
-		if id := m.merchant; id != nil {
-			return []ent.Value{*id}
-		}
 	case storeuser.EdgeStore:
 		if id := m.store; id != nil {
 			return []ent.Value{*id}
@@ -34520,7 +34348,7 @@ func (m *StoreUserMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StoreUserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -34532,10 +34360,7 @@ func (m *StoreUserMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StoreUserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.clearedmerchant {
-		edges = append(edges, storeuser.EdgeMerchant)
-	}
+	edges := make([]string, 0, 1)
 	if m.clearedstore {
 		edges = append(edges, storeuser.EdgeStore)
 	}
@@ -34546,8 +34371,6 @@ func (m *StoreUserMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *StoreUserMutation) EdgeCleared(name string) bool {
 	switch name {
-	case storeuser.EdgeMerchant:
-		return m.clearedmerchant
 	case storeuser.EdgeStore:
 		return m.clearedstore
 	}
@@ -34558,9 +34381,6 @@ func (m *StoreUserMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *StoreUserMutation) ClearEdge(name string) error {
 	switch name {
-	case storeuser.EdgeMerchant:
-		m.ClearMerchant()
-		return nil
 	case storeuser.EdgeStore:
 		m.ClearStore()
 		return nil
@@ -34572,9 +34392,6 @@ func (m *StoreUserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *StoreUserMutation) ResetEdge(name string) error {
 	switch name {
-	case storeuser.EdgeMerchant:
-		m.ResetMerchant()
-		return nil
 	case storeuser.EdgeStore:
 		m.ResetStore()
 		return nil

@@ -2426,22 +2426,6 @@ func (c *MerchantClient) QueryBackendUsers(m *Merchant) *BackendUserQuery {
 	return query
 }
 
-// QueryStoreUsers queries the store_users edge of a Merchant.
-func (c *MerchantClient) QueryStoreUsers(m *Merchant) *StoreUserQuery {
-	query := (&StoreUserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(storeuser.Table, storeuser.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoreUsersTable, merchant.StoreUsersColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryStores queries the stores edge of a Merchant.
 func (c *MerchantClient) QueryStores(m *Merchant) *StoreQuery {
 	query := (&StoreClient{config: c.config}).Query()
@@ -5814,22 +5798,6 @@ func (c *StoreUserClient) GetX(ctx context.Context, id uuid.UUID) *StoreUser {
 		panic(err)
 	}
 	return obj
-}
-
-// QueryMerchant queries the merchant edge of a StoreUser.
-func (c *StoreUserClient) QueryMerchant(su *StoreUser) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := su.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(storeuser.Table, storeuser.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.MerchantTable, storeuser.MerchantColumn),
-		)
-		fromV = sqlgraph.Neighbors(su.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // QueryStore queries the store edge of a StoreUser.

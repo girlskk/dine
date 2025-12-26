@@ -54,7 +54,6 @@ func (s *StoreRepositoryTestSuite) createStoreUser(username string, merchantID, 
 		SetUsername(username).
 		SetHashedPassword("hashed").
 		SetNickname("store-user").
-		SetMerchantID(merchantID).
 		SetStoreID(storeID).
 		SaveX(s.ctx)
 }

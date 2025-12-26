@@ -28,7 +28,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // MerchantCreate is the builder for creating a Merchant entity.
@@ -373,21 +372,6 @@ func (mc *MerchantCreate) AddBackendUsers(b ...*BackendUser) *MerchantCreate {
 		ids[i] = b[i].ID
 	}
 	return mc.AddBackendUserIDs(ids...)
-}
-
-// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
-func (mc *MerchantCreate) AddStoreUserIDs(ids ...uuid.UUID) *MerchantCreate {
-	mc.mutation.AddStoreUserIDs(ids...)
-	return mc
-}
-
-// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
-func (mc *MerchantCreate) AddStoreUsers(s ...*StoreUser) *MerchantCreate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mc.AddStoreUserIDs(ids...)
 }
 
 // AddStoreIDs adds the "stores" edge to the Store entity by IDs.
@@ -914,22 +898,6 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mc.mutation.StoreUsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.StoreUsersTable,
-			Columns: []string{merchant.StoreUsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
