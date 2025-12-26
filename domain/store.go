@@ -22,6 +22,33 @@ var (
 	ErrStoreShiftTimeNameExists      = errors.New("门店班次名称已存在")
 )
 
+// StoreRepository 门店仓储接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_repository.go -package=mock . StoreRepository
+type StoreRepository interface {
+	FindByID(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
+	FindStoreMerchant(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
+	Create(ctx context.Context, domainStore *Store) (err error)
+	Update(ctx context.Context, domainStore *Store) (err error)
+	Delete(ctx context.Context, id uuid.UUID) (err error)
+	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
+	ExistsStore(ctx context.Context, existsStoreParams *ExistsStoreParams) (exists bool, err error)
+	CountStoresByMerchantID(ctx context.Context, merchantIDs []uuid.UUID) (storeCounts []*MerchantStoreCount, err error)
+}
+
+// StoreInteractor 门店用例接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_interactor.go -package=mock . StoreInteractor
+type StoreInteractor interface {
+	CreateStore(ctx context.Context, domainCStoreParams *CreateStoreParams) (err error)
+	UpdateStore(ctx context.Context, domainUStoreParams *UpdateStoreParams) (err error)
+	DeleteStore(ctx context.Context, id uuid.UUID) (err error)
+	GetStore(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
+	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
+	GetStoreByMerchantID(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
+	StoreSimpleUpdate(ctx context.Context, updateField StoreSimpleUpdateType, domainUStoreParams *UpdateStoreParams) (err error)
+}
+
 type StoreListOrderByType int
 
 const (
@@ -106,59 +133,37 @@ const (
 )
 
 type Store struct {
-	ID                      uuid.UUID        `json:"id"`
-	MerchantID              uuid.UUID        `json:"merchant_id"`                // 商户 ID
-	MerchantName            string           `json:"merchant_name"`              // 商户名称
-	AdminPhoneNumber        string           `json:"admin_phone_number"`         // 管理员手机号
-	StoreName               string           `json:"store_name"`                 // 门店名称,长度不超过30个字
-	StoreShortName          string           `json:"store_short_name"`           // 门店简称
-	StoreCode               string           `json:"store_code"`                 // 门店编码(保留字段)
-	Status                  StoreStatus      `json:"status"`                     // 状态: 营业 停业
-	BusinessModel           BusinessModel    `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeID          uuid.UUID        `json:"business_type_id"`           // 业态类型
-	BusinessTypeName        string           `json:"business_type_name"`         // 业务类型名称
-	LocationNumber          string           `json:"location_number"`            // 门店位置编号
-	ContactName             string           `json:"contact_name"`               // 联系人
-	ContactPhone            string           `json:"contact_phone"`              // 联系电话
-	UnifiedSocialCreditCode string           `json:"unified_social_credit_code"` // 统一社会信用代码
-	StoreLogo               string           `json:"store_logo"`                 // logo 图片地址
-	BusinessLicenseURL      string           `json:"business_license_url"`       // 营业执照图片地址
-	StorefrontURL           string           `json:"storefront_url"`             // 门店门头照片地址
-	CashierDeskURL          string           `json:"cashier_desk_url"`           // 收银台照片地址
-	DiningEnvironmentURL    string           `json:"dining_environment_url"`     // 就餐环境照片地址
-	FoodOperationLicenseURL string           `json:"food_operation_license_url"` // 食品经营许可证照片地址
-	LoginAccount            string           `json:"login_account"`              // 登录账号
-	LoginPassword           string           `json:"login_password"`             // 登录密码(加密存储)
-	AdminUserID             uuid.UUID        `json:"admin_user_id"`              // 登陆账号 ID
-	BusinessHours           []*BusinessHours `json:"business_hours"`             // 营业时间段
-	DiningPeriods           []*DiningPeriod  `json:"dining_periods"`             // 就餐时段
-	ShiftTimes              []*ShiftTime     `json:"shift_times"`                // 班次时间
-	Address                 *Address         `json:"address"`                    // 地址
+	ID                      uuid.UUID       `json:"id"`
+	MerchantID              uuid.UUID       `json:"merchant_id"`                // 商户 ID
+	MerchantName            string          `json:"merchant_name"`              // 商户名称
+	AdminPhoneNumber        string          `json:"admin_phone_number"`         // 管理员手机号
+	StoreName               string          `json:"store_name"`                 // 门店名称,长度不超过30个字
+	StoreShortName          string          `json:"store_short_name"`           // 门店简称
+	StoreCode               string          `json:"store_code"`                 // 门店编码(保留字段)
+	Status                  StoreStatus     `json:"status"`                     // 状态: 营业 停业
+	BusinessModel           BusinessModel   `json:"business_model"`             // 经营模式：直营 加盟
+	BusinessTypeID          uuid.UUID       `json:"business_type_id"`           // 业态类型
+	BusinessTypeName        string          `json:"business_type_name"`         // 业务类型名称
+	LocationNumber          string          `json:"location_number"`            // 门店位置编号
+	ContactName             string          `json:"contact_name"`               // 联系人
+	ContactPhone            string          `json:"contact_phone"`              // 联系电话
+	UnifiedSocialCreditCode string          `json:"unified_social_credit_code"` // 统一社会信用代码
+	StoreLogo               string          `json:"store_logo"`                 // logo 图片地址
+	BusinessLicenseURL      string          `json:"business_license_url"`       // 营业执照图片地址
+	StorefrontURL           string          `json:"storefront_url"`             // 门店门头照片地址
+	CashierDeskURL          string          `json:"cashier_desk_url"`           // 收银台照片地址
+	DiningEnvironmentURL    string          `json:"dining_environment_url"`     // 就餐环境照片地址
+	FoodOperationLicenseURL string          `json:"food_operation_license_url"` // 食品经营许可证照片地址
+	LoginAccount            string          `json:"login_account"`              // 登录账号
+	LoginPassword           string          `json:"login_password"`             // 登录密码(加密存储)
+	AdminUserID             uuid.UUID       `json:"admin_user_id"`              // 登陆账号 ID
+	BusinessHours           []BusinessHours `json:"business_hours"`             // 营业时间段
+	DiningPeriods           []DiningPeriod  `json:"dining_periods"`             // 就餐时段
+	ShiftTimes              []ShiftTime     `json:"shift_times"`                // 班次时间
+	Address                 *Address        `json:"address"`                    // 地址
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
-
-//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_repository.go -package=mock . StoreRepository
-type StoreRepository interface {
-	FindByID(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
-	FindStoreMerchant(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
-	Create(ctx context.Context, domainStore *Store) (err error)
-	Update(ctx context.Context, domainStore *Store) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
-	ExistsStore(ctx context.Context, existsStoreParams *ExistsStoreParams) (exists bool, err error)
-	CountStoresByMerchantID(ctx context.Context, merchantIDs []uuid.UUID) (storeCounts []*MerchantStoreCount, err error)
-}
-
-type StoreInteractor interface {
-	CreateStore(ctx context.Context, domainCStoreParams *CreateStoreParams) (err error)
-	UpdateStore(ctx context.Context, domainUStoreParams *UpdateStoreParams) (err error)
-	DeleteStore(ctx context.Context, id uuid.UUID) (err error)
-	GetStore(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
-	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
-	GetStoreByMerchantID(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
-	StoreSimpleUpdate(ctx context.Context, updateField StoreSimpleUpdateType, domainUStoreParams *UpdateStoreParams) (err error)
 }
 
 type StoreListFilter struct {
@@ -174,57 +179,57 @@ type StoreListFilter struct {
 }
 
 type CreateStoreParams struct {
-	MerchantID              uuid.UUID        `json:"merchant_id"`                // 商户 ID
-	AdminPhoneNumber        string           `json:"admin_phone_number"`         // 管理员手机号
-	StoreName               string           `json:"store_name"`                 // 门店名称,长度不超过30个字
-	StoreShortName          string           `json:"store_short_name"`           // 门店简称
-	StoreCode               string           `json:"store_code"`                 // 门店编码(保留字段)
-	Status                  StoreStatus      `json:"status"`                     // 状态: 营业 停业
-	BusinessModel           BusinessModel    `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeID          uuid.UUID        `json:"business_type_id"`           // 业态类型
-	LocationNumber          string           `json:"location_number"`            // 门店位置编号
-	ContactName             string           `json:"contact_name"`               // 联系人
-	ContactPhone            string           `json:"contact_phone"`              // 联系电话
-	UnifiedSocialCreditCode string           `json:"unified_social_credit_code"` // 统一社会信用代码
-	StoreLogo               string           `json:"store_logo"`                 // logo 图片地址
-	BusinessLicenseURL      string           `json:"business_license_url"`       // 营业执照图片地址
-	StorefrontURL           string           `json:"storefront_url"`             // 门店门头照片地址
-	CashierDeskURL          string           `json:"cashier_desk_url"`           // 收银台照片地址
-	DiningEnvironmentURL    string           `json:"dining_environment_url"`     // 就餐环境照片地址
-	FoodOperationLicenseURL string           `json:"food_operation_license_url"` // 食品经营许可证照片地址
-	LoginAccount            string           `json:"login_account"`              // 登录账号
-	LoginPassword           string           `json:"login_password"`             // 登录密码(加密存储)
-	BusinessHours           []*BusinessHours `json:"business_hours"`             // 营业时间段
-	DiningPeriods           []*DiningPeriod  `json:"dining_periods"`             // 就餐时段
-	ShiftTimes              []*ShiftTime     `json:"shift_times"`                // 班次时间
-	Address                 *Address         `json:"address"`                    // 地址
+	MerchantID              uuid.UUID       `json:"merchant_id"`                // 商户 ID
+	AdminPhoneNumber        string          `json:"admin_phone_number"`         // 管理员手机号
+	StoreName               string          `json:"store_name"`                 // 门店名称,长度不超过30个字
+	StoreShortName          string          `json:"store_short_name"`           // 门店简称
+	StoreCode               string          `json:"store_code"`                 // 门店编码(保留字段)
+	Status                  StoreStatus     `json:"status"`                     // 状态: 营业 停业
+	BusinessModel           BusinessModel   `json:"business_model"`             // 经营模式：直营 加盟
+	BusinessTypeID          uuid.UUID       `json:"business_type_id"`           // 业态类型
+	LocationNumber          string          `json:"location_number"`            // 门店位置编号
+	ContactName             string          `json:"contact_name"`               // 联系人
+	ContactPhone            string          `json:"contact_phone"`              // 联系电话
+	UnifiedSocialCreditCode string          `json:"unified_social_credit_code"` // 统一社会信用代码
+	StoreLogo               string          `json:"store_logo"`                 // logo 图片地址
+	BusinessLicenseURL      string          `json:"business_license_url"`       // 营业执照图片地址
+	StorefrontURL           string          `json:"storefront_url"`             // 门店门头照片地址
+	CashierDeskURL          string          `json:"cashier_desk_url"`           // 收银台照片地址
+	DiningEnvironmentURL    string          `json:"dining_environment_url"`     // 就餐环境照片地址
+	FoodOperationLicenseURL string          `json:"food_operation_license_url"` // 食品经营许可证照片地址
+	LoginAccount            string          `json:"login_account"`              // 登录账号
+	LoginPassword           string          `json:"login_password"`             // 登录密码(加密存储)
+	BusinessHours           []BusinessHours `json:"business_hours"`             // 营业时间段
+	DiningPeriods           []DiningPeriod  `json:"dining_periods"`             // 就餐时段
+	ShiftTimes              []ShiftTime     `json:"shift_times"`                // 班次时间
+	Address                 *Address        `json:"address"`                    // 地址
 }
 
 type UpdateStoreParams struct {
-	ID                      uuid.UUID        `json:"id"`
-	AdminPhoneNumber        string           `json:"admin_phone_number"`         // 管理员手机号
-	StoreName               string           `json:"store_name"`                 // 门店名称,长度不超过30个字
-	StoreShortName          string           `json:"store_short_name"`           // 门店简称
-	StoreCode               string           `json:"store_code"`                 // 门店编码(保留字段)
-	Status                  StoreStatus      `json:"status"`                     // 状态: 营业 停业
-	BusinessModel           BusinessModel    `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeID          uuid.UUID        `json:"business_type_id"`           // 业态类型
-	LocationNumber          string           `json:"location_number"`            // 门店位置编号
-	ContactName             string           `json:"contact_name"`               // 联系人
-	ContactPhone            string           `json:"contact_phone"`              // 联系电话
-	UnifiedSocialCreditCode string           `json:"unified_social_credit_code"` // 统一社会信用代码
-	StoreLogo               string           `json:"store_logo"`                 // logo 图片地址
-	BusinessLicenseURL      string           `json:"business_license_url"`       // 营业执照图片地址
-	StorefrontURL           string           `json:"storefront_url"`             // 门店门头照片地址
-	CashierDeskURL          string           `json:"cashier_desk_url"`           // 收银台照片地址
-	DiningEnvironmentURL    string           `json:"dining_environment_url"`     // 就餐环境照片地址
-	FoodOperationLicenseURL string           `json:"food_operation_license_url"` // 食品经营许可证照片地址
-	LoginAccount            string           `json:"login_account"`              // 登录账号
-	LoginPassword           string           `json:"login_password"`             // 登录密码(加密存储)
-	BusinessHours           []*BusinessHours `json:"business_hours"`             // 营业时间段
-	DiningPeriods           []*DiningPeriod  `json:"dining_periods"`             // 就餐时段
-	ShiftTimes              []*ShiftTime     `json:"shift_times"`                // 班次时间
-	Address                 *Address         `json:"address"`                    // 地址
+	ID                      uuid.UUID       `json:"id"`
+	AdminPhoneNumber        string          `json:"admin_phone_number"`         // 管理员手机号
+	StoreName               string          `json:"store_name"`                 // 门店名称,长度不超过30个字
+	StoreShortName          string          `json:"store_short_name"`           // 门店简称
+	StoreCode               string          `json:"store_code"`                 // 门店编码(保留字段)
+	Status                  StoreStatus     `json:"status"`                     // 状态: 营业 停业
+	BusinessModel           BusinessModel   `json:"business_model"`             // 经营模式：直营 加盟
+	BusinessTypeID          uuid.UUID       `json:"business_type_id"`           // 业态类型
+	LocationNumber          string          `json:"location_number"`            // 门店位置编号
+	ContactName             string          `json:"contact_name"`               // 联系人
+	ContactPhone            string          `json:"contact_phone"`              // 联系电话
+	UnifiedSocialCreditCode string          `json:"unified_social_credit_code"` // 统一社会信用代码
+	StoreLogo               string          `json:"store_logo"`                 // logo 图片地址
+	BusinessLicenseURL      string          `json:"business_license_url"`       // 营业执照图片地址
+	StorefrontURL           string          `json:"storefront_url"`             // 门店门头照片地址
+	CashierDeskURL          string          `json:"cashier_desk_url"`           // 收银台照片地址
+	DiningEnvironmentURL    string          `json:"dining_environment_url"`     // 就餐环境照片地址
+	FoodOperationLicenseURL string          `json:"food_operation_license_url"` // 食品经营许可证照片地址
+	LoginAccount            string          `json:"login_account"`              // 登录账号
+	LoginPassword           string          `json:"login_password"`             // 登录密码(加密存储)
+	BusinessHours           []BusinessHours `json:"business_hours"`             // 营业时间段
+	DiningPeriods           []DiningPeriod  `json:"dining_periods"`             // 就餐时段
+	ShiftTimes              []ShiftTime     `json:"shift_times"`                // 班次时间
+	Address                 *Address        `json:"address"`                    // 地址
 }
 type MerchantStoreCount struct {
 	MerchantID uuid.UUID `json:"merchant_id"` // 商户 ID

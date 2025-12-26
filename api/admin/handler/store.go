@@ -82,9 +82,9 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			FoodOperationLicenseURL: req.FoodOperationLicenseURL,
 			LoginAccount:            req.LoginAccount,
 			LoginPassword:           req.LoginPassword,
-			BusinessHours:           toBusinessHoursPtr(req.BusinessHours),
-			DiningPeriods:           toDiningPeriodsPtr(req.DiningPeriods),
-			ShiftTimes:              toShiftTimesPtr(req.ShiftTimes),
+			BusinessHours:           req.BusinessHours,
+			DiningPeriods:           req.DiningPeriods,
+			ShiftTimes:              req.ShiftTimes,
 		}
 		if req.Address.CountryID != uuid.Nil {
 			domainStore.Address = &domain.Address{
@@ -163,9 +163,9 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			FoodOperationLicenseURL: req.FoodOperationLicenseURL,
 			LoginAccount:            req.LoginAccount,
 			LoginPassword:           req.LoginPassword,
-			BusinessHours:           toBusinessHoursPtr(req.BusinessHours),
-			DiningPeriods:           toDiningPeriodsPtr(req.DiningPeriods),
-			ShiftTimes:              toShiftTimesPtr(req.ShiftTimes),
+			BusinessHours:           req.BusinessHours,
+			DiningPeriods:           req.DiningPeriods,
+			ShiftTimes:              req.ShiftTimes,
 		}
 		if req.Address.CountryID != uuid.Nil {
 			domainStore.Address = &domain.Address{

@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -165,6 +166,21 @@ func (sc *StallCreate) SetMerchant(m *Merchant) *StallCreate {
 // SetStore sets the "store" edge to the Store entity.
 func (sc *StallCreate) SetStore(s *Store) *StallCreate {
 	return sc.SetStoreID(s.ID)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (sc *StallCreate) AddDeviceIDs(ids ...uuid.UUID) *StallCreate {
+	sc.mutation.AddDeviceIDs(ids...)
+	return sc
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (sc *StallCreate) AddDevices(d ...*Device) *StallCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return sc.AddDeviceIDs(ids...)
 }
 
 // Mutation returns the StallMutation object of the builder.
@@ -381,6 +397,22 @@ func (sc *StallCreate) createSpec() (*Stall, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.StoreID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.DevicesTable,
+			Columns: []string{stall.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

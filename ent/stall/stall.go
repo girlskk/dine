@@ -42,6 +42,8 @@ const (
 	EdgeMerchant = "merchant"
 	// EdgeStore holds the string denoting the store edge name in mutations.
 	EdgeStore = "store"
+	// EdgeDevices holds the string denoting the devices edge name in mutations.
+	EdgeDevices = "devices"
 	// Table holds the table name of the stall in the database.
 	Table = "stalls"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -58,6 +60,13 @@ const (
 	StoreInverseTable = "stores"
 	// StoreColumn is the table column denoting the store relation/edge.
 	StoreColumn = "store_id"
+	// DevicesTable is the table that holds the devices relation/edge.
+	DevicesTable = "devices"
+	// DevicesInverseTable is the table name for the Device entity.
+	// It exists in this package in order to avoid circular dependency with the "device" package.
+	DevicesInverseTable = "devices"
+	// DevicesColumn is the table column denoting the devices relation/edge.
+	DevicesColumn = "stall_id"
 )
 
 // Columns holds all SQL columns for stall fields.
@@ -202,6 +211,20 @@ func ByStoreField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newStoreStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByDevicesCount orders the results by devices count.
+func ByDevicesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDevicesStep(), opts...)
+	}
+}
+
+// ByDevices orders the results by devices terms.
+func ByDevices(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDevicesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -214,5 +237,12 @@ func newStoreStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(StoreInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, StoreTable, StoreColumn),
+	)
+}
+func newDevicesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DevicesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DevicesTable, DevicesColumn),
 	)
 }

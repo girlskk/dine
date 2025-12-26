@@ -772,6 +772,392 @@
                 }
             }
         },
+        "/restaurant/device": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询设备列表",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "获取设备列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "cashier",
+                            "printer"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "DeviceTypeCashier": "收银机",
+                            "DeviceTypePrinter": "打印机"
+                        },
+                        "x-enum-varnames": [
+                            "DeviceTypeCashier",
+                            "DeviceTypePrinter"
+                        ],
+                        "description": "设备类型",
+                        "name": "device_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "设备名称模糊查询",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "online",
+                            "offline"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "DeviceStatusOffline": "离线",
+                            "DeviceStatusOnline": "在线"
+                        },
+                        "x-enum-varnames": [
+                            "DeviceStatusOnline",
+                            "DeviceStatusOffline"
+                        ],
+                        "description": "设备状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "门店 ID",
+                        "name": "store_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.DeviceListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "创建设备",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DeviceCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/device/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据设备ID获取详情",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "获取设备详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Device"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "更新设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DeviceUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除设备",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "删除设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "快速切换启用状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "更新设备单个字段信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新设备单个字段信息请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DeviceSimpleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/restaurant/stall": {
             "get": {
                 "security": [
@@ -1370,6 +1756,238 @@
                 }
             }
         },
+        "domain.Device": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "device_brand": {
+                    "description": "设备品牌",
+                    "type": "string"
+                },
+                "device_code": {
+                    "description": "设备编号/序列号",
+                    "type": "string"
+                },
+                "device_model": {
+                    "description": "设备型号",
+                    "type": "string"
+                },
+                "device_stall_print_type": {
+                    "description": "出品部门总分单",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStallPrintType"
+                        }
+                    ]
+                },
+                "device_stall_receipt_type": {
+                    "description": "打印出品部门全部票据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStallReceiptType"
+                        }
+                    ]
+                },
+                "device_type": {
+                    "description": "设备类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceType"
+                        }
+                    ]
+                },
+                "dining_ways": {
+                    "description": "订单类型/就餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "enabled": {
+                    "description": "启用/停用状态",
+                    "type": "boolean"
+                },
+                "id": {
+                    "description": "设备 ID",
+                    "type": "string"
+                },
+                "ip": {
+                    "description": "设备 IP 地址",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "设备位置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceLocation"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "所属商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "设备名称",
+                    "type": "string"
+                },
+                "open_cash_drawer": {
+                    "description": "收银机 开钱箱",
+                    "type": "boolean"
+                },
+                "order_channels": {
+                    "description": "订单来源",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "paper_size": {
+                    "description": "打印纸张尺寸",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaperSize"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "stall_id": {
+                    "description": "出品部门 ID",
+                    "type": "string"
+                },
+                "stall_name": {
+                    "description": "出品部门名称",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "设备状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStatus"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "所属门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.DeviceLocation": {
+            "type": "string",
+            "enum": [
+                "front_hall",
+                "back_kitchen"
+            ],
+            "x-enum-comments": {
+                "DeviceLocationBackKitchen": "后厨",
+                "DeviceLocationFrontHall": "前厅"
+            },
+            "x-enum-varnames": [
+                "DeviceLocationFrontHall",
+                "DeviceLocationBackKitchen"
+            ]
+        },
+        "domain.DeviceSimpleUpdateType": {
+            "type": "string",
+            "enum": [
+                "enabled"
+            ],
+            "x-enum-varnames": [
+                "DeviceSimpleUpdateTypeEnabled"
+            ]
+        },
+        "domain.DeviceStallPrintType": {
+            "type": "string",
+            "enum": [
+                "all",
+                "combined",
+                "separate"
+            ],
+            "x-enum-comments": {
+                "DeviceStallPrintTypeAll": "全部打印 总单+分单",
+                "DeviceStallPrintTypeCombined": "总单",
+                "DeviceStallPrintTypeSeparate": "分单"
+            },
+            "x-enum-varnames": [
+                "DeviceStallPrintTypeAll",
+                "DeviceStallPrintTypeCombined",
+                "DeviceStallPrintTypeSeparate"
+            ]
+        },
+        "domain.DeviceStallReceiptType": {
+            "type": "string",
+            "enum": [
+                "all",
+                "exclude"
+            ],
+            "x-enum-comments": {
+                "DeviceStallReceiptTypeAll": "全部打印",
+                "DeviceStallReceiptTypeExclude": "剔除部门商户"
+            },
+            "x-enum-varnames": [
+                "DeviceStallReceiptTypeAll",
+                "DeviceStallReceiptTypeExclude"
+            ]
+        },
+        "domain.DeviceStatus": {
+            "type": "string",
+            "enum": [
+                "online",
+                "offline"
+            ],
+            "x-enum-comments": {
+                "DeviceStatusOffline": "离线",
+                "DeviceStatusOnline": "在线"
+            },
+            "x-enum-varnames": [
+                "DeviceStatusOnline",
+                "DeviceStatusOffline"
+            ]
+        },
+        "domain.DeviceType": {
+            "type": "string",
+            "enum": [
+                "cashier",
+                "printer"
+            ],
+            "x-enum-comments": {
+                "DeviceTypeCashier": "收银机",
+                "DeviceTypePrinter": "打印机"
+            },
+            "x-enum-varnames": [
+                "DeviceTypeCashier",
+                "DeviceTypePrinter"
+            ]
+        },
+        "domain.DiningWay": {
+            "type": "string",
+            "enum": [
+                "dine_in",
+                "take_out",
+                "delivery"
+            ],
+            "x-enum-comments": {
+                "DiningWayDelivery": "外送",
+                "DiningWayDineIn": "堂食",
+                "DiningWayTakeOut": "外带"
+            },
+            "x-enum-varnames": [
+                "DiningWayDineIn",
+                "DiningWayTakeOut",
+                "DiningWayDelivery"
+            ]
+        },
         "domain.Merchant": {
             "type": "object",
             "properties": {
@@ -1525,6 +2143,44 @@
                 "ObjectStorageSceneReconciliationDetailExport",
                 "ObjectStorageScenePointSettlementListExport",
                 "ObjectStorageScenePointSettlementDetailExport"
+            ]
+        },
+        "domain.OrderChannel": {
+            "type": "string",
+            "enum": [
+                "pos",
+                "self_order",
+                "mini_program",
+                "mobile_order",
+                "scan_order",
+                "third_delivery"
+            ],
+            "x-enum-comments": {
+                "OrderChannelMiniProgram": "小程序",
+                "OrderChannelMobileOrder": "手机点餐",
+                "OrderChannelPOS": "POS 端",
+                "OrderChannelScanOrder": "扫码点餐",
+                "OrderChannelSelfOrder": "自助点餐",
+                "OrderChannelThirdDelivery": "三方外卖"
+            },
+            "x-enum-varnames": [
+                "OrderChannelPOS",
+                "OrderChannelSelfOrder",
+                "OrderChannelMiniProgram",
+                "OrderChannelMobileOrder",
+                "OrderChannelScanOrder",
+                "OrderChannelThirdDelivery"
+            ]
+        },
+        "domain.PaperSize": {
+            "type": "string",
+            "enum": [
+                "58mm",
+                "80mm"
+            ],
+            "x-enum-varnames": [
+                "PaperSize58mm",
+                "PaperSize80mm"
             ]
         },
         "domain.Remark": {
@@ -1832,6 +2488,294 @@
                 },
                 "tax_rate_id": {
                     "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.DeviceCashier": {
+            "type": "object",
+            "properties": {
+                "open_cash_drawer": {
+                    "description": "开启钱箱",
+                    "type": "boolean"
+                }
+            }
+        },
+        "types.DeviceCreateReq": {
+            "type": "object",
+            "required": [
+                "device_code",
+                "device_type",
+                "location",
+                "name",
+                "store_id"
+            ],
+            "properties": {
+                "device_brand": {
+                    "description": "设备品牌",
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "device_cashier": {
+                    "description": "收银机设备配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.DeviceCashier"
+                        }
+                    ]
+                },
+                "device_code": {
+                    "description": "设备编号",
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "device_model": {
+                    "description": "设备型号",
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "device_print": {
+                    "description": "打印机设备配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.DevicePrint"
+                        }
+                    ]
+                },
+                "device_type": {
+                    "description": "设备类型",
+                    "enum": [
+                        "cashier",
+                        "printer"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceType"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "location": {
+                    "description": "设备位置",
+                    "enum": [
+                        "front_hall",
+                        "back_kitchen"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceLocation"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "设备名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "sort_order": {
+                    "description": "排序值，越小越靠前",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.DeviceListResp": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Device"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.DevicePrint": {
+            "type": "object",
+            "required": [
+                "device_stall_print_type",
+                "device_stall_receipt_type",
+                "dining_ways",
+                "ip",
+                "order_channels",
+                "paper_size",
+                "stall_id"
+            ],
+            "properties": {
+                "device_stall_print_type": {
+                    "description": "打印出品部门总分单",
+                    "enum": [
+                        "all",
+                        "combined",
+                        "separate"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStallPrintType"
+                        }
+                    ]
+                },
+                "device_stall_receipt_type": {
+                    "description": "打印出品部门全部票据",
+                    "enum": [
+                        "all",
+                        "exclude"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStallReceiptType"
+                        }
+                    ]
+                },
+                "dining_ways": {
+                    "description": "用餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "ip": {
+                    "description": "打印机 IP 地址",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "order_channels": {
+                    "description": "订单来源",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "paper_size": {
+                    "description": "纸张大小",
+                    "enum": [
+                        "58mm",
+                        "80mm"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaperSize"
+                        }
+                    ]
+                },
+                "stall_id": {
+                    "description": "出品部门 ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.DeviceSimpleUpdateReq": {
+            "type": "object",
+            "required": [
+                "simple_update_type"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "simple_update_type": {
+                    "description": "更新字段",
+                    "enum": [
+                        "enabled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceSimpleUpdateType"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.DeviceUpdateReq": {
+            "type": "object",
+            "required": [
+                "device_type",
+                "location",
+                "name",
+                "store_id"
+            ],
+            "properties": {
+                "device_brand": {
+                    "description": "设备品牌",
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "device_cashier": {
+                    "description": "收银机设备配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.DeviceCashier"
+                        }
+                    ]
+                },
+                "device_code": {
+                    "description": "设备编号",
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "device_model": {
+                    "description": "设备型号",
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "device_print": {
+                    "description": "打印机设备配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.DevicePrint"
+                        }
+                    ]
+                },
+                "device_type": {
+                    "description": "设备类型",
+                    "enum": [
+                        "cashier",
+                        "printer"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceType"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "location": {
+                    "description": "设备位置",
+                    "enum": [
+                        "front_hall",
+                        "back_kitchen"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceLocation"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "设备名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "sort_order": {
+                    "description": "排序值，越小越靠前",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "store_id": {
+                    "description": "门店 ID",
                     "type": "string"
                 }
             }

@@ -12,11 +12,13 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -86,11 +88,13 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			additionalfee.Table:        additionalfee.ValidColumn,
 			adminuser.Table:            adminuser.ValidColumn,
 			backenduser.Table:          backenduser.ValidColumn,
 			category.Table:             category.ValidColumn,
 			city.Table:                 city.ValidColumn,
 			country.Table:              country.ValidColumn,
+			device.Table:               device.ValidColumn,
 			district.Table:             district.ValidColumn,
 			merchant.Table:             merchant.ValidColumn,
 			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
@@ -35,22 +34,6 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		return
 	}
 
-	businessHoursByte, err := json.Marshal(domainStore.BusinessHours)
-	if err != nil {
-		err = fmt.Errorf("failed to marshal business hours: %w", err)
-		return
-	}
-	diningPeriodsByte, err := json.Marshal(domainStore.DiningPeriods)
-	if err != nil {
-		err = fmt.Errorf("failed to marshal dining periods: %w", err)
-		return
-	}
-	shiftTimesByte, err := json.Marshal(domainStore.ShiftTimes)
-	if err != nil {
-		err = fmt.Errorf("failed to marshal shift times: %w", err)
-		return
-	}
-
 	created, err := repo.Client.Store.Create().SetID(domainStore.ID).
 		SetMerchantID(domainStore.MerchantID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
@@ -70,9 +53,9 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetCashierDeskURL(domainStore.CashierDeskURL).
 		SetDiningEnvironmentURL(domainStore.DiningEnvironmentURL).
 		SetFoodOperationLicenseURL(domainStore.FoodOperationLicenseURL).
-		SetBusinessHours(string(businessHoursByte)).
-		SetDiningPeriods(string(diningPeriodsByte)).
-		SetShiftTimes(string(shiftTimesByte)).
+		SetBusinessHours(domainStore.BusinessHours).
+		SetDiningPeriods(domainStore.DiningPeriods).
+		SetShiftTimes(domainStore.ShiftTimes).
 		SetCountryID(domainStore.Address.CountryID).
 		SetProvinceID(domainStore.Address.ProvinceID).
 		SetCityID(domainStore.Address.CityID).
@@ -103,21 +86,6 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("address is nil")
 		return
 	}
-	businessHoursByte, err := json.Marshal(domainStore.BusinessHours)
-	if err != nil {
-		err = fmt.Errorf("failed to marshal business hours: %w", err)
-		return
-	}
-	diningPeriodsByte, err := json.Marshal(domainStore.DiningPeriods)
-	if err != nil {
-		err = fmt.Errorf("failed to marshal dining periods: %w", err)
-		return
-	}
-	shiftTimesByte, err := json.Marshal(domainStore.ShiftTimes)
-	if err != nil {
-		err = fmt.Errorf("failed to marshal shift times: %w", err)
-		return
-	}
 	updated, err := repo.Client.Store.UpdateOneID(domainStore.ID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
@@ -136,9 +104,9 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		SetCashierDeskURL(domainStore.CashierDeskURL).
 		SetDiningEnvironmentURL(domainStore.DiningEnvironmentURL).
 		SetFoodOperationLicenseURL(domainStore.FoodOperationLicenseURL).
-		SetBusinessHours(string(businessHoursByte)).
-		SetDiningPeriods(string(diningPeriodsByte)).
-		SetShiftTimes(string(shiftTimesByte)).
+		SetBusinessHours(domainStore.BusinessHours).
+		SetDiningPeriods(domainStore.DiningPeriods).
+		SetShiftTimes(domainStore.ShiftTimes).
 		SetCountryID(domainStore.Address.CountryID).
 		SetProvinceID(domainStore.Address.ProvinceID).
 		SetCityID(domainStore.Address.CityID).
@@ -384,6 +352,10 @@ func convertStore(es *ent.Store) *domain.Store {
 		CashierDeskURL:          es.CashierDeskURL,
 		DiningEnvironmentURL:    es.DiningEnvironmentURL,
 		FoodOperationLicenseURL: es.FoodOperationLicenseURL,
+		BusinessHours:           es.BusinessHours,
+		DiningPeriods:           es.DiningPeriods,
+		ShiftTimes:              es.ShiftTimes,
+		AdminUserID:             es.AdminUserID,
 		Address:                 address,
 		CreatedAt:               es.CreatedAt,
 		UpdatedAt:               es.UpdatedAt,
@@ -392,9 +364,7 @@ func convertStore(es *ent.Store) *domain.Store {
 	if es.Edges.Merchant != nil {
 		repoStore.MerchantName = es.Edges.Merchant.MerchantName
 	}
-	_ = json.Unmarshal([]byte(es.BusinessHours), &repoStore.BusinessHours)
-	_ = json.Unmarshal([]byte(es.DiningPeriods), &repoStore.DiningPeriods)
-	_ = json.Unmarshal([]byte(es.ShiftTimes), &repoStore.ShiftTimes)
+
 	if es.Edges.AdminUser != nil {
 		repoStore.LoginAccount = es.Edges.AdminUser.Username
 		repoStore.LoginPassword = es.Edges.AdminUser.HashedPassword

@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 )
@@ -120,9 +122,45 @@ func (su *StallUpdate) AddSortOrder(i int) *StallUpdate {
 	return su
 }
 
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (su *StallUpdate) AddDeviceIDs(ids ...uuid.UUID) *StallUpdate {
+	su.mutation.AddDeviceIDs(ids...)
+	return su
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (su *StallUpdate) AddDevices(d ...*Device) *StallUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.AddDeviceIDs(ids...)
+}
+
 // Mutation returns the StallMutation object of the builder.
 func (su *StallUpdate) Mutation() *StallMutation {
 	return su.mutation
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (su *StallUpdate) ClearDevices() *StallUpdate {
+	su.mutation.ClearDevices()
+	return su
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (su *StallUpdate) RemoveDeviceIDs(ids ...uuid.UUID) *StallUpdate {
+	su.mutation.RemoveDeviceIDs(ids...)
+	return su
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (su *StallUpdate) RemoveDevices(d ...*Device) *StallUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.RemoveDeviceIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -223,6 +261,51 @@ func (su *StallUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.AddedSortOrder(); ok {
 		_spec.AddField(stall.FieldSortOrder, field.TypeInt, value)
+	}
+	if su.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.DevicesTable,
+			Columns: []string{stall.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !su.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.DevicesTable,
+			Columns: []string{stall.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.DevicesTable,
+			Columns: []string{stall.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(su.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
@@ -336,9 +419,45 @@ func (suo *StallUpdateOne) AddSortOrder(i int) *StallUpdateOne {
 	return suo
 }
 
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (suo *StallUpdateOne) AddDeviceIDs(ids ...uuid.UUID) *StallUpdateOne {
+	suo.mutation.AddDeviceIDs(ids...)
+	return suo
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (suo *StallUpdateOne) AddDevices(d ...*Device) *StallUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.AddDeviceIDs(ids...)
+}
+
 // Mutation returns the StallMutation object of the builder.
 func (suo *StallUpdateOne) Mutation() *StallMutation {
 	return suo.mutation
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (suo *StallUpdateOne) ClearDevices() *StallUpdateOne {
+	suo.mutation.ClearDevices()
+	return suo
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (suo *StallUpdateOne) RemoveDeviceIDs(ids ...uuid.UUID) *StallUpdateOne {
+	suo.mutation.RemoveDeviceIDs(ids...)
+	return suo
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (suo *StallUpdateOne) RemoveDevices(d ...*Device) *StallUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.RemoveDeviceIDs(ids...)
 }
 
 // Where appends a list predicates to the StallUpdate builder.
@@ -469,6 +588,51 @@ func (suo *StallUpdateOne) sqlSave(ctx context.Context) (_node *Stall, err error
 	}
 	if value, ok := suo.mutation.AddedSortOrder(); ok {
 		_spec.AddField(stall.FieldSortOrder, field.TypeInt, value)
+	}
+	if suo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.DevicesTable,
+			Columns: []string{stall.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !suo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.DevicesTable,
+			Columns: []string{stall.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.DevicesTable,
+			Columns: []string{stall.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(suo.modifiers...)
 	_node = &Stall{config: suo.config}

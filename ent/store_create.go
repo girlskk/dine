@@ -14,9 +14,11 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -289,28 +291,20 @@ func (sc *StoreCreate) SetNillableFoodOperationLicenseURL(s *string) *StoreCreat
 }
 
 // SetBusinessHours sets the "business_hours" field.
-func (sc *StoreCreate) SetBusinessHours(s string) *StoreCreate {
-	sc.mutation.SetBusinessHours(s)
-	return sc
-}
-
-// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableBusinessHours(s *string) *StoreCreate {
-	if s != nil {
-		sc.SetBusinessHours(*s)
-	}
+func (sc *StoreCreate) SetBusinessHours(dh []domain.BusinessHours) *StoreCreate {
+	sc.mutation.SetBusinessHours(dh)
 	return sc
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (sc *StoreCreate) SetDiningPeriods(s string) *StoreCreate {
-	sc.mutation.SetDiningPeriods(s)
+func (sc *StoreCreate) SetDiningPeriods(dp []domain.DiningPeriod) *StoreCreate {
+	sc.mutation.SetDiningPeriods(dp)
 	return sc
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (sc *StoreCreate) SetShiftTimes(s string) *StoreCreate {
-	sc.mutation.SetShiftTimes(s)
+func (sc *StoreCreate) SetShiftTimes(dt []domain.ShiftTime) *StoreCreate {
+	sc.mutation.SetShiftTimes(dt)
 	return sc
 }
 
@@ -503,6 +497,36 @@ func (sc *StoreCreate) AddStalls(s ...*Stall) *StoreCreate {
 	return sc.AddStallIDs(ids...)
 }
 
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (sc *StoreCreate) AddAdditionalFeeIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddAdditionalFeeIDs(ids...)
+	return sc
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (sc *StoreCreate) AddAdditionalFees(a ...*AdditionalFee) *StoreCreate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return sc.AddAdditionalFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (sc *StoreCreate) AddDeviceIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddDeviceIDs(ids...)
+	return sc
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (sc *StoreCreate) AddDevices(d ...*Device) *StoreCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return sc.AddDeviceIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (sc *StoreCreate) Mutation() *StoreMutation {
 	return sc.mutation
@@ -609,10 +633,6 @@ func (sc *StoreCreate) defaults() error {
 	if _, ok := sc.mutation.FoodOperationLicenseURL(); !ok {
 		v := store.DefaultFoodOperationLicenseURL
 		sc.mutation.SetFoodOperationLicenseURL(v)
-	}
-	if _, ok := sc.mutation.BusinessHours(); !ok {
-		v := store.DefaultBusinessHours
-		sc.mutation.SetBusinessHours(v)
 	}
 	if _, ok := sc.mutation.Address(); !ok {
 		v := store.DefaultAddress
@@ -784,26 +804,11 @@ func (sc *StoreCreate) check() error {
 	if _, ok := sc.mutation.BusinessHours(); !ok {
 		return &ValidationError{Name: "business_hours", err: errors.New(`ent: missing required field "Store.business_hours"`)}
 	}
-	if v, ok := sc.mutation.BusinessHours(); ok {
-		if err := store.BusinessHoursValidator(v); err != nil {
-			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
-		}
-	}
 	if _, ok := sc.mutation.DiningPeriods(); !ok {
 		return &ValidationError{Name: "dining_periods", err: errors.New(`ent: missing required field "Store.dining_periods"`)}
 	}
-	if v, ok := sc.mutation.DiningPeriods(); ok {
-		if err := store.DiningPeriodsValidator(v); err != nil {
-			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
-		}
-	}
 	if _, ok := sc.mutation.ShiftTimes(); !ok {
 		return &ValidationError{Name: "shift_times", err: errors.New(`ent: missing required field "Store.shift_times"`)}
-	}
-	if v, ok := sc.mutation.ShiftTimes(); ok {
-		if err := store.ShiftTimesValidator(v); err != nil {
-			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
-		}
 	}
 	if _, ok := sc.mutation.Address(); !ok {
 		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Store.address"`)}
@@ -954,15 +959,15 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 		_node.FoodOperationLicenseURL = value
 	}
 	if value, ok := sc.mutation.BusinessHours(); ok {
-		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+		_spec.SetField(store.FieldBusinessHours, field.TypeJSON, value)
 		_node.BusinessHours = value
 	}
 	if value, ok := sc.mutation.DiningPeriods(); ok {
-		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+		_spec.SetField(store.FieldDiningPeriods, field.TypeJSON, value)
 		_node.DiningPeriods = value
 	}
 	if value, ok := sc.mutation.ShiftTimes(); ok {
-		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
+		_spec.SetField(store.FieldShiftTimes, field.TypeJSON, value)
 		_node.ShiftTimes = value
 	}
 	if value, ok := sc.mutation.Address(); ok {
@@ -1121,6 +1126,38 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1415,7 +1452,7 @@ func (u *StoreUpsert) UpdateFoodOperationLicenseURL() *StoreUpsert {
 }
 
 // SetBusinessHours sets the "business_hours" field.
-func (u *StoreUpsert) SetBusinessHours(v string) *StoreUpsert {
+func (u *StoreUpsert) SetBusinessHours(v []domain.BusinessHours) *StoreUpsert {
 	u.Set(store.FieldBusinessHours, v)
 	return u
 }
@@ -1427,7 +1464,7 @@ func (u *StoreUpsert) UpdateBusinessHours() *StoreUpsert {
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (u *StoreUpsert) SetDiningPeriods(v string) *StoreUpsert {
+func (u *StoreUpsert) SetDiningPeriods(v []domain.DiningPeriod) *StoreUpsert {
 	u.Set(store.FieldDiningPeriods, v)
 	return u
 }
@@ -1439,7 +1476,7 @@ func (u *StoreUpsert) UpdateDiningPeriods() *StoreUpsert {
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (u *StoreUpsert) SetShiftTimes(v string) *StoreUpsert {
+func (u *StoreUpsert) SetShiftTimes(v []domain.ShiftTime) *StoreUpsert {
 	u.Set(store.FieldShiftTimes, v)
 	return u
 }
@@ -1889,7 +1926,7 @@ func (u *StoreUpsertOne) UpdateFoodOperationLicenseURL() *StoreUpsertOne {
 }
 
 // SetBusinessHours sets the "business_hours" field.
-func (u *StoreUpsertOne) SetBusinessHours(v string) *StoreUpsertOne {
+func (u *StoreUpsertOne) SetBusinessHours(v []domain.BusinessHours) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetBusinessHours(v)
 	})
@@ -1903,7 +1940,7 @@ func (u *StoreUpsertOne) UpdateBusinessHours() *StoreUpsertOne {
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (u *StoreUpsertOne) SetDiningPeriods(v string) *StoreUpsertOne {
+func (u *StoreUpsertOne) SetDiningPeriods(v []domain.DiningPeriod) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetDiningPeriods(v)
 	})
@@ -1917,7 +1954,7 @@ func (u *StoreUpsertOne) UpdateDiningPeriods() *StoreUpsertOne {
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (u *StoreUpsertOne) SetShiftTimes(v string) *StoreUpsertOne {
+func (u *StoreUpsertOne) SetShiftTimes(v []domain.ShiftTime) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetShiftTimes(v)
 	})
@@ -2554,7 +2591,7 @@ func (u *StoreUpsertBulk) UpdateFoodOperationLicenseURL() *StoreUpsertBulk {
 }
 
 // SetBusinessHours sets the "business_hours" field.
-func (u *StoreUpsertBulk) SetBusinessHours(v string) *StoreUpsertBulk {
+func (u *StoreUpsertBulk) SetBusinessHours(v []domain.BusinessHours) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetBusinessHours(v)
 	})
@@ -2568,7 +2605,7 @@ func (u *StoreUpsertBulk) UpdateBusinessHours() *StoreUpsertBulk {
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (u *StoreUpsertBulk) SetDiningPeriods(v string) *StoreUpsertBulk {
+func (u *StoreUpsertBulk) SetDiningPeriods(v []domain.DiningPeriod) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetDiningPeriods(v)
 	})
@@ -2582,7 +2619,7 @@ func (u *StoreUpsertBulk) UpdateDiningPeriods() *StoreUpsertBulk {
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (u *StoreUpsertBulk) SetShiftTimes(v string) *StoreUpsertBulk {
+func (u *StoreUpsertBulk) SetShiftTimes(v []domain.ShiftTime) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetShiftTimes(v)
 	})

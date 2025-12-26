@@ -9,6 +9,39 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
+var (
+	ErrMerchantNameExists = errors.New("商户名称已存在")
+	ErrMerchantNotExists  = errors.New("商户不存在")
+)
+
+// MerchantRepository 商户仓储接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_repository.go -package=mock . MerchantRepository
+type MerchantRepository interface {
+	FindByID(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
+	Create(ctx context.Context, domainMerchant *Merchant) (err error)
+	Update(ctx context.Context, domainMerchant *Merchant) (err error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
+	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
+	ExistMerchant(ctx context.Context, merchantExistsParams *MerchantExistsParams) (exist bool, err error)
+}
+
+// MerchantInteractor 商户用例接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_interactor.go -package=mock . MerchantInteractor
+type MerchantInteractor interface {
+	CreateMerchant(ctx context.Context, domainCMerchant *CreateMerchantParams) (err error)
+	CreateMerchantAndStore(ctx context.Context, domainMerchant *CreateMerchantParams, domainCStore *CreateStoreParams) (err error)
+	UpdateMerchant(ctx context.Context, domainUMerchant *UpdateMerchantParams) (err error)
+	UpdateMerchantAndStore(ctx context.Context, domainMerchant *UpdateMerchantParams, domainUStore *UpdateStoreParams) (err error)
+	DeleteMerchant(ctx context.Context, id uuid.UUID) (err error)
+	GetMerchant(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
+	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
+	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
+	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
+	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateType, domainUMerchant *UpdateMerchantParams) (err error)
+}
 type MerchantListOrderByType int
 
 const (
@@ -136,35 +169,6 @@ type MerchantCount struct {
 	MerchantTypeBrand int `json:"merchant_type_brand"` // 品牌商户数量
 	MerchantTypeStore int `json:"merchant_type_store"` // 门店商户数量
 	Expired           int `json:"expired"`             // 过期商户数量
-}
-
-//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_repository.go -package=mock . MerchantRepository
-type MerchantRepository interface {
-	FindByID(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
-	Create(ctx context.Context, domainMerchant *Merchant) (err error)
-	Update(ctx context.Context, domainMerchant *Merchant) (err error)
-	Delete(ctx context.Context, id uuid.UUID) error
-	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
-	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
-	ExistMerchant(ctx context.Context, merchantExistsParams *MerchantExistsParams) (exist bool, err error)
-}
-
-var (
-	ErrMerchantNameExists = errors.New("商户名称已存在")
-	ErrMerchantNotExists  = errors.New("商户不存在")
-)
-
-type MerchantInteractor interface {
-	CreateMerchant(ctx context.Context, domainCMerchant *CreateMerchantParams) (err error)
-	CreateMerchantAndStore(ctx context.Context, domainMerchant *CreateMerchantParams, domainCStore *CreateStoreParams) (err error)
-	UpdateMerchant(ctx context.Context, domainUMerchant *UpdateMerchantParams) (err error)
-	UpdateMerchantAndStore(ctx context.Context, domainMerchant *UpdateMerchantParams, domainUStore *UpdateStoreParams) (err error)
-	DeleteMerchant(ctx context.Context, id uuid.UUID) (err error)
-	GetMerchant(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
-	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
-	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
-	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
-	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateType, domainUMerchant *UpdateMerchantParams) (err error)
 }
 
 type MerchantListFilter struct {

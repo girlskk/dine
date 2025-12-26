@@ -8,11 +8,13 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -79,6 +81,33 @@ func (f TraverseFunc) Traverse(ctx context.Context, q ent.Query) error {
 		return err
 	}
 	return f(ctx, query)
+}
+
+// The AdditionalFeeFunc type is an adapter to allow the use of ordinary function as a Querier.
+type AdditionalFeeFunc func(context.Context, *ent.AdditionalFeeQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f AdditionalFeeFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.AdditionalFeeQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.AdditionalFeeQuery", q)
+}
+
+// The TraverseAdditionalFee type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseAdditionalFee func(context.Context, *ent.AdditionalFeeQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseAdditionalFee) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseAdditionalFee) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AdditionalFeeQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.AdditionalFeeQuery", q)
 }
 
 // The AdminUserFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -214,6 +243,33 @@ func (f TraverseCountry) Traverse(ctx context.Context, q ent.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.CountryQuery", q)
+}
+
+// The DeviceFunc type is an adapter to allow the use of ordinary function as a Querier.
+type DeviceFunc func(context.Context, *ent.DeviceQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f DeviceFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.DeviceQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.DeviceQuery", q)
+}
+
+// The TraverseDevice type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseDevice func(context.Context, *ent.DeviceQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseDevice) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseDevice) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.DeviceQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.DeviceQuery", q)
 }
 
 // The DistrictFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -462,6 +518,8 @@ func (f TraverseStore) Traverse(ctx context.Context, q ent.Query) error {
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
+	case *ent.AdditionalFeeQuery:
+		return &query[*ent.AdditionalFeeQuery, predicate.AdditionalFee, additionalfee.OrderOption]{typ: ent.TypeAdditionalFee, tq: q}, nil
 	case *ent.AdminUserQuery:
 		return &query[*ent.AdminUserQuery, predicate.AdminUser, adminuser.OrderOption]{typ: ent.TypeAdminUser, tq: q}, nil
 	case *ent.BackendUserQuery:
@@ -472,6 +530,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.CityQuery, predicate.City, city.OrderOption]{typ: ent.TypeCity, tq: q}, nil
 	case *ent.CountryQuery:
 		return &query[*ent.CountryQuery, predicate.Country, country.OrderOption]{typ: ent.TypeCountry, tq: q}, nil
+	case *ent.DeviceQuery:
+		return &query[*ent.DeviceQuery, predicate.Device, device.OrderOption]{typ: ent.TypeDevice, tq: q}, nil
 	case *ent.DistrictQuery:
 		return &query[*ent.DistrictQuery, predicate.District, district.OrderOption]{typ: ent.TypeDistrict, tq: q}, nil
 	case *ent.MerchantQuery:

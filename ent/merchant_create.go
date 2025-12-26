@@ -14,9 +14,11 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -435,6 +437,36 @@ func (mc *MerchantCreate) AddStalls(s ...*Stall) *MerchantCreate {
 		ids[i] = s[i].ID
 	}
 	return mc.AddStallIDs(ids...)
+}
+
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (mc *MerchantCreate) AddAdditionalFeeIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddAdditionalFeeIDs(ids...)
+	return mc
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (mc *MerchantCreate) AddAdditionalFees(a ...*AdditionalFee) *MerchantCreate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return mc.AddAdditionalFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (mc *MerchantCreate) AddDeviceIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddDeviceIDs(ids...)
+	return mc
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (mc *MerchantCreate) AddDevices(d ...*Device) *MerchantCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mc.AddDeviceIDs(ids...)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -936,6 +968,38 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

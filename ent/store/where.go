@@ -152,21 +152,6 @@ func FoodOperationLicenseURL(v string) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldFoodOperationLicenseURL, v))
 }
 
-// BusinessHours applies equality check predicate on the "business_hours" field. It's identical to BusinessHoursEQ.
-func BusinessHours(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldBusinessHours, v))
-}
-
-// DiningPeriods applies equality check predicate on the "dining_periods" field. It's identical to DiningPeriodsEQ.
-func DiningPeriods(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldDiningPeriods, v))
-}
-
-// ShiftTimes applies equality check predicate on the "shift_times" field. It's identical to ShiftTimesEQ.
-func ShiftTimes(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldShiftTimes, v))
-}
-
 // CountryID applies equality check predicate on the "country_id" field. It's identical to CountryIDEQ.
 func CountryID(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldCountryID, v))
@@ -1337,201 +1322,6 @@ func FoodOperationLicenseURLContainsFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldContainsFold(FieldFoodOperationLicenseURL, v))
 }
 
-// BusinessHoursEQ applies the EQ predicate on the "business_hours" field.
-func BusinessHoursEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldBusinessHours, v))
-}
-
-// BusinessHoursNEQ applies the NEQ predicate on the "business_hours" field.
-func BusinessHoursNEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldBusinessHours, v))
-}
-
-// BusinessHoursIn applies the In predicate on the "business_hours" field.
-func BusinessHoursIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldBusinessHours, vs...))
-}
-
-// BusinessHoursNotIn applies the NotIn predicate on the "business_hours" field.
-func BusinessHoursNotIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldBusinessHours, vs...))
-}
-
-// BusinessHoursGT applies the GT predicate on the "business_hours" field.
-func BusinessHoursGT(v string) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldBusinessHours, v))
-}
-
-// BusinessHoursGTE applies the GTE predicate on the "business_hours" field.
-func BusinessHoursGTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldBusinessHours, v))
-}
-
-// BusinessHoursLT applies the LT predicate on the "business_hours" field.
-func BusinessHoursLT(v string) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldBusinessHours, v))
-}
-
-// BusinessHoursLTE applies the LTE predicate on the "business_hours" field.
-func BusinessHoursLTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldBusinessHours, v))
-}
-
-// BusinessHoursContains applies the Contains predicate on the "business_hours" field.
-func BusinessHoursContains(v string) predicate.Store {
-	return predicate.Store(sql.FieldContains(FieldBusinessHours, v))
-}
-
-// BusinessHoursHasPrefix applies the HasPrefix predicate on the "business_hours" field.
-func BusinessHoursHasPrefix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasPrefix(FieldBusinessHours, v))
-}
-
-// BusinessHoursHasSuffix applies the HasSuffix predicate on the "business_hours" field.
-func BusinessHoursHasSuffix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasSuffix(FieldBusinessHours, v))
-}
-
-// BusinessHoursEqualFold applies the EqualFold predicate on the "business_hours" field.
-func BusinessHoursEqualFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldEqualFold(FieldBusinessHours, v))
-}
-
-// BusinessHoursContainsFold applies the ContainsFold predicate on the "business_hours" field.
-func BusinessHoursContainsFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldContainsFold(FieldBusinessHours, v))
-}
-
-// DiningPeriodsEQ applies the EQ predicate on the "dining_periods" field.
-func DiningPeriodsEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsNEQ applies the NEQ predicate on the "dining_periods" field.
-func DiningPeriodsNEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsIn applies the In predicate on the "dining_periods" field.
-func DiningPeriodsIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldDiningPeriods, vs...))
-}
-
-// DiningPeriodsNotIn applies the NotIn predicate on the "dining_periods" field.
-func DiningPeriodsNotIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldDiningPeriods, vs...))
-}
-
-// DiningPeriodsGT applies the GT predicate on the "dining_periods" field.
-func DiningPeriodsGT(v string) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsGTE applies the GTE predicate on the "dining_periods" field.
-func DiningPeriodsGTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsLT applies the LT predicate on the "dining_periods" field.
-func DiningPeriodsLT(v string) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsLTE applies the LTE predicate on the "dining_periods" field.
-func DiningPeriodsLTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsContains applies the Contains predicate on the "dining_periods" field.
-func DiningPeriodsContains(v string) predicate.Store {
-	return predicate.Store(sql.FieldContains(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsHasPrefix applies the HasPrefix predicate on the "dining_periods" field.
-func DiningPeriodsHasPrefix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasPrefix(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsHasSuffix applies the HasSuffix predicate on the "dining_periods" field.
-func DiningPeriodsHasSuffix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasSuffix(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsEqualFold applies the EqualFold predicate on the "dining_periods" field.
-func DiningPeriodsEqualFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldEqualFold(FieldDiningPeriods, v))
-}
-
-// DiningPeriodsContainsFold applies the ContainsFold predicate on the "dining_periods" field.
-func DiningPeriodsContainsFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldContainsFold(FieldDiningPeriods, v))
-}
-
-// ShiftTimesEQ applies the EQ predicate on the "shift_times" field.
-func ShiftTimesEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldShiftTimes, v))
-}
-
-// ShiftTimesNEQ applies the NEQ predicate on the "shift_times" field.
-func ShiftTimesNEQ(v string) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldShiftTimes, v))
-}
-
-// ShiftTimesIn applies the In predicate on the "shift_times" field.
-func ShiftTimesIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldShiftTimes, vs...))
-}
-
-// ShiftTimesNotIn applies the NotIn predicate on the "shift_times" field.
-func ShiftTimesNotIn(vs ...string) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldShiftTimes, vs...))
-}
-
-// ShiftTimesGT applies the GT predicate on the "shift_times" field.
-func ShiftTimesGT(v string) predicate.Store {
-	return predicate.Store(sql.FieldGT(FieldShiftTimes, v))
-}
-
-// ShiftTimesGTE applies the GTE predicate on the "shift_times" field.
-func ShiftTimesGTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldGTE(FieldShiftTimes, v))
-}
-
-// ShiftTimesLT applies the LT predicate on the "shift_times" field.
-func ShiftTimesLT(v string) predicate.Store {
-	return predicate.Store(sql.FieldLT(FieldShiftTimes, v))
-}
-
-// ShiftTimesLTE applies the LTE predicate on the "shift_times" field.
-func ShiftTimesLTE(v string) predicate.Store {
-	return predicate.Store(sql.FieldLTE(FieldShiftTimes, v))
-}
-
-// ShiftTimesContains applies the Contains predicate on the "shift_times" field.
-func ShiftTimesContains(v string) predicate.Store {
-	return predicate.Store(sql.FieldContains(FieldShiftTimes, v))
-}
-
-// ShiftTimesHasPrefix applies the HasPrefix predicate on the "shift_times" field.
-func ShiftTimesHasPrefix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasPrefix(FieldShiftTimes, v))
-}
-
-// ShiftTimesHasSuffix applies the HasSuffix predicate on the "shift_times" field.
-func ShiftTimesHasSuffix(v string) predicate.Store {
-	return predicate.Store(sql.FieldHasSuffix(FieldShiftTimes, v))
-}
-
-// ShiftTimesEqualFold applies the EqualFold predicate on the "shift_times" field.
-func ShiftTimesEqualFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldEqualFold(FieldShiftTimes, v))
-}
-
-// ShiftTimesContainsFold applies the ContainsFold predicate on the "shift_times" field.
-func ShiftTimesContainsFold(v string) predicate.Store {
-	return predicate.Store(sql.FieldContainsFold(FieldShiftTimes, v))
-}
-
 // CountryIDEQ applies the EQ predicate on the "country_id" field.
 func CountryIDEQ(v uuid.UUID) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldCountryID, v))
@@ -2066,6 +1856,52 @@ func HasStalls() predicate.Store {
 func HasStallsWith(preds ...predicate.Stall) predicate.Store {
 	return predicate.Store(func(s *sql.Selector) {
 		step := newStallsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAdditionalFees applies the HasEdge predicate on the "additional_fees" edge.
+func HasAdditionalFees() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AdditionalFeesTable, AdditionalFeesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAdditionalFeesWith applies the HasEdge predicate on the "additional_fees" edge with a given conditions (other predicates).
+func HasAdditionalFeesWith(preds ...predicate.AdditionalFee) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newAdditionalFeesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDevices applies the HasEdge predicate on the "devices" edge.
+func HasDevices() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DevicesTable, DevicesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDevicesWith applies the HasEdge predicate on the "devices" edge with a given conditions (other predicates).
+func HasDevicesWith(preds ...predicate.Device) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newDevicesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

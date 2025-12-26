@@ -14,9 +14,11 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -47,6 +49,8 @@ type MerchantQuery struct {
 	withRemarkCategories     *RemarkCategoryQuery
 	withRemarks              *RemarkQuery
 	withStalls               *StallQuery
+	withAdditionalFees       *AdditionalFeeQuery
+	withDevices              *DeviceQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -326,6 +330,50 @@ func (mq *MerchantQuery) QueryStalls() *StallQuery {
 	return query
 }
 
+// QueryAdditionalFees chains the current query on the "additional_fees" edge.
+func (mq *MerchantQuery) QueryAdditionalFees() *AdditionalFeeQuery {
+	query := (&AdditionalFeeClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(additionalfee.Table, additionalfee.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.AdditionalFeesTable, merchant.AdditionalFeesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDevices chains the current query on the "devices" edge.
+func (mq *MerchantQuery) QueryDevices() *DeviceQuery {
+	query := (&DeviceClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(device.Table, device.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.DevicesTable, merchant.DevicesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Merchant entity from the query.
 // Returns a *NotFoundError when no Merchant was found.
 func (mq *MerchantQuery) First(ctx context.Context) (*Merchant, error) {
@@ -529,6 +577,8 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		withRemarkCategories:     mq.withRemarkCategories.Clone(),
 		withRemarks:              mq.withRemarks.Clone(),
 		withStalls:               mq.withStalls.Clone(),
+		withAdditionalFees:       mq.withAdditionalFees.Clone(),
+		withDevices:              mq.withDevices.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
 		path:      mq.path,
@@ -657,6 +707,28 @@ func (mq *MerchantQuery) WithStalls(opts ...func(*StallQuery)) *MerchantQuery {
 	return mq
 }
 
+// WithAdditionalFees tells the query-builder to eager-load the nodes that are connected to
+// the "additional_fees" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithAdditionalFees(opts ...func(*AdditionalFeeQuery)) *MerchantQuery {
+	query := (&AdditionalFeeClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withAdditionalFees = query
+	return mq
+}
+
+// WithDevices tells the query-builder to eager-load the nodes that are connected to
+// the "devices" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithDevices(opts ...func(*DeviceQuery)) *MerchantQuery {
+	query := (&DeviceClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withDevices = query
+	return mq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -735,7 +807,7 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [11]bool{
+		loadedTypes = [13]bool{
 			mq.withMerchantBusinessType != nil,
 			mq.withAdminUser != nil,
 			mq.withCountry != nil,
@@ -747,6 +819,8 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			mq.withRemarkCategories != nil,
 			mq.withRemarks != nil,
 			mq.withStalls != nil,
+			mq.withAdditionalFees != nil,
+			mq.withDevices != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -838,6 +912,20 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 		if err := mq.loadStalls(ctx, query, nodes,
 			func(n *Merchant) { n.Edges.Stalls = []*Stall{} },
 			func(n *Merchant, e *Stall) { n.Edges.Stalls = append(n.Edges.Stalls, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withAdditionalFees; query != nil {
+		if err := mq.loadAdditionalFees(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.AdditionalFees = []*AdditionalFee{} },
+			func(n *Merchant, e *AdditionalFee) { n.Edges.AdditionalFees = append(n.Edges.AdditionalFees, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withDevices; query != nil {
+		if err := mq.loadDevices(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.Devices = []*Device{} },
+			func(n *Merchant, e *Device) { n.Edges.Devices = append(n.Edges.Devices, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1153,6 +1241,66 @@ func (mq *MerchantQuery) loadStalls(ctx context.Context, query *StallQuery, node
 	}
 	query.Where(predicate.Stall(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.StallsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadAdditionalFees(ctx context.Context, query *AdditionalFeeQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *AdditionalFee)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(additionalfee.FieldMerchantID)
+	}
+	query.Where(predicate.AdditionalFee(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.AdditionalFeesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadDevices(ctx context.Context, query *DeviceQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Device)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(device.FieldMerchantID)
+	}
+	query.Where(predicate.Device(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.DevicesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

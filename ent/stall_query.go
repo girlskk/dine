@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -13,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -28,6 +30,7 @@ type StallQuery struct {
 	predicates   []predicate.Stall
 	withMerchant *MerchantQuery
 	withStore    *StoreQuery
+	withDevices  *DeviceQuery
 	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -102,6 +105,28 @@ func (sq *StallQuery) QueryStore() *StoreQuery {
 			sqlgraph.From(stall.Table, stall.FieldID, selector),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, stall.StoreTable, stall.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDevices chains the current query on the "devices" edge.
+func (sq *StallQuery) QueryDevices() *DeviceQuery {
+	query := (&DeviceClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(stall.Table, stall.FieldID, selector),
+			sqlgraph.To(device.Table, device.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, stall.DevicesTable, stall.DevicesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -303,6 +328,7 @@ func (sq *StallQuery) Clone() *StallQuery {
 		predicates:   append([]predicate.Stall{}, sq.predicates...),
 		withMerchant: sq.withMerchant.Clone(),
 		withStore:    sq.withStore.Clone(),
+		withDevices:  sq.withDevices.Clone(),
 		// clone intermediate query.
 		sql:       sq.sql.Clone(),
 		path:      sq.path,
@@ -329,6 +355,17 @@ func (sq *StallQuery) WithStore(opts ...func(*StoreQuery)) *StallQuery {
 		opt(query)
 	}
 	sq.withStore = query
+	return sq
+}
+
+// WithDevices tells the query-builder to eager-load the nodes that are connected to
+// the "devices" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StallQuery) WithDevices(opts ...func(*DeviceQuery)) *StallQuery {
+	query := (&DeviceClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withDevices = query
 	return sq
 }
 
@@ -410,9 +447,10 @@ func (sq *StallQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stall,
 	var (
 		nodes       = []*Stall{}
 		_spec       = sq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			sq.withMerchant != nil,
 			sq.withStore != nil,
+			sq.withDevices != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +483,13 @@ func (sq *StallQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stall,
 	if query := sq.withStore; query != nil {
 		if err := sq.loadStore(ctx, query, nodes, nil,
 			func(n *Stall, e *Store) { n.Edges.Store = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withDevices; query != nil {
+		if err := sq.loadDevices(ctx, query, nodes,
+			func(n *Stall) { n.Edges.Devices = []*Device{} },
+			func(n *Stall, e *Device) { n.Edges.Devices = append(n.Edges.Devices, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -506,6 +551,36 @@ func (sq *StallQuery) loadStore(ctx context.Context, query *StoreQuery, nodes []
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (sq *StallQuery) loadDevices(ctx context.Context, query *DeviceQuery, nodes []*Stall, init func(*Stall), assign func(*Stall, *Device)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Stall)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(device.FieldStallID)
+	}
+	query.Where(predicate.Device(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(stall.DevicesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.StallID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "stall_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

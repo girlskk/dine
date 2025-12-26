@@ -130,13 +130,13 @@ func (s *StoreRepositoryTestSuite) newStore(tag string) (*domain.Store, storeLoc
 		shortTag = shortTag[:8]
 	}
 
-	businessHours := []*domain.BusinessHours{
+	businessHours := []domain.BusinessHours{
 		{Weekdays: []time.Weekday{time.Monday, time.Tuesday}, StartTime: "09:00:00", EndTime: "18:00:00"},
 	}
-	diningPeriods := []*domain.DiningPeriod{
+	diningPeriods := []domain.DiningPeriod{
 		{Name: "午餐", StartTime: "11:00:00", EndTime: "14:00:00"},
 	}
-	shiftTimes := []*domain.ShiftTime{
+	shiftTimes := []domain.ShiftTime{
 		{Name: "白班", StartTime: "09:00:00", EndTime: "17:00:00"},
 	}
 
@@ -233,9 +233,9 @@ func (s *StoreRepositoryTestSuite) TestStore_Update() {
 	store.Address.Address = "更新地址-" + tag
 	store.Address.Lng = "122.00"
 	store.Address.Lat = "32.00"
-	store.BusinessHours = []*domain.BusinessHours{{Weekdays: []time.Weekday{time.Wednesday}, StartTime: "10:00:00", EndTime: "19:00:00"}}
-	store.DiningPeriods = []*domain.DiningPeriod{{Name: "晚餐", StartTime: "17:00:00", EndTime: "21:00:00"}}
-	store.ShiftTimes = []*domain.ShiftTime{{Name: "晚班", StartTime: "16:00:00", EndTime: "23:00:00"}}
+	store.BusinessHours = []domain.BusinessHours{{Weekdays: []time.Weekday{time.Wednesday}, StartTime: "10:00:00", EndTime: "19:00:00"}}
+	store.DiningPeriods = []domain.DiningPeriod{{Name: "晚餐", StartTime: "17:00:00", EndTime: "21:00:00"}}
+	store.ShiftTimes = []domain.ShiftTime{{Name: "晚班", StartTime: "16:00:00", EndTime: "23:00:00"}}
 
 	err := s.repo.Update(s.ctx, store)
 	require.NoError(s.T(), err)

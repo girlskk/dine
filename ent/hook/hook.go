@@ -9,6 +9,18 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 )
 
+// The AdditionalFeeFunc type is an adapter to allow the use of ordinary
+// function as AdditionalFee mutator.
+type AdditionalFeeFunc func(context.Context, *ent.AdditionalFeeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AdditionalFeeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AdditionalFeeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdditionalFeeMutation", m)
+}
+
 // The AdminUserFunc type is an adapter to allow the use of ordinary
 // function as AdminUser mutator.
 type AdminUserFunc func(context.Context, *ent.AdminUserMutation) (ent.Value, error)
@@ -67,6 +79,18 @@ func (f CountryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CountryMutation", m)
+}
+
+// The DeviceFunc type is an adapter to allow the use of ordinary
+// function as Device mutator.
+type DeviceFunc func(context.Context, *ent.DeviceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DeviceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DeviceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeviceMutation", m)
 }
 
 // The DistrictFunc type is an adapter to allow the use of ordinary

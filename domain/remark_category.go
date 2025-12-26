@@ -13,18 +13,6 @@ var (
 	ErrRemarkCategoryNameExists = errors.New("备注分类名称已存在")
 )
 
-type RemarkCategory struct {
-	ID          uuid.UUID   `json:"id"`
-	Name        string      `json:"name"`         // 分类名称
-	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
-	MerchantID  uuid.UUID   `json:"merchant_id"`  // 品牌商ID，可为空表示系统级分类
-	Description string      `json:"description"`  // 分类描述
-	SortOrder   int         `json:"sort_order"`   // 排序，值越小越靠前
-	RemarkCount int         `json:"remark_count"` // 该分类下备注数量
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
-}
-
 // RemarkCategories 聚合类型
 type RemarkCategories []*RemarkCategory
 
@@ -44,6 +32,18 @@ type RemarkCategoryInteractor interface {
 	Update(ctx context.Context, remarkCategory *RemarkCategory) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetRemarkCategories(ctx context.Context, filter *RemarkCategoryListFilter) (remarkCategories RemarkCategories, err error)
+}
+
+type RemarkCategory struct {
+	ID          uuid.UUID   `json:"id"`
+	Name        string      `json:"name"`         // 分类名称
+	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
+	MerchantID  uuid.UUID   `json:"merchant_id"`  // 品牌商ID，可为空表示系统级分类
+	Description string      `json:"description"`  // 分类描述
+	SortOrder   int         `json:"sort_order"`   // 排序，值越小越靠前
+	RemarkCount int         `json:"remark_count"` // 该分类下备注数量
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 type RemarkCategoryExistsParams struct {

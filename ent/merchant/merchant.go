@@ -84,6 +84,10 @@ const (
 	EdgeRemarks = "remarks"
 	// EdgeStalls holds the string denoting the stalls edge name in mutations.
 	EdgeStalls = "stalls"
+	// EdgeAdditionalFees holds the string denoting the additional_fees edge name in mutations.
+	EdgeAdditionalFees = "additional_fees"
+	// EdgeDevices holds the string denoting the devices edge name in mutations.
+	EdgeDevices = "devices"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
 	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
@@ -163,6 +167,20 @@ const (
 	StallsInverseTable = "stalls"
 	// StallsColumn is the table column denoting the stalls relation/edge.
 	StallsColumn = "merchant_id"
+	// AdditionalFeesTable is the table that holds the additional_fees relation/edge.
+	AdditionalFeesTable = "additional_fees"
+	// AdditionalFeesInverseTable is the table name for the AdditionalFee entity.
+	// It exists in this package in order to avoid circular dependency with the "additionalfee" package.
+	AdditionalFeesInverseTable = "additional_fees"
+	// AdditionalFeesColumn is the table column denoting the additional_fees relation/edge.
+	AdditionalFeesColumn = "merchant_id"
+	// DevicesTable is the table that holds the devices relation/edge.
+	DevicesTable = "devices"
+	// DevicesInverseTable is the table name for the Device entity.
+	// It exists in this package in order to avoid circular dependency with the "device" package.
+	DevicesInverseTable = "devices"
+	// DevicesColumn is the table column denoting the devices relation/edge.
+	DevicesColumn = "merchant_id"
 )
 
 // Columns holds all SQL columns for merchant fields.
@@ -511,6 +529,34 @@ func ByStalls(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newStallsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByAdditionalFeesCount orders the results by additional_fees count.
+func ByAdditionalFeesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAdditionalFeesStep(), opts...)
+	}
+}
+
+// ByAdditionalFees orders the results by additional_fees terms.
+func ByAdditionalFees(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAdditionalFeesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByDevicesCount orders the results by devices count.
+func ByDevicesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDevicesStep(), opts...)
+	}
+}
+
+// ByDevices orders the results by devices terms.
+func ByDevices(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDevicesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantBusinessTypeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -586,5 +632,19 @@ func newStallsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(StallsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, StallsTable, StallsColumn),
+	)
+}
+func newAdditionalFeesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AdditionalFeesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AdditionalFeesTable, AdditionalFeesColumn),
+	)
+}
+func newDevicesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DevicesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DevicesTable, DevicesColumn),
 	)
 }

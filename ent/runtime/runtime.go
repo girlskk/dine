@@ -7,11 +7,13 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -28,6 +30,71 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	additionalfeeMixin := schema.AdditionalFee{}.Mixin()
+	additionalfeeMixinHooks2 := additionalfeeMixin[2].Hooks()
+	additionalfee.Hooks[0] = additionalfeeMixinHooks2[0]
+	additionalfeeMixinInters2 := additionalfeeMixin[2].Interceptors()
+	additionalfee.Interceptors[0] = additionalfeeMixinInters2[0]
+	additionalfeeMixinFields0 := additionalfeeMixin[0].Fields()
+	_ = additionalfeeMixinFields0
+	additionalfeeMixinFields1 := additionalfeeMixin[1].Fields()
+	_ = additionalfeeMixinFields1
+	additionalfeeMixinFields2 := additionalfeeMixin[2].Fields()
+	_ = additionalfeeMixinFields2
+	additionalfeeFields := schema.AdditionalFee{}.Fields()
+	_ = additionalfeeFields
+	// additionalfeeDescCreatedAt is the schema descriptor for created_at field.
+	additionalfeeDescCreatedAt := additionalfeeMixinFields1[0].Descriptor()
+	// additionalfee.DefaultCreatedAt holds the default value on creation for the created_at field.
+	additionalfee.DefaultCreatedAt = additionalfeeDescCreatedAt.Default.(func() time.Time)
+	// additionalfeeDescUpdatedAt is the schema descriptor for updated_at field.
+	additionalfeeDescUpdatedAt := additionalfeeMixinFields1[1].Descriptor()
+	// additionalfee.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	additionalfee.DefaultUpdatedAt = additionalfeeDescUpdatedAt.Default.(func() time.Time)
+	// additionalfee.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	additionalfee.UpdateDefaultUpdatedAt = additionalfeeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// additionalfeeDescDeletedAt is the schema descriptor for deleted_at field.
+	additionalfeeDescDeletedAt := additionalfeeMixinFields2[0].Descriptor()
+	// additionalfee.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	additionalfee.DefaultDeletedAt = additionalfeeDescDeletedAt.Default.(int64)
+	// additionalfeeDescName is the schema descriptor for name field.
+	additionalfeeDescName := additionalfeeFields[0].Descriptor()
+	// additionalfee.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	additionalfee.NameValidator = func() func(string) error {
+		validators := additionalfeeDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// additionalfeeDescIncludeInReceivable is the schema descriptor for include_in_receivable field.
+	additionalfeeDescIncludeInReceivable := additionalfeeFields[5].Descriptor()
+	// additionalfee.DefaultIncludeInReceivable holds the default value on creation for the include_in_receivable field.
+	additionalfee.DefaultIncludeInReceivable = additionalfeeDescIncludeInReceivable.Default.(bool)
+	// additionalfeeDescTaxable is the schema descriptor for taxable field.
+	additionalfeeDescTaxable := additionalfeeFields[6].Descriptor()
+	// additionalfee.DefaultTaxable holds the default value on creation for the taxable field.
+	additionalfee.DefaultTaxable = additionalfeeDescTaxable.Default.(bool)
+	// additionalfeeDescEnabled is the schema descriptor for enabled field.
+	additionalfeeDescEnabled := additionalfeeFields[10].Descriptor()
+	// additionalfee.DefaultEnabled holds the default value on creation for the enabled field.
+	additionalfee.DefaultEnabled = additionalfeeDescEnabled.Default.(bool)
+	// additionalfeeDescSortOrder is the schema descriptor for sort_order field.
+	additionalfeeDescSortOrder := additionalfeeFields[11].Descriptor()
+	// additionalfee.DefaultSortOrder holds the default value on creation for the sort_order field.
+	additionalfee.DefaultSortOrder = additionalfeeDescSortOrder.Default.(int)
+	// additionalfeeDescID is the schema descriptor for id field.
+	additionalfeeDescID := additionalfeeMixinFields0[0].Descriptor()
+	// additionalfee.DefaultID holds the default value on creation for the id field.
+	additionalfee.DefaultID = additionalfeeDescID.Default.(func() uuid.UUID)
 	adminuserMixin := schema.AdminUser{}.Mixin()
 	adminuserMixinHooks2 := adminuserMixin[2].Hooks()
 	adminuser.Hooks[0] = adminuserMixinHooks2[0]
@@ -311,6 +378,75 @@ func init() {
 	countryDescID := countryMixinFields0[0].Descriptor()
 	// country.DefaultID holds the default value on creation for the id field.
 	country.DefaultID = countryDescID.Default.(func() uuid.UUID)
+	deviceMixin := schema.Device{}.Mixin()
+	deviceMixinHooks2 := deviceMixin[2].Hooks()
+	device.Hooks[0] = deviceMixinHooks2[0]
+	deviceMixinInters2 := deviceMixin[2].Interceptors()
+	device.Interceptors[0] = deviceMixinInters2[0]
+	deviceMixinFields0 := deviceMixin[0].Fields()
+	_ = deviceMixinFields0
+	deviceMixinFields1 := deviceMixin[1].Fields()
+	_ = deviceMixinFields1
+	deviceMixinFields2 := deviceMixin[2].Fields()
+	_ = deviceMixinFields2
+	deviceFields := schema.Device{}.Fields()
+	_ = deviceFields
+	// deviceDescCreatedAt is the schema descriptor for created_at field.
+	deviceDescCreatedAt := deviceMixinFields1[0].Descriptor()
+	// device.DefaultCreatedAt holds the default value on creation for the created_at field.
+	device.DefaultCreatedAt = deviceDescCreatedAt.Default.(func() time.Time)
+	// deviceDescUpdatedAt is the schema descriptor for updated_at field.
+	deviceDescUpdatedAt := deviceMixinFields1[1].Descriptor()
+	// device.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	device.DefaultUpdatedAt = deviceDescUpdatedAt.Default.(func() time.Time)
+	// device.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	device.UpdateDefaultUpdatedAt = deviceDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// deviceDescDeletedAt is the schema descriptor for deleted_at field.
+	deviceDescDeletedAt := deviceMixinFields2[0].Descriptor()
+	// device.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	device.DefaultDeletedAt = deviceDescDeletedAt.Default.(int64)
+	// deviceDescName is the schema descriptor for name field.
+	deviceDescName := deviceFields[0].Descriptor()
+	// device.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	device.NameValidator = func() func(string) error {
+		validators := deviceDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// deviceDescDeviceCode is the schema descriptor for device_code field.
+	deviceDescDeviceCode := deviceFields[4].Descriptor()
+	// device.DefaultDeviceCode holds the default value on creation for the device_code field.
+	device.DefaultDeviceCode = deviceDescDeviceCode.Default.(string)
+	// device.DeviceCodeValidator is a validator for the "device_code" field. It is called by the builders before save.
+	device.DeviceCodeValidator = deviceDescDeviceCode.Validators[0].(func(string) error)
+	// deviceDescEnabled is the schema descriptor for enabled field.
+	deviceDescEnabled := deviceFields[8].Descriptor()
+	// device.DefaultEnabled holds the default value on creation for the enabled field.
+	device.DefaultEnabled = deviceDescEnabled.Default.(bool)
+	// deviceDescIP is the schema descriptor for ip field.
+	deviceDescIP := deviceFields[10].Descriptor()
+	// device.DefaultIP holds the default value on creation for the ip field.
+	device.DefaultIP = deviceDescIP.Default.(string)
+	// device.IPValidator is a validator for the "ip" field. It is called by the builders before save.
+	device.IPValidator = deviceDescIP.Validators[0].(func(string) error)
+	// deviceDescSortOrder is the schema descriptor for sort_order field.
+	deviceDescSortOrder := deviceFields[11].Descriptor()
+	// device.DefaultSortOrder holds the default value on creation for the sort_order field.
+	device.DefaultSortOrder = deviceDescSortOrder.Default.(int)
+	// deviceDescID is the schema descriptor for id field.
+	deviceDescID := deviceMixinFields0[0].Descriptor()
+	// device.DefaultID holds the default value on creation for the id field.
+	device.DefaultID = deviceDescID.Default.(func() uuid.UUID)
 	districtMixin := schema.District{}.Mixin()
 	districtMixinHooks2 := districtMixin[2].Hooks()
 	district.Hooks[0] = districtMixinHooks2[0]
@@ -1188,20 +1324,6 @@ func init() {
 			return nil
 		}
 	}()
-	// storeDescBusinessHours is the schema descriptor for business_hours field.
-	storeDescBusinessHours := storeFields[18].Descriptor()
-	// store.DefaultBusinessHours holds the default value on creation for the business_hours field.
-	store.DefaultBusinessHours = storeDescBusinessHours.Default.(string)
-	// store.BusinessHoursValidator is a validator for the "business_hours" field. It is called by the builders before save.
-	store.BusinessHoursValidator = storeDescBusinessHours.Validators[0].(func(string) error)
-	// storeDescDiningPeriods is the schema descriptor for dining_periods field.
-	storeDescDiningPeriods := storeFields[19].Descriptor()
-	// store.DiningPeriodsValidator is a validator for the "dining_periods" field. It is called by the builders before save.
-	store.DiningPeriodsValidator = storeDescDiningPeriods.Validators[0].(func(string) error)
-	// storeDescShiftTimes is the schema descriptor for shift_times field.
-	storeDescShiftTimes := storeFields[20].Descriptor()
-	// store.ShiftTimesValidator is a validator for the "shift_times" field. It is called by the builders before save.
-	store.ShiftTimesValidator = storeDescShiftTimes.Validators[0].(func(string) error)
 	// storeDescAddress is the schema descriptor for address field.
 	storeDescAddress := storeFields[25].Descriptor()
 	// store.DefaultAddress holds the default value on creation for the address field.

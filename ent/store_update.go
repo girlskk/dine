@@ -10,11 +10,14 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -304,44 +307,38 @@ func (su *StoreUpdate) SetNillableFoodOperationLicenseURL(s *string) *StoreUpdat
 }
 
 // SetBusinessHours sets the "business_hours" field.
-func (su *StoreUpdate) SetBusinessHours(s string) *StoreUpdate {
-	su.mutation.SetBusinessHours(s)
+func (su *StoreUpdate) SetBusinessHours(dh []domain.BusinessHours) *StoreUpdate {
+	su.mutation.SetBusinessHours(dh)
 	return su
 }
 
-// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableBusinessHours(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetBusinessHours(*s)
-	}
+// AppendBusinessHours appends dh to the "business_hours" field.
+func (su *StoreUpdate) AppendBusinessHours(dh []domain.BusinessHours) *StoreUpdate {
+	su.mutation.AppendBusinessHours(dh)
 	return su
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (su *StoreUpdate) SetDiningPeriods(s string) *StoreUpdate {
-	su.mutation.SetDiningPeriods(s)
+func (su *StoreUpdate) SetDiningPeriods(dp []domain.DiningPeriod) *StoreUpdate {
+	su.mutation.SetDiningPeriods(dp)
 	return su
 }
 
-// SetNillableDiningPeriods sets the "dining_periods" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableDiningPeriods(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetDiningPeriods(*s)
-	}
+// AppendDiningPeriods appends dp to the "dining_periods" field.
+func (su *StoreUpdate) AppendDiningPeriods(dp []domain.DiningPeriod) *StoreUpdate {
+	su.mutation.AppendDiningPeriods(dp)
 	return su
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (su *StoreUpdate) SetShiftTimes(s string) *StoreUpdate {
-	su.mutation.SetShiftTimes(s)
+func (su *StoreUpdate) SetShiftTimes(dt []domain.ShiftTime) *StoreUpdate {
+	su.mutation.SetShiftTimes(dt)
 	return su
 }
 
-// SetNillableShiftTimes sets the "shift_times" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableShiftTimes(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetShiftTimes(*s)
-	}
+// AppendShiftTimes appends dt to the "shift_times" field.
+func (su *StoreUpdate) AppendShiftTimes(dt []domain.ShiftTime) *StoreUpdate {
+	su.mutation.AppendShiftTimes(dt)
 	return su
 }
 
@@ -528,6 +525,36 @@ func (su *StoreUpdate) AddStalls(s ...*Stall) *StoreUpdate {
 	return su.AddStallIDs(ids...)
 }
 
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (su *StoreUpdate) AddAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddAdditionalFeeIDs(ids...)
+	return su
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (su *StoreUpdate) AddAdditionalFees(a ...*AdditionalFee) *StoreUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.AddAdditionalFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (su *StoreUpdate) AddDeviceIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddDeviceIDs(ids...)
+	return su
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (su *StoreUpdate) AddDevices(d ...*Device) *StoreUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.AddDeviceIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
@@ -603,6 +630,48 @@ func (su *StoreUpdate) RemoveStalls(s ...*Stall) *StoreUpdate {
 		ids[i] = s[i].ID
 	}
 	return su.RemoveStallIDs(ids...)
+}
+
+// ClearAdditionalFees clears all "additional_fees" edges to the AdditionalFee entity.
+func (su *StoreUpdate) ClearAdditionalFees() *StoreUpdate {
+	su.mutation.ClearAdditionalFees()
+	return su
+}
+
+// RemoveAdditionalFeeIDs removes the "additional_fees" edge to AdditionalFee entities by IDs.
+func (su *StoreUpdate) RemoveAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveAdditionalFeeIDs(ids...)
+	return su
+}
+
+// RemoveAdditionalFees removes "additional_fees" edges to AdditionalFee entities.
+func (su *StoreUpdate) RemoveAdditionalFees(a ...*AdditionalFee) *StoreUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (su *StoreUpdate) ClearDevices() *StoreUpdate {
+	su.mutation.ClearDevices()
+	return su
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (su *StoreUpdate) RemoveDeviceIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveDeviceIDs(ids...)
+	return su
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (su *StoreUpdate) RemoveDevices(d ...*Device) *StoreUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.RemoveDeviceIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -729,21 +798,6 @@ func (su *StoreUpdate) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.BusinessHours(); ok {
-		if err := store.BusinessHoursValidator(v); err != nil {
-			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.DiningPeriods(); ok {
-		if err := store.DiningPeriodsValidator(v); err != nil {
-			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.ShiftTimes(); ok {
-		if err := store.ShiftTimesValidator(v); err != nil {
-			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
-		}
-	}
 	if v, ok := su.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -847,13 +901,28 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 	}
 	if value, ok := su.mutation.BusinessHours(); ok {
-		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+		_spec.SetField(store.FieldBusinessHours, field.TypeJSON, value)
+	}
+	if value, ok := su.mutation.AppendedBusinessHours(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldBusinessHours, value)
+		})
 	}
 	if value, ok := su.mutation.DiningPeriods(); ok {
-		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+		_spec.SetField(store.FieldDiningPeriods, field.TypeJSON, value)
+	}
+	if value, ok := su.mutation.AppendedDiningPeriods(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldDiningPeriods, value)
+		})
 	}
 	if value, ok := su.mutation.ShiftTimes(); ok {
-		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
+		_spec.SetField(store.FieldShiftTimes, field.TypeJSON, value)
+	}
+	if value, ok := su.mutation.AppendedShiftTimes(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldShiftTimes, value)
+		})
 	}
 	if value, ok := su.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
@@ -1092,6 +1161,96 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedAdditionalFeesIDs(); len(nodes) > 0 && !su.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !su.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1387,44 +1546,38 @@ func (suo *StoreUpdateOne) SetNillableFoodOperationLicenseURL(s *string) *StoreU
 }
 
 // SetBusinessHours sets the "business_hours" field.
-func (suo *StoreUpdateOne) SetBusinessHours(s string) *StoreUpdateOne {
-	suo.mutation.SetBusinessHours(s)
+func (suo *StoreUpdateOne) SetBusinessHours(dh []domain.BusinessHours) *StoreUpdateOne {
+	suo.mutation.SetBusinessHours(dh)
 	return suo
 }
 
-// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableBusinessHours(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetBusinessHours(*s)
-	}
+// AppendBusinessHours appends dh to the "business_hours" field.
+func (suo *StoreUpdateOne) AppendBusinessHours(dh []domain.BusinessHours) *StoreUpdateOne {
+	suo.mutation.AppendBusinessHours(dh)
 	return suo
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (suo *StoreUpdateOne) SetDiningPeriods(s string) *StoreUpdateOne {
-	suo.mutation.SetDiningPeriods(s)
+func (suo *StoreUpdateOne) SetDiningPeriods(dp []domain.DiningPeriod) *StoreUpdateOne {
+	suo.mutation.SetDiningPeriods(dp)
 	return suo
 }
 
-// SetNillableDiningPeriods sets the "dining_periods" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableDiningPeriods(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetDiningPeriods(*s)
-	}
+// AppendDiningPeriods appends dp to the "dining_periods" field.
+func (suo *StoreUpdateOne) AppendDiningPeriods(dp []domain.DiningPeriod) *StoreUpdateOne {
+	suo.mutation.AppendDiningPeriods(dp)
 	return suo
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (suo *StoreUpdateOne) SetShiftTimes(s string) *StoreUpdateOne {
-	suo.mutation.SetShiftTimes(s)
+func (suo *StoreUpdateOne) SetShiftTimes(dt []domain.ShiftTime) *StoreUpdateOne {
+	suo.mutation.SetShiftTimes(dt)
 	return suo
 }
 
-// SetNillableShiftTimes sets the "shift_times" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableShiftTimes(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetShiftTimes(*s)
-	}
+// AppendShiftTimes appends dt to the "shift_times" field.
+func (suo *StoreUpdateOne) AppendShiftTimes(dt []domain.ShiftTime) *StoreUpdateOne {
+	suo.mutation.AppendShiftTimes(dt)
 	return suo
 }
 
@@ -1611,6 +1764,36 @@ func (suo *StoreUpdateOne) AddStalls(s ...*Stall) *StoreUpdateOne {
 	return suo.AddStallIDs(ids...)
 }
 
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (suo *StoreUpdateOne) AddAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddAdditionalFeeIDs(ids...)
+	return suo
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (suo *StoreUpdateOne) AddAdditionalFees(a ...*AdditionalFee) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.AddAdditionalFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (suo *StoreUpdateOne) AddDeviceIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddDeviceIDs(ids...)
+	return suo
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (suo *StoreUpdateOne) AddDevices(d ...*Device) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.AddDeviceIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
@@ -1686,6 +1869,48 @@ func (suo *StoreUpdateOne) RemoveStalls(s ...*Stall) *StoreUpdateOne {
 		ids[i] = s[i].ID
 	}
 	return suo.RemoveStallIDs(ids...)
+}
+
+// ClearAdditionalFees clears all "additional_fees" edges to the AdditionalFee entity.
+func (suo *StoreUpdateOne) ClearAdditionalFees() *StoreUpdateOne {
+	suo.mutation.ClearAdditionalFees()
+	return suo
+}
+
+// RemoveAdditionalFeeIDs removes the "additional_fees" edge to AdditionalFee entities by IDs.
+func (suo *StoreUpdateOne) RemoveAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveAdditionalFeeIDs(ids...)
+	return suo
+}
+
+// RemoveAdditionalFees removes "additional_fees" edges to AdditionalFee entities.
+func (suo *StoreUpdateOne) RemoveAdditionalFees(a ...*AdditionalFee) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (suo *StoreUpdateOne) ClearDevices() *StoreUpdateOne {
+	suo.mutation.ClearDevices()
+	return suo
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (suo *StoreUpdateOne) RemoveDeviceIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveDeviceIDs(ids...)
+	return suo
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (suo *StoreUpdateOne) RemoveDevices(d ...*Device) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.RemoveDeviceIDs(ids...)
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -1825,21 +2050,6 @@ func (suo *StoreUpdateOne) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.BusinessHours(); ok {
-		if err := store.BusinessHoursValidator(v); err != nil {
-			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.DiningPeriods(); ok {
-		if err := store.DiningPeriodsValidator(v); err != nil {
-			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.ShiftTimes(); ok {
-		if err := store.ShiftTimesValidator(v); err != nil {
-			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
-		}
-	}
 	if v, ok := suo.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -1960,13 +2170,28 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.BusinessHours(); ok {
-		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+		_spec.SetField(store.FieldBusinessHours, field.TypeJSON, value)
+	}
+	if value, ok := suo.mutation.AppendedBusinessHours(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldBusinessHours, value)
+		})
 	}
 	if value, ok := suo.mutation.DiningPeriods(); ok {
-		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+		_spec.SetField(store.FieldDiningPeriods, field.TypeJSON, value)
+	}
+	if value, ok := suo.mutation.AppendedDiningPeriods(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldDiningPeriods, value)
+		})
 	}
 	if value, ok := suo.mutation.ShiftTimes(); ok {
-		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
+		_spec.SetField(store.FieldShiftTimes, field.TypeJSON, value)
+	}
+	if value, ok := suo.mutation.AppendedShiftTimes(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldShiftTimes, value)
+		})
 	}
 	if value, ok := suo.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
@@ -2205,6 +2430,96 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedAdditionalFeesIDs(); len(nodes) > 0 && !suo.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !suo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

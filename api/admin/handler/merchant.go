@@ -193,9 +193,9 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
 			LoginAccount:            req.Store.LoginAccount,
 			LoginPassword:           req.Store.LoginPassword,
-			BusinessHours:           toBusinessHoursPtr(req.Store.BusinessHours),
-			DiningPeriods:           toDiningPeriodsPtr(req.Store.DiningPeriods),
-			ShiftTimes:              toShiftTimesPtr(req.Store.ShiftTimes),
+			BusinessHours:           req.Store.BusinessHours,
+			DiningPeriods:           req.Store.DiningPeriods,
+			ShiftTimes:              req.Store.ShiftTimes,
 			Address:                 address,
 		}
 
@@ -383,9 +383,9 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
 			LoginAccount:            req.Store.LoginAccount,
 			LoginPassword:           req.Store.LoginPassword,
-			BusinessHours:           toBusinessHoursPtr(req.Store.BusinessHours),
-			DiningPeriods:           toDiningPeriodsPtr(req.Store.DiningPeriods),
-			ShiftTimes:              toShiftTimesPtr(req.Store.ShiftTimes),
+			BusinessHours:           req.Store.BusinessHours,
+			DiningPeriods:           req.Store.DiningPeriods,
+			ShiftTimes:              req.Store.ShiftTimes,
 			Address:                 address,
 		}
 
@@ -691,40 +691,4 @@ func (h *MerchantHandler) CountMerchant() gin.HandlerFunc {
 		}
 		response.Ok(c, resp)
 	}
-}
-
-func toBusinessHoursPtr(src []domain.BusinessHours) []*domain.BusinessHours {
-	if len(src) == 0 {
-		return nil
-	}
-	res := make([]*domain.BusinessHours, 0, len(src))
-	for i := range src {
-		bh := src[i]
-		res = append(res, &bh)
-	}
-	return res
-}
-
-func toDiningPeriodsPtr(src []domain.DiningPeriod) []*domain.DiningPeriod {
-	if len(src) == 0 {
-		return nil
-	}
-	res := make([]*domain.DiningPeriod, 0, len(src))
-	for i := range src {
-		dp := src[i]
-		res = append(res, &dp)
-	}
-	return res
-}
-
-func toShiftTimesPtr(src []domain.ShiftTime) []*domain.ShiftTime {
-	if len(src) == 0 {
-		return nil
-	}
-	res := make([]*domain.ShiftTime, 0, len(src))
-	for i := range src {
-		st := src[i]
-		res = append(res, &st)
-	}
-	return res
 }

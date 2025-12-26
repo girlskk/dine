@@ -275,15 +275,12 @@ func (interactor *StoreInteractor) validateTimeConfigs(store *domain.Store) erro
 	return nil
 }
 
-func validateBusinessHours(hours []*domain.BusinessHours) error {
+func validateBusinessHours(hours []domain.BusinessHours) error {
 	if len(hours) == 0 {
 		return nil
 	}
 	perDay := make(map[time.Weekday][][2]string)
 	for _, h := range hours {
-		if h == nil {
-			continue
-		}
 		if h.StartTime >= h.EndTime {
 			return domain.ParamsError(domain.ErrStoreBusinessHoursTimeInvalid)
 		}
@@ -303,15 +300,12 @@ func validateBusinessHours(hours []*domain.BusinessHours) error {
 	return nil
 }
 
-func validateDiningPeriods(periods []*domain.DiningPeriod) error {
+func validateDiningPeriods(periods []domain.DiningPeriod) error {
 	if len(periods) == 0 {
 		return nil
 	}
 	seen := make(map[string]struct{})
 	for _, p := range periods {
-		if p == nil {
-			continue
-		}
 		if p.StartTime >= p.EndTime {
 			return domain.ParamsError(domain.ErrStoreDiningPeriodTimeInvalid)
 		}
@@ -321,15 +315,9 @@ func validateDiningPeriods(periods []*domain.DiningPeriod) error {
 		seen[p.Name] = struct{}{}
 	}
 
-	sorted := make([]*domain.DiningPeriod, 0, len(periods))
-	for _, p := range periods {
-		if p != nil {
-			sorted = append(sorted, p)
-		}
-	}
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].StartTime < sorted[j].StartTime })
-	for i := 1; i < len(sorted); i++ {
-		prev, cur := sorted[i-1], sorted[i]
+	sort.Slice(periods, func(i, j int) bool { return periods[i].StartTime < periods[j].StartTime })
+	for i := 1; i < len(periods); i++ {
+		prev, cur := periods[i-1], periods[i]
 		if cur.StartTime < prev.EndTime {
 			return domain.ParamsError(domain.ErrStoreDiningPeriodConflict)
 		}
@@ -337,15 +325,12 @@ func validateDiningPeriods(periods []*domain.DiningPeriod) error {
 	return nil
 }
 
-func validateShiftTimes(shifts []*domain.ShiftTime) error {
+func validateShiftTimes(shifts []domain.ShiftTime) error {
 	if len(shifts) == 0 {
 		return nil
 	}
 	seen := make(map[string]struct{})
 	for _, s := range shifts {
-		if s == nil {
-			continue
-		}
 		if s.StartTime >= s.EndTime {
 			return domain.ParamsError(domain.ErrStoreShiftTimeTimeInvalid)
 		}
@@ -355,15 +340,9 @@ func validateShiftTimes(shifts []*domain.ShiftTime) error {
 		seen[s.Name] = struct{}{}
 	}
 
-	sorted := make([]*domain.ShiftTime, 0, len(shifts))
-	for _, s := range shifts {
-		if s != nil {
-			sorted = append(sorted, s)
-		}
-	}
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].StartTime < sorted[j].StartTime })
-	for i := 1; i < len(sorted); i++ {
-		prev, cur := sorted[i-1], sorted[i]
+	sort.Slice(shifts, func(i, j int) bool { return shifts[i].StartTime < shifts[j].StartTime })
+	for i := 1; i < len(shifts); i++ {
+		prev, cur := shifts[i-1], shifts[i]
 		if cur.StartTime < prev.EndTime {
 			return domain.ParamsError(domain.ErrStoreShiftTimeConflict)
 		}

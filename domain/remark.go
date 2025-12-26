@@ -15,6 +15,33 @@ var (
 	ErrRemarkDeleteSystem = errors.New("系统备注不能删除")
 )
 
+type Remarks []*Remark
+
+// RemarkRepository 备注仓储接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/remark_repository.go -package=mock . RemarkRepository
+type RemarkRepository interface {
+	FindByID(ctx context.Context, id uuid.UUID) (*Remark, error)
+	Create(ctx context.Context, remark *Remark) (err error)
+	Update(ctx context.Context, remark *Remark) (err error)
+	Delete(ctx context.Context, id uuid.UUID) (err error)
+	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
+	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
+	CountRemarkByCategories(ctx context.Context, params CountRemarkParams) (countRemark map[uuid.UUID]int, err error)
+}
+
+// RemarkInteractor 备注用例接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/remark_interactor.go -package=mock . RemarkInteractor
+type RemarkInteractor interface {
+	Create(ctx context.Context, remark *CreateRemarkParams) (err error)
+	Update(ctx context.Context, remark *UpdateRemarkParams) (err error)
+	Delete(ctx context.Context, id uuid.UUID) (err error)
+	GetRemark(ctx context.Context, id uuid.UUID) (remark *Remark, err error)
+	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
+	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
+	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateType, remark *Remark) (err error)
+}
 type RemarkType string // 备注归属方
 
 const (
@@ -106,29 +133,6 @@ type Remark struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
-type Remarks []*Remark
-
-//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/remark_repository.go -package=mock . RemarkRepository
-type RemarkRepository interface {
-	FindByID(ctx context.Context, id uuid.UUID) (*Remark, error)
-	Create(ctx context.Context, remark *Remark) (err error)
-	Update(ctx context.Context, remark *Remark) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
-	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
-	CountRemarkByCategories(ctx context.Context, params CountRemarkParams) (countRemark map[uuid.UUID]int, err error)
-}
-
-//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/remark_interactor.go -package=mock . RemarkInteractor
-type RemarkInteractor interface {
-	Create(ctx context.Context, remark *CreateRemarkParams) (err error)
-	Update(ctx context.Context, remark *UpdateRemarkParams) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetRemark(ctx context.Context, id uuid.UUID) (remark *Remark, err error)
-	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
-	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
-	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateType, remark *Remark) (err error)
-}
 type CreateRemarkParams struct {
 	RemarkType RemarkType `json:"remark_type"` // 备注归属方
 	Name       string     `json:"name"`        // 备注名称

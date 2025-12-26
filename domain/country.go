@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/country.go -package=mock . CountryRepository
 type CountryRepository interface {
 	GetAll(ctx context.Context) (countryList []*Country, err error)
 	FindByID(ctx context.Context, id uuid.UUID) (country *Country, err error)

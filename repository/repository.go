@@ -27,6 +27,8 @@ type Repository struct {
 	remarkRepo               *RemarkRepository
 	remarkCategoryRepo       *RemarkCategoryRepository
 	stallRepo                *StallRepository
+	additionalFeeRepo        *AdditionalFeeRepository
+	deviceRepo               *DeviceRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -189,4 +191,23 @@ func (repo *Repository) StallRepo() domain.StallRepository {
 		repo.stallRepo = NewStallRepository(repo.client)
 	}
 	return repo.stallRepo
+}
+func (repo *Repository) AdditionalFeeRepo() domain.AdditionalFeeRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.additionalFeeRepo == nil {
+		repo.additionalFeeRepo = NewAdditionalFeeRepository(repo.client)
+	}
+	return repo.additionalFeeRepo
+}
+
+func (repo *Repository) DeviceRepo() domain.DeviceRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.deviceRepo == nil {
+		repo.deviceRepo = NewDeviceRepository(repo.client)
+	}
+	return repo.deviceRepo
 }

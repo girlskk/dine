@@ -2,6 +2,7 @@ package usecasefx
 
 import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/category"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
@@ -45,6 +46,10 @@ var Module = fx.Module(
 		fx.Annotate(
 			stall.NewStallInteractor,
 			fx.As(new(domain.StallInteractor)),
+		),
+		fx.Annotate(
+			additionalfee.NewAdditionalFeeInteractor,
+			fx.As(new(domain.AdditionalFeeInteractor)),
 		),
 	),
 )

@@ -100,9 +100,13 @@ type MerchantEdges struct {
 	Remarks []*Remark `json:"remarks,omitempty"`
 	// Stalls holds the value of the stalls edge.
 	Stalls []*Stall `json:"stalls,omitempty"`
+	// AdditionalFees holds the value of the additional_fees edge.
+	AdditionalFees []*AdditionalFee `json:"additional_fees,omitempty"`
+	// Devices holds the value of the devices edge.
+	Devices []*Device `json:"devices,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [11]bool
+	loadedTypes [13]bool
 }
 
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
@@ -214,6 +218,24 @@ func (e MerchantEdges) StallsOrErr() ([]*Stall, error) {
 		return e.Stalls, nil
 	}
 	return nil, &NotLoadedError{edge: "stalls"}
+}
+
+// AdditionalFeesOrErr returns the AdditionalFees value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) AdditionalFeesOrErr() ([]*AdditionalFee, error) {
+	if e.loadedTypes[11] {
+		return e.AdditionalFees, nil
+	}
+	return nil, &NotLoadedError{edge: "additional_fees"}
+}
+
+// DevicesOrErr returns the Devices value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) DevicesOrErr() ([]*Device, error) {
+	if e.loadedTypes[12] {
+		return e.Devices, nil
+	}
+	return nil, &NotLoadedError{edge: "devices"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -449,6 +471,16 @@ func (m *Merchant) QueryRemarks() *RemarkQuery {
 // QueryStalls queries the "stalls" edge of the Merchant entity.
 func (m *Merchant) QueryStalls() *StallQuery {
 	return NewMerchantClient(m.config).QueryStalls(m)
+}
+
+// QueryAdditionalFees queries the "additional_fees" edge of the Merchant entity.
+func (m *Merchant) QueryAdditionalFees() *AdditionalFeeQuery {
+	return NewMerchantClient(m.config).QueryAdditionalFees(m)
+}
+
+// QueryDevices queries the "devices" edge of the Merchant entity.
+func (m *Merchant) QueryDevices() *DeviceQuery {
+	return NewMerchantClient(m.config).QueryDevices(m)
 }
 
 // Update returns a builder for updating this Merchant.

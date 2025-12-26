@@ -13,8 +13,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -456,6 +458,36 @@ func (mu *MerchantUpdate) AddStalls(s ...*Stall) *MerchantUpdate {
 	return mu.AddStallIDs(ids...)
 }
 
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (mu *MerchantUpdate) AddAdditionalFeeIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddAdditionalFeeIDs(ids...)
+	return mu
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (mu *MerchantUpdate) AddAdditionalFees(a ...*AdditionalFee) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return mu.AddAdditionalFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (mu *MerchantUpdate) AddDeviceIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddDeviceIDs(ids...)
+	return mu
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (mu *MerchantUpdate) AddDevices(d ...*Device) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mu.AddDeviceIDs(ids...)
+}
+
 // Mutation returns the MerchantMutation object of the builder.
 func (mu *MerchantUpdate) Mutation() *MerchantMutation {
 	return mu.mutation
@@ -594,6 +626,48 @@ func (mu *MerchantUpdate) RemoveStalls(s ...*Stall) *MerchantUpdate {
 		ids[i] = s[i].ID
 	}
 	return mu.RemoveStallIDs(ids...)
+}
+
+// ClearAdditionalFees clears all "additional_fees" edges to the AdditionalFee entity.
+func (mu *MerchantUpdate) ClearAdditionalFees() *MerchantUpdate {
+	mu.mutation.ClearAdditionalFees()
+	return mu
+}
+
+// RemoveAdditionalFeeIDs removes the "additional_fees" edge to AdditionalFee entities by IDs.
+func (mu *MerchantUpdate) RemoveAdditionalFeeIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveAdditionalFeeIDs(ids...)
+	return mu
+}
+
+// RemoveAdditionalFees removes "additional_fees" edges to AdditionalFee entities.
+func (mu *MerchantUpdate) RemoveAdditionalFees(a ...*AdditionalFee) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return mu.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (mu *MerchantUpdate) ClearDevices() *MerchantUpdate {
+	mu.mutation.ClearDevices()
+	return mu
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (mu *MerchantUpdate) RemoveDeviceIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveDeviceIDs(ids...)
+	return mu
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (mu *MerchantUpdate) RemoveDevices(d ...*Device) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mu.RemoveDeviceIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1148,6 +1222,96 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedAdditionalFeesIDs(); len(nodes) > 0 && !mu.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !mu.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(mu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1585,6 +1749,36 @@ func (muo *MerchantUpdateOne) AddStalls(s ...*Stall) *MerchantUpdateOne {
 	return muo.AddStallIDs(ids...)
 }
 
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (muo *MerchantUpdateOne) AddAdditionalFeeIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddAdditionalFeeIDs(ids...)
+	return muo
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (muo *MerchantUpdateOne) AddAdditionalFees(a ...*AdditionalFee) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return muo.AddAdditionalFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (muo *MerchantUpdateOne) AddDeviceIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddDeviceIDs(ids...)
+	return muo
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (muo *MerchantUpdateOne) AddDevices(d ...*Device) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return muo.AddDeviceIDs(ids...)
+}
+
 // Mutation returns the MerchantMutation object of the builder.
 func (muo *MerchantUpdateOne) Mutation() *MerchantMutation {
 	return muo.mutation
@@ -1723,6 +1917,48 @@ func (muo *MerchantUpdateOne) RemoveStalls(s ...*Stall) *MerchantUpdateOne {
 		ids[i] = s[i].ID
 	}
 	return muo.RemoveStallIDs(ids...)
+}
+
+// ClearAdditionalFees clears all "additional_fees" edges to the AdditionalFee entity.
+func (muo *MerchantUpdateOne) ClearAdditionalFees() *MerchantUpdateOne {
+	muo.mutation.ClearAdditionalFees()
+	return muo
+}
+
+// RemoveAdditionalFeeIDs removes the "additional_fees" edge to AdditionalFee entities by IDs.
+func (muo *MerchantUpdateOne) RemoveAdditionalFeeIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveAdditionalFeeIDs(ids...)
+	return muo
+}
+
+// RemoveAdditionalFees removes "additional_fees" edges to AdditionalFee entities.
+func (muo *MerchantUpdateOne) RemoveAdditionalFees(a ...*AdditionalFee) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return muo.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (muo *MerchantUpdateOne) ClearDevices() *MerchantUpdateOne {
+	muo.mutation.ClearDevices()
+	return muo
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (muo *MerchantUpdateOne) RemoveDeviceIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveDeviceIDs(ids...)
+	return muo
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (muo *MerchantUpdateOne) RemoveDevices(d ...*Device) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return muo.RemoveDeviceIDs(ids...)
 }
 
 // Where appends a list predicates to the MerchantUpdate builder.
@@ -2300,6 +2536,96 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedAdditionalFeesIDs(); len(nodes) > 0 && !muo.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !muo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

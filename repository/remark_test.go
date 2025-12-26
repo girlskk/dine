@@ -162,9 +162,9 @@ func (s *RemarkTestSuite) ensureStore(id, merchantID uuid.UUID) *ent.Store {
 		SetCashierDeskURL("cd").
 		SetDiningEnvironmentURL("de").
 		SetFoodOperationLicenseURL("fo").
-		SetBusinessHours("{}").
-		SetDiningPeriods("{}").
-		SetShiftTimes("{}").
+		SetBusinessHours([]domain.BusinessHours{}).
+		SetDiningPeriods([]domain.DiningPeriod{}).
+		SetShiftTimes([]domain.ShiftTime{}).
 		SetAddress("addr").
 		SetLng("0").
 		SetLat("0").

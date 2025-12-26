@@ -76,5 +76,6 @@ func (Stall) Edges() []ent.Edge {
 			Field("store_id").
 			Unique().
 			Immutable(),
+		edge.To("devices", Device.Type),
 	}
 }

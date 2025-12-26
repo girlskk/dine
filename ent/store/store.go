@@ -100,6 +100,10 @@ const (
 	EdgeRemarks = "remarks"
 	// EdgeStalls holds the string denoting the stalls edge name in mutations.
 	EdgeStalls = "stalls"
+	// EdgeAdditionalFees holds the string denoting the additional_fees edge name in mutations.
+	EdgeAdditionalFees = "additional_fees"
+	// EdgeDevices holds the string denoting the devices edge name in mutations.
+	EdgeDevices = "devices"
 	// Table holds the table name of the store in the database.
 	Table = "stores"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -165,6 +169,20 @@ const (
 	StallsInverseTable = "stalls"
 	// StallsColumn is the table column denoting the stalls relation/edge.
 	StallsColumn = "store_id"
+	// AdditionalFeesTable is the table that holds the additional_fees relation/edge.
+	AdditionalFeesTable = "additional_fees"
+	// AdditionalFeesInverseTable is the table name for the AdditionalFee entity.
+	// It exists in this package in order to avoid circular dependency with the "additionalfee" package.
+	AdditionalFeesInverseTable = "additional_fees"
+	// AdditionalFeesColumn is the table column denoting the additional_fees relation/edge.
+	AdditionalFeesColumn = "store_id"
+	// DevicesTable is the table that holds the devices relation/edge.
+	DevicesTable = "devices"
+	// DevicesInverseTable is the table name for the Device entity.
+	// It exists in this package in order to avoid circular dependency with the "device" package.
+	DevicesInverseTable = "devices"
+	// DevicesColumn is the table column denoting the devices relation/edge.
+	DevicesColumn = "store_id"
 )
 
 // Columns holds all SQL columns for store fields.
@@ -284,14 +302,6 @@ var (
 	DefaultFoodOperationLicenseURL string
 	// FoodOperationLicenseURLValidator is a validator for the "food_operation_license_url" field. It is called by the builders before save.
 	FoodOperationLicenseURLValidator func(string) error
-	// DefaultBusinessHours holds the default value on creation for the "business_hours" field.
-	DefaultBusinessHours string
-	// BusinessHoursValidator is a validator for the "business_hours" field. It is called by the builders before save.
-	BusinessHoursValidator func(string) error
-	// DiningPeriodsValidator is a validator for the "dining_periods" field. It is called by the builders before save.
-	DiningPeriodsValidator func(string) error
-	// ShiftTimesValidator is a validator for the "shift_times" field. It is called by the builders before save.
-	ShiftTimesValidator func(string) error
 	// DefaultAddress holds the default value on creation for the "address" field.
 	DefaultAddress string
 	// AddressValidator is a validator for the "address" field. It is called by the builders before save.
@@ -441,21 +451,6 @@ func ByFoodOperationLicenseURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFoodOperationLicenseURL, opts...).ToFunc()
 }
 
-// ByBusinessHours orders the results by the business_hours field.
-func ByBusinessHours(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBusinessHours, opts...).ToFunc()
-}
-
-// ByDiningPeriods orders the results by the dining_periods field.
-func ByDiningPeriods(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDiningPeriods, opts...).ToFunc()
-}
-
-// ByShiftTimes orders the results by the shift_times field.
-func ByShiftTimes(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldShiftTimes, opts...).ToFunc()
-}
-
 // ByCountryID orders the results by the country_id field.
 func ByCountryID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCountryID, opts...).ToFunc()
@@ -572,6 +567,34 @@ func ByStalls(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newStallsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByAdditionalFeesCount orders the results by additional_fees count.
+func ByAdditionalFeesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAdditionalFeesStep(), opts...)
+	}
+}
+
+// ByAdditionalFees orders the results by additional_fees terms.
+func ByAdditionalFees(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAdditionalFeesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByDevicesCount orders the results by devices count.
+func ByDevicesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDevicesStep(), opts...)
+	}
+}
+
+// ByDevices orders the results by devices terms.
+func ByDevices(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDevicesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -633,5 +656,19 @@ func newStallsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(StallsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, StallsTable, StallsColumn),
+	)
+}
+func newAdditionalFeesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AdditionalFeesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AdditionalFeesTable, AdditionalFeesColumn),
+	)
+}
+func newDevicesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DevicesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DevicesTable, DevicesColumn),
 	)
 }

@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// AdditionalFee is the client for interacting with the AdditionalFee builders.
+	AdditionalFee *AdditionalFeeClient
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
 	// BackendUser is the client for interacting with the BackendUser builders.
@@ -22,6 +24,8 @@ type Tx struct {
 	City *CityClient
 	// Country is the client for interacting with the Country builders.
 	Country *CountryClient
+	// Device is the client for interacting with the Device builders.
+	Device *DeviceClient
 	// District is the client for interacting with the District builders.
 	District *DistrictClient
 	// Merchant is the client for interacting with the Merchant builders.
@@ -171,11 +175,13 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.AdditionalFee = NewAdditionalFeeClient(tx.config)
 	tx.AdminUser = NewAdminUserClient(tx.config)
 	tx.BackendUser = NewBackendUserClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
 	tx.City = NewCityClient(tx.config)
 	tx.Country = NewCountryClient(tx.config)
+	tx.Device = NewDeviceClient(tx.config)
 	tx.District = NewDistrictClient(tx.config)
 	tx.Merchant = NewMerchantClient(tx.config)
 	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
@@ -194,7 +200,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: AdminUser.QueryXXX(), the query will be executed
+// applies a query, for example: AdditionalFee.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

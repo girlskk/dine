@@ -43,4 +43,6 @@ const (
 	RemarkDeleteSystem            ErrCode = "REMARK_DELETE_SYSTEM"              // 不能删除系统内置备注
 	RemarkCategoryNameExists      ErrCode = "REMARK_CATEGORY_NAME_EXISTS"       // 备注分类名称已存在
 	StallNameExists               ErrCode = "STALL_NAME_EXISTS"                 // 出品部门名称已存在
+	DeviceNameExists              ErrCode = "DEVICE_NAME_EXISTS"                // 设备名称已存在
+	DeviceCodeExists              ErrCode = "DEVICE_CODE_EXISTS"                // 设备编号已存在
 )

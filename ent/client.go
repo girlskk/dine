@@ -16,11 +16,13 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -37,6 +39,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// AdditionalFee is the client for interacting with the AdditionalFee builders.
+	AdditionalFee *AdditionalFeeClient
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
 	// BackendUser is the client for interacting with the BackendUser builders.
@@ -47,6 +51,8 @@ type Client struct {
 	City *CityClient
 	// Country is the client for interacting with the Country builders.
 	Country *CountryClient
+	// Device is the client for interacting with the Device builders.
+	Device *DeviceClient
 	// District is the client for interacting with the District builders.
 	District *DistrictClient
 	// Merchant is the client for interacting with the Merchant builders.
@@ -76,11 +82,13 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.AdditionalFee = NewAdditionalFeeClient(c.config)
 	c.AdminUser = NewAdminUserClient(c.config)
 	c.BackendUser = NewBackendUserClient(c.config)
 	c.Category = NewCategoryClient(c.config)
 	c.City = NewCityClient(c.config)
 	c.Country = NewCountryClient(c.config)
+	c.Device = NewDeviceClient(c.config)
 	c.District = NewDistrictClient(c.config)
 	c.Merchant = NewMerchantClient(c.config)
 	c.MerchantBusinessType = NewMerchantBusinessTypeClient(c.config)
@@ -182,11 +190,13 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                  ctx,
 		config:               cfg,
+		AdditionalFee:        NewAdditionalFeeClient(cfg),
 		AdminUser:            NewAdminUserClient(cfg),
 		BackendUser:          NewBackendUserClient(cfg),
 		Category:             NewCategoryClient(cfg),
 		City:                 NewCityClient(cfg),
 		Country:              NewCountryClient(cfg),
+		Device:               NewDeviceClient(cfg),
 		District:             NewDistrictClient(cfg),
 		Merchant:             NewMerchantClient(cfg),
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
@@ -215,11 +225,13 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                  ctx,
 		config:               cfg,
+		AdditionalFee:        NewAdditionalFeeClient(cfg),
 		AdminUser:            NewAdminUserClient(cfg),
 		BackendUser:          NewBackendUserClient(cfg),
 		Category:             NewCategoryClient(cfg),
 		City:                 NewCityClient(cfg),
 		Country:              NewCountryClient(cfg),
+		Device:               NewDeviceClient(cfg),
 		District:             NewDistrictClient(cfg),
 		Merchant:             NewMerchantClient(cfg),
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
@@ -235,7 +247,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		AdminUser.
+//		AdditionalFee.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -258,9 +270,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Remark,
-		c.RemarkCategory, c.Stall, c.Store,
+		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
+		c.Device, c.District, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal,
+		c.Province, c.Remark, c.RemarkCategory, c.Stall, c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -270,9 +282,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Province, c.Remark,
-		c.RemarkCategory, c.Stall, c.Store,
+		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
+		c.Device, c.District, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal,
+		c.Province, c.Remark, c.RemarkCategory, c.Stall, c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -281,6 +293,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *AdditionalFeeMutation:
+		return c.AdditionalFee.mutate(ctx, m)
 	case *AdminUserMutation:
 		return c.AdminUser.mutate(ctx, m)
 	case *BackendUserMutation:
@@ -291,6 +305,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.City.mutate(ctx, m)
 	case *CountryMutation:
 		return c.Country.mutate(ctx, m)
+	case *DeviceMutation:
+		return c.Device.mutate(ctx, m)
 	case *DistrictMutation:
 		return c.District.mutate(ctx, m)
 	case *MerchantMutation:
@@ -311,6 +327,173 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Store.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// AdditionalFeeClient is a client for the AdditionalFee schema.
+type AdditionalFeeClient struct {
+	config
+}
+
+// NewAdditionalFeeClient returns a client for the AdditionalFee from the given config.
+func NewAdditionalFeeClient(c config) *AdditionalFeeClient {
+	return &AdditionalFeeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `additionalfee.Hooks(f(g(h())))`.
+func (c *AdditionalFeeClient) Use(hooks ...Hook) {
+	c.hooks.AdditionalFee = append(c.hooks.AdditionalFee, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `additionalfee.Intercept(f(g(h())))`.
+func (c *AdditionalFeeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AdditionalFee = append(c.inters.AdditionalFee, interceptors...)
+}
+
+// Create returns a builder for creating a AdditionalFee entity.
+func (c *AdditionalFeeClient) Create() *AdditionalFeeCreate {
+	mutation := newAdditionalFeeMutation(c.config, OpCreate)
+	return &AdditionalFeeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AdditionalFee entities.
+func (c *AdditionalFeeClient) CreateBulk(builders ...*AdditionalFeeCreate) *AdditionalFeeCreateBulk {
+	return &AdditionalFeeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AdditionalFeeClient) MapCreateBulk(slice any, setFunc func(*AdditionalFeeCreate, int)) *AdditionalFeeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AdditionalFeeCreateBulk{err: fmt.Errorf("calling to AdditionalFeeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AdditionalFeeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AdditionalFeeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AdditionalFee.
+func (c *AdditionalFeeClient) Update() *AdditionalFeeUpdate {
+	mutation := newAdditionalFeeMutation(c.config, OpUpdate)
+	return &AdditionalFeeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AdditionalFeeClient) UpdateOne(af *AdditionalFee) *AdditionalFeeUpdateOne {
+	mutation := newAdditionalFeeMutation(c.config, OpUpdateOne, withAdditionalFee(af))
+	return &AdditionalFeeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AdditionalFeeClient) UpdateOneID(id uuid.UUID) *AdditionalFeeUpdateOne {
+	mutation := newAdditionalFeeMutation(c.config, OpUpdateOne, withAdditionalFeeID(id))
+	return &AdditionalFeeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AdditionalFee.
+func (c *AdditionalFeeClient) Delete() *AdditionalFeeDelete {
+	mutation := newAdditionalFeeMutation(c.config, OpDelete)
+	return &AdditionalFeeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AdditionalFeeClient) DeleteOne(af *AdditionalFee) *AdditionalFeeDeleteOne {
+	return c.DeleteOneID(af.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AdditionalFeeClient) DeleteOneID(id uuid.UUID) *AdditionalFeeDeleteOne {
+	builder := c.Delete().Where(additionalfee.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AdditionalFeeDeleteOne{builder}
+}
+
+// Query returns a query builder for AdditionalFee.
+func (c *AdditionalFeeClient) Query() *AdditionalFeeQuery {
+	return &AdditionalFeeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAdditionalFee},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AdditionalFee entity by its id.
+func (c *AdditionalFeeClient) Get(ctx context.Context, id uuid.UUID) (*AdditionalFee, error) {
+	return c.Query().Where(additionalfee.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AdditionalFeeClient) GetX(ctx context.Context, id uuid.UUID) *AdditionalFee {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMerchant queries the merchant edge of a AdditionalFee.
+func (c *AdditionalFeeClient) QueryMerchant(af *AdditionalFee) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := af.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(additionalfee.Table, additionalfee.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, additionalfee.MerchantTable, additionalfee.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(af.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a AdditionalFee.
+func (c *AdditionalFeeClient) QueryStore(af *AdditionalFee) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := af.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(additionalfee.Table, additionalfee.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, additionalfee.StoreTable, additionalfee.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(af.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AdditionalFeeClient) Hooks() []Hook {
+	hooks := c.hooks.AdditionalFee
+	return append(hooks[:len(hooks):len(hooks)], additionalfee.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *AdditionalFeeClient) Interceptors() []Interceptor {
+	inters := c.inters.AdditionalFee
+	return append(inters[:len(inters):len(inters)], additionalfee.Interceptors[:]...)
+}
+
+func (c *AdditionalFeeClient) mutate(ctx context.Context, m *AdditionalFeeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AdditionalFeeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AdditionalFeeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AdditionalFeeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AdditionalFeeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AdditionalFee mutation op: %q", m.Op())
 	}
 }
 
@@ -1213,6 +1396,189 @@ func (c *CountryClient) mutate(ctx context.Context, m *CountryMutation) (Value, 
 	}
 }
 
+// DeviceClient is a client for the Device schema.
+type DeviceClient struct {
+	config
+}
+
+// NewDeviceClient returns a client for the Device from the given config.
+func NewDeviceClient(c config) *DeviceClient {
+	return &DeviceClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `device.Hooks(f(g(h())))`.
+func (c *DeviceClient) Use(hooks ...Hook) {
+	c.hooks.Device = append(c.hooks.Device, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `device.Intercept(f(g(h())))`.
+func (c *DeviceClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Device = append(c.inters.Device, interceptors...)
+}
+
+// Create returns a builder for creating a Device entity.
+func (c *DeviceClient) Create() *DeviceCreate {
+	mutation := newDeviceMutation(c.config, OpCreate)
+	return &DeviceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Device entities.
+func (c *DeviceClient) CreateBulk(builders ...*DeviceCreate) *DeviceCreateBulk {
+	return &DeviceCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DeviceClient) MapCreateBulk(slice any, setFunc func(*DeviceCreate, int)) *DeviceCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DeviceCreateBulk{err: fmt.Errorf("calling to DeviceClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DeviceCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DeviceCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Device.
+func (c *DeviceClient) Update() *DeviceUpdate {
+	mutation := newDeviceMutation(c.config, OpUpdate)
+	return &DeviceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DeviceClient) UpdateOne(d *Device) *DeviceUpdateOne {
+	mutation := newDeviceMutation(c.config, OpUpdateOne, withDevice(d))
+	return &DeviceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DeviceClient) UpdateOneID(id uuid.UUID) *DeviceUpdateOne {
+	mutation := newDeviceMutation(c.config, OpUpdateOne, withDeviceID(id))
+	return &DeviceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Device.
+func (c *DeviceClient) Delete() *DeviceDelete {
+	mutation := newDeviceMutation(c.config, OpDelete)
+	return &DeviceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DeviceClient) DeleteOne(d *Device) *DeviceDeleteOne {
+	return c.DeleteOneID(d.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DeviceClient) DeleteOneID(id uuid.UUID) *DeviceDeleteOne {
+	builder := c.Delete().Where(device.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DeviceDeleteOne{builder}
+}
+
+// Query returns a query builder for Device.
+func (c *DeviceClient) Query() *DeviceQuery {
+	return &DeviceQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDevice},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Device entity by its id.
+func (c *DeviceClient) Get(ctx context.Context, id uuid.UUID) (*Device, error) {
+	return c.Query().Where(device.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DeviceClient) GetX(ctx context.Context, id uuid.UUID) *Device {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMerchant queries the merchant edge of a Device.
+func (c *DeviceClient) QueryMerchant(d *Device) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(device.Table, device.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, device.MerchantTable, device.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a Device.
+func (c *DeviceClient) QueryStore(d *Device) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(device.Table, device.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, device.StoreTable, device.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStall queries the stall edge of a Device.
+func (c *DeviceClient) QueryStall(d *Device) *StallQuery {
+	query := (&StallClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(device.Table, device.FieldID, id),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, device.StallTable, device.StallColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DeviceClient) Hooks() []Hook {
+	hooks := c.hooks.Device
+	return append(hooks[:len(hooks):len(hooks)], device.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *DeviceClient) Interceptors() []Interceptor {
+	inters := c.inters.Device
+	return append(inters[:len(inters):len(inters)], device.Interceptors[:]...)
+}
+
+func (c *DeviceClient) mutate(ctx context.Context, m *DeviceMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DeviceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DeviceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DeviceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DeviceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Device mutation op: %q", m.Op())
+	}
+}
+
 // DistrictClient is a client for the District schema.
 type DistrictClient struct {
 	config
@@ -1705,6 +2071,38 @@ func (c *MerchantClient) QueryStalls(m *Merchant) *StallQuery {
 			sqlgraph.From(merchant.Table, merchant.FieldID, id),
 			sqlgraph.To(stall.Table, stall.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StallsTable, merchant.StallsColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAdditionalFees queries the additional_fees edge of a Merchant.
+func (c *MerchantClient) QueryAdditionalFees(m *Merchant) *AdditionalFeeQuery {
+	query := (&AdditionalFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(additionalfee.Table, additionalfee.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.AdditionalFeesTable, merchant.AdditionalFeesColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDevices queries the devices edge of a Merchant.
+func (c *MerchantClient) QueryDevices(m *Merchant) *DeviceQuery {
+	query := (&DeviceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(device.Table, device.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.DevicesTable, merchant.DevicesColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -2762,6 +3160,22 @@ func (c *StallClient) QueryStore(s *Stall) *StoreQuery {
 	return query
 }
 
+// QueryDevices queries the devices edge of a Stall.
+func (c *StallClient) QueryDevices(s *Stall) *DeviceQuery {
+	query := (&DeviceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(stall.Table, stall.FieldID, id),
+			sqlgraph.To(device.Table, device.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, stall.DevicesTable, stall.DevicesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StallClient) Hooks() []Hook {
 	hooks := c.hooks.Stall
@@ -3041,6 +3455,38 @@ func (c *StoreClient) QueryStalls(s *Store) *StallQuery {
 	return query
 }
 
+// QueryAdditionalFees queries the additional_fees edge of a Store.
+func (c *StoreClient) QueryAdditionalFees(s *Store) *AdditionalFeeQuery {
+	query := (&AdditionalFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(additionalfee.Table, additionalfee.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.AdditionalFeesTable, store.AdditionalFeesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDevices queries the devices edge of a Store.
+func (c *StoreClient) QueryDevices(s *Store) *DeviceQuery {
+	query := (&DeviceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(device.Table, device.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.DevicesTable, store.DevicesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StoreClient) Hooks() []Hook {
 	hooks := c.hooks.Store
@@ -3071,13 +3517,13 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory, Stall,
-		Store []ent.Hook
+		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Device,
+		District, Merchant, MerchantBusinessType, MerchantRenewal, Province, Remark,
+		RemarkCategory, Stall, Store []ent.Hook
 	}
 	inters struct {
-		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Province, Remark, RemarkCategory, Stall,
-		Store []ent.Interceptor
+		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Device,
+		District, Merchant, MerchantBusinessType, MerchantRenewal, Province, Remark,
+		RemarkCategory, Stall, Store []ent.Interceptor
 	}
 )

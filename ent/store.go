@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -70,11 +71,11 @@ type Store struct {
 	// 食品经营许可证照片
 	FoodOperationLicenseURL string `json:"food_operation_license_url,omitempty"`
 	// 营业时间段，JSON格式存储
-	BusinessHours string `json:"business_hours,omitempty"`
+	BusinessHours []domain.BusinessHours `json:"business_hours,omitempty"`
 	// 就餐时段，JSON格式存储
-	DiningPeriods string `json:"dining_periods,omitempty"`
+	DiningPeriods []domain.DiningPeriod `json:"dining_periods,omitempty"`
 	// 班次时间，JSON格式存储
-	ShiftTimes string `json:"shift_times,omitempty"`
+	ShiftTimes []domain.ShiftTime `json:"shift_times,omitempty"`
 	// 国家/地区id
 	CountryID uuid.UUID `json:"country_id,omitempty"`
 	// 省份 id
@@ -117,9 +118,13 @@ type StoreEdges struct {
 	Remarks []*Remark `json:"remarks,omitempty"`
 	// Stalls holds the value of the stalls edge.
 	Stalls []*Stall `json:"stalls,omitempty"`
+	// AdditionalFees holds the value of the additional_fees edge.
+	AdditionalFees []*AdditionalFee `json:"additional_fees,omitempty"`
+	// Devices holds the value of the devices edge.
+	Devices []*Device `json:"devices,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [11]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -217,14 +222,34 @@ func (e StoreEdges) StallsOrErr() ([]*Stall, error) {
 	return nil, &NotLoadedError{edge: "stalls"}
 }
 
+// AdditionalFeesOrErr returns the AdditionalFees value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) AdditionalFeesOrErr() ([]*AdditionalFee, error) {
+	if e.loadedTypes[9] {
+		return e.AdditionalFees, nil
+	}
+	return nil, &NotLoadedError{edge: "additional_fees"}
+}
+
+// DevicesOrErr returns the Devices value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) DevicesOrErr() ([]*Device, error) {
+	if e.loadedTypes[10] {
+		return e.Devices, nil
+	}
+	return nil, &NotLoadedError{edge: "devices"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Store) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case store.FieldBusinessHours, store.FieldDiningPeriods, store.FieldShiftTimes:
+			values[i] = new([]byte)
 		case store.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldLocationNumber, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldBusinessHours, store.FieldDiningPeriods, store.FieldShiftTimes, store.FieldAddress, store.FieldLng, store.FieldLat:
+		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldLocationNumber, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldAddress, store.FieldLng, store.FieldLat:
 			values[i] = new(sql.NullString)
 		case store.FieldCreatedAt, store.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -378,22 +403,28 @@ func (s *Store) assignValues(columns []string, values []any) error {
 				s.FoodOperationLicenseURL = value.String
 			}
 		case store.FieldBusinessHours:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field business_hours", values[i])
-			} else if value.Valid {
-				s.BusinessHours = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.BusinessHours); err != nil {
+					return fmt.Errorf("unmarshal field business_hours: %w", err)
+				}
 			}
 		case store.FieldDiningPeriods:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field dining_periods", values[i])
-			} else if value.Valid {
-				s.DiningPeriods = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.DiningPeriods); err != nil {
+					return fmt.Errorf("unmarshal field dining_periods: %w", err)
+				}
 			}
 		case store.FieldShiftTimes:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field shift_times", values[i])
-			} else if value.Valid {
-				s.ShiftTimes = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.ShiftTimes); err != nil {
+					return fmt.Errorf("unmarshal field shift_times: %w", err)
+				}
 			}
 		case store.FieldCountryID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -501,6 +532,16 @@ func (s *Store) QueryStalls() *StallQuery {
 	return NewStoreClient(s.config).QueryStalls(s)
 }
 
+// QueryAdditionalFees queries the "additional_fees" edge of the Store entity.
+func (s *Store) QueryAdditionalFees() *AdditionalFeeQuery {
+	return NewStoreClient(s.config).QueryAdditionalFees(s)
+}
+
+// QueryDevices queries the "devices" edge of the Store entity.
+func (s *Store) QueryDevices() *DeviceQuery {
+	return NewStoreClient(s.config).QueryDevices(s)
+}
+
 // Update returns a builder for updating this Store.
 // Note that you need to call Store.Unwrap() before calling this method if this Store
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -588,13 +629,13 @@ func (s *Store) String() string {
 	builder.WriteString(s.FoodOperationLicenseURL)
 	builder.WriteString(", ")
 	builder.WriteString("business_hours=")
-	builder.WriteString(s.BusinessHours)
+	builder.WriteString(fmt.Sprintf("%v", s.BusinessHours))
 	builder.WriteString(", ")
 	builder.WriteString("dining_periods=")
-	builder.WriteString(s.DiningPeriods)
+	builder.WriteString(fmt.Sprintf("%v", s.DiningPeriods))
 	builder.WriteString(", ")
 	builder.WriteString("shift_times=")
-	builder.WriteString(s.ShiftTimes)
+	builder.WriteString(fmt.Sprintf("%v", s.ShiftTimes))
 	builder.WriteString(", ")
 	builder.WriteString("country_id=")
 	builder.WriteString(fmt.Sprintf("%v", s.CountryID))

@@ -8,6 +8,69 @@ import (
 )
 
 var (
+	// AdditionalFeesColumns holds the columns for the "additional_fees" table.
+	AdditionalFeesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "fee_type", Type: field.TypeEnum, Enums: []string{"merchant", "store"}},
+		{Name: "fee_category", Type: field.TypeEnum, Enums: []string{"service_fee", "additional_fee", "packing_fee"}},
+		{Name: "charge_mode", Type: field.TypeEnum, Enums: []string{"percent", "fixed"}},
+		{Name: "fee_value", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "include_in_receivable", Type: field.TypeBool, Default: false},
+		{Name: "taxable", Type: field.TypeBool, Default: false},
+		{Name: "discount_scope", Type: field.TypeEnum, Enums: []string{"before_discount", "after_discount"}},
+		{Name: "order_channels", Type: field.TypeJSON},
+		{Name: "dining_ways", Type: field.TypeJSON},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// AdditionalFeesTable holds the schema information for the "additional_fees" table.
+	AdditionalFeesTable = &schema.Table{
+		Name:       "additional_fees",
+		Columns:    AdditionalFeesColumns,
+		PrimaryKey: []*schema.Column{AdditionalFeesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "additional_fees_merchants_additional_fees",
+				Columns:    []*schema.Column{AdditionalFeesColumns[16]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "additional_fees_stores_additional_fees",
+				Columns:    []*schema.Column{AdditionalFeesColumns[17]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "additionalfee_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{AdditionalFeesColumns[3]},
+			},
+			{
+				Name:    "additionalfee_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{AdditionalFeesColumns[16]},
+			},
+			{
+				Name:    "additionalfee_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{AdditionalFeesColumns[17]},
+			},
+			{
+				Name:    "idx_additional_fee_name_scope_deleted",
+				Unique:  true,
+				Columns: []*schema.Column{AdditionalFeesColumns[4], AdditionalFeesColumns[16], AdditionalFeesColumns[17], AdditionalFeesColumns[3]},
+			},
+		},
+	}
 	// AdminUsersColumns holds the columns for the "admin_users" table.
 	AdminUsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -176,6 +239,85 @@ var (
 				Name:    "country_deleted_at",
 				Unique:  false,
 				Columns: []*schema.Column{CountriesColumns[3]},
+			},
+		},
+	}
+	// DevicesColumns holds the columns for the "devices" table.
+	DevicesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "device_type", Type: field.TypeEnum, Enums: []string{"cashier", "printer"}},
+		{Name: "device_code", Type: field.TypeString, Size: 100, Default: ""},
+		{Name: "device_brand", Type: field.TypeString, Nullable: true},
+		{Name: "device_model", Type: field.TypeString, Nullable: true},
+		{Name: "location", Type: field.TypeEnum, Enums: []string{"front_hall", "back_kitchen"}},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"online", "offline"}, Default: "offline"},
+		{Name: "ip", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
+		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "paper_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"58mm", "80mm"}},
+		{Name: "order_channels", Type: field.TypeJSON, Nullable: true},
+		{Name: "dining_ways", Type: field.TypeJSON, Nullable: true},
+		{Name: "device_stall_print_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"all", "combined", "separate"}},
+		{Name: "device_stall_receipt_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"all", "exclude"}},
+		{Name: "open_cash_drawer", Type: field.TypeBool, Nullable: true},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
+	}
+	// DevicesTable holds the schema information for the "devices" table.
+	DevicesTable = &schema.Table{
+		Name:       "devices",
+		Columns:    DevicesColumns,
+		PrimaryKey: []*schema.Column{DevicesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "devices_merchants_devices",
+				Columns:    []*schema.Column{DevicesColumns[20]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "devices_stalls_devices",
+				Columns:    []*schema.Column{DevicesColumns[21]},
+				RefColumns: []*schema.Column{StallsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "devices_stores_devices",
+				Columns:    []*schema.Column{DevicesColumns[22]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "device_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{DevicesColumns[3]},
+			},
+			{
+				Name:    "device_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{DevicesColumns[20]},
+			},
+			{
+				Name:    "device_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{DevicesColumns[22]},
+			},
+			{
+				Name:    "device_stall_id",
+				Unique:  false,
+				Columns: []*schema.Column{DevicesColumns[21]},
+			},
+			{
+				Name:    "idx_device_name_scope_deleted",
+				Unique:  true,
+				Columns: []*schema.Column{DevicesColumns[4], DevicesColumns[20], DevicesColumns[22], DevicesColumns[3]},
 			},
 		},
 	}
@@ -575,9 +717,9 @@ var (
 		{Name: "cashier_desk_url", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "dining_environment_url", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "food_operation_license_url", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "business_hours", Type: field.TypeString, Default: ""},
-		{Name: "dining_periods", Type: field.TypeString},
-		{Name: "shift_times", Type: field.TypeString},
+		{Name: "business_hours", Type: field.TypeJSON},
+		{Name: "dining_periods", Type: field.TypeJSON},
+		{Name: "shift_times", Type: field.TypeJSON},
 		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "lat", Type: field.TypeString, Size: 50, Default: ""},
@@ -653,11 +795,13 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AdditionalFeesTable,
 		AdminUsersTable,
 		BackendUsersTable,
 		CategoriesTable,
 		CitiesTable,
 		CountriesTable,
+		DevicesTable,
 		DistrictsTable,
 		MerchantsTable,
 		MerchantBusinessTypesTable,
@@ -671,9 +815,14 @@ var (
 )
 
 func init() {
+	AdditionalFeesTable.ForeignKeys[0].RefTable = MerchantsTable
+	AdditionalFeesTable.ForeignKeys[1].RefTable = StoresTable
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
 	CitiesTable.ForeignKeys[0].RefTable = CountriesTable
 	CitiesTable.ForeignKeys[1].RefTable = ProvincesTable
+	DevicesTable.ForeignKeys[0].RefTable = MerchantsTable
+	DevicesTable.ForeignKeys[1].RefTable = StallsTable
+	DevicesTable.ForeignKeys[2].RefTable = StoresTable
 	DistrictsTable.ForeignKeys[0].RefTable = CitiesTable
 	DistrictsTable.ForeignKeys[1].RefTable = CountriesTable
 	DistrictsTable.ForeignKeys[2].RefTable = ProvincesTable

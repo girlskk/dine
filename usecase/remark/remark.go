@@ -60,8 +60,7 @@ func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.U
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRemarkNotExists)
 		}
-		err = fmt.Errorf("failed to fetch remark: %w", err)
-		return
+		return fmt.Errorf("failed to fetch remark: %w", err)
 	}
 	domainRemark := &domain.Remark{
 		ID:         remark.ID,
@@ -79,8 +78,7 @@ func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.U
 	}
 	err = interactor.DataStore.RemarkRepo().Update(ctx, domainRemark)
 	if err != nil {
-		err = fmt.Errorf("failed to update remark: %w", err)
-		return
+		return fmt.Errorf("failed to update remark: %w", err)
 	}
 	return
 }

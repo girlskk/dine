@@ -14,6 +14,8 @@ var (
 	ErrStallNameExists = errors.New("出品部门名称已存在")
 )
 
+// StallRepository 出品部门仓储接口
+//
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/stall_repository.go -package=mock . StallRepository
 type StallRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (stall *Stall, err error)
@@ -24,6 +26,8 @@ type StallRepository interface {
 	Exists(ctx context.Context, params StallExistsParams) (exists bool, err error)
 }
 
+// StallInteractor 出品部门用例接口
+//
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/stall_interactor.go -package=mock . StallInteractor
 type StallInteractor interface {
 	Create(ctx context.Context, stall *Stall) (err error)
