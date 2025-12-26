@@ -34,12 +34,32 @@ type Tx struct {
 	MerchantBusinessType *MerchantBusinessTypeClient
 	// MerchantRenewal is the client for interacting with the MerchantRenewal builders.
 	MerchantRenewal *MerchantRenewalClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
+	// ProductAttr is the client for interacting with the ProductAttr builders.
+	ProductAttr *ProductAttrClient
+	// ProductAttrItem is the client for interacting with the ProductAttrItem builders.
+	ProductAttrItem *ProductAttrItemClient
+	// ProductAttrRelation is the client for interacting with the ProductAttrRelation builders.
+	ProductAttrRelation *ProductAttrRelationClient
+	// ProductSpec is the client for interacting with the ProductSpec builders.
+	ProductSpec *ProductSpecClient
+	// ProductSpecRelation is the client for interacting with the ProductSpecRelation builders.
+	ProductSpecRelation *ProductSpecRelationClient
+	// ProductTag is the client for interacting with the ProductTag builders.
+	ProductTag *ProductTagClient
+	// ProductUnit is the client for interacting with the ProductUnit builders.
+	ProductUnit *ProductUnitClient
 	// Province is the client for interacting with the Province builders.
 	Province *ProvinceClient
 	// Remark is the client for interacting with the Remark builders.
 	Remark *RemarkClient
 	// RemarkCategory is the client for interacting with the RemarkCategory builders.
 	RemarkCategory *RemarkCategoryClient
+	// SetMealDetail is the client for interacting with the SetMealDetail builders.
+	SetMealDetail *SetMealDetailClient
+	// SetMealGroup is the client for interacting with the SetMealGroup builders.
+	SetMealGroup *SetMealGroupClient
 	// Stall is the client for interacting with the Stall builders.
 	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
@@ -186,9 +206,19 @@ func (tx *Tx) init() {
 	tx.Merchant = NewMerchantClient(tx.config)
 	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
+	tx.Product = NewProductClient(tx.config)
+	tx.ProductAttr = NewProductAttrClient(tx.config)
+	tx.ProductAttrItem = NewProductAttrItemClient(tx.config)
+	tx.ProductAttrRelation = NewProductAttrRelationClient(tx.config)
+	tx.ProductSpec = NewProductSpecClient(tx.config)
+	tx.ProductSpecRelation = NewProductSpecRelationClient(tx.config)
+	tx.ProductTag = NewProductTagClient(tx.config)
+	tx.ProductUnit = NewProductUnitClient(tx.config)
 	tx.Province = NewProvinceClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
+	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
+	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
 }

@@ -60,7 +60,6 @@ func (Category) Edges() []ent.Edge {
 			Unique().
 			Field("parent_id"),
 
-		// @TODO 关联商品：用于业务逻辑验证（当一级分类下已关联商品时，不允许再创建子分类）
-		// edge.To("products", Product.Type).Comment("关联的商品"),
+		edge.To("products", Product.Type).Comment("关联的商品"),
 	}
 }

@@ -57,9 +57,11 @@ type CategoryEdges struct {
 	Children []*Category `json:"children,omitempty"`
 	// Parent holds the value of the parent edge.
 	Parent *Category `json:"parent,omitempty"`
+	// 关联的商品
+	Products []*Product `json:"products,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // ChildrenOrErr returns the Children value or an error if the edge
@@ -80,6 +82,15 @@ func (e CategoryEdges) ParentOrErr() (*Category, error) {
 		return nil, &NotFoundError{label: category.Label}
 	}
 	return nil, &NotLoadedError{edge: "parent"}
+}
+
+// ProductsOrErr returns the Products value or an error if the edge
+// was not loaded in eager-loading.
+func (e CategoryEdges) ProductsOrErr() ([]*Product, error) {
+	if e.loadedTypes[2] {
+		return e.Products, nil
+	}
+	return nil, &NotLoadedError{edge: "products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -217,6 +228,11 @@ func (c *Category) QueryChildren() *CategoryQuery {
 // QueryParent queries the "parent" edge of the Category entity.
 func (c *Category) QueryParent() *CategoryQuery {
 	return NewCategoryClient(c.config).QueryParent(c)
+}
+
+// QueryProducts queries the "products" edge of the Category entity.
+func (c *Category) QueryProducts() *ProductQuery {
+	return NewCategoryClient(c.config).QueryProducts(c)
 }
 
 // Update returns a builder for updating this Category.
