@@ -8,6 +8,145 @@
     },
     "basePath": "/api/v1",
     "paths": {
+        "/product/attr": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品口味做法"
+                ],
+                "summary": "获取商品口味做法列表",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.ProductAttr"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品口味做法"
+                ],
+                "summary": "创建商品口味做法",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductAttrCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/product/attr/item/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品口味做法"
+                ],
+                "summary": "删除商品口味做法项",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "口味做法项ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/product/attr/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品口味做法"
+                ],
+                "summary": "更新商品口味做法",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "口味做法ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductAttrUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品口味做法"
+                ],
+                "summary": "删除商品口味做法",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "口味做法ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/product/category": {
             "get": {
                 "security": [
@@ -879,6 +1018,90 @@
                 }
             }
         },
+        "domain.ProductAttr": {
+            "type": "object",
+            "properties": {
+                "channels": {
+                    "description": "售卖渠道列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SaleChannel"
+                    }
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "口味做法ID",
+                    "type": "string"
+                },
+                "items": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductAttrItem"
+                    }
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "口味做法名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量（所有项的关联商品数量累加）",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductAttrItem": {
+            "type": "object",
+            "properties": {
+                "attr_id": {
+                    "description": "口味做法ID（外键）",
+                    "type": "string"
+                },
+                "base_price": {
+                    "description": "基础加价（单位：分）",
+                    "type": "number"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "口味做法项ID",
+                    "type": "string"
+                },
+                "image": {
+                    "description": "图片URL（可选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "口味做法项名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
         "domain.ProductSpec": {
             "type": "object",
             "properties": {
@@ -1072,6 +1295,37 @@
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
+            ]
+        },
+        "domain.SaleChannel": {
+            "type": "string",
+            "enum": [
+                "POS",
+                "Mobile",
+                "Scan",
+                "SelfService",
+                "ThirdParty"
+            ],
+            "x-enum-comments": {
+                "SaleChannelMobileOrdering": "移动点餐",
+                "SaleChannelPOS": "POS",
+                "SaleChannelScanOrdering": "扫码点餐",
+                "SaleChannelSelfService": "自助点餐",
+                "SaleChannelThirdPartyDelivery": "三方外卖"
+            },
+            "x-enum-descriptions": [
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖"
+            ],
+            "x-enum-varnames": [
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.ShiftTime": {
@@ -1363,6 +1617,90 @@
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "types.ProductAttrCreateReq": {
+            "type": "object",
+            "required": [
+                "channels",
+                "name"
+            ],
+            "properties": {
+                "channels": {
+                    "description": "售卖渠道列表（必选，可多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/domain.SaleChannel"
+                    }
+                },
+                "items": {
+                    "description": "口味做法项列表（可选）",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ProductAttrItemReq"
+                    }
+                },
+                "name": {
+                    "description": "口味做法名称",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.ProductAttrItemReq": {
+            "type": "object",
+            "required": [
+                "base_price",
+                "name"
+            ],
+            "properties": {
+                "base_price": {
+                    "description": "基础加价（单位：分）",
+                    "type": "number"
+                },
+                "id": {
+                    "description": "口味做法项ID（更新时传入）",
+                    "type": "string"
+                },
+                "image": {
+                    "description": "图片URL（可选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "口味做法项名称",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.ProductAttrUpdateReq": {
+            "type": "object",
+            "required": [
+                "channels",
+                "name"
+            ],
+            "properties": {
+                "channels": {
+                    "description": "售卖渠道列表（必选，可多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/domain.SaleChannel"
+                    }
+                },
+                "items": {
+                    "description": "口味做法项列表（可选，用于新增、修改、删除）",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ProductAttrItemReq"
+                    }
+                },
+                "name": {
+                    "description": "口味做法名称",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },

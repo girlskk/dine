@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -59,13 +59,14 @@ func (h *ProductAttrHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		attr := &domain.ProductAttr{
 			ID:         uuid.New(),
 			Name:       req.Name,
 			Channels:   req.Channels,
 			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 		}
 
 		// 转换口味做法项
@@ -167,7 +168,7 @@ func (h *ProductAttrHandler) Update() gin.HandlerFunc {
 			}
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductAttrInteractor.Update(ctx, attr, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductAttrNameExists) {
@@ -209,7 +210,7 @@ func (h *ProductAttrHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductAttrInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductAttrDeleteHasItems) {
@@ -252,7 +253,7 @@ func (h *ProductAttrHandler) DeleteItem() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductAttrInteractor.DeleteItem(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductAttrItemDeleteHasProducts) {
@@ -287,11 +288,11 @@ func (h *ProductAttrHandler) List() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		params := domain.ProductAttrSearchParams{
-			MerchantID:   user.MerchantID,
-			OnlyMerchant: true,
+			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 		}
 
 		res, err := h.ProductAttrInteractor.ListBySearch(ctx, params)

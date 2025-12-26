@@ -30,6 +30,7 @@ func (i *ProductAttrInteractor) Create(ctx context.Context, attr *domain.Product
 		// 1. 验证名称在当前门店下是否唯一
 		exists, err := ds.ProductAttrRepo().Exists(ctx, domain.ProductAttrExistsParams{
 			MerchantID: attr.MerchantID,
+			StoreID:    attr.StoreID,
 			Name:       attr.Name,
 		})
 		if err != nil {
@@ -57,7 +58,7 @@ func (i *ProductAttrInteractor) Create(ctx context.Context, attr *domain.Product
 	})
 }
 
-func (i *ProductAttrInteractor) Update(ctx context.Context, attr *domain.ProductAttr) (err error) {
+func (i *ProductAttrInteractor) Update(ctx context.Context, attr *domain.ProductAttr, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductAttrInteractor.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -70,10 +71,15 @@ func (i *ProductAttrInteractor) Update(ctx context.Context, attr *domain.Product
 			return err
 		}
 
+		if err := verifyProductAttrOwnership(user, existingAttr); err != nil {
+			return err
+		}
+
 		// 2. 验证更新后的名称在当前门店下是否唯一（排除自身）
 		if attr.Name != existingAttr.Name {
 			exists, err := ds.ProductAttrRepo().Exists(ctx, domain.ProductAttrExistsParams{
 				MerchantID: existingAttr.MerchantID,
+				StoreID:    existingAttr.StoreID,
 				Name:       attr.Name,
 				ExcludeID:  attr.ID,
 			})
@@ -146,7 +152,7 @@ func (i *ProductAttrInteractor) Update(ctx context.Context, attr *domain.Product
 	})
 }
 
-func (i *ProductAttrInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (i *ProductAttrInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductAttrInteractor.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -161,6 +167,9 @@ func (i *ProductAttrInteractor) Delete(ctx context.Context, id uuid.UUID) (err e
 			}
 			return err
 		}
+		if err := verifyProductAttrOwnership(user, attr); err != nil {
+			return err
+		}
 
 		if len(attr.Items) > 0 {
 			return domain.ErrProductAttrDeleteHasItems
@@ -173,7 +182,7 @@ func (i *ProductAttrInteractor) Delete(ctx context.Context, id uuid.UUID) (err e
 	})
 }
 
-func (i *ProductAttrInteractor) DeleteItem(ctx context.Context, id uuid.UUID) (err error) {
+func (i *ProductAttrInteractor) DeleteItem(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductAttrInteractor.DeleteItem")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -189,12 +198,25 @@ func (i *ProductAttrInteractor) DeleteItem(ctx context.Context, id uuid.UUID) (e
 			return err
 		}
 
-		// 2. 如果口味做法项下有关联商品，不能删除
+		// 2. 查找口味做法，验证口味做法存在，当前用户是否拥有该口味做法操作权限
+		attr, err := ds.ProductAttrRepo().FindByID(ctx, item.AttrID)
+
+		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ParamsError(domain.ErrProductAttrNotExists)
+			}
+			return err
+		}
+		if err := verifyProductAttrOwnership(user, attr); err != nil {
+			return err
+		}
+
+		// 3. 如果口味做法项下有关联商品，不能删除
 		if item.ProductCount > 0 {
 			return domain.ErrProductAttrItemDeleteHasProducts
 		}
 
-		// 3. 删除口味做法项
+		// 4. 删除口味做法项
 		err = ds.ProductAttrRepo().DeleteItem(ctx, id)
 		if err != nil {
 			return err
@@ -213,4 +235,11 @@ func (i *ProductAttrInteractor) ListBySearch(
 		util.SpanErrFinish(span, err)
 	}()
 	return i.DS.ProductAttrRepo().ListBySearch(ctx, params)
+}
+
+func verifyProductAttrOwnership(user domain.User, attr *domain.ProductAttr) error {
+	if user.GetMerchantID() != attr.MerchantID || user.GetStoreID() != attr.StoreID {
+		return domain.ParamsError(domain.ErrProductAttrNotExists)
+	}
+	return nil
 }
