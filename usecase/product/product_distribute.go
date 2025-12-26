@@ -472,17 +472,17 @@ func (i *ProductInteractor) findOrCreateAttrs(
 				attrRel.ProductID = productID
 			}
 		}
+	}
 
-		if len(notExistsAttrs) > 0 {
-			if err := ds.ProductAttrRepo().CreateBulk(ctx, notExistsAttrs); err != nil {
-				return nil, err
-			}
+	if len(notExistsAttrs) > 0 {
+		if err := ds.ProductAttrRepo().CreateBulk(ctx, notExistsAttrs); err != nil {
+			return nil, err
 		}
+	}
 
-		if len(notExistsAttrItems) > 0 {
-			if err := ds.ProductAttrRepo().CreateItems(ctx, notExistsAttrItems); err != nil {
-				return nil, err
-			}
+	if len(notExistsAttrItems) > 0 {
+		if err := ds.ProductAttrRepo().CreateItems(ctx, notExistsAttrItems); err != nil {
+			return nil, err
 		}
 	}
 	return brandAttrRelations, nil
