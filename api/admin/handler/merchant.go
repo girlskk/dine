@@ -12,6 +12,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 type MerchantHandler struct {
@@ -70,6 +71,11 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
+		hashPwd, err := util.HashPassword(req.LoginPassword)
+		if err != nil {
+			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
+			return
+		}
 		createBrandMerchant := &domain.CreateMerchantParams{
 			MerchantCode:         req.MerchantCode,
 			MerchantName:         req.MerchantName,
@@ -84,7 +90,7 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 			Description:          req.Description,
 			Status:               req.Status,
 			LoginAccount:         req.LoginAccount,
-			LoginPassword:        req.LoginPassword,
+			LoginPassword:        hashPwd,
 		}
 		if req.Address.CountryID != uuid.Nil {
 			createBrandMerchant.Address = &domain.Address{
@@ -153,7 +159,11 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			Lng:        req.Store.Address.Lng,
 			Lat:        req.Store.Address.Lat,
 		}
-
+		hashPwd, err := util.HashPassword(req.Merchant.LoginPassword)
+		if err != nil {
+			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
+			return
+		}
 		createMerchant := &domain.CreateMerchantParams{
 			MerchantCode:         req.Merchant.MerchantCode,
 			MerchantName:         req.Merchant.MerchantName,
@@ -168,7 +178,7 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			Description:          req.Merchant.Description,
 			Status:               req.Merchant.Status,
 			LoginAccount:         req.Merchant.LoginAccount,
-			LoginPassword:        req.Merchant.LoginPassword,
+			LoginPassword:        hashPwd,
 			Address:              address,
 		}
 
@@ -249,7 +259,11 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		hashPwd, err := util.HashPassword(req.LoginPassword)
+		if err != nil {
+			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
+			return
+		}
 		updateBrandMerchant := &domain.UpdateMerchantParams{
 			ID:                merchantID,
 			MerchantCode:      req.MerchantCode,
@@ -261,8 +275,7 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			MerchantLogo:      req.MerchantLogo,
 			Description:       req.Description,
 			Status:            req.Status,
-			LoginAccount:      req.LoginAccount,
-			LoginPassword:     req.LoginPassword,
+			LoginPassword:     hashPwd,
 		}
 		if req.Address.CountryID != uuid.Nil {
 			updateBrandMerchant.Address = &domain.Address{
@@ -326,7 +339,11 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		hashPwd, err := util.HashPassword(req.Merchant.LoginPassword)
+		if err != nil {
+			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
+			return
+		}
 		address := &domain.Address{
 			CountryID:  req.Store.Address.CountryID,
 			ProvinceID: req.Store.Address.ProvinceID,
@@ -347,8 +364,7 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			MerchantLogo:      req.Merchant.MerchantLogo,
 			Description:       req.Merchant.Description,
 			Status:            req.Merchant.Status,
-			LoginAccount:      req.Merchant.LoginAccount,
-			LoginPassword:     req.Merchant.LoginPassword,
+			LoginPassword:     hashPwd,
 			Address:           address, // 门店商户的地址使用门店的地址
 		}
 
@@ -381,7 +397,6 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			CashierDeskURL:          req.Store.CashierDeskURL,
 			DiningEnvironmentURL:    req.Store.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
-			LoginAccount:            req.Store.LoginAccount,
 			LoginPassword:           req.Store.LoginPassword,
 			BusinessHours:           req.Store.BusinessHours,
 			DiningPeriods:           req.Store.DiningPeriods,

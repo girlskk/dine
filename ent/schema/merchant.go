@@ -89,9 +89,9 @@ func (Merchant) Fields() []ent.Field {
 			NotEmpty().
 			Default("").
 			Comment("纬度"),
-		field.UUID("admin_user_id", uuid.UUID{}).
+		field.String("super_account").
 			Immutable().
-			Comment("登陆账号 ID"),
+			Comment("登陆账号"),
 	}
 }
 
@@ -103,13 +103,6 @@ func (Merchant) Edges() []ent.Edge {
 			Ref("merchants").
 			Field("business_type_id").
 			Unique().
-			Required(),
-		// 管理员账号
-		edge.From("admin_user", AdminUser.Type).
-			Ref("merchant").
-			Field("admin_user_id").
-			Unique().
-			Immutable().
 			Required(),
 		// 地区关联（绑定已有外键字段）
 		edge.From("country", Country.Type).
@@ -128,6 +121,8 @@ func (Merchant) Edges() []ent.Edge {
 			Ref("merchants").
 			Field("district_id").
 			Unique(),
+		edge.To("backend_users", BackendUser.Type),
+		edge.To("store_users", StoreUser.Type),
 		edge.To("stores", Store.Type),
 		edge.To("merchant_renewals", MerchantRenewal.Type),
 		edge.To("remark_categories", RemarkCategory.Type),

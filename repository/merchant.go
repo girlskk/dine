@@ -50,7 +50,8 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status).
-		SetAdminUserID(domainMerchant.AdminUserID)
+		SetSuperAccount(domainMerchant.LoginAccount)
+
 	if domainMerchant.Address != nil {
 		builder.SetCountryID(domainMerchant.Address.CountryID).
 			SetProvinceID(domainMerchant.Address.ProvinceID).
@@ -146,7 +147,6 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id uuid.UUID) (dom
 		WithProvince().
 		WithCity().
 		WithDistrict().
-		WithAdminUser().
 		WithMerchantBusinessType().
 		Only(ctx)
 	if err != nil {
@@ -362,14 +362,11 @@ func convertMerchant(em *ent.Merchant) *domain.Merchant {
 		Description:       em.Description,
 		Status:            em.Status,
 		Address:           address,
-		AdminUserID:       em.AdminUserID,
+		LoginAccount:      em.SuperAccount,
 		CreatedAt:         em.CreatedAt,
 		UpdatedAt:         em.UpdatedAt,
 	}
-	if em.Edges.AdminUser != nil {
-		repoMerchant.LoginAccount = em.Edges.AdminUser.Username
-		repoMerchant.LoginPassword = em.Edges.AdminUser.HashedPassword
-	}
+
 	if em.Edges.MerchantBusinessType != nil {
 		repoMerchant.BusinessTypeName = em.Edges.MerchantBusinessType.TypeName
 	}

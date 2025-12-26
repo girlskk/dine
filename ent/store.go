@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
@@ -90,8 +89,8 @@ type Store struct {
 	Lng string `json:"lng,omitempty"`
 	// 纬度
 	Lat string `json:"lat,omitempty"`
-	// 登陆账号 ID
-	AdminUserID uuid.UUID `json:"admin_user_id,omitempty"`
+	// 登陆账号
+	SuperAccount string `json:"super_account,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the StoreQuery when eager-loading is set.
 	Edges        StoreEdges `json:"edges"`
@@ -102,8 +101,6 @@ type Store struct {
 type StoreEdges struct {
 	// Merchant holds the value of the merchant edge.
 	Merchant *Merchant `json:"merchant,omitempty"`
-	// AdminUser holds the value of the admin_user edge.
-	AdminUser *AdminUser `json:"admin_user,omitempty"`
 	// MerchantBusinessType holds the value of the merchant_business_type edge.
 	MerchantBusinessType *MerchantBusinessType `json:"merchant_business_type,omitempty"`
 	// Country holds the value of the country edge.
@@ -114,6 +111,8 @@ type StoreEdges struct {
 	City *City `json:"city,omitempty"`
 	// District holds the value of the district edge.
 	District *District `json:"district,omitempty"`
+	// StoreUsers holds the value of the store_users edge.
+	StoreUsers []*StoreUser `json:"store_users,omitempty"`
 	// Remarks holds the value of the remarks edge.
 	Remarks []*Remark `json:"remarks,omitempty"`
 	// Stalls holds the value of the stalls edge.
@@ -138,23 +137,12 @@ func (e StoreEdges) MerchantOrErr() (*Merchant, error) {
 	return nil, &NotLoadedError{edge: "merchant"}
 }
 
-// AdminUserOrErr returns the AdminUser value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e StoreEdges) AdminUserOrErr() (*AdminUser, error) {
-	if e.AdminUser != nil {
-		return e.AdminUser, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: adminuser.Label}
-	}
-	return nil, &NotLoadedError{edge: "admin_user"}
-}
-
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e StoreEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error) {
 	if e.MerchantBusinessType != nil {
 		return e.MerchantBusinessType, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: merchantbusinesstype.Label}
 	}
 	return nil, &NotLoadedError{edge: "merchant_business_type"}
@@ -165,7 +153,7 @@ func (e StoreEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error) {
 func (e StoreEdges) CountryOrErr() (*Country, error) {
 	if e.Country != nil {
 		return e.Country, nil
-	} else if e.loadedTypes[3] {
+	} else if e.loadedTypes[2] {
 		return nil, &NotFoundError{label: country.Label}
 	}
 	return nil, &NotLoadedError{edge: "country"}
@@ -176,7 +164,7 @@ func (e StoreEdges) CountryOrErr() (*Country, error) {
 func (e StoreEdges) ProvinceOrErr() (*Province, error) {
 	if e.Province != nil {
 		return e.Province, nil
-	} else if e.loadedTypes[4] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: province.Label}
 	}
 	return nil, &NotLoadedError{edge: "province"}
@@ -187,7 +175,7 @@ func (e StoreEdges) ProvinceOrErr() (*Province, error) {
 func (e StoreEdges) CityOrErr() (*City, error) {
 	if e.City != nil {
 		return e.City, nil
-	} else if e.loadedTypes[5] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: city.Label}
 	}
 	return nil, &NotLoadedError{edge: "city"}
@@ -198,10 +186,19 @@ func (e StoreEdges) CityOrErr() (*City, error) {
 func (e StoreEdges) DistrictOrErr() (*District, error) {
 	if e.District != nil {
 		return e.District, nil
-	} else if e.loadedTypes[6] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: district.Label}
 	}
 	return nil, &NotLoadedError{edge: "district"}
+}
+
+// StoreUsersOrErr returns the StoreUsers value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) StoreUsersOrErr() ([]*StoreUser, error) {
+	if e.loadedTypes[6] {
+		return e.StoreUsers, nil
+	}
+	return nil, &NotLoadedError{edge: "store_users"}
 }
 
 // RemarksOrErr returns the Remarks value or an error if the edge
@@ -249,11 +246,11 @@ func (*Store) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case store.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldLocationNumber, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldAddress, store.FieldLng, store.FieldLat:
+		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldLocationNumber, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldAddress, store.FieldLng, store.FieldLat, store.FieldSuperAccount:
 			values[i] = new(sql.NullString)
 		case store.FieldCreatedAt, store.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case store.FieldID, store.FieldMerchantID, store.FieldBusinessTypeID, store.FieldCountryID, store.FieldProvinceID, store.FieldCityID, store.FieldDistrictID, store.FieldAdminUserID:
+		case store.FieldID, store.FieldMerchantID, store.FieldBusinessTypeID, store.FieldCountryID, store.FieldProvinceID, store.FieldCityID, store.FieldDistrictID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -468,11 +465,11 @@ func (s *Store) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Lat = value.String
 			}
-		case store.FieldAdminUserID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field admin_user_id", values[i])
-			} else if value != nil {
-				s.AdminUserID = *value
+		case store.FieldSuperAccount:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field super_account", values[i])
+			} else if value.Valid {
+				s.SuperAccount = value.String
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -490,11 +487,6 @@ func (s *Store) Value(name string) (ent.Value, error) {
 // QueryMerchant queries the "merchant" edge of the Store entity.
 func (s *Store) QueryMerchant() *MerchantQuery {
 	return NewStoreClient(s.config).QueryMerchant(s)
-}
-
-// QueryAdminUser queries the "admin_user" edge of the Store entity.
-func (s *Store) QueryAdminUser() *AdminUserQuery {
-	return NewStoreClient(s.config).QueryAdminUser(s)
 }
 
 // QueryMerchantBusinessType queries the "merchant_business_type" edge of the Store entity.
@@ -520,6 +512,11 @@ func (s *Store) QueryCity() *CityQuery {
 // QueryDistrict queries the "district" edge of the Store entity.
 func (s *Store) QueryDistrict() *DistrictQuery {
 	return NewStoreClient(s.config).QueryDistrict(s)
+}
+
+// QueryStoreUsers queries the "store_users" edge of the Store entity.
+func (s *Store) QueryStoreUsers() *StoreUserQuery {
+	return NewStoreClient(s.config).QueryStoreUsers(s)
 }
 
 // QueryRemarks queries the "remarks" edge of the Store entity.
@@ -658,8 +655,8 @@ func (s *Store) String() string {
 	builder.WriteString("lat=")
 	builder.WriteString(s.Lat)
 	builder.WriteString(", ")
-	builder.WriteString("admin_user_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.AdminUserID))
+	builder.WriteString("super_account=")
+	builder.WriteString(s.SuperAccount)
 	builder.WriteByte(')')
 	return builder.String()
 }

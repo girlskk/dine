@@ -152,9 +152,9 @@ func Lat(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldLat, v))
 }
 
-// AdminUserID applies equality check predicate on the "admin_user_id" field. It's identical to AdminUserIDEQ.
-func AdminUserID(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldAdminUserID, v))
+// SuperAccount applies equality check predicate on the "super_account" field. It's identical to SuperAccountEQ.
+func SuperAccount(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEQ(FieldSuperAccount, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -1177,24 +1177,69 @@ func LatContainsFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldContainsFold(FieldLat, v))
 }
 
-// AdminUserIDEQ applies the EQ predicate on the "admin_user_id" field.
-func AdminUserIDEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldAdminUserID, v))
+// SuperAccountEQ applies the EQ predicate on the "super_account" field.
+func SuperAccountEQ(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEQ(FieldSuperAccount, v))
 }
 
-// AdminUserIDNEQ applies the NEQ predicate on the "admin_user_id" field.
-func AdminUserIDNEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldAdminUserID, v))
+// SuperAccountNEQ applies the NEQ predicate on the "super_account" field.
+func SuperAccountNEQ(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldNEQ(FieldSuperAccount, v))
 }
 
-// AdminUserIDIn applies the In predicate on the "admin_user_id" field.
-func AdminUserIDIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldAdminUserID, vs...))
+// SuperAccountIn applies the In predicate on the "super_account" field.
+func SuperAccountIn(vs ...string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldIn(FieldSuperAccount, vs...))
 }
 
-// AdminUserIDNotIn applies the NotIn predicate on the "admin_user_id" field.
-func AdminUserIDNotIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldAdminUserID, vs...))
+// SuperAccountNotIn applies the NotIn predicate on the "super_account" field.
+func SuperAccountNotIn(vs ...string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotIn(FieldSuperAccount, vs...))
+}
+
+// SuperAccountGT applies the GT predicate on the "super_account" field.
+func SuperAccountGT(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldGT(FieldSuperAccount, v))
+}
+
+// SuperAccountGTE applies the GTE predicate on the "super_account" field.
+func SuperAccountGTE(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldGTE(FieldSuperAccount, v))
+}
+
+// SuperAccountLT applies the LT predicate on the "super_account" field.
+func SuperAccountLT(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldLT(FieldSuperAccount, v))
+}
+
+// SuperAccountLTE applies the LTE predicate on the "super_account" field.
+func SuperAccountLTE(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldLTE(FieldSuperAccount, v))
+}
+
+// SuperAccountContains applies the Contains predicate on the "super_account" field.
+func SuperAccountContains(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldContains(FieldSuperAccount, v))
+}
+
+// SuperAccountHasPrefix applies the HasPrefix predicate on the "super_account" field.
+func SuperAccountHasPrefix(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldHasPrefix(FieldSuperAccount, v))
+}
+
+// SuperAccountHasSuffix applies the HasSuffix predicate on the "super_account" field.
+func SuperAccountHasSuffix(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldHasSuffix(FieldSuperAccount, v))
+}
+
+// SuperAccountEqualFold applies the EqualFold predicate on the "super_account" field.
+func SuperAccountEqualFold(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEqualFold(FieldSuperAccount, v))
+}
+
+// SuperAccountContainsFold applies the ContainsFold predicate on the "super_account" field.
+func SuperAccountContainsFold(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldContainsFold(FieldSuperAccount, v))
 }
 
 // HasMerchantBusinessType applies the HasEdge predicate on the "merchant_business_type" edge.
@@ -1212,29 +1257,6 @@ func HasMerchantBusinessType() predicate.Merchant {
 func HasMerchantBusinessTypeWith(preds ...predicate.MerchantBusinessType) predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
 		step := newMerchantBusinessTypeStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasAdminUser applies the HasEdge predicate on the "admin_user" edge.
-func HasAdminUser() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasAdminUserWith applies the HasEdge predicate on the "admin_user" edge with a given conditions (other predicates).
-func HasAdminUserWith(preds ...predicate.AdminUser) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newAdminUserStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1327,6 +1349,52 @@ func HasDistrict() predicate.Merchant {
 func HasDistrictWith(preds ...predicate.District) predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
 		step := newDistrictStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasBackendUsers applies the HasEdge predicate on the "backend_users" edge.
+func HasBackendUsers() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, BackendUsersTable, BackendUsersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBackendUsersWith applies the HasEdge predicate on the "backend_users" edge with a given conditions (other predicates).
+func HasBackendUsersWith(preds ...predicate.BackendUser) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newBackendUsersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasStoreUsers applies the HasEdge predicate on the "store_users" edge.
+func HasStoreUsers() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStoreUsersWith applies the HasEdge predicate on the "store_users" edge with a given conditions (other predicates).
+func HasStoreUsersWith(preds ...predicate.StoreUser) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newStoreUsersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

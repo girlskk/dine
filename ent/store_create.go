@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
@@ -26,6 +25,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // StoreCreate is the builder for creating a Store entity.
@@ -406,9 +406,9 @@ func (sc *StoreCreate) SetNillableLat(s *string) *StoreCreate {
 	return sc
 }
 
-// SetAdminUserID sets the "admin_user_id" field.
-func (sc *StoreCreate) SetAdminUserID(u uuid.UUID) *StoreCreate {
-	sc.mutation.SetAdminUserID(u)
+// SetSuperAccount sets the "super_account" field.
+func (sc *StoreCreate) SetSuperAccount(s string) *StoreCreate {
+	sc.mutation.SetSuperAccount(s)
 	return sc
 }
 
@@ -429,11 +429,6 @@ func (sc *StoreCreate) SetNillableID(u *uuid.UUID) *StoreCreate {
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (sc *StoreCreate) SetMerchant(m *Merchant) *StoreCreate {
 	return sc.SetMerchantID(m.ID)
-}
-
-// SetAdminUser sets the "admin_user" edge to the AdminUser entity.
-func (sc *StoreCreate) SetAdminUser(a *AdminUser) *StoreCreate {
-	return sc.SetAdminUserID(a.ID)
 }
 
 // SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
@@ -465,6 +460,21 @@ func (sc *StoreCreate) SetCity(c *City) *StoreCreate {
 // SetDistrict sets the "district" edge to the District entity.
 func (sc *StoreCreate) SetDistrict(d *District) *StoreCreate {
 	return sc.SetDistrictID(d.ID)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (sc *StoreCreate) AddStoreUserIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddStoreUserIDs(ids...)
+	return sc
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (sc *StoreCreate) AddStoreUsers(s ...*StoreUser) *StoreCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddStoreUserIDs(ids...)
 }
 
 // AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
@@ -834,14 +844,11 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "lat", err: fmt.Errorf(`ent: validator failed for field "Store.lat": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.AdminUserID(); !ok {
-		return &ValidationError{Name: "admin_user_id", err: errors.New(`ent: missing required field "Store.admin_user_id"`)}
+	if _, ok := sc.mutation.SuperAccount(); !ok {
+		return &ValidationError{Name: "super_account", err: errors.New(`ent: missing required field "Store.super_account"`)}
 	}
 	if len(sc.mutation.MerchantIDs()) == 0 {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "Store.merchant"`)}
-	}
-	if len(sc.mutation.AdminUserIDs()) == 0 {
-		return &ValidationError{Name: "admin_user", err: errors.New(`ent: missing required edge "Store.admin_user"`)}
 	}
 	if len(sc.mutation.MerchantBusinessTypeIDs()) == 0 {
 		return &ValidationError{Name: "merchant_business_type", err: errors.New(`ent: missing required edge "Store.merchant_business_type"`)}
@@ -982,6 +989,10 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 		_spec.SetField(store.FieldLat, field.TypeString, value)
 		_node.Lat = value
 	}
+	if value, ok := sc.mutation.SuperAccount(); ok {
+		_spec.SetField(store.FieldSuperAccount, field.TypeString, value)
+		_node.SuperAccount = value
+	}
 	if nodes := sc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -997,23 +1008,6 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.MerchantID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := sc.mutation.AdminUserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.AdminUserTable,
-			Columns: []string{store.AdminUserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.AdminUserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
@@ -1099,6 +1093,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.DistrictID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.RemarksIDs(); len(nodes) > 0 {
@@ -1618,8 +1628,8 @@ func (u *StoreUpsertOne) UpdateNewValues() *StoreUpsertOne {
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(store.FieldMerchantID)
 		}
-		if _, exists := u.create.mutation.AdminUserID(); exists {
-			s.SetIgnore(store.FieldAdminUserID)
+		if _, exists := u.create.mutation.SuperAccount(); exists {
+			s.SetIgnore(store.FieldSuperAccount)
 		}
 	}))
 	return u
@@ -2282,8 +2292,8 @@ func (u *StoreUpsertBulk) UpdateNewValues() *StoreUpsertBulk {
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(store.FieldMerchantID)
 			}
-			if _, exists := b.mutation.AdminUserID(); exists {
-				s.SetIgnore(store.FieldAdminUserID)
+			if _, exists := b.mutation.SuperAccount(); exists {
+				s.SetIgnore(store.FieldSuperAccount)
 			}
 		}
 	}))

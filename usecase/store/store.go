@@ -245,9 +245,8 @@ func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context, d
 		DiningPeriods:           domainUStore.DiningPeriods,
 		ShiftTimes:              domainUStore.ShiftTimes,
 		Address:                 domainUStore.Address,
-		LoginAccount:            domainUStore.LoginAccount,
+		LoginAccount:            oldStore.LoginAccount,
 		LoginPassword:           domainUStore.LoginPassword,
-		AdminUserID:             oldStore.AdminUserID,
 	}
 
 	if err = interactor.validateTimeConfigs(domainStore); err != nil {

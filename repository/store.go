@@ -63,7 +63,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetAddress(domainStore.Address.Address).
 		SetLng(domainStore.Address.Lng).
 		SetLat(domainStore.Address.Lat).
-		SetAdminUserID(domainStore.AdminUserID).
+		SetSuperAccount(domainStore.LoginAccount).
 		Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create store: %w", err)
@@ -159,7 +159,6 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 		WithProvince().
 		WithCity().
 		WithDistrict().
-		WithAdminUser().
 		WithMerchantBusinessType().
 		Only(ctx)
 	if err != nil {
@@ -191,7 +190,6 @@ func (repo *StoreRepository) FindStoreMerchant(ctx context.Context, merchantID u
 		WithProvince().
 		WithCity().
 		WithDistrict().
-		WithAdminUser().
 		WithMerchantBusinessType().
 		Only(ctx)
 	if ent.IsNotFound(err) {
@@ -355,7 +353,7 @@ func convertStore(es *ent.Store) *domain.Store {
 		BusinessHours:           es.BusinessHours,
 		DiningPeriods:           es.DiningPeriods,
 		ShiftTimes:              es.ShiftTimes,
-		AdminUserID:             es.AdminUserID,
+		LoginAccount:            es.SuperAccount,
 		Address:                 address,
 		CreatedAt:               es.CreatedAt,
 		UpdatedAt:               es.UpdatedAt,
@@ -365,10 +363,6 @@ func convertStore(es *ent.Store) *domain.Store {
 		repoStore.MerchantName = es.Edges.Merchant.MerchantName
 	}
 
-	if es.Edges.AdminUser != nil {
-		repoStore.LoginAccount = es.Edges.AdminUser.Username
-		repoStore.LoginPassword = es.Edges.AdminUser.HashedPassword
-	}
 	if es.Edges.MerchantBusinessType != nil {
 		repoStore.BusinessTypeName = es.Edges.MerchantBusinessType.TypeName
 	}

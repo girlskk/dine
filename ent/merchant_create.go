@@ -15,7 +15,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
@@ -28,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // MerchantCreate is the builder for creating a Merchant entity.
@@ -308,9 +309,9 @@ func (mc *MerchantCreate) SetNillableLat(s *string) *MerchantCreate {
 	return mc
 }
 
-// SetAdminUserID sets the "admin_user_id" field.
-func (mc *MerchantCreate) SetAdminUserID(u uuid.UUID) *MerchantCreate {
-	mc.mutation.SetAdminUserID(u)
+// SetSuperAccount sets the "super_account" field.
+func (mc *MerchantCreate) SetSuperAccount(s string) *MerchantCreate {
+	mc.mutation.SetSuperAccount(s)
 	return mc
 }
 
@@ -339,11 +340,6 @@ func (mc *MerchantCreate) SetMerchantBusinessType(m *MerchantBusinessType) *Merc
 	return mc.SetMerchantBusinessTypeID(m.ID)
 }
 
-// SetAdminUser sets the "admin_user" edge to the AdminUser entity.
-func (mc *MerchantCreate) SetAdminUser(a *AdminUser) *MerchantCreate {
-	return mc.SetAdminUserID(a.ID)
-}
-
 // SetCountry sets the "country" edge to the Country entity.
 func (mc *MerchantCreate) SetCountry(c *Country) *MerchantCreate {
 	return mc.SetCountryID(c.ID)
@@ -362,6 +358,36 @@ func (mc *MerchantCreate) SetCity(c *City) *MerchantCreate {
 // SetDistrict sets the "district" edge to the District entity.
 func (mc *MerchantCreate) SetDistrict(d *District) *MerchantCreate {
 	return mc.SetDistrictID(d.ID)
+}
+
+// AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
+func (mc *MerchantCreate) AddBackendUserIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddBackendUserIDs(ids...)
+	return mc
+}
+
+// AddBackendUsers adds the "backend_users" edges to the BackendUser entity.
+func (mc *MerchantCreate) AddBackendUsers(b ...*BackendUser) *MerchantCreate {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return mc.AddBackendUserIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (mc *MerchantCreate) AddStoreUserIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddStoreUserIDs(ids...)
+	return mc
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (mc *MerchantCreate) AddStoreUsers(s ...*StoreUser) *MerchantCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mc.AddStoreUserIDs(ids...)
 }
 
 // AddStoreIDs adds the "stores" edge to the Store entity by IDs.
@@ -684,14 +710,11 @@ func (mc *MerchantCreate) check() error {
 			return &ValidationError{Name: "lat", err: fmt.Errorf(`ent: validator failed for field "Merchant.lat": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.AdminUserID(); !ok {
-		return &ValidationError{Name: "admin_user_id", err: errors.New(`ent: missing required field "Merchant.admin_user_id"`)}
+	if _, ok := mc.mutation.SuperAccount(); !ok {
+		return &ValidationError{Name: "super_account", err: errors.New(`ent: missing required field "Merchant.super_account"`)}
 	}
 	if len(mc.mutation.MerchantBusinessTypeIDs()) == 0 {
 		return &ValidationError{Name: "merchant_business_type", err: errors.New(`ent: missing required edge "Merchant.merchant_business_type"`)}
-	}
-	if len(mc.mutation.AdminUserIDs()) == 0 {
-		return &ValidationError{Name: "admin_user", err: errors.New(`ent: missing required edge "Merchant.admin_user"`)}
 	}
 	return nil
 }
@@ -793,6 +816,10 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 		_spec.SetField(merchant.FieldLat, field.TypeString, value)
 		_node.Lat = value
 	}
+	if value, ok := mc.mutation.SuperAccount(); ok {
+		_spec.SetField(merchant.FieldSuperAccount, field.TypeString, value)
+		_node.SuperAccount = value
+	}
 	if nodes := mc.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -808,23 +835,6 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BusinessTypeID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mc.mutation.AdminUserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.AdminUserTable,
-			Columns: []string{merchant.AdminUserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.AdminUserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := mc.mutation.CountryIDs(); len(nodes) > 0 {
@@ -893,6 +903,38 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.DistrictID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.BackendUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := mc.mutation.StoresIDs(); len(nodes) > 0 {
@@ -1355,8 +1397,8 @@ func (u *MerchantUpsertOne) UpdateNewValues() *MerchantUpsertOne {
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(merchant.FieldCreatedAt)
 		}
-		if _, exists := u.create.mutation.AdminUserID(); exists {
-			s.SetIgnore(merchant.FieldAdminUserID)
+		if _, exists := u.create.mutation.SuperAccount(); exists {
+			s.SetIgnore(merchant.FieldSuperAccount)
 		}
 	}))
 	return u
@@ -1897,8 +1939,8 @@ func (u *MerchantUpsertBulk) UpdateNewValues() *MerchantUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(merchant.FieldCreatedAt)
 			}
-			if _, exists := b.mutation.AdminUserID(); exists {
-				s.SetIgnore(merchant.FieldAdminUserID)
+			if _, exists := b.mutation.SuperAccount(); exists {
+				s.SetIgnore(merchant.FieldSuperAccount)
 			}
 		}
 	}))

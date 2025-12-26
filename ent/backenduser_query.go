@@ -24,6 +24,7 @@ type BackendUserQuery struct {
 	order      []backenduser.OrderOption
 	inters     []Interceptor
 	predicates []predicate.BackendUser
+	withFKs    bool
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -336,9 +337,13 @@ func (buq *BackendUserQuery) prepareQuery(ctx context.Context) error {
 
 func (buq *BackendUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*BackendUser, error) {
 	var (
-		nodes = []*BackendUser{}
-		_spec = buq.querySpec()
+		nodes   = []*BackendUser{}
+		withFKs = buq.withFKs
+		_spec   = buq.querySpec()
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, backenduser.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*BackendUser).scanValues(nil, columns)
 	}

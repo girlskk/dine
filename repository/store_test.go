@@ -49,6 +49,16 @@ func (s *StoreRepositoryTestSuite) createAdminUser(username string) *ent.AdminUs
 		SaveX(s.ctx)
 }
 
+func (s *StoreRepositoryTestSuite) createStoreUser(username string, merchantID, storeID uuid.UUID) *ent.StoreUser {
+	return s.client.StoreUser.Create().
+		SetUsername(username).
+		SetHashedPassword("hashed").
+		SetNickname("store-user").
+		SetMerchantID(merchantID).
+		SetStoreID(storeID).
+		SaveX(s.ctx)
+}
+
 func (s *StoreRepositoryTestSuite) createBusinessType(code, name string) *ent.MerchantBusinessType {
 	return s.client.MerchantBusinessType.Create().
 		SetTypeCode(code).
@@ -95,7 +105,7 @@ func (s *StoreRepositoryTestSuite) createLocation(tag string) storeLocation {
 	}
 }
 
-func (s *StoreRepositoryTestSuite) createMerchant(tag string, businessType *ent.MerchantBusinessType, admin *ent.AdminUser, loc storeLocation) *ent.Merchant {
+func (s *StoreRepositoryTestSuite) createMerchant(tag string, businessType *ent.MerchantBusinessType, loc storeLocation) *ent.Merchant {
 	return s.client.Merchant.Create().
 		SetMerchantCode("MC-" + tag).
 		SetMerchantName("商户-" + tag).
@@ -108,7 +118,7 @@ func (s *StoreRepositoryTestSuite) createMerchant(tag string, businessType *ent.
 		SetStatus(domain.MerchantStatusActive).
 		SetBusinessTypeID(businessType.ID).
 		SetMerchantBusinessType(businessType).
-		SetAdminUser(admin).
+		SetSuperAccount("super-" + tag).
 		SetCountryID(loc.countryID).
 		SetProvinceID(loc.provinceID).
 		SetCityID(loc.cityID).
@@ -119,11 +129,13 @@ func (s *StoreRepositoryTestSuite) createMerchant(tag string, businessType *ent.
 		SaveX(s.ctx)
 }
 
-func (s *StoreRepositoryTestSuite) newStore(tag string) (*domain.Store, storeLocation, *ent.MerchantBusinessType, *ent.AdminUser, *ent.Merchant) {
+func (s *StoreRepositoryTestSuite) newStore(tag string) (*domain.Store, storeLocation, *ent.MerchantBusinessType, *ent.StoreUser, *ent.Merchant) {
+
 	loc := s.createLocation(tag)
-	admin := s.createAdminUser("admin-" + tag)
 	businessType := s.createBusinessType("bt-"+tag, "业态-"+tag)
-	merchant := s.createMerchant(tag, businessType, admin, loc)
+	merchant := s.createMerchant(tag, businessType, loc)
+	storeID := uuid.New()
+	storeUser := s.createStoreUser("store-user-"+tag, merchant.ID, storeID)
 
 	shortTag := tag
 	if len(shortTag) > 8 {
@@ -141,7 +153,7 @@ func (s *StoreRepositoryTestSuite) newStore(tag string) (*domain.Store, storeLoc
 	}
 
 	store := &domain.Store{
-		ID:                      uuid.New(),
+		ID:                      storeID,
 		MerchantID:              merchant.ID,
 		AdminPhoneNumber:        "13900000000",
 		StoreName:               "门店-" + shortTag,
@@ -160,7 +172,8 @@ func (s *StoreRepositoryTestSuite) newStore(tag string) (*domain.Store, storeLoc
 		CashierDeskURL:          "cashier-" + tag,
 		DiningEnvironmentURL:    "env-" + tag,
 		FoodOperationLicenseURL: "food-" + tag,
-		AdminUserID:             admin.ID,
+		LoginAccount:            storeUser.Username,
+		LoginPassword:           storeUser.HashedPassword,
 		BusinessHours:           businessHours,
 		DiningPeriods:           diningPeriods,
 		ShiftTimes:              shiftTimes,
@@ -175,26 +188,25 @@ func (s *StoreRepositoryTestSuite) newStore(tag string) (*domain.Store, storeLoc
 		},
 	}
 
-	return store, loc, businessType, admin, merchant
+	return store, loc, businessType, storeUser, merchant
 }
 
 func (s *StoreRepositoryTestSuite) TestStore_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
-		store, loc, businessType, admin, merchant := s.newStore(uuid.NewString())
+		store, loc, businessType, storeUser, merchant := s.newStore(uuid.NewString())
 
 		err := s.repo.Create(s.ctx, store)
 		require.NoError(t, err)
 
 		saved := s.client.Store.Query().
 			Where(storeent.IDEQ(store.ID)).
-			WithAdminUser().
 			WithMerchantBusinessType().
 			WithMerchant().
 			OnlyX(s.ctx)
 
 		require.Equal(t, merchant.ID, saved.MerchantID)
 		require.Equal(t, businessType.ID, saved.BusinessTypeID)
-		require.Equal(t, admin.ID, saved.AdminUserID)
+		require.Equal(t, storeUser.ID, saved.SuperAccount)
 		require.Equal(t, store.StoreName, saved.StoreName)
 		require.Equal(t, store.StoreShortName, saved.StoreShortName)
 		require.Equal(t, store.Status, saved.Status)
@@ -295,7 +307,7 @@ func (s *StoreRepositoryTestSuite) TestStore_Delete() {
 
 func (s *StoreRepositoryTestSuite) TestStore_FindByID() {
 	tag := uuid.NewString()
-	store, loc, businessType, admin, _ := s.newStore(tag)
+	store, loc, businessType, storeUser, _ := s.newStore(tag)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store))
 
 	s.T().Run("查询成功", func(t *testing.T) {
@@ -305,8 +317,8 @@ func (s *StoreRepositoryTestSuite) TestStore_FindByID() {
 		require.Equal(t, store.ID, found.ID)
 		require.Equal(t, store.StoreName, found.StoreName)
 		require.Equal(t, businessType.TypeName, found.BusinessTypeName)
-		require.Equal(t, admin.Username, found.LoginAccount)
-		require.Equal(t, admin.HashedPassword, found.LoginPassword)
+		require.Equal(t, storeUser.Username, found.LoginAccount)
+		require.Equal(t, storeUser.HashedPassword, found.LoginPassword)
 		require.Equal(t, loc.countryName, found.Address.CountryName)
 		require.Equal(t, loc.provinceName, found.Address.ProvinceName)
 		require.Equal(t, loc.cityName, found.Address.CityName)
@@ -438,7 +450,7 @@ func (s *StoreRepositoryTestSuite) TestStore_FindStoreMerchant() {
 
 func (s *StoreRepositoryTestSuite) TestStore_CountStoresByMerchantID() {
 	tag1 := uuid.NewString()
-	store1, _, businessType1, admin1, merchant1 := s.newStore(tag1)
+	store1, _, businessType1, storeUser1, merchant1 := s.newStore(tag1)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store1))
 
 	tag2 := uuid.NewString()
@@ -449,7 +461,7 @@ func (s *StoreRepositoryTestSuite) TestStore_CountStoresByMerchantID() {
 	store3, _, _, _, _ := s.newStore(tag3)
 	store3.MerchantID = merchant1.ID
 	store3.BusinessTypeID = businessType1.ID
-	store3.AdminUserID = admin1.ID
+	store3.LoginAccount = storeUser1.Username
 	require.NoError(s.T(), s.repo.Create(s.ctx, store3))
 
 	s.T().Run("统计成功", func(t *testing.T) {

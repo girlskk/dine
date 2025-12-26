@@ -25,6 +25,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // StoreUpdate is the builder for updating Store entities.
@@ -495,6 +496,21 @@ func (su *StoreUpdate) SetDistrict(d *District) *StoreUpdate {
 	return su.SetDistrictID(d.ID)
 }
 
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (su *StoreUpdate) AddStoreUserIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddStoreUserIDs(ids...)
+	return su
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (su *StoreUpdate) AddStoreUsers(s ...*StoreUser) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddStoreUserIDs(ids...)
+}
+
 // AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
 func (su *StoreUpdate) AddRemarkIDs(ids ...uuid.UUID) *StoreUpdate {
 	su.mutation.AddRemarkIDs(ids...)
@@ -588,6 +604,27 @@ func (su *StoreUpdate) ClearCity() *StoreUpdate {
 func (su *StoreUpdate) ClearDistrict() *StoreUpdate {
 	su.mutation.ClearDistrict()
 	return su
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (su *StoreUpdate) ClearStoreUsers() *StoreUpdate {
+	su.mutation.ClearStoreUsers()
+	return su
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (su *StoreUpdate) RemoveStoreUserIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveStoreUserIDs(ids...)
+	return su
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (su *StoreUpdate) RemoveStoreUsers(s ...*StoreUser) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveStoreUserIDs(ids...)
 }
 
 // ClearRemarks clears all "remarks" edges to the Remark entity.
@@ -815,9 +852,6 @@ func (su *StoreUpdate) check() error {
 	}
 	if su.mutation.MerchantCleared() && len(su.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
-	}
-	if su.mutation.AdminUserCleared() && len(su.mutation.AdminUserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
 	}
 	if su.mutation.MerchantBusinessTypeCleared() && len(su.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
@@ -1071,6 +1105,51 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !su.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1734,6 +1813,21 @@ func (suo *StoreUpdateOne) SetDistrict(d *District) *StoreUpdateOne {
 	return suo.SetDistrictID(d.ID)
 }
 
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (suo *StoreUpdateOne) AddStoreUserIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddStoreUserIDs(ids...)
+	return suo
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (suo *StoreUpdateOne) AddStoreUsers(s ...*StoreUser) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddStoreUserIDs(ids...)
+}
+
 // AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
 func (suo *StoreUpdateOne) AddRemarkIDs(ids ...uuid.UUID) *StoreUpdateOne {
 	suo.mutation.AddRemarkIDs(ids...)
@@ -1827,6 +1921,27 @@ func (suo *StoreUpdateOne) ClearCity() *StoreUpdateOne {
 func (suo *StoreUpdateOne) ClearDistrict() *StoreUpdateOne {
 	suo.mutation.ClearDistrict()
 	return suo
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (suo *StoreUpdateOne) ClearStoreUsers() *StoreUpdateOne {
+	suo.mutation.ClearStoreUsers()
+	return suo
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (suo *StoreUpdateOne) RemoveStoreUserIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveStoreUserIDs(ids...)
+	return suo
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (suo *StoreUpdateOne) RemoveStoreUsers(s ...*StoreUser) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveStoreUserIDs(ids...)
 }
 
 // ClearRemarks clears all "remarks" edges to the Remark entity.
@@ -2067,9 +2182,6 @@ func (suo *StoreUpdateOne) check() error {
 	}
 	if suo.mutation.MerchantCleared() && len(suo.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
-	}
-	if suo.mutation.AdminUserCleared() && len(suo.mutation.AdminUserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
 	}
 	if suo.mutation.MerchantBusinessTypeCleared() && len(suo.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
@@ -2340,6 +2452,51 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !suo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

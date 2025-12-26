@@ -91,27 +91,23 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 
 	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		var err error
-		adminUserID := uuid.New()
 		merchantID := uuid.New()
-
-		err = ds.AdminUserRepo().Create(ctx, &domain.AdminUser{
-			ID:             adminUserID,
+		err = ds.BackendUserRepo().Create(ctx, &domain.BackendUser{
+			ID:             uuid.New(),
 			Username:       domainMerchant.LoginAccount,
 			HashedPassword: domainMerchant.LoginPassword,
-			AccountType:    domain.AdminUserAccountTypeSuperAdmin,
+			MerchantID:     merchantID,
 		})
 		if err != nil {
 			return err
 		}
 		domainMerchant.ID = merchantID
-		domainMerchant.AdminUserID = adminUserID
 		err = ds.MerchantRepo().Create(ctx, domainMerchant)
 		if err != nil {
 			return err
 		}
 
 		if domainStore != nil {
-			domainStore.AdminUserID = adminUserID
 			domainStore.MerchantID = merchantID
 			domainStore.ID = uuid.New()
 			err = ds.StoreRepo().Create(ctx, domainStore)
@@ -225,15 +221,18 @@ func (interactor *MerchantInteractor) updateMerchant(ctx context.Context, domain
 			return err
 		}
 
-		adminUser := &domain.AdminUser{
-			ID:             domainMerchant.AdminUserID,
-			Username:       domainMerchant.LoginAccount,
-			HashedPassword: domainMerchant.LoginPassword,
-		}
-		err = ds.AdminUserRepo().Update(ctx, adminUser)
+		oldAccount, err := ds.BackendUserRepo().FindByUsername(ctx, domainMerchant.LoginAccount)
 		if err != nil {
 			return err
 		}
+		if oldAccount.HashedPassword != domainMerchant.LoginPassword {
+			oldAccount.HashedPassword = domainMerchant.LoginPassword
+			err = ds.BackendUserRepo().Update(ctx, oldAccount)
+			if err != nil {
+				return err
+			}
+		}
+
 		if domainStore != nil {
 			err = ds.StoreRepo().Update(ctx, domainStore)
 			if err != nil {
@@ -412,9 +411,8 @@ func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Cont
 		Description:       domainUMerchant.Description,
 		Status:            domainUMerchant.Status,
 		Address:           domainUMerchant.Address,
-		LoginAccount:      domainUMerchant.LoginAccount,
+		LoginAccount:      oldMerchant.LoginAccount,
 		LoginPassword:     domainUMerchant.LoginPassword,
-		AdminUserID:       oldMerchant.AdminUserID,
 	}
 
 	err = interactor.checkFields(ctx, domainMerchant)

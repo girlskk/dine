@@ -6,9 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -85,12 +83,6 @@ func HashedPassword(v string) predicate.AdminUser {
 // Nickname applies equality check predicate on the "nickname" field. It's identical to NicknameEQ.
 func Nickname(v string) predicate.AdminUser {
 	return predicate.AdminUser(sql.FieldEQ(FieldNickname, v))
-}
-
-// AccountType applies equality check predicate on the "account_type" field. It's identical to AccountTypeEQ.
-func AccountType(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldEQ(FieldAccountType, vc))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -406,136 +398,6 @@ func NicknameEqualFold(v string) predicate.AdminUser {
 // NicknameContainsFold applies the ContainsFold predicate on the "nickname" field.
 func NicknameContainsFold(v string) predicate.AdminUser {
 	return predicate.AdminUser(sql.FieldContainsFold(FieldNickname, v))
-}
-
-// AccountTypeEQ applies the EQ predicate on the "account_type" field.
-func AccountTypeEQ(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldEQ(FieldAccountType, vc))
-}
-
-// AccountTypeNEQ applies the NEQ predicate on the "account_type" field.
-func AccountTypeNEQ(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldNEQ(FieldAccountType, vc))
-}
-
-// AccountTypeIn applies the In predicate on the "account_type" field.
-func AccountTypeIn(vs ...domain.AdminUserAccountType) predicate.AdminUser {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = string(vs[i])
-	}
-	return predicate.AdminUser(sql.FieldIn(FieldAccountType, v...))
-}
-
-// AccountTypeNotIn applies the NotIn predicate on the "account_type" field.
-func AccountTypeNotIn(vs ...domain.AdminUserAccountType) predicate.AdminUser {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = string(vs[i])
-	}
-	return predicate.AdminUser(sql.FieldNotIn(FieldAccountType, v...))
-}
-
-// AccountTypeGT applies the GT predicate on the "account_type" field.
-func AccountTypeGT(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldGT(FieldAccountType, vc))
-}
-
-// AccountTypeGTE applies the GTE predicate on the "account_type" field.
-func AccountTypeGTE(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldGTE(FieldAccountType, vc))
-}
-
-// AccountTypeLT applies the LT predicate on the "account_type" field.
-func AccountTypeLT(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldLT(FieldAccountType, vc))
-}
-
-// AccountTypeLTE applies the LTE predicate on the "account_type" field.
-func AccountTypeLTE(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldLTE(FieldAccountType, vc))
-}
-
-// AccountTypeContains applies the Contains predicate on the "account_type" field.
-func AccountTypeContains(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldContains(FieldAccountType, vc))
-}
-
-// AccountTypeHasPrefix applies the HasPrefix predicate on the "account_type" field.
-func AccountTypeHasPrefix(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldHasPrefix(FieldAccountType, vc))
-}
-
-// AccountTypeHasSuffix applies the HasSuffix predicate on the "account_type" field.
-func AccountTypeHasSuffix(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldHasSuffix(FieldAccountType, vc))
-}
-
-// AccountTypeEqualFold applies the EqualFold predicate on the "account_type" field.
-func AccountTypeEqualFold(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldEqualFold(FieldAccountType, vc))
-}
-
-// AccountTypeContainsFold applies the ContainsFold predicate on the "account_type" field.
-func AccountTypeContainsFold(v domain.AdminUserAccountType) predicate.AdminUser {
-	vc := string(v)
-	return predicate.AdminUser(sql.FieldContainsFold(FieldAccountType, vc))
-}
-
-// HasMerchant applies the HasEdge predicate on the "merchant" edge.
-func HasMerchant() predicate.AdminUser {
-	return predicate.AdminUser(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, MerchantTable, MerchantColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasMerchantWith applies the HasEdge predicate on the "merchant" edge with a given conditions (other predicates).
-func HasMerchantWith(preds ...predicate.Merchant) predicate.AdminUser {
-	return predicate.AdminUser(func(s *sql.Selector) {
-		step := newMerchantStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasStore applies the HasEdge predicate on the "store" edge.
-func HasStore() predicate.AdminUser {
-	return predicate.AdminUser(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, StoreTable, StoreColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasStoreWith applies the HasEdge predicate on the "store" edge with a given conditions (other predicates).
-func HasStoreWith(preds ...predicate.Store) predicate.AdminUser {
-	return predicate.AdminUser(func(s *sql.Selector) {
-		step := newStoreStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

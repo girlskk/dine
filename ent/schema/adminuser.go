@@ -2,10 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
@@ -26,21 +24,12 @@ func (AdminUser) Fields() []ent.Field {
 			Comment("密码哈希"),
 		field.String("nickname").
 			Comment("昵称"),
-		field.String("account_type").
-			NotEmpty().
-			GoType(domain.AdminUserAccountType("")).
-			Immutable().
-			Default(string(domain.AdminUserAccountTypeNormal)).
-			Comment("账户类型"),
 	}
 }
 
 // Edges of the AdminUser.
 func (AdminUser) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("merchant", Merchant.Type),
-		edge.To("store", Store.Type),
-	}
+	return []ent.Edge{}
 }
 
 func (AdminUser) Mixin() []ent.Mixin {

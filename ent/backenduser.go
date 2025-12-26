@@ -32,8 +32,9 @@ type BackendUser struct {
 	// 昵称
 	Nickname string `json:"nickname,omitempty"`
 	// 所属品牌商ID
-	MerchantID   uuid.UUID `json:"merchant_id,omitempty"`
-	selectValues sql.SelectValues
+	MerchantID             uuid.UUID `json:"merchant_id,omitempty"`
+	merchant_backend_users *uuid.UUID
+	selectValues           sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -49,6 +50,8 @@ func (*BackendUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case backenduser.FieldID, backenduser.FieldMerchantID:
 			values[i] = new(uuid.UUID)
+		case backenduser.ForeignKeys[0]: // merchant_backend_users
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -111,6 +114,13 @@ func (bu *BackendUser) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
 			} else if value != nil {
 				bu.MerchantID = *value
+			}
+		case backenduser.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field merchant_backend_users", values[i])
+			} else if value.Valid {
+				bu.merchant_backend_users = new(uuid.UUID)
+				*bu.merchant_backend_users = *value.S.(*uuid.UUID)
 			}
 		default:
 			bu.selectValues.Set(columns[i], values[i])

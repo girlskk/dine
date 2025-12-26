@@ -131,9 +131,9 @@ func (Store) Fields() []ent.Field {
 			Default("").
 			MaxLen(50).
 			Comment("纬度"),
-		field.UUID("admin_user_id", uuid.UUID{}).
+		field.String("super_account").
 			Immutable().
-			Comment("登陆账号 ID"),
+			Comment("登陆账号"),
 	}
 }
 
@@ -144,13 +144,6 @@ func (Store) Edges() []ent.Edge {
 		edge.From("merchant", Merchant.Type).
 			Ref("stores").
 			Field("merchant_id").
-			Unique().
-			Immutable().
-			Required(),
-		// 管理员用户关联
-		edge.From("admin_user", AdminUser.Type).
-			Ref("store").
-			Field("admin_user_id").
 			Unique().
 			Immutable().
 			Required(),
@@ -177,6 +170,7 @@ func (Store) Edges() []ent.Edge {
 			Ref("stores").
 			Field("district_id").
 			Unique(),
+		edge.To("store_users", StoreUser.Type),
 		edge.To("remarks", Remark.Type),
 		edge.To("stalls", Stall.Type),
 		edge.To("additional_fees", AdditionalFee.Type),

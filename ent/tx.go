@@ -64,6 +64,8 @@ type Tx struct {
 	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
+	// StoreUser is the client for interacting with the StoreUser builders.
+	StoreUser *StoreUserClient
 
 	// lazily loaded.
 	client     *Client
@@ -221,6 +223,7 @@ func (tx *Tx) init() {
 	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
+	tx.StoreUser = NewStoreUserClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

@@ -60,12 +60,10 @@ const (
 	FieldLng = "lng"
 	// FieldLat holds the string denoting the lat field in the database.
 	FieldLat = "lat"
-	// FieldAdminUserID holds the string denoting the admin_user_id field in the database.
-	FieldAdminUserID = "admin_user_id"
+	// FieldSuperAccount holds the string denoting the super_account field in the database.
+	FieldSuperAccount = "super_account"
 	// EdgeMerchantBusinessType holds the string denoting the merchant_business_type edge name in mutations.
 	EdgeMerchantBusinessType = "merchant_business_type"
-	// EdgeAdminUser holds the string denoting the admin_user edge name in mutations.
-	EdgeAdminUser = "admin_user"
 	// EdgeCountry holds the string denoting the country edge name in mutations.
 	EdgeCountry = "country"
 	// EdgeProvince holds the string denoting the province edge name in mutations.
@@ -74,6 +72,10 @@ const (
 	EdgeCity = "city"
 	// EdgeDistrict holds the string denoting the district edge name in mutations.
 	EdgeDistrict = "district"
+	// EdgeBackendUsers holds the string denoting the backend_users edge name in mutations.
+	EdgeBackendUsers = "backend_users"
+	// EdgeStoreUsers holds the string denoting the store_users edge name in mutations.
+	EdgeStoreUsers = "store_users"
 	// EdgeStores holds the string denoting the stores edge name in mutations.
 	EdgeStores = "stores"
 	// EdgeMerchantRenewals holds the string denoting the merchant_renewals edge name in mutations.
@@ -97,13 +99,6 @@ const (
 	MerchantBusinessTypeInverseTable = "merchant_business_types"
 	// MerchantBusinessTypeColumn is the table column denoting the merchant_business_type relation/edge.
 	MerchantBusinessTypeColumn = "business_type_id"
-	// AdminUserTable is the table that holds the admin_user relation/edge.
-	AdminUserTable = "merchants"
-	// AdminUserInverseTable is the table name for the AdminUser entity.
-	// It exists in this package in order to avoid circular dependency with the "adminuser" package.
-	AdminUserInverseTable = "admin_users"
-	// AdminUserColumn is the table column denoting the admin_user relation/edge.
-	AdminUserColumn = "admin_user_id"
 	// CountryTable is the table that holds the country relation/edge.
 	CountryTable = "merchants"
 	// CountryInverseTable is the table name for the Country entity.
@@ -132,6 +127,20 @@ const (
 	DistrictInverseTable = "districts"
 	// DistrictColumn is the table column denoting the district relation/edge.
 	DistrictColumn = "district_id"
+	// BackendUsersTable is the table that holds the backend_users relation/edge.
+	BackendUsersTable = "backend_users"
+	// BackendUsersInverseTable is the table name for the BackendUser entity.
+	// It exists in this package in order to avoid circular dependency with the "backenduser" package.
+	BackendUsersInverseTable = "backend_users"
+	// BackendUsersColumn is the table column denoting the backend_users relation/edge.
+	BackendUsersColumn = "merchant_backend_users"
+	// StoreUsersTable is the table that holds the store_users relation/edge.
+	StoreUsersTable = "store_users"
+	// StoreUsersInverseTable is the table name for the StoreUser entity.
+	// It exists in this package in order to avoid circular dependency with the "storeuser" package.
+	StoreUsersInverseTable = "store_users"
+	// StoreUsersColumn is the table column denoting the store_users relation/edge.
+	StoreUsersColumn = "merchant_id"
 	// StoresTable is the table that holds the stores relation/edge.
 	StoresTable = "stores"
 	// StoresInverseTable is the table name for the Store entity.
@@ -207,7 +216,7 @@ var Columns = []string{
 	FieldAddress,
 	FieldLng,
 	FieldLat,
-	FieldAdminUserID,
+	FieldSuperAccount,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -413,22 +422,15 @@ func ByLat(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLat, opts...).ToFunc()
 }
 
-// ByAdminUserID orders the results by the admin_user_id field.
-func ByAdminUserID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAdminUserID, opts...).ToFunc()
+// BySuperAccount orders the results by the super_account field.
+func BySuperAccount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuperAccount, opts...).ToFunc()
 }
 
 // ByMerchantBusinessTypeField orders the results by merchant_business_type field.
 func ByMerchantBusinessTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantBusinessTypeStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByAdminUserField orders the results by admin_user field.
-func ByAdminUserField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAdminUserStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -457,6 +459,34 @@ func ByCityField(field string, opts ...sql.OrderTermOption) OrderOption {
 func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newDistrictStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByBackendUsersCount orders the results by backend_users count.
+func ByBackendUsersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newBackendUsersStep(), opts...)
+	}
+}
+
+// ByBackendUsers orders the results by backend_users terms.
+func ByBackendUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBackendUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByStoreUsersCount orders the results by store_users count.
+func ByStoreUsersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStoreUsersStep(), opts...)
+	}
+}
+
+// ByStoreUsers orders the results by store_users terms.
+func ByStoreUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStoreUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -564,13 +594,6 @@ func newMerchantBusinessTypeStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, MerchantBusinessTypeTable, MerchantBusinessTypeColumn),
 	)
 }
-func newAdminUserStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(AdminUserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
-	)
-}
 func newCountryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -597,6 +620,20 @@ func newDistrictStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DistrictInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
+	)
+}
+func newBackendUsersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BackendUsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, BackendUsersTable, BackendUsersColumn),
+	)
+}
+func newStoreUsersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StoreUsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
 	)
 }
 func newStoresStep() *sqlgraph.Step {

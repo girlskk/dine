@@ -161,7 +161,6 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			CashierDeskURL:          req.CashierDeskURL,
 			DiningEnvironmentURL:    req.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.FoodOperationLicenseURL,
-			LoginAccount:            req.LoginAccount,
 			LoginPassword:           req.LoginPassword,
 			BusinessHours:           req.BusinessHours,
 			DiningPeriods:           req.DiningPeriods,

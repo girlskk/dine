@@ -41,14 +41,15 @@ func (s *MerchantRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *MerchantRepositoryTestSuite) createAdminUser(username string) *ent.AdminUser {
+func (s *MerchantRepositoryTestSuite) createBackendUser(username string, merchantID uuid.UUID) *ent.BackendUser {
 	hashedPassword, err := util.HashPassword("123456")
 	require.NoError(s.T(), err)
 
-	return s.client.AdminUser.Create().
+	return s.client.BackendUser.Create().
 		SetUsername(username).
 		SetHashedPassword(hashedPassword).
 		SetNickname("测试管理员").
+		SetMerchantID(merchantID).
 		SaveX(s.ctx)
 }
 
@@ -98,13 +99,14 @@ func (s *MerchantRepositoryTestSuite) createLocation(tag string) locationInfo {
 	}
 }
 
-func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.MerchantStatus, merchantType domain.MerchantType, expire *time.Time) (*domain.Merchant, locationInfo, *ent.MerchantBusinessType, *ent.AdminUser) {
+func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.MerchantStatus, merchantType domain.MerchantType, expire *time.Time) (*domain.Merchant, locationInfo, *ent.MerchantBusinessType, *ent.BackendUser) {
 	loc := s.createLocation(tag)
-	admin := s.createAdminUser("admin-" + tag)
+	merchantID := uuid.New()
+	backendUser := s.createBackendUser("admin-"+tag, merchantID)
 	businessType := s.createBusinessType("bt-code-"+tag, "业态-"+tag)
 
 	merchant := &domain.Merchant{
-		ID:                uuid.New(),
+		ID:                merchantID,
 		MerchantCode:      "MC-" + tag,
 		MerchantName:      "商户-" + tag,
 		MerchantShortName: "简称-" + tag,
@@ -116,7 +118,8 @@ func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.Merc
 		MerchantLogo:      "logo-" + tag,
 		Description:       "描述-" + tag,
 		Status:            status,
-		AdminUserID:       admin.ID,
+		LoginAccount:      backendUser.Username,
+		LoginPassword:     backendUser.HashedPassword,
 		Address: &domain.Address{
 			CountryID:  loc.countryID,
 			ProvinceID: loc.provinceID,
@@ -128,19 +131,18 @@ func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.Merc
 		},
 	}
 
-	return merchant, loc, businessType, admin
+	return merchant, loc, businessType, backendUser
 }
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
 		expire := time.Now().UTC().Add(48 * time.Hour)
-		merchant, _, businessType, admin := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeBrand, &expire)
+		merchant, _, businessType, backendUser := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeBrand, &expire)
 
 		err := s.repo.Create(s.ctx, merchant)
 		require.NoError(t, err)
 
 		saved := s.client.Merchant.Query().
-			WithAdminUser().
 			WithMerchantBusinessType().
 			OnlyX(s.ctx)
 
@@ -148,7 +150,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Create() {
 		require.Equal(t, merchant.MerchantShortName, saved.MerchantShortName)
 		require.Equal(t, merchant.Status, saved.Status)
 		require.Equal(t, businessType.ID, saved.BusinessTypeID)
-		require.Equal(t, admin.ID, saved.AdminUserID)
+		require.Equal(t, backendUser.Username, saved.SuperAccount)
 	})
 
 	s.T().Run("参数为空", func(t *testing.T) {
@@ -230,7 +232,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Delete() {
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_FindByID() {
 	tag := uuid.NewString()
-	merchant, loc, businessType, admin := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+	merchant, loc, businessType, backendUser := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
 	require.NoError(s.T(), s.repo.Create(s.ctx, merchant))
 
 	s.T().Run("查询成功", func(t *testing.T) {
@@ -240,8 +242,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_FindByID() {
 		require.Equal(t, merchant.ID, found.ID)
 		require.Equal(t, merchant.MerchantName, found.MerchantName)
 		require.Equal(t, businessType.TypeName, found.BusinessTypeName)
-		require.Equal(t, admin.Username, found.LoginAccount)
-		require.Equal(t, admin.HashedPassword, found.LoginPassword)
+		require.Equal(t, backendUser.Username, found.LoginAccount)
 		require.Equal(t, loc.countryName, found.Address.CountryName)
 		require.Equal(t, loc.provinceName, found.Address.ProvinceName)
 		require.Equal(t, loc.cityName, found.Address.CityName)

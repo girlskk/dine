@@ -87,10 +87,10 @@ func (s *RemarkTestSuite) ensureMerchant(id uuid.UUID) *ent.Merchant {
 		return m
 	}
 
-	admin := s.client.AdminUser.Create().
-		SetUsername("admin-" + id.String()).
+	storeUser := s.client.StoreUser.Create().
+		SetUsername("storeUser-" + id.String()).
 		SetHashedPassword("pwd").
-		SetNickname("admin").
+		SetNickname("storeUser").
 		SaveX(s.ctx)
 
 	bt := s.client.MerchantBusinessType.Create().
@@ -110,7 +110,7 @@ func (s *RemarkTestSuite) ensureMerchant(id uuid.UUID) *ent.Merchant {
 		SetMerchantLogo("logo").
 		SetDescription("desc").
 		SetStatus(domain.MerchantStatusActive).
-		SetAdminUserID(admin.ID).
+		SetSuperAccount(storeUser.Username).
 		SetAddress("addr").
 		SetLng("0").
 		SetLat("0").
@@ -127,10 +127,11 @@ func (s *RemarkTestSuite) ensureStore(id, merchantID uuid.UUID) *ent.Store {
 	}
 	m := s.ensureMerchant(merchantID)
 
-	admin := s.client.AdminUser.Create().
-		SetUsername("store-admin-" + id.String()).
+	storeUser := s.client.StoreUser.Create().
+		SetUsername("store-storeUser-" + id.String()).
 		SetHashedPassword("pwd").
-		SetNickname("store-admin").
+		SetNickname("store-storeUser").
+		SetMerchantID(merchantID).
 		SaveX(s.ctx)
 
 	shortName := "S-" + id.String()
@@ -168,7 +169,7 @@ func (s *RemarkTestSuite) ensureStore(id, merchantID uuid.UUID) *ent.Store {
 		SetAddress("addr").
 		SetLng("0").
 		SetLat("0").
-		SetAdminUserID(admin.ID).
+		SetSuperAccount(storeUser.Username).
 		SaveX(s.ctx)
 }
 

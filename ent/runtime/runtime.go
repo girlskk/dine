@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
@@ -35,6 +34,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -155,12 +155,6 @@ func init() {
 	adminuserDescHashedPassword := adminuserFields[1].Descriptor()
 	// adminuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	adminuser.HashedPasswordValidator = adminuserDescHashedPassword.Validators[0].(func(string) error)
-	// adminuserDescAccountType is the schema descriptor for account_type field.
-	adminuserDescAccountType := adminuserFields[3].Descriptor()
-	// adminuser.DefaultAccountType holds the default value on creation for the account_type field.
-	adminuser.DefaultAccountType = domain.AdminUserAccountType(adminuserDescAccountType.Default.(string))
-	// adminuser.AccountTypeValidator is a validator for the "account_type" field. It is called by the builders before save.
-	adminuser.AccountTypeValidator = adminuserDescAccountType.Validators[0].(func(string) error)
 	// adminuserDescID is the schema descriptor for id field.
 	adminuserDescID := adminuserMixinFields0[0].Descriptor()
 	// adminuser.DefaultID holds the default value on creation for the id field.
@@ -1921,6 +1915,59 @@ func init() {
 	storeDescID := storeMixinFields0[0].Descriptor()
 	// store.DefaultID holds the default value on creation for the id field.
 	store.DefaultID = storeDescID.Default.(func() uuid.UUID)
+	storeuserMixin := schema.StoreUser{}.Mixin()
+	storeuserMixinHooks1 := storeuserMixin[1].Hooks()
+	storeuser.Hooks[0] = storeuserMixinHooks1[0]
+	storeuserMixinInters1 := storeuserMixin[1].Interceptors()
+	storeuser.Interceptors[0] = storeuserMixinInters1[0]
+	storeuserMixinFields0 := storeuserMixin[0].Fields()
+	_ = storeuserMixinFields0
+	storeuserMixinFields1 := storeuserMixin[1].Fields()
+	_ = storeuserMixinFields1
+	storeuserMixinFields2 := storeuserMixin[2].Fields()
+	_ = storeuserMixinFields2
+	storeuserFields := schema.StoreUser{}.Fields()
+	_ = storeuserFields
+	// storeuserDescCreatedAt is the schema descriptor for created_at field.
+	storeuserDescCreatedAt := storeuserMixinFields0[0].Descriptor()
+	// storeuser.DefaultCreatedAt holds the default value on creation for the created_at field.
+	storeuser.DefaultCreatedAt = storeuserDescCreatedAt.Default.(func() time.Time)
+	// storeuserDescUpdatedAt is the schema descriptor for updated_at field.
+	storeuserDescUpdatedAt := storeuserMixinFields0[1].Descriptor()
+	// storeuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	storeuser.DefaultUpdatedAt = storeuserDescUpdatedAt.Default.(func() time.Time)
+	// storeuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	storeuser.UpdateDefaultUpdatedAt = storeuserDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// storeuserDescDeletedAt is the schema descriptor for deleted_at field.
+	storeuserDescDeletedAt := storeuserMixinFields1[0].Descriptor()
+	// storeuser.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	storeuser.DefaultDeletedAt = storeuserDescDeletedAt.Default.(int64)
+	// storeuserDescUsername is the schema descriptor for username field.
+	storeuserDescUsername := storeuserFields[0].Descriptor()
+	// storeuser.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	storeuser.UsernameValidator = func() func(string) error {
+		validators := storeuserDescUsername.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(username string) error {
+			for _, fn := range fns {
+				if err := fn(username); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storeuserDescHashedPassword is the schema descriptor for hashed_password field.
+	storeuserDescHashedPassword := storeuserFields[1].Descriptor()
+	// storeuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
+	storeuser.HashedPasswordValidator = storeuserDescHashedPassword.Validators[0].(func(string) error)
+	// storeuserDescID is the schema descriptor for id field.
+	storeuserDescID := storeuserMixinFields2[0].Descriptor()
+	// storeuser.DefaultID holds the default value on creation for the id field.
+	storeuser.DefaultID = storeuserDescID.Default.(func() uuid.UUID)
 }
 
 const (

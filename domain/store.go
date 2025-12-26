@@ -156,14 +156,12 @@ type Store struct {
 	FoodOperationLicenseURL string          `json:"food_operation_license_url"` // 食品经营许可证照片地址
 	LoginAccount            string          `json:"login_account"`              // 登录账号
 	LoginPassword           string          `json:"login_password"`             // 登录密码(加密存储)
-	AdminUserID             uuid.UUID       `json:"admin_user_id"`              // 登陆账号 ID
 	BusinessHours           []BusinessHours `json:"business_hours"`             // 营业时间段
 	DiningPeriods           []DiningPeriod  `json:"dining_periods"`             // 就餐时段
 	ShiftTimes              []ShiftTime     `json:"shift_times"`                // 班次时间
 	Address                 *Address        `json:"address"`                    // 地址
-
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt               time.Time       `json:"created_at"`
+	UpdatedAt               time.Time       `json:"updated_at"`
 }
 
 type StoreListFilter struct {
@@ -224,7 +222,6 @@ type UpdateStoreParams struct {
 	CashierDeskURL          string          `json:"cashier_desk_url"`           // 收银台照片地址
 	DiningEnvironmentURL    string          `json:"dining_environment_url"`     // 就餐环境照片地址
 	FoodOperationLicenseURL string          `json:"food_operation_license_url"` // 食品经营许可证照片地址
-	LoginAccount            string          `json:"login_account"`              // 登录账号
 	LoginPassword           string          `json:"login_password"`             // 登录密码(加密存储)
 	BusinessHours           []BusinessHours `json:"business_hours"`             // 营业时间段
 	DiningPeriods           []DiningPeriod  `json:"dining_periods"`             // 就餐时段

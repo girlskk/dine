@@ -80,7 +80,6 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
-		{Name: "account_type", Type: field.TypeString, Default: "normal"},
 	}
 	// AdminUsersTable holds the schema information for the "admin_users" table.
 	AdminUsersTable = &schema.Table{
@@ -110,12 +109,21 @@ var (
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
 		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "merchant_backend_users", Type: field.TypeUUID, Nullable: true},
 	}
 	// BackendUsersTable holds the schema information for the "backend_users" table.
 	BackendUsersTable = &schema.Table{
 		Name:       "backend_users",
 		Columns:    BackendUsersColumns,
 		PrimaryKey: []*schema.Column{BackendUsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "backend_users_merchants_backend_users",
+				Columns:    []*schema.Column{BackendUsersColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "backenduser_deleted_at",
@@ -390,7 +398,7 @@ var (
 		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Default: ""},
 		{Name: "lat", Type: field.TypeString, Default: ""},
-		{Name: "admin_user_id", Type: field.TypeUUID},
+		{Name: "super_account", Type: field.TypeString},
 		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
@@ -403,12 +411,6 @@ var (
 		Columns:    MerchantsColumns,
 		PrimaryKey: []*schema.Column{MerchantsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "merchants_admin_users_merchant",
-				Columns:    []*schema.Column{MerchantsColumns[17]},
-				RefColumns: []*schema.Column{AdminUsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
 			{
 				Symbol:     "merchants_cities_merchants",
 				Columns:    []*schema.Column{MerchantsColumns[18]},
@@ -1173,7 +1175,7 @@ var (
 		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "lat", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "admin_user_id", Type: field.TypeUUID},
+		{Name: "super_account", Type: field.TypeString},
 		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
@@ -1187,12 +1189,6 @@ var (
 		Columns:    StoresColumns,
 		PrimaryKey: []*schema.Column{StoresColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "stores_admin_users_store",
-				Columns:    []*schema.Column{StoresColumns[26]},
-				RefColumns: []*schema.Column{AdminUsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
 			{
 				Symbol:     "stores_cities_stores",
 				Columns:    []*schema.Column{StoresColumns[27]},
@@ -1240,6 +1236,50 @@ var (
 				Name:    "store_merchant_id",
 				Unique:  false,
 				Columns: []*schema.Column{StoresColumns[30]},
+			},
+		},
+	}
+	// StoreUsersColumns holds the columns for the "store_users" table.
+	StoreUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "username", Type: field.TypeString, Size: 100},
+		{Name: "hashed_password", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+	}
+	// StoreUsersTable holds the schema information for the "store_users" table.
+	StoreUsersTable = &schema.Table{
+		Name:       "store_users",
+		Columns:    StoreUsersColumns,
+		PrimaryKey: []*schema.Column{StoreUsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "store_users_merchants_store_users",
+				Columns:    []*schema.Column{StoreUsersColumns[7]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "store_users_stores_store_users",
+				Columns:    []*schema.Column{StoreUsersColumns[8]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "storeuser_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{StoreUsersColumns[3]},
+			},
+			{
+				Name:    "storeuser_username_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{StoreUsersColumns[4], StoreUsersColumns[3]},
 			},
 		},
 	}
@@ -1296,6 +1336,7 @@ var (
 		SetMealGroupsTable,
 		StallsTable,
 		StoresTable,
+		StoreUsersTable,
 		ProductTagRelationsTable,
 	}
 )
@@ -1303,6 +1344,7 @@ var (
 func init() {
 	AdditionalFeesTable.ForeignKeys[0].RefTable = MerchantsTable
 	AdditionalFeesTable.ForeignKeys[1].RefTable = StoresTable
+	BackendUsersTable.ForeignKeys[0].RefTable = MerchantsTable
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
 	CitiesTable.ForeignKeys[0].RefTable = CountriesTable
 	CitiesTable.ForeignKeys[1].RefTable = ProvincesTable
@@ -1312,12 +1354,11 @@ func init() {
 	DistrictsTable.ForeignKeys[0].RefTable = CitiesTable
 	DistrictsTable.ForeignKeys[1].RefTable = CountriesTable
 	DistrictsTable.ForeignKeys[2].RefTable = ProvincesTable
-	MerchantsTable.ForeignKeys[0].RefTable = AdminUsersTable
-	MerchantsTable.ForeignKeys[1].RefTable = CitiesTable
-	MerchantsTable.ForeignKeys[2].RefTable = CountriesTable
-	MerchantsTable.ForeignKeys[3].RefTable = DistrictsTable
-	MerchantsTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
-	MerchantsTable.ForeignKeys[5].RefTable = ProvincesTable
+	MerchantsTable.ForeignKeys[0].RefTable = CitiesTable
+	MerchantsTable.ForeignKeys[1].RefTable = CountriesTable
+	MerchantsTable.ForeignKeys[2].RefTable = DistrictsTable
+	MerchantsTable.ForeignKeys[3].RefTable = MerchantBusinessTypesTable
+	MerchantsTable.ForeignKeys[4].RefTable = ProvincesTable
 	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
 	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
 	ProductsTable.ForeignKeys[1].RefTable = ProductUnitsTable
@@ -1337,13 +1378,14 @@ func init() {
 	SetMealGroupsTable.ForeignKeys[0].RefTable = ProductsTable
 	StallsTable.ForeignKeys[0].RefTable = MerchantsTable
 	StallsTable.ForeignKeys[1].RefTable = StoresTable
-	StoresTable.ForeignKeys[0].RefTable = AdminUsersTable
-	StoresTable.ForeignKeys[1].RefTable = CitiesTable
-	StoresTable.ForeignKeys[2].RefTable = CountriesTable
-	StoresTable.ForeignKeys[3].RefTable = DistrictsTable
-	StoresTable.ForeignKeys[4].RefTable = MerchantsTable
-	StoresTable.ForeignKeys[5].RefTable = MerchantBusinessTypesTable
-	StoresTable.ForeignKeys[6].RefTable = ProvincesTable
+	StoresTable.ForeignKeys[0].RefTable = CitiesTable
+	StoresTable.ForeignKeys[1].RefTable = CountriesTable
+	StoresTable.ForeignKeys[2].RefTable = DistrictsTable
+	StoresTable.ForeignKeys[3].RefTable = MerchantsTable
+	StoresTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
+	StoresTable.ForeignKeys[5].RefTable = ProvincesTable
+	StoreUsersTable.ForeignKeys[0].RefTable = MerchantsTable
+	StoreUsersTable.ForeignKeys[1].RefTable = StoresTable
 	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductTagRelationsTable.ForeignKeys[1].RefTable = ProductTagsTable
 }

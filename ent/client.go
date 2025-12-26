@@ -42,6 +42,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // Client is the client that holds all ent builders.
@@ -101,6 +102,8 @@ type Client struct {
 	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
+	// StoreUser is the client for interacting with the StoreUser builders.
+	StoreUser *StoreUserClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -138,6 +141,7 @@ func (c *Client) init() {
 	c.SetMealGroup = NewSetMealGroupClient(c.config)
 	c.Stall = NewStallClient(c.config)
 	c.Store = NewStoreClient(c.config)
+	c.StoreUser = NewStoreUserClient(c.config)
 }
 
 type (
@@ -256,6 +260,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		SetMealGroup:         NewSetMealGroupClient(cfg),
 		Stall:                NewStallClient(cfg),
 		Store:                NewStoreClient(cfg),
+		StoreUser:            NewStoreUserClient(cfg),
 	}, nil
 }
 
@@ -301,6 +306,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		SetMealGroup:         NewSetMealGroupClient(cfg),
 		Stall:                NewStallClient(cfg),
 		Store:                NewStoreClient(cfg),
+		StoreUser:            NewStoreUserClient(cfg),
 	}, nil
 }
 
@@ -335,6 +341,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.Product, c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation,
 		c.ProductSpec, c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province,
 		c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Stall, c.Store,
+		c.StoreUser,
 	} {
 		n.Use(hooks...)
 	}
@@ -349,6 +356,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.Product, c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation,
 		c.ProductSpec, c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province,
 		c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Stall, c.Store,
+		c.StoreUser,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -409,6 +417,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Stall.mutate(ctx, m)
 	case *StoreMutation:
 		return c.Store.mutate(ctx, m)
+	case *StoreUserMutation:
+		return c.StoreUser.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -687,38 +697,6 @@ func (c *AdminUserClient) GetX(ctx context.Context, id uuid.UUID) *AdminUser {
 		panic(err)
 	}
 	return obj
-}
-
-// QueryMerchant queries the merchant edge of a AdminUser.
-func (c *AdminUserClient) QueryMerchant(au *AdminUser) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := au.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(adminuser.Table, adminuser.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, adminuser.MerchantTable, adminuser.MerchantColumn),
-		)
-		fromV = sqlgraph.Neighbors(au.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryStore queries the store edge of a AdminUser.
-func (c *AdminUserClient) QueryStore(au *AdminUser) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := au.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(adminuser.Table, adminuser.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, adminuser.StoreTable, adminuser.StoreColumn),
-		)
-		fromV = sqlgraph.Neighbors(au.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // Hooks returns the client hooks.
@@ -2018,22 +1996,6 @@ func (c *MerchantClient) QueryMerchantBusinessType(m *Merchant) *MerchantBusines
 	return query
 }
 
-// QueryAdminUser queries the admin_user edge of a Merchant.
-func (c *MerchantClient) QueryAdminUser(m *Merchant) *AdminUserQuery {
-	query := (&AdminUserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(adminuser.Table, adminuser.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.AdminUserTable, merchant.AdminUserColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryCountry queries the country edge of a Merchant.
 func (c *MerchantClient) QueryCountry(m *Merchant) *CountryQuery {
 	query := (&CountryClient{config: c.config}).Query()
@@ -2091,6 +2053,38 @@ func (c *MerchantClient) QueryDistrict(m *Merchant) *DistrictQuery {
 			sqlgraph.From(merchant.Table, merchant.FieldID, id),
 			sqlgraph.To(district.Table, district.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, merchant.DistrictTable, merchant.DistrictColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBackendUsers queries the backend_users edge of a Merchant.
+func (c *MerchantClient) QueryBackendUsers(m *Merchant) *BackendUserQuery {
+	query := (&BackendUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(backenduser.Table, backenduser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.BackendUsersTable, merchant.BackendUsersColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStoreUsers queries the store_users edge of a Merchant.
+func (c *MerchantClient) QueryStoreUsers(m *Merchant) *StoreUserQuery {
+	query := (&StoreUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(storeuser.Table, storeuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoreUsersTable, merchant.StoreUsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -5145,22 +5139,6 @@ func (c *StoreClient) QueryMerchant(s *Store) *MerchantQuery {
 	return query
 }
 
-// QueryAdminUser queries the admin_user edge of a Store.
-func (c *StoreClient) QueryAdminUser(s *Store) *AdminUserQuery {
-	query := (&AdminUserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, id),
-			sqlgraph.To(adminuser.Table, adminuser.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.AdminUserTable, store.AdminUserColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryMerchantBusinessType queries the merchant_business_type edge of a Store.
 func (c *StoreClient) QueryMerchantBusinessType(s *Store) *MerchantBusinessTypeQuery {
 	query := (&MerchantBusinessTypeClient{config: c.config}).Query()
@@ -5234,6 +5212,22 @@ func (c *StoreClient) QueryDistrict(s *Store) *DistrictQuery {
 			sqlgraph.From(store.Table, store.FieldID, id),
 			sqlgraph.To(district.Table, district.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, store.DistrictTable, store.DistrictColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStoreUsers queries the store_users edge of a Store.
+func (c *StoreClient) QueryStoreUsers(s *Store) *StoreUserQuery {
+	query := (&StoreUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(storeuser.Table, storeuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.StoreUsersTable, store.StoreUsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -5332,6 +5326,173 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 	}
 }
 
+// StoreUserClient is a client for the StoreUser schema.
+type StoreUserClient struct {
+	config
+}
+
+// NewStoreUserClient returns a client for the StoreUser from the given config.
+func NewStoreUserClient(c config) *StoreUserClient {
+	return &StoreUserClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `storeuser.Hooks(f(g(h())))`.
+func (c *StoreUserClient) Use(hooks ...Hook) {
+	c.hooks.StoreUser = append(c.hooks.StoreUser, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `storeuser.Intercept(f(g(h())))`.
+func (c *StoreUserClient) Intercept(interceptors ...Interceptor) {
+	c.inters.StoreUser = append(c.inters.StoreUser, interceptors...)
+}
+
+// Create returns a builder for creating a StoreUser entity.
+func (c *StoreUserClient) Create() *StoreUserCreate {
+	mutation := newStoreUserMutation(c.config, OpCreate)
+	return &StoreUserCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of StoreUser entities.
+func (c *StoreUserClient) CreateBulk(builders ...*StoreUserCreate) *StoreUserCreateBulk {
+	return &StoreUserCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *StoreUserClient) MapCreateBulk(slice any, setFunc func(*StoreUserCreate, int)) *StoreUserCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &StoreUserCreateBulk{err: fmt.Errorf("calling to StoreUserClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*StoreUserCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &StoreUserCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for StoreUser.
+func (c *StoreUserClient) Update() *StoreUserUpdate {
+	mutation := newStoreUserMutation(c.config, OpUpdate)
+	return &StoreUserUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *StoreUserClient) UpdateOne(su *StoreUser) *StoreUserUpdateOne {
+	mutation := newStoreUserMutation(c.config, OpUpdateOne, withStoreUser(su))
+	return &StoreUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *StoreUserClient) UpdateOneID(id uuid.UUID) *StoreUserUpdateOne {
+	mutation := newStoreUserMutation(c.config, OpUpdateOne, withStoreUserID(id))
+	return &StoreUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for StoreUser.
+func (c *StoreUserClient) Delete() *StoreUserDelete {
+	mutation := newStoreUserMutation(c.config, OpDelete)
+	return &StoreUserDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *StoreUserClient) DeleteOne(su *StoreUser) *StoreUserDeleteOne {
+	return c.DeleteOneID(su.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *StoreUserClient) DeleteOneID(id uuid.UUID) *StoreUserDeleteOne {
+	builder := c.Delete().Where(storeuser.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &StoreUserDeleteOne{builder}
+}
+
+// Query returns a query builder for StoreUser.
+func (c *StoreUserClient) Query() *StoreUserQuery {
+	return &StoreUserQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeStoreUser},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a StoreUser entity by its id.
+func (c *StoreUserClient) Get(ctx context.Context, id uuid.UUID) (*StoreUser, error) {
+	return c.Query().Where(storeuser.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *StoreUserClient) GetX(ctx context.Context, id uuid.UUID) *StoreUser {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMerchant queries the merchant edge of a StoreUser.
+func (c *StoreUserClient) QueryMerchant(su *StoreUser) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := su.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storeuser.Table, storeuser.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.MerchantTable, storeuser.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(su.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a StoreUser.
+func (c *StoreUserClient) QueryStore(su *StoreUser) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := su.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storeuser.Table, storeuser.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.StoreTable, storeuser.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(su.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *StoreUserClient) Hooks() []Hook {
+	hooks := c.hooks.StoreUser
+	return append(hooks[:len(hooks):len(hooks)], storeuser.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *StoreUserClient) Interceptors() []Interceptor {
+	inters := c.inters.StoreUser
+	return append(inters[:len(inters):len(inters)], storeuser.Interceptors[:]...)
+}
+
+func (c *StoreUserClient) mutate(ctx context.Context, m *StoreUserMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StoreUserCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StoreUserUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StoreUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StoreUserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown StoreUser mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
@@ -5339,13 +5500,13 @@ type (
 		District, Merchant, MerchantBusinessType, MerchantRenewal, Product,
 		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
 		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
-		SetMealDetail, SetMealGroup, Stall, Store []ent.Hook
+		SetMealDetail, SetMealGroup, Stall, Store, StoreUser []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Device,
 		District, Merchant, MerchantBusinessType, MerchantRenewal, Product,
 		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
 		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
-		SetMealDetail, SetMealGroup, Stall, Store []ent.Interceptor
+		SetMealDetail, SetMealGroup, Stall, Store, StoreUser []ent.Interceptor
 	}
 )

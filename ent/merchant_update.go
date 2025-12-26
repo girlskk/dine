@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
@@ -27,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // MerchantUpdate is the builder for updating Merchant entities.
@@ -383,6 +385,36 @@ func (mu *MerchantUpdate) SetDistrict(d *District) *MerchantUpdate {
 	return mu.SetDistrictID(d.ID)
 }
 
+// AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
+func (mu *MerchantUpdate) AddBackendUserIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddBackendUserIDs(ids...)
+	return mu
+}
+
+// AddBackendUsers adds the "backend_users" edges to the BackendUser entity.
+func (mu *MerchantUpdate) AddBackendUsers(b ...*BackendUser) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return mu.AddBackendUserIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (mu *MerchantUpdate) AddStoreUserIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddStoreUserIDs(ids...)
+	return mu
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (mu *MerchantUpdate) AddStoreUsers(s ...*StoreUser) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mu.AddStoreUserIDs(ids...)
+}
+
 // AddStoreIDs adds the "stores" edge to the Store entity by IDs.
 func (mu *MerchantUpdate) AddStoreIDs(ids ...uuid.UUID) *MerchantUpdate {
 	mu.mutation.AddStoreIDs(ids...)
@@ -521,6 +553,48 @@ func (mu *MerchantUpdate) ClearCity() *MerchantUpdate {
 func (mu *MerchantUpdate) ClearDistrict() *MerchantUpdate {
 	mu.mutation.ClearDistrict()
 	return mu
+}
+
+// ClearBackendUsers clears all "backend_users" edges to the BackendUser entity.
+func (mu *MerchantUpdate) ClearBackendUsers() *MerchantUpdate {
+	mu.mutation.ClearBackendUsers()
+	return mu
+}
+
+// RemoveBackendUserIDs removes the "backend_users" edge to BackendUser entities by IDs.
+func (mu *MerchantUpdate) RemoveBackendUserIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveBackendUserIDs(ids...)
+	return mu
+}
+
+// RemoveBackendUsers removes "backend_users" edges to BackendUser entities.
+func (mu *MerchantUpdate) RemoveBackendUsers(b ...*BackendUser) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return mu.RemoveBackendUserIDs(ids...)
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (mu *MerchantUpdate) ClearStoreUsers() *MerchantUpdate {
+	mu.mutation.ClearStoreUsers()
+	return mu
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (mu *MerchantUpdate) RemoveStoreUserIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveStoreUserIDs(ids...)
+	return mu
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (mu *MerchantUpdate) RemoveStoreUsers(s ...*StoreUser) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mu.RemoveStoreUserIDs(ids...)
 }
 
 // ClearStores clears all "stores" edges to the Store entity.
@@ -777,9 +851,6 @@ func (mu *MerchantUpdate) check() error {
 	if mu.mutation.MerchantBusinessTypeCleared() && len(mu.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Merchant.merchant_business_type"`)
 	}
-	if mu.mutation.AdminUserCleared() && len(mu.mutation.AdminUserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Merchant.admin_user"`)
-	}
 	return nil
 }
 
@@ -990,6 +1061,96 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedBackendUsersIDs(); len(nodes) > 0 && !mu.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.BackendUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !mu.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1674,6 +1835,36 @@ func (muo *MerchantUpdateOne) SetDistrict(d *District) *MerchantUpdateOne {
 	return muo.SetDistrictID(d.ID)
 }
 
+// AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
+func (muo *MerchantUpdateOne) AddBackendUserIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddBackendUserIDs(ids...)
+	return muo
+}
+
+// AddBackendUsers adds the "backend_users" edges to the BackendUser entity.
+func (muo *MerchantUpdateOne) AddBackendUsers(b ...*BackendUser) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return muo.AddBackendUserIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (muo *MerchantUpdateOne) AddStoreUserIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddStoreUserIDs(ids...)
+	return muo
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (muo *MerchantUpdateOne) AddStoreUsers(s ...*StoreUser) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return muo.AddStoreUserIDs(ids...)
+}
+
 // AddStoreIDs adds the "stores" edge to the Store entity by IDs.
 func (muo *MerchantUpdateOne) AddStoreIDs(ids ...uuid.UUID) *MerchantUpdateOne {
 	muo.mutation.AddStoreIDs(ids...)
@@ -1812,6 +2003,48 @@ func (muo *MerchantUpdateOne) ClearCity() *MerchantUpdateOne {
 func (muo *MerchantUpdateOne) ClearDistrict() *MerchantUpdateOne {
 	muo.mutation.ClearDistrict()
 	return muo
+}
+
+// ClearBackendUsers clears all "backend_users" edges to the BackendUser entity.
+func (muo *MerchantUpdateOne) ClearBackendUsers() *MerchantUpdateOne {
+	muo.mutation.ClearBackendUsers()
+	return muo
+}
+
+// RemoveBackendUserIDs removes the "backend_users" edge to BackendUser entities by IDs.
+func (muo *MerchantUpdateOne) RemoveBackendUserIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveBackendUserIDs(ids...)
+	return muo
+}
+
+// RemoveBackendUsers removes "backend_users" edges to BackendUser entities.
+func (muo *MerchantUpdateOne) RemoveBackendUsers(b ...*BackendUser) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return muo.RemoveBackendUserIDs(ids...)
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (muo *MerchantUpdateOne) ClearStoreUsers() *MerchantUpdateOne {
+	muo.mutation.ClearStoreUsers()
+	return muo
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (muo *MerchantUpdateOne) RemoveStoreUserIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveStoreUserIDs(ids...)
+	return muo
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (muo *MerchantUpdateOne) RemoveStoreUsers(s ...*StoreUser) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return muo.RemoveStoreUserIDs(ids...)
 }
 
 // ClearStores clears all "stores" edges to the Store entity.
@@ -2081,9 +2314,6 @@ func (muo *MerchantUpdateOne) check() error {
 	if muo.mutation.MerchantBusinessTypeCleared() && len(muo.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Merchant.merchant_business_type"`)
 	}
-	if muo.mutation.AdminUserCleared() && len(muo.mutation.AdminUserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Merchant.admin_user"`)
-	}
 	return nil
 }
 
@@ -2311,6 +2541,96 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedBackendUsersIDs(); len(nodes) > 0 && !muo.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.BackendUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !muo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
