@@ -176,6 +176,150 @@ const docTemplate = `{
                 }
             }
         },
+        "/product/tag": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品标签"
+                ],
+                "summary": "获取商品标签列表",
+                "parameters": [
+                    {
+                        "maxLength": 255,
+                        "type": "string",
+                        "description": "标签名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductTagSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品标签"
+                ],
+                "summary": "创建商品标签",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductTagCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/product/tag/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品标签"
+                ],
+                "summary": "更新商品标签",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "标签ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductTagUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品标签"
+                ],
+                "summary": "删除商品标签",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "标签ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/user/info": {
             "post": {
                 "security": [
@@ -444,6 +588,62 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.ProductTag": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "标签ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "标签名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductTagSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductTag"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.ShiftTime": {
             "type": "object",
             "properties": {
@@ -662,9 +862,23 @@ const docTemplate = `{
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -754,6 +968,32 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "types.ProductTagCreateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "description": "标签名称",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.ProductTagUpdateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "description": "标签名称",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },

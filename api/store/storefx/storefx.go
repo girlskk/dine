@@ -47,6 +47,7 @@ var Module = fx.Module(
 	fx.Provide(
 		asHandler(handler.NewUserHandler),
 		asHandler(handler.NewCategoryHandler),
+		asHandler(handler.NewProductTagHandler),
 	),
 )
 

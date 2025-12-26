@@ -127,6 +127,46 @@ definitions:
         description: 开始时间，格式 HH:MM:SS
         type: string
     type: object
+  domain.ProductTag:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 标签ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 标签名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductTagSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProductTag'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
   domain.ShiftTime:
     properties:
       end_time:
@@ -280,8 +320,22 @@ definitions:
     - 4
     - 5
     - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
     type: integer
     x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -346,6 +400,24 @@ definitions:
         type: integer
       token:
         type: string
+    type: object
+  types.ProductTagCreateReq:
+    properties:
+      name:
+        description: 标签名称
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
+  types.ProductTagUpdateReq:
+    properties:
+      name:
+        description: 标签名称
+        maxLength: 255
+        type: string
+    required:
+    - name
     type: object
   types.UpdateCategoryReq:
     properties:
@@ -470,6 +542,95 @@ paths:
       summary: 更新商品分类
       tags:
       - 商品分类
+  /product/tag:
+    get:
+      parameters:
+      - description: 标签名称
+        in: query
+        maxLength: 255
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProductTagSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 获取商品标签列表
+      tags:
+      - 商品标签
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductTagCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建商品标签
+      tags:
+      - 商品标签
+  /product/tag/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品标签
+      tags:
+      - 商品标签
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductTagUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新商品标签
+      tags:
+      - 商品标签
   /user/info:
     post:
       consumes:

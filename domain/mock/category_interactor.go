@@ -65,17 +65,17 @@ func (mr *MockCategoryInteractorMockRecorder) CreateRoot(arg0, arg1 interface{})
 }
 
 // Delete mocks base method.
-func (m *MockCategoryInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockCategoryInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockCategoryInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockCategoryInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCategoryInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCategoryInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // ListBySearch mocks base method.
@@ -94,15 +94,15 @@ func (mr *MockCategoryInteractorMockRecorder) ListBySearch(arg0, arg1 interface{
 }
 
 // Update mocks base method.
-func (m *MockCategoryInteractor) Update(arg0 context.Context, arg1 *domain.Category) error {
+func (m *MockCategoryInteractor) Update(arg0 context.Context, arg1 *domain.Category, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockCategoryInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockCategoryInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCategoryInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCategoryInteractor)(nil).Update), arg0, arg1, arg2)
 }

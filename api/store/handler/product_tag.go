@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -59,12 +59,13 @@ func (h *ProductTagHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		tag := &domain.ProductTag{
 			ID:         uuid.New(),
 			Name:       req.Name,
 			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 		}
 
 		err := h.ProductTagInteractor.Create(ctx, tag)
@@ -125,8 +126,7 @@ func (h *ProductTagHandler) Update() gin.HandlerFunc {
 			Name: req.Name,
 		}
 
-		user := domain.FromBackendUserContext(ctx)
-
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductTagInteractor.Update(ctx, tag, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductTagNameExists) {
@@ -170,7 +170,7 @@ func (h *ProductTagHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductTagInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductTagDeleteHasProducts) {
@@ -212,12 +212,12 @@ func (h *ProductTagHandler) List() gin.HandlerFunc {
 			return
 		}
 		page := upagination.New(req.Page, req.Size)
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		params := domain.ProductTagSearchParams{
-			MerchantID:   user.MerchantID,
-			Name:         req.Name,
-			OnlyMerchant: true,
+			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
+			Name:       req.Name,
 		}
 
 		res, err := h.ProductTagInteractor.PagedListBySearch(ctx, page, params)

@@ -1152,6 +1152,10 @@ func init() {
 			return nil
 		}
 	}()
+	// producttagDescStoreID is the schema descriptor for store_id field.
+	producttagDescStoreID := producttagFields[2].Descriptor()
+	// producttag.DefaultStoreID holds the default value on creation for the store_id field.
+	producttag.DefaultStoreID = producttagDescStoreID.Default.(func() uuid.UUID)
 	// producttagDescProductCount is the schema descriptor for product_count field.
 	producttagDescProductCount := producttagFields[3].Descriptor()
 	// producttag.DefaultProductCount holds the default value on creation for the product_count field.

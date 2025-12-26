@@ -52,11 +52,8 @@ func (repo *ProductTagRepository) Create(ctx context.Context, tag *domain.Produc
 		SetID(tag.ID).
 		SetName(tag.Name).
 		SetMerchantID(tag.MerchantID).
+		SetStoreID(tag.StoreID).
 		SetProductCount(tag.ProductCount)
-
-	if tag.StoreID != uuid.Nil {
-		builder.SetStoreID(tag.StoreID)
-	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -113,6 +110,9 @@ func (repo *ProductTagRepository) Exists(ctx context.Context, params domain.Prod
 	if params.MerchantID != uuid.Nil {
 		query.Where(producttag.MerchantID(params.MerchantID))
 	}
+	if params.StoreID != uuid.Nil {
+		query.Where(producttag.StoreID(params.StoreID))
+	}
 	if params.Name != "" {
 		query.Where(producttag.Name(params.Name))
 	}
@@ -138,6 +138,13 @@ func (repo *ProductTagRepository) PagedListBySearch(
 	if params.MerchantID != uuid.Nil {
 		query.Where(producttag.MerchantID(params.MerchantID))
 	}
+
+	if params.OnlyMerchant {
+		query.Where(producttag.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(producttag.StoreID(params.StoreID))
+	}
+
 	if params.Name != "" {
 		query.Where(producttag.NameContains(params.Name))
 	}
@@ -226,11 +233,9 @@ func (repo *ProductTagRepository) CreateBulk(ctx context.Context, tags domain.Pr
 			SetID(tag.ID).
 			SetName(tag.Name).
 			SetMerchantID(tag.MerchantID).
+			SetStoreID(tag.StoreID).
 			SetProductCount(tag.ProductCount)
 
-		if tag.StoreID != uuid.Nil {
-			builder = builder.SetStoreID(tag.StoreID)
-		}
 		builders = append(builders, builder)
 	}
 

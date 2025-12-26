@@ -754,7 +754,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductTagsTable holds the schema information for the "product_tags" table.
@@ -777,6 +777,11 @@ var (
 				Name:    "producttag_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductTagsColumns[6]},
+			},
+			{
+				Name:    "producttag_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductTagsColumns[5], ProductTagsColumns[6], ProductTagsColumns[4], ProductTagsColumns[3]},
 			},
 		},
 	}
