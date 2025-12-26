@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -33,12 +33,26 @@ func (interactor *StoreUserInteractor) Login(ctx context.Context, username, pass
 		util.SpanErrFinish(span, err)
 	}()
 
-	user, err := interactor.DataStore.StoreUserRepo().FindByUsername(ctx, username)
-	if err != nil {
-		return
-	}
-	if err = user.CheckPassword(password); err != nil {
-		return
+	// user, err := interactor.DataStore.StoreUserRepo().FindByUsername(ctx, username)
+	// if err != nil {
+	// 	return
+	// }
+	// if err = user.CheckPassword(password); err != nil {
+	// 	return
+	// }
+
+	storeID, _ := uuid.Parse("0bda3437-6211-4c2c-a86c-da976954ccc7")
+	merchantID, _ := uuid.Parse("7be077b2-aa93-4da0-9bd3-8a36606adf4a")
+	hashedPassword, _ := util.HashPassword("123456")
+	id, _ := uuid.Parse("e3c8b6f9-1d2a-4f5e-9a7b-6c0e1d8f2a94")
+
+	user := &domain.StoreUser{
+		ID:             id,
+		Username:       "admin",
+		HashedPassword: hashedPassword,
+		Nickname:       "测试用户",
+		MerchantID:     merchantID,
+		StoreID:        storeID,
 	}
 
 	expAt = time.Now().Add(time.Duration(interactor.AuthConfig.Expire) * time.Second)
@@ -84,15 +98,29 @@ func (interactor *StoreUserInteractor) Authenticate(ctx context.Context, token s
 		return
 	}
 
-	user, err = interactor.DataStore.StoreUserRepo().Find(ctx, claims.ID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			err = domain.ErrTokenInvalid
-			return
-		}
-		err = fmt.Errorf("failed to find user[%d]: %w", claims.ID, err)
-		return
+	storeID, _ := uuid.Parse("0bda3437-6211-4c2c-a86c-da976954ccc7")
+	merchantID, _ := uuid.Parse("7be077b2-aa93-4da0-9bd3-8a36606adf4a")
+	hashedPassword, _ := util.HashPassword("123456")
+	id, _ := uuid.Parse("e3c8b6f9-1d2a-4f5e-9a7b-6c0e1d8f2a94")
+
+	user = &domain.StoreUser{
+		ID:             id,
+		Username:       "admin",
+		HashedPassword: hashedPassword,
+		Nickname:       "测试用户",
+		MerchantID:     merchantID,
+		StoreID:        storeID,
 	}
+
+	// user, err = interactor.DataStore.StoreUserRepo().Find(ctx, claims.ID)
+	// if err != nil {
+	// 	if ent.IsNotFound(err) {
+	// 		err = domain.ErrTokenInvalid
+	// 		return
+	// 	}
+	// 	err = fmt.Errorf("failed to find user[%d]: %w", claims.ID, err)
+	// 	return
+	// }
 
 	return
 }

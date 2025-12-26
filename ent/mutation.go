@@ -2008,22 +2008,9 @@ func (m *CategoryMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err err
 	return oldValue.StoreID, nil
 }
 
-// ClearStoreID clears the value of the "store_id" field.
-func (m *CategoryMutation) ClearStoreID() {
-	m.store_id = nil
-	m.clearedFields[category.FieldStoreID] = struct{}{}
-}
-
-// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
-func (m *CategoryMutation) StoreIDCleared() bool {
-	_, ok := m.clearedFields[category.FieldStoreID]
-	return ok
-}
-
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *CategoryMutation) ResetStoreID() {
 	m.store_id = nil
-	delete(m.clearedFields, category.FieldStoreID)
 }
 
 // SetParentID sets the "parent_id" field.
@@ -2057,22 +2044,9 @@ func (m *CategoryMutation) OldParentID(ctx context.Context) (v uuid.UUID, err er
 	return oldValue.ParentID, nil
 }
 
-// ClearParentID clears the value of the "parent_id" field.
-func (m *CategoryMutation) ClearParentID() {
-	m.parent = nil
-	m.clearedFields[category.FieldParentID] = struct{}{}
-}
-
-// ParentIDCleared returns if the "parent_id" field was cleared in this mutation.
-func (m *CategoryMutation) ParentIDCleared() bool {
-	_, ok := m.clearedFields[category.FieldParentID]
-	return ok
-}
-
 // ResetParentID resets all changes to the "parent_id" field.
 func (m *CategoryMutation) ResetParentID() {
 	m.parent = nil
-	delete(m.clearedFields, category.FieldParentID)
 }
 
 // SetInheritTaxRate sets the "inherit_tax_rate" field.
@@ -2419,7 +2393,7 @@ func (m *CategoryMutation) ClearParent() {
 
 // ParentCleared reports if the "parent" edge to the Category entity was cleared.
 func (m *CategoryMutation) ParentCleared() bool {
-	return m.ParentIDCleared() || m.clearedparent
+	return m.clearedparent
 }
 
 // ParentIDs returns the "parent" edge IDs in the mutation.
@@ -2804,12 +2778,6 @@ func (m *CategoryMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *CategoryMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(category.FieldStoreID) {
-		fields = append(fields, category.FieldStoreID)
-	}
-	if m.FieldCleared(category.FieldParentID) {
-		fields = append(fields, category.FieldParentID)
-	}
 	if m.FieldCleared(category.FieldTaxRateID) {
 		fields = append(fields, category.FieldTaxRateID)
 	}
@@ -2830,12 +2798,6 @@ func (m *CategoryMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *CategoryMutation) ClearField(name string) error {
 	switch name {
-	case category.FieldStoreID:
-		m.ClearStoreID()
-		return nil
-	case category.FieldParentID:
-		m.ClearParentID()
-		return nil
 	case category.FieldTaxRateID:
 		m.ClearTaxRateID()
 		return nil

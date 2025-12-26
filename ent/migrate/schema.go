@@ -74,7 +74,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "inherit_tax_rate", Type: field.TypeBool, Default: false},
 		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "inherit_stall", Type: field.TypeBool, Default: false},
@@ -111,6 +111,11 @@ var (
 				Name:    "category_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{CategoriesColumns[6]},
+			},
+			{
+				Name:    "category_merchant_id_store_id_parent_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{CategoriesColumns[5], CategoriesColumns[6], CategoriesColumns[13], CategoriesColumns[4], CategoriesColumns[3]},
 			},
 		},
 	}

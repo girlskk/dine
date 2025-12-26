@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -60,12 +60,13 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		category := &domain.Category{
 			ID:         uuid.New(),
 			Name:       req.Name,
 			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 		}
 
 		if req.TaxRateID != nil {
@@ -84,6 +85,7 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 					ID:         uuid.New(),
 					Name:       name,
 					MerchantID: user.MerchantID,
+					StoreID:    user.StoreID,
 					ParentID:   category.ID,
 					// 默认继承父分类的税率和出品部门
 					InheritTaxRate: true,
@@ -152,13 +154,14 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		category := &domain.Category{
 			ID:             uuid.New(),
 			Name:           req.Name,
 			ParentID:       parentID,
 			MerchantID:     user.MerchantID,
+			StoreID:        user.StoreID,
 			InheritTaxRate: req.InheritTaxRate,
 			InheritStall:   req.InheritStall,
 		}
@@ -247,8 +250,7 @@ func (h *CategoryHandler) Update() gin.HandlerFunc {
 			category.InheritStall = false
 		}
 
-		user := domain.FromBackendUserContext(ctx)
-
+		user := domain.FromStoreUserContext(ctx)
 		err = h.CategoryInteractor.Update(ctx, category, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrCategoryNameExists) {
@@ -292,7 +294,7 @@ func (h *CategoryHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		err = h.CategoryInteractor.Delete(ctx, id, user)
 		if err != nil {
@@ -332,11 +334,11 @@ func (h *CategoryHandler) List() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		params := domain.CategorySearchParams{
-			MerchantID:   user.MerchantID,
-			OnlyMerchant: true,
+			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 		}
 
 		res, err := h.CategoryInteractor.ListBySearch(ctx, params)

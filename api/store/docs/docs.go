@@ -15,6 +15,167 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/product/category": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "获取商品分类列表",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/domain.Category"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "创建一级商品分类",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CategoryCreateRootReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/product/category/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "更新商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateCategoryReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "创建二级商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "父分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CategoryCreateChildReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "删除商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/user/info": {
             "post": {
                 "security": [
@@ -193,6 +354,78 @@ const docTemplate = `{
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
             ]
+        },
+        "domain.Category": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "description": "@TODO 关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Category"
+                    }
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分类ID",
+                    "type": "string"
+                },
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string"
+                },
+                "parent": {
+                    "description": "父分类",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
+                },
+                "parent_id": {
+                    "description": "父分类ID",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "description": "排序，值越小越靠前",
+                    "type": "integer"
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
         },
         "domain.DiningPeriod": {
             "type": "object",
@@ -396,6 +629,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
                 "nickname": {
                     "type": "string"
                 },
@@ -437,6 +674,63 @@ const docTemplate = `{
                 "Saturday"
             ]
         },
+        "types.CategoryCreateChildReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.CategoryCreateRootReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "children_names": {
+                    "description": "子分类名称列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
         "types.LoginReq": {
             "type": "object",
             "required": [
@@ -459,6 +753,32 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.UpdateCategoryReq": {
+            "type": "object",
+            "properties": {
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID（仅子分类有效）",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID（仅子分类有效）",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
                     "type": "string"
                 }
             }

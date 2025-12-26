@@ -197,6 +197,14 @@ func init() {
 			return nil
 		}
 	}()
+	// categoryDescStoreID is the schema descriptor for store_id field.
+	categoryDescStoreID := categoryFields[2].Descriptor()
+	// category.DefaultStoreID holds the default value on creation for the store_id field.
+	category.DefaultStoreID = categoryDescStoreID.Default.(func() uuid.UUID)
+	// categoryDescParentID is the schema descriptor for parent_id field.
+	categoryDescParentID := categoryFields[3].Descriptor()
+	// category.DefaultParentID holds the default value on creation for the parent_id field.
+	category.DefaultParentID = categoryDescParentID.Default.(func() uuid.UUID)
 	// categoryDescInheritTaxRate is the schema descriptor for inherit_tax_rate field.
 	categoryDescInheritTaxRate := categoryFields[4].Descriptor()
 	// category.DefaultInheritTaxRate holds the default value on creation for the inherit_tax_rate field.

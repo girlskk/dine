@@ -39,8 +39,8 @@ type CategoryRepository interface {
 type CategoryInteractor interface {
 	CreateRoot(ctx context.Context, category *Category) error
 	CreateChild(ctx context.Context, category *Category) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	Update(ctx context.Context, category *Category) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
+	Update(ctx context.Context, category *Category, user User) error
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
 }
 
@@ -82,6 +82,7 @@ func (c *Category) IsRoot() bool {
 // CategoryExistsParams 存在性检查参数
 type CategoryExistsParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string
 	ParentID   uuid.UUID
 	IsRoot     bool
@@ -90,5 +91,7 @@ type CategoryExistsParams struct {
 
 // CategorySearchParams 查询参数
 type CategorySearchParams struct {
-	MerchantID uuid.UUID
+	MerchantID   uuid.UUID
+	StoreID      uuid.UUID
+	OnlyMerchant bool // 是否只查询品牌商的分类
 }

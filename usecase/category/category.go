@@ -27,3 +27,11 @@ func (i *CategoryInteractor) ListBySearch(ctx context.Context, params domain.Cat
 
 	return i.DS.CategoryRepo().ListBySearch(ctx, params)
 }
+
+// verifyCategoryOwnership 验证分类是否属于当前用户可操作
+func verifyCategoryOwnership(user domain.User, category *domain.Category) error {
+	if user.GetMerchantID() != category.MerchantID || user.GetStoreID() != category.StoreID {
+		return domain.ParamsError(domain.ErrCategoryNotExists)
+	}
+	return nil
+}

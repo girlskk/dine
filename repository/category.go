@@ -51,15 +51,11 @@ func (repo *CategoryRepository) Create(ctx context.Context, cat *domain.Category
 		SetID(cat.ID).
 		SetName(cat.Name).
 		SetMerchantID(cat.MerchantID).
+		SetStoreID(cat.StoreID).
+		SetParentID(cat.ParentID).
 		SetInheritTaxRate(cat.InheritTaxRate).
 		SetInheritStall(cat.InheritStall)
 
-	if cat.StoreID != uuid.Nil {
-		builder = builder.SetStoreID(cat.StoreID)
-	}
-	if cat.ParentID != uuid.Nil {
-		builder = builder.SetParentID(cat.ParentID)
-	}
 	if cat.TaxRateID != uuid.Nil {
 		builder = builder.SetTaxRateID(cat.TaxRateID)
 	}
@@ -94,15 +90,11 @@ func (repo *CategoryRepository) CreateBulk(ctx context.Context, categories []*do
 			SetID(cat.ID).
 			SetName(cat.Name).
 			SetMerchantID(cat.MerchantID).
+			SetStoreID(cat.StoreID).
+			SetParentID(cat.ParentID).
 			SetInheritTaxRate(cat.InheritTaxRate).
 			SetInheritStall(cat.InheritStall)
 
-		if cat.StoreID != uuid.Nil {
-			builder = builder.SetStoreID(cat.StoreID)
-		}
-		if cat.ParentID != uuid.Nil {
-			builder = builder.SetParentID(cat.ParentID)
-		}
 		if cat.TaxRateID != uuid.Nil {
 			builder = builder.SetTaxRateID(cat.TaxRateID)
 		}
@@ -128,13 +120,8 @@ func (repo *CategoryRepository) Update(ctx context.Context, cat *domain.Category
 		SetInheritTaxRate(cat.InheritTaxRate).
 		SetInheritStall(cat.InheritStall).
 		SetSortOrder(cat.SortOrder).
+		SetParentID(cat.ParentID).
 		SetProductCount(cat.ProductCount)
-
-	if cat.ParentID == uuid.Nil {
-		builder = builder.ClearParentID()
-	} else {
-		builder = builder.SetParentID(cat.ParentID)
-	}
 
 	if cat.TaxRateID == uuid.Nil {
 		builder = builder.ClearTaxRateID()
@@ -182,9 +169,12 @@ func (repo *CategoryRepository) Exists(ctx context.Context, params domain.Catego
 	if params.MerchantID != uuid.Nil {
 		query.Where(category.MerchantID(params.MerchantID))
 	}
+	if params.StoreID != uuid.Nil {
+		query.Where(category.StoreID(params.StoreID))
+	}
 	if params.IsRoot {
-		query.Where(category.ParentIDIsNil())
-	} else if params.ParentID != uuid.Nil {
+		query.Where(category.ParentID(uuid.Nil))
+	} else {
 		query.Where(category.ParentID(params.ParentID))
 	}
 	if params.Name != "" {
@@ -225,10 +215,16 @@ func (repo *CategoryRepository) ListBySearch(
 	query := repo.Client.Category.Query()
 
 	// 默认只查询一级分类
-	query.Where(category.ParentIDIsNil())
+	query.Where(category.ParentID(uuid.Nil))
 
 	if params.MerchantID != uuid.Nil {
 		query.Where(category.MerchantID(params.MerchantID))
+	}
+
+	if params.OnlyMerchant {
+		query.Where(category.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(category.StoreID(params.StoreID))
 	}
 
 	// 预加载子分类
