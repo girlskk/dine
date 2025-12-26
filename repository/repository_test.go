@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -34,16 +35,16 @@ func (suite *RepositoryTestSuite) initDB() {
 
 func connectDB(t *testing.T, opts []enttest.Option) *ent.Client {
 	// 使用本地真实数据库测试
-	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True",
-	// 	"root", "pass", "127.0.0.1", "33061", "dine")
-	// client, err := ent.Open("mysql", dsn)
-	// if err != nil {
-	// 	t.Fatalf("failed opening connection to mysql: %v", err)
-	// }
-	// return client.Debug()
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True",
+		"root", "pass", "127.0.0.1", "33061", "dine")
+	client, err := ent.Open("mysql", dsn)
+	if err != nil {
+		t.Fatalf("failed opening connection to mysql: %v", err)
+	}
+	return client.Debug()
 
 	// 使用内存 SQLite 数据库进行测试
-	return enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1", opts...)
+	// return enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1", opts...)
 }
 
 func (suite *RepositoryTestSuite) clearDB() (err error) {

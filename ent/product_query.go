@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
@@ -39,6 +40,7 @@ type ProductQuery struct {
 	withProductAttrs   *ProductAttrRelationQuery
 	withSetMealGroups  *SetMealGroupQuery
 	withSetMealDetails *SetMealDetailQuery
+	withMenuItems      *MenuItemQuery
 	modifiers          []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -223,6 +225,28 @@ func (pq *ProductQuery) QuerySetMealDetails() *SetMealDetailQuery {
 			sqlgraph.From(product.Table, product.FieldID, selector),
 			sqlgraph.To(setmealdetail.Table, setmealdetail.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, product.SetMealDetailsTable, product.SetMealDetailsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMenuItems chains the current query on the "menu_items" edge.
+func (pq *ProductQuery) QueryMenuItems() *MenuItemQuery {
+	query := (&MenuItemClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, selector),
+			sqlgraph.To(menuitem.Table, menuitem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.MenuItemsTable, product.MenuItemsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -429,6 +453,7 @@ func (pq *ProductQuery) Clone() *ProductQuery {
 		withProductAttrs:   pq.withProductAttrs.Clone(),
 		withSetMealGroups:  pq.withSetMealGroups.Clone(),
 		withSetMealDetails: pq.withSetMealDetails.Clone(),
+		withMenuItems:      pq.withMenuItems.Clone(),
 		// clone intermediate query.
 		sql:       pq.sql.Clone(),
 		path:      pq.path,
@@ -513,6 +538,17 @@ func (pq *ProductQuery) WithSetMealDetails(opts ...func(*SetMealDetailQuery)) *P
 	return pq
 }
 
+// WithMenuItems tells the query-builder to eager-load the nodes that are connected to
+// the "menu_items" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProductQuery) WithMenuItems(opts ...func(*MenuItemQuery)) *ProductQuery {
+	query := (&MenuItemClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withMenuItems = query
+	return pq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -591,7 +627,7 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 	var (
 		nodes       = []*Product{}
 		_spec       = pq.querySpec()
-		loadedTypes = [7]bool{
+		loadedTypes = [8]bool{
 			pq.withCategory != nil,
 			pq.withUnit != nil,
 			pq.withTags != nil,
@@ -599,6 +635,7 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 			pq.withProductAttrs != nil,
 			pq.withSetMealGroups != nil,
 			pq.withSetMealDetails != nil,
+			pq.withMenuItems != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -666,6 +703,13 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 		if err := pq.loadSetMealDetails(ctx, query, nodes,
 			func(n *Product) { n.Edges.SetMealDetails = []*SetMealDetail{} },
 			func(n *Product, e *SetMealDetail) { n.Edges.SetMealDetails = append(n.Edges.SetMealDetails, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withMenuItems; query != nil {
+		if err := pq.loadMenuItems(ctx, query, nodes,
+			func(n *Product) { n.Edges.MenuItems = []*MenuItem{} },
+			func(n *Product, e *MenuItem) { n.Edges.MenuItems = append(n.Edges.MenuItems, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -896,6 +940,36 @@ func (pq *ProductQuery) loadSetMealDetails(ctx context.Context, query *SetMealDe
 	}
 	query.Where(predicate.SetMealDetail(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(product.SetMealDetailsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProductID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "product_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (pq *ProductQuery) loadMenuItems(ctx context.Context, query *MenuItemQuery, nodes []*Product, init func(*Product), assign func(*Product, *MenuItem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Product)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(menuitem.FieldProductID)
+	}
+	query.Where(predicate.MenuItem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(product.MenuItemsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

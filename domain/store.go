@@ -164,6 +164,11 @@ type Store struct {
 	UpdatedAt               time.Time       `json:"updated_at"`
 }
 
+type StoreSimple struct {
+	ID        uuid.UUID `json:"id"`
+	StoreName string    `json:"store_name"` // 门店名称
+}
+
 type StoreListFilter struct {
 	StoreName        string        `json:"store_name"`         // 门店名称
 	MerchantID       uuid.UUID     `json:"merchant_id"`        // 商户 ID

@@ -4,6 +4,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/category"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/product"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productattr"
@@ -65,6 +66,7 @@ var Module = fx.Module(
 			fx.As(new(domain.RemarkInteractor)),
 		),
 		fx.Annotate(
+
 			remark.NewRemarkCategoryInteractor,
 			fx.As(new(domain.RemarkCategoryInteractor)),
 		),
@@ -75,6 +77,14 @@ var Module = fx.Module(
 		fx.Annotate(
 			additionalfee.NewAdditionalFeeInteractor,
 			fx.As(new(domain.AdditionalFeeInteractor)),
+		),
+		fx.Annotate(
+			menu.NewMenuInteractor,
+			fx.As(new(domain.MenuInteractor)),
+		),
+		fx.Annotate(
+			userauth.NewStoreUserInteractor,
+			fx.As(new(domain.StoreUserInteractor)),
 		),
 	),
 )

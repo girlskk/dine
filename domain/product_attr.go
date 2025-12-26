@@ -27,11 +27,13 @@ type ProductAttrRepository interface {
 	// ProductAttr 相关操作
 	FindByID(ctx context.Context, id uuid.UUID) (*ProductAttr, error)
 	Create(ctx context.Context, attr *ProductAttr) error
+	CreateBulk(ctx context.Context, attrs []*ProductAttr) error
 	Update(ctx context.Context, attr *ProductAttr) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProductAttrExistsParams) (bool, error)
 	ListBySearch(ctx context.Context, params ProductAttrSearchParams) (ProductAttrs, error)
 	GetDetail(ctx context.Context, id uuid.UUID) (*ProductAttr, error)
+	FindByNamesInStore(ctx context.Context, storeID uuid.UUID, names []string) (ProductAttrs, error)
 
 	// ProductAttrItem 相关操作（作为 ProductAttr 的一部分）
 	FindItemByID(ctx context.Context, id uuid.UUID) (*ProductAttrItem, error)
@@ -40,6 +42,7 @@ type ProductAttrRepository interface {
 	DeleteItem(ctx context.Context, id uuid.UUID) error
 	DeleteItems(ctx context.Context, ids []uuid.UUID) error
 	ListItemsByIDs(ctx context.Context, ids []uuid.UUID) (ProductAttrItems, error)
+	FindItemsByNamesInAttr(ctx context.Context, attrID uuid.UUID, names []string) (ProductAttrItems, error)
 }
 
 // ProductAttrInteractor 商品口味做法用例接口

@@ -52,7 +52,7 @@ func convertProductAttrRelationToDomain(er *ent.ProductAttrRelation) *domain.Pro
 		return nil
 	}
 
-	return &domain.ProductAttrRelation{
+	attr := &domain.ProductAttrRelation{
 		ID:         er.ID,
 		ProductID:  er.ProductID,
 		AttrID:     er.AttrID,
@@ -61,4 +61,13 @@ func convertProductAttrRelationToDomain(er *ent.ProductAttrRelation) *domain.Pro
 		CreatedAt:  er.CreatedAt,
 		UpdatedAt:  er.UpdatedAt,
 	}
+
+	if er.Edges.Attr != nil {
+		attr.Attr = convertProductAttrToDomain(er.Edges.Attr)
+	}
+	if er.Edges.AttrItem != nil {
+		attr.AttrItem = convertProductAttrItemToDomain(er.Edges.AttrItem)
+	}
+
+	return attr
 }

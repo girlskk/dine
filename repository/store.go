@@ -369,6 +369,27 @@ func convertStore(es *ent.Store) *domain.Store {
 	return repoStore
 }
 
+func (repo *StoreRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (domainStores []*domain.Store, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.ListByIDs")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	stores, err := repo.Client.Store.Query().Where(store.IDIn(ids...)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	domainStores = lo.Map(stores, func(store *ent.Store, _ int) *domain.Store {
+		return convertStore(store)
+	})
+	return domainStores, nil
+}
+
 func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *ent.StoreQuery {
 	query := repo.Client.Store.Query()
 

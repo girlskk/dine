@@ -53,6 +53,7 @@ var Module = fx.Module(
 		asHandler(handler.NewProductAttrHandler),
 		asHandler(handler.NewProductHandler),
 		asHandler(handler.NewRemarkHandler),
+		asHandler(handler.NewMenuHandler),
 	),
 )
 

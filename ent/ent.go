@@ -20,6 +20,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -107,6 +109,8 @@ func checkColumn(table, column string) error {
 			country.Table:              country.ValidColumn,
 			device.Table:               device.ValidColumn,
 			district.Table:             district.ValidColumn,
+			menu.Table:                 menu.ValidColumn,
+			menuitem.Table:             menuitem.ValidColumn,
 			merchant.Table:             merchant.ValidColumn,
 			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,
 			merchantrenewal.Table:      merchantrenewal.ValidColumn,

@@ -77,6 +77,10 @@ definitions:
       name:
         description: 分类名称
         type: string
+      parent:
+        allOf:
+        - $ref: '#/definitions/domain.Category'
+        description: 父分类
       parent_id:
         description: 父分类ID
         type: string
@@ -270,6 +274,117 @@ definitions:
     x-enum-varnames:
     - EffectiveDateTypeDaily
     - EffectiveDateTypeCustom
+  domain.Menu:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      distribution_rule:
+        allOf:
+        - $ref: '#/definitions/domain.MenuDistributionRule'
+        description: 下发规则
+      id:
+        description: 菜单ID
+        type: string
+      item_count:
+        description: 菜单项数量
+        type: integer
+      items:
+        description: 菜单项列表
+        items:
+          $ref: '#/definitions/domain.MenuItem'
+        type: array
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 菜单名称
+        type: string
+      store_count:
+        description: 适用门店数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      stores:
+        description: 关联信息
+        items:
+          $ref: '#/definitions/domain.StoreSimple'
+        type: array
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.MenuDistributionRule:
+    enum:
+    - override
+    - keep
+    type: string
+    x-enum-comments:
+      MenuDistributionRuleKeep: 对同名菜品不做修改
+      MenuDistributionRuleOverride: 新增并覆盖同名菜品
+    x-enum-varnames:
+    - MenuDistributionRuleOverride
+    - MenuDistributionRuleKeep
+  domain.MenuItem:
+    properties:
+      base_price:
+        description: 基础价（可选，单位：分）
+        type: number
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 菜单项ID
+        type: string
+      member_price:
+        description: 会员价（可选，单位：分）
+        type: number
+      menu_id:
+        description: 菜单ID
+        type: string
+      product:
+        allOf:
+        - $ref: '#/definitions/domain.Product'
+        description: 关联信息
+      product_id:
+        description: 菜品ID
+        type: string
+      sale_rule:
+        allOf:
+        - $ref: '#/definitions/domain.MenuItemSaleRule'
+        description: 下发售卖规则
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.MenuItemSaleRule:
+    enum:
+    - keep_brand_status
+    - keep_store_status
+    type: string
+    x-enum-comments:
+      MenuItemSaleRuleKeepBrandStatus: 保留品牌状态
+      MenuItemSaleRuleKeepStoreStatus: 保留门店状态
+    x-enum-varnames:
+    - MenuItemSaleRuleKeepBrandStatus
+    - MenuItemSaleRuleKeepStoreStatus
+  domain.MenuSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.Menu'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
   domain.Merchant:
     properties:
       address:
@@ -278,9 +393,6 @@ definitions:
         description: 地址
       admin_phone_number:
         description: 管理员手机号
-        type: string
-      admin_user_id:
-        description: 登陆账号 ID
         type: string
       brand_name:
         description: 品牌名称
@@ -543,6 +655,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.ProductType'
         description: 商品类型
+      unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 单位
       unit_id:
         description: 属性关联
         type: string
@@ -882,10 +998,6 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
-  domain.Products:
-    items:
-      $ref: '#/definitions/domain.Product'
-    type: array
   domain.Remark:
     properties:
       category_id:
@@ -1034,9 +1146,10 @@ definitions:
           type: string
         type: array
       optional_products:
-        allOf:
-        - $ref: '#/definitions/domain.Products'
         description: 备选商品
+        items:
+          $ref: '#/definitions/domain.Product'
+        type: array
       product:
         allOf:
         - $ref: '#/definitions/domain.Product'
@@ -1154,6 +1267,14 @@ definitions:
     - StallTypeSystem
     - StallTypeBrand
     - StallTypeStore
+  domain.StoreSimple:
+    properties:
+      id:
+        type: string
+      store_name:
+        description: 门店名称
+        type: string
+    type: object
   response.Response:
     properties:
       code:
@@ -1409,6 +1530,90 @@ definitions:
       token:
         type: string
     type: object
+  types.MenuCreateReq:
+    properties:
+      distribution_rule:
+        allOf:
+        - $ref: '#/definitions/domain.MenuDistributionRule'
+        description: 下发规则（必选）
+        enum:
+        - override
+        - keep
+      items:
+        description: 菜品列表（必选，至少一个）
+        items:
+          $ref: '#/definitions/types.MenuItemReq'
+        minItems: 1
+        type: array
+      name:
+        description: 菜单名称（必选）
+        maxLength: 255
+        type: string
+      store_ids:
+        description: 门店ID列表（必选，多选）
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - distribution_rule
+    - items
+    - name
+    - store_ids
+    type: object
+  types.MenuItemReq:
+    properties:
+      base_price:
+        description: 基础价（可选，单位：分）
+        type: number
+      member_price:
+        description: 会员价（可选，单位：分）
+        type: number
+      product_id:
+        description: 菜品ID（必选）
+        type: string
+      sale_rule:
+        allOf:
+        - $ref: '#/definitions/domain.MenuItemSaleRule'
+        description: 下发售卖规则（必选）
+        enum:
+        - keep_brand_status
+        - keep_store_status
+    required:
+    - product_id
+    - sale_rule
+    type: object
+  types.MenuUpdateReq:
+    properties:
+      distribution_rule:
+        allOf:
+        - $ref: '#/definitions/domain.MenuDistributionRule'
+        description: 下发规则（必选）
+        enum:
+        - override
+        - keep
+      items:
+        description: 菜品列表（必选，至少一个）
+        items:
+          $ref: '#/definitions/types.MenuItemReq'
+        minItems: 1
+        type: array
+      name:
+        description: 菜单名称（必选）
+        maxLength: 255
+        type: string
+      store_ids:
+        description: 门店ID列表（必选，多选）
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - distribution_rule
+    - items
+    - name
+    - store_ids
+    type: object
   types.OssTokenReq:
     properties:
       filename:
@@ -1630,6 +1835,36 @@ definitions:
     - sale_status
     - spec_relations
     - unit_id
+    type: object
+  types.ProductDistributeReq:
+    properties:
+      distribution_rule:
+        allOf:
+        - $ref: '#/definitions/domain.MenuDistributionRule'
+        description: 下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
+        enum:
+        - override
+        - keep
+      product_id:
+        description: 商品ID（必选）
+        type: string
+      sale_rule:
+        allOf:
+        - $ref: '#/definitions/domain.MenuItemSaleRule'
+        description: 下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
+        enum:
+        - keep_brand_status
+        - keep_store_status
+      store_ids:
+        description: 门店ID列表（必选，多选）
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - distribution_rule
+    - product_id
+    - store_ids
     type: object
   types.ProductSpecCreateReq:
     properties:
@@ -2329,10 +2564,105 @@ definitions:
     type: object
 info:
   contact: {}
-  description: 供门店后台调用.
-  title: 门店后台 API
+  description: 供品牌商后台调用.
+  title: 品牌商后台 API
   version: "1.0"
 paths:
+  /menu:
+    get:
+      parameters:
+      - description: 菜单名称（模糊匹配）
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.MenuSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询菜单列表
+      tags:
+      - 菜单管理
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.MenuCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建菜单
+      tags:
+      - 菜单管理
+  /menu/{id}:
+    delete:
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除菜单
+      tags:
+      - 菜单管理
+    get:
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.Menu'
+      security:
+      - BearerAuth: []
+      summary: 获取菜单详情
+      tags:
+      - 菜单管理
+    put:
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.MenuUpdateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新菜单
+      tags:
+      - 菜单管理
   /oss/token:
     post:
       consumes:
@@ -2697,6 +3027,23 @@ paths:
       summary: 更新商品分类
       tags:
       - 商品分类
+  /product/distribute:
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductDistributeReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 下发商品到门店
+      tags:
+      - 商品管理
   /product/setmeal:
     post:
       parameters:

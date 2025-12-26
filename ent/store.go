@@ -121,9 +121,11 @@ type StoreEdges struct {
 	AdditionalFees []*AdditionalFee `json:"additional_fees,omitempty"`
 	// Devices holds the value of the devices edge.
 	Devices []*Device `json:"devices,omitempty"`
+	// 关联的菜单
+	Menus []*Menu `json:"menus,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [11]bool
+	loadedTypes [12]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -235,6 +237,15 @@ func (e StoreEdges) DevicesOrErr() ([]*Device, error) {
 		return e.Devices, nil
 	}
 	return nil, &NotLoadedError{edge: "devices"}
+}
+
+// MenusOrErr returns the Menus value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) MenusOrErr() ([]*Menu, error) {
+	if e.loadedTypes[11] {
+		return e.Menus, nil
+	}
+	return nil, &NotLoadedError{edge: "menus"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -537,6 +548,11 @@ func (s *Store) QueryAdditionalFees() *AdditionalFeeQuery {
 // QueryDevices queries the "devices" edge of the Store entity.
 func (s *Store) QueryDevices() *DeviceQuery {
 	return NewStoreClient(s.config).QueryDevices(s)
+}
+
+// QueryMenus queries the "menus" edge of the Store entity.
+func (s *Store) QueryMenus() *MenuQuery {
+	return NewStoreClient(s.config).QueryMenus(s)
 }
 
 // Update returns a builder for updating this Store.

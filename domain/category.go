@@ -30,6 +30,7 @@ type CategoryRepository interface {
 	Exists(ctx context.Context, params CategoryExistsParams) (bool, error)
 	CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (int, error)
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
+	FindByNameInStore(ctx context.Context, name string, storeID, parentID uuid.UUID) (*Category, error)
 }
 
 // CategoryInteractor 商品分类用例接口
@@ -61,6 +62,7 @@ type Category struct {
 
 	// @TODO 关联信息
 	Childrens []*Category `json:"children,omitempty"` // 子分类列表
+	Parent    *Category   `json:"parent,omitempty"`   // 父分类
 	// TaxRate *TaxRate `json:"tax_rate,omitempty"` // 税率
 	// Stall   *Stall   `json:"stall,omitempty"`    // 出品部门
 }

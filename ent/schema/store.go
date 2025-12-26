@@ -175,6 +175,7 @@ func (Store) Edges() []ent.Edge {
 		edge.To("stalls", Stall.Type),
 		edge.To("additional_fees", AdditionalFee.Type),
 		edge.To("devices", Device.Type),
+		edge.From("menus", Menu.Type).Ref("stores").Comment("关联的菜单"),
 	}
 }
 

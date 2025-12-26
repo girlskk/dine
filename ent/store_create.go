@@ -19,6 +19,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
@@ -535,6 +536,21 @@ func (sc *StoreCreate) AddDevices(d ...*Device) *StoreCreate {
 		ids[i] = d[i].ID
 	}
 	return sc.AddDeviceIDs(ids...)
+}
+
+// AddMenuIDs adds the "menus" edge to the Menu entity by IDs.
+func (sc *StoreCreate) AddMenuIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddMenuIDs(ids...)
+	return sc
+}
+
+// AddMenus adds the "menus" edges to the Menu entity.
+func (sc *StoreCreate) AddMenus(m ...*Menu) *StoreCreate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return sc.AddMenuIDs(ids...)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -1168,6 +1184,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.MenusIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.MenusTable,
+			Columns: store.MenusPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

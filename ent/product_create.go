@@ -16,6 +16,7 @@ import (
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
@@ -482,6 +483,21 @@ func (pc *ProductCreate) AddSetMealDetails(s ...*SetMealDetail) *ProductCreate {
 	return pc.AddSetMealDetailIDs(ids...)
 }
 
+// AddMenuItemIDs adds the "menu_items" edge to the MenuItem entity by IDs.
+func (pc *ProductCreate) AddMenuItemIDs(ids ...uuid.UUID) *ProductCreate {
+	pc.mutation.AddMenuItemIDs(ids...)
+	return pc
+}
+
+// AddMenuItems adds the "menu_items" edges to the MenuItem entity.
+func (pc *ProductCreate) AddMenuItems(m ...*MenuItem) *ProductCreate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return pc.AddMenuItemIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (pc *ProductCreate) Mutation() *ProductMutation {
 	return pc.mutation
@@ -924,6 +940,22 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.MenuItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.MenuItemsTable,
+			Columns: []string{product.MenuItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

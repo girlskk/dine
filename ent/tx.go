@@ -28,6 +28,10 @@ type Tx struct {
 	Device *DeviceClient
 	// District is the client for interacting with the District builders.
 	District *DistrictClient
+	// Menu is the client for interacting with the Menu builders.
+	Menu *MenuClient
+	// MenuItem is the client for interacting with the MenuItem builders.
+	MenuItem *MenuItemClient
 	// Merchant is the client for interacting with the Merchant builders.
 	Merchant *MerchantClient
 	// MerchantBusinessType is the client for interacting with the MerchantBusinessType builders.
@@ -205,6 +209,8 @@ func (tx *Tx) init() {
 	tx.Country = NewCountryClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
 	tx.District = NewDistrictClient(tx.config)
+	tx.Menu = NewMenuClient(tx.config)
+	tx.MenuItem = NewMenuItemClient(tx.config)
 	tx.Merchant = NewMerchantClient(tx.config)
 	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)

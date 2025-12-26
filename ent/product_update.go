@@ -16,6 +16,7 @@ import (
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
@@ -569,6 +570,21 @@ func (pu *ProductUpdate) AddSetMealDetails(s ...*SetMealDetail) *ProductUpdate {
 	return pu.AddSetMealDetailIDs(ids...)
 }
 
+// AddMenuItemIDs adds the "menu_items" edge to the MenuItem entity by IDs.
+func (pu *ProductUpdate) AddMenuItemIDs(ids ...uuid.UUID) *ProductUpdate {
+	pu.mutation.AddMenuItemIDs(ids...)
+	return pu
+}
+
+// AddMenuItems adds the "menu_items" edges to the MenuItem entity.
+func (pu *ProductUpdate) AddMenuItems(m ...*MenuItem) *ProductUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return pu.AddMenuItemIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (pu *ProductUpdate) Mutation() *ProductMutation {
 	return pu.mutation
@@ -689,6 +705,27 @@ func (pu *ProductUpdate) RemoveSetMealDetails(s ...*SetMealDetail) *ProductUpdat
 		ids[i] = s[i].ID
 	}
 	return pu.RemoveSetMealDetailIDs(ids...)
+}
+
+// ClearMenuItems clears all "menu_items" edges to the MenuItem entity.
+func (pu *ProductUpdate) ClearMenuItems() *ProductUpdate {
+	pu.mutation.ClearMenuItems()
+	return pu
+}
+
+// RemoveMenuItemIDs removes the "menu_items" edge to MenuItem entities by IDs.
+func (pu *ProductUpdate) RemoveMenuItemIDs(ids ...uuid.UUID) *ProductUpdate {
+	pu.mutation.RemoveMenuItemIDs(ids...)
+	return pu
+}
+
+// RemoveMenuItems removes "menu_items" edges to MenuItem entities.
+func (pu *ProductUpdate) RemoveMenuItems(m ...*MenuItem) *ProductUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return pu.RemoveMenuItemIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1208,6 +1245,51 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.MenuItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.MenuItemsTable,
+			Columns: []string{product.MenuItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedMenuItemsIDs(); len(nodes) > 0 && !pu.mutation.MenuItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.MenuItemsTable,
+			Columns: []string{product.MenuItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.MenuItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.MenuItemsTable,
+			Columns: []string{product.MenuItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1766,6 +1848,21 @@ func (puo *ProductUpdateOne) AddSetMealDetails(s ...*SetMealDetail) *ProductUpda
 	return puo.AddSetMealDetailIDs(ids...)
 }
 
+// AddMenuItemIDs adds the "menu_items" edge to the MenuItem entity by IDs.
+func (puo *ProductUpdateOne) AddMenuItemIDs(ids ...uuid.UUID) *ProductUpdateOne {
+	puo.mutation.AddMenuItemIDs(ids...)
+	return puo
+}
+
+// AddMenuItems adds the "menu_items" edges to the MenuItem entity.
+func (puo *ProductUpdateOne) AddMenuItems(m ...*MenuItem) *ProductUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return puo.AddMenuItemIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (puo *ProductUpdateOne) Mutation() *ProductMutation {
 	return puo.mutation
@@ -1886,6 +1983,27 @@ func (puo *ProductUpdateOne) RemoveSetMealDetails(s ...*SetMealDetail) *ProductU
 		ids[i] = s[i].ID
 	}
 	return puo.RemoveSetMealDetailIDs(ids...)
+}
+
+// ClearMenuItems clears all "menu_items" edges to the MenuItem entity.
+func (puo *ProductUpdateOne) ClearMenuItems() *ProductUpdateOne {
+	puo.mutation.ClearMenuItems()
+	return puo
+}
+
+// RemoveMenuItemIDs removes the "menu_items" edge to MenuItem entities by IDs.
+func (puo *ProductUpdateOne) RemoveMenuItemIDs(ids ...uuid.UUID) *ProductUpdateOne {
+	puo.mutation.RemoveMenuItemIDs(ids...)
+	return puo
+}
+
+// RemoveMenuItems removes "menu_items" edges to MenuItem entities.
+func (puo *ProductUpdateOne) RemoveMenuItems(m ...*MenuItem) *ProductUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return puo.RemoveMenuItemIDs(ids...)
 }
 
 // Where appends a list predicates to the ProductUpdate builder.
@@ -2435,6 +2553,51 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(setmealdetail.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.MenuItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.MenuItemsTable,
+			Columns: []string{product.MenuItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedMenuItemsIDs(); len(nodes) > 0 && !puo.mutation.MenuItemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.MenuItemsTable,
+			Columns: []string{product.MenuItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.MenuItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.MenuItemsTable,
+			Columns: []string{product.MenuItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menuitem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

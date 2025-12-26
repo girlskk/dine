@@ -19,6 +19,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -47,6 +48,7 @@ type StoreQuery struct {
 	withStalls               *StallQuery
 	withAdditionalFees       *AdditionalFeeQuery
 	withDevices              *DeviceQuery
+	withMenus                *MenuQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -326,6 +328,28 @@ func (sq *StoreQuery) QueryDevices() *DeviceQuery {
 	return query
 }
 
+// QueryMenus chains the current query on the "menus" edge.
+func (sq *StoreQuery) QueryMenus() *MenuQuery {
+	query := (&MenuClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(menu.Table, menu.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, store.MenusTable, store.MenusPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Store entity from the query.
 // Returns a *NotFoundError when no Store was found.
 func (sq *StoreQuery) First(ctx context.Context) (*Store, error) {
@@ -529,6 +553,7 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		withStalls:               sq.withStalls.Clone(),
 		withAdditionalFees:       sq.withAdditionalFees.Clone(),
 		withDevices:              sq.withDevices.Clone(),
+		withMenus:                sq.withMenus.Clone(),
 		// clone intermediate query.
 		sql:       sq.sql.Clone(),
 		path:      sq.path,
@@ -657,6 +682,17 @@ func (sq *StoreQuery) WithDevices(opts ...func(*DeviceQuery)) *StoreQuery {
 	return sq
 }
 
+// WithMenus tells the query-builder to eager-load the nodes that are connected to
+// the "menus" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithMenus(opts ...func(*MenuQuery)) *StoreQuery {
+	query := (&MenuClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withMenus = query
+	return sq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -735,7 +771,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [11]bool{
+		loadedTypes = [12]bool{
 			sq.withMerchant != nil,
 			sq.withMerchantBusinessType != nil,
 			sq.withCountry != nil,
@@ -747,6 +783,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			sq.withStalls != nil,
 			sq.withAdditionalFees != nil,
 			sq.withDevices != nil,
+			sq.withMenus != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -838,6 +875,13 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 		if err := sq.loadDevices(ctx, query, nodes,
 			func(n *Store) { n.Edges.Devices = []*Device{} },
 			func(n *Store, e *Device) { n.Edges.Devices = append(n.Edges.Devices, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withMenus; query != nil {
+		if err := sq.loadMenus(ctx, query, nodes,
+			func(n *Store) { n.Edges.Menus = []*Menu{} },
+			func(n *Store, e *Menu) { n.Edges.Menus = append(n.Edges.Menus, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1165,6 +1209,67 @@ func (sq *StoreQuery) loadDevices(ctx context.Context, query *DeviceQuery, nodes
 			return fmt.Errorf(`unexpected referenced foreign-key "store_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (sq *StoreQuery) loadMenus(ctx context.Context, query *MenuQuery, nodes []*Store, init func(*Store), assign func(*Store, *Menu)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Store)
+	nids := make(map[uuid.UUID]map[*Store]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(store.MenusTable)
+		s.Join(joinT).On(s.C(menu.FieldID), joinT.C(store.MenusPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(store.MenusPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(store.MenusPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Store]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Menu](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "menus" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }
