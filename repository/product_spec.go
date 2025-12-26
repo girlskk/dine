@@ -193,6 +193,50 @@ func (repo *ProductSpecRepository) ListByIDs(ctx context.Context, ids []uuid.UUI
 	return res, nil
 }
 
+func (repo *ProductSpecRepository) FindByNamesInStore(ctx context.Context, storeID uuid.UUID, names []string) (res domain.ProductSpecs, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductSpecRepository.FindByNamesInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.ProductSpec.Query().Where(productspec.StoreID(storeID)).Where(productspec.NameIn(names...))
+	entSpecs, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.ProductSpecs, 0, len(entSpecs))
+	for _, s := range entSpecs {
+		res = append(res, convertProductSpecToDomain(s))
+	}
+	return res, nil
+}
+
+func (repo *ProductSpecRepository) CreateBulk(ctx context.Context, specs domain.ProductSpecs) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductSpecRepository.CreateBulk")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	if len(specs) == 0 {
+		return nil
+	}
+
+	builders := make([]*ent.ProductSpecCreate, 0, len(specs))
+	for _, spec := range specs {
+		builder := repo.Client.ProductSpec.Create().
+			SetID(spec.ID).
+			SetName(spec.Name).
+			SetMerchantID(spec.MerchantID).
+			SetProductCount(spec.ProductCount)
+		if spec.StoreID != uuid.Nil {
+			builder = builder.SetStoreID(spec.StoreID)
+		}
+		builders = append(builders, builder)
+	}
+	_, err = repo.Client.ProductSpec.CreateBulk(builders...).Save(ctx)
+	return err
+}
+
 func convertProductSpecToDomain(es *ent.ProductSpec) *domain.ProductSpec {
 	if es == nil {
 		return nil

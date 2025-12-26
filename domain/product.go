@@ -43,6 +43,9 @@ var (
 	ErrProductTaxRateNotExists     = errors.New("指定税率不存在")
 	ErrProductStallNotExists       = errors.New("指定出品部门不存在")
 	ErrProductPackingFeeNotExists  = errors.New("打包费配置不存在")
+
+	// 商品下发相关错误
+	ErrProductDistributeStoreInvalid = errors.New("门店无效，必须属于当前品牌商")
 )
 
 // ------------------------------------------------------------
@@ -61,6 +64,7 @@ type ProductRepository interface {
 	Exists(ctx context.Context, params ProductExistsParams) (bool, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) (Products, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
+	FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (*Product, error)
 }
 
 // ProductInteractor 商品用例接口
@@ -76,6 +80,7 @@ type ProductInteractor interface {
 	OffSale(ctx context.Context, id uuid.UUID) error
 	OnSale(ctx context.Context, id uuid.UUID) error
 	GetDetail(ctx context.Context, id uuid.UUID) (*Product, error)
+	Distribute(ctx context.Context, params ProductDistributeParams) error
 }
 
 // ------------------------------------------------------------
@@ -217,6 +222,7 @@ type Product struct {
 	Tags          ProductTags          `json:"tags,omitempty"`           // 商品标签列表
 	Groups        SetMealGroups        `json:"groups,omitempty"`         // 套餐组列表
 	Category      *Category            `json:"category,omitempty"`       // 分类
+	Unit          *ProductUnit         `json:"unit,omitempty"`           // 单位
 }
 
 // Products 商品集合
@@ -250,4 +256,13 @@ type ProductSearchParams struct {
 type ProductSearchRes struct {
 	*upagination.Pagination
 	Items Products `json:"items"`
+}
+
+// ProductDistributeParams 商品下发参数
+type ProductDistributeParams struct {
+	ProductID        uuid.UUID            // 商品ID（必选）
+	MerchantID       uuid.UUID            // 品牌商ID
+	StoreIDs         []uuid.UUID          // 门店ID列表（必选，多选）
+	DistributionRule MenuDistributionRule // 下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
+	SaleRule         MenuItemSaleRule     // 下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
 }

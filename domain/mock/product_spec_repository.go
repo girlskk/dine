@@ -51,6 +51,20 @@ func (mr *MockProductSpecRepositoryMockRecorder) Create(arg0, arg1 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProductSpecRepository)(nil).Create), arg0, arg1)
 }
 
+// CreateBulk mocks base method.
+func (m *MockProductSpecRepository) CreateBulk(arg0 context.Context, arg1 domain.ProductSpecs) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBulk", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateBulk indicates an expected call of CreateBulk.
+func (mr *MockProductSpecRepositoryMockRecorder) CreateBulk(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulk", reflect.TypeOf((*MockProductSpecRepository)(nil).CreateBulk), arg0, arg1)
+}
+
 // Delete mocks base method.
 func (m *MockProductSpecRepository) Delete(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
@@ -93,6 +107,21 @@ func (m *MockProductSpecRepository) FindByID(arg0 context.Context, arg1 uuid.UUI
 func (mr *MockProductSpecRepositoryMockRecorder) FindByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockProductSpecRepository)(nil).FindByID), arg0, arg1)
+}
+
+// FindByNamesInStore mocks base method.
+func (m *MockProductSpecRepository) FindByNamesInStore(arg0 context.Context, arg1 uuid.UUID, arg2 []string) (domain.ProductSpecs, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByNamesInStore", arg0, arg1, arg2)
+	ret0, _ := ret[0].(domain.ProductSpecs)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByNamesInStore indicates an expected call of FindByNamesInStore.
+func (mr *MockProductSpecRepositoryMockRecorder) FindByNamesInStore(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByNamesInStore", reflect.TypeOf((*MockProductSpecRepository)(nil).FindByNamesInStore), arg0, arg1, arg2)
 }
 
 // ListByIDs mocks base method.

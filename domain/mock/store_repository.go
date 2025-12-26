@@ -146,6 +146,21 @@ func (mr *MockStoreRepositoryMockRecorder) GetStores(arg0, arg1, arg2 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStores", reflect.TypeOf((*MockStoreRepository)(nil).GetStores), varargs...)
 }
 
+// ListByIDs mocks base method.
+func (m *MockStoreRepository) ListByIDs(arg0 context.Context, arg1 []uuid.UUID) ([]*domain.Store, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByIDs", arg0, arg1)
+	ret0, _ := ret[0].([]*domain.Store)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListByIDs indicates an expected call of ListByIDs.
+func (mr *MockStoreRepositoryMockRecorder) ListByIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByIDs", reflect.TypeOf((*MockStoreRepository)(nil).ListByIDs), arg0, arg1)
+}
+
 // Update mocks base method.
 func (m *MockStoreRepository) Update(arg0 context.Context, arg1 *domain.Store) error {
 	m.ctrl.T.Helper()

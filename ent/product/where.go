@@ -1464,6 +1464,29 @@ func HasSetMealDetailsWith(preds ...predicate.SetMealDetail) predicate.Product {
 	})
 }
 
+// HasMenuItems applies the HasEdge predicate on the "menu_items" edge.
+func HasMenuItems() predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MenuItemsTable, MenuItemsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMenuItemsWith applies the HasEdge predicate on the "menu_items" edge with a given conditions (other predicates).
+func HasMenuItemsWith(preds ...predicate.MenuItem) predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := newMenuItemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Product) predicate.Product {
 	return predicate.Product(sql.AndPredicates(predicates...))

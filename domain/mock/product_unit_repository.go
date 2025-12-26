@@ -95,6 +95,21 @@ func (mr *MockProductUnitRepositoryMockRecorder) FindByID(arg0, arg1 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockProductUnitRepository)(nil).FindByID), arg0, arg1)
 }
 
+// FindByNameInStore mocks base method.
+func (m *MockProductUnitRepository) FindByNameInStore(arg0 context.Context, arg1 uuid.UUID, arg2 string) (*domain.ProductUnit, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByNameInStore", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.ProductUnit)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByNameInStore indicates an expected call of FindByNameInStore.
+func (mr *MockProductUnitRepositoryMockRecorder) FindByNameInStore(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByNameInStore", reflect.TypeOf((*MockProductUnitRepository)(nil).FindByNameInStore), arg0, arg1, arg2)
+}
+
 // PagedListBySearch mocks base method.
 func (m *MockProductUnitRepository) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.ProductUnitSearchParams) (*domain.ProductUnitSearchRes, error) {
 	m.ctrl.T.Helper()

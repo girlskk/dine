@@ -123,6 +123,21 @@ func (mr *MockCategoryRepositoryMockRecorder) FindByID(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockCategoryRepository)(nil).FindByID), arg0, arg1)
 }
 
+// FindByNameInStore mocks base method.
+func (m *MockCategoryRepository) FindByNameInStore(arg0 context.Context, arg1 string, arg2, arg3 uuid.UUID) (*domain.Category, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByNameInStore", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*domain.Category)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByNameInStore indicates an expected call of FindByNameInStore.
+func (mr *MockCategoryRepositoryMockRecorder) FindByNameInStore(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByNameInStore", reflect.TypeOf((*MockCategoryRepository)(nil).FindByNameInStore), arg0, arg1, arg2, arg3)
+}
+
 // ListBySearch mocks base method.
 func (m *MockCategoryRepository) ListBySearch(arg0 context.Context, arg1 domain.CategorySearchParams) (domain.Categories, error) {
 	m.ctrl.T.Helper()

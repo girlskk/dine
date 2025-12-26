@@ -112,5 +112,8 @@ func (Product) Edges() []ent.Edge {
 
 		// 套餐组详情
 		edge.To("set_meal_details", SetMealDetail.Type),
+
+		// 菜单项
+		edge.To("menu_items", MenuItem.Type).Comment("菜单项关联"),
 	}
 }

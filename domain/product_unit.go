@@ -25,6 +25,7 @@ type ProductUnitRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProductUnitExistsParams) (bool, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductUnitSearchParams) (*ProductUnitSearchRes, error)
+	FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (*ProductUnit, error)
 }
 
 // ProductUnitInteractor 商品单位用例接口

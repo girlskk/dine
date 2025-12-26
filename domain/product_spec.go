@@ -21,11 +21,13 @@ var (
 type ProductSpecRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*ProductSpec, error)
 	Create(ctx context.Context, spec *ProductSpec) error
+	CreateBulk(ctx context.Context, specs ProductSpecs) error
 	Update(ctx context.Context, spec *ProductSpec) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProductSpecExistsParams) (bool, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSpecSearchParams) (*ProductSpecSearchRes, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) (ProductSpecs, error)
+	FindByNamesInStore(ctx context.Context, storeID uuid.UUID, names []string) (ProductSpecs, error)
 }
 
 // ProductSpecInteractor 商品规格用例接口

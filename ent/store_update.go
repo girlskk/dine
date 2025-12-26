@@ -16,6 +16,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
@@ -512,6 +513,21 @@ func (su *StoreUpdate) AddRemarks(r ...*Remark) *StoreUpdate {
 	return su.AddRemarkIDs(ids...)
 }
 
+// AddMenuIDs adds the "menus" edge to the Menu entity by IDs.
+func (su *StoreUpdate) AddMenuIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddMenuIDs(ids...)
+	return su
+}
+
+// AddMenus adds the "menus" edges to the Menu entity.
+func (su *StoreUpdate) AddMenus(m ...*Menu) *StoreUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return su.AddMenuIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
@@ -566,6 +582,27 @@ func (su *StoreUpdate) RemoveRemarks(r ...*Remark) *StoreUpdate {
 		ids[i] = r[i].ID
 	}
 	return su.RemoveRemarkIDs(ids...)
+}
+
+// ClearMenus clears all "menus" edges to the Menu entity.
+func (su *StoreUpdate) ClearMenus() *StoreUpdate {
+	su.mutation.ClearMenus()
+	return su
+}
+
+// RemoveMenuIDs removes the "menus" edge to Menu entities by IDs.
+func (su *StoreUpdate) RemoveMenuIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveMenuIDs(ids...)
+	return su
+}
+
+// RemoveMenus removes "menus" edges to Menu entities.
+func (su *StoreUpdate) RemoveMenus(m ...*Menu) *StoreUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return su.RemoveMenuIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1010,6 +1047,51 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.MenusCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.MenusTable,
+			Columns: store.MenusPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedMenusIDs(); len(nodes) > 0 && !su.mutation.MenusCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.MenusTable,
+			Columns: store.MenusPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.MenusIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.MenusTable,
+			Columns: store.MenusPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1514,6 +1596,21 @@ func (suo *StoreUpdateOne) AddRemarks(r ...*Remark) *StoreUpdateOne {
 	return suo.AddRemarkIDs(ids...)
 }
 
+// AddMenuIDs adds the "menus" edge to the Menu entity by IDs.
+func (suo *StoreUpdateOne) AddMenuIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddMenuIDs(ids...)
+	return suo
+}
+
+// AddMenus adds the "menus" edges to the Menu entity.
+func (suo *StoreUpdateOne) AddMenus(m ...*Menu) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return suo.AddMenuIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
@@ -1568,6 +1665,27 @@ func (suo *StoreUpdateOne) RemoveRemarks(r ...*Remark) *StoreUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return suo.RemoveRemarkIDs(ids...)
+}
+
+// ClearMenus clears all "menus" edges to the Menu entity.
+func (suo *StoreUpdateOne) ClearMenus() *StoreUpdateOne {
+	suo.mutation.ClearMenus()
+	return suo
+}
+
+// RemoveMenuIDs removes the "menus" edge to Menu entities by IDs.
+func (suo *StoreUpdateOne) RemoveMenuIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveMenuIDs(ids...)
+	return suo
+}
+
+// RemoveMenus removes "menus" edges to Menu entities.
+func (suo *StoreUpdateOne) RemoveMenus(m ...*Menu) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return suo.RemoveMenuIDs(ids...)
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -2042,6 +2160,51 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.MenusCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.MenusTable,
+			Columns: store.MenusPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedMenusIDs(); len(nodes) > 0 && !suo.mutation.MenusCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.MenusTable,
+			Columns: store.MenusPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.MenusIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.MenusTable,
+			Columns: store.MenusPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

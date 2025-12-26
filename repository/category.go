@@ -256,6 +256,31 @@ func (repo *CategoryRepository) ListBySearch(
 	return items, nil
 }
 
+func (repo *CategoryRepository) FindByNameInStore(ctx context.Context, name string, storeID, parentID uuid.UUID) (res *domain.Category, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.FindByNameInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	query := repo.Client.Category.Query().
+		Where(category.Name(name)).
+		Where(category.StoreID(storeID))
+	if parentID != uuid.Nil {
+		query.Where(category.ParentID(parentID))
+	}
+	ec, err := query.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrCategoryNotExists)
+		}
+		return nil, err
+	}
+	return convertCategoryToDomain(ec), nil
+}
+
+// ============================================
+// 转换函数
+// ============================================
+
 func convertCategoryToDomain(ec *ent.Category) *domain.Category {
 	if ec == nil {
 		return nil
@@ -275,6 +300,10 @@ func convertCategoryToDomain(ec *ent.Category) *domain.Category {
 		SortOrder:      ec.SortOrder,
 		CreatedAt:      ec.CreatedAt,
 		UpdatedAt:      ec.UpdatedAt,
+	}
+
+	if ec.Edges.Parent != nil {
+		cat.Parent = convertCategoryToDomain(ec.Edges.Parent)
 	}
 
 	return cat
