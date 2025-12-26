@@ -1,4 +1,4 @@
-package backend
+package store
 
 import (
 	"fmt"
@@ -9,7 +9,8 @@ import (
 	"github.com/samber/lo"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "gitlab.jiguang.dev/pos-dine/dine/api/backend/docs"
+
+	_ "gitlab.jiguang.dev/pos-dine/dine/api/store/docs"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	ugin "gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
@@ -40,9 +41,9 @@ type Params struct {
 	Handlers    []ugin.Handler    `group:"handlers"`
 }
 
-// @title 品牌商后台 API
+// @title 门店后台 API
 // @version 1.0
-// @description 供品牌商后台调用.
+// @description 供门店后台调用.
 
 // @securityDefinitions.apikey BearerAuth
 // @in header

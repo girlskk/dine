@@ -326,3 +326,17 @@ func (mr *MockDataStoreMockRecorder) StoreRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreRepo", reflect.TypeOf((*MockDataStore)(nil).StoreRepo))
 }
+
+// StoreUserRepo mocks base method.
+func (m *MockDataStore) StoreUserRepo() domain.StoreUserRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StoreUserRepo")
+	ret0, _ := ret[0].(domain.StoreUserRepository)
+	return ret0
+}
+
+// StoreUserRepo indicates an expected call of StoreUserRepo.
+func (mr *MockDataStoreMockRecorder) StoreUserRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreUserRepo", reflect.TypeOf((*MockDataStore)(nil).StoreUserRepo))
+}

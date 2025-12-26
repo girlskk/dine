@@ -67,5 +67,9 @@ var Module = fx.Module(
 			menu.NewMenuInteractor,
 			fx.As(new(domain.MenuInteractor)),
 		),
+		fx.Annotate(
+			userauth.NewStoreUserInteractor,
+			fx.As(new(domain.StoreUserInteractor)),
+		),
 	),
 )

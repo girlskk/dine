@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "供门店后台调用.",
-        "title": "门店后台 API",
+        "description": "供品牌商后台调用.",
+        "title": "品牌商后台 API",
         "contact": {},
         "version": "1.0"
     },

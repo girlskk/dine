@@ -18,6 +18,7 @@ type Repository struct {
 	mu                       sync.Mutex
 	client                   *ent.Client
 	adminUserRepo            *AdminUserRepository
+	storeUserRepo            *StoreUserRepository
 	categoryRepo             *CategoryRepository
 	backendUserRepo          *BackendUserRepository
 	productUnitRepo          *ProductUnitRepository
@@ -269,4 +270,13 @@ func (repo *Repository) MenuRepo() domain.MenuRepository {
 		repo.menuRepo = NewMenuRepository(repo.client)
 	}
 	return repo.menuRepo
+}
+
+func (repo *Repository) StoreUserRepo() domain.StoreUserRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.storeUserRepo == nil {
+		repo.storeUserRepo = NewStoreUserRepository(repo.client)
+	}
+	return repo.storeUserRepo
 }

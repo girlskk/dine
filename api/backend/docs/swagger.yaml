@@ -1997,8 +1997,8 @@ definitions:
     type: object
 info:
   contact: {}
-  description: 供门店后台调用.
-  title: 门店后台 API
+  description: 供品牌商后台调用.
+  title: 品牌商后台 API
   version: "1.0"
 paths:
   /menu:

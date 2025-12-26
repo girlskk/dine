@@ -10,6 +10,7 @@ type DataStore interface {
 	AdminUserRepo() AdminUserRepository
 	CategoryRepo() CategoryRepository
 	BackendUserRepo() BackendUserRepository
+	StoreUserRepo() StoreUserRepository
 	ProductUnitRepo() ProductUnitRepository
 	ProductSpecRepo() ProductSpecRepository
 	ProductTagRepo() ProductTagRepository

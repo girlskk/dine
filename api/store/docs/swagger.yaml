@@ -1,0 +1,320 @@
+basePath: /api/v1
+definitions:
+  domain.Address:
+    properties:
+      address:
+        description: 详细地址
+        type: string
+      city_id:
+        description: 城市 ID
+        type: string
+      city_name:
+        description: 城市名称
+        type: string
+      country_id:
+        description: 国家/地区 ID
+        type: string
+      country_name:
+        description: 国家/地区 名称
+        type: string
+      district_id:
+        description: 区县 ID
+        type: string
+      district_name:
+        description: 区县名称
+        type: string
+      lat:
+        description: 纬度
+        type: string
+      lng:
+        description: 经度
+        type: string
+      province_id:
+        description: 省份 ID
+        type: string
+      province_name:
+        description: 省份名称
+        type: string
+    type: object
+  domain.BusinessHours:
+    properties:
+      end_time:
+        description: 结束时间，格式 HH:MM:SS
+        type: string
+      start_time:
+        description: 开始时间，格式 HH:MM:SS
+        type: string
+      weekdays:
+        description: 适用的星期几，0=星期日，1=星期一，依此类推
+        items:
+          $ref: '#/definitions/time.Weekday'
+        type: array
+    type: object
+  domain.BusinessModel:
+    enum:
+    - direct
+    - franchisee
+    type: string
+    x-enum-comments:
+      BusinessModelDirect: 直营
+      BusinessModelFranchisee: 加盟
+    x-enum-descriptions:
+    - 直营
+    - 加盟
+    x-enum-varnames:
+    - BusinessModelDirect
+    - BusinessModelFranchisee
+  domain.DiningPeriod:
+    properties:
+      end_time:
+        description: 结束时间，格式 HH:MM:SS
+        type: string
+      name:
+        description: 名称，如“用餐时段1”
+        type: string
+      start_time:
+        description: 开始时间，格式 HH:MM:SS
+        type: string
+    type: object
+  domain.ShiftTime:
+    properties:
+      end_time:
+        description: 结束时间，格式 HH:MM:SS
+        type: string
+      name:
+        description: 名称，如“班次1”
+        type: string
+      start_time:
+        description: 开始时间，格式 HH:MM:SS
+        type: string
+    type: object
+  domain.Store:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/domain.Address'
+        description: 地址
+      admin_phone_number:
+        description: 管理员手机号
+        type: string
+      admin_user_id:
+        description: 登陆账号 ID
+        type: string
+      business_hours:
+        description: 营业时间段
+        items:
+          $ref: '#/definitions/domain.BusinessHours'
+        type: array
+      business_license_url:
+        description: 营业执照图片地址
+        type: string
+      business_model:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessModel'
+        description: 经营模式：直营 加盟
+      business_type_id:
+        description: 业态类型
+        type: string
+      business_type_name:
+        description: 业务类型名称
+        type: string
+      cashier_desk_url:
+        description: 收银台照片地址
+        type: string
+      contact_name:
+        description: 联系人
+        type: string
+      contact_phone:
+        description: 联系电话
+        type: string
+      created_at:
+        type: string
+      dining_environment_url:
+        description: 就餐环境照片地址
+        type: string
+      dining_periods:
+        description: 就餐时段
+        items:
+          $ref: '#/definitions/domain.DiningPeriod'
+        type: array
+      food_operation_license_url:
+        description: 食品经营许可证照片地址
+        type: string
+      id:
+        type: string
+      location_number:
+        description: 门店位置编号
+        type: string
+      login_account:
+        description: 登录账号
+        type: string
+      login_password:
+        description: 登录密码(加密存储)
+        type: string
+      merchant_id:
+        description: 商户 ID
+        type: string
+      merchant_name:
+        description: 商户名称
+        type: string
+      shift_times:
+        description: 班次时间
+        items:
+          $ref: '#/definitions/domain.ShiftTime'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.StoreStatus'
+        description: '状态: 营业 停业'
+      store_code:
+        description: 门店编码(保留字段)
+        type: string
+      store_logo:
+        description: logo 图片地址
+        type: string
+      store_name:
+        description: 门店名称,长度不超过30个字
+        type: string
+      store_short_name:
+        description: 门店简称
+        type: string
+      storefront_url:
+        description: 门店门头照片地址
+        type: string
+      unified_social_credit_code:
+        description: 统一社会信用代码
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.StoreStatus:
+    enum:
+    - open
+    - closed
+    type: string
+    x-enum-comments:
+      StoreStatusClosed: 停业
+      StoreStatusOpen: 营业
+    x-enum-descriptions:
+    - 营业
+    - 停业
+    x-enum-varnames:
+    - StoreStatusOpen
+    - StoreStatusClosed
+  domain.StoreUser:
+    properties:
+      id:
+        type: string
+      nickname:
+        type: string
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.Store'
+        description: 关联数据
+      store_id:
+        description: 门店ID
+        type: string
+      username:
+        type: string
+    type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+  types.LoginReq:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  types.LoginResp:
+    properties:
+      expire:
+        type: integer
+      token:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: 供门店后台调用.
+  title: 门店后台 API
+  version: "1.0"
+paths:
+  /user/info:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.StoreUser'
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户信息
+      tags:
+      - 用户管理
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.LoginResp'
+      security:
+      - BearerAuth: []
+      summary: 用户登录
+      tags:
+      - 用户管理
+  /user/logout:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 用户登出
+      tags:
+      - 用户管理
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
