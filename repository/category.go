@@ -165,13 +165,10 @@ func (repo *CategoryRepository) Exists(ctx context.Context, params domain.Catego
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.Category.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(category.MerchantID(params.MerchantID))
-	}
-	if params.StoreID != uuid.Nil {
-		query.Where(category.StoreID(params.StoreID))
-	}
+	query := repo.Client.Category.Query().
+		Where(category.MerchantID(params.MerchantID)).
+		Where(category.StoreID(params.StoreID))
+
 	if params.IsRoot {
 		query.Where(category.ParentID(uuid.Nil))
 	} else {

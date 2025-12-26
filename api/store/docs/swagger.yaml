@@ -47,7 +47,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -127,6 +127,46 @@ definitions:
         description: 开始时间，格式 HH:MM:SS
         type: string
     type: object
+  domain.ProductSpec:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 规格ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 规格名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductSpecSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProductSpec'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
   domain.ProductTag:
     properties:
       created_at:
@@ -167,6 +207,64 @@ definitions:
         description: 总页数
         type: integer
     type: object
+  domain.ProductUnit:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 单位ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 单位名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnitType'
+        description: 单位类型：quantity（数量单位）、weight（重量单位）
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductUnitSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProductUnit'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
+  domain.ProductUnitType:
+    enum:
+    - quantity
+    - weight
+    type: string
+    x-enum-comments:
+      ProductUnitTypeQuantity: 数量单位
+      ProductUnitTypeWeight: 重量单位
+    x-enum-descriptions:
+    - 数量单位
+    - 重量单位
+    x-enum-varnames:
+    - ProductUnitTypeQuantity
+    - ProductUnitTypeWeight
   domain.ShiftTime:
     properties:
       end_time:
@@ -311,38 +409,6 @@ definitions:
       username:
         type: string
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.CategoryCreateChildReq:
     properties:
       inherit_stall:
@@ -401,6 +467,24 @@ definitions:
       token:
         type: string
     type: object
+  types.ProductSpecCreateReq:
+    properties:
+      name:
+        description: 规格名称
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
+  types.ProductSpecUpdateReq:
+    properties:
+      name:
+        description: 规格名称
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
   types.ProductTagCreateReq:
     properties:
       name:
@@ -418,6 +502,38 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  types.ProductUnitCreateReq:
+    properties:
+      name:
+        description: 单位名称
+        maxLength: 255
+        type: string
+      type:
+        description: 单位类型：quantity（数量单位）、weight（重量单位）
+        enum:
+        - quantity
+        - weight
+        type: string
+    required:
+    - name
+    - type
+    type: object
+  types.ProductUnitUpdateReq:
+    properties:
+      name:
+        description: 单位名称
+        maxLength: 255
+        type: string
+      type:
+        description: 单位类型：quantity（数量单位）、weight（重量单位）
+        enum:
+        - quantity
+        - weight
+        type: string
+    required:
+    - name
+    - type
     type: object
   types.UpdateCategoryReq:
     properties:
@@ -542,6 +658,95 @@ paths:
       summary: 更新商品分类
       tags:
       - 商品分类
+  /product/spec:
+    get:
+      parameters:
+      - description: 规格名称
+        in: query
+        maxLength: 255
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProductSpecSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 获取商品规格列表
+      tags:
+      - 商品规格
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductSpecCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建商品规格
+      tags:
+      - 商品规格
+  /product/spec/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 规格ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品规格
+      tags:
+      - 商品规格
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 规格ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductSpecUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新商品规格
+      tags:
+      - 商品规格
   /product/tag:
     get:
       parameters:
@@ -631,6 +836,102 @@ paths:
       summary: 更新商品标签
       tags:
       - 商品标签
+  /product/unit:
+    get:
+      parameters:
+      - description: 单位名称
+        in: query
+        maxLength: 255
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      - description: 单位类型：quantity（数量单位）、weight（重量单位）
+        enum:
+        - quantity
+        - weight
+        in: query
+        name: type
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProductUnitSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 获取商品单位列表
+      tags:
+      - 商品单位
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductUnitCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建商品单位
+      tags:
+      - 商品单位
+  /product/unit/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 单位ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除商品单位
+      tags:
+      - 商品单位
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 单位ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProductUnitUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新商品单位
+      tags:
+      - 商品单位
   /user/info:
     post:
       consumes:

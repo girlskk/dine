@@ -176,6 +176,150 @@ const docTemplate = `{
                 }
             }
         },
+        "/product/spec": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品规格"
+                ],
+                "summary": "获取商品规格列表",
+                "parameters": [
+                    {
+                        "maxLength": 255,
+                        "type": "string",
+                        "description": "规格名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductSpecSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品规格"
+                ],
+                "summary": "创建商品规格",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductSpecCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/product/spec/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品规格"
+                ],
+                "summary": "更新商品规格",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "规格ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductSpecUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品规格"
+                ],
+                "summary": "删除商品规格",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "规格ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/product/tag": {
             "get": {
                 "security": [
@@ -308,6 +452,160 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "标签ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/product/unit": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品单位"
+                ],
+                "summary": "获取商品单位列表",
+                "parameters": [
+                    {
+                        "maxLength": 255,
+                        "type": "string",
+                        "description": "单位名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "quantity",
+                            "weight"
+                        ],
+                        "type": "string",
+                        "description": "单位类型：quantity（数量单位）、weight（重量单位）",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProductUnitSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品单位"
+                ],
+                "summary": "创建商品单位",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductUnitCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/product/unit/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品单位"
+                ],
+                "summary": "更新商品单位",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "单位ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductUnitUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品单位"
+                ],
+                "summary": "删除商品单位",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "单位ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -475,7 +773,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -588,6 +886,62 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.ProductSpec": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "规格ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "规格名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductSpecSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSpec"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.ProductTag": {
             "type": "object",
             "properties": {
@@ -643,6 +997,89 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "domain.ProductUnit": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "单位ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "单位名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "单位类型：quantity（数量单位）、weight（重量单位）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnitType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductUnitSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductUnit"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProductUnitType": {
+            "type": "string",
+            "enum": [
+                "quantity",
+                "weight"
+            ],
+            "x-enum-comments": {
+                "ProductUnitTypeQuantity": "数量单位",
+                "ProductUnitTypeWeight": "重量单位"
+            },
+            "x-enum-descriptions": [
+                "数量单位",
+                "重量单位"
+            ],
+            "x-enum-varnames": [
+                "ProductUnitTypeQuantity",
+                "ProductUnitTypeWeight"
+            ]
         },
         "domain.ShiftTime": {
             "type": "object",
@@ -853,41 +1290,6 @@ const docTemplate = `{
                 }
             }
         },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
-        },
         "types.CategoryCreateChildReq": {
             "type": "object",
             "required": [
@@ -971,6 +1373,32 @@ const docTemplate = `{
                 }
             }
         },
+        "types.ProductSpecCreateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "description": "规格名称",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.ProductSpecUpdateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "description": "规格名称",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
         "types.ProductTagCreateReq": {
             "type": "object",
             "required": [
@@ -994,6 +1422,50 @@ const docTemplate = `{
                     "description": "标签名称",
                     "type": "string",
                     "maxLength": 255
+                }
+            }
+        },
+        "types.ProductUnitCreateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "type"
+            ],
+            "properties": {
+                "name": {
+                    "description": "单位名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "type": {
+                    "description": "单位类型：quantity（数量单位）、weight（重量单位）",
+                    "type": "string",
+                    "enum": [
+                        "quantity",
+                        "weight"
+                    ]
+                }
+            }
+        },
+        "types.ProductUnitUpdateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "type"
+            ],
+            "properties": {
+                "name": {
+                    "description": "单位名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "type": {
+                    "description": "单位类型：quantity（数量单位）、weight（重量单位）",
+                    "type": "string",
+                    "enum": [
+                        "quantity",
+                        "weight"
+                    ]
                 }
             }
         },

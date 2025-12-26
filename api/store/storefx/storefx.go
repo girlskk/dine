@@ -48,6 +48,8 @@ var Module = fx.Module(
 		asHandler(handler.NewUserHandler),
 		asHandler(handler.NewCategoryHandler),
 		asHandler(handler.NewProductTagHandler),
+		asHandler(handler.NewProductUnitHandler),
+		asHandler(handler.NewProductSpecHandler),
 	),
 )
 

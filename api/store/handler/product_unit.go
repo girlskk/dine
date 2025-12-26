@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -59,13 +59,14 @@ func (h *ProductUnitHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		unit := &domain.ProductUnit{
 			ID:         uuid.New(),
 			Name:       req.Name,
 			Type:       domain.ProductUnitType(req.Type),
 			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 		}
 
 		err := h.ProductUnitInteractor.Create(ctx, unit)
@@ -127,7 +128,7 @@ func (h *ProductUnitHandler) Update() gin.HandlerFunc {
 			Type: domain.ProductUnitType(req.Type),
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductUnitInteractor.Update(ctx, unit, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductUnitNameExists) {
@@ -171,7 +172,7 @@ func (h *ProductUnitHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductUnitInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductUnitDeleteHasProducts) {
@@ -213,13 +214,13 @@ func (h *ProductUnitHandler) List() gin.HandlerFunc {
 			return
 		}
 		page := upagination.New(req.Page, req.Size)
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		params := domain.ProductUnitSearchParams{
-			MerchantID:   user.MerchantID,
-			Name:         req.Name,
-			Type:         domain.ProductUnitType(req.Type),
-			OnlyMerchant: true,
+			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
+			Name:       req.Name,
+			Type:       domain.ProductUnitType(req.Type),
 		}
 
 		res, err := h.ProductUnitInteractor.PagedListBySearch(ctx, page, params)

@@ -325,8 +325,12 @@ func (repo *ProductRepository) Exists(ctx context.Context, params domain.Product
 	query := repo.Client.Product.Query().
 		Where(
 			product.MerchantID(params.MerchantID),
-			product.Name(params.Name),
+			product.StoreID(params.StoreID),
 		)
+
+	if params.Name != "" {
+		query = query.Where(product.Name(params.Name))
+	}
 
 	if params.ExcludeID != uuid.Nil {
 		query = query.Where(product.IDNEQ(params.ExcludeID))

@@ -71,7 +71,7 @@ func (i *ProductTagInteractor) Update(ctx context.Context, tag *domain.ProductTa
 			return err
 		}
 
-		// 2. 验证更新后的名称在当前门店下是否唯一（排除自身）
+		// 2. 验证更新后的名称在当前品牌商/门店下是否唯一（排除自身）
 		if tag.Name != existingTag.Name {
 			exists, err := ds.ProductTagRepo().Exists(ctx, domain.ProductTagExistsParams{
 				MerchantID: existingTag.MerchantID,

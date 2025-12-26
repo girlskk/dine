@@ -62,24 +62,24 @@ func (Product) Fields() []ent.Field {
 		// 套餐信息
 		field.Other("estimated_cost_price", decimal.Decimal{}).
 			SchemaType(map[string]string{
-				dialect.MySQL:  "DECIMAL(10,2)",
+				dialect.MySQL:  "DECIMAL(19,4)",
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
 			Nillable().
-			Comment("预估成本价（可选，单位：分，仅套餐商品使用）"),
+			Comment("预估成本价（可选，单位：令吉，仅套餐商品使用）"),
 		field.Other("delivery_cost_price", decimal.Decimal{}).
 			SchemaType(map[string]string{
-				dialect.MySQL:  "DECIMAL(10,2)",
+				dialect.MySQL:  "DECIMAL(19,4)",
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
 			Nillable().
-			Comment("外卖成本价（可选，单位：分，仅套餐商品使用）"),
+			Comment("外卖成本价（可选，单位：令吉，仅套餐商品使用）"),
 
 		// 商户和门店
 		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("品牌商ID"),
-		field.UUID("store_id", uuid.UUID{}).Optional().Immutable().Comment("门店ID"),
+		field.UUID("store_id", uuid.UUID{}).Default(schematype.NilUUID()).Immutable().Comment("门店ID"),
 	}
 }
 
@@ -88,6 +88,8 @@ func (Product) Indexes() []ent.Index {
 		index.Fields("merchant_id"),
 		index.Fields("store_id"),
 		index.Fields("category_id"),
+		// 唯一索引
+		index.Fields("merchant_id", "store_id", "name", "deleted_at").Unique(),
 	}
 }
 

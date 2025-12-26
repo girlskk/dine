@@ -106,13 +106,10 @@ func (repo *ProductTagRepository) Exists(ctx context.Context, params domain.Prod
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.ProductTag.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(producttag.MerchantID(params.MerchantID))
-	}
-	if params.StoreID != uuid.Nil {
-		query.Where(producttag.StoreID(params.StoreID))
-	}
+	query := repo.Client.ProductTag.Query().
+		Where(producttag.MerchantID(params.MerchantID)).
+		Where(producttag.StoreID(params.StoreID))
+
 	if params.Name != "" {
 		query.Where(producttag.Name(params.Name))
 	}

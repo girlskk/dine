@@ -13375,22 +13375,9 @@ func (m *ProductMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err erro
 	return oldValue.StoreID, nil
 }
 
-// ClearStoreID clears the value of the "store_id" field.
-func (m *ProductMutation) ClearStoreID() {
-	m.store_id = nil
-	m.clearedFields[product.FieldStoreID] = struct{}{}
-}
-
-// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
-func (m *ProductMutation) StoreIDCleared() bool {
-	_, ok := m.clearedFields[product.FieldStoreID]
-	return ok
-}
-
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *ProductMutation) ResetStoreID() {
 	m.store_id = nil
-	delete(m.clearedFields, product.FieldStoreID)
 }
 
 // ClearCategory clears the "category" edge to the Category entity.
@@ -14352,9 +14339,6 @@ func (m *ProductMutation) ClearedFields() []string {
 	if m.FieldCleared(product.FieldDeliveryCostPrice) {
 		fields = append(fields, product.FieldDeliveryCostPrice)
 	}
-	if m.FieldCleared(product.FieldStoreID) {
-		fields = append(fields, product.FieldStoreID)
-	}
 	return fields
 }
 
@@ -14401,9 +14385,6 @@ func (m *ProductMutation) ClearField(name string) error {
 		return nil
 	case product.FieldDeliveryCostPrice:
 		m.ClearDeliveryCostPrice()
-		return nil
-	case product.FieldStoreID:
-		m.ClearStoreID()
 		return nil
 	}
 	return fmt.Errorf("unknown Product nullable field %s", name)
@@ -15169,22 +15150,9 @@ func (m *ProductAttrMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err 
 	return oldValue.StoreID, nil
 }
 
-// ClearStoreID clears the value of the "store_id" field.
-func (m *ProductAttrMutation) ClearStoreID() {
-	m.store_id = nil
-	m.clearedFields[productattr.FieldStoreID] = struct{}{}
-}
-
-// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
-func (m *ProductAttrMutation) StoreIDCleared() bool {
-	_, ok := m.clearedFields[productattr.FieldStoreID]
-	return ok
-}
-
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *ProductAttrMutation) ResetStoreID() {
 	m.store_id = nil
-	delete(m.clearedFields, productattr.FieldStoreID)
 }
 
 // SetProductCount sets the "product_count" field.
@@ -15580,11 +15548,7 @@ func (m *ProductAttrMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ProductAttrMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(productattr.FieldStoreID) {
-		fields = append(fields, productattr.FieldStoreID)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -15597,11 +15561,6 @@ func (m *ProductAttrMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ProductAttrMutation) ClearField(name string) error {
-	switch name {
-	case productattr.FieldStoreID:
-		m.ClearStoreID()
-		return nil
-	}
 	return fmt.Errorf("unknown ProductAttr nullable field %s", name)
 }
 
@@ -17862,22 +17821,9 @@ func (m *ProductSpecMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err 
 	return oldValue.StoreID, nil
 }
 
-// ClearStoreID clears the value of the "store_id" field.
-func (m *ProductSpecMutation) ClearStoreID() {
-	m.store_id = nil
-	m.clearedFields[productspec.FieldStoreID] = struct{}{}
-}
-
-// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
-func (m *ProductSpecMutation) StoreIDCleared() bool {
-	_, ok := m.clearedFields[productspec.FieldStoreID]
-	return ok
-}
-
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *ProductSpecMutation) ResetStoreID() {
 	m.store_id = nil
-	delete(m.clearedFields, productspec.FieldStoreID)
 }
 
 // SetProductCount sets the "product_count" field.
@@ -18205,11 +18151,7 @@ func (m *ProductSpecMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ProductSpecMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(productspec.FieldStoreID) {
-		fields = append(fields, productspec.FieldStoreID)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -18222,11 +18164,6 @@ func (m *ProductSpecMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ProductSpecMutation) ClearField(name string) error {
-	switch name {
-	case productspec.FieldStoreID:
-		m.ClearStoreID()
-		return nil
-	}
 	return fmt.Errorf("unknown ProductSpec nullable field %s", name)
 }
 
@@ -20825,22 +20762,9 @@ func (m *ProductUnitMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err 
 	return oldValue.StoreID, nil
 }
 
-// ClearStoreID clears the value of the "store_id" field.
-func (m *ProductUnitMutation) ClearStoreID() {
-	m.store_id = nil
-	m.clearedFields[productunit.FieldStoreID] = struct{}{}
-}
-
-// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
-func (m *ProductUnitMutation) StoreIDCleared() bool {
-	_, ok := m.clearedFields[productunit.FieldStoreID]
-	return ok
-}
-
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *ProductUnitMutation) ResetStoreID() {
 	m.store_id = nil
-	delete(m.clearedFields, productunit.FieldStoreID)
 }
 
 // SetProductCount sets the "product_count" field.
@@ -21182,11 +21106,7 @@ func (m *ProductUnitMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ProductUnitMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(productunit.FieldStoreID) {
-		fields = append(fields, productunit.FieldStoreID)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -21199,11 +21119,6 @@ func (m *ProductUnitMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ProductUnitMutation) ClearField(name string) error {
-	switch name {
-	case productunit.FieldStoreID:
-		m.ClearStoreID()
-		return nil
-	}
 	return fmt.Errorf("unknown ProductUnit nullable field %s", name)
 }
 

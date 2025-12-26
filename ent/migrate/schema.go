@@ -271,8 +271,8 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "sale_rule", Type: field.TypeEnum, Enums: []string{"keep_brand_status", "keep_store_status"}, Default: "keep_brand_status"},
-		{Name: "base_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
-		{Name: "member_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "base_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "member_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "menu_id", Type: field.TypeUUID},
 		{Name: "product_id", Type: field.TypeUUID},
 	}
@@ -476,10 +476,10 @@ var (
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "detail_images", Type: field.TypeJSON, Nullable: true},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
-		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
-		{Name: "delivery_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "delivery_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "category_id", Type: field.TypeUUID},
 		{Name: "unit_id", Type: field.TypeUUID},
 	}
@@ -523,6 +523,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{ProductsColumns[28]},
 			},
+			{
+				Name:    "product_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductsColumns[26], ProductsColumns[27], ProductsColumns[5], ProductsColumns[3]},
+			},
 		},
 	}
 	// ProductAttrsColumns holds the columns for the "product_attrs" table.
@@ -534,7 +539,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "channels", Type: field.TypeJSON},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductAttrsTable holds the schema information for the "product_attrs" table.
@@ -557,6 +562,11 @@ var (
 				Name:    "productattr_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductAttrsColumns[7]},
+			},
+			{
+				Name:    "productattr_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductAttrsColumns[6], ProductAttrsColumns[7], ProductAttrsColumns[4], ProductAttrsColumns[3]},
 			},
 		},
 	}
@@ -595,6 +605,11 @@ var (
 				Name:    "productattritem_attr_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductAttrItemsColumns[8]},
+			},
+			{
+				Name:    "productattritem_attr_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductAttrItemsColumns[8], ProductAttrItemsColumns[4], ProductAttrItemsColumns[3]},
 			},
 		},
 	}
@@ -665,7 +680,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductSpecsTable holds the schema information for the "product_specs" table.
@@ -688,6 +703,11 @@ var (
 				Name:    "productspec_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductSpecsColumns[6]},
+			},
+			{
+				Name:    "productspec_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductSpecsColumns[5], ProductSpecsColumns[6], ProductSpecsColumns[4], ProductSpecsColumns[3]},
 			},
 		},
 	}
@@ -794,7 +814,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"quantity", "weight"}},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductUnitsTable holds the schema information for the "product_units" table.
@@ -817,6 +837,11 @@ var (
 				Name:    "productunit_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductUnitsColumns[7]},
+			},
+			{
+				Name:    "productunit_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductUnitsColumns[6], ProductUnitsColumns[7], ProductUnitsColumns[4], ProductUnitsColumns[3]},
 			},
 		},
 	}

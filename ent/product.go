@@ -74,9 +74,9 @@ type Product struct {
 	DetailImages []string `json:"detail_images,omitempty"`
 	// 菜品描述（可选）
 	Description string `json:"description,omitempty"`
-	// 预估成本价（可选，单位：分，仅套餐商品使用）
+	// 预估成本价（可选，单位：令吉，仅套餐商品使用）
 	EstimatedCostPrice *decimal.Decimal `json:"estimated_cost_price,omitempty"`
-	// 外卖成本价（可选，单位：分，仅套餐商品使用）
+	// 外卖成本价（可选，单位：令吉，仅套餐商品使用）
 	DeliveryCostPrice *decimal.Decimal `json:"delivery_cost_price,omitempty"`
 	// 品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`

@@ -219,13 +219,9 @@ func (repo *MenuRepository) Exists(ctx context.Context, params domain.MenuExists
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.Menu.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(menu.MerchantID(params.MerchantID))
-	}
-	if params.Name != "" {
-		query.Where(menu.Name(params.Name))
-	}
+	query := repo.Client.Menu.Query().
+		Where(menu.MerchantID(params.MerchantID))
+
 	if params.ExcludeID != uuid.Nil {
 		query.Where(menu.IDNEQ(params.ExcludeID))
 	}

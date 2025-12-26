@@ -854,6 +854,10 @@ func init() {
 	product.DefaultDescription = productDescDescription.Default.(string)
 	// product.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	product.DescriptionValidator = productDescDescription.Validators[0].(func(string) error)
+	// productDescStoreID is the schema descriptor for store_id field.
+	productDescStoreID := productFields[25].Descriptor()
+	// product.DefaultStoreID holds the default value on creation for the store_id field.
+	product.DefaultStoreID = productDescStoreID.Default.(func() uuid.UUID)
 	// productDescID is the schema descriptor for id field.
 	productDescID := productMixinFields0[0].Descriptor()
 	// product.DefaultID holds the default value on creation for the id field.
@@ -903,6 +907,10 @@ func init() {
 			return nil
 		}
 	}()
+	// productattrDescStoreID is the schema descriptor for store_id field.
+	productattrDescStoreID := productattrFields[3].Descriptor()
+	// productattr.DefaultStoreID holds the default value on creation for the store_id field.
+	productattr.DefaultStoreID = productattrDescStoreID.Default.(func() uuid.UUID)
 	// productattrDescProductCount is the schema descriptor for product_count field.
 	productattrDescProductCount := productattrFields[4].Descriptor()
 	// productattr.DefaultProductCount holds the default value on creation for the product_count field.
@@ -1054,6 +1062,10 @@ func init() {
 			return nil
 		}
 	}()
+	// productspecDescStoreID is the schema descriptor for store_id field.
+	productspecDescStoreID := productspecFields[2].Descriptor()
+	// productspec.DefaultStoreID holds the default value on creation for the store_id field.
+	productspec.DefaultStoreID = productspecDescStoreID.Default.(func() uuid.UUID)
 	// productspecDescProductCount is the schema descriptor for product_count field.
 	productspecDescProductCount := productspecFields[3].Descriptor()
 	// productspec.DefaultProductCount holds the default value on creation for the product_count field.
@@ -1209,6 +1221,10 @@ func init() {
 			return nil
 		}
 	}()
+	// productunitDescStoreID is the schema descriptor for store_id field.
+	productunitDescStoreID := productunitFields[3].Descriptor()
+	// productunit.DefaultStoreID holds the default value on creation for the store_id field.
+	productunit.DefaultStoreID = productunitDescStoreID.Default.(func() uuid.UUID)
 	// productunitDescProductCount is the schema descriptor for product_count field.
 	productunitDescProductCount := productunitFields[4].Descriptor()
 	// productunit.DefaultProductCount holds the default value on creation for the product_count field.

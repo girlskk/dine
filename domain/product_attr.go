@@ -117,6 +117,7 @@ type ProductAttrItems []*ProductAttrItem
 // ProductAttrExistsParams 存在性检查参数
 type ProductAttrExistsParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string
 	ExcludeID  uuid.UUID // 排除的ID（用于更新时检查名称唯一性）
 }

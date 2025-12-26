@@ -36,20 +36,20 @@ func (MenuItem) Fields() []ent.Field {
 			Comment("下发售卖规则：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）"),
 		field.Other("base_price", decimal.Decimal{}).
 			SchemaType(map[string]string{
-				dialect.MySQL:  "DECIMAL(10,2)",
+				dialect.MySQL:  "DECIMAL(19,4)",
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
 			Nillable().
-			Comment("基础价（可选，单位：分）"),
+			Comment("基础价（可选，单位：令吉）"),
 		field.Other("member_price", decimal.Decimal{}).
 			SchemaType(map[string]string{
-				dialect.MySQL:  "DECIMAL(10,2)",
+				dialect.MySQL:  "DECIMAL(19,4)",
 				dialect.SQLite: "NUMERIC",
 			}).
 			Optional().
 			Nillable().
-			Comment("会员价（可选，单位：分）"),
+			Comment("会员价（可选，单位：令吉）"),
 	}
 }
 

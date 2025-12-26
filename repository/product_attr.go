@@ -133,10 +133,10 @@ func (repo *ProductAttrRepository) Exists(ctx context.Context, params domain.Pro
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.ProductAttr.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(productattr.MerchantID(params.MerchantID))
-	}
+	query := repo.Client.ProductAttr.Query().
+		Where(productattr.MerchantID(params.MerchantID)).
+		Where(productattr.StoreID(params.StoreID))
+
 	if params.Name != "" {
 		query.Where(productattr.Name(params.Name))
 	}

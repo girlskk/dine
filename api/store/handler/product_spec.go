@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -59,12 +59,13 @@ func (h *ProductSpecHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		spec := &domain.ProductSpec{
 			ID:         uuid.New(),
 			Name:       req.Name,
 			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 		}
 
 		err := h.ProductSpecInteractor.Create(ctx, spec)
@@ -125,7 +126,7 @@ func (h *ProductSpecHandler) Update() gin.HandlerFunc {
 			Name: req.Name,
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductSpecInteractor.Update(ctx, spec, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductSpecNameExists) {
@@ -169,7 +170,7 @@ func (h *ProductSpecHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductSpecInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductSpecDeleteHasProducts) {
@@ -211,12 +212,12 @@ func (h *ProductSpecHandler) List() gin.HandlerFunc {
 			return
 		}
 		page := upagination.New(req.Page, req.Size)
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		params := domain.ProductSpecSearchParams{
-			MerchantID:   user.MerchantID,
-			Name:         req.Name,
-			OnlyMerchant: true,
+			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
+			Name:       req.Name,
 		}
 
 		res, err := h.ProductSpecInteractor.PagedListBySearch(ctx, page, params)
