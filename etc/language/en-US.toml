@@ -99,3 +99,9 @@ other = "Stall does not exist"
 
 [STALL_NAME_EXISTS]
 other = "Stall name already exists"
+
+[Device_NOT_EXISTS]
+other = "Device does not exist"
+
+[Device_NAME_EXISTS]
+other = "Device name already exists"
