@@ -280,11 +280,14 @@ func validateBusinessHours(hours []domain.BusinessHours) error {
 	}
 	perDay := make(map[time.Weekday][][2]string)
 	for _, h := range hours {
-		if h.StartTime >= h.EndTime {
-			return domain.ParamsError(domain.ErrStoreBusinessHoursTimeInvalid)
-		}
-		for _, wd := range h.Weekdays {
-			perDay[wd] = append(perDay[wd], [2]string{h.StartTime, h.EndTime})
+		// h now contains multiple BusinessHour entries
+		for _, bh := range h.BusinessHours {
+			if bh.StartTime >= bh.EndTime {
+				return domain.ParamsError(domain.ErrStoreBusinessHoursTimeInvalid)
+			}
+			for _, wd := range h.Weekdays {
+				perDay[wd] = append(perDay[wd], [2]string{bh.StartTime, bh.EndTime})
+			}
 		}
 	}
 	for _, ranges := range perDay {
