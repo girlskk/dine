@@ -1,7 +1,6 @@
 # 构建服务镜像并推送
 .build_common:
   stage: build
-  when: always
   tags:
     - apple
   allow_failure: false
@@ -12,7 +11,7 @@
     # 登录Harbor镜像仓库
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $REGISTRY_DOMAIN
     # 构建 Docker 镜像
-    - docker build -f deployment/Dockerfile --build-arg BUILD_AT="$BUILD_TIME" --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg ENTRYPOINT_NAME=$ENTRYPOINT_NAME -t $IMAGE_NAME -t $IMAGE_SHA_NAME .
+    - docker build -f .gitlab/Dockerfile --build-arg BUILD_AT="$BUILD_TIME" --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg ENTRYPOINT_NAME=$ENTRYPOINT_NAME -t $IMAGE_NAME -t $IMAGE_SHA_NAME .
     # 推送镜像
     - docker image push $IMAGE_NAME
     - docker image push $IMAGE_SHA_NAME
@@ -30,7 +29,6 @@
 # 迁移
 .migrate_common:
   stage: migrate
-  when: always
   tags:
     - apple
   allow_failure: false
