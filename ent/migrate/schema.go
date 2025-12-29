@@ -65,7 +65,7 @@ var (
 				Columns: []*schema.Column{AdditionalFeesColumns[17]},
 			},
 			{
-				Name:    "idx_additional_fee_name_scope_deleted",
+				Name:    "idx_additional_fee_name_merchant_store_deleted",
 				Unique:  true,
 				Columns: []*schema.Column{AdditionalFeesColumns[4], AdditionalFeesColumns[16], AdditionalFeesColumns[17], AdditionalFeesColumns[3]},
 			},
@@ -1355,6 +1355,63 @@ var (
 			},
 		},
 	}
+	// TaxFeesColumns holds the columns for the "tax_fees" table.
+	TaxFeesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "tax_fee_type", Type: field.TypeEnum, Enums: []string{"merchant", "store"}},
+		{Name: "tax_code", Type: field.TypeString, Size: 50},
+		{Name: "tax_rate_type", Type: field.TypeEnum, Enums: []string{"unified", "custom"}, Default: "unified"},
+		{Name: "tax_rate", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "default_tax", Type: field.TypeBool, Default: false},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// TaxFeesTable holds the schema information for the "tax_fees" table.
+	TaxFeesTable = &schema.Table{
+		Name:       "tax_fees",
+		Columns:    TaxFeesColumns,
+		PrimaryKey: []*schema.Column{TaxFeesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tax_fees_merchants_tax_fees",
+				Columns:    []*schema.Column{TaxFeesColumns[10]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "tax_fees_stores_tax_fees",
+				Columns:    []*schema.Column{TaxFeesColumns[11]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "taxfee_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{TaxFeesColumns[3]},
+			},
+			{
+				Name:    "taxfee_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{TaxFeesColumns[10]},
+			},
+			{
+				Name:    "taxfee_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{TaxFeesColumns[11]},
+			},
+			{
+				Name:    "idx_tax_fee_name_merchant_store_deleted",
+				Unique:  true,
+				Columns: []*schema.Column{TaxFeesColumns[4], TaxFeesColumns[10], TaxFeesColumns[11], TaxFeesColumns[3]},
+			},
+		},
+	}
 	// MenuStoreRelationsColumns holds the columns for the "menu_store_relations" table.
 	MenuStoreRelationsColumns = []*schema.Column{
 		{Name: "menu_id", Type: field.TypeUUID},
@@ -1436,6 +1493,7 @@ var (
 		StallsTable,
 		StoresTable,
 		StoreUsersTable,
+		TaxFeesTable,
 		MenuStoreRelationsTable,
 		ProductTagRelationsTable,
 	}
@@ -1487,6 +1545,8 @@ func init() {
 	StoresTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
 	StoresTable.ForeignKeys[5].RefTable = ProvincesTable
 	StoreUsersTable.ForeignKeys[0].RefTable = StoresTable
+	TaxFeesTable.ForeignKeys[0].RefTable = MerchantsTable
+	TaxFeesTable.ForeignKeys[1].RefTable = StoresTable
 	MenuStoreRelationsTable.ForeignKeys[0].RefTable = MenusTable
 	MenuStoreRelationsTable.ForeignKeys[1].RefTable = StoresTable
 	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable

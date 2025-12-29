@@ -28,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // StoreQuery is the builder for querying Store entities.
@@ -47,6 +48,7 @@ type StoreQuery struct {
 	withRemarks              *RemarkQuery
 	withStalls               *StallQuery
 	withAdditionalFees       *AdditionalFeeQuery
+	withTaxFees              *TaxFeeQuery
 	withDevices              *DeviceQuery
 	withMenus                *MenuQuery
 	modifiers                []func(*sql.Selector)
@@ -306,6 +308,28 @@ func (sq *StoreQuery) QueryAdditionalFees() *AdditionalFeeQuery {
 	return query
 }
 
+// QueryTaxFees chains the current query on the "tax_fees" edge.
+func (sq *StoreQuery) QueryTaxFees() *TaxFeeQuery {
+	query := (&TaxFeeClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.TaxFeesTable, store.TaxFeesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryDevices chains the current query on the "devices" edge.
 func (sq *StoreQuery) QueryDevices() *DeviceQuery {
 	query := (&DeviceClient{config: sq.config}).Query()
@@ -552,6 +576,7 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		withRemarks:              sq.withRemarks.Clone(),
 		withStalls:               sq.withStalls.Clone(),
 		withAdditionalFees:       sq.withAdditionalFees.Clone(),
+		withTaxFees:              sq.withTaxFees.Clone(),
 		withDevices:              sq.withDevices.Clone(),
 		withMenus:                sq.withMenus.Clone(),
 		// clone intermediate query.
@@ -671,6 +696,17 @@ func (sq *StoreQuery) WithAdditionalFees(opts ...func(*AdditionalFeeQuery)) *Sto
 	return sq
 }
 
+// WithTaxFees tells the query-builder to eager-load the nodes that are connected to
+// the "tax_fees" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithTaxFees(opts ...func(*TaxFeeQuery)) *StoreQuery {
+	query := (&TaxFeeClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withTaxFees = query
+	return sq
+}
+
 // WithDevices tells the query-builder to eager-load the nodes that are connected to
 // the "devices" edge. The optional arguments are used to configure the query builder of the edge.
 func (sq *StoreQuery) WithDevices(opts ...func(*DeviceQuery)) *StoreQuery {
@@ -771,7 +807,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [12]bool{
+		loadedTypes = [13]bool{
 			sq.withMerchant != nil,
 			sq.withMerchantBusinessType != nil,
 			sq.withCountry != nil,
@@ -782,6 +818,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			sq.withRemarks != nil,
 			sq.withStalls != nil,
 			sq.withAdditionalFees != nil,
+			sq.withTaxFees != nil,
 			sq.withDevices != nil,
 			sq.withMenus != nil,
 		}
@@ -868,6 +905,13 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 		if err := sq.loadAdditionalFees(ctx, query, nodes,
 			func(n *Store) { n.Edges.AdditionalFees = []*AdditionalFee{} },
 			func(n *Store, e *AdditionalFee) { n.Edges.AdditionalFees = append(n.Edges.AdditionalFees, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withTaxFees; query != nil {
+		if err := sq.loadTaxFees(ctx, query, nodes,
+			func(n *Store) { n.Edges.TaxFees = []*TaxFee{} },
+			func(n *Store, e *TaxFee) { n.Edges.TaxFees = append(n.Edges.TaxFees, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1167,6 +1211,36 @@ func (sq *StoreQuery) loadAdditionalFees(ctx context.Context, query *AdditionalF
 	}
 	query.Where(predicate.AdditionalFee(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(store.AdditionalFeesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.StoreID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "store_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (sq *StoreQuery) loadTaxFees(ctx context.Context, query *TaxFeeQuery, nodes []*Store, init func(*Store), assign func(*Store, *TaxFee)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Store)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(taxfee.FieldStoreID)
+	}
+	query.Where(predicate.TaxFee(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(store.TaxFeesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

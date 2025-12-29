@@ -30,7 +30,7 @@ func (h *DeviceHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
-	r.GET("", h.GetDevices())
+	r.GET("", h.List())
 	r.PATCH("/:id", h.DeviceSimpleUpdate())
 }
 
@@ -279,7 +279,7 @@ func (h *DeviceHandler) Get() gin.HandlerFunc {
 	}
 }
 
-// GetDevices 获取设备列表
+// List 获取设备列表
 //
 //	@Tags			设备管理
 //	@Security		BearerAuth
@@ -290,10 +290,10 @@ func (h *DeviceHandler) Get() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
 //	@Router			/restaurant/device [get]
-func (h *DeviceHandler) GetDevices() gin.HandlerFunc {
+func (h *DeviceHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("DeviceHandler.GetDevices")
+		logger := logging.FromContext(ctx).Named("DeviceHandler.List")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 

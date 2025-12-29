@@ -128,6 +128,7 @@ func (Merchant) Edges() []ent.Edge {
 		edge.To("remarks", Remark.Type),
 		edge.To("stalls", Stall.Type),
 		edge.To("additional_fees", AdditionalFee.Type),
+		edge.To("tax_fees", TaxFee.Type),
 		edge.To("devices", Device.Type),
 	}
 }

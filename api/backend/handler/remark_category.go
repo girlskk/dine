@@ -30,7 +30,7 @@ func (h *RemarkCategoryHandler) Routes(r gin.IRouter) {
 	r.POST("", h.Create())
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
-	r.GET("", h.GetRemarkCategories())
+	r.GET("", h.List())
 }
 
 // Create 创建备注分类
@@ -192,7 +192,7 @@ func (h *RemarkCategoryHandler) Delete() gin.HandlerFunc {
 	}
 }
 
-// GetRemarkCategories 获取备注分类列表
+// List 获取备注分类列表
 //
 //	@Tags			前厅管理
 //	@Security		BearerAuth
@@ -203,10 +203,10 @@ func (h *RemarkCategoryHandler) Delete() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
 //	@Router			/remark_category [get]
-func (h *RemarkCategoryHandler) GetRemarkCategories() gin.HandlerFunc {
+func (h *RemarkCategoryHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("RemarkCategoryHandler.GetRemarkCategories")
+		logger := logging.FromContext(ctx).Named("RemarkCategoryHandler.List")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 

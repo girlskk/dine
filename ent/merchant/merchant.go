@@ -86,6 +86,8 @@ const (
 	EdgeStalls = "stalls"
 	// EdgeAdditionalFees holds the string denoting the additional_fees edge name in mutations.
 	EdgeAdditionalFees = "additional_fees"
+	// EdgeTaxFees holds the string denoting the tax_fees edge name in mutations.
+	EdgeTaxFees = "tax_fees"
 	// EdgeDevices holds the string denoting the devices edge name in mutations.
 	EdgeDevices = "devices"
 	// Table holds the table name of the merchant in the database.
@@ -174,6 +176,13 @@ const (
 	AdditionalFeesInverseTable = "additional_fees"
 	// AdditionalFeesColumn is the table column denoting the additional_fees relation/edge.
 	AdditionalFeesColumn = "merchant_id"
+	// TaxFeesTable is the table that holds the tax_fees relation/edge.
+	TaxFeesTable = "tax_fees"
+	// TaxFeesInverseTable is the table name for the TaxFee entity.
+	// It exists in this package in order to avoid circular dependency with the "taxfee" package.
+	TaxFeesInverseTable = "tax_fees"
+	// TaxFeesColumn is the table column denoting the tax_fees relation/edge.
+	TaxFeesColumn = "merchant_id"
 	// DevicesTable is the table that holds the devices relation/edge.
 	DevicesTable = "devices"
 	// DevicesInverseTable is the table name for the Device entity.
@@ -551,6 +560,20 @@ func ByAdditionalFees(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByTaxFeesCount orders the results by tax_fees count.
+func ByTaxFeesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTaxFeesStep(), opts...)
+	}
+}
+
+// ByTaxFees orders the results by tax_fees terms.
+func ByTaxFees(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTaxFeesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByDevicesCount orders the results by devices count.
 func ByDevicesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -646,6 +669,13 @@ func newAdditionalFeesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AdditionalFeesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, AdditionalFeesTable, AdditionalFeesColumn),
+	)
+}
+func newTaxFeesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TaxFeesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TaxFeesTable, TaxFeesColumn),
 	)
 }
 func newDevicesStep() *sqlgraph.Step {

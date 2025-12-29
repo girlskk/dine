@@ -29,7 +29,7 @@ func (h *StallHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
-	r.GET("", h.GetStalls())
+	r.GET("", h.List())
 	r.PATCH("/:id", h.StallSimpleUpdate())
 }
 
@@ -232,7 +232,7 @@ func (h *StallHandler) Get() gin.HandlerFunc {
 	}
 }
 
-// GetStalls 获取出品部门列表
+// List 获取出品部门列表
 //
 //	@Tags			后厨管理
 //	@Security		BearerAuth
@@ -243,10 +243,10 @@ func (h *StallHandler) Get() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
 //	@Router			/restaurant/stall [get]
-func (h *StallHandler) GetStalls() gin.HandlerFunc {
+func (h *StallHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("StallHandler.GetStalls")
+		logger := logging.FromContext(ctx).Named("StallHandler.List")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 

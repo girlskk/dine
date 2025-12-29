@@ -41,6 +41,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -130,6 +131,7 @@ func checkColumn(table, column string) error {
 			stall.Table:                stall.ValidColumn,
 			store.Table:                store.ValidColumn,
 			storeuser.Table:            storeuser.ValidColumn,
+			taxfee.Table:               taxfee.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

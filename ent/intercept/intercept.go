@@ -38,6 +38,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // The Query interface represents an operation that queries a graph.
@@ -879,6 +880,33 @@ func (f TraverseStoreUser) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.StoreUserQuery", q)
 }
 
+// The TaxFeeFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TaxFeeFunc func(context.Context, *ent.TaxFeeQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f TaxFeeFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.TaxFeeQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.TaxFeeQuery", q)
+}
+
+// The TraverseTaxFee type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTaxFee func(context.Context, *ent.TaxFeeQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTaxFee) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTaxFee) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TaxFeeQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.TaxFeeQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
@@ -940,6 +968,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.StoreQuery, predicate.Store, store.OrderOption]{typ: ent.TypeStore, tq: q}, nil
 	case *ent.StoreUserQuery:
 		return &query[*ent.StoreUserQuery, predicate.StoreUser, storeuser.OrderOption]{typ: ent.TypeStoreUser, tq: q}, nil
+	case *ent.TaxFeeQuery:
+		return &query[*ent.TaxFeeQuery, predicate.TaxFee, taxfee.OrderOption]{typ: ent.TypeTaxFee, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}

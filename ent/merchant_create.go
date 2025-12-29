@@ -28,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // MerchantCreate is the builder for creating a Merchant entity.
@@ -462,6 +463,21 @@ func (mc *MerchantCreate) AddAdditionalFees(a ...*AdditionalFee) *MerchantCreate
 		ids[i] = a[i].ID
 	}
 	return mc.AddAdditionalFeeIDs(ids...)
+}
+
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by IDs.
+func (mc *MerchantCreate) AddTaxFeeIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddTaxFeeIDs(ids...)
+	return mc
+}
+
+// AddTaxFees adds the "tax_fees" edges to the TaxFee entity.
+func (mc *MerchantCreate) AddTaxFees(t ...*TaxFee) *MerchantCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mc.AddTaxFeeIDs(ids...)
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
@@ -994,6 +1010,22 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.TaxFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

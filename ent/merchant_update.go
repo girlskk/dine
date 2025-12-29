@@ -28,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // MerchantUpdate is the builder for updating Merchant entities.
@@ -489,6 +490,21 @@ func (mu *MerchantUpdate) AddAdditionalFees(a ...*AdditionalFee) *MerchantUpdate
 	return mu.AddAdditionalFeeIDs(ids...)
 }
 
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by IDs.
+func (mu *MerchantUpdate) AddTaxFeeIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddTaxFeeIDs(ids...)
+	return mu
+}
+
+// AddTaxFees adds the "tax_fees" edges to the TaxFee entity.
+func (mu *MerchantUpdate) AddTaxFees(t ...*TaxFee) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mu.AddTaxFeeIDs(ids...)
+}
+
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
 func (mu *MerchantUpdate) AddDeviceIDs(ids ...uuid.UUID) *MerchantUpdate {
 	mu.mutation.AddDeviceIDs(ids...)
@@ -684,6 +700,27 @@ func (mu *MerchantUpdate) RemoveAdditionalFees(a ...*AdditionalFee) *MerchantUpd
 		ids[i] = a[i].ID
 	}
 	return mu.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearTaxFees clears all "tax_fees" edges to the TaxFee entity.
+func (mu *MerchantUpdate) ClearTaxFees() *MerchantUpdate {
+	mu.mutation.ClearTaxFees()
+	return mu
+}
+
+// RemoveTaxFeeIDs removes the "tax_fees" edge to TaxFee entities by IDs.
+func (mu *MerchantUpdate) RemoveTaxFeeIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveTaxFeeIDs(ids...)
+	return mu
+}
+
+// RemoveTaxFees removes "tax_fees" edges to TaxFee entities.
+func (mu *MerchantUpdate) RemoveTaxFees(t ...*TaxFee) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mu.RemoveTaxFeeIDs(ids...)
 }
 
 // ClearDevices clears all "devices" edges to the Device entity.
@@ -1346,6 +1383,51 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedTaxFeesIDs(); len(nodes) > 0 && !mu.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.TaxFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if mu.mutation.DevicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -1858,6 +1940,21 @@ func (muo *MerchantUpdateOne) AddAdditionalFees(a ...*AdditionalFee) *MerchantUp
 	return muo.AddAdditionalFeeIDs(ids...)
 }
 
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by IDs.
+func (muo *MerchantUpdateOne) AddTaxFeeIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddTaxFeeIDs(ids...)
+	return muo
+}
+
+// AddTaxFees adds the "tax_fees" edges to the TaxFee entity.
+func (muo *MerchantUpdateOne) AddTaxFees(t ...*TaxFee) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return muo.AddTaxFeeIDs(ids...)
+}
+
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
 func (muo *MerchantUpdateOne) AddDeviceIDs(ids ...uuid.UUID) *MerchantUpdateOne {
 	muo.mutation.AddDeviceIDs(ids...)
@@ -2053,6 +2150,27 @@ func (muo *MerchantUpdateOne) RemoveAdditionalFees(a ...*AdditionalFee) *Merchan
 		ids[i] = a[i].ID
 	}
 	return muo.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearTaxFees clears all "tax_fees" edges to the TaxFee entity.
+func (muo *MerchantUpdateOne) ClearTaxFees() *MerchantUpdateOne {
+	muo.mutation.ClearTaxFees()
+	return muo
+}
+
+// RemoveTaxFeeIDs removes the "tax_fees" edge to TaxFee entities by IDs.
+func (muo *MerchantUpdateOne) RemoveTaxFeeIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveTaxFeeIDs(ids...)
+	return muo
+}
+
+// RemoveTaxFees removes "tax_fees" edges to TaxFee entities.
+func (muo *MerchantUpdateOne) RemoveTaxFees(t ...*TaxFee) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return muo.RemoveTaxFeeIDs(ids...)
 }
 
 // ClearDevices clears all "devices" edges to the Device entity.
@@ -2738,6 +2856,51 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedTaxFeesIDs(); len(nodes) > 0 && !muo.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.TaxFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -111,7 +111,7 @@ func (repo *RemarkCategoryRepository) Delete(ctx context.Context, id uuid.UUID) 
 }
 
 func (repo *RemarkCategoryRepository) GetRemarkCategories(ctx context.Context, filter *domain.RemarkCategoryListFilter) (domainRemarkCategories domain.RemarkCategories, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "RemarkCategoryRepository.List")
+	span, ctx := util.StartSpan(ctx, "repository", "RemarkCategoryRepository.GetTaxFees")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

@@ -27,6 +27,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // StoreCreate is the builder for creating a Store entity.
@@ -521,6 +522,21 @@ func (sc *StoreCreate) AddAdditionalFees(a ...*AdditionalFee) *StoreCreate {
 		ids[i] = a[i].ID
 	}
 	return sc.AddAdditionalFeeIDs(ids...)
+}
+
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by IDs.
+func (sc *StoreCreate) AddTaxFeeIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddTaxFeeIDs(ids...)
+	return sc
+}
+
+// AddTaxFees adds the "tax_fees" edges to the TaxFee entity.
+func (sc *StoreCreate) AddTaxFees(t ...*TaxFee) *StoreCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return sc.AddTaxFeeIDs(ids...)
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
@@ -1168,6 +1184,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.TaxFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.TaxFeesTable,
+			Columns: []string{store.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -105,3 +105,6 @@ other = "Device does not exist"
 
 [Device_NAME_EXISTS]
 other = "Device name already exists"
+
+[TAX_FEE_NAME_EXISTS]
+other = "Tax fee name already exists"

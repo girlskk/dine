@@ -92,3 +92,6 @@ type Store func(*sql.Selector)
 
 // StoreUser is the predicate function for storeuser builders.
 type StoreUser func(*sql.Selector)
+
+// TaxFee is the predicate function for taxfee builders.
+type TaxFee func(*sql.Selector)

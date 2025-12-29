@@ -37,6 +37,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -2058,6 +2059,77 @@ func init() {
 	storeuserDescID := storeuserMixinFields2[0].Descriptor()
 	// storeuser.DefaultID holds the default value on creation for the id field.
 	storeuser.DefaultID = storeuserDescID.Default.(func() uuid.UUID)
+	taxfeeMixin := schema.TaxFee{}.Mixin()
+	taxfeeMixinHooks2 := taxfeeMixin[2].Hooks()
+	taxfee.Hooks[0] = taxfeeMixinHooks2[0]
+	taxfeeMixinInters2 := taxfeeMixin[2].Interceptors()
+	taxfee.Interceptors[0] = taxfeeMixinInters2[0]
+	taxfeeMixinFields0 := taxfeeMixin[0].Fields()
+	_ = taxfeeMixinFields0
+	taxfeeMixinFields1 := taxfeeMixin[1].Fields()
+	_ = taxfeeMixinFields1
+	taxfeeMixinFields2 := taxfeeMixin[2].Fields()
+	_ = taxfeeMixinFields2
+	taxfeeFields := schema.TaxFee{}.Fields()
+	_ = taxfeeFields
+	// taxfeeDescCreatedAt is the schema descriptor for created_at field.
+	taxfeeDescCreatedAt := taxfeeMixinFields1[0].Descriptor()
+	// taxfee.DefaultCreatedAt holds the default value on creation for the created_at field.
+	taxfee.DefaultCreatedAt = taxfeeDescCreatedAt.Default.(func() time.Time)
+	// taxfeeDescUpdatedAt is the schema descriptor for updated_at field.
+	taxfeeDescUpdatedAt := taxfeeMixinFields1[1].Descriptor()
+	// taxfee.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	taxfee.DefaultUpdatedAt = taxfeeDescUpdatedAt.Default.(func() time.Time)
+	// taxfee.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	taxfee.UpdateDefaultUpdatedAt = taxfeeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// taxfeeDescDeletedAt is the schema descriptor for deleted_at field.
+	taxfeeDescDeletedAt := taxfeeMixinFields2[0].Descriptor()
+	// taxfee.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	taxfee.DefaultDeletedAt = taxfeeDescDeletedAt.Default.(int64)
+	// taxfeeDescName is the schema descriptor for name field.
+	taxfeeDescName := taxfeeFields[0].Descriptor()
+	// taxfee.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	taxfee.NameValidator = func() func(string) error {
+		validators := taxfeeDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// taxfeeDescTaxCode is the schema descriptor for tax_code field.
+	taxfeeDescTaxCode := taxfeeFields[2].Descriptor()
+	// taxfee.TaxCodeValidator is a validator for the "tax_code" field. It is called by the builders before save.
+	taxfee.TaxCodeValidator = func() func(string) error {
+		validators := taxfeeDescTaxCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(tax_code string) error {
+			for _, fn := range fns {
+				if err := fn(tax_code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// taxfeeDescDefaultTax is the schema descriptor for default_tax field.
+	taxfeeDescDefaultTax := taxfeeFields[5].Descriptor()
+	// taxfee.DefaultDefaultTax holds the default value on creation for the default_tax field.
+	taxfee.DefaultDefaultTax = taxfeeDescDefaultTax.Default.(bool)
+	// taxfeeDescID is the schema descriptor for id field.
+	taxfeeDescID := taxfeeMixinFields0[0].Descriptor()
+	// taxfee.DefaultID holds the default value on creation for the id field.
+	taxfee.DefaultID = taxfeeDescID.Default.(func() uuid.UUID)
 }
 
 const (

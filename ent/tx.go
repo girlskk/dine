@@ -70,6 +70,8 @@ type Tx struct {
 	Store *StoreClient
 	// StoreUser is the client for interacting with the StoreUser builders.
 	StoreUser *StoreUserClient
+	// TaxFee is the client for interacting with the TaxFee builders.
+	TaxFee *TaxFeeClient
 
 	// lazily loaded.
 	client     *Client
@@ -230,6 +232,7 @@ func (tx *Tx) init() {
 	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
 	tx.StoreUser = NewStoreUserClient(tx.config)
+	tx.TaxFee = NewTaxFeeClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

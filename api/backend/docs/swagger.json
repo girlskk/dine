@@ -8,6 +8,362 @@
     },
     "basePath": "/api/v1",
     "paths": {
+        "/additional_fee": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "获取附加费列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "是否启用",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.AdditionalFeeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "创建附加费",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AdditionalFeeCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/additional_fee/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "获取附加费详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.AdditionalFee"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "更新附加费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AdditionalFeeUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "删除附加费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "更新附加费单个字段",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AdditionalFeeSimpleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/menu": {
             "get": {
                 "security": [
@@ -3329,6 +3685,355 @@
                 }
             }
         },
+        "/tax_fee": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "获取税费列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.TaxFeeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "创建税费",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TaxFeeCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tax_fee/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "获取税费详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.TaxFee"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "更新税费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TaxFeeUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "删除税费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "更新税费单个字段",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TaxFeeSimpleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/user/info": {
             "post": {
                 "security": [
@@ -3420,6 +4125,170 @@
         }
     },
     "definitions": {
+        "domain.AdditionalCategory": {
+            "type": "string",
+            "enum": [
+                "service_fee",
+                "additional_fee",
+                "packing_fee"
+            ],
+            "x-enum-comments": {
+                "AdditionalCategoryAdditional": "附加费",
+                "AdditionalCategoryPacking": "打包费",
+                "AdditionalCategoryService": "服务费"
+            },
+            "x-enum-varnames": [
+                "AdditionalCategoryService",
+                "AdditionalCategoryAdditional",
+                "AdditionalCategoryPacking"
+            ]
+        },
+        "domain.AdditionalFee": {
+            "type": "object",
+            "properties": {
+                "charge_mode": {
+                    "description": "费用类型 percent 百分比，fixed 固定金额",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dining_ways": {
+                    "description": "就餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣场景",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费类别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_type": {
+                    "description": "附加费类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeType"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "fixed: 分; percent: BP",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "附加费名称",
+                    "type": "string"
+                },
+                "order_channels": {
+                    "description": "订单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.AdditionalFeeChargeMode": {
+            "type": "string",
+            "enum": [
+                "percent",
+                "fixed"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeChargeModeFixed": "固定金额",
+                "AdditionalFeeChargeModePercent": "百分比"
+            },
+            "x-enum-varnames": [
+                "AdditionalFeeChargeModePercent",
+                "AdditionalFeeChargeModeFixed"
+            ]
+        },
+        "domain.AdditionalFeeDiscountScope": {
+            "type": "string",
+            "enum": [
+                "before_discount",
+                "after_discount"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeDiscountScopeAfter": "折后",
+                "AdditionalFeeDiscountScopeBefore": "折前"
+            },
+            "x-enum-varnames": [
+                "AdditionalFeeDiscountScopeBefore",
+                "AdditionalFeeDiscountScopeAfter"
+            ]
+        },
+        "domain.AdditionalFeeSimpleUpdateType": {
+            "type": "string",
+            "enum": [
+                "enabled"
+            ],
+            "x-enum-varnames": [
+                "AdditionalFeeSimpleUpdateTypeEnabled"
+            ]
+        },
+        "domain.AdditionalFeeType": {
+            "type": "string",
+            "enum": [
+                "merchant",
+                "store"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeTypeMerchant": "商户",
+                "AdditionalFeeTypeStore": "门店"
+            },
+            "x-enum-varnames": [
+                "AdditionalFeeTypeMerchant",
+                "AdditionalFeeTypeStore"
+            ]
+        },
         "domain.Address": {
             "type": "object",
             "properties": {
@@ -5494,6 +6363,99 @@
                 "StoreStatusClosed"
             ]
         },
+        "domain.TaxFee": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "default_tax": {
+                    "description": "是否默认税费",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "税费名称",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "tax_code": {
+                    "description": "税费代码",
+                    "type": "string"
+                },
+                "tax_fee_type": {
+                    "description": "税费类型：商户/门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFeeType"
+                        }
+                    ]
+                },
+                "tax_rate": {
+                    "description": "税率，6% -\u003e 0.06",
+                    "type": "number"
+                },
+                "tax_rate_type": {
+                    "description": "税率类型：统一比例/自定义比例",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxRateType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TaxFeeSimpleUpdateType": {
+            "type": "string",
+            "enum": [
+                "default_tax"
+            ],
+            "x-enum-varnames": [
+                "TaxFeeSimpleUpdateTypeDefault"
+            ]
+        },
+        "domain.TaxFeeType": {
+            "type": "string",
+            "enum": [
+                "merchant",
+                "store"
+            ],
+            "x-enum-comments": {
+                "TaxFeeTypeMerchant": "商户",
+                "TaxFeeTypeStore": "门店"
+            },
+            "x-enum-varnames": [
+                "TaxFeeTypeMerchant",
+                "TaxFeeTypeStore"
+            ]
+        },
+        "domain.TaxRateType": {
+            "type": "string",
+            "enum": [
+                "unified",
+                "custom"
+            ],
+            "x-enum-comments": {
+                "TaxRateTypeCustom": "自定义比例",
+                "TaxRateTypeUnified": "统一比例"
+            },
+            "x-enum-varnames": [
+                "TaxRateTypeUnified",
+                "TaxRateTypeCustom"
+            ]
+        },
         "response.Response": {
             "type": "object",
             "properties": {
@@ -5537,6 +6499,231 @@
                 "Friday",
                 "Saturday"
             ]
+        },
+        "types.AdditionalFeeCreateReq": {
+            "type": "object",
+            "required": [
+                "charge_mode",
+                "dining_ways",
+                "discount_scope",
+                "fee_category",
+                "fee_value",
+                "include_in_receivable",
+                "name",
+                "order_channels",
+                "taxable"
+            ],
+            "properties": {
+                "charge_mode": {
+                    "description": "收费模式 (percent/fixed)",
+                    "enum": [
+                        "percent",
+                        "fixed"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "dining_ways": {
+                    "description": "适用用餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣作用范围 (all/items)",
+                    "enum": [
+                        "all",
+                        "items"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费分类 (service/table/package)",
+                    "enum": [
+                        "service",
+                        "table",
+                        "package"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "费用值，percent 模式示例 0.06 表示 6%",
+                    "type": "number"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "order_channels": {
+                    "description": "允许的下单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序值",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
+                }
+            }
+        },
+        "types.AdditionalFeeListResp": {
+            "type": "object",
+            "properties": {
+                "additional_fees": {
+                    "description": "附加费列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.AdditionalFee"
+                    }
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.AdditionalFeeSimpleUpdateReq": {
+            "type": "object",
+            "required": [
+                "simple_update_type"
+            ],
+            "properties": {
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "simple_update_type": {
+                    "description": "简单更新类型，目前仅支持 enabled",
+                    "enum": [
+                        "enabled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeSimpleUpdateType"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.AdditionalFeeUpdateReq": {
+            "type": "object",
+            "required": [
+                "charge_mode",
+                "dining_ways",
+                "discount_scope",
+                "fee_category",
+                "fee_value",
+                "include_in_receivable",
+                "name",
+                "order_channels",
+                "taxable"
+            ],
+            "properties": {
+                "charge_mode": {
+                    "description": "收费模式 (percent/fixed)",
+                    "enum": [
+                        "percent",
+                        "fixed"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "dining_ways": {
+                    "description": "适用用餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣作用范围 (all/items)",
+                    "enum": [
+                        "all",
+                        "items"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费分类 (service/table/package)",
+                    "enum": [
+                        "service",
+                        "table",
+                        "package"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "费用值，percent 模式示例 0.06 表示 6%",
+                    "type": "number"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "order_channels": {
+                    "description": "允许的下单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序值",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
+                }
+            }
         },
         "types.Address": {
             "type": "object",
@@ -7657,6 +8844,113 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.TaxFeeCreateReq": {
+            "type": "object",
+            "required": [
+                "default_tax",
+                "name",
+                "tax_rate",
+                "tax_rate_type"
+            ],
+            "properties": {
+                "default_tax": {
+                    "description": "是否默认税率",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "税费名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "tax_rate": {
+                    "description": "税率 tax_rate 示例：6% -\u003e 0.06",
+                    "type": "number"
+                },
+                "tax_rate_type": {
+                    "description": "税率类型",
+                    "enum": [
+                        "unified",
+                        "custom"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxRateType"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.TaxFeeListResp": {
+            "type": "object",
+            "properties": {
+                "tax_fees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TaxFee"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.TaxFeeSimpleUpdateReq": {
+            "type": "object",
+            "required": [
+                "simple_update_type"
+            ],
+            "properties": {
+                "default_tax": {
+                    "type": "boolean"
+                },
+                "simple_update_type": {
+                    "enum": [
+                        "default_tax"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFeeSimpleUpdateType"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.TaxFeeUpdateReq": {
+            "type": "object",
+            "required": [
+                "default_tax",
+                "name",
+                "tax_rate",
+                "tax_rate_type"
+            ],
+            "properties": {
+                "default_tax": {
+                    "description": "是否默认税率",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "税费名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "tax_rate": {
+                    "description": "税率 tax_rate 示例：6% -\u003e 0.06",
+                    "type": "number"
+                },
+                "tax_rate_type": {
+                    "description": "税率类型",
+                    "enum": [
+                        "unified",
+                        "custom"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxRateType"
                         }
                     ]
                 }

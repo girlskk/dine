@@ -17,14 +17,6 @@ type AdditionalFee struct {
 	ent.Schema
 }
 
-func (AdditionalFee) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		schematype.UUIDMixin{},
-		schematype.TimeMixin{},
-		schematype.SoftDeleteMixin{},
-	}
-}
-
 // Fields of the AdditionalFee.
 func (AdditionalFee) Fields() []ent.Field {
 	return []ent.Field{
@@ -98,8 +90,17 @@ func (AdditionalFee) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("merchant_id"),
 		index.Fields("store_id"),
+		// 唯一索引：同一商户/门店下附加费名称唯一
 		index.Fields("name", "merchant_id", "store_id", "deleted_at").
 			Unique().
-			StorageKey("idx_additional_fee_name_scope_deleted"),
+			StorageKey("idx_additional_fee_name_merchant_store_deleted"),
+	}
+}
+
+func (AdditionalFee) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		schematype.UUIDMixin{},
+		schematype.TimeMixin{},
+		schematype.SoftDeleteMixin{},
 	}
 }

@@ -28,6 +28,7 @@ type DataStore interface {
 	MenuRepo() MenuRepository
 	StallRepo() StallRepository
 	AdditionalFeeRepo() AdditionalFeeRepository
+	TaxFeeRepo() TaxFeeRepository
 	DeviceRepo() DeviceRepository
 }
 

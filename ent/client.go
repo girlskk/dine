@@ -45,6 +45,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // Client is the client that holds all ent builders.
@@ -110,6 +111,8 @@ type Client struct {
 	Store *StoreClient
 	// StoreUser is the client for interacting with the StoreUser builders.
 	StoreUser *StoreUserClient
+	// TaxFee is the client for interacting with the TaxFee builders.
+	TaxFee *TaxFeeClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -150,6 +153,7 @@ func (c *Client) init() {
 	c.Stall = NewStallClient(c.config)
 	c.Store = NewStoreClient(c.config)
 	c.StoreUser = NewStoreUserClient(c.config)
+	c.TaxFee = NewTaxFeeClient(c.config)
 }
 
 type (
@@ -271,6 +275,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Stall:                NewStallClient(cfg),
 		Store:                NewStoreClient(cfg),
 		StoreUser:            NewStoreUserClient(cfg),
+		TaxFee:               NewTaxFeeClient(cfg),
 	}, nil
 }
 
@@ -319,6 +324,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Stall:                NewStallClient(cfg),
 		Store:                NewStoreClient(cfg),
 		StoreUser:            NewStoreUserClient(cfg),
+		TaxFee:               NewTaxFeeClient(cfg),
 	}, nil
 }
 
@@ -353,7 +359,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.MerchantRenewal, c.Product, c.ProductAttr, c.ProductAttrItem,
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
 		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail,
-		c.SetMealGroup, c.Stall, c.Store, c.StoreUser,
+		c.SetMealGroup, c.Stall, c.Store, c.StoreUser, c.TaxFee,
 	} {
 		n.Use(hooks...)
 	}
@@ -368,7 +374,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.MerchantRenewal, c.Product, c.ProductAttr, c.ProductAttrItem,
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
 		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail,
-		c.SetMealGroup, c.Stall, c.Store, c.StoreUser,
+		c.SetMealGroup, c.Stall, c.Store, c.StoreUser, c.TaxFee,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -435,6 +441,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Store.mutate(ctx, m)
 	case *StoreUserMutation:
 		return c.StoreUser.mutate(ctx, m)
+	case *TaxFeeMutation:
+		return c.TaxFee.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -2515,6 +2523,22 @@ func (c *MerchantClient) QueryAdditionalFees(m *Merchant) *AdditionalFeeQuery {
 			sqlgraph.From(merchant.Table, merchant.FieldID, id),
 			sqlgraph.To(additionalfee.Table, additionalfee.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, merchant.AdditionalFeesTable, merchant.AdditionalFeesColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTaxFees queries the tax_fees edge of a Merchant.
+func (c *MerchantClient) QueryTaxFees(m *Merchant) *TaxFeeQuery {
+	query := (&TaxFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.TaxFeesTable, merchant.TaxFeesColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -5633,6 +5657,22 @@ func (c *StoreClient) QueryAdditionalFees(s *Store) *AdditionalFeeQuery {
 	return query
 }
 
+// QueryTaxFees queries the tax_fees edge of a Store.
+func (c *StoreClient) QueryTaxFees(s *Store) *TaxFeeQuery {
+	query := (&TaxFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.TaxFeesTable, store.TaxFeesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryDevices queries the devices edge of a Store.
 func (c *StoreClient) QueryDevices(s *Store) *DeviceQuery {
 	query := (&DeviceClient{config: c.config}).Query()
@@ -5843,6 +5883,173 @@ func (c *StoreUserClient) mutate(ctx context.Context, m *StoreUserMutation) (Val
 	}
 }
 
+// TaxFeeClient is a client for the TaxFee schema.
+type TaxFeeClient struct {
+	config
+}
+
+// NewTaxFeeClient returns a client for the TaxFee from the given config.
+func NewTaxFeeClient(c config) *TaxFeeClient {
+	return &TaxFeeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `taxfee.Hooks(f(g(h())))`.
+func (c *TaxFeeClient) Use(hooks ...Hook) {
+	c.hooks.TaxFee = append(c.hooks.TaxFee, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `taxfee.Intercept(f(g(h())))`.
+func (c *TaxFeeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TaxFee = append(c.inters.TaxFee, interceptors...)
+}
+
+// Create returns a builder for creating a TaxFee entity.
+func (c *TaxFeeClient) Create() *TaxFeeCreate {
+	mutation := newTaxFeeMutation(c.config, OpCreate)
+	return &TaxFeeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TaxFee entities.
+func (c *TaxFeeClient) CreateBulk(builders ...*TaxFeeCreate) *TaxFeeCreateBulk {
+	return &TaxFeeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TaxFeeClient) MapCreateBulk(slice any, setFunc func(*TaxFeeCreate, int)) *TaxFeeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TaxFeeCreateBulk{err: fmt.Errorf("calling to TaxFeeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TaxFeeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TaxFeeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TaxFee.
+func (c *TaxFeeClient) Update() *TaxFeeUpdate {
+	mutation := newTaxFeeMutation(c.config, OpUpdate)
+	return &TaxFeeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TaxFeeClient) UpdateOne(tf *TaxFee) *TaxFeeUpdateOne {
+	mutation := newTaxFeeMutation(c.config, OpUpdateOne, withTaxFee(tf))
+	return &TaxFeeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TaxFeeClient) UpdateOneID(id uuid.UUID) *TaxFeeUpdateOne {
+	mutation := newTaxFeeMutation(c.config, OpUpdateOne, withTaxFeeID(id))
+	return &TaxFeeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TaxFee.
+func (c *TaxFeeClient) Delete() *TaxFeeDelete {
+	mutation := newTaxFeeMutation(c.config, OpDelete)
+	return &TaxFeeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TaxFeeClient) DeleteOne(tf *TaxFee) *TaxFeeDeleteOne {
+	return c.DeleteOneID(tf.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TaxFeeClient) DeleteOneID(id uuid.UUID) *TaxFeeDeleteOne {
+	builder := c.Delete().Where(taxfee.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TaxFeeDeleteOne{builder}
+}
+
+// Query returns a query builder for TaxFee.
+func (c *TaxFeeClient) Query() *TaxFeeQuery {
+	return &TaxFeeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTaxFee},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TaxFee entity by its id.
+func (c *TaxFeeClient) Get(ctx context.Context, id uuid.UUID) (*TaxFee, error) {
+	return c.Query().Where(taxfee.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TaxFeeClient) GetX(ctx context.Context, id uuid.UUID) *TaxFee {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMerchant queries the merchant edge of a TaxFee.
+func (c *TaxFeeClient) QueryMerchant(tf *TaxFee) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(taxfee.Table, taxfee.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, taxfee.MerchantTable, taxfee.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a TaxFee.
+func (c *TaxFeeClient) QueryStore(tf *TaxFee) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(taxfee.Table, taxfee.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, taxfee.StoreTable, taxfee.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TaxFeeClient) Hooks() []Hook {
+	hooks := c.hooks.TaxFee
+	return append(hooks[:len(hooks):len(hooks)], taxfee.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *TaxFeeClient) Interceptors() []Interceptor {
+	inters := c.inters.TaxFee
+	return append(inters[:len(inters):len(inters)], taxfee.Interceptors[:]...)
+}
+
+func (c *TaxFeeClient) mutate(ctx context.Context, m *TaxFeeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TaxFeeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TaxFeeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TaxFeeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TaxFeeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TaxFee mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
@@ -5850,13 +6057,13 @@ type (
 		District, Menu, MenuItem, Merchant, MerchantBusinessType, MerchantRenewal,
 		Product, ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
 		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
-		SetMealDetail, SetMealGroup, Stall, Store, StoreUser []ent.Hook
+		SetMealDetail, SetMealGroup, Stall, Store, StoreUser, TaxFee []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Device,
 		District, Menu, MenuItem, Merchant, MerchantBusinessType, MerchantRenewal,
 		Product, ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
 		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
-		SetMealDetail, SetMealGroup, Stall, Store, StoreUser []ent.Interceptor
+		SetMealDetail, SetMealGroup, Stall, Store, StoreUser, TaxFee []ent.Interceptor
 	}
 )

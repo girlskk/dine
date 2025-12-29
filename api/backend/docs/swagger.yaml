@@ -1,5 +1,117 @@
 basePath: /api/v1
 definitions:
+  domain.AdditionalCategory:
+    enum:
+    - service_fee
+    - additional_fee
+    - packing_fee
+    type: string
+    x-enum-comments:
+      AdditionalCategoryAdditional: 附加费
+      AdditionalCategoryPacking: 打包费
+      AdditionalCategoryService: 服务费
+    x-enum-varnames:
+    - AdditionalCategoryService
+    - AdditionalCategoryAdditional
+    - AdditionalCategoryPacking
+  domain.AdditionalFee:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 费用类型 percent 百分比，fixed 固定金额
+      created_at:
+        type: string
+      dining_ways:
+        description: 就餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣场景
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费类别
+      fee_type:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeType'
+        description: 附加费类型
+      fee_value:
+        description: 'fixed: 分; percent: BP'
+        type: number
+      id:
+        type: string
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      merchant_id:
+        description: 品牌商 ID
+        type: string
+      name:
+        description: 附加费名称
+        type: string
+      order_channels:
+        description: 订单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序
+        type: integer
+      store_id:
+        description: 门店 ID
+        type: string
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  domain.AdditionalFeeChargeMode:
+    enum:
+    - percent
+    - fixed
+    type: string
+    x-enum-comments:
+      AdditionalFeeChargeModeFixed: 固定金额
+      AdditionalFeeChargeModePercent: 百分比
+    x-enum-varnames:
+    - AdditionalFeeChargeModePercent
+    - AdditionalFeeChargeModeFixed
+  domain.AdditionalFeeDiscountScope:
+    enum:
+    - before_discount
+    - after_discount
+    type: string
+    x-enum-comments:
+      AdditionalFeeDiscountScopeAfter: 折后
+      AdditionalFeeDiscountScopeBefore: 折前
+    x-enum-varnames:
+    - AdditionalFeeDiscountScopeBefore
+    - AdditionalFeeDiscountScopeAfter
+  domain.AdditionalFeeSimpleUpdateType:
+    enum:
+    - enabled
+    type: string
+    x-enum-varnames:
+    - AdditionalFeeSimpleUpdateTypeEnabled
+  domain.AdditionalFeeType:
+    enum:
+    - merchant
+    - store
+    type: string
+    x-enum-comments:
+      AdditionalFeeTypeMerchant: 商户
+      AdditionalFeeTypeStore: 门店
+    x-enum-varnames:
+    - AdditionalFeeTypeMerchant
+    - AdditionalFeeTypeStore
   domain.Address:
     properties:
       address:
@@ -1464,6 +1576,69 @@ definitions:
     x-enum-varnames:
     - StoreStatusOpen
     - StoreStatusClosed
+  domain.TaxFee:
+    properties:
+      created_at:
+        type: string
+      default_tax:
+        description: 是否默认税费
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 品牌商 ID
+        type: string
+      name:
+        description: 税费名称
+        type: string
+      store_id:
+        description: 门店 ID
+        type: string
+      tax_code:
+        description: 税费代码
+        type: string
+      tax_fee_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFeeType'
+        description: 税费类型：商户/门店
+      tax_rate:
+        description: 税率，6% -> 0.06
+        type: number
+      tax_rate_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxRateType'
+        description: 税率类型：统一比例/自定义比例
+      updated_at:
+        type: string
+    type: object
+  domain.TaxFeeSimpleUpdateType:
+    enum:
+    - default_tax
+    type: string
+    x-enum-varnames:
+    - TaxFeeSimpleUpdateTypeDefault
+  domain.TaxFeeType:
+    enum:
+    - merchant
+    - store
+    type: string
+    x-enum-comments:
+      TaxFeeTypeMerchant: 商户
+      TaxFeeTypeStore: 门店
+    x-enum-varnames:
+    - TaxFeeTypeMerchant
+    - TaxFeeTypeStore
+  domain.TaxRateType:
+    enum:
+    - unified
+    - custom
+    type: string
+    x-enum-comments:
+      TaxRateTypeCustom: 自定义比例
+      TaxRateTypeUnified: 统一比例
+    x-enum-varnames:
+    - TaxRateTypeUnified
+    - TaxRateTypeCustom
   response.Response:
     properties:
       code:
@@ -1502,6 +1677,161 @@ definitions:
     - Thursday
     - Friday
     - Saturday
+  types.AdditionalFeeCreateReq:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 收费模式 (percent/fixed)
+        enum:
+        - percent
+        - fixed
+      dining_ways:
+        description: 适用用餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣作用范围 (all/items)
+        enum:
+        - all
+        - items
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费分类 (service/table/package)
+        enum:
+        - service
+        - table
+        - package
+      fee_value:
+        description: 费用值，percent 模式示例 0.06 表示 6%
+        type: number
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      name:
+        description: 名称
+        maxLength: 50
+        type: string
+      order_channels:
+        description: 允许的下单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序值
+        minimum: 0
+        type: integer
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+    required:
+    - charge_mode
+    - dining_ways
+    - discount_scope
+    - fee_category
+    - fee_value
+    - include_in_receivable
+    - name
+    - order_channels
+    - taxable
+    type: object
+  types.AdditionalFeeListResp:
+    properties:
+      additional_fees:
+        description: 附加费列表
+        items:
+          $ref: '#/definitions/domain.AdditionalFee'
+        type: array
+      total:
+        description: 总数
+        type: integer
+    type: object
+  types.AdditionalFeeSimpleUpdateReq:
+    properties:
+      enabled:
+        description: 是否启用
+        type: boolean
+      simple_update_type:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeSimpleUpdateType'
+        description: 简单更新类型，目前仅支持 enabled
+        enum:
+        - enabled
+    required:
+    - simple_update_type
+    type: object
+  types.AdditionalFeeUpdateReq:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 收费模式 (percent/fixed)
+        enum:
+        - percent
+        - fixed
+      dining_ways:
+        description: 适用用餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣作用范围 (all/items)
+        enum:
+        - all
+        - items
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费分类 (service/table/package)
+        enum:
+        - service
+        - table
+        - package
+      fee_value:
+        description: 费用值，percent 模式示例 0.06 表示 6%
+        type: number
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      name:
+        description: 名称
+        maxLength: 50
+        type: string
+      order_channels:
+        description: 允许的下单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序值
+        minimum: 0
+        type: integer
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+    required:
+    - charge_mode
+    - dining_ways
+    - discount_scope
+    - fee_category
+    - fee_value
+    - include_in_receivable
+    - name
+    - order_channels
+    - taxable
+    type: object
   types.Address:
     properties:
       address:
@@ -2985,6 +3315,77 @@ definitions:
     - simple_update_type
     - status
     type: object
+  types.TaxFeeCreateReq:
+    properties:
+      default_tax:
+        description: 是否默认税率
+        type: boolean
+      name:
+        description: 税费名称
+        maxLength: 50
+        type: string
+      tax_rate:
+        description: 税率 tax_rate 示例：6% -> 0.06
+        type: number
+      tax_rate_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxRateType'
+        description: 税率类型
+        enum:
+        - unified
+        - custom
+    required:
+    - default_tax
+    - name
+    - tax_rate
+    - tax_rate_type
+    type: object
+  types.TaxFeeListResp:
+    properties:
+      tax_fees:
+        items:
+          $ref: '#/definitions/domain.TaxFee'
+        type: array
+      total:
+        type: integer
+    type: object
+  types.TaxFeeSimpleUpdateReq:
+    properties:
+      default_tax:
+        type: boolean
+      simple_update_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFeeSimpleUpdateType'
+        enum:
+        - default_tax
+    required:
+    - simple_update_type
+    type: object
+  types.TaxFeeUpdateReq:
+    properties:
+      default_tax:
+        description: 是否默认税率
+        type: boolean
+      name:
+        description: 税费名称
+        maxLength: 50
+        type: string
+      tax_rate:
+        description: 税率 tax_rate 示例：6% -> 0.06
+        type: number
+      tax_rate_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxRateType'
+        description: 税率类型
+        enum:
+        - unified
+        - custom
+    required:
+    - default_tax
+    - name
+    - tax_rate
+    - tax_rate_type
+    type: object
   types.UpdateCategoryReq:
     properties:
       inherit_stall:
@@ -3171,6 +3572,226 @@ info:
   title: 品牌商后台 API
   version: "1.0"
 paths:
+  /additional_fee:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 是否启用
+        in: query
+        name: enabled
+        type: boolean
+      - description: 名称
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.AdditionalFeeListResp'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取附加费列表
+      tags:
+      - 费用管理-附加费管理
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.AdditionalFeeCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建附加费
+      tags:
+      - 费用管理-附加费管理
+  /additional_fee/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除附加费
+      tags:
+      - 费用管理-附加费管理
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.AdditionalFee'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取附加费详情
+      tags:
+      - 费用管理-附加费管理
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.AdditionalFeeSimpleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新附加费单个字段
+      tags:
+      - 费用管理-附加费管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.AdditionalFeeUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新附加费
+      tags:
+      - 费用管理-附加费管理
   /menu:
     get:
       parameters:
@@ -5236,6 +5857,221 @@ paths:
       summary: 门店列表
       tags:
       - 门店管理
+  /tax_fee:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.TaxFeeListResp'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取税费列表
+      tags:
+      - 费用管理-税费管理
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.TaxFeeCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建税费
+      tags:
+      - 费用管理-税费管理
+  /tax_fee/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除税费
+      tags:
+      - 费用管理-税费管理
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.TaxFee'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取税费详情
+      tags:
+      - 费用管理-税费管理
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.TaxFeeSimpleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新税费单个字段
+      tags:
+      - 费用管理-税费管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.TaxFeeUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新税费
+      tags:
+      - 费用管理-税费管理
   /user/info:
     post:
       consumes:

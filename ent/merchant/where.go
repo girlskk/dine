@@ -1518,6 +1518,29 @@ func HasAdditionalFeesWith(preds ...predicate.AdditionalFee) predicate.Merchant 
 	})
 }
 
+// HasTaxFees applies the HasEdge predicate on the "tax_fees" edge.
+func HasTaxFees() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TaxFeesTable, TaxFeesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTaxFeesWith applies the HasEdge predicate on the "tax_fees" edge with a given conditions (other predicates).
+func HasTaxFeesWith(preds ...predicate.TaxFee) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newTaxFeesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasDevices applies the HasEdge predicate on the "devices" edge.
 func HasDevices() predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {

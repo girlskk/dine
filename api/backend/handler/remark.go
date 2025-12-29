@@ -31,7 +31,7 @@ func (h *RemarkHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
-	r.GET("", h.GetRemarks())
+	r.GET("", h.List())
 	r.PATCH("/:id", h.RemarkSimpleUpdate())
 }
 
@@ -237,7 +237,7 @@ func (h *RemarkHandler) Get() gin.HandlerFunc {
 	}
 }
 
-// GetRemarks 获取备注列表
+// List 获取备注列表
 //
 //	@Tags			前厅管理
 //	@Security		BearerAuth
@@ -248,10 +248,10 @@ func (h *RemarkHandler) Get() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
 //	@Router			/remark [get]
-func (h *RemarkHandler) GetRemarks() gin.HandlerFunc {
+func (h *RemarkHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("RemarkHandler.GetRemarks")
+		logger := logging.FromContext(ctx).Named("RemarkHandler.List")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 

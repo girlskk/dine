@@ -29,6 +29,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // MerchantQuery is the builder for querying Merchant entities.
@@ -50,6 +51,7 @@ type MerchantQuery struct {
 	withRemarks              *RemarkQuery
 	withStalls               *StallQuery
 	withAdditionalFees       *AdditionalFeeQuery
+	withTaxFees              *TaxFeeQuery
 	withDevices              *DeviceQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
@@ -352,6 +354,28 @@ func (mq *MerchantQuery) QueryAdditionalFees() *AdditionalFeeQuery {
 	return query
 }
 
+// QueryTaxFees chains the current query on the "tax_fees" edge.
+func (mq *MerchantQuery) QueryTaxFees() *TaxFeeQuery {
+	query := (&TaxFeeClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.TaxFeesTable, merchant.TaxFeesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryDevices chains the current query on the "devices" edge.
 func (mq *MerchantQuery) QueryDevices() *DeviceQuery {
 	query := (&DeviceClient{config: mq.config}).Query()
@@ -578,6 +602,7 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		withRemarks:              mq.withRemarks.Clone(),
 		withStalls:               mq.withStalls.Clone(),
 		withAdditionalFees:       mq.withAdditionalFees.Clone(),
+		withTaxFees:              mq.withTaxFees.Clone(),
 		withDevices:              mq.withDevices.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
@@ -718,6 +743,17 @@ func (mq *MerchantQuery) WithAdditionalFees(opts ...func(*AdditionalFeeQuery)) *
 	return mq
 }
 
+// WithTaxFees tells the query-builder to eager-load the nodes that are connected to
+// the "tax_fees" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithTaxFees(opts ...func(*TaxFeeQuery)) *MerchantQuery {
+	query := (&TaxFeeClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withTaxFees = query
+	return mq
+}
+
 // WithDevices tells the query-builder to eager-load the nodes that are connected to
 // the "devices" edge. The optional arguments are used to configure the query builder of the edge.
 func (mq *MerchantQuery) WithDevices(opts ...func(*DeviceQuery)) *MerchantQuery {
@@ -807,7 +843,7 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [13]bool{
+		loadedTypes = [14]bool{
 			mq.withMerchantBusinessType != nil,
 			mq.withCountry != nil,
 			mq.withProvince != nil,
@@ -820,6 +856,7 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			mq.withRemarks != nil,
 			mq.withStalls != nil,
 			mq.withAdditionalFees != nil,
+			mq.withTaxFees != nil,
 			mq.withDevices != nil,
 		}
 	)
@@ -920,6 +957,13 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 		if err := mq.loadAdditionalFees(ctx, query, nodes,
 			func(n *Merchant) { n.Edges.AdditionalFees = []*AdditionalFee{} },
 			func(n *Merchant, e *AdditionalFee) { n.Edges.AdditionalFees = append(n.Edges.AdditionalFees, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withTaxFees; query != nil {
+		if err := mq.loadTaxFees(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.TaxFees = []*TaxFee{} },
+			func(n *Merchant, e *TaxFee) { n.Edges.TaxFees = append(n.Edges.TaxFees, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1274,6 +1318,36 @@ func (mq *MerchantQuery) loadAdditionalFees(ctx context.Context, query *Addition
 	}
 	query.Where(predicate.AdditionalFee(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.AdditionalFeesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadTaxFees(ctx context.Context, query *TaxFeeQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *TaxFee)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(taxfee.FieldMerchantID)
+	}
+	query.Where(predicate.TaxFee(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.TaxFeesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

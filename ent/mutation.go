@@ -44,6 +44,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 const (
@@ -84,6 +85,7 @@ const (
 	TypeStall                = "Stall"
 	TypeStore                = "Store"
 	TypeStoreUser            = "StoreUser"
+	TypeTaxFee               = "TaxFee"
 )
 
 // AdditionalFeeMutation represents an operation that mutates the AdditionalFee nodes in the graph.
@@ -11287,6 +11289,9 @@ type MerchantMutation struct {
 	additional_fees               map[uuid.UUID]struct{}
 	removedadditional_fees        map[uuid.UUID]struct{}
 	clearedadditional_fees        bool
+	tax_fees                      map[uuid.UUID]struct{}
+	removedtax_fees               map[uuid.UUID]struct{}
+	clearedtax_fees               bool
 	devices                       map[uuid.UUID]struct{}
 	removeddevices                map[uuid.UUID]struct{}
 	cleareddevices                bool
@@ -12802,6 +12807,60 @@ func (m *MerchantMutation) ResetAdditionalFees() {
 	m.removedadditional_fees = nil
 }
 
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by ids.
+func (m *MerchantMutation) AddTaxFeeIDs(ids ...uuid.UUID) {
+	if m.tax_fees == nil {
+		m.tax_fees = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.tax_fees[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTaxFees clears the "tax_fees" edge to the TaxFee entity.
+func (m *MerchantMutation) ClearTaxFees() {
+	m.clearedtax_fees = true
+}
+
+// TaxFeesCleared reports if the "tax_fees" edge to the TaxFee entity was cleared.
+func (m *MerchantMutation) TaxFeesCleared() bool {
+	return m.clearedtax_fees
+}
+
+// RemoveTaxFeeIDs removes the "tax_fees" edge to the TaxFee entity by IDs.
+func (m *MerchantMutation) RemoveTaxFeeIDs(ids ...uuid.UUID) {
+	if m.removedtax_fees == nil {
+		m.removedtax_fees = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.tax_fees, ids[i])
+		m.removedtax_fees[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTaxFees returns the removed IDs of the "tax_fees" edge to the TaxFee entity.
+func (m *MerchantMutation) RemovedTaxFeesIDs() (ids []uuid.UUID) {
+	for id := range m.removedtax_fees {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TaxFeesIDs returns the "tax_fees" edge IDs in the mutation.
+func (m *MerchantMutation) TaxFeesIDs() (ids []uuid.UUID) {
+	for id := range m.tax_fees {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTaxFees resets all changes to the "tax_fees" edge.
+func (m *MerchantMutation) ResetTaxFees() {
+	m.tax_fees = nil
+	m.clearedtax_fees = false
+	m.removedtax_fees = nil
+}
+
 // AddDeviceIDs adds the "devices" edge to the Device entity by ids.
 func (m *MerchantMutation) AddDeviceIDs(ids ...uuid.UUID) {
 	if m.devices == nil {
@@ -13394,7 +13453,7 @@ func (m *MerchantMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MerchantMutation) AddedEdges() []string {
-	edges := make([]string, 0, 13)
+	edges := make([]string, 0, 14)
 	if m.merchant_business_type != nil {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
 	}
@@ -13430,6 +13489,9 @@ func (m *MerchantMutation) AddedEdges() []string {
 	}
 	if m.additional_fees != nil {
 		edges = append(edges, merchant.EdgeAdditionalFees)
+	}
+	if m.tax_fees != nil {
+		edges = append(edges, merchant.EdgeTaxFees)
 	}
 	if m.devices != nil {
 		edges = append(edges, merchant.EdgeDevices)
@@ -13503,6 +13565,12 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case merchant.EdgeTaxFees:
+		ids := make([]ent.Value, 0, len(m.tax_fees))
+		for id := range m.tax_fees {
+			ids = append(ids, id)
+		}
+		return ids
 	case merchant.EdgeDevices:
 		ids := make([]ent.Value, 0, len(m.devices))
 		for id := range m.devices {
@@ -13515,7 +13583,7 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MerchantMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 13)
+	edges := make([]string, 0, 14)
 	if m.removedbackend_users != nil {
 		edges = append(edges, merchant.EdgeBackendUsers)
 	}
@@ -13536,6 +13604,9 @@ func (m *MerchantMutation) RemovedEdges() []string {
 	}
 	if m.removedadditional_fees != nil {
 		edges = append(edges, merchant.EdgeAdditionalFees)
+	}
+	if m.removedtax_fees != nil {
+		edges = append(edges, merchant.EdgeTaxFees)
 	}
 	if m.removeddevices != nil {
 		edges = append(edges, merchant.EdgeDevices)
@@ -13589,6 +13660,12 @@ func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case merchant.EdgeTaxFees:
+		ids := make([]ent.Value, 0, len(m.removedtax_fees))
+		for id := range m.removedtax_fees {
+			ids = append(ids, id)
+		}
+		return ids
 	case merchant.EdgeDevices:
 		ids := make([]ent.Value, 0, len(m.removeddevices))
 		for id := range m.removeddevices {
@@ -13601,7 +13678,7 @@ func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MerchantMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 13)
+	edges := make([]string, 0, 14)
 	if m.clearedmerchant_business_type {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
 	}
@@ -13638,6 +13715,9 @@ func (m *MerchantMutation) ClearedEdges() []string {
 	if m.clearedadditional_fees {
 		edges = append(edges, merchant.EdgeAdditionalFees)
 	}
+	if m.clearedtax_fees {
+		edges = append(edges, merchant.EdgeTaxFees)
+	}
 	if m.cleareddevices {
 		edges = append(edges, merchant.EdgeDevices)
 	}
@@ -13672,6 +13752,8 @@ func (m *MerchantMutation) EdgeCleared(name string) bool {
 		return m.clearedstalls
 	case merchant.EdgeAdditionalFees:
 		return m.clearedadditional_fees
+	case merchant.EdgeTaxFees:
+		return m.clearedtax_fees
 	case merchant.EdgeDevices:
 		return m.cleareddevices
 	}
@@ -13740,6 +13822,9 @@ func (m *MerchantMutation) ResetEdge(name string) error {
 		return nil
 	case merchant.EdgeAdditionalFees:
 		m.ResetAdditionalFees()
+		return nil
+	case merchant.EdgeTaxFees:
+		m.ResetTaxFees()
 		return nil
 	case merchant.EdgeDevices:
 		m.ResetDevices()
@@ -30748,6 +30833,9 @@ type StoreMutation struct {
 	additional_fees               map[uuid.UUID]struct{}
 	removedadditional_fees        map[uuid.UUID]struct{}
 	clearedadditional_fees        bool
+	tax_fees                      map[uuid.UUID]struct{}
+	removedtax_fees               map[uuid.UUID]struct{}
+	clearedtax_fees               bool
 	devices                       map[uuid.UUID]struct{}
 	removeddevices                map[uuid.UUID]struct{}
 	cleareddevices                bool
@@ -32523,6 +32611,60 @@ func (m *StoreMutation) ResetAdditionalFees() {
 	m.removedadditional_fees = nil
 }
 
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by ids.
+func (m *StoreMutation) AddTaxFeeIDs(ids ...uuid.UUID) {
+	if m.tax_fees == nil {
+		m.tax_fees = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.tax_fees[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTaxFees clears the "tax_fees" edge to the TaxFee entity.
+func (m *StoreMutation) ClearTaxFees() {
+	m.clearedtax_fees = true
+}
+
+// TaxFeesCleared reports if the "tax_fees" edge to the TaxFee entity was cleared.
+func (m *StoreMutation) TaxFeesCleared() bool {
+	return m.clearedtax_fees
+}
+
+// RemoveTaxFeeIDs removes the "tax_fees" edge to the TaxFee entity by IDs.
+func (m *StoreMutation) RemoveTaxFeeIDs(ids ...uuid.UUID) {
+	if m.removedtax_fees == nil {
+		m.removedtax_fees = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.tax_fees, ids[i])
+		m.removedtax_fees[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTaxFees returns the removed IDs of the "tax_fees" edge to the TaxFee entity.
+func (m *StoreMutation) RemovedTaxFeesIDs() (ids []uuid.UUID) {
+	for id := range m.removedtax_fees {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TaxFeesIDs returns the "tax_fees" edge IDs in the mutation.
+func (m *StoreMutation) TaxFeesIDs() (ids []uuid.UUID) {
+	for id := range m.tax_fees {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTaxFees resets all changes to the "tax_fees" edge.
+func (m *StoreMutation) ResetTaxFees() {
+	m.tax_fees = nil
+	m.clearedtax_fees = false
+	m.removedtax_fees = nil
+}
+
 // AddDeviceIDs adds the "devices" edge to the Device entity by ids.
 func (m *StoreMutation) AddDeviceIDs(ids ...uuid.UUID) {
 	if m.devices == nil {
@@ -33333,7 +33475,7 @@ func (m *StoreMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StoreMutation) AddedEdges() []string {
-	edges := make([]string, 0, 12)
+	edges := make([]string, 0, 13)
 	if m.merchant != nil {
 		edges = append(edges, store.EdgeMerchant)
 	}
@@ -33363,6 +33505,9 @@ func (m *StoreMutation) AddedEdges() []string {
 	}
 	if m.additional_fees != nil {
 		edges = append(edges, store.EdgeAdditionalFees)
+	}
+	if m.tax_fees != nil {
+		edges = append(edges, store.EdgeTaxFees)
 	}
 	if m.devices != nil {
 		edges = append(edges, store.EdgeDevices)
@@ -33425,6 +33570,12 @@ func (m *StoreMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case store.EdgeTaxFees:
+		ids := make([]ent.Value, 0, len(m.tax_fees))
+		for id := range m.tax_fees {
+			ids = append(ids, id)
+		}
+		return ids
 	case store.EdgeDevices:
 		ids := make([]ent.Value, 0, len(m.devices))
 		for id := range m.devices {
@@ -33443,7 +33594,7 @@ func (m *StoreMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StoreMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 12)
+	edges := make([]string, 0, 13)
 	if m.removedstore_users != nil {
 		edges = append(edges, store.EdgeStoreUsers)
 	}
@@ -33455,6 +33606,9 @@ func (m *StoreMutation) RemovedEdges() []string {
 	}
 	if m.removedadditional_fees != nil {
 		edges = append(edges, store.EdgeAdditionalFees)
+	}
+	if m.removedtax_fees != nil {
+		edges = append(edges, store.EdgeTaxFees)
 	}
 	if m.removeddevices != nil {
 		edges = append(edges, store.EdgeDevices)
@@ -33493,6 +33647,12 @@ func (m *StoreMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case store.EdgeTaxFees:
+		ids := make([]ent.Value, 0, len(m.removedtax_fees))
+		for id := range m.removedtax_fees {
+			ids = append(ids, id)
+		}
+		return ids
 	case store.EdgeDevices:
 		ids := make([]ent.Value, 0, len(m.removeddevices))
 		for id := range m.removeddevices {
@@ -33511,7 +33671,7 @@ func (m *StoreMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StoreMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 12)
+	edges := make([]string, 0, 13)
 	if m.clearedmerchant {
 		edges = append(edges, store.EdgeMerchant)
 	}
@@ -33541,6 +33701,9 @@ func (m *StoreMutation) ClearedEdges() []string {
 	}
 	if m.clearedadditional_fees {
 		edges = append(edges, store.EdgeAdditionalFees)
+	}
+	if m.clearedtax_fees {
+		edges = append(edges, store.EdgeTaxFees)
 	}
 	if m.cleareddevices {
 		edges = append(edges, store.EdgeDevices)
@@ -33575,6 +33738,8 @@ func (m *StoreMutation) EdgeCleared(name string) bool {
 		return m.clearedstalls
 	case store.EdgeAdditionalFees:
 		return m.clearedadditional_fees
+	case store.EdgeTaxFees:
+		return m.clearedtax_fees
 	case store.EdgeDevices:
 		return m.cleareddevices
 	case store.EdgeMenus:
@@ -33642,6 +33807,9 @@ func (m *StoreMutation) ResetEdge(name string) error {
 		return nil
 	case store.EdgeAdditionalFees:
 		m.ResetAdditionalFees()
+		return nil
+	case store.EdgeTaxFees:
+		m.ResetTaxFees()
 		return nil
 	case store.EdgeDevices:
 		m.ResetDevices()
@@ -34397,4 +34565,1053 @@ func (m *StoreUserMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown StoreUser edge %s", name)
+}
+
+// TaxFeeMutation represents an operation that mutates the TaxFee nodes in the graph.
+type TaxFeeMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	created_at      *time.Time
+	updated_at      *time.Time
+	deleted_at      *int64
+	adddeleted_at   *int64
+	name            *string
+	tax_fee_type    *domain.TaxFeeType
+	tax_code        *string
+	tax_rate_type   *domain.TaxRateType
+	tax_rate        *decimal.Decimal
+	default_tax     *bool
+	clearedFields   map[string]struct{}
+	merchant        *uuid.UUID
+	clearedmerchant bool
+	store           *uuid.UUID
+	clearedstore    bool
+	done            bool
+	oldValue        func(context.Context) (*TaxFee, error)
+	predicates      []predicate.TaxFee
+}
+
+var _ ent.Mutation = (*TaxFeeMutation)(nil)
+
+// taxfeeOption allows management of the mutation configuration using functional options.
+type taxfeeOption func(*TaxFeeMutation)
+
+// newTaxFeeMutation creates new mutation for the TaxFee entity.
+func newTaxFeeMutation(c config, op Op, opts ...taxfeeOption) *TaxFeeMutation {
+	m := &TaxFeeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTaxFee,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTaxFeeID sets the ID field of the mutation.
+func withTaxFeeID(id uuid.UUID) taxfeeOption {
+	return func(m *TaxFeeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TaxFee
+		)
+		m.oldValue = func(ctx context.Context) (*TaxFee, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TaxFee.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTaxFee sets the old TaxFee of the mutation.
+func withTaxFee(node *TaxFee) taxfeeOption {
+	return func(m *TaxFeeMutation) {
+		m.oldValue = func(context.Context) (*TaxFee, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TaxFeeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TaxFeeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TaxFee entities.
+func (m *TaxFeeMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TaxFeeMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TaxFeeMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().TaxFee.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *TaxFeeMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TaxFeeMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TaxFeeMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *TaxFeeMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *TaxFeeMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *TaxFeeMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *TaxFeeMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *TaxFeeMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *TaxFeeMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *TaxFeeMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *TaxFeeMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetName sets the "name" field.
+func (m *TaxFeeMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *TaxFeeMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *TaxFeeMutation) ResetName() {
+	m.name = nil
+}
+
+// SetTaxFeeType sets the "tax_fee_type" field.
+func (m *TaxFeeMutation) SetTaxFeeType(dft domain.TaxFeeType) {
+	m.tax_fee_type = &dft
+}
+
+// TaxFeeType returns the value of the "tax_fee_type" field in the mutation.
+func (m *TaxFeeMutation) TaxFeeType() (r domain.TaxFeeType, exists bool) {
+	v := m.tax_fee_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaxFeeType returns the old "tax_fee_type" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldTaxFeeType(ctx context.Context) (v domain.TaxFeeType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaxFeeType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaxFeeType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaxFeeType: %w", err)
+	}
+	return oldValue.TaxFeeType, nil
+}
+
+// ResetTaxFeeType resets all changes to the "tax_fee_type" field.
+func (m *TaxFeeMutation) ResetTaxFeeType() {
+	m.tax_fee_type = nil
+}
+
+// SetTaxCode sets the "tax_code" field.
+func (m *TaxFeeMutation) SetTaxCode(s string) {
+	m.tax_code = &s
+}
+
+// TaxCode returns the value of the "tax_code" field in the mutation.
+func (m *TaxFeeMutation) TaxCode() (r string, exists bool) {
+	v := m.tax_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaxCode returns the old "tax_code" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldTaxCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaxCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaxCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaxCode: %w", err)
+	}
+	return oldValue.TaxCode, nil
+}
+
+// ResetTaxCode resets all changes to the "tax_code" field.
+func (m *TaxFeeMutation) ResetTaxCode() {
+	m.tax_code = nil
+}
+
+// SetTaxRateType sets the "tax_rate_type" field.
+func (m *TaxFeeMutation) SetTaxRateType(drt domain.TaxRateType) {
+	m.tax_rate_type = &drt
+}
+
+// TaxRateType returns the value of the "tax_rate_type" field in the mutation.
+func (m *TaxFeeMutation) TaxRateType() (r domain.TaxRateType, exists bool) {
+	v := m.tax_rate_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaxRateType returns the old "tax_rate_type" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldTaxRateType(ctx context.Context) (v domain.TaxRateType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaxRateType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaxRateType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaxRateType: %w", err)
+	}
+	return oldValue.TaxRateType, nil
+}
+
+// ResetTaxRateType resets all changes to the "tax_rate_type" field.
+func (m *TaxFeeMutation) ResetTaxRateType() {
+	m.tax_rate_type = nil
+}
+
+// SetTaxRate sets the "tax_rate" field.
+func (m *TaxFeeMutation) SetTaxRate(d decimal.Decimal) {
+	m.tax_rate = &d
+}
+
+// TaxRate returns the value of the "tax_rate" field in the mutation.
+func (m *TaxFeeMutation) TaxRate() (r decimal.Decimal, exists bool) {
+	v := m.tax_rate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaxRate returns the old "tax_rate" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldTaxRate(ctx context.Context) (v decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaxRate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaxRate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaxRate: %w", err)
+	}
+	return oldValue.TaxRate, nil
+}
+
+// ResetTaxRate resets all changes to the "tax_rate" field.
+func (m *TaxFeeMutation) ResetTaxRate() {
+	m.tax_rate = nil
+}
+
+// SetDefaultTax sets the "default_tax" field.
+func (m *TaxFeeMutation) SetDefaultTax(b bool) {
+	m.default_tax = &b
+}
+
+// DefaultTax returns the value of the "default_tax" field in the mutation.
+func (m *TaxFeeMutation) DefaultTax() (r bool, exists bool) {
+	v := m.default_tax
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDefaultTax returns the old "default_tax" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldDefaultTax(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDefaultTax is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDefaultTax requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDefaultTax: %w", err)
+	}
+	return oldValue.DefaultTax, nil
+}
+
+// ResetDefaultTax resets all changes to the "default_tax" field.
+func (m *TaxFeeMutation) ResetDefaultTax() {
+	m.default_tax = nil
+}
+
+// SetMerchantID sets the "merchant_id" field.
+func (m *TaxFeeMutation) SetMerchantID(u uuid.UUID) {
+	m.merchant = &u
+}
+
+// MerchantID returns the value of the "merchant_id" field in the mutation.
+func (m *TaxFeeMutation) MerchantID() (r uuid.UUID, exists bool) {
+	v := m.merchant
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMerchantID returns the old "merchant_id" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMerchantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMerchantID: %w", err)
+	}
+	return oldValue.MerchantID, nil
+}
+
+// ClearMerchantID clears the value of the "merchant_id" field.
+func (m *TaxFeeMutation) ClearMerchantID() {
+	m.merchant = nil
+	m.clearedFields[taxfee.FieldMerchantID] = struct{}{}
+}
+
+// MerchantIDCleared returns if the "merchant_id" field was cleared in this mutation.
+func (m *TaxFeeMutation) MerchantIDCleared() bool {
+	_, ok := m.clearedFields[taxfee.FieldMerchantID]
+	return ok
+}
+
+// ResetMerchantID resets all changes to the "merchant_id" field.
+func (m *TaxFeeMutation) ResetMerchantID() {
+	m.merchant = nil
+	delete(m.clearedFields, taxfee.FieldMerchantID)
+}
+
+// SetStoreID sets the "store_id" field.
+func (m *TaxFeeMutation) SetStoreID(u uuid.UUID) {
+	m.store = &u
+}
+
+// StoreID returns the value of the "store_id" field in the mutation.
+func (m *TaxFeeMutation) StoreID() (r uuid.UUID, exists bool) {
+	v := m.store
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStoreID returns the old "store_id" field's value of the TaxFee entity.
+// If the TaxFee object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaxFeeMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStoreID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStoreID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStoreID: %w", err)
+	}
+	return oldValue.StoreID, nil
+}
+
+// ClearStoreID clears the value of the "store_id" field.
+func (m *TaxFeeMutation) ClearStoreID() {
+	m.store = nil
+	m.clearedFields[taxfee.FieldStoreID] = struct{}{}
+}
+
+// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
+func (m *TaxFeeMutation) StoreIDCleared() bool {
+	_, ok := m.clearedFields[taxfee.FieldStoreID]
+	return ok
+}
+
+// ResetStoreID resets all changes to the "store_id" field.
+func (m *TaxFeeMutation) ResetStoreID() {
+	m.store = nil
+	delete(m.clearedFields, taxfee.FieldStoreID)
+}
+
+// ClearMerchant clears the "merchant" edge to the Merchant entity.
+func (m *TaxFeeMutation) ClearMerchant() {
+	m.clearedmerchant = true
+	m.clearedFields[taxfee.FieldMerchantID] = struct{}{}
+}
+
+// MerchantCleared reports if the "merchant" edge to the Merchant entity was cleared.
+func (m *TaxFeeMutation) MerchantCleared() bool {
+	return m.MerchantIDCleared() || m.clearedmerchant
+}
+
+// MerchantIDs returns the "merchant" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MerchantID instead. It exists only for internal usage by the builders.
+func (m *TaxFeeMutation) MerchantIDs() (ids []uuid.UUID) {
+	if id := m.merchant; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMerchant resets all changes to the "merchant" edge.
+func (m *TaxFeeMutation) ResetMerchant() {
+	m.merchant = nil
+	m.clearedmerchant = false
+}
+
+// ClearStore clears the "store" edge to the Store entity.
+func (m *TaxFeeMutation) ClearStore() {
+	m.clearedstore = true
+	m.clearedFields[taxfee.FieldStoreID] = struct{}{}
+}
+
+// StoreCleared reports if the "store" edge to the Store entity was cleared.
+func (m *TaxFeeMutation) StoreCleared() bool {
+	return m.StoreIDCleared() || m.clearedstore
+}
+
+// StoreIDs returns the "store" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// StoreID instead. It exists only for internal usage by the builders.
+func (m *TaxFeeMutation) StoreIDs() (ids []uuid.UUID) {
+	if id := m.store; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetStore resets all changes to the "store" edge.
+func (m *TaxFeeMutation) ResetStore() {
+	m.store = nil
+	m.clearedstore = false
+}
+
+// Where appends a list predicates to the TaxFeeMutation builder.
+func (m *TaxFeeMutation) Where(ps ...predicate.TaxFee) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TaxFeeMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TaxFeeMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.TaxFee, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TaxFeeMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TaxFeeMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (TaxFee).
+func (m *TaxFeeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TaxFeeMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.created_at != nil {
+		fields = append(fields, taxfee.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, taxfee.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, taxfee.FieldDeletedAt)
+	}
+	if m.name != nil {
+		fields = append(fields, taxfee.FieldName)
+	}
+	if m.tax_fee_type != nil {
+		fields = append(fields, taxfee.FieldTaxFeeType)
+	}
+	if m.tax_code != nil {
+		fields = append(fields, taxfee.FieldTaxCode)
+	}
+	if m.tax_rate_type != nil {
+		fields = append(fields, taxfee.FieldTaxRateType)
+	}
+	if m.tax_rate != nil {
+		fields = append(fields, taxfee.FieldTaxRate)
+	}
+	if m.default_tax != nil {
+		fields = append(fields, taxfee.FieldDefaultTax)
+	}
+	if m.merchant != nil {
+		fields = append(fields, taxfee.FieldMerchantID)
+	}
+	if m.store != nil {
+		fields = append(fields, taxfee.FieldStoreID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TaxFeeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case taxfee.FieldCreatedAt:
+		return m.CreatedAt()
+	case taxfee.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case taxfee.FieldDeletedAt:
+		return m.DeletedAt()
+	case taxfee.FieldName:
+		return m.Name()
+	case taxfee.FieldTaxFeeType:
+		return m.TaxFeeType()
+	case taxfee.FieldTaxCode:
+		return m.TaxCode()
+	case taxfee.FieldTaxRateType:
+		return m.TaxRateType()
+	case taxfee.FieldTaxRate:
+		return m.TaxRate()
+	case taxfee.FieldDefaultTax:
+		return m.DefaultTax()
+	case taxfee.FieldMerchantID:
+		return m.MerchantID()
+	case taxfee.FieldStoreID:
+		return m.StoreID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TaxFeeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case taxfee.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case taxfee.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case taxfee.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case taxfee.FieldName:
+		return m.OldName(ctx)
+	case taxfee.FieldTaxFeeType:
+		return m.OldTaxFeeType(ctx)
+	case taxfee.FieldTaxCode:
+		return m.OldTaxCode(ctx)
+	case taxfee.FieldTaxRateType:
+		return m.OldTaxRateType(ctx)
+	case taxfee.FieldTaxRate:
+		return m.OldTaxRate(ctx)
+	case taxfee.FieldDefaultTax:
+		return m.OldDefaultTax(ctx)
+	case taxfee.FieldMerchantID:
+		return m.OldMerchantID(ctx)
+	case taxfee.FieldStoreID:
+		return m.OldStoreID(ctx)
+	}
+	return nil, fmt.Errorf("unknown TaxFee field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TaxFeeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case taxfee.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case taxfee.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case taxfee.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case taxfee.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case taxfee.FieldTaxFeeType:
+		v, ok := value.(domain.TaxFeeType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaxFeeType(v)
+		return nil
+	case taxfee.FieldTaxCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaxCode(v)
+		return nil
+	case taxfee.FieldTaxRateType:
+		v, ok := value.(domain.TaxRateType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaxRateType(v)
+		return nil
+	case taxfee.FieldTaxRate:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaxRate(v)
+		return nil
+	case taxfee.FieldDefaultTax:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDefaultTax(v)
+		return nil
+	case taxfee.FieldMerchantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMerchantID(v)
+		return nil
+	case taxfee.FieldStoreID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStoreID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TaxFee field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TaxFeeMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, taxfee.FieldDeletedAt)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TaxFeeMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case taxfee.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TaxFeeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case taxfee.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TaxFee numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TaxFeeMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(taxfee.FieldMerchantID) {
+		fields = append(fields, taxfee.FieldMerchantID)
+	}
+	if m.FieldCleared(taxfee.FieldStoreID) {
+		fields = append(fields, taxfee.FieldStoreID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TaxFeeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TaxFeeMutation) ClearField(name string) error {
+	switch name {
+	case taxfee.FieldMerchantID:
+		m.ClearMerchantID()
+		return nil
+	case taxfee.FieldStoreID:
+		m.ClearStoreID()
+		return nil
+	}
+	return fmt.Errorf("unknown TaxFee nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TaxFeeMutation) ResetField(name string) error {
+	switch name {
+	case taxfee.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case taxfee.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case taxfee.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case taxfee.FieldName:
+		m.ResetName()
+		return nil
+	case taxfee.FieldTaxFeeType:
+		m.ResetTaxFeeType()
+		return nil
+	case taxfee.FieldTaxCode:
+		m.ResetTaxCode()
+		return nil
+	case taxfee.FieldTaxRateType:
+		m.ResetTaxRateType()
+		return nil
+	case taxfee.FieldTaxRate:
+		m.ResetTaxRate()
+		return nil
+	case taxfee.FieldDefaultTax:
+		m.ResetDefaultTax()
+		return nil
+	case taxfee.FieldMerchantID:
+		m.ResetMerchantID()
+		return nil
+	case taxfee.FieldStoreID:
+		m.ResetStoreID()
+		return nil
+	}
+	return fmt.Errorf("unknown TaxFee field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TaxFeeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.merchant != nil {
+		edges = append(edges, taxfee.EdgeMerchant)
+	}
+	if m.store != nil {
+		edges = append(edges, taxfee.EdgeStore)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TaxFeeMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case taxfee.EdgeMerchant:
+		if id := m.merchant; id != nil {
+			return []ent.Value{*id}
+		}
+	case taxfee.EdgeStore:
+		if id := m.store; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TaxFeeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TaxFeeMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TaxFeeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedmerchant {
+		edges = append(edges, taxfee.EdgeMerchant)
+	}
+	if m.clearedstore {
+		edges = append(edges, taxfee.EdgeStore)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TaxFeeMutation) EdgeCleared(name string) bool {
+	switch name {
+	case taxfee.EdgeMerchant:
+		return m.clearedmerchant
+	case taxfee.EdgeStore:
+		return m.clearedstore
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TaxFeeMutation) ClearEdge(name string) error {
+	switch name {
+	case taxfee.EdgeMerchant:
+		m.ClearMerchant()
+		return nil
+	case taxfee.EdgeStore:
+		m.ClearStore()
+		return nil
+	}
+	return fmt.Errorf("unknown TaxFee unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TaxFeeMutation) ResetEdge(name string) error {
+	switch name {
+	case taxfee.EdgeMerchant:
+		m.ResetMerchant()
+		return nil
+	case taxfee.EdgeStore:
+		m.ResetStore()
+		return nil
+	}
+	return fmt.Errorf("unknown TaxFee edge %s", name)
 }

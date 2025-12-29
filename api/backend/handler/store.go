@@ -30,7 +30,7 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id", h.UpdateStore())
 	r.DELETE("/:id", h.DeleteStore())
 	r.GET("/:id", h.GetStore())
-	r.GET("/list", h.GetStores())
+	r.GET("/list", h.List())
 	r.PATCH("/:id", h.StoreSimpleUpdate())
 }
 
@@ -273,7 +273,7 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 	}
 }
 
-// GetStores 门店列表
+// List 门店列表
 //
 //	@Summary		门店列表
 //	@Description	分页查询门店列表
@@ -285,10 +285,10 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
 //	@Router			/store/list [get]
-func (h *StoreHandler) GetStores() gin.HandlerFunc {
+func (h *StoreHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("StoreHandler.GetStores")
+		logger := logging.FromContext(ctx).Named("StoreHandler.List")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 

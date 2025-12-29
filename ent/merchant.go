@@ -101,11 +101,13 @@ type MerchantEdges struct {
 	Stalls []*Stall `json:"stalls,omitempty"`
 	// AdditionalFees holds the value of the additional_fees edge.
 	AdditionalFees []*AdditionalFee `json:"additional_fees,omitempty"`
+	// TaxFees holds the value of the tax_fees edge.
+	TaxFees []*TaxFee `json:"tax_fees,omitempty"`
 	// Devices holds the value of the devices edge.
 	Devices []*Device `json:"devices,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [13]bool
+	loadedTypes [14]bool
 }
 
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
@@ -226,10 +228,19 @@ func (e MerchantEdges) AdditionalFeesOrErr() ([]*AdditionalFee, error) {
 	return nil, &NotLoadedError{edge: "additional_fees"}
 }
 
+// TaxFeesOrErr returns the TaxFees value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) TaxFeesOrErr() ([]*TaxFee, error) {
+	if e.loadedTypes[12] {
+		return e.TaxFees, nil
+	}
+	return nil, &NotLoadedError{edge: "tax_fees"}
+}
+
 // DevicesOrErr returns the Devices value or an error if the edge
 // was not loaded in eager-loading.
 func (e MerchantEdges) DevicesOrErr() ([]*Device, error) {
-	if e.loadedTypes[12] {
+	if e.loadedTypes[13] {
 		return e.Devices, nil
 	}
 	return nil, &NotLoadedError{edge: "devices"}
@@ -473,6 +484,11 @@ func (m *Merchant) QueryStalls() *StallQuery {
 // QueryAdditionalFees queries the "additional_fees" edge of the Merchant entity.
 func (m *Merchant) QueryAdditionalFees() *AdditionalFeeQuery {
 	return NewMerchantClient(m.config).QueryAdditionalFees(m)
+}
+
+// QueryTaxFees queries the "tax_fees" edge of the Merchant entity.
+func (m *Merchant) QueryTaxFees() *TaxFeeQuery {
+	return NewMerchantClient(m.config).QueryTaxFees(m)
 }
 
 // QueryDevices queries the "devices" edge of the Merchant entity.

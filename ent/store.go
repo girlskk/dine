@@ -119,13 +119,15 @@ type StoreEdges struct {
 	Stalls []*Stall `json:"stalls,omitempty"`
 	// AdditionalFees holds the value of the additional_fees edge.
 	AdditionalFees []*AdditionalFee `json:"additional_fees,omitempty"`
+	// TaxFees holds the value of the tax_fees edge.
+	TaxFees []*TaxFee `json:"tax_fees,omitempty"`
 	// Devices holds the value of the devices edge.
 	Devices []*Device `json:"devices,omitempty"`
 	// 关联的菜单
 	Menus []*Menu `json:"menus,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [12]bool
+	loadedTypes [13]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -230,10 +232,19 @@ func (e StoreEdges) AdditionalFeesOrErr() ([]*AdditionalFee, error) {
 	return nil, &NotLoadedError{edge: "additional_fees"}
 }
 
+// TaxFeesOrErr returns the TaxFees value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) TaxFeesOrErr() ([]*TaxFee, error) {
+	if e.loadedTypes[10] {
+		return e.TaxFees, nil
+	}
+	return nil, &NotLoadedError{edge: "tax_fees"}
+}
+
 // DevicesOrErr returns the Devices value or an error if the edge
 // was not loaded in eager-loading.
 func (e StoreEdges) DevicesOrErr() ([]*Device, error) {
-	if e.loadedTypes[10] {
+	if e.loadedTypes[11] {
 		return e.Devices, nil
 	}
 	return nil, &NotLoadedError{edge: "devices"}
@@ -242,7 +253,7 @@ func (e StoreEdges) DevicesOrErr() ([]*Device, error) {
 // MenusOrErr returns the Menus value or an error if the edge
 // was not loaded in eager-loading.
 func (e StoreEdges) MenusOrErr() ([]*Menu, error) {
-	if e.loadedTypes[11] {
+	if e.loadedTypes[12] {
 		return e.Menus, nil
 	}
 	return nil, &NotLoadedError{edge: "menus"}
@@ -543,6 +554,11 @@ func (s *Store) QueryStalls() *StallQuery {
 // QueryAdditionalFees queries the "additional_fees" edge of the Store entity.
 func (s *Store) QueryAdditionalFees() *AdditionalFeeQuery {
 	return NewStoreClient(s.config).QueryAdditionalFees(s)
+}
+
+// QueryTaxFees queries the "tax_fees" edge of the Store entity.
+func (s *Store) QueryTaxFees() *TaxFeeQuery {
+	return NewStoreClient(s.config).QueryTaxFees(s)
 }
 
 // QueryDevices queries the "devices" edge of the Store entity.
