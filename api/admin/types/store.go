@@ -8,6 +8,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
+// CreateStoreReq 创建门店请求参数
 type CreateStoreReq struct {
 	MerchantID              uuid.UUID              `json:"merchant_id" binding:"required"`                         // 所属商户 ID
 	AdminPhoneNumber        string                 `json:"admin_phone_number" binding:"required,max=20"`           // 管理员手机号
@@ -35,6 +36,7 @@ type CreateStoreReq struct {
 	ShiftTimes              []domain.ShiftTime     `json:"shift_times" binding:"required"`                         // 班次时间
 }
 
+// UpdateStoreReq 更新门店请求参数
 type UpdateStoreReq struct {
 	AdminPhoneNumber        string                 `json:"admin_phone_number" binding:"required,max=20"`           // 管理员手机号
 	StoreName               string                 `json:"store_name" binding:"required,max=30"`                   // 门店名称,长度不超过30个字
@@ -60,6 +62,7 @@ type UpdateStoreReq struct {
 	ShiftTimes              []domain.ShiftTime     `json:"shift_times" binding:"required"`                         // 班次时间
 }
 
+// StoreListReq 门店列表请求参数
 type StoreListReq struct {
 	upagination.RequestPagination
 	MerchantID       uuid.UUID            `form:"merchant_id"`                            // 商户 ID
@@ -73,11 +76,13 @@ type StoreListReq struct {
 	CreatedAtLte     time.Time            `form:"created_at_lte" binding:"omitempty"`
 }
 
+// StoreListResp 门店列表响应参数
 type StoreListResp struct {
 	Stores []*domain.Store `json:"stores"` // 门店列表
 	Total  int             `json:"total"`  // 总数
 }
 
+// StoreSimpleUpdateReq 门店更新单个请求参数
 type StoreSimpleUpdateReq struct {
 	SimpleUpdateType domain.StoreSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
 	Status           domain.StoreStatus           `json:"status" binding:"required"`                          // 营业/停业

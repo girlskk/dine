@@ -129,8 +129,7 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		storeIDStr := c.Param("id")
-		storeID, err := uuid.Parse(storeIDStr)
+		storeID, err := uuid.Parse(c.Param("id"))
 		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
@@ -212,8 +211,7 @@ func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		storeIDStr := c.Param("id")
-		storeID, err := uuid.Parse(storeIDStr)
+		storeID, err := uuid.Parse(c.Param("id"))
 		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
@@ -253,8 +251,7 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		storeIDStr := c.Param("id")
-		storeID, err := uuid.Parse(storeIDStr)
+		storeID, err := uuid.Parse(c.Param("id"))
 		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
