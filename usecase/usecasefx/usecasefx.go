@@ -4,6 +4,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/category"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/device"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/product"
@@ -14,6 +15,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/taxfee"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/userauth"
 	"go.uber.org/fx"
 )
@@ -66,7 +68,6 @@ var Module = fx.Module(
 			fx.As(new(domain.RemarkInteractor)),
 		),
 		fx.Annotate(
-
 			remark.NewRemarkCategoryInteractor,
 			fx.As(new(domain.RemarkCategoryInteractor)),
 		),
@@ -77,6 +78,14 @@ var Module = fx.Module(
 		fx.Annotate(
 			additionalfee.NewAdditionalFeeInteractor,
 			fx.As(new(domain.AdditionalFeeInteractor)),
+		),
+		fx.Annotate(
+			taxfee.NewTaxFeeInteractor,
+			fx.As(new(domain.TaxFeeInteractor)),
+		),
+		fx.Annotate(
+			device.NewDeviceInteractor,
+			fx.As(new(domain.DeviceInteractor)),
 		),
 		fx.Annotate(
 			menu.NewMenuInteractor,

@@ -4371,7 +4371,7 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.BusinessHours": {
+        "domain.BusinessHour": {
             "type": "object",
             "properties": {
                 "end_time": {
@@ -4381,12 +4381,24 @@ const docTemplate = `{
                 "start_time": {
                     "description": "开始时间，格式 HH:MM:SS",
                     "type": "string"
+                }
+            }
+        },
+        "domain.BusinessHours": {
+            "type": "object",
+            "properties": {
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHour"
+                    }
                 },
                 "weekdays": {
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -6471,41 +6483,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.AdditionalFeeCreateReq": {
             "type": "object",

@@ -62,7 +62,7 @@ definitions:
     x-enum-varnames:
     - AdminUserAccountTypeNormal
     - AdminUserAccountTypeSuperAdmin
-  domain.BusinessHours:
+  domain.BusinessHour:
     properties:
       end_time:
         description: 结束时间，格式 HH:MM:SS
@@ -70,6 +70,14 @@ definitions:
       start_time:
         description: 开始时间，格式 HH:MM:SS
         type: string
+    type: object
+  domain.BusinessHours:
+    properties:
+      business_hours:
+        description: 营业时间段
+        items:
+          $ref: '#/definitions/domain.BusinessHour'
+        type: array
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:

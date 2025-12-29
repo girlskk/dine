@@ -38,6 +38,7 @@ type Repository struct {
 	menuRepo                 *MenuRepository
 	stallRepo                *StallRepository
 	additionalFeeRepo        *AdditionalFeeRepository
+	taxFeeRepo               *TaxFeeRepository
 	deviceRepo               *DeviceRepository
 }
 
@@ -300,6 +301,18 @@ func (repo *Repository) AdditionalFeeRepo() domain.AdditionalFeeRepository {
 		repo.additionalFeeRepo = NewAdditionalFeeRepository(repo.client)
 	}
 	return repo.additionalFeeRepo
+}
+
+func (repo *Repository) TaxFeeRepo() domain.TaxFeeRepository {
+	{
+		repo.mu.Lock()
+		defer repo.mu.Unlock()
+
+		if repo.taxFeeRepo == nil {
+			repo.taxFeeRepo = NewTaxFeeRepository(repo.client)
+		}
+		return repo.taxFeeRepo
+	}
 }
 
 func (repo *Repository) DeviceRepo() domain.DeviceRepository {

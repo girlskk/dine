@@ -1273,7 +1273,7 @@ const docTemplate = `{
                 "AdminUserAccountTypeSuperAdmin"
             ]
         },
-        "domain.BusinessHours": {
+        "domain.BusinessHour": {
             "type": "object",
             "properties": {
                 "end_time": {
@@ -1283,6 +1283,18 @@ const docTemplate = `{
                 "start_time": {
                     "description": "开始时间，格式 HH:MM:SS",
                     "type": "string"
+                }
+            }
+        },
+        "domain.BusinessHours": {
+            "type": "object",
+            "properties": {
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHour"
+                    }
                 },
                 "weekdays": {
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",

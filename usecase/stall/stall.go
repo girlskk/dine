@@ -17,38 +17,6 @@ type StallInteractor struct {
 	ds domain.DataStore
 }
 
-func (interactor *StallInteractor) StallSimpleUpdate(ctx context.Context, updateField domain.StallSimpleUpdateType, stall *domain.Stall) (err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "StallInteractor.StallSimpleUpdate")
-	defer func() { util.SpanErrFinish(span, err) }()
-
-	if stall == nil {
-		return fmt.Errorf("stall is nil")
-	}
-	oldStall, err := interactor.ds.StallRepo().FindByID(ctx, stall.ID)
-	if err != nil {
-		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrStallNotExists)
-		}
-		return fmt.Errorf("failed to fetch stall: %w", err)
-	}
-
-	switch updateField {
-	case domain.StallSimpleUpdateTypeEnabled:
-		if oldStall.Enabled == stall.Enabled {
-			return
-		}
-		oldStall.Enabled = stall.Enabled
-	default:
-		return domain.ParamsError(errors.New("unsupported update field"))
-	}
-
-	err = interactor.ds.StallRepo().Update(ctx, oldStall)
-	if err != nil {
-		return fmt.Errorf("failed to update stall: %w", err)
-	}
-	return
-}
-
 func NewStallInteractor(ds domain.DataStore) *StallInteractor {
 	return &StallInteractor{ds: ds}
 }
@@ -122,6 +90,38 @@ func (interactor *StallInteractor) GetStalls(ctx context.Context, pager *upagina
 	if err != nil {
 		err = fmt.Errorf("failed to get stalls: %w", err)
 		return
+	}
+	return
+}
+
+func (interactor *StallInteractor) StallSimpleUpdate(ctx context.Context, updateField domain.StallSimpleUpdateType, stall *domain.Stall) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "StallInteractor.StallSimpleUpdate")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	if stall == nil {
+		return fmt.Errorf("stall is nil")
+	}
+	oldStall, err := interactor.ds.StallRepo().FindByID(ctx, stall.ID)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrStallNotExists)
+		}
+		return fmt.Errorf("failed to fetch stall: %w", err)
+	}
+
+	switch updateField {
+	case domain.StallSimpleUpdateTypeEnabled:
+		if oldStall.Enabled == stall.Enabled {
+			return
+		}
+		oldStall.Enabled = stall.Enabled
+	default:
+		return domain.ParamsError(errors.New("unsupported update field"))
+	}
+
+	err = interactor.ds.StallRepo().Update(ctx, oldStall)
+	if err != nil {
+		return fmt.Errorf("failed to update stall: %w", err)
 	}
 	return
 }

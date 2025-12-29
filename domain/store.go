@@ -245,9 +245,14 @@ type ExistsStoreParams struct {
 
 // BusinessHours 表示营业时间段
 type BusinessHours struct {
-	Weekdays  []time.Weekday `json:"weekdays"`   // 适用的星期几，0=星期日，1=星期一，依此类推
-	StartTime string         `json:"start_time"` // 开始时间，格式 HH:MM:SS
-	EndTime   string         `json:"end_time"`   // 结束时间，格式 HH:MM:SS
+	Weekdays      []time.Weekday `json:"weekdays"`       // 适用的星期几，0=星期日，1=星期一，依此类推
+	BusinessHours []BusinessHour `json:"business_hours"` // 营业时间段
+}
+
+// StoreBusinessHour 表示单个营业时间段
+type BusinessHour struct {
+	StartTime string `json:"start_time"` // 开始时间，格式 HH:MM:SS
+	EndTime   string `json:"end_time"`   // 结束时间，格式 HH:MM:SS
 }
 
 // DiningPeriod 表示用餐时段
