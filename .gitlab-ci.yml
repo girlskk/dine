@@ -1,10 +1,7 @@
 # 变量
 variables:
-  PROJECT_NAME: "dine"
-  PROJECT_VERSION: "v0.0.1"
-  REGISTRY_DOMAIN: "harbor.ant-lord.com"
-  REGISTRY_NAMESPACE: "dine"
-  REGISTRY_URI: $REGISTRY_DOMAIN/$REGISTRY_NAMESPACE/$PROJECT_NAME
+  REGISTRY_DOMAIN: "harbor.jiguang.dev"
+  REGISTRY_NAMESPACE: "pos_dine_api"
 # 缓存
 cache:
   paths:
@@ -13,7 +10,7 @@ cache:
 stages:
   - build
   - migrate
-  - deploy
+
 # 引入
 include:
   - local: .gitlab/*.gitlab-ci.yml
