@@ -26,6 +26,7 @@ type DataStore interface {
 	RemarkRepo() RemarkRepository
 	RemarkCategoryRepo() RemarkCategoryRepository
 	MenuRepo() MenuRepository
+	ProfitDistributionRuleRepo() ProfitDistributionRuleRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

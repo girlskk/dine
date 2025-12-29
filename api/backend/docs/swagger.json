@@ -1297,6 +1297,211 @@
                 }
             }
         },
+        "/profit/distribution/rule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "查询分账方案列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "enabled",
+                            "disabled"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "ProfitDistributionRuleStatusDisabled": "禁用",
+                            "ProfitDistributionRuleStatusEnabled": "启用"
+                        },
+                        "x-enum-descriptions": [
+                            "启用",
+                            "禁用"
+                        ],
+                        "x-enum-varnames": [
+                            "ProfitDistributionRuleStatusEnabled",
+                            "ProfitDistributionRuleStatusDisabled"
+                        ],
+                        "description": "状态筛选（可选）",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "创建分账方案",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionRuleCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "更新分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionRuleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "删除分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}/disable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "禁用分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}/enable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "启用分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/remark": {
             "get": {
                 "security": [
@@ -2962,6 +3167,131 @@
                 "ProductUnitTypeWeight"
             ]
         },
+        "domain.ProfitDistributionRule": {
+            "type": "object",
+            "properties": {
+                "billing_cycle": {
+                    "description": "账单生成周期",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "effective_date": {
+                    "description": "方案生效日期",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例（0-1，单位：小数）",
+                    "type": "number"
+                },
+                "status": {
+                    "description": "状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleStatus"
+                        }
+                    ]
+                },
+                "store_count": {
+                    "description": "关联门店数量",
+                    "type": "integer"
+                },
+                "stores": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoreSimple"
+                    }
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleBillingCycle": {
+            "type": "string",
+            "enum": [
+                "daily",
+                "monthly"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionRuleBillingCycleDaily": "按日",
+                "ProfitDistributionRuleBillingCycleMonthly": "按月"
+            },
+            "x-enum-descriptions": [
+                "按日",
+                "按月"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionRuleBillingCycleDaily",
+                "ProfitDistributionRuleBillingCycleMonthly"
+            ]
+        },
+        "domain.ProfitDistributionRuleSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionRule"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleStatus": {
+            "type": "string",
+            "enum": [
+                "enabled",
+                "disabled"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionRuleStatusDisabled": "禁用",
+                "ProfitDistributionRuleStatusEnabled": "启用"
+            },
+            "x-enum-descriptions": [
+                "启用",
+                "禁用"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionRuleStatusEnabled",
+                "ProfitDistributionRuleStatusDisabled"
+            ]
+        },
         "domain.Remark": {
             "type": "object",
             "properties": {
@@ -4047,6 +4377,106 @@
                 "unit_id": {
                     "description": "属性关联",
                     "type": "string"
+                }
+            }
+        },
+        "types.ProfitDistributionRuleCreateReq": {
+            "type": "object",
+            "required": [
+                "billing_cycle",
+                "effective_date",
+                "expiry_date",
+                "name",
+                "split_ratio",
+                "store_ids"
+            ],
+            "properties": {
+                "billing_cycle": {
+                    "description": "账单生成周期（必选）",
+                    "enum": [
+                        "daily",
+                        "monthly"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "effective_date": {
+                    "description": "方案生效日期（必选）",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期（必选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "split_ratio": {
+                    "description": "分账比例（必选，0-1之间）",
+                    "type": "number"
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.ProfitDistributionRuleUpdateReq": {
+            "type": "object",
+            "required": [
+                "billing_cycle",
+                "effective_date",
+                "expiry_date",
+                "name",
+                "split_ratio",
+                "store_ids"
+            ],
+            "properties": {
+                "billing_cycle": {
+                    "description": "账单生成周期（必选）",
+                    "enum": [
+                        "daily",
+                        "monthly"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "effective_date": {
+                    "description": "方案生效日期（必选）",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期（必选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "split_ratio": {
+                    "description": "分账比例（必选，0-1之间）",
+                    "type": "number"
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

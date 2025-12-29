@@ -31,6 +31,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
@@ -97,31 +98,32 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			adminuser.Table:            adminuser.ValidColumn,
-			backenduser.Table:          backenduser.ValidColumn,
-			category.Table:             category.ValidColumn,
-			city.Table:                 city.ValidColumn,
-			country.Table:              country.ValidColumn,
-			district.Table:             district.ValidColumn,
-			menu.Table:                 menu.ValidColumn,
-			menuitem.Table:             menuitem.ValidColumn,
-			merchant.Table:             merchant.ValidColumn,
-			merchantbusinesstype.Table: merchantbusinesstype.ValidColumn,
-			merchantrenewal.Table:      merchantrenewal.ValidColumn,
-			product.Table:              product.ValidColumn,
-			productattr.Table:          productattr.ValidColumn,
-			productattritem.Table:      productattritem.ValidColumn,
-			productattrrelation.Table:  productattrrelation.ValidColumn,
-			productspec.Table:          productspec.ValidColumn,
-			productspecrelation.Table:  productspecrelation.ValidColumn,
-			producttag.Table:           producttag.ValidColumn,
-			productunit.Table:          productunit.ValidColumn,
-			province.Table:             province.ValidColumn,
-			remark.Table:               remark.ValidColumn,
-			remarkcategory.Table:       remarkcategory.ValidColumn,
-			setmealdetail.Table:        setmealdetail.ValidColumn,
-			setmealgroup.Table:         setmealgroup.ValidColumn,
-			store.Table:                store.ValidColumn,
+			adminuser.Table:              adminuser.ValidColumn,
+			backenduser.Table:            backenduser.ValidColumn,
+			category.Table:               category.ValidColumn,
+			city.Table:                   city.ValidColumn,
+			country.Table:                country.ValidColumn,
+			district.Table:               district.ValidColumn,
+			menu.Table:                   menu.ValidColumn,
+			menuitem.Table:               menuitem.ValidColumn,
+			merchant.Table:               merchant.ValidColumn,
+			merchantbusinesstype.Table:   merchantbusinesstype.ValidColumn,
+			merchantrenewal.Table:        merchantrenewal.ValidColumn,
+			product.Table:                product.ValidColumn,
+			productattr.Table:            productattr.ValidColumn,
+			productattritem.Table:        productattritem.ValidColumn,
+			productattrrelation.Table:    productattrrelation.ValidColumn,
+			productspec.Table:            productspec.ValidColumn,
+			productspecrelation.Table:    productspecrelation.ValidColumn,
+			producttag.Table:             producttag.ValidColumn,
+			productunit.Table:            productunit.ValidColumn,
+			profitdistributionrule.Table: profitdistributionrule.ValidColumn,
+			province.Table:               province.ValidColumn,
+			remark.Table:                 remark.ValidColumn,
+			remarkcategory.Table:         remarkcategory.ValidColumn,
+			setmealdetail.Table:          setmealdetail.ValidColumn,
+			setmealgroup.Table:           setmealgroup.ValidColumn,
+			store.Table:                  store.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

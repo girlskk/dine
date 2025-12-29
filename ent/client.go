@@ -35,6 +35,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
@@ -86,6 +87,8 @@ type Client struct {
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
 	ProductUnit *ProductUnitClient
+	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
+	ProfitDistributionRule *ProfitDistributionRuleClient
 	// Province is the client for interacting with the Province builders.
 	Province *ProvinceClient
 	// Remark is the client for interacting with the Remark builders.
@@ -128,6 +131,7 @@ func (c *Client) init() {
 	c.ProductSpecRelation = NewProductSpecRelationClient(c.config)
 	c.ProductTag = NewProductTagClient(c.config)
 	c.ProductUnit = NewProductUnitClient(c.config)
+	c.ProfitDistributionRule = NewProfitDistributionRuleClient(c.config)
 	c.Province = NewProvinceClient(c.config)
 	c.Remark = NewRemarkClient(c.config)
 	c.RemarkCategory = NewRemarkCategoryClient(c.config)
@@ -224,33 +228,34 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                  ctx,
-		config:               cfg,
-		AdminUser:            NewAdminUserClient(cfg),
-		BackendUser:          NewBackendUserClient(cfg),
-		Category:             NewCategoryClient(cfg),
-		City:                 NewCityClient(cfg),
-		Country:              NewCountryClient(cfg),
-		District:             NewDistrictClient(cfg),
-		Menu:                 NewMenuClient(cfg),
-		MenuItem:             NewMenuItemClient(cfg),
-		Merchant:             NewMerchantClient(cfg),
-		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
-		MerchantRenewal:      NewMerchantRenewalClient(cfg),
-		Product:              NewProductClient(cfg),
-		ProductAttr:          NewProductAttrClient(cfg),
-		ProductAttrItem:      NewProductAttrItemClient(cfg),
-		ProductAttrRelation:  NewProductAttrRelationClient(cfg),
-		ProductSpec:          NewProductSpecClient(cfg),
-		ProductSpecRelation:  NewProductSpecRelationClient(cfg),
-		ProductTag:           NewProductTagClient(cfg),
-		ProductUnit:          NewProductUnitClient(cfg),
-		Province:             NewProvinceClient(cfg),
-		Remark:               NewRemarkClient(cfg),
-		RemarkCategory:       NewRemarkCategoryClient(cfg),
-		SetMealDetail:        NewSetMealDetailClient(cfg),
-		SetMealGroup:         NewSetMealGroupClient(cfg),
-		Store:                NewStoreClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		AdminUser:              NewAdminUserClient(cfg),
+		BackendUser:            NewBackendUserClient(cfg),
+		Category:               NewCategoryClient(cfg),
+		City:                   NewCityClient(cfg),
+		Country:                NewCountryClient(cfg),
+		District:               NewDistrictClient(cfg),
+		Menu:                   NewMenuClient(cfg),
+		MenuItem:               NewMenuItemClient(cfg),
+		Merchant:               NewMerchantClient(cfg),
+		MerchantBusinessType:   NewMerchantBusinessTypeClient(cfg),
+		MerchantRenewal:        NewMerchantRenewalClient(cfg),
+		Product:                NewProductClient(cfg),
+		ProductAttr:            NewProductAttrClient(cfg),
+		ProductAttrItem:        NewProductAttrItemClient(cfg),
+		ProductAttrRelation:    NewProductAttrRelationClient(cfg),
+		ProductSpec:            NewProductSpecClient(cfg),
+		ProductSpecRelation:    NewProductSpecRelationClient(cfg),
+		ProductTag:             NewProductTagClient(cfg),
+		ProductUnit:            NewProductUnitClient(cfg),
+		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
+		Province:               NewProvinceClient(cfg),
+		Remark:                 NewRemarkClient(cfg),
+		RemarkCategory:         NewRemarkCategoryClient(cfg),
+		SetMealDetail:          NewSetMealDetailClient(cfg),
+		SetMealGroup:           NewSetMealGroupClient(cfg),
+		Store:                  NewStoreClient(cfg),
 	}, nil
 }
 
@@ -268,33 +273,34 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                  ctx,
-		config:               cfg,
-		AdminUser:            NewAdminUserClient(cfg),
-		BackendUser:          NewBackendUserClient(cfg),
-		Category:             NewCategoryClient(cfg),
-		City:                 NewCityClient(cfg),
-		Country:              NewCountryClient(cfg),
-		District:             NewDistrictClient(cfg),
-		Menu:                 NewMenuClient(cfg),
-		MenuItem:             NewMenuItemClient(cfg),
-		Merchant:             NewMerchantClient(cfg),
-		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
-		MerchantRenewal:      NewMerchantRenewalClient(cfg),
-		Product:              NewProductClient(cfg),
-		ProductAttr:          NewProductAttrClient(cfg),
-		ProductAttrItem:      NewProductAttrItemClient(cfg),
-		ProductAttrRelation:  NewProductAttrRelationClient(cfg),
-		ProductSpec:          NewProductSpecClient(cfg),
-		ProductSpecRelation:  NewProductSpecRelationClient(cfg),
-		ProductTag:           NewProductTagClient(cfg),
-		ProductUnit:          NewProductUnitClient(cfg),
-		Province:             NewProvinceClient(cfg),
-		Remark:               NewRemarkClient(cfg),
-		RemarkCategory:       NewRemarkCategoryClient(cfg),
-		SetMealDetail:        NewSetMealDetailClient(cfg),
-		SetMealGroup:         NewSetMealGroupClient(cfg),
-		Store:                NewStoreClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		AdminUser:              NewAdminUserClient(cfg),
+		BackendUser:            NewBackendUserClient(cfg),
+		Category:               NewCategoryClient(cfg),
+		City:                   NewCityClient(cfg),
+		Country:                NewCountryClient(cfg),
+		District:               NewDistrictClient(cfg),
+		Menu:                   NewMenuClient(cfg),
+		MenuItem:               NewMenuItemClient(cfg),
+		Merchant:               NewMerchantClient(cfg),
+		MerchantBusinessType:   NewMerchantBusinessTypeClient(cfg),
+		MerchantRenewal:        NewMerchantRenewalClient(cfg),
+		Product:                NewProductClient(cfg),
+		ProductAttr:            NewProductAttrClient(cfg),
+		ProductAttrItem:        NewProductAttrItemClient(cfg),
+		ProductAttrRelation:    NewProductAttrRelationClient(cfg),
+		ProductSpec:            NewProductSpecClient(cfg),
+		ProductSpecRelation:    NewProductSpecRelationClient(cfg),
+		ProductTag:             NewProductTagClient(cfg),
+		ProductUnit:            NewProductUnitClient(cfg),
+		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
+		Province:               NewProvinceClient(cfg),
+		Remark:                 NewRemarkClient(cfg),
+		RemarkCategory:         NewRemarkCategoryClient(cfg),
+		SetMealDetail:          NewSetMealDetailClient(cfg),
+		SetMealGroup:           NewSetMealGroupClient(cfg),
+		Store:                  NewStoreClient(cfg),
 	}, nil
 }
 
@@ -327,8 +333,9 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
 		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
 		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province, c.Remark,
-		c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.ProfitDistributionRule,
+		c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup,
+		c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -341,8 +348,9 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
 		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
 		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province, c.Remark,
-		c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.ProfitDistributionRule,
+		c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup,
+		c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -389,6 +397,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ProductTag.mutate(ctx, m)
 	case *ProductUnitMutation:
 		return c.ProductUnit.mutate(ctx, m)
+	case *ProfitDistributionRuleMutation:
+		return c.ProfitDistributionRule.mutate(ctx, m)
 	case *ProvinceMutation:
 		return c.Province.mutate(ctx, m)
 	case *RemarkMutation:
@@ -3883,6 +3893,157 @@ func (c *ProductUnitClient) mutate(ctx context.Context, m *ProductUnitMutation) 
 	}
 }
 
+// ProfitDistributionRuleClient is a client for the ProfitDistributionRule schema.
+type ProfitDistributionRuleClient struct {
+	config
+}
+
+// NewProfitDistributionRuleClient returns a client for the ProfitDistributionRule from the given config.
+func NewProfitDistributionRuleClient(c config) *ProfitDistributionRuleClient {
+	return &ProfitDistributionRuleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `profitdistributionrule.Hooks(f(g(h())))`.
+func (c *ProfitDistributionRuleClient) Use(hooks ...Hook) {
+	c.hooks.ProfitDistributionRule = append(c.hooks.ProfitDistributionRule, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `profitdistributionrule.Intercept(f(g(h())))`.
+func (c *ProfitDistributionRuleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProfitDistributionRule = append(c.inters.ProfitDistributionRule, interceptors...)
+}
+
+// Create returns a builder for creating a ProfitDistributionRule entity.
+func (c *ProfitDistributionRuleClient) Create() *ProfitDistributionRuleCreate {
+	mutation := newProfitDistributionRuleMutation(c.config, OpCreate)
+	return &ProfitDistributionRuleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProfitDistributionRule entities.
+func (c *ProfitDistributionRuleClient) CreateBulk(builders ...*ProfitDistributionRuleCreate) *ProfitDistributionRuleCreateBulk {
+	return &ProfitDistributionRuleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProfitDistributionRuleClient) MapCreateBulk(slice any, setFunc func(*ProfitDistributionRuleCreate, int)) *ProfitDistributionRuleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProfitDistributionRuleCreateBulk{err: fmt.Errorf("calling to ProfitDistributionRuleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProfitDistributionRuleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProfitDistributionRuleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) Update() *ProfitDistributionRuleUpdate {
+	mutation := newProfitDistributionRuleMutation(c.config, OpUpdate)
+	return &ProfitDistributionRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProfitDistributionRuleClient) UpdateOne(pdr *ProfitDistributionRule) *ProfitDistributionRuleUpdateOne {
+	mutation := newProfitDistributionRuleMutation(c.config, OpUpdateOne, withProfitDistributionRule(pdr))
+	return &ProfitDistributionRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProfitDistributionRuleClient) UpdateOneID(id uuid.UUID) *ProfitDistributionRuleUpdateOne {
+	mutation := newProfitDistributionRuleMutation(c.config, OpUpdateOne, withProfitDistributionRuleID(id))
+	return &ProfitDistributionRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) Delete() *ProfitDistributionRuleDelete {
+	mutation := newProfitDistributionRuleMutation(c.config, OpDelete)
+	return &ProfitDistributionRuleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProfitDistributionRuleClient) DeleteOne(pdr *ProfitDistributionRule) *ProfitDistributionRuleDeleteOne {
+	return c.DeleteOneID(pdr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProfitDistributionRuleClient) DeleteOneID(id uuid.UUID) *ProfitDistributionRuleDeleteOne {
+	builder := c.Delete().Where(profitdistributionrule.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProfitDistributionRuleDeleteOne{builder}
+}
+
+// Query returns a query builder for ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) Query() *ProfitDistributionRuleQuery {
+	return &ProfitDistributionRuleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProfitDistributionRule},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProfitDistributionRule entity by its id.
+func (c *ProfitDistributionRuleClient) Get(ctx context.Context, id uuid.UUID) (*ProfitDistributionRule, error) {
+	return c.Query().Where(profitdistributionrule.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProfitDistributionRuleClient) GetX(ctx context.Context, id uuid.UUID) *ProfitDistributionRule {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryStores queries the stores edge of a ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) QueryStores(pdr *ProfitDistributionRule) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pdr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionrule.Table, profitdistributionrule.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, profitdistributionrule.StoresTable, profitdistributionrule.StoresPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pdr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProfitDistributionRuleClient) Hooks() []Hook {
+	hooks := c.hooks.ProfitDistributionRule
+	return append(hooks[:len(hooks):len(hooks)], profitdistributionrule.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProfitDistributionRuleClient) Interceptors() []Interceptor {
+	inters := c.inters.ProfitDistributionRule
+	return append(inters[:len(inters):len(inters)], profitdistributionrule.Interceptors[:]...)
+}
+
+func (c *ProfitDistributionRuleClient) mutate(ctx context.Context, m *ProfitDistributionRuleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProfitDistributionRuleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProfitDistributionRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProfitDistributionRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProfitDistributionRuleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProfitDistributionRule mutation op: %q", m.Op())
+	}
+}
+
 // ProvinceClient is a client for the Province schema.
 type ProvinceClient struct {
 	config
@@ -5034,6 +5195,22 @@ func (c *StoreClient) QueryMenus(s *Store) *MenuQuery {
 	return query
 }
 
+// QueryProfitDistributionRules queries the profit_distribution_rules edge of a Store.
+func (c *StoreClient) QueryProfitDistributionRules(s *Store) *ProfitDistributionRuleQuery {
+	query := (&ProfitDistributionRuleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(profitdistributionrule.Table, profitdistributionrule.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, store.ProfitDistributionRulesTable, store.ProfitDistributionRulesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StoreClient) Hooks() []Hook {
 	hooks := c.hooks.Store
@@ -5067,14 +5244,14 @@ type (
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
 		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
 		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Hook
+		ProductTag, ProductUnit, ProfitDistributionRule, Province, Remark,
+		RemarkCategory, SetMealDetail, SetMealGroup, Store []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
 		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
 		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Interceptor
+		ProductTag, ProductUnit, ProfitDistributionRule, Province, Remark,
+		RemarkCategory, SetMealDetail, SetMealGroup, Store []ent.Interceptor
 	}
 )

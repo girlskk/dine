@@ -2074,6 +2074,29 @@ func HasMenusWith(preds ...predicate.Menu) predicate.Store {
 	})
 }
 
+// HasProfitDistributionRules applies the HasEdge predicate on the "profit_distribution_rules" edge.
+func HasProfitDistributionRules() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ProfitDistributionRulesTable, ProfitDistributionRulesPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProfitDistributionRulesWith applies the HasEdge predicate on the "profit_distribution_rules" edge with a given conditions (other predicates).
+func HasProfitDistributionRulesWith(preds ...predicate.ProfitDistributionRule) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newProfitDistributionRulesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Store) predicate.Store {
 	return predicate.Store(sql.AndPredicates(predicates...))

@@ -847,6 +847,93 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.ProfitDistributionRule:
+    properties:
+      billing_cycle:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionRuleBillingCycle'
+        description: 账单生成周期
+      created_at:
+        description: 创建时间
+        type: string
+      effective_date:
+        description: 方案生效日期
+        type: string
+      expiry_date:
+        description: 方案失效日期
+        type: string
+      id:
+        description: 分账方案ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 分账方案名称
+        type: string
+      split_ratio:
+        description: 分账比例（0-1，单位：小数）
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionRuleStatus'
+        description: 状态
+      store_count:
+        description: 关联门店数量
+        type: integer
+      stores:
+        description: 关联信息
+        items:
+          $ref: '#/definitions/domain.StoreSimple'
+        type: array
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProfitDistributionRuleBillingCycle:
+    enum:
+    - daily
+    - monthly
+    type: string
+    x-enum-comments:
+      ProfitDistributionRuleBillingCycleDaily: 按日
+      ProfitDistributionRuleBillingCycleMonthly: 按月
+    x-enum-descriptions:
+    - 按日
+    - 按月
+    x-enum-varnames:
+    - ProfitDistributionRuleBillingCycleDaily
+    - ProfitDistributionRuleBillingCycleMonthly
+  domain.ProfitDistributionRuleSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProfitDistributionRule'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
+  domain.ProfitDistributionRuleStatus:
+    enum:
+    - enabled
+    - disabled
+    type: string
+    x-enum-comments:
+      ProfitDistributionRuleStatusDisabled: 禁用
+      ProfitDistributionRuleStatusEnabled: 启用
+    x-enum-descriptions:
+    - 启用
+    - 禁用
+    x-enum-varnames:
+    - ProfitDistributionRuleStatusEnabled
+    - ProfitDistributionRuleStatusDisabled
   domain.Remark:
     properties:
       category_id:
@@ -1615,6 +1702,78 @@ definitions:
     - sale_status
     - spec_relations
     - unit_id
+    type: object
+  types.ProfitDistributionRuleCreateReq:
+    properties:
+      billing_cycle:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionRuleBillingCycle'
+        description: 账单生成周期（必选）
+        enum:
+        - daily
+        - monthly
+      effective_date:
+        description: 方案生效日期（必选）
+        type: string
+      expiry_date:
+        description: 方案失效日期（必选）
+        type: string
+      name:
+        description: 分账方案名称（必选）
+        maxLength: 255
+        type: string
+      split_ratio:
+        description: 分账比例（必选，0-1之间）
+        type: number
+      store_ids:
+        description: 门店ID列表（必选，多选）
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - billing_cycle
+    - effective_date
+    - expiry_date
+    - name
+    - split_ratio
+    - store_ids
+    type: object
+  types.ProfitDistributionRuleUpdateReq:
+    properties:
+      billing_cycle:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionRuleBillingCycle'
+        description: 账单生成周期（必选）
+        enum:
+        - daily
+        - monthly
+      effective_date:
+        description: 方案生效日期（必选）
+        type: string
+      expiry_date:
+        description: 方案失效日期（必选）
+        type: string
+      name:
+        description: 分账方案名称（必选）
+        maxLength: 255
+        type: string
+      split_ratio:
+        description: 分账比例（必选，0-1之间）
+        type: number
+      store_ids:
+        description: 门店ID列表（必选，多选）
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - billing_cycle
+    - effective_date
+    - expiry_date
+    - name
+    - split_ratio
+    - store_ids
     type: object
   types.RemarkCreateReq:
     properties:
@@ -2790,6 +2949,132 @@ paths:
       summary: 更新商品单位
       tags:
       - 商品单位
+  /profit/distribution/rule:
+    get:
+      parameters:
+      - description: 分账方案名称（模糊匹配）
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 状态筛选（可选）
+        enum:
+        - enabled
+        - disabled
+        in: query
+        name: status
+        type: string
+        x-enum-comments:
+          ProfitDistributionRuleStatusDisabled: 禁用
+          ProfitDistributionRuleStatusEnabled: 启用
+        x-enum-descriptions:
+        - 启用
+        - 禁用
+        x-enum-varnames:
+        - ProfitDistributionRuleStatusEnabled
+        - ProfitDistributionRuleStatusDisabled
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProfitDistributionRuleSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询分账方案列表
+      tags:
+      - 分账方案
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProfitDistributionRuleCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建分账方案
+      tags:
+      - 分账方案
+  /profit/distribution/rule/{id}:
+    delete:
+      parameters:
+      - description: 分账方案ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除分账方案
+      tags:
+      - 分账方案
+    put:
+      parameters:
+      - description: 分账方案ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProfitDistributionRuleUpdateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新分账方案
+      tags:
+      - 分账方案
+  /profit/distribution/rule/{id}/disable:
+    post:
+      parameters:
+      - description: 分账方案ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 禁用分账方案
+      tags:
+      - 分账方案
+  /profit/distribution/rule/{id}/enable:
+    post:
+      parameters:
+      - description: 分账方案ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 启用分账方案
+      tags:
+      - 分账方案
   /remark:
     get:
       description: 分页查询备注列表

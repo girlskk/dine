@@ -183,6 +183,7 @@ func (Store) Edges() []ent.Edge {
 			Unique(),
 		edge.To("remarks", Remark.Type),
 		edge.From("menus", Menu.Type).Ref("stores").Comment("关联的菜单"),
+		edge.From("profit_distribution_rules", ProfitDistributionRule.Type).Ref("stores").Comment("关联的分账方案"),
 	}
 }
 

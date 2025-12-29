@@ -13,29 +13,30 @@ import (
 var _ domain.DataStore = (*Repository)(nil)
 
 type Repository struct {
-	transactionActive        bool
-	hooks                    []func()
-	mu                       sync.Mutex
-	client                   *ent.Client
-	adminUserRepo            *AdminUserRepository
-	storeUserRepo            *StoreUserRepository
-	categoryRepo             *CategoryRepository
-	backendUserRepo          *BackendUserRepository
-	productUnitRepo          *ProductUnitRepository
-	productSpecRepo          *ProductSpecRepository
-	productTagRepo           *ProductTagRepository
-	productAttrRepo          *ProductAttrRepository
-	productRepo              *ProductRepository
-	productAttrRelRepo       *ProductAttrRelRepository
-	productSpecRelRepo       *ProductSpecRelRepository
-	setMealGroupRepo         *SetMealGroupRepository
-	merchantRepo             *MerchantRepository
-	storeRepo                *StoreRepository
-	merchantRenewalRepo      *MerchantRenewalRepository
-	merchantBusinessTypeRepo *MerchantBusinessTypeRepository
-	remarkRepo               *RemarkRepository
-	remarkCategoryRepo       *RemarkCategoryRepository
-	menuRepo                 *MenuRepository
+	transactionActive          bool
+	hooks                      []func()
+	mu                         sync.Mutex
+	client                     *ent.Client
+	adminUserRepo              *AdminUserRepository
+	storeUserRepo              *StoreUserRepository
+	categoryRepo               *CategoryRepository
+	backendUserRepo            *BackendUserRepository
+	productUnitRepo            *ProductUnitRepository
+	productSpecRepo            *ProductSpecRepository
+	productTagRepo             *ProductTagRepository
+	productAttrRepo            *ProductAttrRepository
+	productRepo                *ProductRepository
+	productAttrRelRepo         *ProductAttrRelRepository
+	productSpecRelRepo         *ProductSpecRelRepository
+	setMealGroupRepo           *SetMealGroupRepository
+	merchantRepo               *MerchantRepository
+	storeRepo                  *StoreRepository
+	merchantRenewalRepo        *MerchantRenewalRepository
+	merchantBusinessTypeRepo   *MerchantBusinessTypeRepository
+	remarkRepo                 *RemarkRepository
+	remarkCategoryRepo         *RemarkCategoryRepository
+	menuRepo                   *MenuRepository
+	profitDistributionRuleRepo *ProfitDistributionRuleRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -279,4 +280,13 @@ func (repo *Repository) StoreUserRepo() domain.StoreUserRepository {
 		repo.storeUserRepo = NewStoreUserRepository(repo.client)
 	}
 	return repo.storeUserRepo
+}
+
+func (repo *Repository) ProfitDistributionRuleRepo() domain.ProfitDistributionRuleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.profitDistributionRuleRepo == nil {
+		repo.profitDistributionRuleRepo = NewProfitDistributionRuleRepository(repo.client)
+	}
+	return repo.profitDistributionRuleRepo
 }

@@ -21,6 +21,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -501,6 +502,21 @@ func (sc *StoreCreate) AddMenus(m ...*Menu) *StoreCreate {
 		ids[i] = m[i].ID
 	}
 	return sc.AddMenuIDs(ids...)
+}
+
+// AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
+func (sc *StoreCreate) AddProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddProfitDistributionRuleIDs(ids...)
+	return sc
+}
+
+// AddProfitDistributionRules adds the "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (sc *StoreCreate) AddProfitDistributionRules(p ...*ProfitDistributionRule) *StoreCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return sc.AddProfitDistributionRuleIDs(ids...)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -1121,6 +1137,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.ProfitDistributionRulesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

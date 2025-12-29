@@ -810,6 +810,44 @@ var (
 			},
 		},
 	}
+	// ProfitDistributionRulesColumns holds the columns for the "profit_distribution_rules" table.
+	ProfitDistributionRulesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "split_ratio", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "billing_cycle", Type: field.TypeEnum, Enums: []string{"daily", "monthly"}, Default: "daily"},
+		{Name: "effective_date", Type: field.TypeTime},
+		{Name: "expiry_date", Type: field.TypeTime},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"enabled", "disabled"}, Default: "disabled"},
+		{Name: "store_count", Type: field.TypeInt, Default: 0},
+	}
+	// ProfitDistributionRulesTable holds the schema information for the "profit_distribution_rules" table.
+	ProfitDistributionRulesTable = &schema.Table{
+		Name:       "profit_distribution_rules",
+		Columns:    ProfitDistributionRulesColumns,
+		PrimaryKey: []*schema.Column{ProfitDistributionRulesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "profitdistributionrule_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProfitDistributionRulesColumns[3]},
+			},
+			{
+				Name:    "profitdistributionrule_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProfitDistributionRulesColumns[4]},
+			},
+			{
+				Name:    "profitdistributionrule_merchant_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProfitDistributionRulesColumns[4], ProfitDistributionRulesColumns[5], ProfitDistributionRulesColumns[3]},
+			},
+		},
+	}
 	// ProvincesColumns holds the columns for the "provinces" table.
 	ProvincesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1174,6 +1212,31 @@ var (
 			},
 		},
 	}
+	// ProfitDistributionRuleStoreRelationsColumns holds the columns for the "profit_distribution_rule_store_relations" table.
+	ProfitDistributionRuleStoreRelationsColumns = []*schema.Column{
+		{Name: "profit_distribution_rule_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+	}
+	// ProfitDistributionRuleStoreRelationsTable holds the schema information for the "profit_distribution_rule_store_relations" table.
+	ProfitDistributionRuleStoreRelationsTable = &schema.Table{
+		Name:       "profit_distribution_rule_store_relations",
+		Columns:    ProfitDistributionRuleStoreRelationsColumns,
+		PrimaryKey: []*schema.Column{ProfitDistributionRuleStoreRelationsColumns[0], ProfitDistributionRuleStoreRelationsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "profit_distribution_rule_store_relations_profit_distribution_rule_id",
+				Columns:    []*schema.Column{ProfitDistributionRuleStoreRelationsColumns[0]},
+				RefColumns: []*schema.Column{ProfitDistributionRulesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "profit_distribution_rule_store_relations_store_id",
+				Columns:    []*schema.Column{ProfitDistributionRuleStoreRelationsColumns[1]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AdminUsersTable,
@@ -1195,6 +1258,7 @@ var (
 		ProductSpecRelationsTable,
 		ProductTagsTable,
 		ProductUnitsTable,
+		ProfitDistributionRulesTable,
 		ProvincesTable,
 		RemarksTable,
 		RemarkCategoriesTable,
@@ -1203,6 +1267,7 @@ var (
 		StoresTable,
 		MenuStoreRelationsTable,
 		ProductTagRelationsTable,
+		ProfitDistributionRuleStoreRelationsTable,
 	}
 )
 
@@ -1249,4 +1314,6 @@ func init() {
 	MenuStoreRelationsTable.ForeignKeys[1].RefTable = StoresTable
 	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductTagRelationsTable.ForeignKeys[1].RefTable = ProductTagsTable
+	ProfitDistributionRuleStoreRelationsTable.ForeignKeys[0].RefTable = ProfitDistributionRulesTable
+	ProfitDistributionRuleStoreRelationsTable.ForeignKeys[1].RefTable = StoresTable
 }

@@ -19,6 +19,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -528,6 +529,21 @@ func (su *StoreUpdate) AddMenus(m ...*Menu) *StoreUpdate {
 	return su.AddMenuIDs(ids...)
 }
 
+// AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
+func (su *StoreUpdate) AddProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddProfitDistributionRuleIDs(ids...)
+	return su
+}
+
+// AddProfitDistributionRules adds the "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (su *StoreUpdate) AddProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.AddProfitDistributionRuleIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
@@ -603,6 +619,27 @@ func (su *StoreUpdate) RemoveMenus(m ...*Menu) *StoreUpdate {
 		ids[i] = m[i].ID
 	}
 	return su.RemoveMenuIDs(ids...)
+}
+
+// ClearProfitDistributionRules clears all "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (su *StoreUpdate) ClearProfitDistributionRules() *StoreUpdate {
+	su.mutation.ClearProfitDistributionRules()
+	return su
+}
+
+// RemoveProfitDistributionRuleIDs removes the "profit_distribution_rules" edge to ProfitDistributionRule entities by IDs.
+func (su *StoreUpdate) RemoveProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveProfitDistributionRuleIDs(ids...)
+	return su
+}
+
+// RemoveProfitDistributionRules removes "profit_distribution_rules" edges to ProfitDistributionRule entities.
+func (su *StoreUpdate) RemoveProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.RemoveProfitDistributionRuleIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1092,6 +1129,51 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedProfitDistributionRulesIDs(); len(nodes) > 0 && !su.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ProfitDistributionRulesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1611,6 +1693,21 @@ func (suo *StoreUpdateOne) AddMenus(m ...*Menu) *StoreUpdateOne {
 	return suo.AddMenuIDs(ids...)
 }
 
+// AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
+func (suo *StoreUpdateOne) AddProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddProfitDistributionRuleIDs(ids...)
+	return suo
+}
+
+// AddProfitDistributionRules adds the "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (suo *StoreUpdateOne) AddProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.AddProfitDistributionRuleIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
@@ -1686,6 +1783,27 @@ func (suo *StoreUpdateOne) RemoveMenus(m ...*Menu) *StoreUpdateOne {
 		ids[i] = m[i].ID
 	}
 	return suo.RemoveMenuIDs(ids...)
+}
+
+// ClearProfitDistributionRules clears all "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (suo *StoreUpdateOne) ClearProfitDistributionRules() *StoreUpdateOne {
+	suo.mutation.ClearProfitDistributionRules()
+	return suo
+}
+
+// RemoveProfitDistributionRuleIDs removes the "profit_distribution_rules" edge to ProfitDistributionRule entities by IDs.
+func (suo *StoreUpdateOne) RemoveProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveProfitDistributionRuleIDs(ids...)
+	return suo
+}
+
+// RemoveProfitDistributionRules removes "profit_distribution_rules" edges to ProfitDistributionRule entities.
+func (suo *StoreUpdateOne) RemoveProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.RemoveProfitDistributionRuleIDs(ids...)
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -2205,6 +2323,51 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedProfitDistributionRulesIDs(); len(nodes) > 0 && !suo.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ProfitDistributionRulesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

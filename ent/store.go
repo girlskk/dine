@@ -117,9 +117,11 @@ type StoreEdges struct {
 	Remarks []*Remark `json:"remarks,omitempty"`
 	// 关联的菜单
 	Menus []*Menu `json:"menus,omitempty"`
+	// 关联的分账方案
+	ProfitDistributionRules []*ProfitDistributionRule `json:"profit_distribution_rules,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [10]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -215,6 +217,15 @@ func (e StoreEdges) MenusOrErr() ([]*Menu, error) {
 		return e.Menus, nil
 	}
 	return nil, &NotLoadedError{edge: "menus"}
+}
+
+// ProfitDistributionRulesOrErr returns the ProfitDistributionRules value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) ProfitDistributionRulesOrErr() ([]*ProfitDistributionRule, error) {
+	if e.loadedTypes[9] {
+		return e.ProfitDistributionRules, nil
+	}
+	return nil, &NotLoadedError{edge: "profit_distribution_rules"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -499,6 +510,11 @@ func (s *Store) QueryRemarks() *RemarkQuery {
 // QueryMenus queries the "menus" edge of the Store entity.
 func (s *Store) QueryMenus() *MenuQuery {
 	return NewStoreClient(s.config).QueryMenus(s)
+}
+
+// QueryProfitDistributionRules queries the "profit_distribution_rules" edge of the Store entity.
+func (s *Store) QueryProfitDistributionRules() *ProfitDistributionRuleQuery {
+	return NewStoreClient(s.config).QueryProfitDistributionRules(s)
 }
 
 // Update returns a builder for updating this Store.

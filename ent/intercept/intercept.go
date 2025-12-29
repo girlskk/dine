@@ -28,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
@@ -605,6 +606,33 @@ func (f TraverseProductUnit) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ProductUnitQuery", q)
 }
 
+// The ProfitDistributionRuleFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ProfitDistributionRuleFunc func(context.Context, *ent.ProfitDistributionRuleQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ProfitDistributionRuleFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ProfitDistributionRuleQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ProfitDistributionRuleQuery", q)
+}
+
+// The TraverseProfitDistributionRule type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseProfitDistributionRule func(context.Context, *ent.ProfitDistributionRuleQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseProfitDistributionRule) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseProfitDistributionRule) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProfitDistributionRuleQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ProfitDistributionRuleQuery", q)
+}
+
 // The ProvinceFunc type is an adapter to allow the use of ordinary function as a Querier.
 type ProvinceFunc func(context.Context, *ent.ProvinceQuery) (ent.Value, error)
 
@@ -808,6 +836,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.ProductTagQuery, predicate.ProductTag, producttag.OrderOption]{typ: ent.TypeProductTag, tq: q}, nil
 	case *ent.ProductUnitQuery:
 		return &query[*ent.ProductUnitQuery, predicate.ProductUnit, productunit.OrderOption]{typ: ent.TypeProductUnit, tq: q}, nil
+	case *ent.ProfitDistributionRuleQuery:
+		return &query[*ent.ProfitDistributionRuleQuery, predicate.ProfitDistributionRule, profitdistributionrule.OrderOption]{typ: ent.TypeProfitDistributionRule, tq: q}, nil
 	case *ent.ProvinceQuery:
 		return &query[*ent.ProvinceQuery, predicate.Province, province.OrderOption]{typ: ent.TypeProvince, tq: q}, nil
 	case *ent.RemarkQuery:

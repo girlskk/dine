@@ -22,6 +22,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -30,20 +31,21 @@ import (
 // StoreQuery is the builder for querying Store entities.
 type StoreQuery struct {
 	config
-	ctx                      *QueryContext
-	order                    []store.OrderOption
-	inters                   []Interceptor
-	predicates               []predicate.Store
-	withMerchant             *MerchantQuery
-	withAdminUser            *AdminUserQuery
-	withMerchantBusinessType *MerchantBusinessTypeQuery
-	withCountry              *CountryQuery
-	withProvince             *ProvinceQuery
-	withCity                 *CityQuery
-	withDistrict             *DistrictQuery
-	withRemarks              *RemarkQuery
-	withMenus                *MenuQuery
-	modifiers                []func(*sql.Selector)
+	ctx                         *QueryContext
+	order                       []store.OrderOption
+	inters                      []Interceptor
+	predicates                  []predicate.Store
+	withMerchant                *MerchantQuery
+	withAdminUser               *AdminUserQuery
+	withMerchantBusinessType    *MerchantBusinessTypeQuery
+	withCountry                 *CountryQuery
+	withProvince                *ProvinceQuery
+	withCity                    *CityQuery
+	withDistrict                *DistrictQuery
+	withRemarks                 *RemarkQuery
+	withMenus                   *MenuQuery
+	withProfitDistributionRules *ProfitDistributionRuleQuery
+	modifiers                   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -278,6 +280,28 @@ func (sq *StoreQuery) QueryMenus() *MenuQuery {
 	return query
 }
 
+// QueryProfitDistributionRules chains the current query on the "profit_distribution_rules" edge.
+func (sq *StoreQuery) QueryProfitDistributionRules() *ProfitDistributionRuleQuery {
+	query := (&ProfitDistributionRuleClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(profitdistributionrule.Table, profitdistributionrule.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, store.ProfitDistributionRulesTable, store.ProfitDistributionRulesPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Store entity from the query.
 // Returns a *NotFoundError when no Store was found.
 func (sq *StoreQuery) First(ctx context.Context) (*Store, error) {
@@ -465,20 +489,21 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		return nil
 	}
 	return &StoreQuery{
-		config:                   sq.config,
-		ctx:                      sq.ctx.Clone(),
-		order:                    append([]store.OrderOption{}, sq.order...),
-		inters:                   append([]Interceptor{}, sq.inters...),
-		predicates:               append([]predicate.Store{}, sq.predicates...),
-		withMerchant:             sq.withMerchant.Clone(),
-		withAdminUser:            sq.withAdminUser.Clone(),
-		withMerchantBusinessType: sq.withMerchantBusinessType.Clone(),
-		withCountry:              sq.withCountry.Clone(),
-		withProvince:             sq.withProvince.Clone(),
-		withCity:                 sq.withCity.Clone(),
-		withDistrict:             sq.withDistrict.Clone(),
-		withRemarks:              sq.withRemarks.Clone(),
-		withMenus:                sq.withMenus.Clone(),
+		config:                      sq.config,
+		ctx:                         sq.ctx.Clone(),
+		order:                       append([]store.OrderOption{}, sq.order...),
+		inters:                      append([]Interceptor{}, sq.inters...),
+		predicates:                  append([]predicate.Store{}, sq.predicates...),
+		withMerchant:                sq.withMerchant.Clone(),
+		withAdminUser:               sq.withAdminUser.Clone(),
+		withMerchantBusinessType:    sq.withMerchantBusinessType.Clone(),
+		withCountry:                 sq.withCountry.Clone(),
+		withProvince:                sq.withProvince.Clone(),
+		withCity:                    sq.withCity.Clone(),
+		withDistrict:                sq.withDistrict.Clone(),
+		withRemarks:                 sq.withRemarks.Clone(),
+		withMenus:                   sq.withMenus.Clone(),
+		withProfitDistributionRules: sq.withProfitDistributionRules.Clone(),
 		// clone intermediate query.
 		sql:       sq.sql.Clone(),
 		path:      sq.path,
@@ -585,6 +610,17 @@ func (sq *StoreQuery) WithMenus(opts ...func(*MenuQuery)) *StoreQuery {
 	return sq
 }
 
+// WithProfitDistributionRules tells the query-builder to eager-load the nodes that are connected to
+// the "profit_distribution_rules" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithProfitDistributionRules(opts ...func(*ProfitDistributionRuleQuery)) *StoreQuery {
+	query := (&ProfitDistributionRuleClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withProfitDistributionRules = query
+	return sq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -663,7 +699,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [10]bool{
 			sq.withMerchant != nil,
 			sq.withAdminUser != nil,
 			sq.withMerchantBusinessType != nil,
@@ -673,6 +709,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			sq.withDistrict != nil,
 			sq.withRemarks != nil,
 			sq.withMenus != nil,
+			sq.withProfitDistributionRules != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -749,6 +786,15 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 		if err := sq.loadMenus(ctx, query, nodes,
 			func(n *Store) { n.Edges.Menus = []*Menu{} },
 			func(n *Store, e *Menu) { n.Edges.Menus = append(n.Edges.Menus, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withProfitDistributionRules; query != nil {
+		if err := sq.loadProfitDistributionRules(ctx, query, nodes,
+			func(n *Store) { n.Edges.ProfitDistributionRules = []*ProfitDistributionRule{} },
+			func(n *Store, e *ProfitDistributionRule) {
+				n.Edges.ProfitDistributionRules = append(n.Edges.ProfitDistributionRules, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -1042,6 +1088,67 @@ func (sq *StoreQuery) loadMenus(ctx context.Context, query *MenuQuery, nodes []*
 		nodes, ok := nids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected "menus" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (sq *StoreQuery) loadProfitDistributionRules(ctx context.Context, query *ProfitDistributionRuleQuery, nodes []*Store, init func(*Store), assign func(*Store, *ProfitDistributionRule)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Store)
+	nids := make(map[uuid.UUID]map[*Store]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(store.ProfitDistributionRulesTable)
+		s.Join(joinT).On(s.C(profitdistributionrule.FieldID), joinT.C(store.ProfitDistributionRulesPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(store.ProfitDistributionRulesPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(store.ProfitDistributionRulesPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Store]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*ProfitDistributionRule](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "profit_distribution_rules" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

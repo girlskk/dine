@@ -27,6 +27,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
@@ -1205,6 +1206,59 @@ func init() {
 	productunitDescID := productunitMixinFields0[0].Descriptor()
 	// productunit.DefaultID holds the default value on creation for the id field.
 	productunit.DefaultID = productunitDescID.Default.(func() uuid.UUID)
+	profitdistributionruleMixin := schema.ProfitDistributionRule{}.Mixin()
+	profitdistributionruleMixinHooks2 := profitdistributionruleMixin[2].Hooks()
+	profitdistributionrule.Hooks[0] = profitdistributionruleMixinHooks2[0]
+	profitdistributionruleMixinInters2 := profitdistributionruleMixin[2].Interceptors()
+	profitdistributionrule.Interceptors[0] = profitdistributionruleMixinInters2[0]
+	profitdistributionruleMixinFields0 := profitdistributionruleMixin[0].Fields()
+	_ = profitdistributionruleMixinFields0
+	profitdistributionruleMixinFields1 := profitdistributionruleMixin[1].Fields()
+	_ = profitdistributionruleMixinFields1
+	profitdistributionruleMixinFields2 := profitdistributionruleMixin[2].Fields()
+	_ = profitdistributionruleMixinFields2
+	profitdistributionruleFields := schema.ProfitDistributionRule{}.Fields()
+	_ = profitdistributionruleFields
+	// profitdistributionruleDescCreatedAt is the schema descriptor for created_at field.
+	profitdistributionruleDescCreatedAt := profitdistributionruleMixinFields1[0].Descriptor()
+	// profitdistributionrule.DefaultCreatedAt holds the default value on creation for the created_at field.
+	profitdistributionrule.DefaultCreatedAt = profitdistributionruleDescCreatedAt.Default.(func() time.Time)
+	// profitdistributionruleDescUpdatedAt is the schema descriptor for updated_at field.
+	profitdistributionruleDescUpdatedAt := profitdistributionruleMixinFields1[1].Descriptor()
+	// profitdistributionrule.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	profitdistributionrule.DefaultUpdatedAt = profitdistributionruleDescUpdatedAt.Default.(func() time.Time)
+	// profitdistributionrule.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	profitdistributionrule.UpdateDefaultUpdatedAt = profitdistributionruleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// profitdistributionruleDescDeletedAt is the schema descriptor for deleted_at field.
+	profitdistributionruleDescDeletedAt := profitdistributionruleMixinFields2[0].Descriptor()
+	// profitdistributionrule.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	profitdistributionrule.DefaultDeletedAt = profitdistributionruleDescDeletedAt.Default.(int64)
+	// profitdistributionruleDescName is the schema descriptor for name field.
+	profitdistributionruleDescName := profitdistributionruleFields[1].Descriptor()
+	// profitdistributionrule.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	profitdistributionrule.NameValidator = func() func(string) error {
+		validators := profitdistributionruleDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profitdistributionruleDescStoreCount is the schema descriptor for store_count field.
+	profitdistributionruleDescStoreCount := profitdistributionruleFields[7].Descriptor()
+	// profitdistributionrule.DefaultStoreCount holds the default value on creation for the store_count field.
+	profitdistributionrule.DefaultStoreCount = profitdistributionruleDescStoreCount.Default.(int)
+	// profitdistributionruleDescID is the schema descriptor for id field.
+	profitdistributionruleDescID := profitdistributionruleMixinFields0[0].Descriptor()
+	// profitdistributionrule.DefaultID holds the default value on creation for the id field.
+	profitdistributionrule.DefaultID = profitdistributionruleDescID.Default.(func() uuid.UUID)
 	provinceMixin := schema.Province{}.Mixin()
 	provinceMixinHooks2 := provinceMixin[2].Hooks()
 	province.Hooks[0] = provinceMixinHooks2[0]

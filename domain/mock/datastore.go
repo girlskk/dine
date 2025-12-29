@@ -271,6 +271,20 @@ func (mr *MockDataStoreMockRecorder) ProductUnitRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProductUnitRepo", reflect.TypeOf((*MockDataStore)(nil).ProductUnitRepo))
 }
 
+// ProfitDistributionRuleRepo mocks base method.
+func (m *MockDataStore) ProfitDistributionRuleRepo() domain.ProfitDistributionRuleRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProfitDistributionRuleRepo")
+	ret0, _ := ret[0].(domain.ProfitDistributionRuleRepository)
+	return ret0
+}
+
+// ProfitDistributionRuleRepo indicates an expected call of ProfitDistributionRuleRepo.
+func (mr *MockDataStoreMockRecorder) ProfitDistributionRuleRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProfitDistributionRuleRepo", reflect.TypeOf((*MockDataStore)(nil).ProfitDistributionRuleRepo))
+}
+
 // RemarkCategoryRepo mocks base method.
 func (m *MockDataStore) RemarkCategoryRepo() domain.RemarkCategoryRepository {
 	m.ctrl.T.Helper()
