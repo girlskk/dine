@@ -15,3 +15,21 @@ test_build_admin:
   extends: .test_build_common
   variables:
     ENTRYPOINT_NAME: admin
+
+# backend服务
+test_build_backend:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: backend
+
+# frontend服务
+test_build_frontend:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: frontend
+
+# store服务
+test_build_store:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: store
