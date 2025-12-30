@@ -35,9 +35,9 @@ type MenuItem struct {
 	ProductID uuid.UUID `json:"product_id,omitempty"`
 	// 下发售卖规则：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
 	SaleRule domain.MenuItemSaleRule `json:"sale_rule,omitempty"`
-	// 基础价（可选，单位：分）
+	// 基础价（可选，单位：令吉）
 	BasePrice *decimal.Decimal `json:"base_price,omitempty"`
-	// 会员价（可选，单位：分）
+	// 会员价（可选，单位：令吉）
 	MemberPrice *decimal.Decimal `json:"member_price,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MenuItemQuery when eager-loading is set.

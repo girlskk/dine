@@ -127,7 +127,8 @@ func (h *ProductUnitHandler) Update() gin.HandlerFunc {
 			Type: domain.ProductUnitType(req.Type),
 		}
 
-		err = h.ProductUnitInteractor.Update(ctx, unit)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductUnitInteractor.Update(ctx, unit, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductUnitNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.ProductUnitNameExists, err))
@@ -170,7 +171,8 @@ func (h *ProductUnitHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductUnitInteractor.Delete(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductUnitInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductUnitDeleteHasProducts) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductUnitDeleteHasProducts, err))
@@ -214,9 +216,10 @@ func (h *ProductUnitHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		params := domain.ProductUnitSearchParams{
-			MerchantID: user.MerchantID,
-			Name:       req.Name,
-			Type:       domain.ProductUnitType(req.Type),
+			MerchantID:   user.MerchantID,
+			Name:         req.Name,
+			Type:         domain.ProductUnitType(req.Type),
+			OnlyMerchant: true,
 		}
 
 		res, err := h.ProductUnitInteractor.PagedListBySearch(ctx, page, params)

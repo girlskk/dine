@@ -35,8 +35,8 @@ type ProductSpecRepository interface {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/product_spec_interactor.go -package=mock . ProductSpecInteractor
 type ProductSpecInteractor interface {
 	Create(ctx context.Context, spec *ProductSpec) error
-	Update(ctx context.Context, spec *ProductSpec) error
-	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, spec *ProductSpec, user User) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSpecSearchParams) (*ProductSpecSearchRes, error)
 }
 
@@ -61,14 +61,17 @@ type ProductSpecs []*ProductSpec
 // ProductSpecExistsParams 存在性检查参数
 type ProductSpecExistsParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string
 	ExcludeID  uuid.UUID // 排除的ID（用于更新时检查名称唯一性）
 }
 
 // ProductSpecSearchParams 查询参数
 type ProductSpecSearchParams struct {
-	MerchantID uuid.UUID
-	Name       string
+	MerchantID   uuid.UUID
+	StoreID      uuid.UUID
+	Name         string
+	OnlyMerchant bool
 }
 
 type ProductSpecSearchRes struct {

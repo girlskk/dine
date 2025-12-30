@@ -31,6 +31,7 @@ func (i *ProductSpecInteractor) Create(ctx context.Context, spec *domain.Product
 		// 1. 验证名称在当前门店下是否唯一
 		exists, err := ds.ProductSpecRepo().Exists(ctx, domain.ProductSpecExistsParams{
 			MerchantID: spec.MerchantID,
+			StoreID:    spec.StoreID,
 			Name:       spec.Name,
 		})
 		if err != nil {
@@ -50,7 +51,7 @@ func (i *ProductSpecInteractor) Create(ctx context.Context, spec *domain.Product
 	})
 }
 
-func (i *ProductSpecInteractor) Update(ctx context.Context, spec *domain.ProductSpec) (err error) {
+func (i *ProductSpecInteractor) Update(ctx context.Context, spec *domain.ProductSpec, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductSpecInteractor.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -63,10 +64,15 @@ func (i *ProductSpecInteractor) Update(ctx context.Context, spec *domain.Product
 			return err
 		}
 
-		// 2. 验证更新后的名称在当前门店下是否唯一（排除自身）
+		if err := verifyProductSpecOwnership(user, existingSpec); err != nil {
+			return err
+		}
+
+		// 2. 验证更新后的名称在当前品牌商/门店下是否唯一（排除自身）
 		if spec.Name != existingSpec.Name {
 			exists, err := ds.ProductSpecRepo().Exists(ctx, domain.ProductSpecExistsParams{
 				MerchantID: existingSpec.MerchantID,
+				StoreID:    existingSpec.StoreID,
 				Name:       spec.Name,
 				ExcludeID:  spec.ID,
 			})
@@ -94,7 +100,7 @@ func (i *ProductSpecInteractor) Update(ctx context.Context, spec *domain.Product
 	})
 }
 
-func (i *ProductSpecInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (i *ProductSpecInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductSpecInteractor.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -107,6 +113,10 @@ func (i *ProductSpecInteractor) Delete(ctx context.Context, id uuid.UUID) (err e
 			if domain.IsNotFound(err) {
 				return domain.ParamsError(domain.ErrProductSpecNotExists)
 			}
+			return err
+		}
+
+		if err := verifyProductSpecOwnership(user, spec); err != nil {
 			return err
 		}
 
@@ -136,4 +146,11 @@ func (i *ProductSpecInteractor) PagedListBySearch(
 	}()
 
 	return i.DS.ProductSpecRepo().PagedListBySearch(ctx, page, params)
+}
+
+func verifyProductSpecOwnership(user domain.User, spec *domain.ProductSpec) error {
+	if user.GetMerchantID() != spec.MerchantID || user.GetStoreID() != spec.StoreID {
+		return domain.ParamsError(domain.ErrProductSpecNotExists)
+	}
+	return nil
 }

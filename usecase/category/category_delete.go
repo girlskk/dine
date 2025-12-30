@@ -8,7 +8,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *CategoryInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (i *CategoryInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "CategoryInteractor.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -21,6 +21,10 @@ func (i *CategoryInteractor) Delete(ctx context.Context, id uuid.UUID) (err erro
 			if domain.IsNotFound(err) {
 				return domain.ParamsError(domain.ErrCategoryNotExists)
 			}
+			return err
+		}
+
+		if err := verifyCategoryOwnership(user, category); err != nil {
 			return err
 		}
 

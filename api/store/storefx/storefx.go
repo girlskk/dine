@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"gitlab.jiguang.dev/pos-dine/dine/api/store"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/handler"
 	mid "gitlab.jiguang.dev/pos-dine/dine/api/store/middleware"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
@@ -43,7 +44,16 @@ var Module = fx.Module(
 	),
 
 	// handler
-	fx.Provide(),
+	fx.Provide(
+		asHandler(handler.NewUserHandler),
+		asHandler(handler.NewCategoryHandler),
+		asHandler(handler.NewProductTagHandler),
+		asHandler(handler.NewProductUnitHandler),
+		asHandler(handler.NewProductSpecHandler),
+		asHandler(handler.NewProductAttrHandler),
+		asHandler(handler.NewProductHandler),
+		asHandler(handler.NewMenuHandler),
+	),
 )
 
 func asHandler(f any) any {

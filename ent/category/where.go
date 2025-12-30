@@ -386,16 +386,6 @@ func StoreIDLTE(v uuid.UUID) predicate.Category {
 	return predicate.Category(sql.FieldLTE(FieldStoreID, v))
 }
 
-// StoreIDIsNil applies the IsNil predicate on the "store_id" field.
-func StoreIDIsNil() predicate.Category {
-	return predicate.Category(sql.FieldIsNull(FieldStoreID))
-}
-
-// StoreIDNotNil applies the NotNil predicate on the "store_id" field.
-func StoreIDNotNil() predicate.Category {
-	return predicate.Category(sql.FieldNotNull(FieldStoreID))
-}
-
 // ParentIDEQ applies the EQ predicate on the "parent_id" field.
 func ParentIDEQ(v uuid.UUID) predicate.Category {
 	return predicate.Category(sql.FieldEQ(FieldParentID, v))
@@ -414,16 +404,6 @@ func ParentIDIn(vs ...uuid.UUID) predicate.Category {
 // ParentIDNotIn applies the NotIn predicate on the "parent_id" field.
 func ParentIDNotIn(vs ...uuid.UUID) predicate.Category {
 	return predicate.Category(sql.FieldNotIn(FieldParentID, vs...))
-}
-
-// ParentIDIsNil applies the IsNil predicate on the "parent_id" field.
-func ParentIDIsNil() predicate.Category {
-	return predicate.Category(sql.FieldIsNull(FieldParentID))
-}
-
-// ParentIDNotNil applies the NotNil predicate on the "parent_id" field.
-func ParentIDNotNil() predicate.Category {
-	return predicate.Category(sql.FieldNotNull(FieldParentID))
 }
 
 // InheritTaxRateEQ applies the EQ predicate on the "inherit_tax_rate" field.

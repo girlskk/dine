@@ -29,10 +29,22 @@ type StoreUser struct {
 	Username       string    `json:"username"`
 	HashedPassword string    `json:"-"`
 	Nickname       string    `json:"nickname"`
-	StoreID        uuid.UUID `json:"store_id"` // 门店ID
+	MerchantID     uuid.UUID `json:"merchant_id"` // 品牌商ID
+	StoreID        uuid.UUID `json:"store_id"`    // 门店ID
 
 	// 关联数据
 	Store *Store `json:"store,omitempty"` // 所属门店
+}
+
+// 实现 User 接口
+// GetMerchantID 实现 User 接口
+func (u *StoreUser) GetMerchantID() uuid.UUID {
+	return u.MerchantID
+}
+
+// GetStoreID 实现 User 接口（品牌商用户的 StoreID 为 uuid.Nil）
+func (u *StoreUser) GetStoreID() uuid.UUID {
+	return u.StoreID
 }
 
 func (u *StoreUser) SetPassword(password string) error {

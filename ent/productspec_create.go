@@ -191,6 +191,13 @@ func (psc *ProductSpecCreate) defaults() error {
 		v := productspec.DefaultDeletedAt
 		psc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := psc.mutation.StoreID(); !ok {
+		if productspec.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized productspec.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := productspec.DefaultStoreID()
+		psc.mutation.SetStoreID(v)
+	}
 	if _, ok := psc.mutation.ProductCount(); !ok {
 		v := productspec.DefaultProductCount
 		psc.mutation.SetProductCount(v)
@@ -226,6 +233,9 @@ func (psc *ProductSpecCreate) check() error {
 	}
 	if _, ok := psc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "ProductSpec.merchant_id"`)}
+	}
+	if _, ok := psc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "ProductSpec.store_id"`)}
 	}
 	if _, ok := psc.mutation.ProductCount(); !ok {
 		return &ValidationError{Name: "product_count", err: errors.New(`ent: missing required field "ProductSpec.product_count"`)}

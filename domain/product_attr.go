@@ -50,9 +50,9 @@ type ProductAttrRepository interface {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/product_attr_interactor.go -package=mock . ProductAttrInteractor
 type ProductAttrInteractor interface {
 	Create(ctx context.Context, attr *ProductAttr) error
-	Update(ctx context.Context, attr *ProductAttr) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	DeleteItem(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, attr *ProductAttr, user User) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
+	DeleteItem(ctx context.Context, id uuid.UUID, user User) error
 	ListBySearch(ctx context.Context, params ProductAttrSearchParams) (ProductAttrs, error)
 }
 
@@ -117,6 +117,7 @@ type ProductAttrItems []*ProductAttrItem
 // ProductAttrExistsParams 存在性检查参数
 type ProductAttrExistsParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string
 	ExcludeID  uuid.UUID // 排除的ID（用于更新时检查名称唯一性）
 }
@@ -130,7 +131,9 @@ type ProductAttrItemExistsParams struct {
 
 // ProductAttrSearchParams 查询参数
 type ProductAttrSearchParams struct {
-	MerchantID uuid.UUID
+	MerchantID   uuid.UUID
+	StoreID      uuid.UUID
+	OnlyMerchant bool
 }
 
 type ProductAttrSearchRes struct {

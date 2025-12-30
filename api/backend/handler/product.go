@@ -374,10 +374,11 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		}
 
 		params := domain.ProductSearchParams{
-			MerchantID: user.MerchantID,
-			Name:       req.Name,
-			StartAt:    &startAt,
-			EndAt:      &endAt,
+			MerchantID:   user.MerchantID,
+			OnlyMerchant: true,
+			Name:         req.Name,
+			StartAt:      &startAt,
+			EndAt:        &endAt,
 		}
 
 		// 转换UUID
@@ -553,7 +554,7 @@ func (h *ProductHandler) Update() gin.HandlerFunc {
 			}
 		}
 
-		err = h.ProductInteractor.Update(ctx, product)
+		err = h.ProductInteractor.Update(ctx, product, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.ProductNameExists, err))
@@ -717,7 +718,7 @@ func (h *ProductHandler) UpdateSetMeal() gin.HandlerFunc {
 		}
 		product.Groups = groups
 
-		err = h.ProductInteractor.UpdateSetMeal(ctx, product)
+		err = h.ProductInteractor.UpdateSetMeal(ctx, product, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.ProductNameExists, err))
@@ -759,7 +760,8 @@ func (h *ProductHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductInteractor.Delete(ctx, productID)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductInteractor.Delete(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
@@ -797,7 +799,8 @@ func (h *ProductHandler) OffSale() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductInteractor.OffSale(ctx, productID)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductInteractor.OffSale(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
@@ -835,7 +838,8 @@ func (h *ProductHandler) OnSale() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductInteractor.OnSale(ctx, productID)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductInteractor.OnSale(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
@@ -873,7 +877,8 @@ func (h *ProductHandler) GetDetail() gin.HandlerFunc {
 			return
 		}
 
-		product, err := h.ProductInteractor.GetDetail(ctx, productID)
+		user := domain.FromBackendUserContext(ctx)
+		product, err := h.ProductInteractor.GetDetail(ctx, productID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
@@ -919,7 +924,7 @@ func (h *ProductHandler) Distribute() gin.HandlerFunc {
 			SaleRule:         req.SaleRule,
 		}
 
-		err := h.ProductInteractor.Distribute(ctx, params)
+		err := h.ProductInteractor.Distribute(ctx, params, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))

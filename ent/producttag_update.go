@@ -216,9 +216,6 @@ func (ptu *ProductTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ptu.mutation.Name(); ok {
 		_spec.SetField(producttag.FieldName, field.TypeString, value)
 	}
-	if ptu.mutation.StoreIDCleared() {
-		_spec.ClearField(producttag.FieldStoreID, field.TypeUUID)
-	}
 	if value, ok := ptu.mutation.ProductCount(); ok {
 		_spec.SetField(producttag.FieldProductCount, field.TypeInt, value)
 	}
@@ -506,9 +503,6 @@ func (ptuo *ProductTagUpdateOne) sqlSave(ctx context.Context) (_node *ProductTag
 	}
 	if value, ok := ptuo.mutation.Name(); ok {
 		_spec.SetField(producttag.FieldName, field.TypeString, value)
-	}
-	if ptuo.mutation.StoreIDCleared() {
-		_spec.ClearField(producttag.FieldStoreID, field.TypeUUID)
 	}
 	if value, ok := ptuo.mutation.ProductCount(); ok {
 		_spec.SetField(producttag.FieldProductCount, field.TypeInt, value)
