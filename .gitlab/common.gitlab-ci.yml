@@ -52,5 +52,5 @@
     - |
       ssh $SSH_USER@$SSH_HOST << EOF
         cd $DEPLOY_DIR
-        docker-compose up -d --pull always --force-recreate
+        docker compose up -d --pull always --force-recreate
       EOF
