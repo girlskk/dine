@@ -18,6 +18,7 @@ func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Ca
 		// Check if the category name already exists
 		exists, err := ds.CategoryRepo().Exists(ctx, domain.CategoryExistsParams{
 			MerchantID: category.MerchantID,
+			StoreID:    category.StoreID,
 			Name:       category.Name,
 			IsRoot:     true,
 		})

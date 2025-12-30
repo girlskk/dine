@@ -53,11 +53,9 @@ func (repo *ProductUnitRepository) Create(ctx context.Context, unit *domain.Prod
 		SetName(unit.Name).
 		SetType(unit.Type).
 		SetMerchantID(unit.MerchantID).
+		SetStoreID(unit.StoreID).
 		SetProductCount(unit.ProductCount)
 
-	if unit.StoreID != uuid.Nil {
-		builder.SetStoreID(unit.StoreID)
-	}
 	created, err := builder.Save(ctx)
 	if err != nil {
 		return err
@@ -110,10 +108,10 @@ func (repo *ProductUnitRepository) Exists(ctx context.Context, params domain.Pro
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.ProductUnit.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(productunit.MerchantID(params.MerchantID))
-	}
+	query := repo.Client.ProductUnit.Query().
+		Where(productunit.MerchantID(params.MerchantID)).
+		Where(productunit.StoreID(params.StoreID))
+
 	if params.Name != "" {
 		query.Where(productunit.Name(params.Name))
 	}
@@ -147,6 +145,12 @@ func (repo *ProductUnitRepository) PagedListBySearch(
 		query.Where(productunit.TypeEQ(params.Type))
 	}
 
+	if params.OnlyMerchant {
+		query.Where(productunit.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(productunit.StoreID(params.StoreID))
+	}
+
 	// 获取总数
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
@@ -174,6 +178,26 @@ func (repo *ProductUnitRepository) PagedListBySearch(
 		Pagination: page,
 		Items:      items,
 	}, nil
+}
+
+func (repo *ProductUnitRepository) FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (res *domain.ProductUnit, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductUnitRepository.FindByNameInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	eu, err := repo.Client.ProductUnit.Query().
+		Where(productunit.StoreID(storeID)).
+		Where(productunit.Name(name)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrProductUnitNotExists)
+		}
+		return nil, err
+	}
+
+	return convertProductUnitToDomain(eu), nil
 }
 
 func convertProductUnitToDomain(eu *ent.ProductUnit) *domain.ProductUnit {

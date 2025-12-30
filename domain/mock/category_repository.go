@@ -123,6 +123,36 @@ func (mr *MockCategoryRepositoryMockRecorder) FindByID(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockCategoryRepository)(nil).FindByID), arg0, arg1)
 }
 
+// FindByNameInStore mocks base method.
+func (m *MockCategoryRepository) FindByNameInStore(arg0 context.Context, arg1 string, arg2, arg3 uuid.UUID) (*domain.Category, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByNameInStore", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*domain.Category)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByNameInStore indicates an expected call of FindByNameInStore.
+func (mr *MockCategoryRepositoryMockRecorder) FindByNameInStore(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByNameInStore", reflect.TypeOf((*MockCategoryRepository)(nil).FindByNameInStore), arg0, arg1, arg2, arg3)
+}
+
+// ListByParentID mocks base method.
+func (m *MockCategoryRepository) ListByParentID(arg0 context.Context, arg1, arg2, arg3 uuid.UUID) (domain.Categories, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByParentID", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(domain.Categories)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListByParentID indicates an expected call of ListByParentID.
+func (mr *MockCategoryRepositoryMockRecorder) ListByParentID(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByParentID", reflect.TypeOf((*MockCategoryRepository)(nil).ListByParentID), arg0, arg1, arg2, arg3)
+}
+
 // ListBySearch mocks base method.
 func (m *MockCategoryRepository) ListBySearch(arg0 context.Context, arg1 domain.CategorySearchParams) (domain.Categories, error) {
 	m.ctrl.T.Helper()
@@ -150,4 +180,18 @@ func (m *MockCategoryRepository) Update(arg0 context.Context, arg1 *domain.Categ
 func (mr *MockCategoryRepositoryMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCategoryRepository)(nil).Update), arg0, arg1)
+}
+
+// UpdateSortOrders mocks base method.
+func (m *MockCategoryRepository) UpdateSortOrders(arg0 context.Context, arg1 map[uuid.UUID]int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSortOrders", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateSortOrders indicates an expected call of UpdateSortOrders.
+func (mr *MockCategoryRepositoryMockRecorder) UpdateSortOrders(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSortOrders", reflect.TypeOf((*MockCategoryRepository)(nil).UpdateSortOrders), arg0, arg1)
 }

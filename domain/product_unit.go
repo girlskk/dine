@@ -25,6 +25,7 @@ type ProductUnitRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProductUnitExistsParams) (bool, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductUnitSearchParams) (*ProductUnitSearchRes, error)
+	FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (*ProductUnit, error)
 }
 
 // ProductUnitInteractor 商品单位用例接口
@@ -32,8 +33,8 @@ type ProductUnitRepository interface {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/product_unit_interactor.go -package=mock . ProductUnitInteractor
 type ProductUnitInteractor interface {
 	Create(ctx context.Context, unit *ProductUnit) error
-	Update(ctx context.Context, unit *ProductUnit) error
-	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, unit *ProductUnit, user User) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductUnitSearchParams) (*ProductUnitSearchRes, error)
 }
 
@@ -74,15 +75,18 @@ type ProductUnits []*ProductUnit
 // ProductUnitExistsParams 存在性检查参数
 type ProductUnitExistsParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string
 	ExcludeID  uuid.UUID // 排除的ID（用于更新时检查名称唯一性）
 }
 
 // ProductUnitSearchParams 查询参数
 type ProductUnitSearchParams struct {
-	MerchantID uuid.UUID
-	Name       string
-	Type       ProductUnitType
+	MerchantID   uuid.UUID
+	StoreID      uuid.UUID
+	Name         string
+	Type         ProductUnitType
+	OnlyMerchant bool
 }
 
 type ProductUnitSearchRes struct {

@@ -198,6 +198,13 @@ func (puc *ProductUnitCreate) defaults() error {
 		v := productunit.DefaultDeletedAt
 		puc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := puc.mutation.StoreID(); !ok {
+		if productunit.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized productunit.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := productunit.DefaultStoreID()
+		puc.mutation.SetStoreID(v)
+	}
 	if _, ok := puc.mutation.ProductCount(); !ok {
 		v := productunit.DefaultProductCount
 		puc.mutation.SetProductCount(v)
@@ -241,6 +248,9 @@ func (puc *ProductUnitCreate) check() error {
 	}
 	if _, ok := puc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "ProductUnit.merchant_id"`)}
+	}
+	if _, ok := puc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "ProductUnit.store_id"`)}
 	}
 	if _, ok := puc.mutation.ProductCount(); !ok {
 		return &ValidationError{Name: "product_count", err: errors.New(`ent: missing required field "ProductUnit.product_count"`)}

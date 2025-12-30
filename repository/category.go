@@ -2,7 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
@@ -51,15 +54,11 @@ func (repo *CategoryRepository) Create(ctx context.Context, cat *domain.Category
 		SetID(cat.ID).
 		SetName(cat.Name).
 		SetMerchantID(cat.MerchantID).
+		SetStoreID(cat.StoreID).
+		SetParentID(cat.ParentID).
 		SetInheritTaxRate(cat.InheritTaxRate).
 		SetInheritStall(cat.InheritStall)
 
-	if cat.StoreID != uuid.Nil {
-		builder = builder.SetStoreID(cat.StoreID)
-	}
-	if cat.ParentID != uuid.Nil {
-		builder = builder.SetParentID(cat.ParentID)
-	}
 	if cat.TaxRateID != uuid.Nil {
 		builder = builder.SetTaxRateID(cat.TaxRateID)
 	}
@@ -94,15 +93,11 @@ func (repo *CategoryRepository) CreateBulk(ctx context.Context, categories []*do
 			SetID(cat.ID).
 			SetName(cat.Name).
 			SetMerchantID(cat.MerchantID).
+			SetStoreID(cat.StoreID).
+			SetParentID(cat.ParentID).
 			SetInheritTaxRate(cat.InheritTaxRate).
 			SetInheritStall(cat.InheritStall)
 
-		if cat.StoreID != uuid.Nil {
-			builder = builder.SetStoreID(cat.StoreID)
-		}
-		if cat.ParentID != uuid.Nil {
-			builder = builder.SetParentID(cat.ParentID)
-		}
 		if cat.TaxRateID != uuid.Nil {
 			builder = builder.SetTaxRateID(cat.TaxRateID)
 		}
@@ -128,13 +123,8 @@ func (repo *CategoryRepository) Update(ctx context.Context, cat *domain.Category
 		SetInheritTaxRate(cat.InheritTaxRate).
 		SetInheritStall(cat.InheritStall).
 		SetSortOrder(cat.SortOrder).
+		SetParentID(cat.ParentID).
 		SetProductCount(cat.ProductCount)
-
-	if cat.ParentID == uuid.Nil {
-		builder = builder.ClearParentID()
-	} else {
-		builder = builder.SetParentID(cat.ParentID)
-	}
 
 	if cat.TaxRateID == uuid.Nil {
 		builder = builder.ClearTaxRateID()
@@ -178,13 +168,13 @@ func (repo *CategoryRepository) Exists(ctx context.Context, params domain.Catego
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.Category.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(category.MerchantID(params.MerchantID))
-	}
+	query := repo.Client.Category.Query().
+		Where(category.MerchantID(params.MerchantID)).
+		Where(category.StoreID(params.StoreID))
+
 	if params.IsRoot {
-		query.Where(category.ParentIDIsNil())
-	} else if params.ParentID != uuid.Nil {
+		query.Where(category.ParentID(uuid.Nil))
+	} else {
 		query.Where(category.ParentID(params.ParentID))
 	}
 	if params.Name != "" {
@@ -225,10 +215,16 @@ func (repo *CategoryRepository) ListBySearch(
 	query := repo.Client.Category.Query()
 
 	// 默认只查询一级分类
-	query.Where(category.ParentIDIsNil())
+	query.Where(category.ParentID(uuid.Nil))
 
 	if params.MerchantID != uuid.Nil {
 		query.Where(category.MerchantID(params.MerchantID))
+	}
+
+	if params.OnlyMerchant {
+		query.Where(category.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(category.StoreID(params.StoreID))
 	}
 
 	// 预加载子分类
@@ -256,6 +252,97 @@ func (repo *CategoryRepository) ListBySearch(
 	return items, nil
 }
 
+func (repo *CategoryRepository) FindByNameInStore(ctx context.Context, name string, storeID, parentID uuid.UUID) (res *domain.Category, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.FindByNameInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	query := repo.Client.Category.Query().
+		Where(category.Name(name)).
+		Where(category.StoreID(storeID))
+	if parentID != uuid.Nil {
+		query.Where(category.ParentID(parentID))
+	}
+	ec, err := query.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrCategoryNotExists)
+		}
+		return nil, err
+	}
+	return convertCategoryToDomain(ec), nil
+}
+
+// 在 repository/category.go 实现：
+func (repo *CategoryRepository) ListByParentID(ctx context.Context, merchantID, storeID, parentID uuid.UUID) (res domain.Categories, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.ListByParentID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Category.Query().
+		Where(category.MerchantID(merchantID)).
+		Where(category.ParentID(parentID)).
+		Where(category.StoreID(storeID))
+
+	entCats, err := query.Order(category.BySortOrder()).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.Categories, 0, len(entCats))
+	for _, c := range entCats {
+		items = append(items, convertCategoryToDomain(c))
+	}
+
+	return items, nil
+}
+
+func (repo *CategoryRepository) UpdateSortOrders(ctx context.Context, updates map[uuid.UUID]int) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.UpdateSortOrders")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if len(updates) == 0 {
+		return nil
+	}
+
+	// 收集所有需要更新的 ID
+	ids := make([]uuid.UUID, 0, len(updates))
+	for id := range updates {
+		ids = append(ids, id)
+	}
+
+	// 使用 Ent 的 Modify 功能构建 CASE WHEN 批量更新
+	_, err = repo.Client.Category.Update().
+		Where(category.IDIn(ids...)).
+		Modify(func(u *sql.UpdateBuilder) {
+			var args []interface{}
+			var caseExpr strings.Builder
+
+			caseExpr.WriteString("CASE `id`")
+			// 为每个 ID 添加 WHEN 分支
+			for _, id := range ids {
+				caseExpr.WriteString(" WHEN ? THEN ?")
+				args = append(args, id, updates[id])
+			}
+			caseExpr.WriteString(" ELSE `sort_order` END")
+			u.Set(category.FieldSortOrder, sql.Expr(caseExpr.String(), args...))
+		}).
+		Save(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to batch update sort_order: %w", err)
+	}
+
+	return nil
+}
+
+// ============================================
+// 转换函数
+// ============================================
+
 func convertCategoryToDomain(ec *ent.Category) *domain.Category {
 	if ec == nil {
 		return nil
@@ -275,6 +362,10 @@ func convertCategoryToDomain(ec *ent.Category) *domain.Category {
 		SortOrder:      ec.SortOrder,
 		CreatedAt:      ec.CreatedAt,
 		UpdatedAt:      ec.UpdatedAt,
+	}
+
+	if ec.Edges.Parent != nil {
+		cat.Parent = convertCategoryToDomain(ec.Edges.Parent)
 	}
 
 	return cat

@@ -52,11 +52,8 @@ func (repo *ProductTagRepository) Create(ctx context.Context, tag *domain.Produc
 		SetID(tag.ID).
 		SetName(tag.Name).
 		SetMerchantID(tag.MerchantID).
+		SetStoreID(tag.StoreID).
 		SetProductCount(tag.ProductCount)
-
-	if tag.StoreID != uuid.Nil {
-		builder.SetStoreID(tag.StoreID)
-	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -109,10 +106,10 @@ func (repo *ProductTagRepository) Exists(ctx context.Context, params domain.Prod
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.ProductTag.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(producttag.MerchantID(params.MerchantID))
-	}
+	query := repo.Client.ProductTag.Query().
+		Where(producttag.MerchantID(params.MerchantID)).
+		Where(producttag.StoreID(params.StoreID))
+
 	if params.Name != "" {
 		query.Where(producttag.Name(params.Name))
 	}
@@ -138,6 +135,13 @@ func (repo *ProductTagRepository) PagedListBySearch(
 	if params.MerchantID != uuid.Nil {
 		query.Where(producttag.MerchantID(params.MerchantID))
 	}
+
+	if params.OnlyMerchant {
+		query.Where(producttag.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(producttag.StoreID(params.StoreID))
+	}
+
 	if params.Name != "" {
 		query.Where(producttag.NameContains(params.Name))
 	}
@@ -190,6 +194,50 @@ func (repo *ProductTagRepository) ListByIDs(ctx context.Context, ids []uuid.UUID
 		res = append(res, convertProductTagToDomain(t))
 	}
 	return res, nil
+}
+
+func (repo *ProductTagRepository) FindByNamesInStore(ctx context.Context, storeID uuid.UUID, names []string) (res domain.ProductTags, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductTagRepository.FindByNamesInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.ProductTag.Query().Where(producttag.StoreID(storeID)).Where(producttag.NameIn(names...))
+	entTags, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.ProductTags, 0, len(entTags))
+	for _, t := range entTags {
+		res = append(res, convertProductTagToDomain(t))
+	}
+	return res, nil
+}
+
+func (repo *ProductTagRepository) CreateBulk(ctx context.Context, tags domain.ProductTags) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductTagRepository.CreateBulk")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	if len(tags) == 0 {
+		return nil
+	}
+
+	builders := make([]*ent.ProductTagCreate, 0, len(tags))
+	for _, tag := range tags {
+		builder := repo.Client.ProductTag.Create().
+			SetID(tag.ID).
+			SetName(tag.Name).
+			SetMerchantID(tag.MerchantID).
+			SetStoreID(tag.StoreID).
+			SetProductCount(tag.ProductCount)
+
+		builders = append(builders, builder)
+	}
+
+	_, err = repo.Client.ProductTag.CreateBulk(builders...).Save(ctx)
+	return err
 }
 
 func convertProductTagToDomain(et *ent.ProductTag) *domain.ProductTag {

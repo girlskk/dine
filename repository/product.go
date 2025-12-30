@@ -54,11 +54,26 @@ func (repo *ProductRepository) GetDetail(ctx context.Context, id uuid.UUID) (res
 
 	ep, err := repo.Client.Product.Query().
 		Where(product.IDEQ(id)).
-		WithCategory().
+		WithCategory(
+			func(query *ent.CategoryQuery) {
+				query.WithParent()
+			},
+		).
 		WithUnit().
 		WithTags().
-		WithProductSpecs().
-		WithProductAttrs().
+		WithProductSpecs(
+			func(query *ent.ProductSpecRelationQuery) {
+				query.WithSpec()
+			},
+		).
+		WithProductAttrs(
+			func(query *ent.ProductAttrRelationQuery) {
+				query.WithAttr()
+			},
+			func(query *ent.ProductAttrRelationQuery) {
+				query.WithAttrItem()
+			},
+		).
 		WithSetMealGroups(func(query *ent.SetMealGroupQuery) {
 			query.WithDetails()
 		}).
@@ -119,6 +134,7 @@ func (repo *ProductRepository) Create(ctx context.Context, p *domain.Product) (e
 		SetName(p.Name).
 		SetType(p.Type).
 		SetMerchantID(p.MerchantID).
+		SetStoreID(p.StoreID).
 		SetCategoryID(p.CategoryID).
 		SetUnitID(p.UnitID).
 		SetMnemonic(p.Mnemonic).
@@ -142,9 +158,6 @@ func (repo *ProductRepository) Create(ctx context.Context, p *domain.Product) (e
 	}
 
 	// 可选字段
-	if p.StoreID != uuid.Nil {
-		builder = builder.SetStoreID(p.StoreID)
-	}
 	if p.MenuID != uuid.Nil {
 		builder = builder.SetMenuID(p.MenuID)
 	}
@@ -310,8 +323,12 @@ func (repo *ProductRepository) Exists(ctx context.Context, params domain.Product
 	query := repo.Client.Product.Query().
 		Where(
 			product.MerchantID(params.MerchantID),
-			product.Name(params.Name),
+			product.StoreID(params.StoreID),
 		)
+
+	if params.Name != "" {
+		query = query.Where(product.Name(params.Name))
+	}
 
 	if params.ExcludeID != uuid.Nil {
 		query = query.Where(product.IDNEQ(params.ExcludeID))
@@ -340,6 +357,29 @@ func (repo *ProductRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (
 	return res, nil
 }
 
+func (repo *ProductRepository) FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (res *domain.Product, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.FindByNameInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	ep, err := repo.Client.Product.Query().
+		Where(
+			product.StoreID(storeID),
+			product.Name(name),
+		).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrProductNotExists)
+		}
+		return nil, err
+	}
+
+	res = convertProductToDomain(ep)
+	return res, nil
+}
+
 func (repo *ProductRepository) PagedListBySearch(
 	ctx context.Context,
 	page *upagination.Pagination,
@@ -358,7 +398,9 @@ func (repo *ProductRepository) PagedListBySearch(
 	}
 
 	// 可选条件：门店ID
-	if params.StoreID != uuid.Nil {
+	if params.OnlyMerchant {
+		query.Where(product.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
 		query.Where(product.StoreID(params.StoreID))
 	}
 
@@ -499,6 +541,11 @@ func convertProductToDomain(ep *ent.Product) *domain.Product {
 	// 分类信息
 	if ep.Edges.Category != nil {
 		p.Category = convertCategoryToDomain(ep.Edges.Category)
+	}
+
+	// 单位信息
+	if ep.Edges.Unit != nil {
+		p.Unit = convertProductUnitToDomain(ep.Edges.Unit)
 	}
 
 	// 规格字段

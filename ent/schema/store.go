@@ -182,6 +182,7 @@ func (Store) Edges() []ent.Edge {
 			Field("district_id").
 			Unique(),
 		edge.To("remarks", Remark.Type),
+		edge.From("menus", Menu.Type).Ref("stores").Comment("关联的菜单"),
 	}
 }
 

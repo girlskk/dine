@@ -7,7 +7,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *ProductInteractor) UpdateSetMeal(ctx context.Context, product *domain.Product) (err error) {
+func (i *ProductInteractor) UpdateSetMeal(ctx context.Context, product *domain.Product, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.UpdateSetMeal")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -32,6 +32,11 @@ func (i *ProductInteractor) UpdateSetMeal(ctx context.Context, product *domain.P
 		// 验证商品是否属于当前商户
 		if existingProduct.MerchantID != product.MerchantID {
 			return domain.ParamsError(domain.ErrProductNotExists)
+		}
+
+		// 验证是否可以操作该商品
+		if err := verifyProductOwnership(user, existingProduct); err != nil {
+			return err
 		}
 
 		// 业务规则校验

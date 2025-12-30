@@ -30,6 +30,9 @@ type CategoryRepository interface {
 	Exists(ctx context.Context, params CategoryExistsParams) (bool, error)
 	CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (int, error)
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
+	FindByNameInStore(ctx context.Context, name string, storeID, parentID uuid.UUID) (*Category, error)
+	ListByParentID(ctx context.Context, merchantID, storeID, parentID uuid.UUID) (Categories, error)
+	UpdateSortOrders(ctx context.Context, updates map[uuid.UUID]int) error
 }
 
 // CategoryInteractor 商品分类用例接口
@@ -38,9 +41,10 @@ type CategoryRepository interface {
 type CategoryInteractor interface {
 	CreateRoot(ctx context.Context, category *Category) error
 	CreateChild(ctx context.Context, category *Category) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	Update(ctx context.Context, category *Category) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
+	Update(ctx context.Context, category *Category, user User) error
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
+	Reorder(ctx context.Context, parentID *uuid.UUID, categoryIDs []uuid.UUID, user User) error
 }
 
 // Category 商品分类实体
@@ -61,6 +65,7 @@ type Category struct {
 
 	// @TODO 关联信息
 	Childrens []*Category `json:"children,omitempty"` // 子分类列表
+	Parent    *Category   `json:"parent,omitempty"`   // 父分类
 	// TaxRate *TaxRate `json:"tax_rate,omitempty"` // 税率
 	// Stall   *Stall   `json:"stall,omitempty"`    // 出品部门
 }
@@ -80,6 +85,7 @@ func (c *Category) IsRoot() bool {
 // CategoryExistsParams 存在性检查参数
 type CategoryExistsParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string
 	ParentID   uuid.UUID
 	IsRoot     bool
@@ -88,5 +94,7 @@ type CategoryExistsParams struct {
 
 // CategorySearchParams 查询参数
 type CategorySearchParams struct {
-	MerchantID uuid.UUID
+	MerchantID   uuid.UUID
+	StoreID      uuid.UUID
+	OnlyMerchant bool // 是否只查询品牌商的分类
 }

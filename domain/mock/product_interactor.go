@@ -66,60 +66,74 @@ func (mr *MockProductInteractorMockRecorder) CreateSetMeal(arg0, arg1 interface{
 }
 
 // Delete mocks base method.
-func (m *MockProductInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockProductInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockProductInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductInteractor)(nil).Delete), arg0, arg1, arg2)
+}
+
+// Distribute mocks base method.
+func (m *MockProductInteractor) Distribute(arg0 context.Context, arg1 domain.ProductDistributeParams, arg2 domain.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Distribute", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Distribute indicates an expected call of Distribute.
+func (mr *MockProductInteractorMockRecorder) Distribute(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Distribute", reflect.TypeOf((*MockProductInteractor)(nil).Distribute), arg0, arg1, arg2)
 }
 
 // GetDetail mocks base method.
-func (m *MockProductInteractor) GetDetail(arg0 context.Context, arg1 uuid.UUID) (*domain.Product, error) {
+func (m *MockProductInteractor) GetDetail(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDetail", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetDetail", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDetail indicates an expected call of GetDetail.
-func (mr *MockProductInteractorMockRecorder) GetDetail(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) GetDetail(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockProductInteractor)(nil).GetDetail), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockProductInteractor)(nil).GetDetail), arg0, arg1, arg2)
 }
 
 // OffSale mocks base method.
-func (m *MockProductInteractor) OffSale(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockProductInteractor) OffSale(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OffSale", arg0, arg1)
+	ret := m.ctrl.Call(m, "OffSale", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // OffSale indicates an expected call of OffSale.
-func (mr *MockProductInteractorMockRecorder) OffSale(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) OffSale(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OffSale", reflect.TypeOf((*MockProductInteractor)(nil).OffSale), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OffSale", reflect.TypeOf((*MockProductInteractor)(nil).OffSale), arg0, arg1, arg2)
 }
 
 // OnSale mocks base method.
-func (m *MockProductInteractor) OnSale(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockProductInteractor) OnSale(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OnSale", arg0, arg1)
+	ret := m.ctrl.Call(m, "OnSale", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // OnSale indicates an expected call of OnSale.
-func (mr *MockProductInteractorMockRecorder) OnSale(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) OnSale(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnSale", reflect.TypeOf((*MockProductInteractor)(nil).OnSale), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnSale", reflect.TypeOf((*MockProductInteractor)(nil).OnSale), arg0, arg1, arg2)
 }
 
 // PagedListBySearch mocks base method.
@@ -138,29 +152,29 @@ func (mr *MockProductInteractorMockRecorder) PagedListBySearch(arg0, arg1, arg2 
 }
 
 // Update mocks base method.
-func (m *MockProductInteractor) Update(arg0 context.Context, arg1 *domain.Product) error {
+func (m *MockProductInteractor) Update(arg0 context.Context, arg1 *domain.Product, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockProductInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductInteractor)(nil).Update), arg0, arg1, arg2)
 }
 
 // UpdateSetMeal mocks base method.
-func (m *MockProductInteractor) UpdateSetMeal(arg0 context.Context, arg1 *domain.Product) error {
+func (m *MockProductInteractor) UpdateSetMeal(arg0 context.Context, arg1 *domain.Product, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateSetMeal", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateSetMeal", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateSetMeal indicates an expected call of UpdateSetMeal.
-func (mr *MockProductInteractorMockRecorder) UpdateSetMeal(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) UpdateSetMeal(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSetMeal", reflect.TypeOf((*MockProductInteractor)(nil).UpdateSetMeal), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSetMeal", reflect.TypeOf((*MockProductInteractor)(nil).UpdateSetMeal), arg0, arg1, arg2)
 }

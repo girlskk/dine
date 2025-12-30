@@ -8,7 +8,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *ProductInteractor) OnSale(ctx context.Context, id uuid.UUID) (err error) {
+func (i *ProductInteractor) OnSale(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.OnSale")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -24,12 +24,17 @@ func (i *ProductInteractor) OnSale(ctx context.Context, id uuid.UUID) (err error
 			return err
 		}
 
-		// 2. 验证商品当前状态是否为"停售"
+		// 2. 验证是否可以操作该商品
+		if err := verifyProductOwnership(user, product); err != nil {
+			return err
+		}
+
+		// 3. 验证商品当前状态是否为"停售"
 		if product.SaleStatus != domain.ProductSaleStatusOffSale {
 			return domain.ParamsError(domain.ErrProductNotExists)
 		}
 
-		// 3. 更新商品售卖状态为"在售"
+		// 4. 更新商品售卖状态为"在售"
 		product.SaleStatus = domain.ProductSaleStatusOnSale
 		err = ds.ProductRepo().Update(ctx, product)
 		if err != nil {

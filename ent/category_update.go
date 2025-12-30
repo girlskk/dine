@@ -86,12 +86,6 @@ func (cu *CategoryUpdate) SetNillableParentID(u *uuid.UUID) *CategoryUpdate {
 	return cu
 }
 
-// ClearParentID clears the value of the "parent_id" field.
-func (cu *CategoryUpdate) ClearParentID() *CategoryUpdate {
-	cu.mutation.ClearParentID()
-	return cu
-}
-
 // SetInheritTaxRate sets the "inherit_tax_rate" field.
 func (cu *CategoryUpdate) SetInheritTaxRate(b bool) *CategoryUpdate {
 	cu.mutation.SetInheritTaxRate(b)
@@ -339,6 +333,9 @@ func (cu *CategoryUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Category.name": %w`, err)}
 		}
 	}
+	if cu.mutation.ParentCleared() && len(cu.mutation.ParentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Category.parent"`)
+	}
 	return nil
 }
 
@@ -371,9 +368,6 @@ func (cu *CategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := cu.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)
-	}
-	if cu.mutation.StoreIDCleared() {
-		_spec.ClearField(category.FieldStoreID, field.TypeUUID)
 	}
 	if value, ok := cu.mutation.InheritTaxRate(); ok {
 		_spec.SetField(category.FieldInheritTaxRate, field.TypeBool, value)
@@ -598,12 +592,6 @@ func (cuo *CategoryUpdateOne) SetNillableParentID(u *uuid.UUID) *CategoryUpdateO
 	if u != nil {
 		cuo.SetParentID(*u)
 	}
-	return cuo
-}
-
-// ClearParentID clears the value of the "parent_id" field.
-func (cuo *CategoryUpdateOne) ClearParentID() *CategoryUpdateOne {
-	cuo.mutation.ClearParentID()
 	return cuo
 }
 
@@ -867,6 +855,9 @@ func (cuo *CategoryUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Category.name": %w`, err)}
 		}
 	}
+	if cuo.mutation.ParentCleared() && len(cuo.mutation.ParentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Category.parent"`)
+	}
 	return nil
 }
 
@@ -916,9 +907,6 @@ func (cuo *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err
 	}
 	if value, ok := cuo.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)
-	}
-	if cuo.mutation.StoreIDCleared() {
-		_spec.ClearField(category.FieldStoreID, field.TypeUUID)
 	}
 	if value, ok := cuo.mutation.InheritTaxRate(); ok {
 		_spec.SetField(category.FieldInheritTaxRate, field.TypeBool, value)

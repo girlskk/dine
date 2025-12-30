@@ -74,9 +74,9 @@ type Product struct {
 	DetailImages []string `json:"detail_images,omitempty"`
 	// 菜品描述（可选）
 	Description string `json:"description,omitempty"`
-	// 预估成本价（可选，单位：分，仅套餐商品使用）
+	// 预估成本价（可选，单位：令吉，仅套餐商品使用）
 	EstimatedCostPrice *decimal.Decimal `json:"estimated_cost_price,omitempty"`
-	// 外卖成本价（可选，单位：分，仅套餐商品使用）
+	// 外卖成本价（可选，单位：令吉，仅套餐商品使用）
 	DeliveryCostPrice *decimal.Decimal `json:"delivery_cost_price,omitempty"`
 	// 品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
@@ -104,9 +104,11 @@ type ProductEdges struct {
 	SetMealGroups []*SetMealGroup `json:"set_meal_groups,omitempty"`
 	// SetMealDetails holds the value of the set_meal_details edge.
 	SetMealDetails []*SetMealDetail `json:"set_meal_details,omitempty"`
+	// 菜单项关联
+	MenuItems []*MenuItem `json:"menu_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [8]bool
 }
 
 // CategoryOrErr returns the Category value or an error if the edge
@@ -174,6 +176,15 @@ func (e ProductEdges) SetMealDetailsOrErr() ([]*SetMealDetail, error) {
 		return e.SetMealDetails, nil
 	}
 	return nil, &NotLoadedError{edge: "set_meal_details"}
+}
+
+// MenuItemsOrErr returns the MenuItems value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductEdges) MenuItemsOrErr() ([]*MenuItem, error) {
+	if e.loadedTypes[7] {
+		return e.MenuItems, nil
+	}
+	return nil, &NotLoadedError{edge: "menu_items"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -446,6 +457,11 @@ func (pr *Product) QuerySetMealGroups() *SetMealGroupQuery {
 // QuerySetMealDetails queries the "set_meal_details" edge of the Product entity.
 func (pr *Product) QuerySetMealDetails() *SetMealDetailQuery {
 	return NewProductClient(pr.config).QuerySetMealDetails(pr)
+}
+
+// QueryMenuItems queries the "menu_items" edge of the Product entity.
+func (pr *Product) QueryMenuItems() *MenuItemQuery {
+	return NewProductClient(pr.config).QueryMenuItems(pr)
 }
 
 // Update returns a builder for updating this Product.

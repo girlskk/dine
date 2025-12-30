@@ -214,6 +214,13 @@ func (pac *ProductAttrCreate) defaults() error {
 		v := productattr.DefaultDeletedAt
 		pac.mutation.SetDeletedAt(v)
 	}
+	if _, ok := pac.mutation.StoreID(); !ok {
+		if productattr.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized productattr.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := productattr.DefaultStoreID()
+		pac.mutation.SetStoreID(v)
+	}
 	if _, ok := pac.mutation.ProductCount(); !ok {
 		v := productattr.DefaultProductCount
 		pac.mutation.SetProductCount(v)
@@ -252,6 +259,9 @@ func (pac *ProductAttrCreate) check() error {
 	}
 	if _, ok := pac.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "ProductAttr.merchant_id"`)}
+	}
+	if _, ok := pac.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "ProductAttr.store_id"`)}
 	}
 	if _, ok := pac.mutation.ProductCount(); !ok {
 		return &ValidationError{Name: "product_count", err: errors.New(`ent: missing required field "ProductAttr.product_count"`)}

@@ -125,7 +125,9 @@ func (h *ProductTagHandler) Update() gin.HandlerFunc {
 			Name: req.Name,
 		}
 
-		err = h.ProductTagInteractor.Update(ctx, tag)
+		user := domain.FromBackendUserContext(ctx)
+
+		err = h.ProductTagInteractor.Update(ctx, tag, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductTagNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.ProductTagNameExists, err))
@@ -168,7 +170,8 @@ func (h *ProductTagHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductTagInteractor.Delete(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductTagInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductTagDeleteHasProducts) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductTagDeleteHasProducts, err))
@@ -212,8 +215,9 @@ func (h *ProductTagHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		params := domain.ProductTagSearchParams{
-			MerchantID: user.MerchantID,
-			Name:       req.Name,
+			MerchantID:   user.MerchantID,
+			Name:         req.Name,
+			OnlyMerchant: true,
 		}
 
 		res, err := h.ProductTagInteractor.PagedListBySearch(ctx, page, params)

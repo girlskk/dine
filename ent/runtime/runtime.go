@@ -15,6 +15,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
@@ -198,6 +200,14 @@ func init() {
 			return nil
 		}
 	}()
+	// categoryDescStoreID is the schema descriptor for store_id field.
+	categoryDescStoreID := categoryFields[2].Descriptor()
+	// category.DefaultStoreID holds the default value on creation for the store_id field.
+	category.DefaultStoreID = categoryDescStoreID.Default.(func() uuid.UUID)
+	// categoryDescParentID is the schema descriptor for parent_id field.
+	categoryDescParentID := categoryFields[3].Descriptor()
+	// category.DefaultParentID holds the default value on creation for the parent_id field.
+	category.DefaultParentID = categoryDescParentID.Default.(func() uuid.UUID)
 	// categoryDescInheritTaxRate is the schema descriptor for inherit_tax_rate field.
 	categoryDescInheritTaxRate := categoryFields[4].Descriptor()
 	// category.DefaultInheritTaxRate holds the default value on creation for the inherit_tax_rate field.
@@ -377,6 +387,94 @@ func init() {
 	districtDescID := districtMixinFields0[0].Descriptor()
 	// district.DefaultID holds the default value on creation for the id field.
 	district.DefaultID = districtDescID.Default.(func() uuid.UUID)
+	menuMixin := schema.Menu{}.Mixin()
+	menuMixinHooks2 := menuMixin[2].Hooks()
+	menu.Hooks[0] = menuMixinHooks2[0]
+	menuMixinInters2 := menuMixin[2].Interceptors()
+	menu.Interceptors[0] = menuMixinInters2[0]
+	menuMixinFields0 := menuMixin[0].Fields()
+	_ = menuMixinFields0
+	menuMixinFields1 := menuMixin[1].Fields()
+	_ = menuMixinFields1
+	menuMixinFields2 := menuMixin[2].Fields()
+	_ = menuMixinFields2
+	menuFields := schema.Menu{}.Fields()
+	_ = menuFields
+	// menuDescCreatedAt is the schema descriptor for created_at field.
+	menuDescCreatedAt := menuMixinFields1[0].Descriptor()
+	// menu.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menu.DefaultCreatedAt = menuDescCreatedAt.Default.(func() time.Time)
+	// menuDescUpdatedAt is the schema descriptor for updated_at field.
+	menuDescUpdatedAt := menuMixinFields1[1].Descriptor()
+	// menu.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menu.DefaultUpdatedAt = menuDescUpdatedAt.Default.(func() time.Time)
+	// menu.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menu.UpdateDefaultUpdatedAt = menuDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menuDescDeletedAt is the schema descriptor for deleted_at field.
+	menuDescDeletedAt := menuMixinFields2[0].Descriptor()
+	// menu.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	menu.DefaultDeletedAt = menuDescDeletedAt.Default.(int64)
+	// menuDescName is the schema descriptor for name field.
+	menuDescName := menuFields[1].Descriptor()
+	// menu.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	menu.NameValidator = func() func(string) error {
+		validators := menuDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuDescStoreCount is the schema descriptor for store_count field.
+	menuDescStoreCount := menuFields[3].Descriptor()
+	// menu.DefaultStoreCount holds the default value on creation for the store_count field.
+	menu.DefaultStoreCount = menuDescStoreCount.Default.(int)
+	// menuDescItemCount is the schema descriptor for item_count field.
+	menuDescItemCount := menuFields[4].Descriptor()
+	// menu.DefaultItemCount holds the default value on creation for the item_count field.
+	menu.DefaultItemCount = menuDescItemCount.Default.(int)
+	// menuDescID is the schema descriptor for id field.
+	menuDescID := menuMixinFields0[0].Descriptor()
+	// menu.DefaultID holds the default value on creation for the id field.
+	menu.DefaultID = menuDescID.Default.(func() uuid.UUID)
+	menuitemMixin := schema.MenuItem{}.Mixin()
+	menuitemMixinHooks2 := menuitemMixin[2].Hooks()
+	menuitem.Hooks[0] = menuitemMixinHooks2[0]
+	menuitemMixinInters2 := menuitemMixin[2].Interceptors()
+	menuitem.Interceptors[0] = menuitemMixinInters2[0]
+	menuitemMixinFields0 := menuitemMixin[0].Fields()
+	_ = menuitemMixinFields0
+	menuitemMixinFields1 := menuitemMixin[1].Fields()
+	_ = menuitemMixinFields1
+	menuitemMixinFields2 := menuitemMixin[2].Fields()
+	_ = menuitemMixinFields2
+	menuitemFields := schema.MenuItem{}.Fields()
+	_ = menuitemFields
+	// menuitemDescCreatedAt is the schema descriptor for created_at field.
+	menuitemDescCreatedAt := menuitemMixinFields1[0].Descriptor()
+	// menuitem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menuitem.DefaultCreatedAt = menuitemDescCreatedAt.Default.(func() time.Time)
+	// menuitemDescUpdatedAt is the schema descriptor for updated_at field.
+	menuitemDescUpdatedAt := menuitemMixinFields1[1].Descriptor()
+	// menuitem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menuitem.DefaultUpdatedAt = menuitemDescUpdatedAt.Default.(func() time.Time)
+	// menuitem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menuitem.UpdateDefaultUpdatedAt = menuitemDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menuitemDescDeletedAt is the schema descriptor for deleted_at field.
+	menuitemDescDeletedAt := menuitemMixinFields2[0].Descriptor()
+	// menuitem.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	menuitem.DefaultDeletedAt = menuitemDescDeletedAt.Default.(int64)
+	// menuitemDescID is the schema descriptor for id field.
+	menuitemDescID := menuitemMixinFields0[0].Descriptor()
+	// menuitem.DefaultID holds the default value on creation for the id field.
+	menuitem.DefaultID = menuitemDescID.Default.(func() uuid.UUID)
 	merchantMixin := schema.Merchant{}.Mixin()
 	merchantMixinHooks2 := merchantMixin[2].Hooks()
 	merchant.Hooks[0] = merchantMixinHooks2[0]
@@ -877,6 +975,10 @@ func init() {
 	product.DefaultDescription = productDescDescription.Default.(string)
 	// product.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	product.DescriptionValidator = productDescDescription.Validators[0].(func(string) error)
+	// productDescStoreID is the schema descriptor for store_id field.
+	productDescStoreID := productFields[25].Descriptor()
+	// product.DefaultStoreID holds the default value on creation for the store_id field.
+	product.DefaultStoreID = productDescStoreID.Default.(func() uuid.UUID)
 	// productDescID is the schema descriptor for id field.
 	productDescID := productMixinFields0[0].Descriptor()
 	// product.DefaultID holds the default value on creation for the id field.
@@ -926,6 +1028,10 @@ func init() {
 			return nil
 		}
 	}()
+	// productattrDescStoreID is the schema descriptor for store_id field.
+	productattrDescStoreID := productattrFields[3].Descriptor()
+	// productattr.DefaultStoreID holds the default value on creation for the store_id field.
+	productattr.DefaultStoreID = productattrDescStoreID.Default.(func() uuid.UUID)
 	// productattrDescProductCount is the schema descriptor for product_count field.
 	productattrDescProductCount := productattrFields[4].Descriptor()
 	// productattr.DefaultProductCount holds the default value on creation for the product_count field.
@@ -1077,6 +1183,10 @@ func init() {
 			return nil
 		}
 	}()
+	// productspecDescStoreID is the schema descriptor for store_id field.
+	productspecDescStoreID := productspecFields[2].Descriptor()
+	// productspec.DefaultStoreID holds the default value on creation for the store_id field.
+	productspec.DefaultStoreID = productspecDescStoreID.Default.(func() uuid.UUID)
 	// productspecDescProductCount is the schema descriptor for product_count field.
 	productspecDescProductCount := productspecFields[3].Descriptor()
 	// productspec.DefaultProductCount holds the default value on creation for the product_count field.
@@ -1175,6 +1285,10 @@ func init() {
 			return nil
 		}
 	}()
+	// producttagDescStoreID is the schema descriptor for store_id field.
+	producttagDescStoreID := producttagFields[2].Descriptor()
+	// producttag.DefaultStoreID holds the default value on creation for the store_id field.
+	producttag.DefaultStoreID = producttagDescStoreID.Default.(func() uuid.UUID)
 	// producttagDescProductCount is the schema descriptor for product_count field.
 	producttagDescProductCount := producttagFields[3].Descriptor()
 	// producttag.DefaultProductCount holds the default value on creation for the product_count field.
@@ -1228,6 +1342,10 @@ func init() {
 			return nil
 		}
 	}()
+	// productunitDescStoreID is the schema descriptor for store_id field.
+	productunitDescStoreID := productunitFields[3].Descriptor()
+	// productunit.DefaultStoreID holds the default value on creation for the store_id field.
+	productunit.DefaultStoreID = productunitDescStoreID.Default.(func() uuid.UUID)
 	// productunitDescProductCount is the schema descriptor for product_count field.
 	productunitDescProductCount := productunitFields[4].Descriptor()
 	// productunit.DefaultProductCount holds the default value on creation for the product_count field.

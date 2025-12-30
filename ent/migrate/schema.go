@@ -74,7 +74,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "inherit_tax_rate", Type: field.TypeBool, Default: false},
 		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "inherit_stall", Type: field.TypeBool, Default: false},
@@ -111,6 +111,11 @@ var (
 				Name:    "category_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{CategoriesColumns[6]},
+			},
+			{
+				Name:    "category_merchant_id_store_id_parent_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{CategoriesColumns[5], CategoriesColumns[6], CategoriesColumns[13], CategoriesColumns[4], CategoriesColumns[3]},
 			},
 		},
 	}
@@ -226,6 +231,85 @@ var (
 				Name:    "district_city_id_province_id_country_id",
 				Unique:  false,
 				Columns: []*schema.Column{DistrictsColumns[6], DistrictsColumns[8], DistrictsColumns[7]},
+			},
+		},
+	}
+	// MenusColumns holds the columns for the "menus" table.
+	MenusColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "distribution_rule", Type: field.TypeEnum, Enums: []string{"override", "keep"}, Default: "override"},
+		{Name: "store_count", Type: field.TypeInt, Default: 0},
+		{Name: "item_count", Type: field.TypeInt, Default: 0},
+	}
+	// MenusTable holds the schema information for the "menus" table.
+	MenusTable = &schema.Table{
+		Name:       "menus",
+		Columns:    MenusColumns,
+		PrimaryKey: []*schema.Column{MenusColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menu_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{MenusColumns[3]},
+			},
+			{
+				Name:    "menu_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenusColumns[4]},
+			},
+		},
+	}
+	// MenuItemsColumns holds the columns for the "menu_items" table.
+	MenuItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "sale_rule", Type: field.TypeEnum, Enums: []string{"keep_brand_status", "keep_store_status"}, Default: "keep_brand_status"},
+		{Name: "base_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "member_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "menu_id", Type: field.TypeUUID},
+		{Name: "product_id", Type: field.TypeUUID},
+	}
+	// MenuItemsTable holds the schema information for the "menu_items" table.
+	MenuItemsTable = &schema.Table{
+		Name:       "menu_items",
+		Columns:    MenuItemsColumns,
+		PrimaryKey: []*schema.Column{MenuItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_items_menus_items",
+				Columns:    []*schema.Column{MenuItemsColumns[7]},
+				RefColumns: []*schema.Column{MenusColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "menu_items_products_menu_items",
+				Columns:    []*schema.Column{MenuItemsColumns[8]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "menuitem_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[3]},
+			},
+			{
+				Name:    "menuitem_menu_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[7]},
+			},
+			{
+				Name:    "menuitem_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenuItemsColumns[8]},
 			},
 		},
 	}
@@ -544,10 +628,10 @@ var (
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "detail_images", Type: field.TypeJSON, Nullable: true},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
-		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
-		{Name: "delivery_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "delivery_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "category_id", Type: field.TypeUUID},
 		{Name: "unit_id", Type: field.TypeUUID},
 	}
@@ -591,6 +675,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{ProductsColumns[28]},
 			},
+			{
+				Name:    "product_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductsColumns[26], ProductsColumns[27], ProductsColumns[5], ProductsColumns[3]},
+			},
 		},
 	}
 	// ProductAttrsColumns holds the columns for the "product_attrs" table.
@@ -602,7 +691,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "channels", Type: field.TypeJSON},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductAttrsTable holds the schema information for the "product_attrs" table.
@@ -625,6 +714,11 @@ var (
 				Name:    "productattr_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductAttrsColumns[7]},
+			},
+			{
+				Name:    "productattr_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductAttrsColumns[6], ProductAttrsColumns[7], ProductAttrsColumns[4], ProductAttrsColumns[3]},
 			},
 		},
 	}
@@ -663,6 +757,11 @@ var (
 				Name:    "productattritem_attr_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductAttrItemsColumns[8]},
+			},
+			{
+				Name:    "productattritem_attr_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductAttrItemsColumns[8], ProductAttrItemsColumns[4], ProductAttrItemsColumns[3]},
 			},
 		},
 	}
@@ -733,7 +832,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductSpecsTable holds the schema information for the "product_specs" table.
@@ -756,6 +855,11 @@ var (
 				Name:    "productspec_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductSpecsColumns[6]},
+			},
+			{
+				Name:    "productspec_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductSpecsColumns[5], ProductSpecsColumns[6], ProductSpecsColumns[4], ProductSpecsColumns[3]},
 			},
 		},
 	}
@@ -822,7 +926,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductTagsTable holds the schema information for the "product_tags" table.
@@ -846,6 +950,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{ProductTagsColumns[6]},
 			},
+			{
+				Name:    "producttag_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductTagsColumns[5], ProductTagsColumns[6], ProductTagsColumns[4], ProductTagsColumns[3]},
+			},
 		},
 	}
 	// ProductUnitsColumns holds the columns for the "product_units" table.
@@ -857,7 +966,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"quantity", "weight"}},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 	}
 	// ProductUnitsTable holds the schema information for the "product_units" table.
@@ -880,6 +989,11 @@ var (
 				Name:    "productunit_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductUnitsColumns[7]},
+			},
+			{
+				Name:    "productunit_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductUnitsColumns[6], ProductUnitsColumns[7], ProductUnitsColumns[4], ProductUnitsColumns[3]},
 			},
 		},
 	}
@@ -1197,6 +1311,31 @@ var (
 			},
 		},
 	}
+	// MenuStoreRelationsColumns holds the columns for the "menu_store_relations" table.
+	MenuStoreRelationsColumns = []*schema.Column{
+		{Name: "menu_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+	}
+	// MenuStoreRelationsTable holds the schema information for the "menu_store_relations" table.
+	MenuStoreRelationsTable = &schema.Table{
+		Name:       "menu_store_relations",
+		Columns:    MenuStoreRelationsColumns,
+		PrimaryKey: []*schema.Column{MenuStoreRelationsColumns[0], MenuStoreRelationsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_store_relations_menu_id",
+				Columns:    []*schema.Column{MenuStoreRelationsColumns[0]},
+				RefColumns: []*schema.Column{MenusColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "menu_store_relations_store_id",
+				Columns:    []*schema.Column{MenuStoreRelationsColumns[1]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// ProductTagRelationsColumns holds the columns for the "product_tag_relations" table.
 	ProductTagRelationsColumns = []*schema.Column{
 		{Name: "product_id", Type: field.TypeUUID},
@@ -1230,6 +1369,8 @@ var (
 		CitiesTable,
 		CountriesTable,
 		DistrictsTable,
+		MenusTable,
+		MenuItemsTable,
 		MerchantsTable,
 		MerchantBusinessTypesTable,
 		MerchantRenewalsTable,
@@ -1249,6 +1390,7 @@ var (
 		SetMealDetailsTable,
 		SetMealGroupsTable,
 		StoresTable,
+		MenuStoreRelationsTable,
 		ProductTagRelationsTable,
 	}
 )
@@ -1260,6 +1402,8 @@ func init() {
 	DistrictsTable.ForeignKeys[0].RefTable = CitiesTable
 	DistrictsTable.ForeignKeys[1].RefTable = CountriesTable
 	DistrictsTable.ForeignKeys[2].RefTable = ProvincesTable
+	MenuItemsTable.ForeignKeys[0].RefTable = MenusTable
+	MenuItemsTable.ForeignKeys[1].RefTable = ProductsTable
 	MerchantsTable.ForeignKeys[0].RefTable = AdminUsersTable
 	MerchantsTable.ForeignKeys[1].RefTable = CitiesTable
 	MerchantsTable.ForeignKeys[2].RefTable = CountriesTable
@@ -1291,6 +1435,8 @@ func init() {
 	StoresTable.ForeignKeys[4].RefTable = MerchantsTable
 	StoresTable.ForeignKeys[5].RefTable = MerchantBusinessTypesTable
 	StoresTable.ForeignKeys[6].RefTable = ProvincesTable
+	MenuStoreRelationsTable.ForeignKeys[0].RefTable = MenusTable
+	MenuStoreRelationsTable.ForeignKeys[1].RefTable = StoresTable
 	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductTagRelationsTable.ForeignKeys[1].RefTable = ProductTagsTable
 }

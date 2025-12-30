@@ -28,9 +28,10 @@ func (i *ProductTagInteractor) Create(ctx context.Context, tag *domain.ProductTa
 	}()
 
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		// 1. 验证名称在当前门店下是否唯一
+		// 1. 验证名称在当前品牌商/门店下是否唯一
 		exists, err := ds.ProductTagRepo().Exists(ctx, domain.ProductTagExistsParams{
 			MerchantID: tag.MerchantID,
+			StoreID:    tag.StoreID,
 			Name:       tag.Name,
 		})
 		if err != nil {
@@ -50,7 +51,7 @@ func (i *ProductTagInteractor) Create(ctx context.Context, tag *domain.ProductTa
 	})
 }
 
-func (i *ProductTagInteractor) Update(ctx context.Context, tag *domain.ProductTag) (err error) {
+func (i *ProductTagInteractor) Update(ctx context.Context, tag *domain.ProductTag, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductTagInteractor.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -60,13 +61,21 @@ func (i *ProductTagInteractor) Update(ctx context.Context, tag *domain.ProductTa
 		// 1. 验证标签存在
 		existingTag, err := ds.ProductTagRepo().FindByID(ctx, tag.ID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ParamsError(domain.ErrProductTagNotExists)
+			}
 			return err
 		}
 
-		// 2. 验证更新后的名称在当前门店下是否唯一（排除自身）
+		if err := verifyProductTagOwnership(user, existingTag); err != nil {
+			return err
+		}
+
+		// 2. 验证更新后的名称在当前品牌商/门店下是否唯一（排除自身）
 		if tag.Name != existingTag.Name {
 			exists, err := ds.ProductTagRepo().Exists(ctx, domain.ProductTagExistsParams{
 				MerchantID: existingTag.MerchantID,
+				StoreID:    existingTag.StoreID,
 				Name:       tag.Name,
 				ExcludeID:  tag.ID,
 			})
@@ -94,7 +103,7 @@ func (i *ProductTagInteractor) Update(ctx context.Context, tag *domain.ProductTa
 	})
 }
 
-func (i *ProductTagInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (i *ProductTagInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductTagInteractor.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -107,6 +116,10 @@ func (i *ProductTagInteractor) Delete(ctx context.Context, id uuid.UUID) (err er
 			if domain.IsNotFound(err) {
 				return domain.ParamsError(domain.ErrProductTagNotExists)
 			}
+			return err
+		}
+
+		if err := verifyProductTagOwnership(user, tag); err != nil {
 			return err
 		}
 
@@ -136,4 +149,11 @@ func (i *ProductTagInteractor) PagedListBySearch(
 	}()
 
 	return i.DS.ProductTagRepo().PagedListBySearch(ctx, page, params)
+}
+
+func verifyProductTagOwnership(user domain.User, tag *domain.ProductTag) error {
+	if user.GetMerchantID() != tag.MerchantID || user.GetStoreID() != tag.StoreID {
+		return domain.ParamsError(domain.ErrProductTagNotExists)
+	}
+	return nil
 }

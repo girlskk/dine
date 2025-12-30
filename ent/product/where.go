@@ -1293,16 +1293,6 @@ func StoreIDLTE(v uuid.UUID) predicate.Product {
 	return predicate.Product(sql.FieldLTE(FieldStoreID, v))
 }
 
-// StoreIDIsNil applies the IsNil predicate on the "store_id" field.
-func StoreIDIsNil() predicate.Product {
-	return predicate.Product(sql.FieldIsNull(FieldStoreID))
-}
-
-// StoreIDNotNil applies the NotNil predicate on the "store_id" field.
-func StoreIDNotNil() predicate.Product {
-	return predicate.Product(sql.FieldNotNull(FieldStoreID))
-}
-
 // HasCategory applies the HasEdge predicate on the "category" edge.
 func HasCategory() predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
@@ -1456,6 +1446,29 @@ func HasSetMealDetails() predicate.Product {
 func HasSetMealDetailsWith(preds ...predicate.SetMealDetail) predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
 		step := newSetMealDetailsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMenuItems applies the HasEdge predicate on the "menu_items" edge.
+func HasMenuItems() predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MenuItemsTable, MenuItemsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMenuItemsWith applies the HasEdge predicate on the "menu_items" edge with a given conditions (other predicates).
+func HasMenuItemsWith(preds ...predicate.MenuItem) predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := newMenuItemsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

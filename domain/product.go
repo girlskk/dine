@@ -43,6 +43,9 @@ var (
 	ErrProductTaxRateNotExists     = errors.New("指定税率不存在")
 	ErrProductStallNotExists       = errors.New("指定出品部门不存在")
 	ErrProductPackingFeeNotExists  = errors.New("打包费配置不存在")
+
+	// 商品下发相关错误
+	ErrProductDistributeStoreInvalid = errors.New("门店无效，必须属于当前品牌商")
 )
 
 // ------------------------------------------------------------
@@ -61,6 +64,7 @@ type ProductRepository interface {
 	Exists(ctx context.Context, params ProductExistsParams) (bool, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) (Products, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
+	FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (*Product, error)
 }
 
 // ProductInteractor 商品用例接口
@@ -70,12 +74,13 @@ type ProductInteractor interface {
 	Create(ctx context.Context, product *Product) error
 	CreateSetMeal(ctx context.Context, product *Product) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
-	Update(ctx context.Context, product *Product) error
-	UpdateSetMeal(ctx context.Context, product *Product) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	OffSale(ctx context.Context, id uuid.UUID) error
-	OnSale(ctx context.Context, id uuid.UUID) error
-	GetDetail(ctx context.Context, id uuid.UUID) (*Product, error)
+	Update(ctx context.Context, product *Product, user User) error
+	UpdateSetMeal(ctx context.Context, product *Product, user User) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
+	OffSale(ctx context.Context, id uuid.UUID, user User) error
+	OnSale(ctx context.Context, id uuid.UUID, user User) error
+	GetDetail(ctx context.Context, id uuid.UUID, user User) (*Product, error)
+	Distribute(ctx context.Context, params ProductDistributeParams, user User) error
 }
 
 // ------------------------------------------------------------
@@ -217,6 +222,7 @@ type Product struct {
 	Tags          ProductTags          `json:"tags,omitempty"`           // 商品标签列表
 	Groups        SetMealGroups        `json:"groups,omitempty"`         // 套餐组列表
 	Category      *Category            `json:"category,omitempty"`       // 分类
+	Unit          *ProductUnit         `json:"unit,omitempty"`           // 单位
 }
 
 // Products 商品集合
@@ -229,25 +235,36 @@ type Products []*Product
 // ProductExistsParams 存在性检查参数
 type ProductExistsParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string
 	ExcludeID  uuid.UUID // 排除的ID（用于更新时检查名称唯一性）
 }
 
 // ProductSearchParams 查询参数
 type ProductSearchParams struct {
-	MerchantID uuid.UUID         // 品牌商ID（必填）
-	StoreID    uuid.UUID         // 门店ID（可选）
-	Name       string            // 商品名称（可选，模糊匹配）
-	SaleStatus ProductSaleStatus // 售卖状态（可选，空字符串表示全部）
-	Type       ProductType       // 商品类型（可选，空字符串表示全部）
-	CategoryID uuid.UUID         // 分类ID（可选，支持一级分类和二级分类）
-	StallID    uuid.UUID         // 出品部门ID（可选）
-	StartAt    *time.Time        // 创建开始时间（可选）
-	EndAt      *time.Time        // 创建结束时间（可选，最长支持1年跨度）
+	MerchantID   uuid.UUID         // 品牌商ID（必填）
+	StoreID      uuid.UUID         // 门店ID（可选）
+	OnlyMerchant bool              // 是否只查询品牌商ID（可选）
+	Name         string            // 商品名称（可选，模糊匹配）
+	SaleStatus   ProductSaleStatus // 售卖状态（可选，空字符串表示全部）
+	Type         ProductType       // 商品类型（可选，空字符串表示全部）
+	CategoryID   uuid.UUID         // 分类ID（可选，支持一级分类和二级分类）
+	StallID      uuid.UUID         // 出品部门ID（可选）
+	StartAt      *time.Time        // 创建开始时间（可选）
+	EndAt        *time.Time        // 创建结束时间（可选，最长支持1年跨度）
 }
 
 // ProductSearchRes 查询结果
 type ProductSearchRes struct {
 	*upagination.Pagination
 	Items Products `json:"items"`
+}
+
+// ProductDistributeParams 商品下发参数
+type ProductDistributeParams struct {
+	ProductID        uuid.UUID            // 商品ID（必选）
+	MerchantID       uuid.UUID            // 品牌商ID
+	StoreIDs         []uuid.UUID          // 门店ID列表（必选，多选）
+	DistributionRule MenuDistributionRule // 下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
+	SaleRule         MenuItemSaleRule     // 下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
 }

@@ -139,6 +139,11 @@ type Store struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type StoreSimple struct {
+	ID        uuid.UUID `json:"id"`
+	StoreName string    `json:"store_name"` // 门店名称
+}
+
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_repository.go -package=mock . StoreRepository
 type StoreRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
@@ -149,6 +154,7 @@ type StoreRepository interface {
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
 	ExistsStore(ctx context.Context, existsStoreParams *ExistsStoreParams) (exists bool, err error)
 	CountStoresByMerchantID(ctx context.Context, merchantIDs []uuid.UUID) (storeCounts []*MerchantStoreCount, err error)
+	ListByIDs(ctx context.Context, ids []uuid.UUID) (domainStores []*Store, err error)
 }
 
 type StoreInteractor interface {
