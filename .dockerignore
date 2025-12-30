@@ -23,3 +23,6 @@ deploy
 
 # Makefile
 Makefile
+
+# gitlab
+.gitlab
