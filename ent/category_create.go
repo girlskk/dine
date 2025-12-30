@@ -295,6 +295,20 @@ func (cc *CategoryCreate) defaults() error {
 		v := category.DefaultDeletedAt
 		cc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := cc.mutation.StoreID(); !ok {
+		if category.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized category.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := category.DefaultStoreID()
+		cc.mutation.SetStoreID(v)
+	}
+	if _, ok := cc.mutation.ParentID(); !ok {
+		if category.DefaultParentID == nil {
+			return fmt.Errorf("ent: uninitialized category.DefaultParentID (forgotten import ent/runtime?)")
+		}
+		v := category.DefaultParentID()
+		cc.mutation.SetParentID(v)
+	}
 	if _, ok := cc.mutation.InheritTaxRate(); !ok {
 		v := category.DefaultInheritTaxRate
 		cc.mutation.SetInheritTaxRate(v)
@@ -343,6 +357,12 @@ func (cc *CategoryCreate) check() error {
 	if _, ok := cc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "Category.merchant_id"`)}
 	}
+	if _, ok := cc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "Category.store_id"`)}
+	}
+	if _, ok := cc.mutation.ParentID(); !ok {
+		return &ValidationError{Name: "parent_id", err: errors.New(`ent: missing required field "Category.parent_id"`)}
+	}
 	if _, ok := cc.mutation.InheritTaxRate(); !ok {
 		return &ValidationError{Name: "inherit_tax_rate", err: errors.New(`ent: missing required field "Category.inherit_tax_rate"`)}
 	}
@@ -354,6 +374,9 @@ func (cc *CategoryCreate) check() error {
 	}
 	if _, ok := cc.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Category.sort_order"`)}
+	}
+	if len(cc.mutation.ParentIDs()) == 0 {
+		return &ValidationError{Name: "parent", err: errors.New(`ent: missing required edge "Category.parent"`)}
 	}
 	return nil
 }
@@ -594,12 +617,6 @@ func (u *CategoryUpsert) UpdateParentID() *CategoryUpsert {
 	return u
 }
 
-// ClearParentID clears the value of the "parent_id" field.
-func (u *CategoryUpsert) ClearParentID() *CategoryUpsert {
-	u.SetNull(category.FieldParentID)
-	return u
-}
-
 // SetInheritTaxRate sets the "inherit_tax_rate" field.
 func (u *CategoryUpsert) SetInheritTaxRate(v bool) *CategoryUpsert {
 	u.Set(category.FieldInheritTaxRate, v)
@@ -813,13 +830,6 @@ func (u *CategoryUpsertOne) SetParentID(v uuid.UUID) *CategoryUpsertOne {
 func (u *CategoryUpsertOne) UpdateParentID() *CategoryUpsertOne {
 	return u.Update(func(s *CategoryUpsert) {
 		s.UpdateParentID()
-	})
-}
-
-// ClearParentID clears the value of the "parent_id" field.
-func (u *CategoryUpsertOne) ClearParentID() *CategoryUpsertOne {
-	return u.Update(func(s *CategoryUpsert) {
-		s.ClearParentID()
 	})
 }
 
@@ -1219,13 +1229,6 @@ func (u *CategoryUpsertBulk) SetParentID(v uuid.UUID) *CategoryUpsertBulk {
 func (u *CategoryUpsertBulk) UpdateParentID() *CategoryUpsertBulk {
 	return u.Update(func(s *CategoryUpsert) {
 		s.UpdateParentID()
-	})
-}
-
-// ClearParentID clears the value of the "parent_id" field.
-func (u *CategoryUpsertBulk) ClearParentID() *CategoryUpsertBulk {
-	return u.Update(func(s *CategoryUpsert) {
-		s.ClearParentID()
 	})
 }
 

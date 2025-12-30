@@ -125,7 +125,8 @@ func (h *ProductSpecHandler) Update() gin.HandlerFunc {
 			Name: req.Name,
 		}
 
-		err = h.ProductSpecInteractor.Update(ctx, spec)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductSpecInteractor.Update(ctx, spec, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductSpecNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.ProductSpecNameExists, err))
@@ -168,7 +169,8 @@ func (h *ProductSpecHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductSpecInteractor.Delete(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductSpecInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductSpecDeleteHasProducts) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductSpecDeleteHasProducts, err))
@@ -212,8 +214,9 @@ func (h *ProductSpecHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		params := domain.ProductSpecSearchParams{
-			MerchantID: user.MerchantID,
-			Name:       req.Name,
+			MerchantID:   user.MerchantID,
+			Name:         req.Name,
+			OnlyMerchant: true,
 		}
 
 		res, err := h.ProductSpecInteractor.PagedListBySearch(ctx, page, params)

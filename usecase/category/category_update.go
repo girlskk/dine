@@ -5,10 +5,11 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *CategoryInteractor) Update(ctx context.Context, category *domain.Category) (err error) {
+func (i *CategoryInteractor) Update(ctx context.Context, category *domain.Category, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "CategoryInteractor.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -18,6 +19,13 @@ func (i *CategoryInteractor) Update(ctx context.Context, category *domain.Catego
 		// 1. 验证分类存在
 		existingCategory, err := ds.CategoryRepo().FindByID(ctx, category.ID)
 		if err != nil {
+			if ent.IsNotFound(err) {
+				return domain.ErrCategoryNotExists
+			}
+			return err
+		}
+		// 验证分类是否属于当前用户可操作
+		if err := verifyCategoryOwnership(user, existingCategory); err != nil {
 			return err
 		}
 

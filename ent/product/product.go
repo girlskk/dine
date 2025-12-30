@@ -236,6 +236,8 @@ var (
 	DefaultDescription string
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultStoreID holds the default value on creation for the "store_id" field.
+	DefaultStoreID func() uuid.UUID
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

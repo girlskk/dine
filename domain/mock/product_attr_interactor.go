@@ -51,31 +51,31 @@ func (mr *MockProductAttrInteractorMockRecorder) Create(arg0, arg1 interface{}) 
 }
 
 // Delete mocks base method.
-func (m *MockProductAttrInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockProductAttrInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockProductAttrInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductAttrInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductAttrInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductAttrInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // DeleteItem mocks base method.
-func (m *MockProductAttrInteractor) DeleteItem(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockProductAttrInteractor) DeleteItem(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteItem", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteItem", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteItem indicates an expected call of DeleteItem.
-func (mr *MockProductAttrInteractorMockRecorder) DeleteItem(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductAttrInteractorMockRecorder) DeleteItem(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteItem", reflect.TypeOf((*MockProductAttrInteractor)(nil).DeleteItem), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteItem", reflect.TypeOf((*MockProductAttrInteractor)(nil).DeleteItem), arg0, arg1, arg2)
 }
 
 // ListBySearch mocks base method.
@@ -94,15 +94,15 @@ func (mr *MockProductAttrInteractorMockRecorder) ListBySearch(arg0, arg1 interfa
 }
 
 // Update mocks base method.
-func (m *MockProductAttrInteractor) Update(arg0 context.Context, arg1 *domain.ProductAttr) error {
+func (m *MockProductAttrInteractor) Update(arg0 context.Context, arg1 *domain.ProductAttr, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockProductAttrInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductAttrInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductAttrInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductAttrInteractor)(nil).Update), arg0, arg1, arg2)
 }

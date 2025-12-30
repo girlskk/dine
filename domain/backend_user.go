@@ -35,6 +35,17 @@ type BackendUser struct {
 	Merchant *Merchant `json:"merchant,omitempty"` // 所属品牌商
 }
 
+// 实现 User 接口
+// GetMerchantID 实现 User 接口
+func (u *BackendUser) GetMerchantID() uuid.UUID {
+	return u.MerchantID
+}
+
+// GetStoreID 实现 User 接口（品牌商用户的 StoreID 为 uuid.Nil）
+func (u *BackendUser) GetStoreID() uuid.UUID {
+	return uuid.Nil
+}
+
 func (u *BackendUser) SetPassword(password string) error {
 	hashed, err := util.HashPassword(password)
 	if err != nil {

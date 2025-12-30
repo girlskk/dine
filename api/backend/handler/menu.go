@@ -182,7 +182,7 @@ func (h *MenuHandler) Update() gin.HandlerFunc {
 			})
 		}
 
-		err = h.MenuInteractor.Update(ctx, menu)
+		err = h.MenuInteractor.Update(ctx, menu, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrMenuNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
@@ -224,7 +224,8 @@ func (h *MenuHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = h.MenuInteractor.Delete(ctx, menuID)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.MenuInteractor.Delete(ctx, menuID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
@@ -262,7 +263,8 @@ func (h *MenuHandler) GetDetail() gin.HandlerFunc {
 			return
 		}
 
-		menu, err := h.MenuInteractor.GetDetail(ctx, menuID)
+		user := domain.FromBackendUserContext(ctx)
+		menu, err := h.MenuInteractor.GetDetail(ctx, menuID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))

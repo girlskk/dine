@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"math"
 	"testing"
 
 	"github.com/google/uuid"
@@ -41,7 +42,7 @@ func (s *CategoryTestSuite) createTestCategory(parentID uuid.UUID, name string) 
 		SetMerchantID(merchantID).
 		SetInheritTaxRate(false).
 		SetInheritStall(false).
-		SetSortOrder(0)
+		SetSortOrder(math.MaxInt16)
 
 	if parentID != uuid.Nil {
 		builder = builder.SetParentID(parentID)
@@ -258,4 +259,18 @@ func (s *CategoryTestSuite) TestCategory_ListBySearch() {
 		require.Equal(t, "测试分类", res[0].Name)
 		require.Equal(t, 2, len(res[0].Childrens))
 	})
+}
+
+func (s *CategoryTestSuite) TestCategory_UpdateSortOrders() {
+	category := s.createTestRootCategory()
+
+	cat1 := s.createTestCategory(category.ID, "测试分类")
+	cat2 := s.createTestCategory(category.ID, "测试分类2")
+
+	updates := map[uuid.UUID]int{
+		cat1.ID: 2,
+		cat2.ID: 1,
+	}
+	err := s.repo.UpdateSortOrders(s.ctx, updates)
+	require.NoError(s.T(), err)
 }
