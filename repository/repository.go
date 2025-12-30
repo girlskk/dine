@@ -40,6 +40,8 @@ type Repository struct {
 	additionalFeeRepo        *AdditionalFeeRepository
 	taxFeeRepo               *TaxFeeRepository
 	deviceRepo               *DeviceRepository
+	countryRepo              *CountryRepository
+	provinceRepo             *ProvinceRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -323,4 +325,24 @@ func (repo *Repository) DeviceRepo() domain.DeviceRepository {
 		repo.deviceRepo = NewDeviceRepository(repo.client)
 	}
 	return repo.deviceRepo
+}
+
+func (repo *Repository) CountryRepo() domain.CountryRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.countryRepo == nil {
+		repo.countryRepo = NewCountryRepository(repo.client)
+	}
+	return repo.countryRepo
+}
+
+func (repo *Repository) ProvinceRepo() domain.ProvinceRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.provinceRepo == nil {
+		repo.provinceRepo = NewProvinceRepository(repo.client)
+	}
+	return repo.provinceRepo
 }

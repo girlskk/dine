@@ -183,7 +183,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          type: integer
+          $ref: '#/definitions/time.Weekday'
         type: array
     type: object
   domain.BusinessModel:
@@ -247,6 +247,15 @@ definitions:
       updated_at:
         description: 更新时间
         type: string
+    type: object
+  domain.Country:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      sort:
+        type: integer
     type: object
   domain.Device:
     properties:
@@ -1163,6 +1172,17 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.Province:
+    properties:
+      country_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      sort:
+        type: integer
+    type: object
   domain.PurchaseDurationUnit:
     enum:
     - day
@@ -1653,6 +1673,38 @@ definitions:
         type: string
       data: {}
     type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   types.AdditionalFeeCreateReq:
     properties:
       charge_mode:
@@ -1887,6 +1939,13 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  types.CountryListResp:
+    properties:
+      countries:
+        items:
+          $ref: '#/definitions/domain.Country'
+        type: array
     type: object
   types.CreateStoreReq:
     properties:
@@ -2794,6 +2853,13 @@ definitions:
     - sale_status
     - spec_relations
     - unit_id
+    type: object
+  types.ProvinceListResp:
+    properties:
+      provinces:
+        items:
+          $ref: '#/definitions/domain.Province'
+        type: array
     type: object
   types.RemarkCategoryCreateReq:
     properties:
@@ -4742,6 +4808,45 @@ paths:
       summary: 更新商品单位
       tags:
       - 商品单位
+  /region/countries:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.CountryListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取国家/地区列表
+      tags:
+      - 地区
+  /region/provinces:
+    get:
+      parameters:
+      - description: 国家/地区ID
+        in: query
+        name: country_id
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.ProvinceListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取省份列表
+      tags:
+      - 地区
   /remark:
     get:
       description: 分页查询备注列表

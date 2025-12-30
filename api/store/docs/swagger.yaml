@@ -69,6 +69,15 @@ definitions:
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
+  domain.Country:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      sort:
+        type: integer
+    type: object
   domain.DiningPeriod:
     properties:
       end_time:
@@ -80,6 +89,17 @@ definitions:
       start_time:
         description: 开始时间，格式 HH:MM:SS
         type: string
+    type: object
+  domain.Province:
+    properties:
+      country_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      sort:
+        type: integer
     type: object
   domain.ShiftTime:
     properties:
@@ -239,8 +259,22 @@ definitions:
     - 4
     - 5
     - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
     type: integer
     x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -287,6 +321,13 @@ definitions:
         description: 省份名称
         type: string
     type: object
+  types.CountryListResp:
+    properties:
+      countries:
+        items:
+          $ref: '#/definitions/domain.Country'
+        type: array
+    type: object
   types.LoginReq:
     properties:
       password:
@@ -303,6 +344,13 @@ definitions:
         type: integer
       token:
         type: string
+    type: object
+  types.ProvinceListResp:
+    properties:
+      provinces:
+        items:
+          $ref: '#/definitions/domain.Province'
+        type: array
     type: object
   types.StoreSimpleUpdateReq:
     properties:
@@ -430,6 +478,45 @@ info:
   title: 门店后台 API
   version: "1.0"
 paths:
+  /region/countries:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.CountryListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取国家/地区列表
+      tags:
+      - 地区
+  /region/provinces:
+    get:
+      parameters:
+      - description: 国家/地区ID
+        in: query
+        name: country_id
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.ProvinceListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取省份列表
+      tags:
+      - 地区
   /store:
     get:
       consumes:

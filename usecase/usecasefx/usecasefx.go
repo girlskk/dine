@@ -12,6 +12,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/region"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
@@ -86,6 +87,14 @@ var Module = fx.Module(
 		fx.Annotate(
 			device.NewDeviceInteractor,
 			fx.As(new(domain.DeviceInteractor)),
+		),
+		fx.Annotate(
+			region.NewCountryInteractor,
+			fx.As(new(domain.CountryInteractor)),
+		),
+		fx.Annotate(
+			region.NewProvinceInteractor,
+			fx.As(new(domain.ProvinceInteractor)),
 		),
 		fx.Annotate(
 			menu.NewMenuInteractor,

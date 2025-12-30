@@ -44,12 +44,9 @@ var Module = fx.Module(
 	// handler
 	fx.Provide(
 		asHandler(handler.NewUserHandler),
-	),
-	fx.Provide(
 		asHandler(handler.NewMerchantHandler),
-	),
-	fx.Provide(
 		asHandler(handler.NewStoreHandler),
+		asHandler(handler.NewRegionHandler),
 	),
 )
 

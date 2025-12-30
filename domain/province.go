@@ -16,6 +16,15 @@ type ProvinceRepository interface {
 	GetByFilter(ctx context.Context, filter *ProvinceListFilter) (provinceList []*Province, err error)
 }
 
+type ProvinceInteractor interface {
+	GetProvinces(ctx context.Context, countryID uuid.UUID) (provinceList []*Province, err error)
+	GetProvince(ctx context.Context, id uuid.UUID) (province *Province, err error)
+	CreateProvince(ctx context.Context, province *Province) (err error)
+	UpdateProvince(ctx context.Context, province *Province) (err error)
+	DeleteProvince(ctx context.Context, id uuid.UUID) (err error)
+	GetProvincesByFilter(ctx context.Context, filter *ProvinceListFilter) (provinceList []*Province, err error)
+}
+
 type Province struct {
 	ID        uuid.UUID `json:"id"`
 	CountryID uuid.UUID `json:"country_id"`

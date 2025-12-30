@@ -10,9 +10,10 @@ import (
 type CountryRepository interface {
 	GetAll(ctx context.Context) (countryList []*Country, err error)
 	FindByID(ctx context.Context, id uuid.UUID) (country *Country, err error)
-	Create(ctx context.Context, country *Country) (err error)
-	Update(ctx context.Context, country *Country) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
+}
+
+type CountryInteractor interface {
+	GetAllCountries(ctx context.Context) (countryList []*Country, err error)
 }
 
 type Country struct {
