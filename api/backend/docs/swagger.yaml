@@ -146,9 +146,6 @@ definitions:
       store_count:
         description: 适用门店数量
         type: integer
-      store_id:
-        description: 门店ID
-        type: string
       stores:
         description: 关联信息
         items:
@@ -1141,6 +1138,20 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  types.CategoryReorderReq:
+    properties:
+      category_ids:
+        description: 按新顺序排列的分类ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      parent_id:
+        description: 父分类ID，如果是一级分类排序则为null
+        type: string
+    required:
+    - category_ids
     type: object
   types.LoginReq:
     properties:
@@ -2617,6 +2628,23 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新商品分类
+      tags:
+      - 商品分类
+  /product/category/reorder:
+    put:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.CategoryReorderReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 重排序商品分类
       tags:
       - 商品分类
   /product/distribute:

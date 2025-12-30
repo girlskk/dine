@@ -81,11 +81,8 @@ func (repo *ProductAttrRepository) Create(ctx context.Context, attr *domain.Prod
 		SetName(attr.Name).
 		SetChannels(attr.Channels).
 		SetMerchantID(attr.MerchantID).
+		SetStoreID(attr.StoreID).
 		SetProductCount(attr.ProductCount)
-
-	if attr.StoreID != uuid.Nil {
-		builder = builder.SetStoreID(attr.StoreID)
-	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -133,10 +130,10 @@ func (repo *ProductAttrRepository) Exists(ctx context.Context, params domain.Pro
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.ProductAttr.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(productattr.MerchantID(params.MerchantID))
-	}
+	query := repo.Client.ProductAttr.Query().
+		Where(productattr.MerchantID(params.MerchantID)).
+		Where(productattr.StoreID(params.StoreID))
+
 	if params.Name != "" {
 		query.Where(productattr.Name(params.Name))
 	}
@@ -160,6 +157,12 @@ func (repo *ProductAttrRepository) ListBySearch(
 
 	if params.MerchantID != uuid.Nil {
 		query.Where(productattr.MerchantID(params.MerchantID))
+	}
+
+	if params.OnlyMerchant {
+		query.Where(productattr.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(productattr.StoreID(params.StoreID))
 	}
 
 	// 预加载所有子项（用于避免 N+1 查询）
@@ -212,11 +215,9 @@ func (repo *ProductAttrRepository) CreateBulk(ctx context.Context, attrs []*doma
 			SetName(attr.Name).
 			SetChannels(attr.Channels).
 			SetMerchantID(attr.MerchantID).
+			SetStoreID(attr.StoreID).
 			SetProductCount(attr.ProductCount)
 
-		if attr.StoreID != uuid.Nil {
-			builder = builder.SetStoreID(attr.StoreID)
-		}
 		builders = append(builders, builder)
 	}
 	_, err = repo.Client.ProductAttr.CreateBulk(builders...).Save(ctx)

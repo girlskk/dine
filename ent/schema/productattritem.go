@@ -44,6 +44,8 @@ func (ProductAttrItem) Fields() []ent.Field {
 func (ProductAttrItem) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("attr_id"),
+		// 唯一索引
+		index.Fields("attr_id", "name", "deleted_at").Unique(),
 	}
 }
 

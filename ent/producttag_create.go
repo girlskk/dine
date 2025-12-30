@@ -191,6 +191,13 @@ func (ptc *ProductTagCreate) defaults() error {
 		v := producttag.DefaultDeletedAt
 		ptc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := ptc.mutation.StoreID(); !ok {
+		if producttag.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized producttag.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := producttag.DefaultStoreID()
+		ptc.mutation.SetStoreID(v)
+	}
 	if _, ok := ptc.mutation.ProductCount(); !ok {
 		v := producttag.DefaultProductCount
 		ptc.mutation.SetProductCount(v)
@@ -226,6 +233,9 @@ func (ptc *ProductTagCreate) check() error {
 	}
 	if _, ok := ptc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "ProductTag.merchant_id"`)}
+	}
+	if _, ok := ptc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "ProductTag.store_id"`)}
 	}
 	if _, ok := ptc.mutation.ProductCount(); !ok {
 		return &ValidationError{Name: "product_count", err: errors.New(`ent: missing required field "ProductTag.product_count"`)}

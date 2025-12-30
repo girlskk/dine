@@ -167,7 +167,8 @@ func (h *ProductAttrHandler) Update() gin.HandlerFunc {
 			}
 		}
 
-		err = h.ProductAttrInteractor.Update(ctx, attr)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductAttrInteractor.Update(ctx, attr, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductAttrNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.ProductAttrNameExists, err))
@@ -208,7 +209,8 @@ func (h *ProductAttrHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductAttrInteractor.Delete(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductAttrInteractor.Delete(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductAttrDeleteHasItems) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductAttrDeleteHasItems, err))
@@ -250,7 +252,8 @@ func (h *ProductAttrHandler) DeleteItem() gin.HandlerFunc {
 			return
 		}
 
-		err = h.ProductAttrInteractor.DeleteItem(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		err = h.ProductAttrInteractor.DeleteItem(ctx, id, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrProductAttrItemDeleteHasProducts) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductAttrItemDeleteHasProducts, err))
@@ -287,7 +290,8 @@ func (h *ProductAttrHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		params := domain.ProductAttrSearchParams{
-			MerchantID: user.MerchantID,
+			MerchantID:   user.MerchantID,
+			OnlyMerchant: true,
 		}
 
 		res, err := h.ProductAttrInteractor.ListBySearch(ctx, params)

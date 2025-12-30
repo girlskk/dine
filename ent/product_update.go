@@ -966,9 +966,6 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.DeliveryCostPriceCleared() {
 		_spec.ClearField(product.FieldDeliveryCostPrice, field.TypeOther)
 	}
-	if pu.mutation.StoreIDCleared() {
-		_spec.ClearField(product.FieldStoreID, field.TypeUUID)
-	}
 	if pu.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -2273,9 +2270,6 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if puo.mutation.DeliveryCostPriceCleared() {
 		_spec.ClearField(product.FieldDeliveryCostPrice, field.TypeOther)
-	}
-	if puo.mutation.StoreIDCleared() {
-		_spec.ClearField(product.FieldStoreID, field.TypeUUID)
 	}
 	if puo.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{

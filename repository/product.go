@@ -134,6 +134,7 @@ func (repo *ProductRepository) Create(ctx context.Context, p *domain.Product) (e
 		SetName(p.Name).
 		SetType(p.Type).
 		SetMerchantID(p.MerchantID).
+		SetStoreID(p.StoreID).
 		SetCategoryID(p.CategoryID).
 		SetUnitID(p.UnitID).
 		SetMnemonic(p.Mnemonic).
@@ -157,9 +158,6 @@ func (repo *ProductRepository) Create(ctx context.Context, p *domain.Product) (e
 	}
 
 	// 可选字段
-	if p.StoreID != uuid.Nil {
-		builder = builder.SetStoreID(p.StoreID)
-	}
 	if p.MenuID != uuid.Nil {
 		builder = builder.SetMenuID(p.MenuID)
 	}
@@ -325,8 +323,12 @@ func (repo *ProductRepository) Exists(ctx context.Context, params domain.Product
 	query := repo.Client.Product.Query().
 		Where(
 			product.MerchantID(params.MerchantID),
-			product.Name(params.Name),
+			product.StoreID(params.StoreID),
 		)
+
+	if params.Name != "" {
+		query = query.Where(product.Name(params.Name))
+	}
 
 	if params.ExcludeID != uuid.Nil {
 		query = query.Where(product.IDNEQ(params.ExcludeID))
@@ -396,7 +398,9 @@ func (repo *ProductRepository) PagedListBySearch(
 	}
 
 	// 可选条件：门店ID
-	if params.StoreID != uuid.Nil {
+	if params.OnlyMerchant {
+		query.Where(product.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
 		query.Where(product.StoreID(params.StoreID))
 	}
 

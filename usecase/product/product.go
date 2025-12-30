@@ -333,7 +333,7 @@ func (i *ProductInteractor) PagedListBySearch(
 	return i.DS.ProductRepo().PagedListBySearch(ctx, page, params)
 }
 
-func (i *ProductInteractor) GetDetail(ctx context.Context, id uuid.UUID) (product *domain.Product, err error) {
+func (i *ProductInteractor) GetDetail(ctx context.Context, id uuid.UUID, user domain.User) (product *domain.Product, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.GetDetail")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -348,5 +348,16 @@ func (i *ProductInteractor) GetDetail(ctx context.Context, id uuid.UUID) (produc
 		return nil, err
 	}
 
+	if err := verifyProductOwnership(user, product); err != nil {
+		return nil, err
+	}
+
 	return product, nil
+}
+
+func verifyProductOwnership(user domain.User, product *domain.Product) error {
+	if user.GetMerchantID() != product.MerchantID || user.GetStoreID() != product.StoreID {
+		return domain.ParamsError(domain.ErrProductNotExists)
+	}
+	return nil
 }

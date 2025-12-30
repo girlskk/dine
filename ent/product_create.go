@@ -585,6 +585,13 @@ func (pc *ProductCreate) defaults() error {
 		v := product.DefaultDescription
 		pc.mutation.SetDescription(v)
 	}
+	if _, ok := pc.mutation.StoreID(); !ok {
+		if product.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized product.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := product.DefaultStoreID()
+		pc.mutation.SetStoreID(v)
+	}
 	if _, ok := pc.mutation.ID(); !ok {
 		if product.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized product.DefaultID (forgotten import ent/runtime?)")
@@ -682,6 +689,9 @@ func (pc *ProductCreate) check() error {
 	}
 	if _, ok := pc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "Product.merchant_id"`)}
+	}
+	if _, ok := pc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "Product.store_id"`)}
 	}
 	if len(pc.mutation.CategoryIDs()) == 0 {
 		return &ValidationError{Name: "category", err: errors.New(`ent: missing required edge "Product.category"`)}

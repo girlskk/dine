@@ -64,7 +64,6 @@ func (MenuItemSaleRule) Values() []string {
 type Menu struct {
 	ID               uuid.UUID            `json:"id"`                // 菜单ID
 	MerchantID       uuid.UUID            `json:"merchant_id"`       // 品牌商ID
-	StoreID          uuid.UUID            `json:"store_id"`          // 门店ID
 	Name             string               `json:"name"`              // 菜单名称
 	DistributionRule MenuDistributionRule `json:"distribution_rule"` // 下发规则
 	StoreCount       int                  `json:"store_count"`       // 适用门店数量
@@ -121,9 +120,9 @@ type MenuRepository interface {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/menu_interactor.go -package=mock . MenuInteractor
 type MenuInteractor interface {
 	Create(ctx context.Context, menu *Menu) error
-	Update(ctx context.Context, menu *Menu) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	GetDetail(ctx context.Context, id uuid.UUID) (*Menu, error)
+	Update(ctx context.Context, menu *Menu, user User) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
+	GetDetail(ctx context.Context, id uuid.UUID, user User) (*Menu, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params MenuSearchParams) (*MenuSearchRes, error)
 }
 
@@ -141,6 +140,7 @@ type MenuExistsParams struct {
 // MenuSearchParams 查询参数
 type MenuSearchParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string // 菜单名称（模糊匹配）
 }
 

@@ -1293,16 +1293,6 @@ func StoreIDLTE(v uuid.UUID) predicate.Product {
 	return predicate.Product(sql.FieldLTE(FieldStoreID, v))
 }
 
-// StoreIDIsNil applies the IsNil predicate on the "store_id" field.
-func StoreIDIsNil() predicate.Product {
-	return predicate.Product(sql.FieldIsNull(FieldStoreID))
-}
-
-// StoreIDNotNil applies the NotNil predicate on the "store_id" field.
-func StoreIDNotNil() predicate.Product {
-	return predicate.Product(sql.FieldNotNull(FieldStoreID))
-}
-
 // HasCategory applies the HasEdge predicate on the "category" edge.
 func HasCategory() predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {

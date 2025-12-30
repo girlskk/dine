@@ -53,11 +53,9 @@ func (repo *ProductUnitRepository) Create(ctx context.Context, unit *domain.Prod
 		SetName(unit.Name).
 		SetType(unit.Type).
 		SetMerchantID(unit.MerchantID).
+		SetStoreID(unit.StoreID).
 		SetProductCount(unit.ProductCount)
 
-	if unit.StoreID != uuid.Nil {
-		builder.SetStoreID(unit.StoreID)
-	}
 	created, err := builder.Save(ctx)
 	if err != nil {
 		return err
@@ -110,10 +108,10 @@ func (repo *ProductUnitRepository) Exists(ctx context.Context, params domain.Pro
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.ProductUnit.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(productunit.MerchantID(params.MerchantID))
-	}
+	query := repo.Client.ProductUnit.Query().
+		Where(productunit.MerchantID(params.MerchantID)).
+		Where(productunit.StoreID(params.StoreID))
+
 	if params.Name != "" {
 		query.Where(productunit.Name(params.Name))
 	}
@@ -145,6 +143,12 @@ func (repo *ProductUnitRepository) PagedListBySearch(
 	}
 	if params.Type != "" {
 		query.Where(productunit.TypeEQ(params.Type))
+	}
+
+	if params.OnlyMerchant {
+		query.Where(productunit.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(productunit.StoreID(params.StoreID))
 	}
 
 	// 获取总数
