@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,10 +18,14 @@ import (
 
 type OrderHandler struct {
 	OrderInteractor domain.OrderInteractor
+	Seq             domain.DailySequence
 }
 
-func NewOrderHandler(orderInteractor domain.OrderInteractor) *OrderHandler {
-	return &OrderHandler{OrderInteractor: orderInteractor}
+func NewOrderHandler(orderInteractor domain.OrderInteractor, seq domain.DailySequence) *OrderHandler {
+	return &OrderHandler{
+		OrderInteractor: orderInteractor,
+		Seq:             seq,
+	}
 }
 
 func (h *OrderHandler) Routes(r gin.IRouter) {
@@ -93,6 +99,16 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 		}
 		if req.Channel != "" {
 			o.Channel = domain.Channel(req.Channel)
+		}
+
+		// 自动生成订单号
+		if o.OrderNo == "" {
+			orderNo, err := h.generateOrderNo(ctx, o)
+			if err != nil {
+				c.Error(fmt.Errorf("failed to generate order_no: %w", err))
+				return
+			}
+			o.OrderNo = orderNo
 		}
 
 		err := h.OrderInteractor.Create(ctx, o)
@@ -346,4 +362,20 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 			Pagination: p,
 		})
 	}
+}
+
+func (h *OrderHandler) generateOrderNo(ctx context.Context, o *domain.Order) (string, error) {
+	storePart := ""
+	if o.Store.StoreCode != "" {
+		storePart = o.Store.StoreCode
+	}
+
+	datePart := strings.ReplaceAll(o.BusinessDate, "-", "")
+	prefix := fmt.Sprintf("%s:%s", domain.DailySequencePrefixOrderNo, o.StoreID.String())
+	seq, err := h.Seq.Next(ctx, prefix)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s%s%06d", storePart, datePart, seq), nil
 }

@@ -343,15 +343,15 @@ func (ou *OrderUpdate) AppendStore(jm json.RawMessage) *OrderUpdate {
 }
 
 // SetChannel sets the "channel" field.
-func (ou *OrderUpdate) SetChannel(o order.Channel) *OrderUpdate {
-	ou.mutation.SetChannel(o)
+func (ou *OrderUpdate) SetChannel(d domain.Channel) *OrderUpdate {
+	ou.mutation.SetChannel(d)
 	return ou
 }
 
 // SetNillableChannel sets the "channel" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableChannel(o *order.Channel) *OrderUpdate {
-	if o != nil {
-		ou.SetChannel(*o)
+func (ou *OrderUpdate) SetNillableChannel(d *domain.Channel) *OrderUpdate {
+	if d != nil {
+		ou.SetChannel(*d)
 	}
 	return ou
 }
@@ -1120,15 +1120,15 @@ func (ouo *OrderUpdateOne) AppendStore(jm json.RawMessage) *OrderUpdateOne {
 }
 
 // SetChannel sets the "channel" field.
-func (ouo *OrderUpdateOne) SetChannel(o order.Channel) *OrderUpdateOne {
-	ouo.mutation.SetChannel(o)
+func (ouo *OrderUpdateOne) SetChannel(d domain.Channel) *OrderUpdateOne {
+	ouo.mutation.SetChannel(d)
 	return ouo
 }
 
 // SetNillableChannel sets the "channel" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableChannel(o *order.Channel) *OrderUpdateOne {
-	if o != nil {
-		ouo.SetChannel(*o)
+func (ouo *OrderUpdateOne) SetNillableChannel(d *domain.Channel) *OrderUpdateOne {
+	if d != nil {
+		ouo.SetChannel(*d)
 	}
 	return ouo
 }

@@ -178,7 +178,7 @@ func OrderTypeValidator(ot domain.OrderType) error {
 // DiningModeValidator is a validator for the "dining_mode" field enum values. It is called by the builders before save.
 func DiningModeValidator(dm domain.DiningMode) error {
 	switch dm {
-	case "DINE_IN", "TAKEAWAY":
+	case "DINE_IN":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for dining_mode field: %q", dm)
@@ -190,7 +190,7 @@ const DefaultOrderStatus domain.OrderStatus = "PLACED"
 // OrderStatusValidator is a validator for the "order_status" field enum values. It is called by the builders before save.
 func OrderStatusValidator(os domain.OrderStatus) error {
 	switch os {
-	case "DRAFT", "PLACED", "IN_PROGRESS", "READY", "COMPLETED", "CANCELLED", "VOIDED", "MERGED":
+	case "PLACED", "COMPLETED", "CANCELLED":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for order_status field: %q", os)
@@ -202,33 +202,19 @@ const DefaultPaymentStatus domain.PaymentStatus = "UNPAID"
 // PaymentStatusValidator is a validator for the "payment_status" field enum values. It is called by the builders before save.
 func PaymentStatusValidator(ps domain.PaymentStatus) error {
 	switch ps {
-	case "UNPAID", "PAYING", "PARTIALLY_PAID", "PAID", "PARTIALLY_REFUNDED", "REFUNDED":
+	case "UNPAID", "PAYING", "PAID", "REFUNDED":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for payment_status field: %q", ps)
 	}
 }
 
-// Channel defines the type for the "channel" enum field.
-type Channel string
-
-// ChannelPOS is the default value of the Channel enum.
-const DefaultChannel = ChannelPOS
-
-// Channel values.
-const (
-	ChannelPOS          Channel = "POS"
-	ChannelMINI_PROGRAM Channel = "MINI_PROGRAM"
-)
-
-func (c Channel) String() string {
-	return string(c)
-}
+const DefaultChannel domain.Channel = "POS"
 
 // ChannelValidator is a validator for the "channel" field enum values. It is called by the builders before save.
-func ChannelValidator(c Channel) error {
+func ChannelValidator(c domain.Channel) error {
 	switch c {
-	case ChannelPOS, ChannelMINI_PROGRAM:
+	case "POS":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for channel field: %q", c)

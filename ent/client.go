@@ -337,10 +337,11 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
-		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
-		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province, c.Remark,
-		c.RemarkCategory, c.Order, c.OrderProduct, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order,
+		c.OrderProduct, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
+		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail,
+		c.SetMealGroup, c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -351,10 +352,11 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
-		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
-		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Order, c.OrderProduct, c.Province, c.Remark,
-		c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order,
+		c.OrderProduct, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
+		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail,
+		c.SetMealGroup, c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -5383,16 +5385,16 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 type (
 	hooks struct {
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
-		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
-		ProductAttrItem, ProductAttrRelation, ProductSpec, Order, OrderProduct, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Hook
+		Merchant, MerchantBusinessType, MerchantRenewal, Order, OrderProduct, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
+		SetMealDetail, SetMealGroup, Store []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
-		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
-		ProductAttrItem, Order, OrderProduct, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Interceptor
+		Merchant, MerchantBusinessType, MerchantRenewal, Order, OrderProduct, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
+		SetMealDetail, SetMealGroup, Store []ent.Interceptor
 	}
 )

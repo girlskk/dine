@@ -11929,7 +11929,7 @@ type OrderMutation struct {
 	addguest_count        *int
 	store                 *json.RawMessage
 	appendstore           json.RawMessage
-	channel               *order.Channel
+	channel               *domain.Channel
 	pos                   *json.RawMessage
 	appendpos             json.RawMessage
 	cashier               *json.RawMessage
@@ -13001,12 +13001,12 @@ func (m *OrderMutation) ResetStore() {
 }
 
 // SetChannel sets the "channel" field.
-func (m *OrderMutation) SetChannel(o order.Channel) {
-	m.channel = &o
+func (m *OrderMutation) SetChannel(d domain.Channel) {
+	m.channel = &d
 }
 
 // Channel returns the value of the "channel" field in the mutation.
-func (m *OrderMutation) Channel() (r order.Channel, exists bool) {
+func (m *OrderMutation) Channel() (r domain.Channel, exists bool) {
 	v := m.channel
 	if v == nil {
 		return
@@ -13017,7 +13017,7 @@ func (m *OrderMutation) Channel() (r order.Channel, exists bool) {
 // OldChannel returns the old "channel" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldChannel(ctx context.Context) (v order.Channel, err error) {
+func (m *OrderMutation) OldChannel(ctx context.Context) (v domain.Channel, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldChannel is only allowed on UpdateOne operations")
 	}
@@ -13843,7 +13843,7 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		m.SetStore(v)
 		return nil
 	case order.FieldChannel:
-		v, ok := value.(order.Channel)
+		v, ok := value.(domain.Channel)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

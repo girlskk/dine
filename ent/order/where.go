@@ -1093,23 +1093,33 @@ func GuestCountNotNil() predicate.Order {
 }
 
 // ChannelEQ applies the EQ predicate on the "channel" field.
-func ChannelEQ(v Channel) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldChannel, v))
+func ChannelEQ(v domain.Channel) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldChannel, vc))
 }
 
 // ChannelNEQ applies the NEQ predicate on the "channel" field.
-func ChannelNEQ(v Channel) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldChannel, v))
+func ChannelNEQ(v domain.Channel) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldChannel, vc))
 }
 
 // ChannelIn applies the In predicate on the "channel" field.
-func ChannelIn(vs ...Channel) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldChannel, vs...))
+func ChannelIn(vs ...domain.Channel) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldChannel, v...))
 }
 
 // ChannelNotIn applies the NotIn predicate on the "channel" field.
-func ChannelNotIn(vs ...Channel) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldChannel, vs...))
+func ChannelNotIn(vs ...domain.Channel) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldChannel, v...))
 }
 
 // TaxRatesIsNil applies the IsNil predicate on the "tax_rates" field.

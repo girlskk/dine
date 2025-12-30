@@ -63,8 +63,8 @@ type Order struct {
 	GuestCount int `json:"guest_count,omitempty"`
 	// 门店信息
 	Store json.RawMessage `json:"store,omitempty"`
-	// 下单渠道：POS/MINI_PROGRAM
-	Channel order.Channel `json:"channel,omitempty"`
+	// 下单渠道
+	Channel domain.Channel `json:"channel,omitempty"`
 	// POS终端信息
 	Pos json.RawMessage `json:"pos,omitempty"`
 	// 收银员信息
@@ -274,7 +274,7 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field channel", values[i])
 			} else if value.Valid {
-				o.Channel = order.Channel(value.String)
+				o.Channel = domain.Channel(value.String)
 			}
 		case order.FieldPos:
 			if value, ok := values[i].(*[]byte); !ok {

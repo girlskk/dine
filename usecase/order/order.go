@@ -3,7 +3,6 @@ package order
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -13,14 +12,12 @@ import (
 var _ domain.OrderInteractor = (*OrderInteractor)(nil)
 
 type OrderInteractor struct {
-	DS  domain.DataStore
-	Seq domain.DailySequence
+	DS domain.DataStore
 }
 
-func NewOrderInteractor(ds domain.DataStore, seq domain.DailySequence) *OrderInteractor {
+func NewOrderInteractor(ds domain.DataStore) *OrderInteractor {
 	return &OrderInteractor{
-		DS:  ds,
-		Seq: seq,
+		DS: ds,
 	}
 }
 
@@ -29,32 +26,6 @@ func (interactor *OrderInteractor) Create(ctx context.Context, order *domain.Ord
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-
-	if order == nil {
-		return domain.ParamsErrorf("order is nil")
-	}
-	if order.ID == uuid.Nil {
-		order.ID = uuid.New()
-	}
-	if order.MerchantID == uuid.Nil {
-		return domain.ParamsErrorf("merchant_id is required")
-	}
-	if order.StoreID == uuid.Nil {
-		return domain.ParamsErrorf("store_id is required")
-	}
-	if order.BusinessDate == "" {
-		return domain.ParamsErrorf("business_date is required")
-	}
-	if order.DiningMode == "" {
-		return domain.ParamsErrorf("dining_mode is required")
-	}
-
-	if order.OrderNo == "" {
-		order.OrderNo, err = interactor.generateOrderNo(ctx, order)
-		if err != nil {
-			return fmt.Errorf("failed to generate order_no: %w", err)
-		}
-	}
 
 	err = interactor.DS.OrderRepo().Create(ctx, order)
 	if err != nil {
@@ -82,13 +53,6 @@ func (interactor *OrderInteractor) Update(ctx context.Context, order *domain.Ord
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-
-	if order == nil {
-		return domain.ParamsErrorf("order is nil")
-	}
-	if order.ID == uuid.Nil {
-		return domain.ParamsErrorf("id is required")
-	}
 
 	err = interactor.DS.OrderRepo().Update(ctx, order)
 	if err != nil {
@@ -122,20 +86,4 @@ func (interactor *OrderInteractor) List(ctx context.Context, params domain.Order
 		return nil, 0, fmt.Errorf("failed to list orders: %w", err)
 	}
 	return res, total, nil
-}
-
-func (interactor *OrderInteractor) generateOrderNo(ctx context.Context, o *domain.Order) (orderNo string, err error) {
-	storePart := ""
-	if o.Store.StoreCode != "" {
-		storePart = o.Store.StoreCode
-	}
-
-	datePart := strings.ReplaceAll(o.BusinessDate, "-", "")
-	prefix := fmt.Sprintf("%s:%s", domain.DailySequencePrefixOrderNo, o.StoreID.String())
-	seq, err := interactor.Seq.Next(ctx, prefix)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%s%s%06d", storePart, datePart, seq), nil
 }

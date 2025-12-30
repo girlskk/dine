@@ -62,7 +62,7 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		SetBusinessDate(o.BusinessDate).
 		SetOrderNo(o.OrderNo).
 		SetDiningMode(o.DiningMode).
-		SetChannel(entorder.Channel(o.Channel))
+		SetChannel(o.Channel)
 
 	if o.ID != uuid.Nil {
 		builder = builder.SetID(o.ID)
@@ -248,7 +248,7 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetPaymentStatus(o.PaymentStatus)
 	}
 	if o.Channel != "" {
-		builder = builder.SetChannel(entorder.Channel(o.Channel))
+		builder = builder.SetChannel(o.Channel)
 	}
 
 	if o.TableID != "" {
@@ -636,7 +636,7 @@ func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 		GuestCount: eo.GuestCount,
 
 		Store:   store,
-		Channel: domain.Channel(eo.Channel),
+		Channel: eo.Channel,
 		Pos:     pos,
 		Cashier: cashier,
 

@@ -266,15 +266,15 @@ func (oc *OrderCreate) SetStore(jm json.RawMessage) *OrderCreate {
 }
 
 // SetChannel sets the "channel" field.
-func (oc *OrderCreate) SetChannel(o order.Channel) *OrderCreate {
-	oc.mutation.SetChannel(o)
+func (oc *OrderCreate) SetChannel(d domain.Channel) *OrderCreate {
+	oc.mutation.SetChannel(d)
 	return oc
 }
 
 // SetNillableChannel sets the "channel" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableChannel(o *order.Channel) *OrderCreate {
-	if o != nil {
-		oc.SetChannel(*o)
+func (oc *OrderCreate) SetNillableChannel(d *domain.Channel) *OrderCreate {
+	if d != nil {
+		oc.SetChannel(*d)
 	}
 	return oc
 }
@@ -1025,7 +1025,7 @@ func (u *OrderUpsert) UpdateStore() *OrderUpsert {
 }
 
 // SetChannel sets the "channel" field.
-func (u *OrderUpsert) SetChannel(v order.Channel) *OrderUpsert {
+func (u *OrderUpsert) SetChannel(v domain.Channel) *OrderUpsert {
 	u.Set(order.FieldChannel, v)
 	return u
 }
@@ -1513,7 +1513,7 @@ func (u *OrderUpsertOne) UpdateStore() *OrderUpsertOne {
 }
 
 // SetChannel sets the "channel" field.
-func (u *OrderUpsertOne) SetChannel(v order.Channel) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetChannel(v domain.Channel) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetChannel(v)
 	})
@@ -2185,7 +2185,7 @@ func (u *OrderUpsertBulk) UpdateStore() *OrderUpsertBulk {
 }
 
 // SetChannel sets the "channel" field.
-func (u *OrderUpsertBulk) SetChannel(v order.Channel) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetChannel(v domain.Channel) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetChannel(v)
 	})
