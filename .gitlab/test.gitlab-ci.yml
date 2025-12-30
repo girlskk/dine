@@ -1,0 +1,17 @@
+test_migrate:
+  extends: .migrate_common
+  only:
+    - test
+  variables:
+    ENV_NAME: test
+    DATABASE_URL: $MIGRATE_DATABASE_URI
+    DATABASE_USERNAME: migrate
+    DATABASE_PASSWORD: $MIGRATE_PASSWORD
+    DATABASE_NAME: pos_dine_test
+    DATABASE_URL_PATH: mysql://$DATABASE_USERNAME:$DATABASE_PASSWORD@$DATABASE_URL/$DATABASE_NAME?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai&sql_mode='STRICT_TRANS_TABLES'
+
+# admin服务
+test_build_admin:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: admin
