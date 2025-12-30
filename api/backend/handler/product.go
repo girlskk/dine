@@ -307,12 +307,12 @@ func (h *ProductHandler) CreateSetMeal() gin.HandlerFunc {
 			}
 			for _, detailReq := range groupReq.Details {
 				detail := &domain.SetMealDetail{
-					ID:                 uuid.New(),
-					GroupID:            group.ID,
-					ProductID:          detailReq.ProductID,
-					Quantity:           detailReq.Quantity,
-					IsDefault:          detailReq.IsDefault,
-					OptionalProductIDs: detailReq.OptionalProductIDs,
+					ID:        uuid.New(),
+					GroupID:   group.ID,
+					ProductID: detailReq.ProductID,
+					Quantity:  detailReq.Quantity,
+					IsDefault: detailReq.IsDefault,
+					// OptionalProductIDs: detailReq.OptionalProductIDs,
 				}
 				group.Details = append(group.Details, detail)
 			}
@@ -705,12 +705,12 @@ func (h *ProductHandler) UpdateSetMeal() gin.HandlerFunc {
 			}
 			for _, detailReq := range groupReq.Details {
 				detail := &domain.SetMealDetail{
-					ID:                 uuid.New(),
-					GroupID:            group.ID,
-					ProductID:          detailReq.ProductID,
-					Quantity:           detailReq.Quantity,
-					IsDefault:          detailReq.IsDefault,
-					OptionalProductIDs: detailReq.OptionalProductIDs,
+					ID:        uuid.New(),
+					GroupID:   group.ID,
+					ProductID: detailReq.ProductID,
+					Quantity:  detailReq.Quantity,
+					IsDefault: detailReq.IsDefault,
+					// OptionalProductIDs: detailReq.OptionalProductIDs,
 				}
 				group.Details = append(group.Details, detail)
 			}
@@ -763,6 +763,10 @@ func (h *ProductHandler) Delete() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 		err = h.ProductInteractor.Delete(ctx, productID, user)
 		if err != nil {
+			if errors.Is(err, domain.ErrProductBelongToSetMeal) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductBelongToSetMeal, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
@@ -802,6 +806,10 @@ func (h *ProductHandler) OffSale() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 		err = h.ProductInteractor.OffSale(ctx, productID, user)
 		if err != nil {
+			if errors.Is(err, domain.ErrProductBelongToSetMeal) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductBelongToSetMeal, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return

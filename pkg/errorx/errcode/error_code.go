@@ -42,7 +42,8 @@ const (
 	ProductAttrItemDeleteHasProducts ErrCode = "PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS" // 商品口味做法项有商品
 
 	// 商品
-	ProductNameExists ErrCode = "PRODUCT_NAME_EXISTS" // 商品名称已存在
+	ProductNameExists      ErrCode = "PRODUCT_NAME_EXISTS"        // 商品名称已存在
+	ProductBelongToSetMeal ErrCode = "PRODUCT_BELONG_TO_SET_MEAL" // 商品属于套餐组，不能停售或删除
 
 	MerchantNameExists            ErrCode = "MERCHANT_NAME_EXISTS"              // 商户名称已存在
 	StoreNameExists               ErrCode = "STORE_NAME_EXISTS"                 // 门店名称已存在

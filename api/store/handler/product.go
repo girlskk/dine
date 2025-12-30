@@ -766,6 +766,10 @@ func (h *ProductHandler) Delete() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductInteractor.Delete(ctx, productID, user)
 		if err != nil {
+			if errors.Is(err, domain.ErrProductBelongToSetMeal) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductBelongToSetMeal, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
@@ -805,6 +809,10 @@ func (h *ProductHandler) OffSale() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductInteractor.OffSale(ctx, productID, user)
 		if err != nil {
+			if errors.Is(err, domain.ErrProductBelongToSetMeal) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductBelongToSetMeal, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return

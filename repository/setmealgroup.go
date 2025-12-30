@@ -120,6 +120,21 @@ func (repo *SetMealGroupRepository) DeleteByProductID(ctx context.Context, produ
 	return nil
 }
 
+// CheckProductBelongToSetMeal 检查商品是否属于套餐组
+func (repo *SetMealGroupRepository) CheckProductBelongToSetMeal(ctx context.Context, productID uuid.UUID) (res bool, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "SetMealGroupRepository.CheckProductBelongToSetMeal")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	exist, err := repo.Client.SetMealDetail.Query().
+		Where(setmealdetail.ProductIDEQ(productID)).
+		Exist(ctx)
+	if err != nil {
+		return false, err
+	}
+	return exist, nil
+}
+
 // ============================================
 // 转换函数
 // ============================================

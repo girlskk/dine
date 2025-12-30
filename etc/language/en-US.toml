@@ -58,6 +58,9 @@ other = "Product attr has items, cannot delete"
 [PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS]
 other = "Product attr item has products, cannot delete"
 
+[PRODUCT_BELONG_TO_SET_MEAL]
+other = "Product belongs to set meal, cannot off sale or delete"
+
 [MERCHANT_NAME_EXISTS]
 other = "Merchant name already exists"
 

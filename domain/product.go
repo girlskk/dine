@@ -44,6 +44,9 @@ var (
 	ErrProductStallNotExists       = errors.New("指定出品部门不存在")
 	ErrProductPackingFeeNotExists  = errors.New("打包费配置不存在")
 
+	// 商品套餐相关错误
+	ErrProductBelongToSetMeal = errors.New("商品属于套餐组，不能停售或删除")
+
 	// 商品下发相关错误
 	ErrProductDistributeStoreInvalid = errors.New("门店无效，必须属于当前品牌商")
 )

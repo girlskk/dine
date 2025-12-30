@@ -91,4 +91,5 @@ type SetMealGroupRepository interface {
 	DeleteByProductID(ctx context.Context, productID uuid.UUID) error
 	// 套餐组详情相关操作
 	CreateDetails(ctx context.Context, details []*SetMealDetail) error
+	CheckProductBelongToSetMeal(ctx context.Context, productID uuid.UUID) (bool, error)
 }

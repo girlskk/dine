@@ -1994,11 +1994,6 @@ definitions:
       is_default:
         description: 是否默认（必选，每个套餐组中只能有一个默认项）
         type: boolean
-      optional_product_ids:
-        description: 备选商品ID列表（可选，多选）
-        items:
-          type: string
-        type: array
       product_id:
         description: 商品ID（必选）
         type: string

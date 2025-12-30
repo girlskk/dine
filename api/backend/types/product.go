@@ -125,10 +125,10 @@ type SetMealGroupReq struct {
 
 // SetMealDetailReq 套餐组详情请求
 type SetMealDetailReq struct {
-	ProductID          uuid.UUID   `json:"product_id" binding:"required"`     // 商品ID（必选）
-	Quantity           int         `json:"quantity" binding:"required,min=1"` // 数量（必选，必须为正整数）
-	IsDefault          bool        `json:"is_default"`                        // 是否默认（必选，每个套餐组中只能有一个默认项）
-	OptionalProductIDs []uuid.UUID `json:"optional_product_ids,omitempty"`    // 备选商品ID列表（可选，多选）
+	ProductID uuid.UUID `json:"product_id" binding:"required"`     // 商品ID（必选）
+	Quantity  int       `json:"quantity" binding:"required,min=1"` // 数量（必选，必须为正整数）
+	IsDefault bool      `json:"is_default"`                        // 是否默认（必选，每个套餐组中只能有一个默认项）
+	// OptionalProductIDs []uuid.UUID `json:"optional_product_ids,omitempty"`    // 备选商品ID列表（可选，多选）
 }
 
 // ProductListReq 查询商品列表请求
