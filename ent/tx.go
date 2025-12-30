@@ -32,6 +32,8 @@ type Tx struct {
 	MerchantRenewal *MerchantRenewalClient
 	// Order is the client for interacting with the Order builders.
 	Order *OrderClient
+	// OrderProduct is the client for interacting with the OrderProduct builders.
+	OrderProduct *OrderProductClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
@@ -201,6 +203,7 @@ func (tx *Tx) init() {
 	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
 	tx.Order = NewOrderClient(tx.config)
+	tx.OrderProduct = NewOrderProductClient(tx.config)
 	tx.Product = NewProductClient(tx.config)
 	tx.ProductAttr = NewProductAttrClient(tx.config)
 	tx.ProductAttrItem = NewProductAttrItemClient(tx.config)

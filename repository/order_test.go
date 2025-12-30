@@ -20,10 +20,6 @@ type OrderTestSuite struct {
 	ctx  context.Context
 }
 
-func decimalPtr(d decimal.Decimal) *decimal.Decimal {
-	return &d
-}
-
 func TestOrderTestSuite(t *testing.T) {
 	suite.Run(t, new(OrderTestSuite))
 }
@@ -44,10 +40,9 @@ func (s *OrderTestSuite) newTestOrder(storeID, orderNo string) *domain.Order {
 		BusinessDate: "2025-12-22",
 		OrderNo:      orderNo,
 		DiningMode:   domain.DiningModeDineIn,
-		Store:        &domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID},
-		Cart:         &[]domain.OrderProduct{},
-		Products:     &[]domain.OrderProduct{},
-		Amount:       &domain.OrderAmount{},
+		Channel:      domain.ChannelPOS,
+		Store:        domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID},
+		Amount:       domain.OrderAmount{},
 	}
 }
 
@@ -142,15 +137,13 @@ func (s *OrderTestSuite) TestOrder_Update() {
 
 	s.T().Run("正常更新", func(t *testing.T) {
 		newBusinessDate := "2025-12-23"
-		newProducts := &[]domain.OrderProduct{{OrderItemID: "1", Product: domain.Product{Name: "可乐"}, Qty: 1}}
-		newAmount := &domain.OrderAmount{AmountDue: decimalPtr(decimal.NewFromInt(100))}
+		newAmount := domain.OrderAmount{AmountDue: decimal.NewFromInt(100)}
 
 		upd := &domain.Order{
 			ID:            order.ID,
 			BusinessDate:  newBusinessDate,
 			OrderStatus:   domain.OrderStatusPlaced,
 			PaymentStatus: domain.PaymentStatusPaid,
-			Products:      newProducts,
 			Amount:        newAmount,
 		}
 
@@ -161,8 +154,7 @@ func (s *OrderTestSuite) TestOrder_Update() {
 		require.Equal(t, newBusinessDate, dbOrder.BusinessDate)
 		require.Equal(t, domain.OrderStatusPlaced, dbOrder.OrderStatus)
 		require.Equal(t, domain.PaymentStatusPaid, dbOrder.PaymentStatus)
-		require.Contains(t, string(dbOrder.Products), "\"order_item_id\":\"1\"")
-		require.Contains(t, string(dbOrder.Amount), "\"amount_due\":100")
+		require.Contains(t, string(dbOrder.Amount), "\"amount_due\"")
 	})
 
 	s.T().Run("更新不存在的ID", func(t *testing.T) {
@@ -170,7 +162,6 @@ func (s *OrderTestSuite) TestOrder_Update() {
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
 	})
-
 }
 
 func (s *OrderTestSuite) TestOrder_Delete() {

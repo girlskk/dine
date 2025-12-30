@@ -24,48 +24,44 @@ func NewOrderInteractor(ds domain.DataStore, seq domain.DailySequence) *OrderInt
 	}
 }
 
-func (interactor *OrderInteractor) Create(ctx context.Context, order *domain.Order) (res *domain.Order, err error) {
+func (interactor *OrderInteractor) Create(ctx context.Context, order *domain.Order) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "OrderInteractor.Create")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
 	if order == nil {
-		return nil, domain.ParamsErrorf("order is nil")
+		return domain.ParamsErrorf("order is nil")
 	}
 	if order.ID == uuid.Nil {
 		order.ID = uuid.New()
 	}
 	if order.MerchantID == uuid.Nil {
-		return nil, domain.ParamsErrorf("merchant_id is required")
+		return domain.ParamsErrorf("merchant_id is required")
 	}
 	if order.StoreID == uuid.Nil {
-		return nil, domain.ParamsErrorf("store_id is required")
+		return domain.ParamsErrorf("store_id is required")
 	}
 	if order.BusinessDate == "" {
-		return nil, domain.ParamsErrorf("business_date is required")
+		return domain.ParamsErrorf("business_date is required")
 	}
 	if order.DiningMode == "" {
-		return nil, domain.ParamsErrorf("dining_mode is required")
+		return domain.ParamsErrorf("dining_mode is required")
 	}
 
 	if order.OrderNo == "" {
 		order.OrderNo, err = interactor.generateOrderNo(ctx, order)
 		if err != nil {
-			return nil, fmt.Errorf("failed to generate order_no: %w", err)
+			return fmt.Errorf("failed to generate order_no: %w", err)
 		}
 	}
 
 	err = interactor.DS.OrderRepo().Create(ctx, order)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create order: %w", err)
+		return fmt.Errorf("failed to create order: %w", err)
 	}
 
-	res, err = interactor.DS.OrderRepo().FindByID(ctx, order.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find created order: %w", err)
-	}
-	return res, nil
+	return nil
 }
 
 func (interactor *OrderInteractor) Get(ctx context.Context, id uuid.UUID) (res *domain.Order, err error) {
@@ -81,29 +77,25 @@ func (interactor *OrderInteractor) Get(ctx context.Context, id uuid.UUID) (res *
 	return res, nil
 }
 
-func (interactor *OrderInteractor) Update(ctx context.Context, order *domain.Order) (res *domain.Order, err error) {
+func (interactor *OrderInteractor) Update(ctx context.Context, order *domain.Order) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "OrderInteractor.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
 	if order == nil {
-		return nil, domain.ParamsErrorf("order is nil")
+		return domain.ParamsErrorf("order is nil")
 	}
 	if order.ID == uuid.Nil {
-		return nil, domain.ParamsErrorf("id is required")
+		return domain.ParamsErrorf("id is required")
 	}
 
 	err = interactor.DS.OrderRepo().Update(ctx, order)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update order: %w", err)
+		return fmt.Errorf("failed to update order: %w", err)
 	}
 
-	res, err = interactor.DS.OrderRepo().FindByID(ctx, order.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find updated order: %w", err)
-	}
-	return res, nil
+	return nil
 }
 
 func (interactor *OrderInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
@@ -134,10 +126,8 @@ func (interactor *OrderInteractor) List(ctx context.Context, params domain.Order
 
 func (interactor *OrderInteractor) generateOrderNo(ctx context.Context, o *domain.Order) (orderNo string, err error) {
 	storePart := ""
-	if o.Store != nil {
-		if o.Store.StoreCode != "" {
-			storePart = o.Store.StoreCode
-		}
+	if o.Store.StoreCode != "" {
+		storePart = o.Store.StoreCode
 	}
 
 	datePart := strings.ReplaceAll(o.BusinessDate, "-", "")

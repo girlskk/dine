@@ -26,6 +26,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
@@ -67,6 +68,8 @@ type Client struct {
 	MerchantRenewal *MerchantRenewalClient
 	// Order is the client for interacting with the Order builders.
 	Order *OrderClient
+	// OrderProduct is the client for interacting with the OrderProduct builders.
+	OrderProduct *OrderProductClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
@@ -116,6 +119,7 @@ func (c *Client) init() {
 	c.MerchantBusinessType = NewMerchantBusinessTypeClient(c.config)
 	c.MerchantRenewal = NewMerchantRenewalClient(c.config)
 	c.Order = NewOrderClient(c.config)
+	c.OrderProduct = NewOrderProductClient(c.config)
 	c.Product = NewProductClient(c.config)
 	c.ProductAttr = NewProductAttrClient(c.config)
 	c.ProductAttrItem = NewProductAttrItemClient(c.config)
@@ -232,6 +236,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
 		MerchantRenewal:      NewMerchantRenewalClient(cfg),
 		Order:                NewOrderClient(cfg),
+		OrderProduct:         NewOrderProductClient(cfg),
 		Product:              NewProductClient(cfg),
 		ProductAttr:          NewProductAttrClient(cfg),
 		ProductAttrItem:      NewProductAttrItemClient(cfg),
@@ -275,6 +280,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
 		MerchantRenewal:      NewMerchantRenewalClient(cfg),
 		Order:                NewOrderClient(cfg),
+		OrderProduct:         NewOrderProductClient(cfg),
 		Product:              NewProductClient(cfg),
 		ProductAttr:          NewProductAttrClient(cfg),
 		ProductAttrItem:      NewProductAttrItemClient(cfg),
@@ -319,10 +325,10 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.Product,
-		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province, c.Remark,
-		c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
+		c.Product, c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation,
+		c.ProductSpec, c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province,
+		c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -333,10 +339,10 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.Product,
-		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province, c.Remark,
-		c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
+		c.Product, c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation,
+		c.ProductSpec, c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province,
+		c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -365,6 +371,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.MerchantRenewal.mutate(ctx, m)
 	case *OrderMutation:
 		return c.Order.mutate(ctx, m)
+	case *OrderProductMutation:
+		return c.OrderProduct.mutate(ctx, m)
 	case *ProductMutation:
 		return c.Product.mutate(ctx, m)
 	case *ProductAttrMutation:
@@ -2249,6 +2257,22 @@ func (c *OrderClient) GetX(ctx context.Context, id uuid.UUID) *Order {
 	return obj
 }
 
+// QueryOrderProducts queries the order_products edge of a Order.
+func (c *OrderClient) QueryOrderProducts(o *Order) *OrderProductQuery {
+	query := (&OrderProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := o.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(order.Table, order.FieldID, id),
+			sqlgraph.To(orderproduct.Table, orderproduct.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, order.OrderProductsTable, order.OrderProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *OrderClient) Hooks() []Hook {
 	hooks := c.hooks.Order
@@ -2273,6 +2297,157 @@ func (c *OrderClient) mutate(ctx context.Context, m *OrderMutation) (Value, erro
 		return (&OrderDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Order mutation op: %q", m.Op())
+	}
+}
+
+// OrderProductClient is a client for the OrderProduct schema.
+type OrderProductClient struct {
+	config
+}
+
+// NewOrderProductClient returns a client for the OrderProduct from the given config.
+func NewOrderProductClient(c config) *OrderProductClient {
+	return &OrderProductClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `orderproduct.Hooks(f(g(h())))`.
+func (c *OrderProductClient) Use(hooks ...Hook) {
+	c.hooks.OrderProduct = append(c.hooks.OrderProduct, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `orderproduct.Intercept(f(g(h())))`.
+func (c *OrderProductClient) Intercept(interceptors ...Interceptor) {
+	c.inters.OrderProduct = append(c.inters.OrderProduct, interceptors...)
+}
+
+// Create returns a builder for creating a OrderProduct entity.
+func (c *OrderProductClient) Create() *OrderProductCreate {
+	mutation := newOrderProductMutation(c.config, OpCreate)
+	return &OrderProductCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of OrderProduct entities.
+func (c *OrderProductClient) CreateBulk(builders ...*OrderProductCreate) *OrderProductCreateBulk {
+	return &OrderProductCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *OrderProductClient) MapCreateBulk(slice any, setFunc func(*OrderProductCreate, int)) *OrderProductCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &OrderProductCreateBulk{err: fmt.Errorf("calling to OrderProductClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*OrderProductCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &OrderProductCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for OrderProduct.
+func (c *OrderProductClient) Update() *OrderProductUpdate {
+	mutation := newOrderProductMutation(c.config, OpUpdate)
+	return &OrderProductUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *OrderProductClient) UpdateOne(op *OrderProduct) *OrderProductUpdateOne {
+	mutation := newOrderProductMutation(c.config, OpUpdateOne, withOrderProduct(op))
+	return &OrderProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *OrderProductClient) UpdateOneID(id uuid.UUID) *OrderProductUpdateOne {
+	mutation := newOrderProductMutation(c.config, OpUpdateOne, withOrderProductID(id))
+	return &OrderProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for OrderProduct.
+func (c *OrderProductClient) Delete() *OrderProductDelete {
+	mutation := newOrderProductMutation(c.config, OpDelete)
+	return &OrderProductDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *OrderProductClient) DeleteOne(op *OrderProduct) *OrderProductDeleteOne {
+	return c.DeleteOneID(op.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *OrderProductClient) DeleteOneID(id uuid.UUID) *OrderProductDeleteOne {
+	builder := c.Delete().Where(orderproduct.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &OrderProductDeleteOne{builder}
+}
+
+// Query returns a query builder for OrderProduct.
+func (c *OrderProductClient) Query() *OrderProductQuery {
+	return &OrderProductQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeOrderProduct},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a OrderProduct entity by its id.
+func (c *OrderProductClient) Get(ctx context.Context, id uuid.UUID) (*OrderProduct, error) {
+	return c.Query().Where(orderproduct.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *OrderProductClient) GetX(ctx context.Context, id uuid.UUID) *OrderProduct {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryOrder queries the order edge of a OrderProduct.
+func (c *OrderProductClient) QueryOrder(op *OrderProduct) *OrderQuery {
+	query := (&OrderClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := op.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(orderproduct.Table, orderproduct.FieldID, id),
+			sqlgraph.To(order.Table, order.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, orderproduct.OrderTable, orderproduct.OrderColumn),
+		)
+		fromV = sqlgraph.Neighbors(op.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *OrderProductClient) Hooks() []Hook {
+	hooks := c.hooks.OrderProduct
+	return append(hooks[:len(hooks):len(hooks)], orderproduct.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *OrderProductClient) Interceptors() []Interceptor {
+	inters := c.inters.OrderProduct
+	return append(inters[:len(inters):len(inters)], orderproduct.Interceptors[:]...)
+}
+
+func (c *OrderProductClient) mutate(ctx context.Context, m *OrderProductMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OrderProductCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OrderProductUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OrderProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OrderProductDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown OrderProduct mutation op: %q", m.Op())
 	}
 }
 
@@ -4826,16 +5001,16 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 type (
 	hooks struct {
 		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Order, Product, ProductAttr,
-		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Hook
+		MerchantBusinessType, MerchantRenewal, Order, OrderProduct, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
+		SetMealDetail, SetMealGroup, Store []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, City, Country, District, Merchant,
-		MerchantBusinessType, MerchantRenewal, Order, Product, ProductAttr,
-		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Interceptor
+		MerchantBusinessType, MerchantRenewal, Order, OrderProduct, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
+		SetMealDetail, SetMealGroup, Store []ent.Interceptor
 	}
 )

@@ -16,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
 )
 
 // OrderCreate is the builder for creating a Order entity.
@@ -120,37 +121,9 @@ func (oc *OrderCreate) SetNillableOrderType(dt *domain.OrderType) *OrderCreate {
 	return oc
 }
 
-// SetOriginOrderID sets the "origin_order_id" field.
-func (oc *OrderCreate) SetOriginOrderID(s string) *OrderCreate {
-	oc.mutation.SetOriginOrderID(s)
-	return oc
-}
-
-// SetNillableOriginOrderID sets the "origin_order_id" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableOriginOrderID(s *string) *OrderCreate {
-	if s != nil {
-		oc.SetOriginOrderID(*s)
-	}
-	return oc
-}
-
 // SetRefund sets the "refund" field.
 func (oc *OrderCreate) SetRefund(jm json.RawMessage) *OrderCreate {
 	oc.mutation.SetRefund(jm)
-	return oc
-}
-
-// SetOpenedAt sets the "opened_at" field.
-func (oc *OrderCreate) SetOpenedAt(t time.Time) *OrderCreate {
-	oc.mutation.SetOpenedAt(t)
-	return oc
-}
-
-// SetNillableOpenedAt sets the "opened_at" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableOpenedAt(t *time.Time) *OrderCreate {
-	if t != nil {
-		oc.SetOpenedAt(*t)
-	}
 	return oc
 }
 
@@ -196,20 +169,6 @@ func (oc *OrderCreate) SetNillableCompletedAt(t *time.Time) *OrderCreate {
 	return oc
 }
 
-// SetOpenedBy sets the "opened_by" field.
-func (oc *OrderCreate) SetOpenedBy(s string) *OrderCreate {
-	oc.mutation.SetOpenedBy(s)
-	return oc
-}
-
-// SetNillableOpenedBy sets the "opened_by" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableOpenedBy(s *string) *OrderCreate {
-	if s != nil {
-		oc.SetOpenedBy(*s)
-	}
-	return oc
-}
-
 // SetPlacedBy sets the "placed_by" field.
 func (oc *OrderCreate) SetPlacedBy(s string) *OrderCreate {
 	oc.mutation.SetPlacedBy(s)
@@ -220,20 +179,6 @@ func (oc *OrderCreate) SetPlacedBy(s string) *OrderCreate {
 func (oc *OrderCreate) SetNillablePlacedBy(s *string) *OrderCreate {
 	if s != nil {
 		oc.SetPlacedBy(*s)
-	}
-	return oc
-}
-
-// SetPaidBy sets the "paid_by" field.
-func (oc *OrderCreate) SetPaidBy(s string) *OrderCreate {
-	oc.mutation.SetPaidBy(s)
-	return oc
-}
-
-// SetNillablePaidBy sets the "paid_by" field if the given value is not nil.
-func (oc *OrderCreate) SetNillablePaidBy(s *string) *OrderCreate {
-	if s != nil {
-		oc.SetPaidBy(*s)
 	}
 	return oc
 }
@@ -272,34 +217,6 @@ func (oc *OrderCreate) SetNillablePaymentStatus(ds *domain.PaymentStatus) *Order
 	return oc
 }
 
-// SetFulfillmentStatus sets the "fulfillment_status" field.
-func (oc *OrderCreate) SetFulfillmentStatus(ds domain.FulfillmentStatus) *OrderCreate {
-	oc.mutation.SetFulfillmentStatus(ds)
-	return oc
-}
-
-// SetNillableFulfillmentStatus sets the "fulfillment_status" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableFulfillmentStatus(ds *domain.FulfillmentStatus) *OrderCreate {
-	if ds != nil {
-		oc.SetFulfillmentStatus(*ds)
-	}
-	return oc
-}
-
-// SetTableStatus sets the "table_status" field.
-func (oc *OrderCreate) SetTableStatus(ds domain.TableStatus) *OrderCreate {
-	oc.mutation.SetTableStatus(ds)
-	return oc
-}
-
-// SetNillableTableStatus sets the "table_status" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableTableStatus(ds *domain.TableStatus) *OrderCreate {
-	if ds != nil {
-		oc.SetTableStatus(*ds)
-	}
-	return oc
-}
-
 // SetTableID sets the "table_id" field.
 func (oc *OrderCreate) SetTableID(s string) *OrderCreate {
 	oc.mutation.SetTableID(s)
@@ -328,20 +245,6 @@ func (oc *OrderCreate) SetNillableTableName(s *string) *OrderCreate {
 	return oc
 }
 
-// SetTableCapacity sets the "table_capacity" field.
-func (oc *OrderCreate) SetTableCapacity(i int) *OrderCreate {
-	oc.mutation.SetTableCapacity(i)
-	return oc
-}
-
-// SetNillableTableCapacity sets the "table_capacity" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableTableCapacity(i *int) *OrderCreate {
-	if i != nil {
-		oc.SetTableCapacity(*i)
-	}
-	return oc
-}
-
 // SetGuestCount sets the "guest_count" field.
 func (oc *OrderCreate) SetGuestCount(i int) *OrderCreate {
 	oc.mutation.SetGuestCount(i)
@@ -356,34 +259,6 @@ func (oc *OrderCreate) SetNillableGuestCount(i *int) *OrderCreate {
 	return oc
 }
 
-// SetMergedToOrderID sets the "merged_to_order_id" field.
-func (oc *OrderCreate) SetMergedToOrderID(s string) *OrderCreate {
-	oc.mutation.SetMergedToOrderID(s)
-	return oc
-}
-
-// SetNillableMergedToOrderID sets the "merged_to_order_id" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableMergedToOrderID(s *string) *OrderCreate {
-	if s != nil {
-		oc.SetMergedToOrderID(*s)
-	}
-	return oc
-}
-
-// SetMergedAt sets the "merged_at" field.
-func (oc *OrderCreate) SetMergedAt(t time.Time) *OrderCreate {
-	oc.mutation.SetMergedAt(t)
-	return oc
-}
-
-// SetNillableMergedAt sets the "merged_at" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableMergedAt(t *time.Time) *OrderCreate {
-	if t != nil {
-		oc.SetMergedAt(*t)
-	}
-	return oc
-}
-
 // SetStore sets the "store" field.
 func (oc *OrderCreate) SetStore(jm json.RawMessage) *OrderCreate {
 	oc.mutation.SetStore(jm)
@@ -391,8 +266,16 @@ func (oc *OrderCreate) SetStore(jm json.RawMessage) *OrderCreate {
 }
 
 // SetChannel sets the "channel" field.
-func (oc *OrderCreate) SetChannel(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetChannel(jm)
+func (oc *OrderCreate) SetChannel(o order.Channel) *OrderCreate {
+	oc.mutation.SetChannel(o)
+	return oc
+}
+
+// SetNillableChannel sets the "channel" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableChannel(o *order.Channel) *OrderCreate {
+	if o != nil {
+		oc.SetChannel(*o)
+	}
 	return oc
 }
 
@@ -405,42 +288,6 @@ func (oc *OrderCreate) SetPos(jm json.RawMessage) *OrderCreate {
 // SetCashier sets the "cashier" field.
 func (oc *OrderCreate) SetCashier(jm json.RawMessage) *OrderCreate {
 	oc.mutation.SetCashier(jm)
-	return oc
-}
-
-// SetMember sets the "member" field.
-func (oc *OrderCreate) SetMember(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetMember(jm)
-	return oc
-}
-
-// SetTakeaway sets the "takeaway" field.
-func (oc *OrderCreate) SetTakeaway(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetTakeaway(jm)
-	return oc
-}
-
-// SetCart sets the "cart" field.
-func (oc *OrderCreate) SetCart(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetCart(jm)
-	return oc
-}
-
-// SetProducts sets the "products" field.
-func (oc *OrderCreate) SetProducts(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetProducts(jm)
-	return oc
-}
-
-// SetPromotions sets the "promotions" field.
-func (oc *OrderCreate) SetPromotions(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetPromotions(jm)
-	return oc
-}
-
-// SetCoupons sets the "coupons" field.
-func (oc *OrderCreate) SetCoupons(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetCoupons(jm)
 	return oc
 }
 
@@ -462,12 +309,6 @@ func (oc *OrderCreate) SetPayments(jm json.RawMessage) *OrderCreate {
 	return oc
 }
 
-// SetRefundsProducts sets the "refunds_products" field.
-func (oc *OrderCreate) SetRefundsProducts(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetRefundsProducts(jm)
-	return oc
-}
-
 // SetAmount sets the "amount" field.
 func (oc *OrderCreate) SetAmount(jm json.RawMessage) *OrderCreate {
 	oc.mutation.SetAmount(jm)
@@ -486,6 +327,21 @@ func (oc *OrderCreate) SetNillableID(u *uuid.UUID) *OrderCreate {
 		oc.SetID(*u)
 	}
 	return oc
+}
+
+// AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
+func (oc *OrderCreate) AddOrderProductIDs(ids ...uuid.UUID) *OrderCreate {
+	oc.mutation.AddOrderProductIDs(ids...)
+	return oc
+}
+
+// AddOrderProducts adds the "order_products" edges to the OrderProduct entity.
+func (oc *OrderCreate) AddOrderProducts(o ...*OrderProduct) *OrderCreate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return oc.AddOrderProductIDs(ids...)
 }
 
 // Mutation returns the OrderMutation object of the builder.
@@ -571,14 +427,6 @@ func (oc *OrderCreate) defaults() error {
 		v := order.DefaultCashier
 		oc.mutation.SetCashier(v)
 	}
-	if _, ok := oc.mutation.Cart(); !ok {
-		v := order.DefaultCart
-		oc.mutation.SetCart(v)
-	}
-	if _, ok := oc.mutation.Products(); !ok {
-		v := order.DefaultProducts
-		oc.mutation.SetProducts(v)
-	}
 	if _, ok := oc.mutation.Amount(); !ok {
 		v := order.DefaultAmount
 		oc.mutation.SetAmount(v)
@@ -658,33 +506,22 @@ func (oc *OrderCreate) check() error {
 			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Order.payment_status": %w`, err)}
 		}
 	}
-	if v, ok := oc.mutation.FulfillmentStatus(); ok {
-		if err := order.FulfillmentStatusValidator(v); err != nil {
-			return &ValidationError{Name: "fulfillment_status", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_status": %w`, err)}
-		}
-	}
-	if v, ok := oc.mutation.TableStatus(); ok {
-		if err := order.TableStatusValidator(v); err != nil {
-			return &ValidationError{Name: "table_status", err: fmt.Errorf(`ent: validator failed for field "Order.table_status": %w`, err)}
-		}
-	}
 	if _, ok := oc.mutation.Store(); !ok {
 		return &ValidationError{Name: "store", err: errors.New(`ent: missing required field "Order.store"`)}
 	}
 	if _, ok := oc.mutation.Channel(); !ok {
 		return &ValidationError{Name: "channel", err: errors.New(`ent: missing required field "Order.channel"`)}
 	}
+	if v, ok := oc.mutation.Channel(); ok {
+		if err := order.ChannelValidator(v); err != nil {
+			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
+		}
+	}
 	if _, ok := oc.mutation.Pos(); !ok {
 		return &ValidationError{Name: "pos", err: errors.New(`ent: missing required field "Order.pos"`)}
 	}
 	if _, ok := oc.mutation.Cashier(); !ok {
 		return &ValidationError{Name: "cashier", err: errors.New(`ent: missing required field "Order.cashier"`)}
-	}
-	if _, ok := oc.mutation.Cart(); !ok {
-		return &ValidationError{Name: "cart", err: errors.New(`ent: missing required field "Order.cart"`)}
-	}
-	if _, ok := oc.mutation.Products(); !ok {
-		return &ValidationError{Name: "products", err: errors.New(`ent: missing required field "Order.products"`)}
 	}
 	if _, ok := oc.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Order.amount"`)}
@@ -761,17 +598,9 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldOrderType, field.TypeEnum, value)
 		_node.OrderType = value
 	}
-	if value, ok := oc.mutation.OriginOrderID(); ok {
-		_spec.SetField(order.FieldOriginOrderID, field.TypeString, value)
-		_node.OriginOrderID = value
-	}
 	if value, ok := oc.mutation.Refund(); ok {
 		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
 		_node.Refund = value
-	}
-	if value, ok := oc.mutation.OpenedAt(); ok {
-		_spec.SetField(order.FieldOpenedAt, field.TypeTime, value)
-		_node.OpenedAt = &value
 	}
 	if value, ok := oc.mutation.PlacedAt(); ok {
 		_spec.SetField(order.FieldPlacedAt, field.TypeTime, value)
@@ -785,17 +614,9 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = &value
 	}
-	if value, ok := oc.mutation.OpenedBy(); ok {
-		_spec.SetField(order.FieldOpenedBy, field.TypeString, value)
-		_node.OpenedBy = value
-	}
 	if value, ok := oc.mutation.PlacedBy(); ok {
 		_spec.SetField(order.FieldPlacedBy, field.TypeString, value)
 		_node.PlacedBy = value
-	}
-	if value, ok := oc.mutation.PaidBy(); ok {
-		_spec.SetField(order.FieldPaidBy, field.TypeString, value)
-		_node.PaidBy = value
 	}
 	if value, ok := oc.mutation.DiningMode(); ok {
 		_spec.SetField(order.FieldDiningMode, field.TypeEnum, value)
@@ -809,14 +630,6 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
 		_node.PaymentStatus = value
 	}
-	if value, ok := oc.mutation.FulfillmentStatus(); ok {
-		_spec.SetField(order.FieldFulfillmentStatus, field.TypeEnum, value)
-		_node.FulfillmentStatus = value
-	}
-	if value, ok := oc.mutation.TableStatus(); ok {
-		_spec.SetField(order.FieldTableStatus, field.TypeEnum, value)
-		_node.TableStatus = value
-	}
 	if value, ok := oc.mutation.TableID(); ok {
 		_spec.SetField(order.FieldTableID, field.TypeString, value)
 		_node.TableID = value
@@ -825,28 +638,16 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldTableName, field.TypeString, value)
 		_node.TableName = value
 	}
-	if value, ok := oc.mutation.TableCapacity(); ok {
-		_spec.SetField(order.FieldTableCapacity, field.TypeInt, value)
-		_node.TableCapacity = value
-	}
 	if value, ok := oc.mutation.GuestCount(); ok {
 		_spec.SetField(order.FieldGuestCount, field.TypeInt, value)
 		_node.GuestCount = value
-	}
-	if value, ok := oc.mutation.MergedToOrderID(); ok {
-		_spec.SetField(order.FieldMergedToOrderID, field.TypeString, value)
-		_node.MergedToOrderID = value
-	}
-	if value, ok := oc.mutation.MergedAt(); ok {
-		_spec.SetField(order.FieldMergedAt, field.TypeTime, value)
-		_node.MergedAt = &value
 	}
 	if value, ok := oc.mutation.Store(); ok {
 		_spec.SetField(order.FieldStore, field.TypeJSON, value)
 		_node.Store = value
 	}
 	if value, ok := oc.mutation.Channel(); ok {
-		_spec.SetField(order.FieldChannel, field.TypeJSON, value)
+		_spec.SetField(order.FieldChannel, field.TypeEnum, value)
 		_node.Channel = value
 	}
 	if value, ok := oc.mutation.Pos(); ok {
@@ -856,30 +657,6 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.Cashier(); ok {
 		_spec.SetField(order.FieldCashier, field.TypeJSON, value)
 		_node.Cashier = value
-	}
-	if value, ok := oc.mutation.Member(); ok {
-		_spec.SetField(order.FieldMember, field.TypeJSON, value)
-		_node.Member = value
-	}
-	if value, ok := oc.mutation.Takeaway(); ok {
-		_spec.SetField(order.FieldTakeaway, field.TypeJSON, value)
-		_node.Takeaway = value
-	}
-	if value, ok := oc.mutation.Cart(); ok {
-		_spec.SetField(order.FieldCart, field.TypeJSON, value)
-		_node.Cart = value
-	}
-	if value, ok := oc.mutation.Products(); ok {
-		_spec.SetField(order.FieldProducts, field.TypeJSON, value)
-		_node.Products = value
-	}
-	if value, ok := oc.mutation.Promotions(); ok {
-		_spec.SetField(order.FieldPromotions, field.TypeJSON, value)
-		_node.Promotions = value
-	}
-	if value, ok := oc.mutation.Coupons(); ok {
-		_spec.SetField(order.FieldCoupons, field.TypeJSON, value)
-		_node.Coupons = value
 	}
 	if value, ok := oc.mutation.TaxRates(); ok {
 		_spec.SetField(order.FieldTaxRates, field.TypeJSON, value)
@@ -893,13 +670,25 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldPayments, field.TypeJSON, value)
 		_node.Payments = value
 	}
-	if value, ok := oc.mutation.RefundsProducts(); ok {
-		_spec.SetField(order.FieldRefundsProducts, field.TypeJSON, value)
-		_node.RefundsProducts = value
-	}
 	if value, ok := oc.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
 		_node.Amount = value
+	}
+	if nodes := oc.mutation.OrderProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.OrderProductsTable,
+			Columns: []string{order.OrderProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderproduct.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -1037,24 +826,6 @@ func (u *OrderUpsert) UpdateOrderType() *OrderUpsert {
 	return u
 }
 
-// SetOriginOrderID sets the "origin_order_id" field.
-func (u *OrderUpsert) SetOriginOrderID(v string) *OrderUpsert {
-	u.Set(order.FieldOriginOrderID, v)
-	return u
-}
-
-// UpdateOriginOrderID sets the "origin_order_id" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateOriginOrderID() *OrderUpsert {
-	u.SetExcluded(order.FieldOriginOrderID)
-	return u
-}
-
-// ClearOriginOrderID clears the value of the "origin_order_id" field.
-func (u *OrderUpsert) ClearOriginOrderID() *OrderUpsert {
-	u.SetNull(order.FieldOriginOrderID)
-	return u
-}
-
 // SetRefund sets the "refund" field.
 func (u *OrderUpsert) SetRefund(v json.RawMessage) *OrderUpsert {
 	u.Set(order.FieldRefund, v)
@@ -1070,24 +841,6 @@ func (u *OrderUpsert) UpdateRefund() *OrderUpsert {
 // ClearRefund clears the value of the "refund" field.
 func (u *OrderUpsert) ClearRefund() *OrderUpsert {
 	u.SetNull(order.FieldRefund)
-	return u
-}
-
-// SetOpenedAt sets the "opened_at" field.
-func (u *OrderUpsert) SetOpenedAt(v time.Time) *OrderUpsert {
-	u.Set(order.FieldOpenedAt, v)
-	return u
-}
-
-// UpdateOpenedAt sets the "opened_at" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateOpenedAt() *OrderUpsert {
-	u.SetExcluded(order.FieldOpenedAt)
-	return u
-}
-
-// ClearOpenedAt clears the value of the "opened_at" field.
-func (u *OrderUpsert) ClearOpenedAt() *OrderUpsert {
-	u.SetNull(order.FieldOpenedAt)
 	return u
 }
 
@@ -1145,24 +898,6 @@ func (u *OrderUpsert) ClearCompletedAt() *OrderUpsert {
 	return u
 }
 
-// SetOpenedBy sets the "opened_by" field.
-func (u *OrderUpsert) SetOpenedBy(v string) *OrderUpsert {
-	u.Set(order.FieldOpenedBy, v)
-	return u
-}
-
-// UpdateOpenedBy sets the "opened_by" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateOpenedBy() *OrderUpsert {
-	u.SetExcluded(order.FieldOpenedBy)
-	return u
-}
-
-// ClearOpenedBy clears the value of the "opened_by" field.
-func (u *OrderUpsert) ClearOpenedBy() *OrderUpsert {
-	u.SetNull(order.FieldOpenedBy)
-	return u
-}
-
 // SetPlacedBy sets the "placed_by" field.
 func (u *OrderUpsert) SetPlacedBy(v string) *OrderUpsert {
 	u.Set(order.FieldPlacedBy, v)
@@ -1178,24 +913,6 @@ func (u *OrderUpsert) UpdatePlacedBy() *OrderUpsert {
 // ClearPlacedBy clears the value of the "placed_by" field.
 func (u *OrderUpsert) ClearPlacedBy() *OrderUpsert {
 	u.SetNull(order.FieldPlacedBy)
-	return u
-}
-
-// SetPaidBy sets the "paid_by" field.
-func (u *OrderUpsert) SetPaidBy(v string) *OrderUpsert {
-	u.Set(order.FieldPaidBy, v)
-	return u
-}
-
-// UpdatePaidBy sets the "paid_by" field to the value that was provided on create.
-func (u *OrderUpsert) UpdatePaidBy() *OrderUpsert {
-	u.SetExcluded(order.FieldPaidBy)
-	return u
-}
-
-// ClearPaidBy clears the value of the "paid_by" field.
-func (u *OrderUpsert) ClearPaidBy() *OrderUpsert {
-	u.SetNull(order.FieldPaidBy)
 	return u
 }
 
@@ -1235,42 +952,6 @@ func (u *OrderUpsert) UpdatePaymentStatus() *OrderUpsert {
 	return u
 }
 
-// SetFulfillmentStatus sets the "fulfillment_status" field.
-func (u *OrderUpsert) SetFulfillmentStatus(v domain.FulfillmentStatus) *OrderUpsert {
-	u.Set(order.FieldFulfillmentStatus, v)
-	return u
-}
-
-// UpdateFulfillmentStatus sets the "fulfillment_status" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateFulfillmentStatus() *OrderUpsert {
-	u.SetExcluded(order.FieldFulfillmentStatus)
-	return u
-}
-
-// ClearFulfillmentStatus clears the value of the "fulfillment_status" field.
-func (u *OrderUpsert) ClearFulfillmentStatus() *OrderUpsert {
-	u.SetNull(order.FieldFulfillmentStatus)
-	return u
-}
-
-// SetTableStatus sets the "table_status" field.
-func (u *OrderUpsert) SetTableStatus(v domain.TableStatus) *OrderUpsert {
-	u.Set(order.FieldTableStatus, v)
-	return u
-}
-
-// UpdateTableStatus sets the "table_status" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateTableStatus() *OrderUpsert {
-	u.SetExcluded(order.FieldTableStatus)
-	return u
-}
-
-// ClearTableStatus clears the value of the "table_status" field.
-func (u *OrderUpsert) ClearTableStatus() *OrderUpsert {
-	u.SetNull(order.FieldTableStatus)
-	return u
-}
-
 // SetTableID sets the "table_id" field.
 func (u *OrderUpsert) SetTableID(v string) *OrderUpsert {
 	u.Set(order.FieldTableID, v)
@@ -1307,30 +988,6 @@ func (u *OrderUpsert) ClearTableName() *OrderUpsert {
 	return u
 }
 
-// SetTableCapacity sets the "table_capacity" field.
-func (u *OrderUpsert) SetTableCapacity(v int) *OrderUpsert {
-	u.Set(order.FieldTableCapacity, v)
-	return u
-}
-
-// UpdateTableCapacity sets the "table_capacity" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateTableCapacity() *OrderUpsert {
-	u.SetExcluded(order.FieldTableCapacity)
-	return u
-}
-
-// AddTableCapacity adds v to the "table_capacity" field.
-func (u *OrderUpsert) AddTableCapacity(v int) *OrderUpsert {
-	u.Add(order.FieldTableCapacity, v)
-	return u
-}
-
-// ClearTableCapacity clears the value of the "table_capacity" field.
-func (u *OrderUpsert) ClearTableCapacity() *OrderUpsert {
-	u.SetNull(order.FieldTableCapacity)
-	return u
-}
-
 // SetGuestCount sets the "guest_count" field.
 func (u *OrderUpsert) SetGuestCount(v int) *OrderUpsert {
 	u.Set(order.FieldGuestCount, v)
@@ -1355,42 +1012,6 @@ func (u *OrderUpsert) ClearGuestCount() *OrderUpsert {
 	return u
 }
 
-// SetMergedToOrderID sets the "merged_to_order_id" field.
-func (u *OrderUpsert) SetMergedToOrderID(v string) *OrderUpsert {
-	u.Set(order.FieldMergedToOrderID, v)
-	return u
-}
-
-// UpdateMergedToOrderID sets the "merged_to_order_id" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateMergedToOrderID() *OrderUpsert {
-	u.SetExcluded(order.FieldMergedToOrderID)
-	return u
-}
-
-// ClearMergedToOrderID clears the value of the "merged_to_order_id" field.
-func (u *OrderUpsert) ClearMergedToOrderID() *OrderUpsert {
-	u.SetNull(order.FieldMergedToOrderID)
-	return u
-}
-
-// SetMergedAt sets the "merged_at" field.
-func (u *OrderUpsert) SetMergedAt(v time.Time) *OrderUpsert {
-	u.Set(order.FieldMergedAt, v)
-	return u
-}
-
-// UpdateMergedAt sets the "merged_at" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateMergedAt() *OrderUpsert {
-	u.SetExcluded(order.FieldMergedAt)
-	return u
-}
-
-// ClearMergedAt clears the value of the "merged_at" field.
-func (u *OrderUpsert) ClearMergedAt() *OrderUpsert {
-	u.SetNull(order.FieldMergedAt)
-	return u
-}
-
 // SetStore sets the "store" field.
 func (u *OrderUpsert) SetStore(v json.RawMessage) *OrderUpsert {
 	u.Set(order.FieldStore, v)
@@ -1404,7 +1025,7 @@ func (u *OrderUpsert) UpdateStore() *OrderUpsert {
 }
 
 // SetChannel sets the "channel" field.
-func (u *OrderUpsert) SetChannel(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetChannel(v order.Channel) *OrderUpsert {
 	u.Set(order.FieldChannel, v)
 	return u
 }
@@ -1436,102 +1057,6 @@ func (u *OrderUpsert) SetCashier(v json.RawMessage) *OrderUpsert {
 // UpdateCashier sets the "cashier" field to the value that was provided on create.
 func (u *OrderUpsert) UpdateCashier() *OrderUpsert {
 	u.SetExcluded(order.FieldCashier)
-	return u
-}
-
-// SetMember sets the "member" field.
-func (u *OrderUpsert) SetMember(v json.RawMessage) *OrderUpsert {
-	u.Set(order.FieldMember, v)
-	return u
-}
-
-// UpdateMember sets the "member" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateMember() *OrderUpsert {
-	u.SetExcluded(order.FieldMember)
-	return u
-}
-
-// ClearMember clears the value of the "member" field.
-func (u *OrderUpsert) ClearMember() *OrderUpsert {
-	u.SetNull(order.FieldMember)
-	return u
-}
-
-// SetTakeaway sets the "takeaway" field.
-func (u *OrderUpsert) SetTakeaway(v json.RawMessage) *OrderUpsert {
-	u.Set(order.FieldTakeaway, v)
-	return u
-}
-
-// UpdateTakeaway sets the "takeaway" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateTakeaway() *OrderUpsert {
-	u.SetExcluded(order.FieldTakeaway)
-	return u
-}
-
-// ClearTakeaway clears the value of the "takeaway" field.
-func (u *OrderUpsert) ClearTakeaway() *OrderUpsert {
-	u.SetNull(order.FieldTakeaway)
-	return u
-}
-
-// SetCart sets the "cart" field.
-func (u *OrderUpsert) SetCart(v json.RawMessage) *OrderUpsert {
-	u.Set(order.FieldCart, v)
-	return u
-}
-
-// UpdateCart sets the "cart" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateCart() *OrderUpsert {
-	u.SetExcluded(order.FieldCart)
-	return u
-}
-
-// SetProducts sets the "products" field.
-func (u *OrderUpsert) SetProducts(v json.RawMessage) *OrderUpsert {
-	u.Set(order.FieldProducts, v)
-	return u
-}
-
-// UpdateProducts sets the "products" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateProducts() *OrderUpsert {
-	u.SetExcluded(order.FieldProducts)
-	return u
-}
-
-// SetPromotions sets the "promotions" field.
-func (u *OrderUpsert) SetPromotions(v json.RawMessage) *OrderUpsert {
-	u.Set(order.FieldPromotions, v)
-	return u
-}
-
-// UpdatePromotions sets the "promotions" field to the value that was provided on create.
-func (u *OrderUpsert) UpdatePromotions() *OrderUpsert {
-	u.SetExcluded(order.FieldPromotions)
-	return u
-}
-
-// ClearPromotions clears the value of the "promotions" field.
-func (u *OrderUpsert) ClearPromotions() *OrderUpsert {
-	u.SetNull(order.FieldPromotions)
-	return u
-}
-
-// SetCoupons sets the "coupons" field.
-func (u *OrderUpsert) SetCoupons(v json.RawMessage) *OrderUpsert {
-	u.Set(order.FieldCoupons, v)
-	return u
-}
-
-// UpdateCoupons sets the "coupons" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateCoupons() *OrderUpsert {
-	u.SetExcluded(order.FieldCoupons)
-	return u
-}
-
-// ClearCoupons clears the value of the "coupons" field.
-func (u *OrderUpsert) ClearCoupons() *OrderUpsert {
-	u.SetNull(order.FieldCoupons)
 	return u
 }
 
@@ -1586,24 +1111,6 @@ func (u *OrderUpsert) UpdatePayments() *OrderUpsert {
 // ClearPayments clears the value of the "payments" field.
 func (u *OrderUpsert) ClearPayments() *OrderUpsert {
 	u.SetNull(order.FieldPayments)
-	return u
-}
-
-// SetRefundsProducts sets the "refunds_products" field.
-func (u *OrderUpsert) SetRefundsProducts(v json.RawMessage) *OrderUpsert {
-	u.Set(order.FieldRefundsProducts, v)
-	return u
-}
-
-// UpdateRefundsProducts sets the "refunds_products" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateRefundsProducts() *OrderUpsert {
-	u.SetExcluded(order.FieldRefundsProducts)
-	return u
-}
-
-// ClearRefundsProducts clears the value of the "refunds_products" field.
-func (u *OrderUpsert) ClearRefundsProducts() *OrderUpsert {
-	u.SetNull(order.FieldRefundsProducts)
 	return u
 }
 
@@ -1774,27 +1281,6 @@ func (u *OrderUpsertOne) UpdateOrderType() *OrderUpsertOne {
 	})
 }
 
-// SetOriginOrderID sets the "origin_order_id" field.
-func (u *OrderUpsertOne) SetOriginOrderID(v string) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOriginOrderID(v)
-	})
-}
-
-// UpdateOriginOrderID sets the "origin_order_id" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateOriginOrderID() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOriginOrderID()
-	})
-}
-
-// ClearOriginOrderID clears the value of the "origin_order_id" field.
-func (u *OrderUpsertOne) ClearOriginOrderID() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearOriginOrderID()
-	})
-}
-
 // SetRefund sets the "refund" field.
 func (u *OrderUpsertOne) SetRefund(v json.RawMessage) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
@@ -1813,27 +1299,6 @@ func (u *OrderUpsertOne) UpdateRefund() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearRefund() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearRefund()
-	})
-}
-
-// SetOpenedAt sets the "opened_at" field.
-func (u *OrderUpsertOne) SetOpenedAt(v time.Time) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOpenedAt(v)
-	})
-}
-
-// UpdateOpenedAt sets the "opened_at" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateOpenedAt() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOpenedAt()
-	})
-}
-
-// ClearOpenedAt clears the value of the "opened_at" field.
-func (u *OrderUpsertOne) ClearOpenedAt() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearOpenedAt()
 	})
 }
 
@@ -1900,27 +1365,6 @@ func (u *OrderUpsertOne) ClearCompletedAt() *OrderUpsertOne {
 	})
 }
 
-// SetOpenedBy sets the "opened_by" field.
-func (u *OrderUpsertOne) SetOpenedBy(v string) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOpenedBy(v)
-	})
-}
-
-// UpdateOpenedBy sets the "opened_by" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateOpenedBy() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOpenedBy()
-	})
-}
-
-// ClearOpenedBy clears the value of the "opened_by" field.
-func (u *OrderUpsertOne) ClearOpenedBy() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearOpenedBy()
-	})
-}
-
 // SetPlacedBy sets the "placed_by" field.
 func (u *OrderUpsertOne) SetPlacedBy(v string) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
@@ -1939,27 +1383,6 @@ func (u *OrderUpsertOne) UpdatePlacedBy() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearPlacedBy() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearPlacedBy()
-	})
-}
-
-// SetPaidBy sets the "paid_by" field.
-func (u *OrderUpsertOne) SetPaidBy(v string) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetPaidBy(v)
-	})
-}
-
-// UpdatePaidBy sets the "paid_by" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdatePaidBy() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdatePaidBy()
-	})
-}
-
-// ClearPaidBy clears the value of the "paid_by" field.
-func (u *OrderUpsertOne) ClearPaidBy() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearPaidBy()
 	})
 }
 
@@ -2005,48 +1428,6 @@ func (u *OrderUpsertOne) UpdatePaymentStatus() *OrderUpsertOne {
 	})
 }
 
-// SetFulfillmentStatus sets the "fulfillment_status" field.
-func (u *OrderUpsertOne) SetFulfillmentStatus(v domain.FulfillmentStatus) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetFulfillmentStatus(v)
-	})
-}
-
-// UpdateFulfillmentStatus sets the "fulfillment_status" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateFulfillmentStatus() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateFulfillmentStatus()
-	})
-}
-
-// ClearFulfillmentStatus clears the value of the "fulfillment_status" field.
-func (u *OrderUpsertOne) ClearFulfillmentStatus() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearFulfillmentStatus()
-	})
-}
-
-// SetTableStatus sets the "table_status" field.
-func (u *OrderUpsertOne) SetTableStatus(v domain.TableStatus) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetTableStatus(v)
-	})
-}
-
-// UpdateTableStatus sets the "table_status" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateTableStatus() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateTableStatus()
-	})
-}
-
-// ClearTableStatus clears the value of the "table_status" field.
-func (u *OrderUpsertOne) ClearTableStatus() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearTableStatus()
-	})
-}
-
 // SetTableID sets the "table_id" field.
 func (u *OrderUpsertOne) SetTableID(v string) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
@@ -2089,34 +1470,6 @@ func (u *OrderUpsertOne) ClearTableName() *OrderUpsertOne {
 	})
 }
 
-// SetTableCapacity sets the "table_capacity" field.
-func (u *OrderUpsertOne) SetTableCapacity(v int) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetTableCapacity(v)
-	})
-}
-
-// AddTableCapacity adds v to the "table_capacity" field.
-func (u *OrderUpsertOne) AddTableCapacity(v int) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.AddTableCapacity(v)
-	})
-}
-
-// UpdateTableCapacity sets the "table_capacity" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateTableCapacity() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateTableCapacity()
-	})
-}
-
-// ClearTableCapacity clears the value of the "table_capacity" field.
-func (u *OrderUpsertOne) ClearTableCapacity() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearTableCapacity()
-	})
-}
-
 // SetGuestCount sets the "guest_count" field.
 func (u *OrderUpsertOne) SetGuestCount(v int) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
@@ -2145,48 +1498,6 @@ func (u *OrderUpsertOne) ClearGuestCount() *OrderUpsertOne {
 	})
 }
 
-// SetMergedToOrderID sets the "merged_to_order_id" field.
-func (u *OrderUpsertOne) SetMergedToOrderID(v string) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetMergedToOrderID(v)
-	})
-}
-
-// UpdateMergedToOrderID sets the "merged_to_order_id" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateMergedToOrderID() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateMergedToOrderID()
-	})
-}
-
-// ClearMergedToOrderID clears the value of the "merged_to_order_id" field.
-func (u *OrderUpsertOne) ClearMergedToOrderID() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearMergedToOrderID()
-	})
-}
-
-// SetMergedAt sets the "merged_at" field.
-func (u *OrderUpsertOne) SetMergedAt(v time.Time) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetMergedAt(v)
-	})
-}
-
-// UpdateMergedAt sets the "merged_at" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateMergedAt() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateMergedAt()
-	})
-}
-
-// ClearMergedAt clears the value of the "merged_at" field.
-func (u *OrderUpsertOne) ClearMergedAt() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearMergedAt()
-	})
-}
-
 // SetStore sets the "store" field.
 func (u *OrderUpsertOne) SetStore(v json.RawMessage) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
@@ -2202,7 +1513,7 @@ func (u *OrderUpsertOne) UpdateStore() *OrderUpsertOne {
 }
 
 // SetChannel sets the "channel" field.
-func (u *OrderUpsertOne) SetChannel(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetChannel(v order.Channel) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetChannel(v)
 	})
@@ -2240,118 +1551,6 @@ func (u *OrderUpsertOne) SetCashier(v json.RawMessage) *OrderUpsertOne {
 func (u *OrderUpsertOne) UpdateCashier() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateCashier()
-	})
-}
-
-// SetMember sets the "member" field.
-func (u *OrderUpsertOne) SetMember(v json.RawMessage) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetMember(v)
-	})
-}
-
-// UpdateMember sets the "member" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateMember() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateMember()
-	})
-}
-
-// ClearMember clears the value of the "member" field.
-func (u *OrderUpsertOne) ClearMember() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearMember()
-	})
-}
-
-// SetTakeaway sets the "takeaway" field.
-func (u *OrderUpsertOne) SetTakeaway(v json.RawMessage) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetTakeaway(v)
-	})
-}
-
-// UpdateTakeaway sets the "takeaway" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateTakeaway() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateTakeaway()
-	})
-}
-
-// ClearTakeaway clears the value of the "takeaway" field.
-func (u *OrderUpsertOne) ClearTakeaway() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearTakeaway()
-	})
-}
-
-// SetCart sets the "cart" field.
-func (u *OrderUpsertOne) SetCart(v json.RawMessage) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetCart(v)
-	})
-}
-
-// UpdateCart sets the "cart" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateCart() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateCart()
-	})
-}
-
-// SetProducts sets the "products" field.
-func (u *OrderUpsertOne) SetProducts(v json.RawMessage) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetProducts(v)
-	})
-}
-
-// UpdateProducts sets the "products" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateProducts() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateProducts()
-	})
-}
-
-// SetPromotions sets the "promotions" field.
-func (u *OrderUpsertOne) SetPromotions(v json.RawMessage) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetPromotions(v)
-	})
-}
-
-// UpdatePromotions sets the "promotions" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdatePromotions() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdatePromotions()
-	})
-}
-
-// ClearPromotions clears the value of the "promotions" field.
-func (u *OrderUpsertOne) ClearPromotions() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearPromotions()
-	})
-}
-
-// SetCoupons sets the "coupons" field.
-func (u *OrderUpsertOne) SetCoupons(v json.RawMessage) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetCoupons(v)
-	})
-}
-
-// UpdateCoupons sets the "coupons" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateCoupons() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateCoupons()
-	})
-}
-
-// ClearCoupons clears the value of the "coupons" field.
-func (u *OrderUpsertOne) ClearCoupons() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearCoupons()
 	})
 }
 
@@ -2415,27 +1614,6 @@ func (u *OrderUpsertOne) UpdatePayments() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearPayments() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearPayments()
-	})
-}
-
-// SetRefundsProducts sets the "refunds_products" field.
-func (u *OrderUpsertOne) SetRefundsProducts(v json.RawMessage) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetRefundsProducts(v)
-	})
-}
-
-// UpdateRefundsProducts sets the "refunds_products" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateRefundsProducts() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateRefundsProducts()
-	})
-}
-
-// ClearRefundsProducts clears the value of the "refunds_products" field.
-func (u *OrderUpsertOne) ClearRefundsProducts() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearRefundsProducts()
 	})
 }
 
@@ -2775,27 +1953,6 @@ func (u *OrderUpsertBulk) UpdateOrderType() *OrderUpsertBulk {
 	})
 }
 
-// SetOriginOrderID sets the "origin_order_id" field.
-func (u *OrderUpsertBulk) SetOriginOrderID(v string) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOriginOrderID(v)
-	})
-}
-
-// UpdateOriginOrderID sets the "origin_order_id" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateOriginOrderID() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOriginOrderID()
-	})
-}
-
-// ClearOriginOrderID clears the value of the "origin_order_id" field.
-func (u *OrderUpsertBulk) ClearOriginOrderID() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearOriginOrderID()
-	})
-}
-
 // SetRefund sets the "refund" field.
 func (u *OrderUpsertBulk) SetRefund(v json.RawMessage) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
@@ -2814,27 +1971,6 @@ func (u *OrderUpsertBulk) UpdateRefund() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearRefund() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearRefund()
-	})
-}
-
-// SetOpenedAt sets the "opened_at" field.
-func (u *OrderUpsertBulk) SetOpenedAt(v time.Time) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOpenedAt(v)
-	})
-}
-
-// UpdateOpenedAt sets the "opened_at" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateOpenedAt() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOpenedAt()
-	})
-}
-
-// ClearOpenedAt clears the value of the "opened_at" field.
-func (u *OrderUpsertBulk) ClearOpenedAt() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearOpenedAt()
 	})
 }
 
@@ -2901,27 +2037,6 @@ func (u *OrderUpsertBulk) ClearCompletedAt() *OrderUpsertBulk {
 	})
 }
 
-// SetOpenedBy sets the "opened_by" field.
-func (u *OrderUpsertBulk) SetOpenedBy(v string) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOpenedBy(v)
-	})
-}
-
-// UpdateOpenedBy sets the "opened_by" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateOpenedBy() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOpenedBy()
-	})
-}
-
-// ClearOpenedBy clears the value of the "opened_by" field.
-func (u *OrderUpsertBulk) ClearOpenedBy() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearOpenedBy()
-	})
-}
-
 // SetPlacedBy sets the "placed_by" field.
 func (u *OrderUpsertBulk) SetPlacedBy(v string) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
@@ -2940,27 +2055,6 @@ func (u *OrderUpsertBulk) UpdatePlacedBy() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearPlacedBy() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearPlacedBy()
-	})
-}
-
-// SetPaidBy sets the "paid_by" field.
-func (u *OrderUpsertBulk) SetPaidBy(v string) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetPaidBy(v)
-	})
-}
-
-// UpdatePaidBy sets the "paid_by" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdatePaidBy() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdatePaidBy()
-	})
-}
-
-// ClearPaidBy clears the value of the "paid_by" field.
-func (u *OrderUpsertBulk) ClearPaidBy() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearPaidBy()
 	})
 }
 
@@ -3006,48 +2100,6 @@ func (u *OrderUpsertBulk) UpdatePaymentStatus() *OrderUpsertBulk {
 	})
 }
 
-// SetFulfillmentStatus sets the "fulfillment_status" field.
-func (u *OrderUpsertBulk) SetFulfillmentStatus(v domain.FulfillmentStatus) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetFulfillmentStatus(v)
-	})
-}
-
-// UpdateFulfillmentStatus sets the "fulfillment_status" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateFulfillmentStatus() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateFulfillmentStatus()
-	})
-}
-
-// ClearFulfillmentStatus clears the value of the "fulfillment_status" field.
-func (u *OrderUpsertBulk) ClearFulfillmentStatus() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearFulfillmentStatus()
-	})
-}
-
-// SetTableStatus sets the "table_status" field.
-func (u *OrderUpsertBulk) SetTableStatus(v domain.TableStatus) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetTableStatus(v)
-	})
-}
-
-// UpdateTableStatus sets the "table_status" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateTableStatus() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateTableStatus()
-	})
-}
-
-// ClearTableStatus clears the value of the "table_status" field.
-func (u *OrderUpsertBulk) ClearTableStatus() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearTableStatus()
-	})
-}
-
 // SetTableID sets the "table_id" field.
 func (u *OrderUpsertBulk) SetTableID(v string) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
@@ -3090,34 +2142,6 @@ func (u *OrderUpsertBulk) ClearTableName() *OrderUpsertBulk {
 	})
 }
 
-// SetTableCapacity sets the "table_capacity" field.
-func (u *OrderUpsertBulk) SetTableCapacity(v int) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetTableCapacity(v)
-	})
-}
-
-// AddTableCapacity adds v to the "table_capacity" field.
-func (u *OrderUpsertBulk) AddTableCapacity(v int) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.AddTableCapacity(v)
-	})
-}
-
-// UpdateTableCapacity sets the "table_capacity" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateTableCapacity() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateTableCapacity()
-	})
-}
-
-// ClearTableCapacity clears the value of the "table_capacity" field.
-func (u *OrderUpsertBulk) ClearTableCapacity() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearTableCapacity()
-	})
-}
-
 // SetGuestCount sets the "guest_count" field.
 func (u *OrderUpsertBulk) SetGuestCount(v int) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
@@ -3146,48 +2170,6 @@ func (u *OrderUpsertBulk) ClearGuestCount() *OrderUpsertBulk {
 	})
 }
 
-// SetMergedToOrderID sets the "merged_to_order_id" field.
-func (u *OrderUpsertBulk) SetMergedToOrderID(v string) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetMergedToOrderID(v)
-	})
-}
-
-// UpdateMergedToOrderID sets the "merged_to_order_id" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateMergedToOrderID() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateMergedToOrderID()
-	})
-}
-
-// ClearMergedToOrderID clears the value of the "merged_to_order_id" field.
-func (u *OrderUpsertBulk) ClearMergedToOrderID() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearMergedToOrderID()
-	})
-}
-
-// SetMergedAt sets the "merged_at" field.
-func (u *OrderUpsertBulk) SetMergedAt(v time.Time) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetMergedAt(v)
-	})
-}
-
-// UpdateMergedAt sets the "merged_at" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateMergedAt() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateMergedAt()
-	})
-}
-
-// ClearMergedAt clears the value of the "merged_at" field.
-func (u *OrderUpsertBulk) ClearMergedAt() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearMergedAt()
-	})
-}
-
 // SetStore sets the "store" field.
 func (u *OrderUpsertBulk) SetStore(v json.RawMessage) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
@@ -3203,7 +2185,7 @@ func (u *OrderUpsertBulk) UpdateStore() *OrderUpsertBulk {
 }
 
 // SetChannel sets the "channel" field.
-func (u *OrderUpsertBulk) SetChannel(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetChannel(v order.Channel) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetChannel(v)
 	})
@@ -3241,118 +2223,6 @@ func (u *OrderUpsertBulk) SetCashier(v json.RawMessage) *OrderUpsertBulk {
 func (u *OrderUpsertBulk) UpdateCashier() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateCashier()
-	})
-}
-
-// SetMember sets the "member" field.
-func (u *OrderUpsertBulk) SetMember(v json.RawMessage) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetMember(v)
-	})
-}
-
-// UpdateMember sets the "member" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateMember() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateMember()
-	})
-}
-
-// ClearMember clears the value of the "member" field.
-func (u *OrderUpsertBulk) ClearMember() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearMember()
-	})
-}
-
-// SetTakeaway sets the "takeaway" field.
-func (u *OrderUpsertBulk) SetTakeaway(v json.RawMessage) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetTakeaway(v)
-	})
-}
-
-// UpdateTakeaway sets the "takeaway" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateTakeaway() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateTakeaway()
-	})
-}
-
-// ClearTakeaway clears the value of the "takeaway" field.
-func (u *OrderUpsertBulk) ClearTakeaway() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearTakeaway()
-	})
-}
-
-// SetCart sets the "cart" field.
-func (u *OrderUpsertBulk) SetCart(v json.RawMessage) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetCart(v)
-	})
-}
-
-// UpdateCart sets the "cart" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateCart() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateCart()
-	})
-}
-
-// SetProducts sets the "products" field.
-func (u *OrderUpsertBulk) SetProducts(v json.RawMessage) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetProducts(v)
-	})
-}
-
-// UpdateProducts sets the "products" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateProducts() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateProducts()
-	})
-}
-
-// SetPromotions sets the "promotions" field.
-func (u *OrderUpsertBulk) SetPromotions(v json.RawMessage) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetPromotions(v)
-	})
-}
-
-// UpdatePromotions sets the "promotions" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdatePromotions() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdatePromotions()
-	})
-}
-
-// ClearPromotions clears the value of the "promotions" field.
-func (u *OrderUpsertBulk) ClearPromotions() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearPromotions()
-	})
-}
-
-// SetCoupons sets the "coupons" field.
-func (u *OrderUpsertBulk) SetCoupons(v json.RawMessage) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetCoupons(v)
-	})
-}
-
-// UpdateCoupons sets the "coupons" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateCoupons() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateCoupons()
-	})
-}
-
-// ClearCoupons clears the value of the "coupons" field.
-func (u *OrderUpsertBulk) ClearCoupons() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearCoupons()
 	})
 }
 
@@ -3416,27 +2286,6 @@ func (u *OrderUpsertBulk) UpdatePayments() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearPayments() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearPayments()
-	})
-}
-
-// SetRefundsProducts sets the "refunds_products" field.
-func (u *OrderUpsertBulk) SetRefundsProducts(v json.RawMessage) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetRefundsProducts(v)
-	})
-}
-
-// UpdateRefundsProducts sets the "refunds_products" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateRefundsProducts() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateRefundsProducts()
-	})
-}
-
-// ClearRefundsProducts clears the value of the "refunds_products" field.
-func (u *OrderUpsertBulk) ClearRefundsProducts() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearRefundsProducts()
 	})
 }
 

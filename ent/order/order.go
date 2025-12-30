@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
@@ -36,46 +37,28 @@ const (
 	FieldOrderNo = "order_no"
 	// FieldOrderType holds the string denoting the order_type field in the database.
 	FieldOrderType = "order_type"
-	// FieldOriginOrderID holds the string denoting the origin_order_id field in the database.
-	FieldOriginOrderID = "origin_order_id"
 	// FieldRefund holds the string denoting the refund field in the database.
 	FieldRefund = "refund"
-	// FieldOpenedAt holds the string denoting the opened_at field in the database.
-	FieldOpenedAt = "opened_at"
 	// FieldPlacedAt holds the string denoting the placed_at field in the database.
 	FieldPlacedAt = "placed_at"
 	// FieldPaidAt holds the string denoting the paid_at field in the database.
 	FieldPaidAt = "paid_at"
 	// FieldCompletedAt holds the string denoting the completed_at field in the database.
 	FieldCompletedAt = "completed_at"
-	// FieldOpenedBy holds the string denoting the opened_by field in the database.
-	FieldOpenedBy = "opened_by"
 	// FieldPlacedBy holds the string denoting the placed_by field in the database.
 	FieldPlacedBy = "placed_by"
-	// FieldPaidBy holds the string denoting the paid_by field in the database.
-	FieldPaidBy = "paid_by"
 	// FieldDiningMode holds the string denoting the dining_mode field in the database.
 	FieldDiningMode = "dining_mode"
 	// FieldOrderStatus holds the string denoting the order_status field in the database.
 	FieldOrderStatus = "order_status"
 	// FieldPaymentStatus holds the string denoting the payment_status field in the database.
 	FieldPaymentStatus = "payment_status"
-	// FieldFulfillmentStatus holds the string denoting the fulfillment_status field in the database.
-	FieldFulfillmentStatus = "fulfillment_status"
-	// FieldTableStatus holds the string denoting the table_status field in the database.
-	FieldTableStatus = "table_status"
 	// FieldTableID holds the string denoting the table_id field in the database.
 	FieldTableID = "table_id"
 	// FieldTableName holds the string denoting the table_name field in the database.
 	FieldTableName = "table_name"
-	// FieldTableCapacity holds the string denoting the table_capacity field in the database.
-	FieldTableCapacity = "table_capacity"
 	// FieldGuestCount holds the string denoting the guest_count field in the database.
 	FieldGuestCount = "guest_count"
-	// FieldMergedToOrderID holds the string denoting the merged_to_order_id field in the database.
-	FieldMergedToOrderID = "merged_to_order_id"
-	// FieldMergedAt holds the string denoting the merged_at field in the database.
-	FieldMergedAt = "merged_at"
 	// FieldStore holds the string denoting the store field in the database.
 	FieldStore = "store"
 	// FieldChannel holds the string denoting the channel field in the database.
@@ -84,30 +67,25 @@ const (
 	FieldPos = "pos"
 	// FieldCashier holds the string denoting the cashier field in the database.
 	FieldCashier = "cashier"
-	// FieldMember holds the string denoting the member field in the database.
-	FieldMember = "member"
-	// FieldTakeaway holds the string denoting the takeaway field in the database.
-	FieldTakeaway = "takeaway"
-	// FieldCart holds the string denoting the cart field in the database.
-	FieldCart = "cart"
-	// FieldProducts holds the string denoting the products field in the database.
-	FieldProducts = "products"
-	// FieldPromotions holds the string denoting the promotions field in the database.
-	FieldPromotions = "promotions"
-	// FieldCoupons holds the string denoting the coupons field in the database.
-	FieldCoupons = "coupons"
 	// FieldTaxRates holds the string denoting the tax_rates field in the database.
 	FieldTaxRates = "tax_rates"
 	// FieldFees holds the string denoting the fees field in the database.
 	FieldFees = "fees"
 	// FieldPayments holds the string denoting the payments field in the database.
 	FieldPayments = "payments"
-	// FieldRefundsProducts holds the string denoting the refunds_products field in the database.
-	FieldRefundsProducts = "refunds_products"
 	// FieldAmount holds the string denoting the amount field in the database.
 	FieldAmount = "amount"
+	// EdgeOrderProducts holds the string denoting the order_products edge name in mutations.
+	EdgeOrderProducts = "order_products"
 	// Table holds the table name of the order in the database.
 	Table = "orders"
+	// OrderProductsTable is the table that holds the order_products relation/edge.
+	OrderProductsTable = "order_products"
+	// OrderProductsInverseTable is the table name for the OrderProduct entity.
+	// It exists in this package in order to avoid circular dependency with the "orderproduct" package.
+	OrderProductsInverseTable = "order_products"
+	// OrderProductsColumn is the table column denoting the order_products relation/edge.
+	OrderProductsColumn = "order_id"
 )
 
 // Columns holds all SQL columns for order fields.
@@ -122,40 +100,24 @@ var Columns = []string{
 	FieldShiftNo,
 	FieldOrderNo,
 	FieldOrderType,
-	FieldOriginOrderID,
 	FieldRefund,
-	FieldOpenedAt,
 	FieldPlacedAt,
 	FieldPaidAt,
 	FieldCompletedAt,
-	FieldOpenedBy,
 	FieldPlacedBy,
-	FieldPaidBy,
 	FieldDiningMode,
 	FieldOrderStatus,
 	FieldPaymentStatus,
-	FieldFulfillmentStatus,
-	FieldTableStatus,
 	FieldTableID,
 	FieldTableName,
-	FieldTableCapacity,
 	FieldGuestCount,
-	FieldMergedToOrderID,
-	FieldMergedAt,
 	FieldStore,
 	FieldChannel,
 	FieldPos,
 	FieldCashier,
-	FieldMember,
-	FieldTakeaway,
-	FieldCart,
-	FieldProducts,
-	FieldPromotions,
-	FieldCoupons,
 	FieldTaxRates,
 	FieldFees,
 	FieldPayments,
-	FieldRefundsProducts,
 	FieldAmount,
 }
 
@@ -191,16 +153,10 @@ var (
 	OrderNoValidator func(string) error
 	// DefaultStore holds the default value on creation for the "store" field.
 	DefaultStore json.RawMessage
-	// DefaultChannel holds the default value on creation for the "channel" field.
-	DefaultChannel json.RawMessage
 	// DefaultPos holds the default value on creation for the "pos" field.
 	DefaultPos json.RawMessage
 	// DefaultCashier holds the default value on creation for the "cashier" field.
 	DefaultCashier json.RawMessage
-	// DefaultCart holds the default value on creation for the "cart" field.
-	DefaultCart json.RawMessage
-	// DefaultProducts holds the default value on creation for the "products" field.
-	DefaultProducts json.RawMessage
 	// DefaultAmount holds the default value on creation for the "amount" field.
 	DefaultAmount json.RawMessage
 	// DefaultID holds the default value on creation for the "id" field.
@@ -229,7 +185,7 @@ func DiningModeValidator(dm domain.DiningMode) error {
 	}
 }
 
-const DefaultOrderStatus domain.OrderStatus = "DRAFT"
+const DefaultOrderStatus domain.OrderStatus = "PLACED"
 
 // OrderStatusValidator is a validator for the "order_status" field enum values. It is called by the builders before save.
 func OrderStatusValidator(os domain.OrderStatus) error {
@@ -253,23 +209,29 @@ func PaymentStatusValidator(ps domain.PaymentStatus) error {
 	}
 }
 
-// FulfillmentStatusValidator is a validator for the "fulfillment_status" field enum values. It is called by the builders before save.
-func FulfillmentStatusValidator(fs domain.FulfillmentStatus) error {
-	switch fs {
-	case "NONE", "IN_RESTAURANT", "SERVED", "PICKUP_PENDING", "PICKED_UP", "DELIVERING", "DELIVERED":
-		return nil
-	default:
-		return fmt.Errorf("order: invalid enum value for fulfillment_status field: %q", fs)
-	}
+// Channel defines the type for the "channel" enum field.
+type Channel string
+
+// ChannelPOS is the default value of the Channel enum.
+const DefaultChannel = ChannelPOS
+
+// Channel values.
+const (
+	ChannelPOS          Channel = "POS"
+	ChannelMINI_PROGRAM Channel = "MINI_PROGRAM"
+)
+
+func (c Channel) String() string {
+	return string(c)
 }
 
-// TableStatusValidator is a validator for the "table_status" field enum values. It is called by the builders before save.
-func TableStatusValidator(ts domain.TableStatus) error {
-	switch ts {
-	case "OPENED", "TRANSFERRED", "RELEASED":
+// ChannelValidator is a validator for the "channel" field enum values. It is called by the builders before save.
+func ChannelValidator(c Channel) error {
+	switch c {
+	case ChannelPOS, ChannelMINI_PROGRAM:
 		return nil
 	default:
-		return fmt.Errorf("order: invalid enum value for table_status field: %q", ts)
+		return fmt.Errorf("order: invalid enum value for channel field: %q", c)
 	}
 }
 
@@ -326,16 +288,6 @@ func ByOrderType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOrderType, opts...).ToFunc()
 }
 
-// ByOriginOrderID orders the results by the origin_order_id field.
-func ByOriginOrderID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOriginOrderID, opts...).ToFunc()
-}
-
-// ByOpenedAt orders the results by the opened_at field.
-func ByOpenedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOpenedAt, opts...).ToFunc()
-}
-
 // ByPlacedAt orders the results by the placed_at field.
 func ByPlacedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPlacedAt, opts...).ToFunc()
@@ -351,19 +303,9 @@ func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
 }
 
-// ByOpenedBy orders the results by the opened_by field.
-func ByOpenedBy(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOpenedBy, opts...).ToFunc()
-}
-
 // ByPlacedBy orders the results by the placed_by field.
 func ByPlacedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPlacedBy, opts...).ToFunc()
-}
-
-// ByPaidBy orders the results by the paid_by field.
-func ByPaidBy(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPaidBy, opts...).ToFunc()
 }
 
 // ByDiningMode orders the results by the dining_mode field.
@@ -381,16 +323,6 @@ func ByPaymentStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPaymentStatus, opts...).ToFunc()
 }
 
-// ByFulfillmentStatus orders the results by the fulfillment_status field.
-func ByFulfillmentStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFulfillmentStatus, opts...).ToFunc()
-}
-
-// ByTableStatus orders the results by the table_status field.
-func ByTableStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTableStatus, opts...).ToFunc()
-}
-
 // ByTableID orders the results by the table_id field.
 func ByTableID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTableID, opts...).ToFunc()
@@ -401,22 +333,33 @@ func ByTableName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTableName, opts...).ToFunc()
 }
 
-// ByTableCapacity orders the results by the table_capacity field.
-func ByTableCapacity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTableCapacity, opts...).ToFunc()
-}
-
 // ByGuestCount orders the results by the guest_count field.
 func ByGuestCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGuestCount, opts...).ToFunc()
 }
 
-// ByMergedToOrderID orders the results by the merged_to_order_id field.
-func ByMergedToOrderID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMergedToOrderID, opts...).ToFunc()
+// ByChannel orders the results by the channel field.
+func ByChannel(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldChannel, opts...).ToFunc()
 }
 
-// ByMergedAt orders the results by the merged_at field.
-func ByMergedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMergedAt, opts...).ToFunc()
+// ByOrderProductsCount orders the results by order_products count.
+func ByOrderProductsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newOrderProductsStep(), opts...)
+	}
+}
+
+// ByOrderProducts orders the results by order_products terms.
+func ByOrderProducts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOrderProductsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newOrderProductsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OrderProductsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OrderProductsTable, OrderProductsColumn),
+	)
 }

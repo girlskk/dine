@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	entorder "gitlab.jiguang.dev/pos-dine/dine/ent/order"
@@ -30,7 +32,10 @@ func (repo *OrderRepository) FindByID(ctx context.Context, id uuid.UUID) (res *d
 		util.SpanErrFinish(span, err)
 	}()
 
-	eo, err := repo.Client.Order.Get(ctx, id)
+	eo, err := repo.Client.Order.Query().
+		Where(entorder.ID(id)).
+		WithOrderProducts().
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, domain.NotFoundError(err)
@@ -56,7 +61,8 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		SetStoreID(o.StoreID).
 		SetBusinessDate(o.BusinessDate).
 		SetOrderNo(o.OrderNo).
-		SetDiningMode(o.DiningMode)
+		SetDiningMode(o.DiningMode).
+		SetChannel(entorder.Channel(o.Channel))
 
 	if o.ID != uuid.Nil {
 		builder = builder.SetID(o.ID)
@@ -67,10 +73,9 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 	if o.OrderType != "" {
 		builder = builder.SetOrderType(o.OrderType)
 	}
-	if o.OriginOrderID != "" {
-		builder = builder.SetOriginOrderID(o.OriginOrderID)
-	}
-	if o.Refund != nil {
+
+	// Refund
+	if o.Refund.OriginOrderID != "" || o.Refund.OriginOrderNo != "" || o.Refund.Reason != "" {
 		b, mErr := json.Marshal(o.Refund)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal refund: %w", mErr)
@@ -78,40 +83,25 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetRefund(b)
 	}
 
-	if o.OpenedAt != nil {
-		builder = builder.SetOpenedAt(*o.OpenedAt)
+	// 时间字段
+	if !o.PlacedAt.IsZero() {
+		builder = builder.SetPlacedAt(o.PlacedAt)
 	}
-	if o.PlacedAt != nil {
-		builder = builder.SetPlacedAt(*o.PlacedAt)
+	if !o.PaidAt.IsZero() {
+		builder = builder.SetPaidAt(o.PaidAt)
 	}
-	if o.PaidAt != nil {
-		builder = builder.SetPaidAt(*o.PaidAt)
-	}
-	if o.CompletedAt != nil {
-		builder = builder.SetCompletedAt(*o.CompletedAt)
+	if !o.CompletedAt.IsZero() {
+		builder = builder.SetCompletedAt(o.CompletedAt)
 	}
 
-	if o.OpenedBy != "" {
-		builder = builder.SetOpenedBy(o.OpenedBy)
-	}
 	if o.PlacedBy != "" {
 		builder = builder.SetPlacedBy(o.PlacedBy)
 	}
-	if o.PaidBy != "" {
-		builder = builder.SetPaidBy(o.PaidBy)
-	}
-
 	if o.OrderStatus != "" {
 		builder = builder.SetOrderStatus(o.OrderStatus)
 	}
 	if o.PaymentStatus != "" {
 		builder = builder.SetPaymentStatus(o.PaymentStatus)
-	}
-	if o.FulfillmentStatus != "" {
-		builder = builder.SetFulfillmentStatus(o.FulfillmentStatus)
-	}
-	if o.TableStatus != "" {
-		builder = builder.SetTableStatus(o.TableStatus)
 	}
 
 	if o.TableID != "" {
@@ -120,42 +110,26 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 	if o.TableName != "" {
 		builder = builder.SetTableName(o.TableName)
 	}
-	if o.TableCapacity != 0 {
-		builder = builder.SetTableCapacity(o.TableCapacity)
-	}
 	if o.GuestCount != 0 {
 		builder = builder.SetGuestCount(o.GuestCount)
 	}
 
-	if o.MergedToOrderID != "" {
-		builder = builder.SetMergedToOrderID(o.MergedToOrderID)
-	}
-	if o.MergedAt != nil {
-		builder = builder.SetMergedAt(*o.MergedAt)
-	}
-
-	if o.Store != nil {
+	// JSON 字段
+	if o.Store.ID != uuid.Nil {
 		b, mErr := json.Marshal(o.Store)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal store: %w", mErr)
 		}
 		builder = builder.SetStore(b)
 	}
-	if o.Channel != nil {
-		b, mErr := json.Marshal(o.Channel)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal channel: %w", mErr)
-		}
-		builder = builder.SetChannel(b)
-	}
-	if o.Pos != nil {
+	if o.Pos.PosID != "" {
 		b, mErr := json.Marshal(o.Pos)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal pos: %w", mErr)
 		}
 		builder = builder.SetPos(b)
 	}
-	if o.Cashier != nil {
+	if o.Cashier.CashierID != "" {
 		b, mErr := json.Marshal(o.Cashier)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal cashier: %w", mErr)
@@ -163,84 +137,34 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetCashier(b)
 	}
 
-	if o.Member != nil {
-		b, mErr := json.Marshal(o.Member)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal member: %w", mErr)
-		}
-		builder = builder.SetMember(b)
-	}
-	if o.Takeaway != nil {
-		b, mErr := json.Marshal(o.Takeaway)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal takeaway: %w", mErr)
-		}
-		builder = builder.SetTakeaway(b)
-	}
-
-	if o.Cart != nil {
-		b, mErr := json.Marshal(*o.Cart)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal cart: %w", mErr)
-		}
-		builder = builder.SetCart(b)
-	}
-	if o.Products != nil {
-		b, mErr := json.Marshal(*o.Products)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal products: %w", mErr)
-		}
-		builder = builder.SetProducts(b)
-	}
-	if o.Promotions != nil {
-		b, mErr := json.Marshal(*o.Promotions)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal promotions: %w", mErr)
-		}
-		builder = builder.SetPromotions(b)
-	}
-	if o.Coupons != nil {
-		b, mErr := json.Marshal(*o.Coupons)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal coupons: %w", mErr)
-		}
-		builder = builder.SetCoupons(b)
-	}
-	if o.TaxRates != nil {
-		b, mErr := json.Marshal(*o.TaxRates)
+	if len(o.TaxRates) > 0 {
+		b, mErr := json.Marshal(o.TaxRates)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal tax_rates: %w", mErr)
 		}
 		builder = builder.SetTaxRates(b)
 	}
-	if o.Fees != nil {
-		b, mErr := json.Marshal(*o.Fees)
+	if len(o.Fees) > 0 {
+		b, mErr := json.Marshal(o.Fees)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal fees: %w", mErr)
 		}
 		builder = builder.SetFees(b)
 	}
-	if o.Payments != nil {
-		b, mErr := json.Marshal(*o.Payments)
+	if len(o.Payments) > 0 {
+		b, mErr := json.Marshal(o.Payments)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal payments: %w", mErr)
 		}
 		builder = builder.SetPayments(b)
 	}
-	if o.RefundsProducts != nil {
-		b, mErr := json.Marshal(*o.RefundsProducts)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal refunds_products: %w", mErr)
-		}
-		builder = builder.SetRefundsProducts(b)
+
+	// Amount
+	b, mErr := json.Marshal(o.Amount)
+	if mErr != nil {
+		return fmt.Errorf("failed to marshal amount: %w", mErr)
 	}
-	if o.Amount != nil {
-		b, mErr := json.Marshal(o.Amount)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal amount: %w", mErr)
-		}
-		builder = builder.SetAmount(b)
-	}
+	builder = builder.SetAmount(b)
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -256,6 +180,17 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 	o.ID = created.ID
 	o.CreatedAt = created.CreatedAt
 	o.UpdatedAt = created.UpdatedAt
+
+	// 创建订单商品明细
+	if len(o.OrderProducts) > 0 {
+		for i := range o.OrderProducts {
+			op := &o.OrderProducts[i]
+			op.OrderID = created.ID
+			if err := repo.createOrderProduct(ctx, op); err != nil {
+				return fmt.Errorf("failed to create order product: %w", err)
+			}
+		}
+	}
 
 	return nil
 }
@@ -277,14 +212,12 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	if o.OrderNo != "" {
 		builder = builder.SetOrderNo(o.OrderNo)
 	}
-
 	if o.OrderType != "" {
-		builder = builder.SetOrderType(domain.OrderType(o.OrderType))
+		builder = builder.SetOrderType(o.OrderType)
 	}
-	if o.OriginOrderID != "" {
-		builder = builder.SetOriginOrderID(o.OriginOrderID)
-	}
-	if o.Refund != nil {
+
+	// Refund
+	if o.Refund.OriginOrderID != "" || o.Refund.OriginOrderNo != "" || o.Refund.Reason != "" {
 		b, mErr := json.Marshal(o.Refund)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal refund: %w", mErr)
@@ -292,29 +225,19 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetRefund(b)
 	}
 
-	if o.OpenedAt != nil {
-		builder = builder.SetOpenedAt(*o.OpenedAt)
+	if !o.PlacedAt.IsZero() {
+		builder = builder.SetPlacedAt(o.PlacedAt)
 	}
-	if o.PlacedAt != nil {
-		builder = builder.SetPlacedAt(*o.PlacedAt)
+	if !o.PaidAt.IsZero() {
+		builder = builder.SetPaidAt(o.PaidAt)
 	}
-	if o.PaidAt != nil {
-		builder = builder.SetPaidAt(*o.PaidAt)
-	}
-	if o.CompletedAt != nil {
-		builder = builder.SetCompletedAt(*o.CompletedAt)
+	if !o.CompletedAt.IsZero() {
+		builder = builder.SetCompletedAt(o.CompletedAt)
 	}
 
-	if o.OpenedBy != "" {
-		builder = builder.SetOpenedBy(o.OpenedBy)
-	}
 	if o.PlacedBy != "" {
 		builder = builder.SetPlacedBy(o.PlacedBy)
 	}
-	if o.PaidBy != "" {
-		builder = builder.SetPaidBy(o.PaidBy)
-	}
-
 	if o.DiningMode != "" {
 		builder = builder.SetDiningMode(o.DiningMode)
 	}
@@ -324,11 +247,8 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	if o.PaymentStatus != "" {
 		builder = builder.SetPaymentStatus(o.PaymentStatus)
 	}
-	if o.FulfillmentStatus != "" {
-		builder = builder.SetFulfillmentStatus(o.FulfillmentStatus)
-	}
-	if o.TableStatus != "" {
-		builder = builder.SetTableStatus(o.TableStatus)
+	if o.Channel != "" {
+		builder = builder.SetChannel(entorder.Channel(o.Channel))
 	}
 
 	if o.TableID != "" {
@@ -337,125 +257,61 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	if o.TableName != "" {
 		builder = builder.SetTableName(o.TableName)
 	}
-	if o.TableCapacity != 0 {
-		builder = builder.SetTableCapacity(o.TableCapacity)
-	}
 	if o.GuestCount != 0 {
 		builder = builder.SetGuestCount(o.GuestCount)
 	}
 
-	if o.MergedToOrderID != "" {
-		builder = builder.SetMergedToOrderID(o.MergedToOrderID)
-	}
-	if o.MergedAt != nil {
-		builder = builder.SetMergedAt(*o.MergedAt)
-	}
-
-	if o.Store != nil {
+	// JSON 字段
+	if o.Store.ID != uuid.Nil {
 		b, mErr := json.Marshal(o.Store)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal store: %w", mErr)
 		}
 		builder = builder.SetStore(b)
 	}
-	if o.Channel != nil {
-		b, mErr := json.Marshal(o.Channel)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal channel: %w", mErr)
-		}
-		builder = builder.SetChannel(b)
-	}
-	if o.Pos != nil {
+	if o.Pos.PosID != "" {
 		b, mErr := json.Marshal(o.Pos)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal pos: %w", mErr)
 		}
 		builder = builder.SetPos(b)
 	}
-	if o.Cashier != nil {
+	if o.Cashier.CashierID != "" {
 		b, mErr := json.Marshal(o.Cashier)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal cashier: %w", mErr)
 		}
 		builder = builder.SetCashier(b)
 	}
-	if o.Member != nil {
-		b, mErr := json.Marshal(o.Member)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal member: %w", mErr)
-		}
-		builder = builder.SetMember(b)
-	}
-	if o.Takeaway != nil {
-		b, mErr := json.Marshal(o.Takeaway)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal takeaway: %w", mErr)
-		}
-		builder = builder.SetTakeaway(b)
-	}
-	if o.Cart != nil {
-		b, mErr := json.Marshal(*o.Cart)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal cart: %w", mErr)
-		}
-		builder = builder.SetCart(b)
-	}
-	if o.Products != nil {
-		b, mErr := json.Marshal(*o.Products)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal products: %w", mErr)
-		}
-		builder = builder.SetProducts(b)
-	}
-	if o.Promotions != nil {
-		b, mErr := json.Marshal(*o.Promotions)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal promotions: %w", mErr)
-		}
-		builder = builder.SetPromotions(b)
-	}
-	if o.Coupons != nil {
-		b, mErr := json.Marshal(*o.Coupons)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal coupons: %w", mErr)
-		}
-		builder = builder.SetCoupons(b)
-	}
-	if o.TaxRates != nil {
-		b, mErr := json.Marshal(*o.TaxRates)
+
+	if len(o.TaxRates) > 0 {
+		b, mErr := json.Marshal(o.TaxRates)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal tax_rates: %w", mErr)
 		}
 		builder = builder.SetTaxRates(b)
 	}
-	if o.Fees != nil {
-		b, mErr := json.Marshal(*o.Fees)
+	if len(o.Fees) > 0 {
+		b, mErr := json.Marshal(o.Fees)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal fees: %w", mErr)
 		}
 		builder = builder.SetFees(b)
 	}
-	if o.Payments != nil {
-		b, mErr := json.Marshal(*o.Payments)
+	if len(o.Payments) > 0 {
+		b, mErr := json.Marshal(o.Payments)
 		if mErr != nil {
 			return fmt.Errorf("failed to marshal payments: %w", mErr)
 		}
 		builder = builder.SetPayments(b)
 	}
-	if o.RefundsProducts != nil {
-		b, mErr := json.Marshal(*o.RefundsProducts)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal refunds_products: %w", mErr)
-		}
-		builder = builder.SetRefundsProducts(b)
+
+	// Amount
+	b, mErr := json.Marshal(o.Amount)
+	if mErr != nil {
+		return fmt.Errorf("failed to marshal amount: %w", mErr)
 	}
-	if o.Amount != nil {
-		b, mErr := json.Marshal(o.Amount)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal amount: %w", mErr)
-		}
-		builder = builder.SetAmount(b)
-	}
+	builder = builder.SetAmount(b)
 
 	updated, err := builder.Save(ctx)
 	if err != nil {
@@ -528,6 +384,7 @@ func (repo *OrderRepository) List(ctx context.Context, params domain.OrderListPa
 	}
 
 	items, err := query.
+		WithOrderProducts().
 		Order(entorder.ByCreatedAt(entsql.OrderDesc())).
 		Limit(pageInfo.Size).
 		Offset(pageInfo.Offset()).
@@ -547,141 +404,206 @@ func (repo *OrderRepository) List(ctx context.Context, params domain.OrderListPa
 	return res, total, nil
 }
 
+func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.OrderProduct) error {
+	builder := repo.Client.OrderProduct.Create().
+		SetOrderID(op.OrderID).
+		SetOrderItemID(op.OrderItemID).
+		SetIndex(op.Index).
+		SetProductID(op.ProductID).
+		SetProductName(op.ProductName).
+		SetProductType(op.ProductType).
+		SetQty(op.Qty)
+
+	if op.ID != uuid.Nil {
+		builder = builder.SetID(op.ID)
+	}
+	if op.CategoryID != uuid.Nil {
+		builder = builder.SetCategoryID(op.CategoryID)
+	}
+	if op.MenuID != uuid.Nil {
+		builder = builder.SetMenuID(op.MenuID)
+	}
+	if op.UnitID != uuid.Nil {
+		builder = builder.SetUnitID(op.UnitID)
+	}
+	if len(op.SupportTypes) > 0 {
+		builder = builder.SetSupportTypes(op.SupportTypes)
+	}
+	if op.SaleStatus != "" {
+		builder = builder.SetSaleStatus(op.SaleStatus)
+	}
+	if len(op.SaleChannels) > 0 {
+		builder = builder.SetSaleChannels(op.SaleChannels)
+	}
+	if op.MainImage != "" {
+		builder = builder.SetMainImage(op.MainImage)
+	}
+	if op.Description != "" {
+		builder = builder.SetDescription(op.Description)
+	}
+
+	// 金额字段
+	if !op.Subtotal.IsZero() {
+		builder = builder.SetSubtotal(op.Subtotal)
+	}
+	if !op.DiscountAmount.IsZero() {
+		builder = builder.SetDiscountAmount(op.DiscountAmount)
+	}
+	if !op.AmountBeforeTax.IsZero() {
+		builder = builder.SetAmountBeforeTax(op.AmountBeforeTax)
+	}
+	if !op.TaxRate.IsZero() {
+		builder = builder.SetTaxRate(op.TaxRate)
+	}
+	if !op.Tax.IsZero() {
+		builder = builder.SetTax(op.Tax)
+	}
+	if !op.AmountAfterTax.IsZero() {
+		builder = builder.SetAmountAfterTax(op.AmountAfterTax)
+	}
+	if !op.Total.IsZero() {
+		builder = builder.SetTotal(op.Total)
+	}
+	if !op.PromotionDiscount.IsZero() {
+		builder = builder.SetPromotionDiscount(op.PromotionDiscount)
+	}
+
+	// 退菜信息
+	if op.VoidQty != 0 {
+		builder = builder.SetVoidQty(op.VoidQty)
+	}
+	if !op.VoidAmount.IsZero() {
+		builder = builder.SetVoidAmount(op.VoidAmount)
+	}
+	if op.RefundReason != "" {
+		builder = builder.SetRefundReason(op.RefundReason)
+	}
+	if op.RefundedBy != "" {
+		builder = builder.SetRefundedBy(op.RefundedBy)
+	}
+	if !op.RefundedAt.IsZero() {
+		builder = builder.SetRefundedAt(op.RefundedAt)
+	}
+
+	if op.Note != "" {
+		builder = builder.SetNote(op.Note)
+	}
+
+	// 套餐信息
+	if !op.EstimatedCostPrice.IsZero() {
+		builder = builder.SetEstimatedCostPrice(op.EstimatedCostPrice)
+	}
+	if !op.DeliveryCostPrice.IsZero() {
+		builder = builder.SetDeliveryCostPrice(op.DeliveryCostPrice)
+	}
+	if len(op.SetMealGroups) > 0 {
+		builder = builder.SetSetMealGroups(op.SetMealGroups)
+	}
+	if len(op.SpecRelations) > 0 {
+		builder = builder.SetSpecRelations(op.SpecRelations)
+	}
+	if len(op.AttrRelations) > 0 {
+		builder = builder.SetAttrRelations(op.AttrRelations)
+	}
+
+	created, err := builder.Save(ctx)
+	if err != nil {
+		if ent.IsValidationError(err) {
+			return domain.ParamsError(fmt.Errorf("invalid order product params: %w", err))
+		}
+		if ent.IsConstraintError(err) {
+			return domain.ConflictError(err)
+		}
+		return fmt.Errorf("failed to create order product: %w", err)
+	}
+
+	op.ID = created.ID
+	op.CreatedAt = created.CreatedAt
+	op.UpdatedAt = created.UpdatedAt
+	return nil
+}
+
 func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 	if eo == nil {
 		return nil, nil
 	}
 
-	var refund *domain.OrderRefund
+	var refund domain.OrderRefund
 	if len(eo.Refund) > 0 {
-		var v domain.OrderRefund
-		if uErr := json.Unmarshal(eo.Refund, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.Refund, &refund); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal refund: %w", uErr)
 		}
-		refund = &v
 	}
 
-	var store *domain.OrderStore
+	var store domain.OrderStore
 	if len(eo.Store) > 0 {
-		var v domain.OrderStore
-		if uErr := json.Unmarshal(eo.Store, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.Store, &store); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal store: %w", uErr)
 		}
-		store = &v
 	}
-	var channel *domain.OrderChannel
-	if len(eo.Channel) > 0 {
-		var v domain.OrderChannel
-		if uErr := json.Unmarshal(eo.Channel, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal channel: %w", uErr)
-		}
-		channel = &v
-	}
-	var pos *domain.OrderPOS
+
+	var pos domain.OrderPOS
 	if len(eo.Pos) > 0 {
-		var v domain.OrderPOS
-		if uErr := json.Unmarshal(eo.Pos, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.Pos, &pos); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal pos: %w", uErr)
 		}
-		pos = &v
 	}
-	var cashier *domain.OrderCashier
+
+	var cashier domain.OrderCashier
 	if len(eo.Cashier) > 0 {
-		var v domain.OrderCashier
-		if uErr := json.Unmarshal(eo.Cashier, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.Cashier, &cashier); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal cashier: %w", uErr)
 		}
-		cashier = &v
 	}
 
-	var member *domain.OrderMember
-	if len(eo.Member) > 0 {
-		var v domain.OrderMember
-		if uErr := json.Unmarshal(eo.Member, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal member: %w", uErr)
-		}
-		member = &v
-	}
-	var takeaway *domain.OrderTakeaway
-	if len(eo.Takeaway) > 0 {
-		var v domain.OrderTakeaway
-		if uErr := json.Unmarshal(eo.Takeaway, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal takeaway: %w", uErr)
-		}
-		takeaway = &v
-	}
-
-	var cart *[]domain.OrderProduct
-	if len(eo.Cart) > 0 {
-		var v []domain.OrderProduct
-		if uErr := json.Unmarshal(eo.Cart, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal cart: %w", uErr)
-		}
-		cart = &v
-	}
-	var products *[]domain.OrderProduct
-	if len(eo.Products) > 0 {
-		var v []domain.OrderProduct
-		if uErr := json.Unmarshal(eo.Products, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal products: %w", uErr)
-		}
-		products = &v
-	}
-	var promotions *[]domain.OrderPromotion
-	if len(eo.Promotions) > 0 {
-		var v []domain.OrderPromotion
-		if uErr := json.Unmarshal(eo.Promotions, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal promotions: %w", uErr)
-		}
-		promotions = &v
-	}
-	var coupons *[]domain.OrderCoupon
-	if len(eo.Coupons) > 0 {
-		var v []domain.OrderCoupon
-		if uErr := json.Unmarshal(eo.Coupons, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal coupons: %w", uErr)
-		}
-		coupons = &v
-	}
-	var taxRates *[]domain.OrderTaxRate
+	var taxRates []domain.OrderTaxRate
 	if len(eo.TaxRates) > 0 {
-		var v []domain.OrderTaxRate
-		if uErr := json.Unmarshal(eo.TaxRates, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.TaxRates, &taxRates); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal tax_rates: %w", uErr)
 		}
-		taxRates = &v
 	}
-	var fees *[]domain.OrderFee
+
+	var fees []domain.OrderFee
 	if len(eo.Fees) > 0 {
-		var v []domain.OrderFee
-		if uErr := json.Unmarshal(eo.Fees, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.Fees, &fees); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal fees: %w", uErr)
 		}
-		fees = &v
 	}
-	var payments *[]domain.OrderPayment
+
+	var payments []domain.OrderPayment
 	if len(eo.Payments) > 0 {
-		var v []domain.OrderPayment
-		if uErr := json.Unmarshal(eo.Payments, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.Payments, &payments); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal payments: %w", uErr)
 		}
-		payments = &v
 	}
-	var refundsProducts *[]domain.OrderProduct
-	if len(eo.RefundsProducts) > 0 {
-		var v []domain.OrderProduct
-		if uErr := json.Unmarshal(eo.RefundsProducts, &v); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal refunds_products: %w", uErr)
-		}
-		refundsProducts = &v
-	}
-	var amount *domain.OrderAmount
+
+	var amount domain.OrderAmount
 	if len(eo.Amount) > 0 {
-		var v domain.OrderAmount
-		if uErr := json.Unmarshal(eo.Amount, &v); uErr != nil {
+		if uErr := json.Unmarshal(eo.Amount, &amount); uErr != nil {
 			return nil, fmt.Errorf("failed to unmarshal amount: %w", uErr)
 		}
-		amount = &v
+	}
+
+	// 转换时间字段
+	var placedAt, paidAt, completedAt time.Time
+	if eo.PlacedAt != nil {
+		placedAt = *eo.PlacedAt
+	}
+	if eo.PaidAt != nil {
+		paidAt = *eo.PaidAt
+	}
+	if eo.CompletedAt != nil {
+		completedAt = *eo.CompletedAt
+	}
+
+	// 转换订单商品
+	var orderProducts []domain.OrderProduct
+	if eo.Edges.OrderProducts != nil {
+		orderProducts = make([]domain.OrderProduct, 0, len(eo.Edges.OrderProducts))
+		for _, eop := range eo.Edges.OrderProducts {
+			op := convertOrderProductToDomain(eop)
+			orderProducts = append(orderProducts, op)
+		}
 	}
 
 	return &domain.Order{
@@ -696,49 +618,124 @@ func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 		ShiftNo:      eo.ShiftNo,
 		OrderNo:      eo.OrderNo,
 
-		OrderType:     eo.OrderType,
-		OriginOrderID: eo.OriginOrderID,
-		Refund:        refund,
+		OrderType: eo.OrderType,
+		Refund:    refund,
 
-		OpenedAt:    eo.OpenedAt,
-		PlacedAt:    eo.PlacedAt,
-		PaidAt:      eo.PaidAt,
-		CompletedAt: eo.CompletedAt,
+		PlacedAt:    placedAt,
+		PaidAt:      paidAt,
+		CompletedAt: completedAt,
 
-		OpenedBy: eo.OpenedBy,
 		PlacedBy: eo.PlacedBy,
-		PaidBy:   eo.PaidBy,
 
-		DiningMode:        eo.DiningMode,
-		OrderStatus:       eo.OrderStatus,
-		PaymentStatus:     eo.PaymentStatus,
-		FulfillmentStatus: eo.FulfillmentStatus,
-		TableStatus:       eo.TableStatus,
+		DiningMode:    eo.DiningMode,
+		OrderStatus:   eo.OrderStatus,
+		PaymentStatus: eo.PaymentStatus,
 
-		TableID:       eo.TableID,
-		TableName:     eo.TableName,
-		TableCapacity: eo.TableCapacity,
-		GuestCount:    eo.GuestCount,
-
-		MergedToOrderID: eo.MergedToOrderID,
-		MergedAt:        eo.MergedAt,
+		TableID:    eo.TableID,
+		TableName:  eo.TableName,
+		GuestCount: eo.GuestCount,
 
 		Store:   store,
-		Channel: channel,
+		Channel: domain.Channel(eo.Channel),
 		Pos:     pos,
 		Cashier: cashier,
 
-		Member:   member,
-		Takeaway: takeaway,
+		TaxRates: taxRates,
+		Fees:     fees,
+		Payments: payments,
+		Amount:   amount,
 
-		Cart:            cart,
-		Products:        products,
-		Promotions:      promotions,
-		Coupons:         coupons,
-		TaxRates:        taxRates,
-		Fees:            fees,
-		Payments:        payments,
-		RefundsProducts: refundsProducts,
-		Amount:          amount,
+		OrderProducts: orderProducts,
 	}, nil
+}
+
+func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
+	var refundedAt time.Time
+	if eop.RefundedAt != nil {
+		refundedAt = *eop.RefundedAt
+	}
+
+	var subtotal, discountAmount, amountBeforeTax, taxRate, tax, amountAfterTax, total decimal.Decimal
+	var promotionDiscount, voidAmount, estimatedCostPrice, deliveryCostPrice decimal.Decimal
+
+	if eop.Subtotal != nil {
+		subtotal = *eop.Subtotal
+	}
+	if eop.DiscountAmount != nil {
+		discountAmount = *eop.DiscountAmount
+	}
+	if eop.AmountBeforeTax != nil {
+		amountBeforeTax = *eop.AmountBeforeTax
+	}
+	if eop.TaxRate != nil {
+		taxRate = *eop.TaxRate
+	}
+	if eop.Tax != nil {
+		tax = *eop.Tax
+	}
+	if eop.AmountAfterTax != nil {
+		amountAfterTax = *eop.AmountAfterTax
+	}
+	if eop.Total != nil {
+		total = *eop.Total
+	}
+	if eop.PromotionDiscount != nil {
+		promotionDiscount = *eop.PromotionDiscount
+	}
+	if eop.VoidAmount != nil {
+		voidAmount = *eop.VoidAmount
+	}
+	if eop.EstimatedCostPrice != nil {
+		estimatedCostPrice = *eop.EstimatedCostPrice
+	}
+	if eop.DeliveryCostPrice != nil {
+		deliveryCostPrice = *eop.DeliveryCostPrice
+	}
+
+	return domain.OrderProduct{
+		ID:        eop.ID,
+		CreatedAt: eop.CreatedAt,
+		UpdatedAt: eop.UpdatedAt,
+
+		OrderID:     eop.OrderID,
+		OrderItemID: eop.OrderItemID,
+		Index:       eop.Index,
+
+		ProductID:    eop.ProductID,
+		ProductName:  eop.ProductName,
+		ProductType:  eop.ProductType,
+		CategoryID:   eop.CategoryID,
+		MenuID:       eop.MenuID,
+		UnitID:       eop.UnitID,
+		SupportTypes: eop.SupportTypes,
+		SaleStatus:   eop.SaleStatus,
+		SaleChannels: eop.SaleChannels,
+		MainImage:    eop.MainImage,
+		Description:  eop.Description,
+
+		Qty:             eop.Qty,
+		Subtotal:        subtotal,
+		DiscountAmount:  discountAmount,
+		AmountBeforeTax: amountBeforeTax,
+		TaxRate:         taxRate,
+		Tax:             tax,
+		AmountAfterTax:  amountAfterTax,
+		Total:           total,
+
+		PromotionDiscount: promotionDiscount,
+
+		VoidQty:      eop.VoidQty,
+		VoidAmount:   voidAmount,
+		RefundReason: eop.RefundReason,
+		RefundedBy:   eop.RefundedBy,
+		RefundedAt:   refundedAt,
+
+		Note: eop.Note,
+
+		EstimatedCostPrice: estimatedCostPrice,
+		DeliveryCostPrice:  deliveryCostPrice,
+		SetMealGroups:      eop.SetMealGroups,
+		SpecRelations:      eop.SpecRelations,
+		AttrRelations:      eop.AttrRelations,
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -96,16 +97,6 @@ func OrderNo(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldOrderNo, v))
 }
 
-// OriginOrderID applies equality check predicate on the "origin_order_id" field. It's identical to OriginOrderIDEQ.
-func OriginOrderID(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOriginOrderID, v))
-}
-
-// OpenedAt applies equality check predicate on the "opened_at" field. It's identical to OpenedAtEQ.
-func OpenedAt(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOpenedAt, v))
-}
-
 // PlacedAt applies equality check predicate on the "placed_at" field. It's identical to PlacedAtEQ.
 func PlacedAt(v time.Time) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldPlacedAt, v))
@@ -121,19 +112,9 @@ func CompletedAt(v time.Time) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldCompletedAt, v))
 }
 
-// OpenedBy applies equality check predicate on the "opened_by" field. It's identical to OpenedByEQ.
-func OpenedBy(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOpenedBy, v))
-}
-
 // PlacedBy applies equality check predicate on the "placed_by" field. It's identical to PlacedByEQ.
 func PlacedBy(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldPlacedBy, v))
-}
-
-// PaidBy applies equality check predicate on the "paid_by" field. It's identical to PaidByEQ.
-func PaidBy(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldPaidBy, v))
 }
 
 // TableID applies equality check predicate on the "table_id" field. It's identical to TableIDEQ.
@@ -146,24 +127,9 @@ func TableName(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldTableName, v))
 }
 
-// TableCapacity applies equality check predicate on the "table_capacity" field. It's identical to TableCapacityEQ.
-func TableCapacity(v int) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldTableCapacity, v))
-}
-
 // GuestCount applies equality check predicate on the "guest_count" field. It's identical to GuestCountEQ.
 func GuestCount(v int) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldGuestCount, v))
-}
-
-// MergedToOrderID applies equality check predicate on the "merged_to_order_id" field. It's identical to MergedToOrderIDEQ.
-func MergedToOrderID(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldMergedToOrderID, v))
-}
-
-// MergedAt applies equality check predicate on the "merged_at" field. It's identical to MergedAtEQ.
-func MergedAt(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldMergedAt, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -601,81 +567,6 @@ func OrderTypeNotIn(vs ...domain.OrderType) predicate.Order {
 	return predicate.Order(sql.FieldNotIn(FieldOrderType, v...))
 }
 
-// OriginOrderIDEQ applies the EQ predicate on the "origin_order_id" field.
-func OriginOrderIDEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDNEQ applies the NEQ predicate on the "origin_order_id" field.
-func OriginOrderIDNEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDIn applies the In predicate on the "origin_order_id" field.
-func OriginOrderIDIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldOriginOrderID, vs...))
-}
-
-// OriginOrderIDNotIn applies the NotIn predicate on the "origin_order_id" field.
-func OriginOrderIDNotIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldOriginOrderID, vs...))
-}
-
-// OriginOrderIDGT applies the GT predicate on the "origin_order_id" field.
-func OriginOrderIDGT(v string) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDGTE applies the GTE predicate on the "origin_order_id" field.
-func OriginOrderIDGTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDLT applies the LT predicate on the "origin_order_id" field.
-func OriginOrderIDLT(v string) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDLTE applies the LTE predicate on the "origin_order_id" field.
-func OriginOrderIDLTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDContains applies the Contains predicate on the "origin_order_id" field.
-func OriginOrderIDContains(v string) predicate.Order {
-	return predicate.Order(sql.FieldContains(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDHasPrefix applies the HasPrefix predicate on the "origin_order_id" field.
-func OriginOrderIDHasPrefix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasPrefix(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDHasSuffix applies the HasSuffix predicate on the "origin_order_id" field.
-func OriginOrderIDHasSuffix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasSuffix(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDIsNil applies the IsNil predicate on the "origin_order_id" field.
-func OriginOrderIDIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldOriginOrderID))
-}
-
-// OriginOrderIDNotNil applies the NotNil predicate on the "origin_order_id" field.
-func OriginOrderIDNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldOriginOrderID))
-}
-
-// OriginOrderIDEqualFold applies the EqualFold predicate on the "origin_order_id" field.
-func OriginOrderIDEqualFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldEqualFold(FieldOriginOrderID, v))
-}
-
-// OriginOrderIDContainsFold applies the ContainsFold predicate on the "origin_order_id" field.
-func OriginOrderIDContainsFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldContainsFold(FieldOriginOrderID, v))
-}
-
 // RefundIsNil applies the IsNil predicate on the "refund" field.
 func RefundIsNil() predicate.Order {
 	return predicate.Order(sql.FieldIsNull(FieldRefund))
@@ -684,56 +575,6 @@ func RefundIsNil() predicate.Order {
 // RefundNotNil applies the NotNil predicate on the "refund" field.
 func RefundNotNil() predicate.Order {
 	return predicate.Order(sql.FieldNotNull(FieldRefund))
-}
-
-// OpenedAtEQ applies the EQ predicate on the "opened_at" field.
-func OpenedAtEQ(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOpenedAt, v))
-}
-
-// OpenedAtNEQ applies the NEQ predicate on the "opened_at" field.
-func OpenedAtNEQ(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldOpenedAt, v))
-}
-
-// OpenedAtIn applies the In predicate on the "opened_at" field.
-func OpenedAtIn(vs ...time.Time) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldOpenedAt, vs...))
-}
-
-// OpenedAtNotIn applies the NotIn predicate on the "opened_at" field.
-func OpenedAtNotIn(vs ...time.Time) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldOpenedAt, vs...))
-}
-
-// OpenedAtGT applies the GT predicate on the "opened_at" field.
-func OpenedAtGT(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldOpenedAt, v))
-}
-
-// OpenedAtGTE applies the GTE predicate on the "opened_at" field.
-func OpenedAtGTE(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldOpenedAt, v))
-}
-
-// OpenedAtLT applies the LT predicate on the "opened_at" field.
-func OpenedAtLT(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldOpenedAt, v))
-}
-
-// OpenedAtLTE applies the LTE predicate on the "opened_at" field.
-func OpenedAtLTE(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldOpenedAt, v))
-}
-
-// OpenedAtIsNil applies the IsNil predicate on the "opened_at" field.
-func OpenedAtIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldOpenedAt))
-}
-
-// OpenedAtNotNil applies the NotNil predicate on the "opened_at" field.
-func OpenedAtNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldOpenedAt))
 }
 
 // PlacedAtEQ applies the EQ predicate on the "placed_at" field.
@@ -886,81 +727,6 @@ func CompletedAtNotNil() predicate.Order {
 	return predicate.Order(sql.FieldNotNull(FieldCompletedAt))
 }
 
-// OpenedByEQ applies the EQ predicate on the "opened_by" field.
-func OpenedByEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOpenedBy, v))
-}
-
-// OpenedByNEQ applies the NEQ predicate on the "opened_by" field.
-func OpenedByNEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldOpenedBy, v))
-}
-
-// OpenedByIn applies the In predicate on the "opened_by" field.
-func OpenedByIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldOpenedBy, vs...))
-}
-
-// OpenedByNotIn applies the NotIn predicate on the "opened_by" field.
-func OpenedByNotIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldOpenedBy, vs...))
-}
-
-// OpenedByGT applies the GT predicate on the "opened_by" field.
-func OpenedByGT(v string) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldOpenedBy, v))
-}
-
-// OpenedByGTE applies the GTE predicate on the "opened_by" field.
-func OpenedByGTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldOpenedBy, v))
-}
-
-// OpenedByLT applies the LT predicate on the "opened_by" field.
-func OpenedByLT(v string) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldOpenedBy, v))
-}
-
-// OpenedByLTE applies the LTE predicate on the "opened_by" field.
-func OpenedByLTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldOpenedBy, v))
-}
-
-// OpenedByContains applies the Contains predicate on the "opened_by" field.
-func OpenedByContains(v string) predicate.Order {
-	return predicate.Order(sql.FieldContains(FieldOpenedBy, v))
-}
-
-// OpenedByHasPrefix applies the HasPrefix predicate on the "opened_by" field.
-func OpenedByHasPrefix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasPrefix(FieldOpenedBy, v))
-}
-
-// OpenedByHasSuffix applies the HasSuffix predicate on the "opened_by" field.
-func OpenedByHasSuffix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasSuffix(FieldOpenedBy, v))
-}
-
-// OpenedByIsNil applies the IsNil predicate on the "opened_by" field.
-func OpenedByIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldOpenedBy))
-}
-
-// OpenedByNotNil applies the NotNil predicate on the "opened_by" field.
-func OpenedByNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldOpenedBy))
-}
-
-// OpenedByEqualFold applies the EqualFold predicate on the "opened_by" field.
-func OpenedByEqualFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldEqualFold(FieldOpenedBy, v))
-}
-
-// OpenedByContainsFold applies the ContainsFold predicate on the "opened_by" field.
-func OpenedByContainsFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldContainsFold(FieldOpenedBy, v))
-}
-
 // PlacedByEQ applies the EQ predicate on the "placed_by" field.
 func PlacedByEQ(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldPlacedBy, v))
@@ -1034,81 +800,6 @@ func PlacedByEqualFold(v string) predicate.Order {
 // PlacedByContainsFold applies the ContainsFold predicate on the "placed_by" field.
 func PlacedByContainsFold(v string) predicate.Order {
 	return predicate.Order(sql.FieldContainsFold(FieldPlacedBy, v))
-}
-
-// PaidByEQ applies the EQ predicate on the "paid_by" field.
-func PaidByEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldPaidBy, v))
-}
-
-// PaidByNEQ applies the NEQ predicate on the "paid_by" field.
-func PaidByNEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldPaidBy, v))
-}
-
-// PaidByIn applies the In predicate on the "paid_by" field.
-func PaidByIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldPaidBy, vs...))
-}
-
-// PaidByNotIn applies the NotIn predicate on the "paid_by" field.
-func PaidByNotIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldPaidBy, vs...))
-}
-
-// PaidByGT applies the GT predicate on the "paid_by" field.
-func PaidByGT(v string) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldPaidBy, v))
-}
-
-// PaidByGTE applies the GTE predicate on the "paid_by" field.
-func PaidByGTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldPaidBy, v))
-}
-
-// PaidByLT applies the LT predicate on the "paid_by" field.
-func PaidByLT(v string) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldPaidBy, v))
-}
-
-// PaidByLTE applies the LTE predicate on the "paid_by" field.
-func PaidByLTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldPaidBy, v))
-}
-
-// PaidByContains applies the Contains predicate on the "paid_by" field.
-func PaidByContains(v string) predicate.Order {
-	return predicate.Order(sql.FieldContains(FieldPaidBy, v))
-}
-
-// PaidByHasPrefix applies the HasPrefix predicate on the "paid_by" field.
-func PaidByHasPrefix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasPrefix(FieldPaidBy, v))
-}
-
-// PaidByHasSuffix applies the HasSuffix predicate on the "paid_by" field.
-func PaidByHasSuffix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasSuffix(FieldPaidBy, v))
-}
-
-// PaidByIsNil applies the IsNil predicate on the "paid_by" field.
-func PaidByIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldPaidBy))
-}
-
-// PaidByNotNil applies the NotNil predicate on the "paid_by" field.
-func PaidByNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldPaidBy))
-}
-
-// PaidByEqualFold applies the EqualFold predicate on the "paid_by" field.
-func PaidByEqualFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldEqualFold(FieldPaidBy, v))
-}
-
-// PaidByContainsFold applies the ContainsFold predicate on the "paid_by" field.
-func PaidByContainsFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldContainsFold(FieldPaidBy, v))
 }
 
 // DiningModeEQ applies the EQ predicate on the "dining_mode" field.
@@ -1199,86 +890,6 @@ func PaymentStatusNotIn(vs ...domain.PaymentStatus) predicate.Order {
 		v[i] = vs[i]
 	}
 	return predicate.Order(sql.FieldNotIn(FieldPaymentStatus, v...))
-}
-
-// FulfillmentStatusEQ applies the EQ predicate on the "fulfillment_status" field.
-func FulfillmentStatusEQ(v domain.FulfillmentStatus) predicate.Order {
-	vc := v
-	return predicate.Order(sql.FieldEQ(FieldFulfillmentStatus, vc))
-}
-
-// FulfillmentStatusNEQ applies the NEQ predicate on the "fulfillment_status" field.
-func FulfillmentStatusNEQ(v domain.FulfillmentStatus) predicate.Order {
-	vc := v
-	return predicate.Order(sql.FieldNEQ(FieldFulfillmentStatus, vc))
-}
-
-// FulfillmentStatusIn applies the In predicate on the "fulfillment_status" field.
-func FulfillmentStatusIn(vs ...domain.FulfillmentStatus) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(sql.FieldIn(FieldFulfillmentStatus, v...))
-}
-
-// FulfillmentStatusNotIn applies the NotIn predicate on the "fulfillment_status" field.
-func FulfillmentStatusNotIn(vs ...domain.FulfillmentStatus) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(sql.FieldNotIn(FieldFulfillmentStatus, v...))
-}
-
-// FulfillmentStatusIsNil applies the IsNil predicate on the "fulfillment_status" field.
-func FulfillmentStatusIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldFulfillmentStatus))
-}
-
-// FulfillmentStatusNotNil applies the NotNil predicate on the "fulfillment_status" field.
-func FulfillmentStatusNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldFulfillmentStatus))
-}
-
-// TableStatusEQ applies the EQ predicate on the "table_status" field.
-func TableStatusEQ(v domain.TableStatus) predicate.Order {
-	vc := v
-	return predicate.Order(sql.FieldEQ(FieldTableStatus, vc))
-}
-
-// TableStatusNEQ applies the NEQ predicate on the "table_status" field.
-func TableStatusNEQ(v domain.TableStatus) predicate.Order {
-	vc := v
-	return predicate.Order(sql.FieldNEQ(FieldTableStatus, vc))
-}
-
-// TableStatusIn applies the In predicate on the "table_status" field.
-func TableStatusIn(vs ...domain.TableStatus) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(sql.FieldIn(FieldTableStatus, v...))
-}
-
-// TableStatusNotIn applies the NotIn predicate on the "table_status" field.
-func TableStatusNotIn(vs ...domain.TableStatus) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(sql.FieldNotIn(FieldTableStatus, v...))
-}
-
-// TableStatusIsNil applies the IsNil predicate on the "table_status" field.
-func TableStatusIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldTableStatus))
-}
-
-// TableStatusNotNil applies the NotNil predicate on the "table_status" field.
-func TableStatusNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldTableStatus))
 }
 
 // TableIDEQ applies the EQ predicate on the "table_id" field.
@@ -1431,56 +1042,6 @@ func TableNameContainsFold(v string) predicate.Order {
 	return predicate.Order(sql.FieldContainsFold(FieldTableName, v))
 }
 
-// TableCapacityEQ applies the EQ predicate on the "table_capacity" field.
-func TableCapacityEQ(v int) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldTableCapacity, v))
-}
-
-// TableCapacityNEQ applies the NEQ predicate on the "table_capacity" field.
-func TableCapacityNEQ(v int) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldTableCapacity, v))
-}
-
-// TableCapacityIn applies the In predicate on the "table_capacity" field.
-func TableCapacityIn(vs ...int) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldTableCapacity, vs...))
-}
-
-// TableCapacityNotIn applies the NotIn predicate on the "table_capacity" field.
-func TableCapacityNotIn(vs ...int) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldTableCapacity, vs...))
-}
-
-// TableCapacityGT applies the GT predicate on the "table_capacity" field.
-func TableCapacityGT(v int) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldTableCapacity, v))
-}
-
-// TableCapacityGTE applies the GTE predicate on the "table_capacity" field.
-func TableCapacityGTE(v int) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldTableCapacity, v))
-}
-
-// TableCapacityLT applies the LT predicate on the "table_capacity" field.
-func TableCapacityLT(v int) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldTableCapacity, v))
-}
-
-// TableCapacityLTE applies the LTE predicate on the "table_capacity" field.
-func TableCapacityLTE(v int) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldTableCapacity, v))
-}
-
-// TableCapacityIsNil applies the IsNil predicate on the "table_capacity" field.
-func TableCapacityIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldTableCapacity))
-}
-
-// TableCapacityNotNil applies the NotNil predicate on the "table_capacity" field.
-func TableCapacityNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldTableCapacity))
-}
-
 // GuestCountEQ applies the EQ predicate on the "guest_count" field.
 func GuestCountEQ(v int) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldGuestCount, v))
@@ -1531,169 +1092,24 @@ func GuestCountNotNil() predicate.Order {
 	return predicate.Order(sql.FieldNotNull(FieldGuestCount))
 }
 
-// MergedToOrderIDEQ applies the EQ predicate on the "merged_to_order_id" field.
-func MergedToOrderIDEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldMergedToOrderID, v))
+// ChannelEQ applies the EQ predicate on the "channel" field.
+func ChannelEQ(v Channel) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldChannel, v))
 }
 
-// MergedToOrderIDNEQ applies the NEQ predicate on the "merged_to_order_id" field.
-func MergedToOrderIDNEQ(v string) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldMergedToOrderID, v))
+// ChannelNEQ applies the NEQ predicate on the "channel" field.
+func ChannelNEQ(v Channel) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldChannel, v))
 }
 
-// MergedToOrderIDIn applies the In predicate on the "merged_to_order_id" field.
-func MergedToOrderIDIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldMergedToOrderID, vs...))
+// ChannelIn applies the In predicate on the "channel" field.
+func ChannelIn(vs ...Channel) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldChannel, vs...))
 }
 
-// MergedToOrderIDNotIn applies the NotIn predicate on the "merged_to_order_id" field.
-func MergedToOrderIDNotIn(vs ...string) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldMergedToOrderID, vs...))
-}
-
-// MergedToOrderIDGT applies the GT predicate on the "merged_to_order_id" field.
-func MergedToOrderIDGT(v string) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDGTE applies the GTE predicate on the "merged_to_order_id" field.
-func MergedToOrderIDGTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDLT applies the LT predicate on the "merged_to_order_id" field.
-func MergedToOrderIDLT(v string) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDLTE applies the LTE predicate on the "merged_to_order_id" field.
-func MergedToOrderIDLTE(v string) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDContains applies the Contains predicate on the "merged_to_order_id" field.
-func MergedToOrderIDContains(v string) predicate.Order {
-	return predicate.Order(sql.FieldContains(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDHasPrefix applies the HasPrefix predicate on the "merged_to_order_id" field.
-func MergedToOrderIDHasPrefix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasPrefix(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDHasSuffix applies the HasSuffix predicate on the "merged_to_order_id" field.
-func MergedToOrderIDHasSuffix(v string) predicate.Order {
-	return predicate.Order(sql.FieldHasSuffix(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDIsNil applies the IsNil predicate on the "merged_to_order_id" field.
-func MergedToOrderIDIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldMergedToOrderID))
-}
-
-// MergedToOrderIDNotNil applies the NotNil predicate on the "merged_to_order_id" field.
-func MergedToOrderIDNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldMergedToOrderID))
-}
-
-// MergedToOrderIDEqualFold applies the EqualFold predicate on the "merged_to_order_id" field.
-func MergedToOrderIDEqualFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldEqualFold(FieldMergedToOrderID, v))
-}
-
-// MergedToOrderIDContainsFold applies the ContainsFold predicate on the "merged_to_order_id" field.
-func MergedToOrderIDContainsFold(v string) predicate.Order {
-	return predicate.Order(sql.FieldContainsFold(FieldMergedToOrderID, v))
-}
-
-// MergedAtEQ applies the EQ predicate on the "merged_at" field.
-func MergedAtEQ(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldMergedAt, v))
-}
-
-// MergedAtNEQ applies the NEQ predicate on the "merged_at" field.
-func MergedAtNEQ(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldMergedAt, v))
-}
-
-// MergedAtIn applies the In predicate on the "merged_at" field.
-func MergedAtIn(vs ...time.Time) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldMergedAt, vs...))
-}
-
-// MergedAtNotIn applies the NotIn predicate on the "merged_at" field.
-func MergedAtNotIn(vs ...time.Time) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldMergedAt, vs...))
-}
-
-// MergedAtGT applies the GT predicate on the "merged_at" field.
-func MergedAtGT(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldMergedAt, v))
-}
-
-// MergedAtGTE applies the GTE predicate on the "merged_at" field.
-func MergedAtGTE(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldMergedAt, v))
-}
-
-// MergedAtLT applies the LT predicate on the "merged_at" field.
-func MergedAtLT(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldMergedAt, v))
-}
-
-// MergedAtLTE applies the LTE predicate on the "merged_at" field.
-func MergedAtLTE(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldMergedAt, v))
-}
-
-// MergedAtIsNil applies the IsNil predicate on the "merged_at" field.
-func MergedAtIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldMergedAt))
-}
-
-// MergedAtNotNil applies the NotNil predicate on the "merged_at" field.
-func MergedAtNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldMergedAt))
-}
-
-// MemberIsNil applies the IsNil predicate on the "member" field.
-func MemberIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldMember))
-}
-
-// MemberNotNil applies the NotNil predicate on the "member" field.
-func MemberNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldMember))
-}
-
-// TakeawayIsNil applies the IsNil predicate on the "takeaway" field.
-func TakeawayIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldTakeaway))
-}
-
-// TakeawayNotNil applies the NotNil predicate on the "takeaway" field.
-func TakeawayNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldTakeaway))
-}
-
-// PromotionsIsNil applies the IsNil predicate on the "promotions" field.
-func PromotionsIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldPromotions))
-}
-
-// PromotionsNotNil applies the NotNil predicate on the "promotions" field.
-func PromotionsNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldPromotions))
-}
-
-// CouponsIsNil applies the IsNil predicate on the "coupons" field.
-func CouponsIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldCoupons))
-}
-
-// CouponsNotNil applies the NotNil predicate on the "coupons" field.
-func CouponsNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldCoupons))
+// ChannelNotIn applies the NotIn predicate on the "channel" field.
+func ChannelNotIn(vs ...Channel) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldChannel, vs...))
 }
 
 // TaxRatesIsNil applies the IsNil predicate on the "tax_rates" field.
@@ -1726,14 +1142,27 @@ func PaymentsNotNil() predicate.Order {
 	return predicate.Order(sql.FieldNotNull(FieldPayments))
 }
 
-// RefundsProductsIsNil applies the IsNil predicate on the "refunds_products" field.
-func RefundsProductsIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldRefundsProducts))
+// HasOrderProducts applies the HasEdge predicate on the "order_products" edge.
+func HasOrderProducts() predicate.Order {
+	return predicate.Order(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, OrderProductsTable, OrderProductsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
 }
 
-// RefundsProductsNotNil applies the NotNil predicate on the "refunds_products" field.
-func RefundsProductsNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldRefundsProducts))
+// HasOrderProductsWith applies the HasEdge predicate on the "order_products" edge with a given conditions (other predicates).
+func HasOrderProductsWith(preds ...predicate.OrderProduct) predicate.Order {
+	return predicate.Order(func(s *sql.Selector) {
+		step := newOrderProductsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

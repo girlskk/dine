@@ -13,8 +13,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -121,26 +123,6 @@ func (ou *OrderUpdate) SetNillableOrderType(dt *domain.OrderType) *OrderUpdate {
 	return ou
 }
 
-// SetOriginOrderID sets the "origin_order_id" field.
-func (ou *OrderUpdate) SetOriginOrderID(s string) *OrderUpdate {
-	ou.mutation.SetOriginOrderID(s)
-	return ou
-}
-
-// SetNillableOriginOrderID sets the "origin_order_id" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableOriginOrderID(s *string) *OrderUpdate {
-	if s != nil {
-		ou.SetOriginOrderID(*s)
-	}
-	return ou
-}
-
-// ClearOriginOrderID clears the value of the "origin_order_id" field.
-func (ou *OrderUpdate) ClearOriginOrderID() *OrderUpdate {
-	ou.mutation.ClearOriginOrderID()
-	return ou
-}
-
 // SetRefund sets the "refund" field.
 func (ou *OrderUpdate) SetRefund(jm json.RawMessage) *OrderUpdate {
 	ou.mutation.SetRefund(jm)
@@ -156,26 +138,6 @@ func (ou *OrderUpdate) AppendRefund(jm json.RawMessage) *OrderUpdate {
 // ClearRefund clears the value of the "refund" field.
 func (ou *OrderUpdate) ClearRefund() *OrderUpdate {
 	ou.mutation.ClearRefund()
-	return ou
-}
-
-// SetOpenedAt sets the "opened_at" field.
-func (ou *OrderUpdate) SetOpenedAt(t time.Time) *OrderUpdate {
-	ou.mutation.SetOpenedAt(t)
-	return ou
-}
-
-// SetNillableOpenedAt sets the "opened_at" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableOpenedAt(t *time.Time) *OrderUpdate {
-	if t != nil {
-		ou.SetOpenedAt(*t)
-	}
-	return ou
-}
-
-// ClearOpenedAt clears the value of the "opened_at" field.
-func (ou *OrderUpdate) ClearOpenedAt() *OrderUpdate {
-	ou.mutation.ClearOpenedAt()
 	return ou
 }
 
@@ -239,26 +201,6 @@ func (ou *OrderUpdate) ClearCompletedAt() *OrderUpdate {
 	return ou
 }
 
-// SetOpenedBy sets the "opened_by" field.
-func (ou *OrderUpdate) SetOpenedBy(s string) *OrderUpdate {
-	ou.mutation.SetOpenedBy(s)
-	return ou
-}
-
-// SetNillableOpenedBy sets the "opened_by" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableOpenedBy(s *string) *OrderUpdate {
-	if s != nil {
-		ou.SetOpenedBy(*s)
-	}
-	return ou
-}
-
-// ClearOpenedBy clears the value of the "opened_by" field.
-func (ou *OrderUpdate) ClearOpenedBy() *OrderUpdate {
-	ou.mutation.ClearOpenedBy()
-	return ou
-}
-
 // SetPlacedBy sets the "placed_by" field.
 func (ou *OrderUpdate) SetPlacedBy(s string) *OrderUpdate {
 	ou.mutation.SetPlacedBy(s)
@@ -276,26 +218,6 @@ func (ou *OrderUpdate) SetNillablePlacedBy(s *string) *OrderUpdate {
 // ClearPlacedBy clears the value of the "placed_by" field.
 func (ou *OrderUpdate) ClearPlacedBy() *OrderUpdate {
 	ou.mutation.ClearPlacedBy()
-	return ou
-}
-
-// SetPaidBy sets the "paid_by" field.
-func (ou *OrderUpdate) SetPaidBy(s string) *OrderUpdate {
-	ou.mutation.SetPaidBy(s)
-	return ou
-}
-
-// SetNillablePaidBy sets the "paid_by" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillablePaidBy(s *string) *OrderUpdate {
-	if s != nil {
-		ou.SetPaidBy(*s)
-	}
-	return ou
-}
-
-// ClearPaidBy clears the value of the "paid_by" field.
-func (ou *OrderUpdate) ClearPaidBy() *OrderUpdate {
-	ou.mutation.ClearPaidBy()
 	return ou
 }
 
@@ -341,46 +263,6 @@ func (ou *OrderUpdate) SetNillablePaymentStatus(ds *domain.PaymentStatus) *Order
 	return ou
 }
 
-// SetFulfillmentStatus sets the "fulfillment_status" field.
-func (ou *OrderUpdate) SetFulfillmentStatus(ds domain.FulfillmentStatus) *OrderUpdate {
-	ou.mutation.SetFulfillmentStatus(ds)
-	return ou
-}
-
-// SetNillableFulfillmentStatus sets the "fulfillment_status" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableFulfillmentStatus(ds *domain.FulfillmentStatus) *OrderUpdate {
-	if ds != nil {
-		ou.SetFulfillmentStatus(*ds)
-	}
-	return ou
-}
-
-// ClearFulfillmentStatus clears the value of the "fulfillment_status" field.
-func (ou *OrderUpdate) ClearFulfillmentStatus() *OrderUpdate {
-	ou.mutation.ClearFulfillmentStatus()
-	return ou
-}
-
-// SetTableStatus sets the "table_status" field.
-func (ou *OrderUpdate) SetTableStatus(ds domain.TableStatus) *OrderUpdate {
-	ou.mutation.SetTableStatus(ds)
-	return ou
-}
-
-// SetNillableTableStatus sets the "table_status" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableTableStatus(ds *domain.TableStatus) *OrderUpdate {
-	if ds != nil {
-		ou.SetTableStatus(*ds)
-	}
-	return ou
-}
-
-// ClearTableStatus clears the value of the "table_status" field.
-func (ou *OrderUpdate) ClearTableStatus() *OrderUpdate {
-	ou.mutation.ClearTableStatus()
-	return ou
-}
-
 // SetTableID sets the "table_id" field.
 func (ou *OrderUpdate) SetTableID(s string) *OrderUpdate {
 	ou.mutation.SetTableID(s)
@@ -421,33 +303,6 @@ func (ou *OrderUpdate) ClearTableName() *OrderUpdate {
 	return ou
 }
 
-// SetTableCapacity sets the "table_capacity" field.
-func (ou *OrderUpdate) SetTableCapacity(i int) *OrderUpdate {
-	ou.mutation.ResetTableCapacity()
-	ou.mutation.SetTableCapacity(i)
-	return ou
-}
-
-// SetNillableTableCapacity sets the "table_capacity" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableTableCapacity(i *int) *OrderUpdate {
-	if i != nil {
-		ou.SetTableCapacity(*i)
-	}
-	return ou
-}
-
-// AddTableCapacity adds i to the "table_capacity" field.
-func (ou *OrderUpdate) AddTableCapacity(i int) *OrderUpdate {
-	ou.mutation.AddTableCapacity(i)
-	return ou
-}
-
-// ClearTableCapacity clears the value of the "table_capacity" field.
-func (ou *OrderUpdate) ClearTableCapacity() *OrderUpdate {
-	ou.mutation.ClearTableCapacity()
-	return ou
-}
-
 // SetGuestCount sets the "guest_count" field.
 func (ou *OrderUpdate) SetGuestCount(i int) *OrderUpdate {
 	ou.mutation.ResetGuestCount()
@@ -475,46 +330,6 @@ func (ou *OrderUpdate) ClearGuestCount() *OrderUpdate {
 	return ou
 }
 
-// SetMergedToOrderID sets the "merged_to_order_id" field.
-func (ou *OrderUpdate) SetMergedToOrderID(s string) *OrderUpdate {
-	ou.mutation.SetMergedToOrderID(s)
-	return ou
-}
-
-// SetNillableMergedToOrderID sets the "merged_to_order_id" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableMergedToOrderID(s *string) *OrderUpdate {
-	if s != nil {
-		ou.SetMergedToOrderID(*s)
-	}
-	return ou
-}
-
-// ClearMergedToOrderID clears the value of the "merged_to_order_id" field.
-func (ou *OrderUpdate) ClearMergedToOrderID() *OrderUpdate {
-	ou.mutation.ClearMergedToOrderID()
-	return ou
-}
-
-// SetMergedAt sets the "merged_at" field.
-func (ou *OrderUpdate) SetMergedAt(t time.Time) *OrderUpdate {
-	ou.mutation.SetMergedAt(t)
-	return ou
-}
-
-// SetNillableMergedAt sets the "merged_at" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableMergedAt(t *time.Time) *OrderUpdate {
-	if t != nil {
-		ou.SetMergedAt(*t)
-	}
-	return ou
-}
-
-// ClearMergedAt clears the value of the "merged_at" field.
-func (ou *OrderUpdate) ClearMergedAt() *OrderUpdate {
-	ou.mutation.ClearMergedAt()
-	return ou
-}
-
 // SetStore sets the "store" field.
 func (ou *OrderUpdate) SetStore(jm json.RawMessage) *OrderUpdate {
 	ou.mutation.SetStore(jm)
@@ -528,14 +343,16 @@ func (ou *OrderUpdate) AppendStore(jm json.RawMessage) *OrderUpdate {
 }
 
 // SetChannel sets the "channel" field.
-func (ou *OrderUpdate) SetChannel(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetChannel(jm)
+func (ou *OrderUpdate) SetChannel(o order.Channel) *OrderUpdate {
+	ou.mutation.SetChannel(o)
 	return ou
 }
 
-// AppendChannel appends jm to the "channel" field.
-func (ou *OrderUpdate) AppendChannel(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendChannel(jm)
+// SetNillableChannel sets the "channel" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableChannel(o *order.Channel) *OrderUpdate {
+	if o != nil {
+		ou.SetChannel(*o)
+	}
 	return ou
 }
 
@@ -560,102 +377,6 @@ func (ou *OrderUpdate) SetCashier(jm json.RawMessage) *OrderUpdate {
 // AppendCashier appends jm to the "cashier" field.
 func (ou *OrderUpdate) AppendCashier(jm json.RawMessage) *OrderUpdate {
 	ou.mutation.AppendCashier(jm)
-	return ou
-}
-
-// SetMember sets the "member" field.
-func (ou *OrderUpdate) SetMember(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetMember(jm)
-	return ou
-}
-
-// AppendMember appends jm to the "member" field.
-func (ou *OrderUpdate) AppendMember(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendMember(jm)
-	return ou
-}
-
-// ClearMember clears the value of the "member" field.
-func (ou *OrderUpdate) ClearMember() *OrderUpdate {
-	ou.mutation.ClearMember()
-	return ou
-}
-
-// SetTakeaway sets the "takeaway" field.
-func (ou *OrderUpdate) SetTakeaway(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetTakeaway(jm)
-	return ou
-}
-
-// AppendTakeaway appends jm to the "takeaway" field.
-func (ou *OrderUpdate) AppendTakeaway(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendTakeaway(jm)
-	return ou
-}
-
-// ClearTakeaway clears the value of the "takeaway" field.
-func (ou *OrderUpdate) ClearTakeaway() *OrderUpdate {
-	ou.mutation.ClearTakeaway()
-	return ou
-}
-
-// SetCart sets the "cart" field.
-func (ou *OrderUpdate) SetCart(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetCart(jm)
-	return ou
-}
-
-// AppendCart appends jm to the "cart" field.
-func (ou *OrderUpdate) AppendCart(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendCart(jm)
-	return ou
-}
-
-// SetProducts sets the "products" field.
-func (ou *OrderUpdate) SetProducts(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetProducts(jm)
-	return ou
-}
-
-// AppendProducts appends jm to the "products" field.
-func (ou *OrderUpdate) AppendProducts(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendProducts(jm)
-	return ou
-}
-
-// SetPromotions sets the "promotions" field.
-func (ou *OrderUpdate) SetPromotions(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetPromotions(jm)
-	return ou
-}
-
-// AppendPromotions appends jm to the "promotions" field.
-func (ou *OrderUpdate) AppendPromotions(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendPromotions(jm)
-	return ou
-}
-
-// ClearPromotions clears the value of the "promotions" field.
-func (ou *OrderUpdate) ClearPromotions() *OrderUpdate {
-	ou.mutation.ClearPromotions()
-	return ou
-}
-
-// SetCoupons sets the "coupons" field.
-func (ou *OrderUpdate) SetCoupons(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetCoupons(jm)
-	return ou
-}
-
-// AppendCoupons appends jm to the "coupons" field.
-func (ou *OrderUpdate) AppendCoupons(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendCoupons(jm)
-	return ou
-}
-
-// ClearCoupons clears the value of the "coupons" field.
-func (ou *OrderUpdate) ClearCoupons() *OrderUpdate {
-	ou.mutation.ClearCoupons()
 	return ou
 }
 
@@ -713,24 +434,6 @@ func (ou *OrderUpdate) ClearPayments() *OrderUpdate {
 	return ou
 }
 
-// SetRefundsProducts sets the "refunds_products" field.
-func (ou *OrderUpdate) SetRefundsProducts(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetRefundsProducts(jm)
-	return ou
-}
-
-// AppendRefundsProducts appends jm to the "refunds_products" field.
-func (ou *OrderUpdate) AppendRefundsProducts(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendRefundsProducts(jm)
-	return ou
-}
-
-// ClearRefundsProducts clears the value of the "refunds_products" field.
-func (ou *OrderUpdate) ClearRefundsProducts() *OrderUpdate {
-	ou.mutation.ClearRefundsProducts()
-	return ou
-}
-
 // SetAmount sets the "amount" field.
 func (ou *OrderUpdate) SetAmount(jm json.RawMessage) *OrderUpdate {
 	ou.mutation.SetAmount(jm)
@@ -743,9 +446,45 @@ func (ou *OrderUpdate) AppendAmount(jm json.RawMessage) *OrderUpdate {
 	return ou
 }
 
+// AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
+func (ou *OrderUpdate) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.AddOrderProductIDs(ids...)
+	return ou
+}
+
+// AddOrderProducts adds the "order_products" edges to the OrderProduct entity.
+func (ou *OrderUpdate) AddOrderProducts(o ...*OrderProduct) *OrderUpdate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ou.AddOrderProductIDs(ids...)
+}
+
 // Mutation returns the OrderMutation object of the builder.
 func (ou *OrderUpdate) Mutation() *OrderMutation {
 	return ou.mutation
+}
+
+// ClearOrderProducts clears all "order_products" edges to the OrderProduct entity.
+func (ou *OrderUpdate) ClearOrderProducts() *OrderUpdate {
+	ou.mutation.ClearOrderProducts()
+	return ou
+}
+
+// RemoveOrderProductIDs removes the "order_products" edge to OrderProduct entities by IDs.
+func (ou *OrderUpdate) RemoveOrderProductIDs(ids ...uuid.UUID) *OrderUpdate {
+	ou.mutation.RemoveOrderProductIDs(ids...)
+	return ou
+}
+
+// RemoveOrderProducts removes "order_products" edges to OrderProduct entities.
+func (ou *OrderUpdate) RemoveOrderProducts(o ...*OrderProduct) *OrderUpdate {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ou.RemoveOrderProductIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -822,14 +561,9 @@ func (ou *OrderUpdate) check() error {
 			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Order.payment_status": %w`, err)}
 		}
 	}
-	if v, ok := ou.mutation.FulfillmentStatus(); ok {
-		if err := order.FulfillmentStatusValidator(v); err != nil {
-			return &ValidationError{Name: "fulfillment_status", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_status": %w`, err)}
-		}
-	}
-	if v, ok := ou.mutation.TableStatus(); ok {
-		if err := order.TableStatusValidator(v); err != nil {
-			return &ValidationError{Name: "table_status", err: fmt.Errorf(`ent: validator failed for field "Order.table_status": %w`, err)}
+	if v, ok := ou.mutation.Channel(); ok {
+		if err := order.ChannelValidator(v); err != nil {
+			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
 		}
 	}
 	return nil
@@ -877,12 +611,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.OrderType(); ok {
 		_spec.SetField(order.FieldOrderType, field.TypeEnum, value)
 	}
-	if value, ok := ou.mutation.OriginOrderID(); ok {
-		_spec.SetField(order.FieldOriginOrderID, field.TypeString, value)
-	}
-	if ou.mutation.OriginOrderIDCleared() {
-		_spec.ClearField(order.FieldOriginOrderID, field.TypeString)
-	}
 	if value, ok := ou.mutation.Refund(); ok {
 		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
 	}
@@ -893,12 +621,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.RefundCleared() {
 		_spec.ClearField(order.FieldRefund, field.TypeJSON)
-	}
-	if value, ok := ou.mutation.OpenedAt(); ok {
-		_spec.SetField(order.FieldOpenedAt, field.TypeTime, value)
-	}
-	if ou.mutation.OpenedAtCleared() {
-		_spec.ClearField(order.FieldOpenedAt, field.TypeTime)
 	}
 	if value, ok := ou.mutation.PlacedAt(); ok {
 		_spec.SetField(order.FieldPlacedAt, field.TypeTime, value)
@@ -918,23 +640,11 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if ou.mutation.CompletedAtCleared() {
 		_spec.ClearField(order.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := ou.mutation.OpenedBy(); ok {
-		_spec.SetField(order.FieldOpenedBy, field.TypeString, value)
-	}
-	if ou.mutation.OpenedByCleared() {
-		_spec.ClearField(order.FieldOpenedBy, field.TypeString)
-	}
 	if value, ok := ou.mutation.PlacedBy(); ok {
 		_spec.SetField(order.FieldPlacedBy, field.TypeString, value)
 	}
 	if ou.mutation.PlacedByCleared() {
 		_spec.ClearField(order.FieldPlacedBy, field.TypeString)
-	}
-	if value, ok := ou.mutation.PaidBy(); ok {
-		_spec.SetField(order.FieldPaidBy, field.TypeString, value)
-	}
-	if ou.mutation.PaidByCleared() {
-		_spec.ClearField(order.FieldPaidBy, field.TypeString)
 	}
 	if value, ok := ou.mutation.DiningMode(); ok {
 		_spec.SetField(order.FieldDiningMode, field.TypeEnum, value)
@@ -944,18 +654,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
-	}
-	if value, ok := ou.mutation.FulfillmentStatus(); ok {
-		_spec.SetField(order.FieldFulfillmentStatus, field.TypeEnum, value)
-	}
-	if ou.mutation.FulfillmentStatusCleared() {
-		_spec.ClearField(order.FieldFulfillmentStatus, field.TypeEnum)
-	}
-	if value, ok := ou.mutation.TableStatus(); ok {
-		_spec.SetField(order.FieldTableStatus, field.TypeEnum, value)
-	}
-	if ou.mutation.TableStatusCleared() {
-		_spec.ClearField(order.FieldTableStatus, field.TypeEnum)
 	}
 	if value, ok := ou.mutation.TableID(); ok {
 		_spec.SetField(order.FieldTableID, field.TypeString, value)
@@ -969,15 +667,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if ou.mutation.TableNameCleared() {
 		_spec.ClearField(order.FieldTableName, field.TypeString)
 	}
-	if value, ok := ou.mutation.TableCapacity(); ok {
-		_spec.SetField(order.FieldTableCapacity, field.TypeInt, value)
-	}
-	if value, ok := ou.mutation.AddedTableCapacity(); ok {
-		_spec.AddField(order.FieldTableCapacity, field.TypeInt, value)
-	}
-	if ou.mutation.TableCapacityCleared() {
-		_spec.ClearField(order.FieldTableCapacity, field.TypeInt)
-	}
 	if value, ok := ou.mutation.GuestCount(); ok {
 		_spec.SetField(order.FieldGuestCount, field.TypeInt, value)
 	}
@@ -986,18 +675,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.GuestCountCleared() {
 		_spec.ClearField(order.FieldGuestCount, field.TypeInt)
-	}
-	if value, ok := ou.mutation.MergedToOrderID(); ok {
-		_spec.SetField(order.FieldMergedToOrderID, field.TypeString, value)
-	}
-	if ou.mutation.MergedToOrderIDCleared() {
-		_spec.ClearField(order.FieldMergedToOrderID, field.TypeString)
-	}
-	if value, ok := ou.mutation.MergedAt(); ok {
-		_spec.SetField(order.FieldMergedAt, field.TypeTime, value)
-	}
-	if ou.mutation.MergedAtCleared() {
-		_spec.ClearField(order.FieldMergedAt, field.TypeTime)
 	}
 	if value, ok := ou.mutation.Store(); ok {
 		_spec.SetField(order.FieldStore, field.TypeJSON, value)
@@ -1008,12 +685,7 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		})
 	}
 	if value, ok := ou.mutation.Channel(); ok {
-		_spec.SetField(order.FieldChannel, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedChannel(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldChannel, value)
-		})
+		_spec.SetField(order.FieldChannel, field.TypeEnum, value)
 	}
 	if value, ok := ou.mutation.Pos(); ok {
 		_spec.SetField(order.FieldPos, field.TypeJSON, value)
@@ -1030,66 +702,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, order.FieldCashier, value)
 		})
-	}
-	if value, ok := ou.mutation.Member(); ok {
-		_spec.SetField(order.FieldMember, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedMember(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldMember, value)
-		})
-	}
-	if ou.mutation.MemberCleared() {
-		_spec.ClearField(order.FieldMember, field.TypeJSON)
-	}
-	if value, ok := ou.mutation.Takeaway(); ok {
-		_spec.SetField(order.FieldTakeaway, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedTakeaway(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldTakeaway, value)
-		})
-	}
-	if ou.mutation.TakeawayCleared() {
-		_spec.ClearField(order.FieldTakeaway, field.TypeJSON)
-	}
-	if value, ok := ou.mutation.Cart(); ok {
-		_spec.SetField(order.FieldCart, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedCart(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldCart, value)
-		})
-	}
-	if value, ok := ou.mutation.Products(); ok {
-		_spec.SetField(order.FieldProducts, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedProducts(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldProducts, value)
-		})
-	}
-	if value, ok := ou.mutation.Promotions(); ok {
-		_spec.SetField(order.FieldPromotions, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedPromotions(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldPromotions, value)
-		})
-	}
-	if ou.mutation.PromotionsCleared() {
-		_spec.ClearField(order.FieldPromotions, field.TypeJSON)
-	}
-	if value, ok := ou.mutation.Coupons(); ok {
-		_spec.SetField(order.FieldCoupons, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedCoupons(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldCoupons, value)
-		})
-	}
-	if ou.mutation.CouponsCleared() {
-		_spec.ClearField(order.FieldCoupons, field.TypeJSON)
 	}
 	if value, ok := ou.mutation.TaxRates(); ok {
 		_spec.SetField(order.FieldTaxRates, field.TypeJSON, value)
@@ -1124,17 +736,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if ou.mutation.PaymentsCleared() {
 		_spec.ClearField(order.FieldPayments, field.TypeJSON)
 	}
-	if value, ok := ou.mutation.RefundsProducts(); ok {
-		_spec.SetField(order.FieldRefundsProducts, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedRefundsProducts(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldRefundsProducts, value)
-		})
-	}
-	if ou.mutation.RefundsProductsCleared() {
-		_spec.ClearField(order.FieldRefundsProducts, field.TypeJSON)
-	}
 	if value, ok := ou.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
 	}
@@ -1142,6 +743,51 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, order.FieldAmount, value)
 		})
+	}
+	if ou.mutation.OrderProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.OrderProductsTable,
+			Columns: []string{order.OrderProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderproduct.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.RemovedOrderProductsIDs(); len(nodes) > 0 && !ou.mutation.OrderProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.OrderProductsTable,
+			Columns: []string{order.OrderProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderproduct.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.OrderProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.OrderProductsTable,
+			Columns: []string{order.OrderProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderproduct.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(ou.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, ou.driver, _spec); err != nil {
@@ -1254,26 +900,6 @@ func (ouo *OrderUpdateOne) SetNillableOrderType(dt *domain.OrderType) *OrderUpda
 	return ouo
 }
 
-// SetOriginOrderID sets the "origin_order_id" field.
-func (ouo *OrderUpdateOne) SetOriginOrderID(s string) *OrderUpdateOne {
-	ouo.mutation.SetOriginOrderID(s)
-	return ouo
-}
-
-// SetNillableOriginOrderID sets the "origin_order_id" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableOriginOrderID(s *string) *OrderUpdateOne {
-	if s != nil {
-		ouo.SetOriginOrderID(*s)
-	}
-	return ouo
-}
-
-// ClearOriginOrderID clears the value of the "origin_order_id" field.
-func (ouo *OrderUpdateOne) ClearOriginOrderID() *OrderUpdateOne {
-	ouo.mutation.ClearOriginOrderID()
-	return ouo
-}
-
 // SetRefund sets the "refund" field.
 func (ouo *OrderUpdateOne) SetRefund(jm json.RawMessage) *OrderUpdateOne {
 	ouo.mutation.SetRefund(jm)
@@ -1289,26 +915,6 @@ func (ouo *OrderUpdateOne) AppendRefund(jm json.RawMessage) *OrderUpdateOne {
 // ClearRefund clears the value of the "refund" field.
 func (ouo *OrderUpdateOne) ClearRefund() *OrderUpdateOne {
 	ouo.mutation.ClearRefund()
-	return ouo
-}
-
-// SetOpenedAt sets the "opened_at" field.
-func (ouo *OrderUpdateOne) SetOpenedAt(t time.Time) *OrderUpdateOne {
-	ouo.mutation.SetOpenedAt(t)
-	return ouo
-}
-
-// SetNillableOpenedAt sets the "opened_at" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableOpenedAt(t *time.Time) *OrderUpdateOne {
-	if t != nil {
-		ouo.SetOpenedAt(*t)
-	}
-	return ouo
-}
-
-// ClearOpenedAt clears the value of the "opened_at" field.
-func (ouo *OrderUpdateOne) ClearOpenedAt() *OrderUpdateOne {
-	ouo.mutation.ClearOpenedAt()
 	return ouo
 }
 
@@ -1372,26 +978,6 @@ func (ouo *OrderUpdateOne) ClearCompletedAt() *OrderUpdateOne {
 	return ouo
 }
 
-// SetOpenedBy sets the "opened_by" field.
-func (ouo *OrderUpdateOne) SetOpenedBy(s string) *OrderUpdateOne {
-	ouo.mutation.SetOpenedBy(s)
-	return ouo
-}
-
-// SetNillableOpenedBy sets the "opened_by" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableOpenedBy(s *string) *OrderUpdateOne {
-	if s != nil {
-		ouo.SetOpenedBy(*s)
-	}
-	return ouo
-}
-
-// ClearOpenedBy clears the value of the "opened_by" field.
-func (ouo *OrderUpdateOne) ClearOpenedBy() *OrderUpdateOne {
-	ouo.mutation.ClearOpenedBy()
-	return ouo
-}
-
 // SetPlacedBy sets the "placed_by" field.
 func (ouo *OrderUpdateOne) SetPlacedBy(s string) *OrderUpdateOne {
 	ouo.mutation.SetPlacedBy(s)
@@ -1409,26 +995,6 @@ func (ouo *OrderUpdateOne) SetNillablePlacedBy(s *string) *OrderUpdateOne {
 // ClearPlacedBy clears the value of the "placed_by" field.
 func (ouo *OrderUpdateOne) ClearPlacedBy() *OrderUpdateOne {
 	ouo.mutation.ClearPlacedBy()
-	return ouo
-}
-
-// SetPaidBy sets the "paid_by" field.
-func (ouo *OrderUpdateOne) SetPaidBy(s string) *OrderUpdateOne {
-	ouo.mutation.SetPaidBy(s)
-	return ouo
-}
-
-// SetNillablePaidBy sets the "paid_by" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillablePaidBy(s *string) *OrderUpdateOne {
-	if s != nil {
-		ouo.SetPaidBy(*s)
-	}
-	return ouo
-}
-
-// ClearPaidBy clears the value of the "paid_by" field.
-func (ouo *OrderUpdateOne) ClearPaidBy() *OrderUpdateOne {
-	ouo.mutation.ClearPaidBy()
 	return ouo
 }
 
@@ -1474,46 +1040,6 @@ func (ouo *OrderUpdateOne) SetNillablePaymentStatus(ds *domain.PaymentStatus) *O
 	return ouo
 }
 
-// SetFulfillmentStatus sets the "fulfillment_status" field.
-func (ouo *OrderUpdateOne) SetFulfillmentStatus(ds domain.FulfillmentStatus) *OrderUpdateOne {
-	ouo.mutation.SetFulfillmentStatus(ds)
-	return ouo
-}
-
-// SetNillableFulfillmentStatus sets the "fulfillment_status" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableFulfillmentStatus(ds *domain.FulfillmentStatus) *OrderUpdateOne {
-	if ds != nil {
-		ouo.SetFulfillmentStatus(*ds)
-	}
-	return ouo
-}
-
-// ClearFulfillmentStatus clears the value of the "fulfillment_status" field.
-func (ouo *OrderUpdateOne) ClearFulfillmentStatus() *OrderUpdateOne {
-	ouo.mutation.ClearFulfillmentStatus()
-	return ouo
-}
-
-// SetTableStatus sets the "table_status" field.
-func (ouo *OrderUpdateOne) SetTableStatus(ds domain.TableStatus) *OrderUpdateOne {
-	ouo.mutation.SetTableStatus(ds)
-	return ouo
-}
-
-// SetNillableTableStatus sets the "table_status" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableTableStatus(ds *domain.TableStatus) *OrderUpdateOne {
-	if ds != nil {
-		ouo.SetTableStatus(*ds)
-	}
-	return ouo
-}
-
-// ClearTableStatus clears the value of the "table_status" field.
-func (ouo *OrderUpdateOne) ClearTableStatus() *OrderUpdateOne {
-	ouo.mutation.ClearTableStatus()
-	return ouo
-}
-
 // SetTableID sets the "table_id" field.
 func (ouo *OrderUpdateOne) SetTableID(s string) *OrderUpdateOne {
 	ouo.mutation.SetTableID(s)
@@ -1554,33 +1080,6 @@ func (ouo *OrderUpdateOne) ClearTableName() *OrderUpdateOne {
 	return ouo
 }
 
-// SetTableCapacity sets the "table_capacity" field.
-func (ouo *OrderUpdateOne) SetTableCapacity(i int) *OrderUpdateOne {
-	ouo.mutation.ResetTableCapacity()
-	ouo.mutation.SetTableCapacity(i)
-	return ouo
-}
-
-// SetNillableTableCapacity sets the "table_capacity" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableTableCapacity(i *int) *OrderUpdateOne {
-	if i != nil {
-		ouo.SetTableCapacity(*i)
-	}
-	return ouo
-}
-
-// AddTableCapacity adds i to the "table_capacity" field.
-func (ouo *OrderUpdateOne) AddTableCapacity(i int) *OrderUpdateOne {
-	ouo.mutation.AddTableCapacity(i)
-	return ouo
-}
-
-// ClearTableCapacity clears the value of the "table_capacity" field.
-func (ouo *OrderUpdateOne) ClearTableCapacity() *OrderUpdateOne {
-	ouo.mutation.ClearTableCapacity()
-	return ouo
-}
-
 // SetGuestCount sets the "guest_count" field.
 func (ouo *OrderUpdateOne) SetGuestCount(i int) *OrderUpdateOne {
 	ouo.mutation.ResetGuestCount()
@@ -1608,46 +1107,6 @@ func (ouo *OrderUpdateOne) ClearGuestCount() *OrderUpdateOne {
 	return ouo
 }
 
-// SetMergedToOrderID sets the "merged_to_order_id" field.
-func (ouo *OrderUpdateOne) SetMergedToOrderID(s string) *OrderUpdateOne {
-	ouo.mutation.SetMergedToOrderID(s)
-	return ouo
-}
-
-// SetNillableMergedToOrderID sets the "merged_to_order_id" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableMergedToOrderID(s *string) *OrderUpdateOne {
-	if s != nil {
-		ouo.SetMergedToOrderID(*s)
-	}
-	return ouo
-}
-
-// ClearMergedToOrderID clears the value of the "merged_to_order_id" field.
-func (ouo *OrderUpdateOne) ClearMergedToOrderID() *OrderUpdateOne {
-	ouo.mutation.ClearMergedToOrderID()
-	return ouo
-}
-
-// SetMergedAt sets the "merged_at" field.
-func (ouo *OrderUpdateOne) SetMergedAt(t time.Time) *OrderUpdateOne {
-	ouo.mutation.SetMergedAt(t)
-	return ouo
-}
-
-// SetNillableMergedAt sets the "merged_at" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableMergedAt(t *time.Time) *OrderUpdateOne {
-	if t != nil {
-		ouo.SetMergedAt(*t)
-	}
-	return ouo
-}
-
-// ClearMergedAt clears the value of the "merged_at" field.
-func (ouo *OrderUpdateOne) ClearMergedAt() *OrderUpdateOne {
-	ouo.mutation.ClearMergedAt()
-	return ouo
-}
-
 // SetStore sets the "store" field.
 func (ouo *OrderUpdateOne) SetStore(jm json.RawMessage) *OrderUpdateOne {
 	ouo.mutation.SetStore(jm)
@@ -1661,14 +1120,16 @@ func (ouo *OrderUpdateOne) AppendStore(jm json.RawMessage) *OrderUpdateOne {
 }
 
 // SetChannel sets the "channel" field.
-func (ouo *OrderUpdateOne) SetChannel(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetChannel(jm)
+func (ouo *OrderUpdateOne) SetChannel(o order.Channel) *OrderUpdateOne {
+	ouo.mutation.SetChannel(o)
 	return ouo
 }
 
-// AppendChannel appends jm to the "channel" field.
-func (ouo *OrderUpdateOne) AppendChannel(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendChannel(jm)
+// SetNillableChannel sets the "channel" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableChannel(o *order.Channel) *OrderUpdateOne {
+	if o != nil {
+		ouo.SetChannel(*o)
+	}
 	return ouo
 }
 
@@ -1693,102 +1154,6 @@ func (ouo *OrderUpdateOne) SetCashier(jm json.RawMessage) *OrderUpdateOne {
 // AppendCashier appends jm to the "cashier" field.
 func (ouo *OrderUpdateOne) AppendCashier(jm json.RawMessage) *OrderUpdateOne {
 	ouo.mutation.AppendCashier(jm)
-	return ouo
-}
-
-// SetMember sets the "member" field.
-func (ouo *OrderUpdateOne) SetMember(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetMember(jm)
-	return ouo
-}
-
-// AppendMember appends jm to the "member" field.
-func (ouo *OrderUpdateOne) AppendMember(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendMember(jm)
-	return ouo
-}
-
-// ClearMember clears the value of the "member" field.
-func (ouo *OrderUpdateOne) ClearMember() *OrderUpdateOne {
-	ouo.mutation.ClearMember()
-	return ouo
-}
-
-// SetTakeaway sets the "takeaway" field.
-func (ouo *OrderUpdateOne) SetTakeaway(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetTakeaway(jm)
-	return ouo
-}
-
-// AppendTakeaway appends jm to the "takeaway" field.
-func (ouo *OrderUpdateOne) AppendTakeaway(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendTakeaway(jm)
-	return ouo
-}
-
-// ClearTakeaway clears the value of the "takeaway" field.
-func (ouo *OrderUpdateOne) ClearTakeaway() *OrderUpdateOne {
-	ouo.mutation.ClearTakeaway()
-	return ouo
-}
-
-// SetCart sets the "cart" field.
-func (ouo *OrderUpdateOne) SetCart(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetCart(jm)
-	return ouo
-}
-
-// AppendCart appends jm to the "cart" field.
-func (ouo *OrderUpdateOne) AppendCart(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendCart(jm)
-	return ouo
-}
-
-// SetProducts sets the "products" field.
-func (ouo *OrderUpdateOne) SetProducts(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetProducts(jm)
-	return ouo
-}
-
-// AppendProducts appends jm to the "products" field.
-func (ouo *OrderUpdateOne) AppendProducts(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendProducts(jm)
-	return ouo
-}
-
-// SetPromotions sets the "promotions" field.
-func (ouo *OrderUpdateOne) SetPromotions(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetPromotions(jm)
-	return ouo
-}
-
-// AppendPromotions appends jm to the "promotions" field.
-func (ouo *OrderUpdateOne) AppendPromotions(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendPromotions(jm)
-	return ouo
-}
-
-// ClearPromotions clears the value of the "promotions" field.
-func (ouo *OrderUpdateOne) ClearPromotions() *OrderUpdateOne {
-	ouo.mutation.ClearPromotions()
-	return ouo
-}
-
-// SetCoupons sets the "coupons" field.
-func (ouo *OrderUpdateOne) SetCoupons(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetCoupons(jm)
-	return ouo
-}
-
-// AppendCoupons appends jm to the "coupons" field.
-func (ouo *OrderUpdateOne) AppendCoupons(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendCoupons(jm)
-	return ouo
-}
-
-// ClearCoupons clears the value of the "coupons" field.
-func (ouo *OrderUpdateOne) ClearCoupons() *OrderUpdateOne {
-	ouo.mutation.ClearCoupons()
 	return ouo
 }
 
@@ -1846,24 +1211,6 @@ func (ouo *OrderUpdateOne) ClearPayments() *OrderUpdateOne {
 	return ouo
 }
 
-// SetRefundsProducts sets the "refunds_products" field.
-func (ouo *OrderUpdateOne) SetRefundsProducts(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetRefundsProducts(jm)
-	return ouo
-}
-
-// AppendRefundsProducts appends jm to the "refunds_products" field.
-func (ouo *OrderUpdateOne) AppendRefundsProducts(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendRefundsProducts(jm)
-	return ouo
-}
-
-// ClearRefundsProducts clears the value of the "refunds_products" field.
-func (ouo *OrderUpdateOne) ClearRefundsProducts() *OrderUpdateOne {
-	ouo.mutation.ClearRefundsProducts()
-	return ouo
-}
-
 // SetAmount sets the "amount" field.
 func (ouo *OrderUpdateOne) SetAmount(jm json.RawMessage) *OrderUpdateOne {
 	ouo.mutation.SetAmount(jm)
@@ -1876,9 +1223,45 @@ func (ouo *OrderUpdateOne) AppendAmount(jm json.RawMessage) *OrderUpdateOne {
 	return ouo
 }
 
+// AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
+func (ouo *OrderUpdateOne) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.AddOrderProductIDs(ids...)
+	return ouo
+}
+
+// AddOrderProducts adds the "order_products" edges to the OrderProduct entity.
+func (ouo *OrderUpdateOne) AddOrderProducts(o ...*OrderProduct) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ouo.AddOrderProductIDs(ids...)
+}
+
 // Mutation returns the OrderMutation object of the builder.
 func (ouo *OrderUpdateOne) Mutation() *OrderMutation {
 	return ouo.mutation
+}
+
+// ClearOrderProducts clears all "order_products" edges to the OrderProduct entity.
+func (ouo *OrderUpdateOne) ClearOrderProducts() *OrderUpdateOne {
+	ouo.mutation.ClearOrderProducts()
+	return ouo
+}
+
+// RemoveOrderProductIDs removes the "order_products" edge to OrderProduct entities by IDs.
+func (ouo *OrderUpdateOne) RemoveOrderProductIDs(ids ...uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.RemoveOrderProductIDs(ids...)
+	return ouo
+}
+
+// RemoveOrderProducts removes "order_products" edges to OrderProduct entities.
+func (ouo *OrderUpdateOne) RemoveOrderProducts(o ...*OrderProduct) *OrderUpdateOne {
+	ids := make([]uuid.UUID, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return ouo.RemoveOrderProductIDs(ids...)
 }
 
 // Where appends a list predicates to the OrderUpdate builder.
@@ -1968,14 +1351,9 @@ func (ouo *OrderUpdateOne) check() error {
 			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Order.payment_status": %w`, err)}
 		}
 	}
-	if v, ok := ouo.mutation.FulfillmentStatus(); ok {
-		if err := order.FulfillmentStatusValidator(v); err != nil {
-			return &ValidationError{Name: "fulfillment_status", err: fmt.Errorf(`ent: validator failed for field "Order.fulfillment_status": %w`, err)}
-		}
-	}
-	if v, ok := ouo.mutation.TableStatus(); ok {
-		if err := order.TableStatusValidator(v); err != nil {
-			return &ValidationError{Name: "table_status", err: fmt.Errorf(`ent: validator failed for field "Order.table_status": %w`, err)}
+	if v, ok := ouo.mutation.Channel(); ok {
+		if err := order.ChannelValidator(v); err != nil {
+			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
 		}
 	}
 	return nil
@@ -2040,12 +1418,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if value, ok := ouo.mutation.OrderType(); ok {
 		_spec.SetField(order.FieldOrderType, field.TypeEnum, value)
 	}
-	if value, ok := ouo.mutation.OriginOrderID(); ok {
-		_spec.SetField(order.FieldOriginOrderID, field.TypeString, value)
-	}
-	if ouo.mutation.OriginOrderIDCleared() {
-		_spec.ClearField(order.FieldOriginOrderID, field.TypeString)
-	}
 	if value, ok := ouo.mutation.Refund(); ok {
 		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
 	}
@@ -2056,12 +1428,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if ouo.mutation.RefundCleared() {
 		_spec.ClearField(order.FieldRefund, field.TypeJSON)
-	}
-	if value, ok := ouo.mutation.OpenedAt(); ok {
-		_spec.SetField(order.FieldOpenedAt, field.TypeTime, value)
-	}
-	if ouo.mutation.OpenedAtCleared() {
-		_spec.ClearField(order.FieldOpenedAt, field.TypeTime)
 	}
 	if value, ok := ouo.mutation.PlacedAt(); ok {
 		_spec.SetField(order.FieldPlacedAt, field.TypeTime, value)
@@ -2081,23 +1447,11 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if ouo.mutation.CompletedAtCleared() {
 		_spec.ClearField(order.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := ouo.mutation.OpenedBy(); ok {
-		_spec.SetField(order.FieldOpenedBy, field.TypeString, value)
-	}
-	if ouo.mutation.OpenedByCleared() {
-		_spec.ClearField(order.FieldOpenedBy, field.TypeString)
-	}
 	if value, ok := ouo.mutation.PlacedBy(); ok {
 		_spec.SetField(order.FieldPlacedBy, field.TypeString, value)
 	}
 	if ouo.mutation.PlacedByCleared() {
 		_spec.ClearField(order.FieldPlacedBy, field.TypeString)
-	}
-	if value, ok := ouo.mutation.PaidBy(); ok {
-		_spec.SetField(order.FieldPaidBy, field.TypeString, value)
-	}
-	if ouo.mutation.PaidByCleared() {
-		_spec.ClearField(order.FieldPaidBy, field.TypeString)
 	}
 	if value, ok := ouo.mutation.DiningMode(); ok {
 		_spec.SetField(order.FieldDiningMode, field.TypeEnum, value)
@@ -2107,18 +1461,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if value, ok := ouo.mutation.PaymentStatus(); ok {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
-	}
-	if value, ok := ouo.mutation.FulfillmentStatus(); ok {
-		_spec.SetField(order.FieldFulfillmentStatus, field.TypeEnum, value)
-	}
-	if ouo.mutation.FulfillmentStatusCleared() {
-		_spec.ClearField(order.FieldFulfillmentStatus, field.TypeEnum)
-	}
-	if value, ok := ouo.mutation.TableStatus(); ok {
-		_spec.SetField(order.FieldTableStatus, field.TypeEnum, value)
-	}
-	if ouo.mutation.TableStatusCleared() {
-		_spec.ClearField(order.FieldTableStatus, field.TypeEnum)
 	}
 	if value, ok := ouo.mutation.TableID(); ok {
 		_spec.SetField(order.FieldTableID, field.TypeString, value)
@@ -2132,15 +1474,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if ouo.mutation.TableNameCleared() {
 		_spec.ClearField(order.FieldTableName, field.TypeString)
 	}
-	if value, ok := ouo.mutation.TableCapacity(); ok {
-		_spec.SetField(order.FieldTableCapacity, field.TypeInt, value)
-	}
-	if value, ok := ouo.mutation.AddedTableCapacity(); ok {
-		_spec.AddField(order.FieldTableCapacity, field.TypeInt, value)
-	}
-	if ouo.mutation.TableCapacityCleared() {
-		_spec.ClearField(order.FieldTableCapacity, field.TypeInt)
-	}
 	if value, ok := ouo.mutation.GuestCount(); ok {
 		_spec.SetField(order.FieldGuestCount, field.TypeInt, value)
 	}
@@ -2149,18 +1482,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if ouo.mutation.GuestCountCleared() {
 		_spec.ClearField(order.FieldGuestCount, field.TypeInt)
-	}
-	if value, ok := ouo.mutation.MergedToOrderID(); ok {
-		_spec.SetField(order.FieldMergedToOrderID, field.TypeString, value)
-	}
-	if ouo.mutation.MergedToOrderIDCleared() {
-		_spec.ClearField(order.FieldMergedToOrderID, field.TypeString)
-	}
-	if value, ok := ouo.mutation.MergedAt(); ok {
-		_spec.SetField(order.FieldMergedAt, field.TypeTime, value)
-	}
-	if ouo.mutation.MergedAtCleared() {
-		_spec.ClearField(order.FieldMergedAt, field.TypeTime)
 	}
 	if value, ok := ouo.mutation.Store(); ok {
 		_spec.SetField(order.FieldStore, field.TypeJSON, value)
@@ -2171,12 +1492,7 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 		})
 	}
 	if value, ok := ouo.mutation.Channel(); ok {
-		_spec.SetField(order.FieldChannel, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedChannel(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldChannel, value)
-		})
+		_spec.SetField(order.FieldChannel, field.TypeEnum, value)
 	}
 	if value, ok := ouo.mutation.Pos(); ok {
 		_spec.SetField(order.FieldPos, field.TypeJSON, value)
@@ -2193,66 +1509,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, order.FieldCashier, value)
 		})
-	}
-	if value, ok := ouo.mutation.Member(); ok {
-		_spec.SetField(order.FieldMember, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedMember(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldMember, value)
-		})
-	}
-	if ouo.mutation.MemberCleared() {
-		_spec.ClearField(order.FieldMember, field.TypeJSON)
-	}
-	if value, ok := ouo.mutation.Takeaway(); ok {
-		_spec.SetField(order.FieldTakeaway, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedTakeaway(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldTakeaway, value)
-		})
-	}
-	if ouo.mutation.TakeawayCleared() {
-		_spec.ClearField(order.FieldTakeaway, field.TypeJSON)
-	}
-	if value, ok := ouo.mutation.Cart(); ok {
-		_spec.SetField(order.FieldCart, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedCart(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldCart, value)
-		})
-	}
-	if value, ok := ouo.mutation.Products(); ok {
-		_spec.SetField(order.FieldProducts, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedProducts(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldProducts, value)
-		})
-	}
-	if value, ok := ouo.mutation.Promotions(); ok {
-		_spec.SetField(order.FieldPromotions, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedPromotions(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldPromotions, value)
-		})
-	}
-	if ouo.mutation.PromotionsCleared() {
-		_spec.ClearField(order.FieldPromotions, field.TypeJSON)
-	}
-	if value, ok := ouo.mutation.Coupons(); ok {
-		_spec.SetField(order.FieldCoupons, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedCoupons(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldCoupons, value)
-		})
-	}
-	if ouo.mutation.CouponsCleared() {
-		_spec.ClearField(order.FieldCoupons, field.TypeJSON)
 	}
 	if value, ok := ouo.mutation.TaxRates(); ok {
 		_spec.SetField(order.FieldTaxRates, field.TypeJSON, value)
@@ -2287,17 +1543,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if ouo.mutation.PaymentsCleared() {
 		_spec.ClearField(order.FieldPayments, field.TypeJSON)
 	}
-	if value, ok := ouo.mutation.RefundsProducts(); ok {
-		_spec.SetField(order.FieldRefundsProducts, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedRefundsProducts(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldRefundsProducts, value)
-		})
-	}
-	if ouo.mutation.RefundsProductsCleared() {
-		_spec.ClearField(order.FieldRefundsProducts, field.TypeJSON)
-	}
 	if value, ok := ouo.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
 	}
@@ -2305,6 +1550,51 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, order.FieldAmount, value)
 		})
+	}
+	if ouo.mutation.OrderProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.OrderProductsTable,
+			Columns: []string{order.OrderProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderproduct.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.RemovedOrderProductsIDs(); len(nodes) > 0 && !ouo.mutation.OrderProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.OrderProductsTable,
+			Columns: []string{order.OrderProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderproduct.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.OrderProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   order.OrderProductsTable,
+			Columns: []string{order.OrderProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(orderproduct.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(ouo.modifiers...)
 	_node = &Order{config: ouo.config}

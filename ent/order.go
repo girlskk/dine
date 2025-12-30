@@ -39,77 +39,66 @@ type Order struct {
 	OrderNo string `json:"order_no,omitempty"`
 	// 订单类型：SALE=销售单；REFUND=退单；PARTIAL_REFUND=部分退款单
 	OrderType domain.OrderType `json:"order_type,omitempty"`
-	// 原正单订单ID（退款/部分退款单使用）
-	OriginOrderID string `json:"origin_order_id,omitempty"`
 	// 退款单信息（包含原单信息与退款原因）
 	Refund json.RawMessage `json:"refund,omitempty"`
-	// 开台时间
-	OpenedAt *time.Time `json:"opened_at,omitempty"`
 	// 下单时间
 	PlacedAt *time.Time `json:"placed_at,omitempty"`
 	// 支付完成时间
 	PaidAt *time.Time `json:"paid_at,omitempty"`
 	// 完成时间
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	// 开台操作员ID
-	OpenedBy string `json:"opened_by,omitempty"`
 	// 下单操作员ID
 	PlacedBy string `json:"placed_by,omitempty"`
-	// 收款/支付确认操作员ID
-	PaidBy string `json:"paid_by,omitempty"`
 	// 就餐模式：DINE_IN=堂食；TAKEAWAY=外卖（自取/配送）
 	DiningMode domain.DiningMode `json:"dining_mode,omitempty"`
-	// 订单业务状态：DRAFT=草稿/购物车；PLACED=已下单；IN_PROGRESS=制作中；READY=可取餐；COMPLETED=已完成；CANCELLED=已取消；VOIDED=已作废；MERGED=已合并
+	// 订单业务状态：PLACED=已下单；COMPLETED=已完成；CANCELLED=已取消
 	OrderStatus domain.OrderStatus `json:"order_status,omitempty"`
-	// 支付状态：UNPAID=未支付；PAYING=支付中；PARTIALLY_PAID=部分支付；PAID=已支付；PARTIALLY_REFUNDED=部分退款；REFUNDED=全额退款
+	// 支付状态：UNPAID=未支付；PAYING=支付中；PAID=已支付；REFUNDED=全额退款
 	PaymentStatus domain.PaymentStatus `json:"payment_status,omitempty"`
-	// 交付状态：NONE=无；IN_RESTAURANT=店内用餐；SERVED=已上齐；PICKUP_PENDING=待取餐；PICKED_UP=已取餐；DELIVERING=配送中；DELIVERED=已送达
-	FulfillmentStatus domain.FulfillmentStatus `json:"fulfillment_status,omitempty"`
-	// 桌位状态：OPENED=已开台；TRANSFERRED=已转台；RELEASED=已释放
-	TableStatus domain.TableStatus `json:"table_status,omitempty"`
 	// 桌位ID（堂食）
 	TableID string `json:"table_id,omitempty"`
 	// 桌位名称（堂食，如A01/1号桌）
 	TableName string `json:"table_name,omitempty"`
-	// 桌位容量（几人桌，仅堂食）
-	TableCapacity int `json:"table_capacity,omitempty"`
 	// 用餐人数（堂食）
 	GuestCount int `json:"guest_count,omitempty"`
-	// 合并到的目标订单ID（该订单被合并时使用）
-	MergedToOrderID string `json:"merged_to_order_id,omitempty"`
-	// 合并时间（该订单被合并时使用）
-	MergedAt *time.Time `json:"merged_at,omitempty"`
 	// 门店信息
 	Store json.RawMessage `json:"store,omitempty"`
-	// 下单渠道信息
-	Channel json.RawMessage `json:"channel,omitempty"`
+	// 下单渠道：POS/MINI_PROGRAM
+	Channel order.Channel `json:"channel,omitempty"`
 	// POS终端信息
 	Pos json.RawMessage `json:"pos,omitempty"`
 	// 收银员信息
 	Cashier json.RawMessage `json:"cashier,omitempty"`
-	// 会员信息
-	Member json.RawMessage `json:"member,omitempty"`
-	// 外卖信息
-	Takeaway json.RawMessage `json:"takeaway,omitempty"`
-	// 购物车商品列表
-	Cart json.RawMessage `json:"cart,omitempty"`
-	// 订单商品明细
-	Products json.RawMessage `json:"products,omitempty"`
-	// 促销明细
-	Promotions json.RawMessage `json:"promotions,omitempty"`
-	// 卡券明细
-	Coupons json.RawMessage `json:"coupons,omitempty"`
 	// 税率明细
 	TaxRates json.RawMessage `json:"tax_rates,omitempty"`
 	// 费用明细
 	Fees json.RawMessage `json:"fees,omitempty"`
 	// 支付记录
 	Payments json.RawMessage `json:"payments,omitempty"`
-	// 退菜记录
-	RefundsProducts json.RawMessage `json:"refunds_products,omitempty"`
 	// 金额汇总
-	Amount       json.RawMessage `json:"amount,omitempty"`
+	Amount json.RawMessage `json:"amount,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the OrderQuery when eager-loading is set.
+	Edges        OrderEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// OrderEdges holds the relations/edges for other nodes in the graph.
+type OrderEdges struct {
+	// 订单商品明细
+	OrderProducts []*OrderProduct `json:"order_products,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// OrderProductsOrErr returns the OrderProducts value or an error if the edge
+// was not loaded in eager-loading.
+func (e OrderEdges) OrderProductsOrErr() ([]*OrderProduct, error) {
+	if e.loadedTypes[0] {
+		return e.OrderProducts, nil
+	}
+	return nil, &NotLoadedError{edge: "order_products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -117,13 +106,13 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldRefund, order.FieldStore, order.FieldChannel, order.FieldPos, order.FieldCashier, order.FieldMember, order.FieldTakeaway, order.FieldCart, order.FieldProducts, order.FieldPromotions, order.FieldCoupons, order.FieldTaxRates, order.FieldFees, order.FieldPayments, order.FieldRefundsProducts, order.FieldAmount:
+		case order.FieldRefund, order.FieldStore, order.FieldPos, order.FieldCashier, order.FieldTaxRates, order.FieldFees, order.FieldPayments, order.FieldAmount:
 			values[i] = new([]byte)
-		case order.FieldDeletedAt, order.FieldTableCapacity, order.FieldGuestCount:
+		case order.FieldDeletedAt, order.FieldGuestCount:
 			values[i] = new(sql.NullInt64)
-		case order.FieldBusinessDate, order.FieldShiftNo, order.FieldOrderNo, order.FieldOrderType, order.FieldOriginOrderID, order.FieldOpenedBy, order.FieldPlacedBy, order.FieldPaidBy, order.FieldDiningMode, order.FieldOrderStatus, order.FieldPaymentStatus, order.FieldFulfillmentStatus, order.FieldTableStatus, order.FieldTableID, order.FieldTableName, order.FieldMergedToOrderID:
+		case order.FieldBusinessDate, order.FieldShiftNo, order.FieldOrderNo, order.FieldOrderType, order.FieldPlacedBy, order.FieldDiningMode, order.FieldOrderStatus, order.FieldPaymentStatus, order.FieldTableID, order.FieldTableName, order.FieldChannel:
 			values[i] = new(sql.NullString)
-		case order.FieldCreatedAt, order.FieldUpdatedAt, order.FieldOpenedAt, order.FieldPlacedAt, order.FieldPaidAt, order.FieldCompletedAt, order.FieldMergedAt:
+		case order.FieldCreatedAt, order.FieldUpdatedAt, order.FieldPlacedAt, order.FieldPaidAt, order.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
 		case order.FieldID, order.FieldMerchantID, order.FieldStoreID:
 			values[i] = new(uuid.UUID)
@@ -202,12 +191,6 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.OrderType = domain.OrderType(value.String)
 			}
-		case order.FieldOriginOrderID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field origin_order_id", values[i])
-			} else if value.Valid {
-				o.OriginOrderID = value.String
-			}
 		case order.FieldRefund:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field refund", values[i])
@@ -215,13 +198,6 @@ func (o *Order) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &o.Refund); err != nil {
 					return fmt.Errorf("unmarshal field refund: %w", err)
 				}
-			}
-		case order.FieldOpenedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field opened_at", values[i])
-			} else if value.Valid {
-				o.OpenedAt = new(time.Time)
-				*o.OpenedAt = value.Time
 			}
 		case order.FieldPlacedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -244,23 +220,11 @@ func (o *Order) assignValues(columns []string, values []any) error {
 				o.CompletedAt = new(time.Time)
 				*o.CompletedAt = value.Time
 			}
-		case order.FieldOpenedBy:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field opened_by", values[i])
-			} else if value.Valid {
-				o.OpenedBy = value.String
-			}
 		case order.FieldPlacedBy:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field placed_by", values[i])
 			} else if value.Valid {
 				o.PlacedBy = value.String
-			}
-		case order.FieldPaidBy:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field paid_by", values[i])
-			} else if value.Valid {
-				o.PaidBy = value.String
 			}
 		case order.FieldDiningMode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -280,18 +244,6 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.PaymentStatus = domain.PaymentStatus(value.String)
 			}
-		case order.FieldFulfillmentStatus:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field fulfillment_status", values[i])
-			} else if value.Valid {
-				o.FulfillmentStatus = domain.FulfillmentStatus(value.String)
-			}
-		case order.FieldTableStatus:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field table_status", values[i])
-			} else if value.Valid {
-				o.TableStatus = domain.TableStatus(value.String)
-			}
 		case order.FieldTableID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field table_id", values[i])
@@ -304,30 +256,11 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.TableName = value.String
 			}
-		case order.FieldTableCapacity:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field table_capacity", values[i])
-			} else if value.Valid {
-				o.TableCapacity = int(value.Int64)
-			}
 		case order.FieldGuestCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field guest_count", values[i])
 			} else if value.Valid {
 				o.GuestCount = int(value.Int64)
-			}
-		case order.FieldMergedToOrderID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field merged_to_order_id", values[i])
-			} else if value.Valid {
-				o.MergedToOrderID = value.String
-			}
-		case order.FieldMergedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field merged_at", values[i])
-			} else if value.Valid {
-				o.MergedAt = new(time.Time)
-				*o.MergedAt = value.Time
 			}
 		case order.FieldStore:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -338,12 +271,10 @@ func (o *Order) assignValues(columns []string, values []any) error {
 				}
 			}
 		case order.FieldChannel:
-			if value, ok := values[i].(*[]byte); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field channel", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Channel); err != nil {
-					return fmt.Errorf("unmarshal field channel: %w", err)
-				}
+			} else if value.Valid {
+				o.Channel = order.Channel(value.String)
 			}
 		case order.FieldPos:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -359,54 +290,6 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value != nil && len(*value) > 0 {
 				if err := json.Unmarshal(*value, &o.Cashier); err != nil {
 					return fmt.Errorf("unmarshal field cashier: %w", err)
-				}
-			}
-		case order.FieldMember:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field member", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Member); err != nil {
-					return fmt.Errorf("unmarshal field member: %w", err)
-				}
-			}
-		case order.FieldTakeaway:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field takeaway", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Takeaway); err != nil {
-					return fmt.Errorf("unmarshal field takeaway: %w", err)
-				}
-			}
-		case order.FieldCart:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field cart", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Cart); err != nil {
-					return fmt.Errorf("unmarshal field cart: %w", err)
-				}
-			}
-		case order.FieldProducts:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field products", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Products); err != nil {
-					return fmt.Errorf("unmarshal field products: %w", err)
-				}
-			}
-		case order.FieldPromotions:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field promotions", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Promotions); err != nil {
-					return fmt.Errorf("unmarshal field promotions: %w", err)
-				}
-			}
-		case order.FieldCoupons:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field coupons", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Coupons); err != nil {
-					return fmt.Errorf("unmarshal field coupons: %w", err)
 				}
 			}
 		case order.FieldTaxRates:
@@ -433,14 +316,6 @@ func (o *Order) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field payments: %w", err)
 				}
 			}
-		case order.FieldRefundsProducts:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field refunds_products", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.RefundsProducts); err != nil {
-					return fmt.Errorf("unmarshal field refunds_products: %w", err)
-				}
-			}
 		case order.FieldAmount:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field amount", values[i])
@@ -460,6 +335,11 @@ func (o *Order) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (o *Order) Value(name string) (ent.Value, error) {
 	return o.selectValues.Get(name)
+}
+
+// QueryOrderProducts queries the "order_products" edge of the Order entity.
+func (o *Order) QueryOrderProducts() *OrderProductQuery {
+	return NewOrderClient(o.config).QueryOrderProducts(o)
 }
 
 // Update returns a builder for updating this Order.
@@ -512,16 +392,8 @@ func (o *Order) String() string {
 	builder.WriteString("order_type=")
 	builder.WriteString(fmt.Sprintf("%v", o.OrderType))
 	builder.WriteString(", ")
-	builder.WriteString("origin_order_id=")
-	builder.WriteString(o.OriginOrderID)
-	builder.WriteString(", ")
 	builder.WriteString("refund=")
 	builder.WriteString(fmt.Sprintf("%v", o.Refund))
-	builder.WriteString(", ")
-	if v := o.OpenedAt; v != nil {
-		builder.WriteString("opened_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	if v := o.PlacedAt; v != nil {
 		builder.WriteString("placed_at=")
@@ -538,14 +410,8 @@ func (o *Order) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("opened_by=")
-	builder.WriteString(o.OpenedBy)
-	builder.WriteString(", ")
 	builder.WriteString("placed_by=")
 	builder.WriteString(o.PlacedBy)
-	builder.WriteString(", ")
-	builder.WriteString("paid_by=")
-	builder.WriteString(o.PaidBy)
 	builder.WriteString(", ")
 	builder.WriteString("dining_mode=")
 	builder.WriteString(fmt.Sprintf("%v", o.DiningMode))
@@ -556,31 +422,14 @@ func (o *Order) String() string {
 	builder.WriteString("payment_status=")
 	builder.WriteString(fmt.Sprintf("%v", o.PaymentStatus))
 	builder.WriteString(", ")
-	builder.WriteString("fulfillment_status=")
-	builder.WriteString(fmt.Sprintf("%v", o.FulfillmentStatus))
-	builder.WriteString(", ")
-	builder.WriteString("table_status=")
-	builder.WriteString(fmt.Sprintf("%v", o.TableStatus))
-	builder.WriteString(", ")
 	builder.WriteString("table_id=")
 	builder.WriteString(o.TableID)
 	builder.WriteString(", ")
 	builder.WriteString("table_name=")
 	builder.WriteString(o.TableName)
 	builder.WriteString(", ")
-	builder.WriteString("table_capacity=")
-	builder.WriteString(fmt.Sprintf("%v", o.TableCapacity))
-	builder.WriteString(", ")
 	builder.WriteString("guest_count=")
 	builder.WriteString(fmt.Sprintf("%v", o.GuestCount))
-	builder.WriteString(", ")
-	builder.WriteString("merged_to_order_id=")
-	builder.WriteString(o.MergedToOrderID)
-	builder.WriteString(", ")
-	if v := o.MergedAt; v != nil {
-		builder.WriteString("merged_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("store=")
 	builder.WriteString(fmt.Sprintf("%v", o.Store))
@@ -594,24 +443,6 @@ func (o *Order) String() string {
 	builder.WriteString("cashier=")
 	builder.WriteString(fmt.Sprintf("%v", o.Cashier))
 	builder.WriteString(", ")
-	builder.WriteString("member=")
-	builder.WriteString(fmt.Sprintf("%v", o.Member))
-	builder.WriteString(", ")
-	builder.WriteString("takeaway=")
-	builder.WriteString(fmt.Sprintf("%v", o.Takeaway))
-	builder.WriteString(", ")
-	builder.WriteString("cart=")
-	builder.WriteString(fmt.Sprintf("%v", o.Cart))
-	builder.WriteString(", ")
-	builder.WriteString("products=")
-	builder.WriteString(fmt.Sprintf("%v", o.Products))
-	builder.WriteString(", ")
-	builder.WriteString("promotions=")
-	builder.WriteString(fmt.Sprintf("%v", o.Promotions))
-	builder.WriteString(", ")
-	builder.WriteString("coupons=")
-	builder.WriteString(fmt.Sprintf("%v", o.Coupons))
-	builder.WriteString(", ")
 	builder.WriteString("tax_rates=")
 	builder.WriteString(fmt.Sprintf("%v", o.TaxRates))
 	builder.WriteString(", ")
@@ -620,9 +451,6 @@ func (o *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("payments=")
 	builder.WriteString(fmt.Sprintf("%v", o.Payments))
-	builder.WriteString(", ")
-	builder.WriteString("refunds_products=")
-	builder.WriteString(fmt.Sprintf("%v", o.RefundsProducts))
 	builder.WriteString(", ")
 	builder.WriteString("amount=")
 	builder.WriteString(fmt.Sprintf("%v", o.Amount))
