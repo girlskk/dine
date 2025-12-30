@@ -518,6 +518,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/product/category/reorder": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "重排序商品分类",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CategoryReorderReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/product/category/{id}": {
             "put": {
                 "security": [
@@ -3254,6 +3283,26 @@ const docTemplate = `{
                 },
                 "tax_rate_id": {
                     "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.CategoryReorderReq": {
+            "type": "object",
+            "required": [
+                "category_ids"
+            ],
+            "properties": {
+                "category_ids": {
+                    "description": "按新顺序排列的分类ID列表",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "parent_id": {
+                    "description": "父分类ID，如果是一级分类排序则为null",
                     "type": "string"
                 }
             }

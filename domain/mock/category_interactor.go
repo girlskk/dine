@@ -93,6 +93,20 @@ func (mr *MockCategoryInteractorMockRecorder) ListBySearch(arg0, arg1 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockCategoryInteractor)(nil).ListBySearch), arg0, arg1)
 }
 
+// Reorder mocks base method.
+func (m *MockCategoryInteractor) Reorder(arg0 context.Context, arg1 *uuid.UUID, arg2 []uuid.UUID, arg3 domain.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Reorder", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Reorder indicates an expected call of Reorder.
+func (mr *MockCategoryInteractorMockRecorder) Reorder(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reorder", reflect.TypeOf((*MockCategoryInteractor)(nil).Reorder), arg0, arg1, arg2, arg3)
+}
+
 // Update mocks base method.
 func (m *MockCategoryInteractor) Update(arg0 context.Context, arg1 *domain.Category, arg2 domain.User) error {
 	m.ctrl.T.Helper()

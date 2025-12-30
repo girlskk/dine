@@ -2,7 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
@@ -268,6 +271,72 @@ func (repo *CategoryRepository) FindByNameInStore(ctx context.Context, name stri
 		return nil, err
 	}
 	return convertCategoryToDomain(ec), nil
+}
+
+// 在 repository/category.go 实现：
+func (repo *CategoryRepository) ListByParentID(ctx context.Context, merchantID, storeID, parentID uuid.UUID) (res domain.Categories, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.ListByParentID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Category.Query().
+		Where(category.MerchantID(merchantID)).
+		Where(category.ParentID(parentID)).
+		Where(category.StoreID(storeID))
+
+	entCats, err := query.Order(category.BySortOrder()).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.Categories, 0, len(entCats))
+	for _, c := range entCats {
+		items = append(items, convertCategoryToDomain(c))
+	}
+
+	return items, nil
+}
+
+func (repo *CategoryRepository) UpdateSortOrders(ctx context.Context, updates map[uuid.UUID]int) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "CategoryRepository.UpdateSortOrders")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	if len(updates) == 0 {
+		return nil
+	}
+
+	// 收集所有需要更新的 ID
+	ids := make([]uuid.UUID, 0, len(updates))
+	for id := range updates {
+		ids = append(ids, id)
+	}
+
+	// 使用 Ent 的 Modify 功能构建 CASE WHEN 批量更新
+	_, err = repo.Client.Category.Update().
+		Where(category.IDIn(ids...)).
+		Modify(func(u *sql.UpdateBuilder) {
+			var args []interface{}
+			var caseExpr strings.Builder
+
+			caseExpr.WriteString("CASE `id`")
+			// 为每个 ID 添加 WHEN 分支
+			for _, id := range ids {
+				caseExpr.WriteString(" WHEN ? THEN ?")
+				args = append(args, id, updates[id])
+			}
+			caseExpr.WriteString(" ELSE `sort_order` END")
+			u.Set(category.FieldSortOrder, sql.Expr(caseExpr.String(), args...))
+		}).
+		Save(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to batch update sort_order: %w", err)
+	}
+
+	return nil
 }
 
 // ============================================

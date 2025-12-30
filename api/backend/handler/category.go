@@ -33,6 +33,7 @@ func (h *CategoryHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("", h.List())
+	r.PUT("/reorder", h.Reorder())
 }
 
 func (h *CategoryHandler) NoAuths() []string {
@@ -351,5 +352,43 @@ func (h *CategoryHandler) List() gin.HandlerFunc {
 		}
 
 		response.Ok(c, res)
+	}
+}
+
+// Reorder
+//
+//	@Tags		商品分类
+//	@Security	BearerAuth
+//	@Summary	重排序商品分类
+//	@Param		data	body	types.CategoryReorderReq	true	"请求信息"
+//	@Success	200
+//	@Router		/product/category/reorder [put]
+func (h *CategoryHandler) Reorder() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("CategoryHandler.Reorder")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.CategoryReorderReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := domain.FromBackendUserContext(ctx)
+
+		err := h.CategoryInteractor.Reorder(ctx, req.ParentID, req.CategoryIDs, user)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to reorder categories: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
 	}
 }

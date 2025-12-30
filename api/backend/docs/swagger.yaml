@@ -1052,6 +1052,20 @@ definitions:
     required:
     - name
     type: object
+  types.CategoryReorderReq:
+    properties:
+      category_ids:
+        description: 按新顺序排列的分类ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      parent_id:
+        description: 父分类ID，如果是一级分类排序则为null
+        type: string
+    required:
+    - category_ids
+    type: object
   types.LoginReq:
     properties:
       password:
@@ -2455,6 +2469,23 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新商品分类
+      tags:
+      - 商品分类
+  /product/category/reorder:
+    put:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.CategoryReorderReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 重排序商品分类
       tags:
       - 商品分类
   /product/distribute:

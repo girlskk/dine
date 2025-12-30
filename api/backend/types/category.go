@@ -27,3 +27,9 @@ type UpdateCategoryReq struct {
 	InheritStall   bool       `json:"inherit_stall"`                    // 是否继承父分类的出品部门ID（仅子分类有效）
 	StallID        *uuid.UUID `json:"stall_id"`                         // 出品部门ID
 }
+
+// CategoryReorderReq 分类重排序请求
+type CategoryReorderReq struct {
+	ParentID    *uuid.UUID  `json:"parent_id"`                                       // 父分类ID，如果是一级分类排序则为null
+	CategoryIDs []uuid.UUID `json:"category_ids" binding:"required,min=1,dive,uuid"` // 按新顺序排列的分类ID列表
+}

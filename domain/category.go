@@ -31,6 +31,8 @@ type CategoryRepository interface {
 	CountChildrenByParentID(ctx context.Context, parentID uuid.UUID) (int, error)
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
 	FindByNameInStore(ctx context.Context, name string, storeID, parentID uuid.UUID) (*Category, error)
+	ListByParentID(ctx context.Context, merchantID, storeID, parentID uuid.UUID) (Categories, error)
+	UpdateSortOrders(ctx context.Context, updates map[uuid.UUID]int) error
 }
 
 // CategoryInteractor 商品分类用例接口
@@ -42,6 +44,7 @@ type CategoryInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID, user User) error
 	Update(ctx context.Context, category *Category, user User) error
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
+	Reorder(ctx context.Context, parentID *uuid.UUID, categoryIDs []uuid.UUID, user User) error
 }
 
 // Category 商品分类实体
