@@ -4,7 +4,7 @@ Debug = true
 Host = "127.0.0.1"
 Port = "33061"
 User = "root"
-Password = "123456"
+Password = "pass"
 Name = "dine"
 TimeZone = "Asia/Shanghai"
 MaxLifetime = 3600
@@ -19,7 +19,7 @@ Ats = ["123456", "7891011"]
 
 [Redis]
 Addr = "127.0.0.1:6379"
-Username = "root"
+Username = ""
 Password = "123456"
 DB = 0
 

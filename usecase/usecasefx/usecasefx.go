@@ -10,6 +10,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
@@ -75,6 +76,10 @@ var Module = fx.Module(
 		fx.Annotate(
 			userauth.NewStoreUserInteractor,
 			fx.As(new(domain.StoreUserInteractor)),
+		),
+		fx.Annotate(
+			profitdistributionbill.NewProfitDistributionBillInteractor,
+			fx.As(new(domain.ProfitDistributionBillInteractor)),
 		),
 	),
 )
