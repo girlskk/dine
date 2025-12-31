@@ -43,7 +43,7 @@ func (Order) Fields() []ent.Field {
 
 		field.String("placed_by").Optional().Comment("下单操作员ID"),
 
-		field.Enum("dining_mode").GoType(domain.DiningMode("")).Comment("就餐模式：DINE_IN=堂食；TAKEAWAY=外卖（自取/配送）"),
+		field.Enum("dining_mode").GoType(domain.DiningMode("")).Default(string(domain.DiningModeDineIn)).Comment("就餐模式：DINE_IN=堂食"),
 		field.Enum("order_status").GoType(domain.OrderStatus("")).Default(string(domain.OrderStatusPlaced)).Comment("订单业务状态：PLACED=已下单；COMPLETED=已完成；CANCELLED=已取消"),
 		field.Enum("payment_status").GoType(domain.PaymentStatus("")).Default(string(domain.PaymentStatusUnpaid)).Comment("支付状态：UNPAID=未支付；PAYING=支付中；PAID=已支付；REFUNDED=全额退款"),
 
