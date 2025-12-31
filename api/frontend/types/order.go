@@ -68,10 +68,11 @@ type UpdateOrderReq struct {
 	Pos     domain.OrderPOS     `json:"pos"`     // POS终端信息
 	Cashier domain.OrderCashier `json:"cashier"` // 收银员信息
 
-	TaxRates []domain.OrderTaxRate `json:"tax_rates"` // 税率明细
-	Fees     []domain.OrderFee     `json:"fees"`      // 费用明细
-	Payments []domain.OrderPayment `json:"payments"`  // 支付记录
-	Amount   domain.OrderAmount    `json:"amount"`    // 金额汇总
+	OrderProducts []domain.OrderProduct `json:"order_products"` // 订单商品明细
+	TaxRates      []domain.OrderTaxRate `json:"tax_rates"`      // 税率明细
+	Fees          []domain.OrderFee     `json:"fees"`           // 费用明细
+	Payments      []domain.OrderPayment `json:"payments"`       // 支付记录
+	Amount        domain.OrderAmount    `json:"amount"`         // 金额汇总
 }
 
 // ListOrderReq 订单列表请求

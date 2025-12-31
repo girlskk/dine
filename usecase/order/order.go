@@ -27,7 +27,10 @@ func (interactor *OrderInteractor) Create(ctx context.Context, order *domain.Ord
 		util.SpanErrFinish(span, err)
 	}()
 
-	err = interactor.DS.OrderRepo().Create(ctx, order)
+	// 创建订单和商品需要在同一事务内
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		return ds.OrderRepo().Create(ctx, order)
+	})
 	if err != nil {
 		return fmt.Errorf("failed to create order: %w", err)
 	}
@@ -54,7 +57,10 @@ func (interactor *OrderInteractor) Update(ctx context.Context, order *domain.Ord
 		util.SpanErrFinish(span, err)
 	}()
 
-	err = interactor.DS.OrderRepo().Update(ctx, order)
+	// 更新订单和商品需要在同一事务内
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		return ds.OrderRepo().Update(ctx, order)
+	})
 	if err != nil {
 		return fmt.Errorf("failed to update order: %w", err)
 	}

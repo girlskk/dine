@@ -12,6 +12,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	entorder "gitlab.jiguang.dev/pos-dine/dine/ent/order"
+	entorderproduct "gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -328,6 +329,27 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	}
 
 	o.UpdatedAt = updated.UpdatedAt
+
+	// 更新订单商品（全量替换：先删除旧商品，再插入新商品）
+	if len(o.OrderProducts) > 0 {
+		// 删除旧商品
+		_, err = repo.Client.OrderProduct.Delete().
+			Where(entorderproduct.OrderID(o.ID)).
+			Exec(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to delete old order products: %w", err)
+		}
+
+		// 插入新商品
+		for i := range o.OrderProducts {
+			op := &o.OrderProducts[i]
+			op.OrderID = o.ID
+			if err := repo.createOrderProduct(ctx, op); err != nil {
+				return fmt.Errorf("failed to create order product: %w", err)
+			}
+		}
+	}
+
 	return nil
 }
 
