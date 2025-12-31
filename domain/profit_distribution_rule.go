@@ -57,12 +57,6 @@ func (ProfitDistributionRuleBillingCycle) Values() []string {
 	}
 }
 
-// ProfitDistributionConfig 分账任务配置
-type ProfitDistributionConfig struct {
-	TaskHour   int // 定时任务执行小时
-	TaskMinute int // 定时任务执行分钟
-}
-
 // ------------------------------------------------------------
 // 实体定义
 // ------------------------------------------------------------

@@ -27,6 +27,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
@@ -1234,6 +1235,55 @@ func init() {
 	productunitDescID := productunitMixinFields0[0].Descriptor()
 	// productunit.DefaultID holds the default value on creation for the id field.
 	productunit.DefaultID = productunitDescID.Default.(func() uuid.UUID)
+	profitdistributionbillMixin := schema.ProfitDistributionBill{}.Mixin()
+	profitdistributionbillMixinHooks2 := profitdistributionbillMixin[2].Hooks()
+	profitdistributionbill.Hooks[0] = profitdistributionbillMixinHooks2[0]
+	profitdistributionbillMixinInters2 := profitdistributionbillMixin[2].Interceptors()
+	profitdistributionbill.Interceptors[0] = profitdistributionbillMixinInters2[0]
+	profitdistributionbillMixinFields0 := profitdistributionbillMixin[0].Fields()
+	_ = profitdistributionbillMixinFields0
+	profitdistributionbillMixinFields1 := profitdistributionbillMixin[1].Fields()
+	_ = profitdistributionbillMixinFields1
+	profitdistributionbillMixinFields2 := profitdistributionbillMixin[2].Fields()
+	_ = profitdistributionbillMixinFields2
+	profitdistributionbillFields := schema.ProfitDistributionBill{}.Fields()
+	_ = profitdistributionbillFields
+	// profitdistributionbillDescCreatedAt is the schema descriptor for created_at field.
+	profitdistributionbillDescCreatedAt := profitdistributionbillMixinFields1[0].Descriptor()
+	// profitdistributionbill.DefaultCreatedAt holds the default value on creation for the created_at field.
+	profitdistributionbill.DefaultCreatedAt = profitdistributionbillDescCreatedAt.Default.(func() time.Time)
+	// profitdistributionbillDescUpdatedAt is the schema descriptor for updated_at field.
+	profitdistributionbillDescUpdatedAt := profitdistributionbillMixinFields1[1].Descriptor()
+	// profitdistributionbill.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	profitdistributionbill.DefaultUpdatedAt = profitdistributionbillDescUpdatedAt.Default.(func() time.Time)
+	// profitdistributionbill.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	profitdistributionbill.UpdateDefaultUpdatedAt = profitdistributionbillDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// profitdistributionbillDescDeletedAt is the schema descriptor for deleted_at field.
+	profitdistributionbillDescDeletedAt := profitdistributionbillMixinFields2[0].Descriptor()
+	// profitdistributionbill.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	profitdistributionbill.DefaultDeletedAt = profitdistributionbillDescDeletedAt.Default.(int64)
+	// profitdistributionbillDescNo is the schema descriptor for no field.
+	profitdistributionbillDescNo := profitdistributionbillFields[0].Descriptor()
+	// profitdistributionbill.NoValidator is a validator for the "no" field. It is called by the builders before save.
+	profitdistributionbill.NoValidator = func() func(string) error {
+		validators := profitdistributionbillDescNo.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(no string) error {
+			for _, fn := range fns {
+				if err := fn(no); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profitdistributionbillDescID is the schema descriptor for id field.
+	profitdistributionbillDescID := profitdistributionbillMixinFields0[0].Descriptor()
+	// profitdistributionbill.DefaultID holds the default value on creation for the id field.
+	profitdistributionbill.DefaultID = profitdistributionbillDescID.Default.(func() uuid.UUID)
 	profitdistributionruleMixin := schema.ProfitDistributionRule{}.Mixin()
 	profitdistributionruleMixinHooks2 := profitdistributionruleMixin[2].Hooks()
 	profitdistributionrule.Hooks[0] = profitdistributionruleMixinHooks2[0]

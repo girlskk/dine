@@ -845,6 +845,52 @@ var (
 			},
 		},
 	}
+	// ProfitDistributionBillsColumns holds the columns for the "profit_distribution_bills" table.
+	ProfitDistributionBillsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "no", Type: field.TypeString, Unique: true, Size: 64},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+		{Name: "revenue_id", Type: field.TypeUUID},
+		{Name: "receivable_amount", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "payment_amount", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unpaid", "paid"}, Default: "unpaid"},
+		{Name: "bill_date", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "DATE", "sqlite3": "DATE"}},
+		{Name: "start_date", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "DATE", "sqlite3": "DATE"}},
+		{Name: "end_date", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "DATE", "sqlite3": "DATE"}},
+		{Name: "rule_snapshot", Type: field.TypeJSON},
+	}
+	// ProfitDistributionBillsTable holds the schema information for the "profit_distribution_bills" table.
+	ProfitDistributionBillsTable = &schema.Table{
+		Name:       "profit_distribution_bills",
+		Columns:    ProfitDistributionBillsColumns,
+		PrimaryKey: []*schema.Column{ProfitDistributionBillsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "profitdistributionbill_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[3]},
+			},
+			{
+				Name:    "profitdistributionbill_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[5]},
+			},
+			{
+				Name:    "profitdistributionbill_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[6]},
+			},
+			{
+				Name:    "profitdistributionbill_store_id_bill_date_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[6], ProfitDistributionBillsColumns[11], ProfitDistributionBillsColumns[3]},
+			},
+		},
+	}
 	// ProfitDistributionRulesColumns holds the columns for the "profit_distribution_rules" table.
 	ProfitDistributionRulesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1294,6 +1340,7 @@ var (
 		ProductSpecRelationsTable,
 		ProductTagsTable,
 		ProductUnitsTable,
+		ProfitDistributionBillsTable,
 		ProfitDistributionRulesTable,
 		ProvincesTable,
 		RemarksTable,

@@ -237,6 +237,18 @@ func (f ProductUnitFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductUnitMutation", m)
 }
 
+// The ProfitDistributionBillFunc type is an adapter to allow the use of ordinary
+// function as ProfitDistributionBill mutator.
+type ProfitDistributionBillFunc func(context.Context, *ent.ProfitDistributionBillMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProfitDistributionBillFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProfitDistributionBillMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProfitDistributionBillMutation", m)
+}
+
 // The ProfitDistributionRuleFunc type is an adapter to allow the use of ordinary
 // function as ProfitDistributionRule mutator.
 type ProfitDistributionRuleFunc func(context.Context, *ent.ProfitDistributionRuleMutation) (ent.Value, error)

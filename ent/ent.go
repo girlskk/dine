@@ -31,6 +31,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
@@ -117,6 +118,7 @@ func checkColumn(table, column string) error {
 			productspecrelation.Table:    productspecrelation.ValidColumn,
 			producttag.Table:             producttag.ValidColumn,
 			productunit.Table:            productunit.ValidColumn,
+			profitdistributionbill.Table: profitdistributionbill.ValidColumn,
 			profitdistributionrule.Table: profitdistributionrule.ValidColumn,
 			province.Table:               province.ValidColumn,
 			remark.Table:                 remark.ValidColumn,

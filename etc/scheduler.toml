@@ -2,9 +2,9 @@
 AutoMigrate = false
 Debug = true
 Host = "127.0.0.1"
-Port = "3306"
+Port = "33061"
 User = "root"
-Password = "changepassword"
+Password = "123456"
 Name = "dine"
 TimeZone = "Asia/Shanghai"
 MaxLifetime = 3600
@@ -19,8 +19,8 @@ Ats = ["123456", "7891011"]
 
 [Redis]
 Addr = "127.0.0.1:6379"
-Username = ""
-Password = ""
+Username = "root"
+Password = "123456"
 DB = 0
 
 [Huifu]
@@ -28,9 +28,6 @@ ProductId = "product_id"
 SysId = "sys_id"
 RsaMerchPrivateKey = "rsa_merch_private_key"
 RsaHuifuPublicKey = "rsa_huifu_public_key"
-
-[FinanceBill]
-Cron = "5 0 * * *"
 
 [Oss]
 Region = "cn-shanghai"
@@ -41,3 +38,8 @@ AccessKeySecret = "access_key_secret"
 RoleARN = "role_arn"
 SessionName = "dine-scheduler"
 Expiration = 3600
+
+# 分账账单生成时间：每天凌晨2点
+[ProfitDistribution]
+Cron = "@every 10s"
+# Cron = "5 0 * * *"

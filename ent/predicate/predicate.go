@@ -63,6 +63,9 @@ type ProductTag func(*sql.Selector)
 // ProductUnit is the predicate function for productunit builders.
 type ProductUnit func(*sql.Selector)
 
+// ProfitDistributionBill is the predicate function for profitdistributionbill builders.
+type ProfitDistributionBill func(*sql.Selector)
+
 // ProfitDistributionRule is the predicate function for profitdistributionrule builders.
 type ProfitDistributionRule func(*sql.Selector)
 

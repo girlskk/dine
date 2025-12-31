@@ -35,6 +35,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
@@ -87,6 +88,8 @@ type Client struct {
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
 	ProductUnit *ProductUnitClient
+	// ProfitDistributionBill is the client for interacting with the ProfitDistributionBill builders.
+	ProfitDistributionBill *ProfitDistributionBillClient
 	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
 	ProfitDistributionRule *ProfitDistributionRuleClient
 	// Province is the client for interacting with the Province builders.
@@ -131,6 +134,7 @@ func (c *Client) init() {
 	c.ProductSpecRelation = NewProductSpecRelationClient(c.config)
 	c.ProductTag = NewProductTagClient(c.config)
 	c.ProductUnit = NewProductUnitClient(c.config)
+	c.ProfitDistributionBill = NewProfitDistributionBillClient(c.config)
 	c.ProfitDistributionRule = NewProfitDistributionRuleClient(c.config)
 	c.Province = NewProvinceClient(c.config)
 	c.Remark = NewRemarkClient(c.config)
@@ -249,6 +253,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ProductSpecRelation:    NewProductSpecRelationClient(cfg),
 		ProductTag:             NewProductTagClient(cfg),
 		ProductUnit:            NewProductUnitClient(cfg),
+		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
 		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
 		Province:               NewProvinceClient(cfg),
 		Remark:                 NewRemarkClient(cfg),
@@ -294,6 +299,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ProductSpecRelation:    NewProductSpecRelationClient(cfg),
 		ProductTag:             NewProductTagClient(cfg),
 		ProductUnit:            NewProductUnitClient(cfg),
+		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
 		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
 		Province:               NewProvinceClient(cfg),
 		Remark:                 NewRemarkClient(cfg),
@@ -333,9 +339,9 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
 		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
 		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.ProfitDistributionRule,
-		c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup,
-		c.Store,
+		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
+		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory,
+		c.SetMealDetail, c.SetMealGroup, c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -348,9 +354,9 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
 		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
 		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.ProfitDistributionRule,
-		c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail, c.SetMealGroup,
-		c.Store,
+		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
+		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory,
+		c.SetMealDetail, c.SetMealGroup, c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -397,6 +403,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ProductTag.mutate(ctx, m)
 	case *ProductUnitMutation:
 		return c.ProductUnit.mutate(ctx, m)
+	case *ProfitDistributionBillMutation:
+		return c.ProfitDistributionBill.mutate(ctx, m)
 	case *ProfitDistributionRuleMutation:
 		return c.ProfitDistributionRule.mutate(ctx, m)
 	case *ProvinceMutation:
@@ -3893,6 +3901,141 @@ func (c *ProductUnitClient) mutate(ctx context.Context, m *ProductUnitMutation) 
 	}
 }
 
+// ProfitDistributionBillClient is a client for the ProfitDistributionBill schema.
+type ProfitDistributionBillClient struct {
+	config
+}
+
+// NewProfitDistributionBillClient returns a client for the ProfitDistributionBill from the given config.
+func NewProfitDistributionBillClient(c config) *ProfitDistributionBillClient {
+	return &ProfitDistributionBillClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `profitdistributionbill.Hooks(f(g(h())))`.
+func (c *ProfitDistributionBillClient) Use(hooks ...Hook) {
+	c.hooks.ProfitDistributionBill = append(c.hooks.ProfitDistributionBill, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `profitdistributionbill.Intercept(f(g(h())))`.
+func (c *ProfitDistributionBillClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProfitDistributionBill = append(c.inters.ProfitDistributionBill, interceptors...)
+}
+
+// Create returns a builder for creating a ProfitDistributionBill entity.
+func (c *ProfitDistributionBillClient) Create() *ProfitDistributionBillCreate {
+	mutation := newProfitDistributionBillMutation(c.config, OpCreate)
+	return &ProfitDistributionBillCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProfitDistributionBill entities.
+func (c *ProfitDistributionBillClient) CreateBulk(builders ...*ProfitDistributionBillCreate) *ProfitDistributionBillCreateBulk {
+	return &ProfitDistributionBillCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProfitDistributionBillClient) MapCreateBulk(slice any, setFunc func(*ProfitDistributionBillCreate, int)) *ProfitDistributionBillCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProfitDistributionBillCreateBulk{err: fmt.Errorf("calling to ProfitDistributionBillClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProfitDistributionBillCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProfitDistributionBillCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) Update() *ProfitDistributionBillUpdate {
+	mutation := newProfitDistributionBillMutation(c.config, OpUpdate)
+	return &ProfitDistributionBillUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProfitDistributionBillClient) UpdateOne(pdb *ProfitDistributionBill) *ProfitDistributionBillUpdateOne {
+	mutation := newProfitDistributionBillMutation(c.config, OpUpdateOne, withProfitDistributionBill(pdb))
+	return &ProfitDistributionBillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProfitDistributionBillClient) UpdateOneID(id uuid.UUID) *ProfitDistributionBillUpdateOne {
+	mutation := newProfitDistributionBillMutation(c.config, OpUpdateOne, withProfitDistributionBillID(id))
+	return &ProfitDistributionBillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) Delete() *ProfitDistributionBillDelete {
+	mutation := newProfitDistributionBillMutation(c.config, OpDelete)
+	return &ProfitDistributionBillDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProfitDistributionBillClient) DeleteOne(pdb *ProfitDistributionBill) *ProfitDistributionBillDeleteOne {
+	return c.DeleteOneID(pdb.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProfitDistributionBillClient) DeleteOneID(id uuid.UUID) *ProfitDistributionBillDeleteOne {
+	builder := c.Delete().Where(profitdistributionbill.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProfitDistributionBillDeleteOne{builder}
+}
+
+// Query returns a query builder for ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) Query() *ProfitDistributionBillQuery {
+	return &ProfitDistributionBillQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProfitDistributionBill},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProfitDistributionBill entity by its id.
+func (c *ProfitDistributionBillClient) Get(ctx context.Context, id uuid.UUID) (*ProfitDistributionBill, error) {
+	return c.Query().Where(profitdistributionbill.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProfitDistributionBillClient) GetX(ctx context.Context, id uuid.UUID) *ProfitDistributionBill {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ProfitDistributionBillClient) Hooks() []Hook {
+	hooks := c.hooks.ProfitDistributionBill
+	return append(hooks[:len(hooks):len(hooks)], profitdistributionbill.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProfitDistributionBillClient) Interceptors() []Interceptor {
+	inters := c.inters.ProfitDistributionBill
+	return append(inters[:len(inters):len(inters)], profitdistributionbill.Interceptors[:]...)
+}
+
+func (c *ProfitDistributionBillClient) mutate(ctx context.Context, m *ProfitDistributionBillMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProfitDistributionBillCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProfitDistributionBillUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProfitDistributionBillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProfitDistributionBillDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProfitDistributionBill mutation op: %q", m.Op())
+	}
+}
+
 // ProfitDistributionRuleClient is a client for the ProfitDistributionRule schema.
 type ProfitDistributionRuleClient struct {
 	config
@@ -5244,14 +5387,15 @@ type (
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
 		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
 		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, ProfitDistributionRule, Province, Remark,
-		RemarkCategory, SetMealDetail, SetMealGroup, Store []ent.Hook
+		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
+		Province, Remark, RemarkCategory, SetMealDetail, SetMealGroup, Store []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
 		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
 		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, ProfitDistributionRule, Province, Remark,
-		RemarkCategory, SetMealDetail, SetMealGroup, Store []ent.Interceptor
+		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
+		Province, Remark, RemarkCategory, SetMealDetail, SetMealGroup,
+		Store []ent.Interceptor
 	}
 )

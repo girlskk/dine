@@ -34,6 +34,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
@@ -71,6 +72,7 @@ const (
 	TypeProductSpecRelation    = "ProductSpecRelation"
 	TypeProductTag             = "ProductTag"
 	TypeProductUnit            = "ProductUnit"
+	TypeProfitDistributionBill = "ProfitDistributionBill"
 	TypeProfitDistributionRule = "ProfitDistributionRule"
 	TypeProvince               = "Province"
 	TypeRemark                 = "Remark"
@@ -21238,6 +21240,1076 @@ func (m *ProductUnitMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown ProductUnit edge %s", name)
+}
+
+// ProfitDistributionBillMutation represents an operation that mutates the ProfitDistributionBill nodes in the graph.
+type ProfitDistributionBillMutation struct {
+	config
+	op                Op
+	typ               string
+	id                *uuid.UUID
+	created_at        *time.Time
+	updated_at        *time.Time
+	deleted_at        *int64
+	adddeleted_at     *int64
+	no                *string
+	merchant_id       *uuid.UUID
+	store_id          *uuid.UUID
+	revenue_id        *uuid.UUID
+	receivable_amount *decimal.Decimal
+	payment_amount    *decimal.Decimal
+	status            *domain.ProfitDistributionBillStatus
+	bill_date         *time.Time
+	start_date        *time.Time
+	end_date          *time.Time
+	rule_snapshot     **domain.ProfitDistributionRuleSnapshot
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*ProfitDistributionBill, error)
+	predicates        []predicate.ProfitDistributionBill
+}
+
+var _ ent.Mutation = (*ProfitDistributionBillMutation)(nil)
+
+// profitdistributionbillOption allows management of the mutation configuration using functional options.
+type profitdistributionbillOption func(*ProfitDistributionBillMutation)
+
+// newProfitDistributionBillMutation creates new mutation for the ProfitDistributionBill entity.
+func newProfitDistributionBillMutation(c config, op Op, opts ...profitdistributionbillOption) *ProfitDistributionBillMutation {
+	m := &ProfitDistributionBillMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeProfitDistributionBill,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withProfitDistributionBillID sets the ID field of the mutation.
+func withProfitDistributionBillID(id uuid.UUID) profitdistributionbillOption {
+	return func(m *ProfitDistributionBillMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ProfitDistributionBill
+		)
+		m.oldValue = func(ctx context.Context) (*ProfitDistributionBill, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ProfitDistributionBill.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withProfitDistributionBill sets the old ProfitDistributionBill of the mutation.
+func withProfitDistributionBill(node *ProfitDistributionBill) profitdistributionbillOption {
+	return func(m *ProfitDistributionBillMutation) {
+		m.oldValue = func(context.Context) (*ProfitDistributionBill, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ProfitDistributionBillMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ProfitDistributionBillMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ProfitDistributionBill entities.
+func (m *ProfitDistributionBillMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ProfitDistributionBillMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ProfitDistributionBillMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ProfitDistributionBill.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ProfitDistributionBillMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ProfitDistributionBillMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ProfitDistributionBillMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *ProfitDistributionBillMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *ProfitDistributionBillMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *ProfitDistributionBillMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *ProfitDistributionBillMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *ProfitDistributionBillMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *ProfitDistributionBillMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *ProfitDistributionBillMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *ProfitDistributionBillMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetNo sets the "no" field.
+func (m *ProfitDistributionBillMutation) SetNo(s string) {
+	m.no = &s
+}
+
+// No returns the value of the "no" field in the mutation.
+func (m *ProfitDistributionBillMutation) No() (r string, exists bool) {
+	v := m.no
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNo returns the old "no" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldNo(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNo is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNo requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNo: %w", err)
+	}
+	return oldValue.No, nil
+}
+
+// ResetNo resets all changes to the "no" field.
+func (m *ProfitDistributionBillMutation) ResetNo() {
+	m.no = nil
+}
+
+// SetMerchantID sets the "merchant_id" field.
+func (m *ProfitDistributionBillMutation) SetMerchantID(u uuid.UUID) {
+	m.merchant_id = &u
+}
+
+// MerchantID returns the value of the "merchant_id" field in the mutation.
+func (m *ProfitDistributionBillMutation) MerchantID() (r uuid.UUID, exists bool) {
+	v := m.merchant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMerchantID returns the old "merchant_id" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMerchantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMerchantID: %w", err)
+	}
+	return oldValue.MerchantID, nil
+}
+
+// ResetMerchantID resets all changes to the "merchant_id" field.
+func (m *ProfitDistributionBillMutation) ResetMerchantID() {
+	m.merchant_id = nil
+}
+
+// SetStoreID sets the "store_id" field.
+func (m *ProfitDistributionBillMutation) SetStoreID(u uuid.UUID) {
+	m.store_id = &u
+}
+
+// StoreID returns the value of the "store_id" field in the mutation.
+func (m *ProfitDistributionBillMutation) StoreID() (r uuid.UUID, exists bool) {
+	v := m.store_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStoreID returns the old "store_id" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStoreID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStoreID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStoreID: %w", err)
+	}
+	return oldValue.StoreID, nil
+}
+
+// ResetStoreID resets all changes to the "store_id" field.
+func (m *ProfitDistributionBillMutation) ResetStoreID() {
+	m.store_id = nil
+}
+
+// SetRevenueID sets the "revenue_id" field.
+func (m *ProfitDistributionBillMutation) SetRevenueID(u uuid.UUID) {
+	m.revenue_id = &u
+}
+
+// RevenueID returns the value of the "revenue_id" field in the mutation.
+func (m *ProfitDistributionBillMutation) RevenueID() (r uuid.UUID, exists bool) {
+	v := m.revenue_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRevenueID returns the old "revenue_id" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldRevenueID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRevenueID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRevenueID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRevenueID: %w", err)
+	}
+	return oldValue.RevenueID, nil
+}
+
+// ResetRevenueID resets all changes to the "revenue_id" field.
+func (m *ProfitDistributionBillMutation) ResetRevenueID() {
+	m.revenue_id = nil
+}
+
+// SetReceivableAmount sets the "receivable_amount" field.
+func (m *ProfitDistributionBillMutation) SetReceivableAmount(d decimal.Decimal) {
+	m.receivable_amount = &d
+}
+
+// ReceivableAmount returns the value of the "receivable_amount" field in the mutation.
+func (m *ProfitDistributionBillMutation) ReceivableAmount() (r decimal.Decimal, exists bool) {
+	v := m.receivable_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReceivableAmount returns the old "receivable_amount" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldReceivableAmount(ctx context.Context) (v decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReceivableAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReceivableAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReceivableAmount: %w", err)
+	}
+	return oldValue.ReceivableAmount, nil
+}
+
+// ResetReceivableAmount resets all changes to the "receivable_amount" field.
+func (m *ProfitDistributionBillMutation) ResetReceivableAmount() {
+	m.receivable_amount = nil
+}
+
+// SetPaymentAmount sets the "payment_amount" field.
+func (m *ProfitDistributionBillMutation) SetPaymentAmount(d decimal.Decimal) {
+	m.payment_amount = &d
+}
+
+// PaymentAmount returns the value of the "payment_amount" field in the mutation.
+func (m *ProfitDistributionBillMutation) PaymentAmount() (r decimal.Decimal, exists bool) {
+	v := m.payment_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPaymentAmount returns the old "payment_amount" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldPaymentAmount(ctx context.Context) (v decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPaymentAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPaymentAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPaymentAmount: %w", err)
+	}
+	return oldValue.PaymentAmount, nil
+}
+
+// ResetPaymentAmount resets all changes to the "payment_amount" field.
+func (m *ProfitDistributionBillMutation) ResetPaymentAmount() {
+	m.payment_amount = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *ProfitDistributionBillMutation) SetStatus(ddbs domain.ProfitDistributionBillStatus) {
+	m.status = &ddbs
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *ProfitDistributionBillMutation) Status() (r domain.ProfitDistributionBillStatus, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldStatus(ctx context.Context) (v domain.ProfitDistributionBillStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *ProfitDistributionBillMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetBillDate sets the "bill_date" field.
+func (m *ProfitDistributionBillMutation) SetBillDate(t time.Time) {
+	m.bill_date = &t
+}
+
+// BillDate returns the value of the "bill_date" field in the mutation.
+func (m *ProfitDistributionBillMutation) BillDate() (r time.Time, exists bool) {
+	v := m.bill_date
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBillDate returns the old "bill_date" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldBillDate(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBillDate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBillDate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBillDate: %w", err)
+	}
+	return oldValue.BillDate, nil
+}
+
+// ResetBillDate resets all changes to the "bill_date" field.
+func (m *ProfitDistributionBillMutation) ResetBillDate() {
+	m.bill_date = nil
+}
+
+// SetStartDate sets the "start_date" field.
+func (m *ProfitDistributionBillMutation) SetStartDate(t time.Time) {
+	m.start_date = &t
+}
+
+// StartDate returns the value of the "start_date" field in the mutation.
+func (m *ProfitDistributionBillMutation) StartDate() (r time.Time, exists bool) {
+	v := m.start_date
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartDate returns the old "start_date" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldStartDate(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartDate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartDate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartDate: %w", err)
+	}
+	return oldValue.StartDate, nil
+}
+
+// ResetStartDate resets all changes to the "start_date" field.
+func (m *ProfitDistributionBillMutation) ResetStartDate() {
+	m.start_date = nil
+}
+
+// SetEndDate sets the "end_date" field.
+func (m *ProfitDistributionBillMutation) SetEndDate(t time.Time) {
+	m.end_date = &t
+}
+
+// EndDate returns the value of the "end_date" field in the mutation.
+func (m *ProfitDistributionBillMutation) EndDate() (r time.Time, exists bool) {
+	v := m.end_date
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEndDate returns the old "end_date" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldEndDate(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEndDate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEndDate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEndDate: %w", err)
+	}
+	return oldValue.EndDate, nil
+}
+
+// ResetEndDate resets all changes to the "end_date" field.
+func (m *ProfitDistributionBillMutation) ResetEndDate() {
+	m.end_date = nil
+}
+
+// SetRuleSnapshot sets the "rule_snapshot" field.
+func (m *ProfitDistributionBillMutation) SetRuleSnapshot(ddrs *domain.ProfitDistributionRuleSnapshot) {
+	m.rule_snapshot = &ddrs
+}
+
+// RuleSnapshot returns the value of the "rule_snapshot" field in the mutation.
+func (m *ProfitDistributionBillMutation) RuleSnapshot() (r *domain.ProfitDistributionRuleSnapshot, exists bool) {
+	v := m.rule_snapshot
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRuleSnapshot returns the old "rule_snapshot" field's value of the ProfitDistributionBill entity.
+// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionBillMutation) OldRuleSnapshot(ctx context.Context) (v *domain.ProfitDistributionRuleSnapshot, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRuleSnapshot is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRuleSnapshot requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRuleSnapshot: %w", err)
+	}
+	return oldValue.RuleSnapshot, nil
+}
+
+// ResetRuleSnapshot resets all changes to the "rule_snapshot" field.
+func (m *ProfitDistributionBillMutation) ResetRuleSnapshot() {
+	m.rule_snapshot = nil
+}
+
+// Where appends a list predicates to the ProfitDistributionBillMutation builder.
+func (m *ProfitDistributionBillMutation) Where(ps ...predicate.ProfitDistributionBill) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ProfitDistributionBillMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ProfitDistributionBillMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ProfitDistributionBill, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ProfitDistributionBillMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ProfitDistributionBillMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ProfitDistributionBill).
+func (m *ProfitDistributionBillMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ProfitDistributionBillMutation) Fields() []string {
+	fields := make([]string, 0, 14)
+	if m.created_at != nil {
+		fields = append(fields, profitdistributionbill.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, profitdistributionbill.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, profitdistributionbill.FieldDeletedAt)
+	}
+	if m.no != nil {
+		fields = append(fields, profitdistributionbill.FieldNo)
+	}
+	if m.merchant_id != nil {
+		fields = append(fields, profitdistributionbill.FieldMerchantID)
+	}
+	if m.store_id != nil {
+		fields = append(fields, profitdistributionbill.FieldStoreID)
+	}
+	if m.revenue_id != nil {
+		fields = append(fields, profitdistributionbill.FieldRevenueID)
+	}
+	if m.receivable_amount != nil {
+		fields = append(fields, profitdistributionbill.FieldReceivableAmount)
+	}
+	if m.payment_amount != nil {
+		fields = append(fields, profitdistributionbill.FieldPaymentAmount)
+	}
+	if m.status != nil {
+		fields = append(fields, profitdistributionbill.FieldStatus)
+	}
+	if m.bill_date != nil {
+		fields = append(fields, profitdistributionbill.FieldBillDate)
+	}
+	if m.start_date != nil {
+		fields = append(fields, profitdistributionbill.FieldStartDate)
+	}
+	if m.end_date != nil {
+		fields = append(fields, profitdistributionbill.FieldEndDate)
+	}
+	if m.rule_snapshot != nil {
+		fields = append(fields, profitdistributionbill.FieldRuleSnapshot)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ProfitDistributionBillMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case profitdistributionbill.FieldCreatedAt:
+		return m.CreatedAt()
+	case profitdistributionbill.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case profitdistributionbill.FieldDeletedAt:
+		return m.DeletedAt()
+	case profitdistributionbill.FieldNo:
+		return m.No()
+	case profitdistributionbill.FieldMerchantID:
+		return m.MerchantID()
+	case profitdistributionbill.FieldStoreID:
+		return m.StoreID()
+	case profitdistributionbill.FieldRevenueID:
+		return m.RevenueID()
+	case profitdistributionbill.FieldReceivableAmount:
+		return m.ReceivableAmount()
+	case profitdistributionbill.FieldPaymentAmount:
+		return m.PaymentAmount()
+	case profitdistributionbill.FieldStatus:
+		return m.Status()
+	case profitdistributionbill.FieldBillDate:
+		return m.BillDate()
+	case profitdistributionbill.FieldStartDate:
+		return m.StartDate()
+	case profitdistributionbill.FieldEndDate:
+		return m.EndDate()
+	case profitdistributionbill.FieldRuleSnapshot:
+		return m.RuleSnapshot()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ProfitDistributionBillMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case profitdistributionbill.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case profitdistributionbill.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case profitdistributionbill.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case profitdistributionbill.FieldNo:
+		return m.OldNo(ctx)
+	case profitdistributionbill.FieldMerchantID:
+		return m.OldMerchantID(ctx)
+	case profitdistributionbill.FieldStoreID:
+		return m.OldStoreID(ctx)
+	case profitdistributionbill.FieldRevenueID:
+		return m.OldRevenueID(ctx)
+	case profitdistributionbill.FieldReceivableAmount:
+		return m.OldReceivableAmount(ctx)
+	case profitdistributionbill.FieldPaymentAmount:
+		return m.OldPaymentAmount(ctx)
+	case profitdistributionbill.FieldStatus:
+		return m.OldStatus(ctx)
+	case profitdistributionbill.FieldBillDate:
+		return m.OldBillDate(ctx)
+	case profitdistributionbill.FieldStartDate:
+		return m.OldStartDate(ctx)
+	case profitdistributionbill.FieldEndDate:
+		return m.OldEndDate(ctx)
+	case profitdistributionbill.FieldRuleSnapshot:
+		return m.OldRuleSnapshot(ctx)
+	}
+	return nil, fmt.Errorf("unknown ProfitDistributionBill field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProfitDistributionBillMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case profitdistributionbill.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case profitdistributionbill.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case profitdistributionbill.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case profitdistributionbill.FieldNo:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNo(v)
+		return nil
+	case profitdistributionbill.FieldMerchantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMerchantID(v)
+		return nil
+	case profitdistributionbill.FieldStoreID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStoreID(v)
+		return nil
+	case profitdistributionbill.FieldRevenueID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRevenueID(v)
+		return nil
+	case profitdistributionbill.FieldReceivableAmount:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReceivableAmount(v)
+		return nil
+	case profitdistributionbill.FieldPaymentAmount:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPaymentAmount(v)
+		return nil
+	case profitdistributionbill.FieldStatus:
+		v, ok := value.(domain.ProfitDistributionBillStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case profitdistributionbill.FieldBillDate:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBillDate(v)
+		return nil
+	case profitdistributionbill.FieldStartDate:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartDate(v)
+		return nil
+	case profitdistributionbill.FieldEndDate:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEndDate(v)
+		return nil
+	case profitdistributionbill.FieldRuleSnapshot:
+		v, ok := value.(*domain.ProfitDistributionRuleSnapshot)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRuleSnapshot(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ProfitDistributionBill field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ProfitDistributionBillMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, profitdistributionbill.FieldDeletedAt)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ProfitDistributionBillMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case profitdistributionbill.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProfitDistributionBillMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case profitdistributionbill.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ProfitDistributionBill numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ProfitDistributionBillMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ProfitDistributionBillMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ProfitDistributionBillMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ProfitDistributionBill nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ProfitDistributionBillMutation) ResetField(name string) error {
+	switch name {
+	case profitdistributionbill.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case profitdistributionbill.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case profitdistributionbill.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case profitdistributionbill.FieldNo:
+		m.ResetNo()
+		return nil
+	case profitdistributionbill.FieldMerchantID:
+		m.ResetMerchantID()
+		return nil
+	case profitdistributionbill.FieldStoreID:
+		m.ResetStoreID()
+		return nil
+	case profitdistributionbill.FieldRevenueID:
+		m.ResetRevenueID()
+		return nil
+	case profitdistributionbill.FieldReceivableAmount:
+		m.ResetReceivableAmount()
+		return nil
+	case profitdistributionbill.FieldPaymentAmount:
+		m.ResetPaymentAmount()
+		return nil
+	case profitdistributionbill.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case profitdistributionbill.FieldBillDate:
+		m.ResetBillDate()
+		return nil
+	case profitdistributionbill.FieldStartDate:
+		m.ResetStartDate()
+		return nil
+	case profitdistributionbill.FieldEndDate:
+		m.ResetEndDate()
+		return nil
+	case profitdistributionbill.FieldRuleSnapshot:
+		m.ResetRuleSnapshot()
+		return nil
+	}
+	return fmt.Errorf("unknown ProfitDistributionBill field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ProfitDistributionBillMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ProfitDistributionBillMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ProfitDistributionBillMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ProfitDistributionBillMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ProfitDistributionBillMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ProfitDistributionBillMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ProfitDistributionBillMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ProfitDistributionBill unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ProfitDistributionBillMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ProfitDistributionBill edge %s", name)
 }
 
 // ProfitDistributionRuleMutation represents an operation that mutates the ProfitDistributionRule nodes in the graph.
