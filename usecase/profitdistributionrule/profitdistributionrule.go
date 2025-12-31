@@ -3,6 +3,7 @@ package profitdistributionrule
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -15,12 +16,17 @@ import (
 var _ domain.ProfitDistributionRuleInteractor = (*ProfitDistributionRuleInteractor)(nil)
 
 type ProfitDistributionRuleInteractor struct {
-	DS domain.DataStore
+	DS     domain.DataStore
+	Config domain.ProfitDistributionConfig
 }
 
-func NewProfitDistributionRuleInteractor(ds domain.DataStore) *ProfitDistributionRuleInteractor {
+func NewProfitDistributionRuleInteractor(ds domain.DataStore, profitDistributionConfig domain.ProfitDistributionConfig) *ProfitDistributionRuleInteractor {
+
+	fmt.Println(profitDistributionConfig)
+
 	return &ProfitDistributionRuleInteractor{
-		DS: ds,
+		DS:     ds,
+		Config: profitDistributionConfig,
 	}
 }
 
@@ -49,6 +55,10 @@ func (i *ProfitDistributionRuleInteractor) Update(ctx context.Context, rule *dom
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+	// 检查时间窗口：修改操作必须在定时任务执行后
+	if err = i.checkModifyTimeWindow(); err != nil {
+		return err
+	}
 	if err = validateProfitDistributionRuleParams(rule); err != nil {
 		return err
 	}
@@ -67,6 +77,7 @@ func (i *ProfitDistributionRuleInteractor) Update(ctx context.Context, rule *dom
 		if existingRule.MerchantID != user.GetMerchantID() {
 			return domain.ParamsError(domain.ErrProfitDistributionRuleNotExists)
 		}
+
 		rule.MerchantID = existingRule.MerchantID
 		rule.Status = existingRule.Status
 
@@ -86,6 +97,11 @@ func (i *ProfitDistributionRuleInteractor) Delete(ctx context.Context, id uuid.U
 		util.SpanErrFinish(span, err)
 	}()
 
+	// 检查时间窗口：删除操作必须在定时任务执行后
+	if err = i.checkModifyTimeWindow(); err != nil {
+		return err
+	}
+
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		// 验证分账方案存在
 		rule, err := ds.ProfitDistributionRuleRepo().FindByID(ctx, id)
@@ -101,29 +117,6 @@ func (i *ProfitDistributionRuleInteractor) Delete(ctx context.Context, id uuid.U
 			return domain.ParamsError(domain.ErrProfitDistributionRuleNotExists)
 		}
 
-		// // 验证状态：只有禁用状态才能删除
-		// if rule.Status != domain.ProfitDistributionRuleStatusDisabled {
-		// 	return domain.ParamsError(domain.ErrProfitDistributionRuleStatusInvalid)
-		// }
-
-		// // 验证是否有绑定门店
-		// storeCount, err := ds.ProfitDistributionRuleRepo().CountStores(ctx, id)
-		// if err != nil {
-		// 	return err
-		// }
-		// if storeCount > 0 {
-		// 	return domain.ParamsError(domain.ErrProfitDistributionRuleHasStores)
-		// }
-
-		// // 验证是否有生成账单
-		// billCount, err := ds.ProfitDistributionRuleRepo().CountBills(ctx, id)
-		// if err != nil {
-		// 	return err
-		// }
-		// if billCount > 0 {
-		// 	return domain.ParamsError(domain.ErrProfitDistributionRuleHasBills)
-		// }
-
 		// 删除分账方案
 		return ds.ProfitDistributionRuleRepo().Delete(ctx, id)
 	})
@@ -134,6 +127,11 @@ func (i *ProfitDistributionRuleInteractor) Enable(ctx context.Context, id uuid.U
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+
+	// 检查时间窗口：启用操作必须在定时任务执行后
+	if err = i.checkModifyTimeWindow(); err != nil {
+		return err
+	}
 
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		// 验证分账方案存在
@@ -166,6 +164,11 @@ func (i *ProfitDistributionRuleInteractor) Disable(ctx context.Context, id uuid.
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+
+	// 检查时间窗口：禁用操作必须在定时任务执行后
+	if err = i.checkModifyTimeWindow(); err != nil {
+		return err
+	}
 
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		// 验证分账方案存在
@@ -218,8 +221,11 @@ func validateProfitDistributionRuleParams(rule *domain.ProfitDistributionRule) e
 		return domain.ParamsError(domain.ErrProfitDistributionRuleSplitRatioInvalid)
 	}
 
-	// 2. 验证日期：生效日期必须早于失效日期
-	if rule.EffectiveDate.After(rule.ExpiryDate) || rule.EffectiveDate.Equal(rule.ExpiryDate) {
+	// 2. 验证日期：生效日期必须必须晚于今天，生效日期要早于失效日期
+	if rule.EffectiveDate.Before(time.Now().AddDate(0, 0, 1)) {
+		return domain.ParamsError(domain.ErrProfitDistributionRuleDateInvalid)
+	}
+	if rule.ExpiryDate.Before(rule.EffectiveDate) {
 		return domain.ParamsError(domain.ErrProfitDistributionRuleDateInvalid)
 	}
 	return nil
@@ -268,6 +274,23 @@ func validateProfitDistributionRuleBusinessRules(ctx context.Context, ds domain.
 		if hasBound {
 			return domain.ParamsError(domain.ErrProfitDistributionRuleStoreBound)
 		}
+	}
+	return nil
+}
+
+// checkModifyTimeWindow 检查是否在允许修改的时间窗口内
+// 修改操作必须在定时任务执行时间之后才能进行
+func (i *ProfitDistributionRuleInteractor) checkModifyTimeWindow() error {
+	now := time.Now()
+	currentHour := now.Hour()
+	currentMinute := now.Minute()
+	currentTimeMinutes := currentHour*60 + currentMinute
+	taskTimeMinutes := i.Config.TaskHour*60 + i.Config.TaskMinute
+
+	fmt.Println(i.Config.TaskHour, i.Config.TaskMinute)
+	// 如果当前时间早于定时任务执行时间，不允许修改
+	if currentTimeMinutes < taskTimeMinutes {
+		return domain.ParamsErrorf("修改操作必须在定时任务执行时间之后才能进行")
 	}
 	return nil
 }

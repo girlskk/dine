@@ -130,6 +130,27 @@ func (pdru *ProfitDistributionRuleUpdate) SetNillableExpiryDate(t *time.Time) *P
 	return pdru
 }
 
+// SetBillGenerationDay sets the "bill_generation_day" field.
+func (pdru *ProfitDistributionRuleUpdate) SetBillGenerationDay(i int) *ProfitDistributionRuleUpdate {
+	pdru.mutation.ResetBillGenerationDay()
+	pdru.mutation.SetBillGenerationDay(i)
+	return pdru
+}
+
+// SetNillableBillGenerationDay sets the "bill_generation_day" field if the given value is not nil.
+func (pdru *ProfitDistributionRuleUpdate) SetNillableBillGenerationDay(i *int) *ProfitDistributionRuleUpdate {
+	if i != nil {
+		pdru.SetBillGenerationDay(*i)
+	}
+	return pdru
+}
+
+// AddBillGenerationDay adds i to the "bill_generation_day" field.
+func (pdru *ProfitDistributionRuleUpdate) AddBillGenerationDay(i int) *ProfitDistributionRuleUpdate {
+	pdru.mutation.AddBillGenerationDay(i)
+	return pdru
+}
+
 // SetStatus sets the "status" field.
 func (pdru *ProfitDistributionRuleUpdate) SetStatus(ddrs domain.ProfitDistributionRuleStatus) *ProfitDistributionRuleUpdate {
 	pdru.mutation.SetStatus(ddrs)
@@ -310,6 +331,12 @@ func (pdru *ProfitDistributionRuleUpdate) sqlSave(ctx context.Context) (n int, e
 	if value, ok := pdru.mutation.ExpiryDate(); ok {
 		_spec.SetField(profitdistributionrule.FieldExpiryDate, field.TypeTime, value)
 	}
+	if value, ok := pdru.mutation.BillGenerationDay(); ok {
+		_spec.SetField(profitdistributionrule.FieldBillGenerationDay, field.TypeInt, value)
+	}
+	if value, ok := pdru.mutation.AddedBillGenerationDay(); ok {
+		_spec.AddField(profitdistributionrule.FieldBillGenerationDay, field.TypeInt, value)
+	}
 	if value, ok := pdru.mutation.Status(); ok {
 		_spec.SetField(profitdistributionrule.FieldStatus, field.TypeEnum, value)
 	}
@@ -480,6 +507,27 @@ func (pdruo *ProfitDistributionRuleUpdateOne) SetNillableExpiryDate(t *time.Time
 	if t != nil {
 		pdruo.SetExpiryDate(*t)
 	}
+	return pdruo
+}
+
+// SetBillGenerationDay sets the "bill_generation_day" field.
+func (pdruo *ProfitDistributionRuleUpdateOne) SetBillGenerationDay(i int) *ProfitDistributionRuleUpdateOne {
+	pdruo.mutation.ResetBillGenerationDay()
+	pdruo.mutation.SetBillGenerationDay(i)
+	return pdruo
+}
+
+// SetNillableBillGenerationDay sets the "bill_generation_day" field if the given value is not nil.
+func (pdruo *ProfitDistributionRuleUpdateOne) SetNillableBillGenerationDay(i *int) *ProfitDistributionRuleUpdateOne {
+	if i != nil {
+		pdruo.SetBillGenerationDay(*i)
+	}
+	return pdruo
+}
+
+// AddBillGenerationDay adds i to the "bill_generation_day" field.
+func (pdruo *ProfitDistributionRuleUpdateOne) AddBillGenerationDay(i int) *ProfitDistributionRuleUpdateOne {
+	pdruo.mutation.AddBillGenerationDay(i)
 	return pdruo
 }
 
@@ -692,6 +740,12 @@ func (pdruo *ProfitDistributionRuleUpdateOne) sqlSave(ctx context.Context) (_nod
 	}
 	if value, ok := pdruo.mutation.ExpiryDate(); ok {
 		_spec.SetField(profitdistributionrule.FieldExpiryDate, field.TypeTime, value)
+	}
+	if value, ok := pdruo.mutation.BillGenerationDay(); ok {
+		_spec.SetField(profitdistributionrule.FieldBillGenerationDay, field.TypeInt, value)
+	}
+	if value, ok := pdruo.mutation.AddedBillGenerationDay(); ok {
+		_spec.AddField(profitdistributionrule.FieldBillGenerationDay, field.TypeInt, value)
 	}
 	if value, ok := pdruo.mutation.Status(); ok {
 		_spec.SetField(profitdistributionrule.FieldStatus, field.TypeEnum, value)

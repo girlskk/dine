@@ -21243,29 +21243,31 @@ func (m *ProductUnitMutation) ResetEdge(name string) error {
 // ProfitDistributionRuleMutation represents an operation that mutates the ProfitDistributionRule nodes in the graph.
 type ProfitDistributionRuleMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *uuid.UUID
-	created_at     *time.Time
-	updated_at     *time.Time
-	deleted_at     *int64
-	adddeleted_at  *int64
-	merchant_id    *uuid.UUID
-	name           *string
-	split_ratio    *decimal.Decimal
-	billing_cycle  *domain.ProfitDistributionRuleBillingCycle
-	effective_date *time.Time
-	expiry_date    *time.Time
-	status         *domain.ProfitDistributionRuleStatus
-	store_count    *int
-	addstore_count *int
-	clearedFields  map[string]struct{}
-	stores         map[uuid.UUID]struct{}
-	removedstores  map[uuid.UUID]struct{}
-	clearedstores  bool
-	done           bool
-	oldValue       func(context.Context) (*ProfitDistributionRule, error)
-	predicates     []predicate.ProfitDistributionRule
+	op                     Op
+	typ                    string
+	id                     *uuid.UUID
+	created_at             *time.Time
+	updated_at             *time.Time
+	deleted_at             *int64
+	adddeleted_at          *int64
+	merchant_id            *uuid.UUID
+	name                   *string
+	split_ratio            *decimal.Decimal
+	billing_cycle          *domain.ProfitDistributionRuleBillingCycle
+	effective_date         *time.Time
+	expiry_date            *time.Time
+	bill_generation_day    *int
+	addbill_generation_day *int
+	status                 *domain.ProfitDistributionRuleStatus
+	store_count            *int
+	addstore_count         *int
+	clearedFields          map[string]struct{}
+	stores                 map[uuid.UUID]struct{}
+	removedstores          map[uuid.UUID]struct{}
+	clearedstores          bool
+	done                   bool
+	oldValue               func(context.Context) (*ProfitDistributionRule, error)
+	predicates             []predicate.ProfitDistributionRule
 }
 
 var _ ent.Mutation = (*ProfitDistributionRuleMutation)(nil)
@@ -21716,6 +21718,62 @@ func (m *ProfitDistributionRuleMutation) ResetExpiryDate() {
 	m.expiry_date = nil
 }
 
+// SetBillGenerationDay sets the "bill_generation_day" field.
+func (m *ProfitDistributionRuleMutation) SetBillGenerationDay(i int) {
+	m.bill_generation_day = &i
+	m.addbill_generation_day = nil
+}
+
+// BillGenerationDay returns the value of the "bill_generation_day" field in the mutation.
+func (m *ProfitDistributionRuleMutation) BillGenerationDay() (r int, exists bool) {
+	v := m.bill_generation_day
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBillGenerationDay returns the old "bill_generation_day" field's value of the ProfitDistributionRule entity.
+// If the ProfitDistributionRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfitDistributionRuleMutation) OldBillGenerationDay(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBillGenerationDay is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBillGenerationDay requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBillGenerationDay: %w", err)
+	}
+	return oldValue.BillGenerationDay, nil
+}
+
+// AddBillGenerationDay adds i to the "bill_generation_day" field.
+func (m *ProfitDistributionRuleMutation) AddBillGenerationDay(i int) {
+	if m.addbill_generation_day != nil {
+		*m.addbill_generation_day += i
+	} else {
+		m.addbill_generation_day = &i
+	}
+}
+
+// AddedBillGenerationDay returns the value that was added to the "bill_generation_day" field in this mutation.
+func (m *ProfitDistributionRuleMutation) AddedBillGenerationDay() (r int, exists bool) {
+	v := m.addbill_generation_day
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetBillGenerationDay resets all changes to the "bill_generation_day" field.
+func (m *ProfitDistributionRuleMutation) ResetBillGenerationDay() {
+	m.bill_generation_day = nil
+	m.addbill_generation_day = nil
+}
+
 // SetStatus sets the "status" field.
 func (m *ProfitDistributionRuleMutation) SetStatus(ddrs domain.ProfitDistributionRuleStatus) {
 	m.status = &ddrs
@@ -21896,7 +21954,7 @@ func (m *ProfitDistributionRuleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProfitDistributionRuleMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.created_at != nil {
 		fields = append(fields, profitdistributionrule.FieldCreatedAt)
 	}
@@ -21923,6 +21981,9 @@ func (m *ProfitDistributionRuleMutation) Fields() []string {
 	}
 	if m.expiry_date != nil {
 		fields = append(fields, profitdistributionrule.FieldExpiryDate)
+	}
+	if m.bill_generation_day != nil {
+		fields = append(fields, profitdistributionrule.FieldBillGenerationDay)
 	}
 	if m.status != nil {
 		fields = append(fields, profitdistributionrule.FieldStatus)
@@ -21956,6 +22017,8 @@ func (m *ProfitDistributionRuleMutation) Field(name string) (ent.Value, bool) {
 		return m.EffectiveDate()
 	case profitdistributionrule.FieldExpiryDate:
 		return m.ExpiryDate()
+	case profitdistributionrule.FieldBillGenerationDay:
+		return m.BillGenerationDay()
 	case profitdistributionrule.FieldStatus:
 		return m.Status()
 	case profitdistributionrule.FieldStoreCount:
@@ -21987,6 +22050,8 @@ func (m *ProfitDistributionRuleMutation) OldField(ctx context.Context, name stri
 		return m.OldEffectiveDate(ctx)
 	case profitdistributionrule.FieldExpiryDate:
 		return m.OldExpiryDate(ctx)
+	case profitdistributionrule.FieldBillGenerationDay:
+		return m.OldBillGenerationDay(ctx)
 	case profitdistributionrule.FieldStatus:
 		return m.OldStatus(ctx)
 	case profitdistributionrule.FieldStoreCount:
@@ -22063,6 +22128,13 @@ func (m *ProfitDistributionRuleMutation) SetField(name string, value ent.Value) 
 		}
 		m.SetExpiryDate(v)
 		return nil
+	case profitdistributionrule.FieldBillGenerationDay:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBillGenerationDay(v)
+		return nil
 	case profitdistributionrule.FieldStatus:
 		v, ok := value.(domain.ProfitDistributionRuleStatus)
 		if !ok {
@@ -22088,6 +22160,9 @@ func (m *ProfitDistributionRuleMutation) AddedFields() []string {
 	if m.adddeleted_at != nil {
 		fields = append(fields, profitdistributionrule.FieldDeletedAt)
 	}
+	if m.addbill_generation_day != nil {
+		fields = append(fields, profitdistributionrule.FieldBillGenerationDay)
+	}
 	if m.addstore_count != nil {
 		fields = append(fields, profitdistributionrule.FieldStoreCount)
 	}
@@ -22101,6 +22176,8 @@ func (m *ProfitDistributionRuleMutation) AddedField(name string) (ent.Value, boo
 	switch name {
 	case profitdistributionrule.FieldDeletedAt:
 		return m.AddedDeletedAt()
+	case profitdistributionrule.FieldBillGenerationDay:
+		return m.AddedBillGenerationDay()
 	case profitdistributionrule.FieldStoreCount:
 		return m.AddedStoreCount()
 	}
@@ -22118,6 +22195,13 @@ func (m *ProfitDistributionRuleMutation) AddField(name string, value ent.Value) 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddDeletedAt(v)
+		return nil
+	case profitdistributionrule.FieldBillGenerationDay:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddBillGenerationDay(v)
 		return nil
 	case profitdistributionrule.FieldStoreCount:
 		v, ok := value.(int)
@@ -22179,6 +22263,9 @@ func (m *ProfitDistributionRuleMutation) ResetField(name string) error {
 		return nil
 	case profitdistributionrule.FieldExpiryDate:
 		m.ResetExpiryDate()
+		return nil
+	case profitdistributionrule.FieldBillGenerationDay:
+		m.ResetBillGenerationDay()
 		return nil
 	case profitdistributionrule.FieldStatus:
 		m.ResetStatus()

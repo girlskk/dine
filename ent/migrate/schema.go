@@ -857,6 +857,7 @@ var (
 		{Name: "billing_cycle", Type: field.TypeEnum, Enums: []string{"daily", "monthly"}, Default: "daily"},
 		{Name: "effective_date", Type: field.TypeTime},
 		{Name: "expiry_date", Type: field.TypeTime},
+		{Name: "bill_generation_day", Type: field.TypeInt, Default: 1},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"enabled", "disabled"}, Default: "disabled"},
 		{Name: "store_count", Type: field.TypeInt, Default: 0},
 	}

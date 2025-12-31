@@ -1279,8 +1279,12 @@ func init() {
 			return nil
 		}
 	}()
+	// profitdistributionruleDescBillGenerationDay is the schema descriptor for bill_generation_day field.
+	profitdistributionruleDescBillGenerationDay := profitdistributionruleFields[6].Descriptor()
+	// profitdistributionrule.DefaultBillGenerationDay holds the default value on creation for the bill_generation_day field.
+	profitdistributionrule.DefaultBillGenerationDay = profitdistributionruleDescBillGenerationDay.Default.(int)
 	// profitdistributionruleDescStoreCount is the schema descriptor for store_count field.
-	profitdistributionruleDescStoreCount := profitdistributionruleFields[7].Descriptor()
+	profitdistributionruleDescStoreCount := profitdistributionruleFields[8].Descriptor()
 	// profitdistributionrule.DefaultStoreCount holds the default value on creation for the store_count field.
 	profitdistributionrule.DefaultStoreCount = profitdistributionruleDescStoreCount.Default.(int)
 	// profitdistributionruleDescID is the schema descriptor for id field.

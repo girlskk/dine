@@ -846,6 +846,9 @@ definitions:
     - ProductUnitTypeWeight
   domain.ProfitDistributionRule:
     properties:
+      bill_generation_day:
+        description: 账单生成日：1-28号
+        type: integer
       billing_cycle:
         allOf:
         - $ref: '#/definitions/domain.ProfitDistributionRuleBillingCycle'
@@ -1716,6 +1719,11 @@ definitions:
     type: object
   types.ProfitDistributionRuleCreateReq:
     properties:
+      bill_generation_day:
+        description: 账单生成日：1-28号（必选）
+        maximum: 28
+        minimum: 1
+        type: integer
       billing_cycle:
         allOf:
         - $ref: '#/definitions/domain.ProfitDistributionRuleBillingCycle'
@@ -1752,6 +1760,11 @@ definitions:
     type: object
   types.ProfitDistributionRuleUpdateReq:
     properties:
+      bill_generation_day:
+        description: 账单生成日：1-28号（必选）
+        maximum: 28
+        minimum: 1
+        type: integer
       billing_cycle:
         allOf:
         - $ref: '#/definitions/domain.ProfitDistributionRuleBillingCycle'
@@ -3030,21 +3043,6 @@ paths:
       tags:
       - 分账方案
   /profit/distribution/rule/{id}:
-    delete:
-      parameters:
-      - description: 分账方案ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-      security:
-      - BearerAuth: []
-      summary: 删除分账方案
-      tags:
-      - 分账方案
     put:
       parameters:
       - description: 分账方案ID

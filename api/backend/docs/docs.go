@@ -1457,31 +1457,6 @@ const docTemplate = `{
                         "description": "OK"
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "分账方案"
-                ],
-                "summary": "删除分账方案",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "分账方案ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
             }
         },
         "/profit/distribution/rule/{id}/disable": {
@@ -3202,6 +3177,10 @@ const docTemplate = `{
         "domain.ProfitDistributionRule": {
             "type": "object",
             "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号",
+                    "type": "integer"
+                },
                 "billing_cycle": {
                     "description": "账单生成周期",
                     "allOf": [
@@ -4443,6 +4422,12 @@ const docTemplate = `{
                 "store_ids"
             ],
             "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号（必选）",
+                    "type": "integer",
+                    "maximum": 28,
+                    "minimum": 1
+                },
                 "billing_cycle": {
                     "description": "账单生成周期（必选）",
                     "enum": [
@@ -4493,6 +4478,12 @@ const docTemplate = `{
                 "store_ids"
             ],
             "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号（必选）",
+                    "type": "integer",
+                    "maximum": 28,
+                    "minimum": 1
+                },
                 "billing_cycle": {
                     "description": "账单生成周期（必选）",
                     "enum": [

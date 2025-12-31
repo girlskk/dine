@@ -39,6 +39,8 @@ type ProfitDistributionRule struct {
 	EffectiveDate time.Time `json:"effective_date,omitempty"`
 	// 方案失效日期
 	ExpiryDate time.Time `json:"expiry_date,omitempty"`
+	// 账单生成日：1-28号
+	BillGenerationDay int `json:"bill_generation_day,omitempty"`
 	// 状态：enabled（启用）、disabled（禁用）
 	Status domain.ProfitDistributionRuleStatus `json:"status,omitempty"`
 	// 关联门店数量
@@ -74,7 +76,7 @@ func (*ProfitDistributionRule) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case profitdistributionrule.FieldSplitRatio:
 			values[i] = new(decimal.Decimal)
-		case profitdistributionrule.FieldDeletedAt, profitdistributionrule.FieldStoreCount:
+		case profitdistributionrule.FieldDeletedAt, profitdistributionrule.FieldBillGenerationDay, profitdistributionrule.FieldStoreCount:
 			values[i] = new(sql.NullInt64)
 		case profitdistributionrule.FieldName, profitdistributionrule.FieldBillingCycle, profitdistributionrule.FieldStatus:
 			values[i] = new(sql.NullString)
@@ -157,6 +159,12 @@ func (pdr *ProfitDistributionRule) assignValues(columns []string, values []any) 
 			} else if value.Valid {
 				pdr.ExpiryDate = value.Time
 			}
+		case profitdistributionrule.FieldBillGenerationDay:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field bill_generation_day", values[i])
+			} else if value.Valid {
+				pdr.BillGenerationDay = int(value.Int64)
+			}
 		case profitdistributionrule.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -236,6 +244,9 @@ func (pdr *ProfitDistributionRule) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("expiry_date=")
 	builder.WriteString(pdr.ExpiryDate.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("bill_generation_day=")
+	builder.WriteString(fmt.Sprintf("%v", pdr.BillGenerationDay))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", pdr.Status))

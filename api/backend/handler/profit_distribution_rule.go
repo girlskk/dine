@@ -31,7 +31,6 @@ func (h *ProfitDistributionRuleHandler) Routes(r gin.IRouter) {
 	r = r.Group("profit/distribution/rule")
 	r.POST("", h.Create())
 	r.PUT("/:id", h.Update())
-	r.DELETE("/:id", h.Delete())
 	r.POST("/:id/enable", h.Enable())
 	r.POST("/:id/disable", h.Disable())
 	r.GET("", h.List())
@@ -67,15 +66,16 @@ func (h *ProfitDistributionRuleHandler) Create() gin.HandlerFunc {
 
 		// 构建 domain.ProfitDistributionRule
 		rule := &domain.ProfitDistributionRule{
-			ID:            uuid.New(),
-			MerchantID:    user.GetMerchantID(),
-			Name:          req.Name,
-			SplitRatio:    req.SplitRatio,
-			BillingCycle:  req.BillingCycle,
-			EffectiveDate: req.EffectiveDate,
-			ExpiryDate:    req.ExpiryDate,
-			Status:        domain.ProfitDistributionRuleStatusDisabled, // 默认禁用状态
-			StoreCount:    len(req.StoreIDs),
+			ID:                uuid.New(),
+			MerchantID:        user.GetMerchantID(),
+			Name:              req.Name,
+			SplitRatio:        req.SplitRatio,
+			BillingCycle:      req.BillingCycle,
+			EffectiveDate:     req.EffectiveDate,
+			ExpiryDate:        req.ExpiryDate,
+			Status:            domain.ProfitDistributionRuleStatusEnabled,
+			BillGenerationDay: req.BillGenerationDay,
+			StoreCount:        len(req.StoreIDs),
 			Stores: lo.Map(req.StoreIDs, func(storeID uuid.UUID, _ int) *domain.StoreSimple {
 				return &domain.StoreSimple{
 					ID: storeID,
@@ -141,13 +141,14 @@ func (h *ProfitDistributionRuleHandler) Update() gin.HandlerFunc {
 
 		// 构建 domain.ProfitDistributionRule
 		rule := &domain.ProfitDistributionRule{
-			ID:            ruleID,
-			Name:          req.Name,
-			SplitRatio:    req.SplitRatio,
-			BillingCycle:  req.BillingCycle,
-			EffectiveDate: req.EffectiveDate,
-			ExpiryDate:    req.ExpiryDate,
-			StoreCount:    len(req.StoreIDs),
+			ID:                ruleID,
+			Name:              req.Name,
+			SplitRatio:        req.SplitRatio,
+			BillingCycle:      req.BillingCycle,
+			EffectiveDate:     req.EffectiveDate,
+			ExpiryDate:        req.ExpiryDate,
+			BillGenerationDay: req.BillGenerationDay,
+			StoreCount:        len(req.StoreIDs),
 			Stores: lo.Map(req.StoreIDs, func(storeID uuid.UUID, _ int) *domain.StoreSimple {
 				return &domain.StoreSimple{
 					ID: storeID,
@@ -178,44 +179,44 @@ func (h *ProfitDistributionRuleHandler) Update() gin.HandlerFunc {
 	}
 }
 
-// Delete
-//
-//	@Tags		分账方案
-//	@Security	BearerAuth
-//	@Summary	删除分账方案
-//	@Param		id	path	string	true	"分账方案ID"
-//	@Success	200
-//	@Router		/profit/distribution/rule/{id} [delete]
-func (h *ProfitDistributionRuleHandler) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("ProfitDistributionRuleHandler.Delete")
-		ctx = logging.NewContext(ctx, logger)
-		c.Request = c.Request.Clone(ctx)
+// // Delete
+// //
+// //	@Tags		分账方案
+// //	@Security	BearerAuth
+// //	@Summary	删除分账方案
+// //	@Param		id	path	string	true	"分账方案ID"
+// //	@Success	200
+// //	@Router		/profit/distribution/rule/{id} [delete]
+// func (h *ProfitDistributionRuleHandler) Delete() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		ctx := c.Request.Context()
+// 		logger := logging.FromContext(ctx).Named("ProfitDistributionRuleHandler.Delete")
+// 		ctx = logging.NewContext(ctx, logger)
+// 		c.Request = c.Request.Clone(ctx)
 
-		// 从路径参数获取分账方案ID
-		idStr := c.Param("id")
-		ruleID, err := uuid.Parse(idStr)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
+// 		// 从路径参数获取分账方案ID
+// 		idStr := c.Param("id")
+// 		ruleID, err := uuid.Parse(idStr)
+// 		if err != nil {
+// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+// 			return
+// 		}
 
-		user := domain.FromBackendUserContext(ctx)
-		err = h.ProfitDistributionRuleInteractor.Delete(ctx, ruleID, user)
-		if err != nil {
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete profit distribution rule: %w", err)
-			c.Error(err)
-			return
-		}
+// 		user := domain.FromBackendUserContext(ctx)
+// 		err = h.ProfitDistributionRuleInteractor.Delete(ctx, ruleID, user)
+// 		if err != nil {
+// 			if domain.IsParamsError(err) {
+// 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+// 				return
+// 			}
+// 			err = fmt.Errorf("failed to delete profit distribution rule: %w", err)
+// 			c.Error(err)
+// 			return
+// 		}
 
-		response.Ok(c, nil)
-	}
-}
+// 		response.Ok(c, nil)
+// 	}
+// }
 
 // Enable
 //

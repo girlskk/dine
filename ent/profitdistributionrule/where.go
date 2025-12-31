@@ -98,6 +98,11 @@ func ExpiryDate(v time.Time) predicate.ProfitDistributionRule {
 	return predicate.ProfitDistributionRule(sql.FieldEQ(FieldExpiryDate, v))
 }
 
+// BillGenerationDay applies equality check predicate on the "bill_generation_day" field. It's identical to BillGenerationDayEQ.
+func BillGenerationDay(v int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldEQ(FieldBillGenerationDay, v))
+}
+
 // StoreCount applies equality check predicate on the "store_count" field. It's identical to StoreCountEQ.
 func StoreCount(v int) predicate.ProfitDistributionRule {
 	return predicate.ProfitDistributionRule(sql.FieldEQ(FieldStoreCount, v))
@@ -476,6 +481,46 @@ func ExpiryDateLT(v time.Time) predicate.ProfitDistributionRule {
 // ExpiryDateLTE applies the LTE predicate on the "expiry_date" field.
 func ExpiryDateLTE(v time.Time) predicate.ProfitDistributionRule {
 	return predicate.ProfitDistributionRule(sql.FieldLTE(FieldExpiryDate, v))
+}
+
+// BillGenerationDayEQ applies the EQ predicate on the "bill_generation_day" field.
+func BillGenerationDayEQ(v int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldEQ(FieldBillGenerationDay, v))
+}
+
+// BillGenerationDayNEQ applies the NEQ predicate on the "bill_generation_day" field.
+func BillGenerationDayNEQ(v int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldNEQ(FieldBillGenerationDay, v))
+}
+
+// BillGenerationDayIn applies the In predicate on the "bill_generation_day" field.
+func BillGenerationDayIn(vs ...int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldIn(FieldBillGenerationDay, vs...))
+}
+
+// BillGenerationDayNotIn applies the NotIn predicate on the "bill_generation_day" field.
+func BillGenerationDayNotIn(vs ...int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldNotIn(FieldBillGenerationDay, vs...))
+}
+
+// BillGenerationDayGT applies the GT predicate on the "bill_generation_day" field.
+func BillGenerationDayGT(v int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldGT(FieldBillGenerationDay, v))
+}
+
+// BillGenerationDayGTE applies the GTE predicate on the "bill_generation_day" field.
+func BillGenerationDayGTE(v int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldGTE(FieldBillGenerationDay, v))
+}
+
+// BillGenerationDayLT applies the LT predicate on the "bill_generation_day" field.
+func BillGenerationDayLT(v int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldLT(FieldBillGenerationDay, v))
+}
+
+// BillGenerationDayLTE applies the LTE predicate on the "bill_generation_day" field.
+func BillGenerationDayLTE(v int) predicate.ProfitDistributionRule {
+	return predicate.ProfitDistributionRule(sql.FieldLTE(FieldBillGenerationDay, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

@@ -42,6 +42,7 @@ func (ProfitDistributionRule) Fields() []ent.Field {
 			Comment("账单生成周期：daily（按日）、monthly（按月）"),
 		field.Time("effective_date").Comment("方案生效日期"),
 		field.Time("expiry_date").Comment("方案失效日期"),
+		field.Int("bill_generation_day").Default(1).Comment("账单生成日：1-28号"),
 		field.Enum("status").
 			GoType(domain.ProfitDistributionRuleStatus("")).
 			Default(string(domain.ProfitDistributionRuleStatusDisabled)).

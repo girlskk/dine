@@ -36,6 +36,8 @@ const (
 	FieldEffectiveDate = "effective_date"
 	// FieldExpiryDate holds the string denoting the expiry_date field in the database.
 	FieldExpiryDate = "expiry_date"
+	// FieldBillGenerationDay holds the string denoting the bill_generation_day field in the database.
+	FieldBillGenerationDay = "bill_generation_day"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldStoreCount holds the string denoting the store_count field in the database.
@@ -63,6 +65,7 @@ var Columns = []string{
 	FieldBillingCycle,
 	FieldEffectiveDate,
 	FieldExpiryDate,
+	FieldBillGenerationDay,
 	FieldStatus,
 	FieldStoreCount,
 }
@@ -101,6 +104,8 @@ var (
 	DefaultDeletedAt int64
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultBillGenerationDay holds the default value on creation for the "bill_generation_day" field.
+	DefaultBillGenerationDay int
 	// DefaultStoreCount holds the default value on creation for the "store_count" field.
 	DefaultStoreCount int
 	// DefaultID holds the default value on creation for the "id" field.
@@ -182,6 +187,11 @@ func ByEffectiveDate(opts ...sql.OrderTermOption) OrderOption {
 // ByExpiryDate orders the results by the expiry_date field.
 func ByExpiryDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExpiryDate, opts...).ToFunc()
+}
+
+// ByBillGenerationDay orders the results by the bill_generation_day field.
+func ByBillGenerationDay(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBillGenerationDay, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

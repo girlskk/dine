@@ -19,7 +19,7 @@ var (
 	ErrProfitDistributionRuleNameExists        = errors.New("分账方案名称已存在")
 	ErrProfitDistributionRuleStoreBound        = errors.New("门店已绑定其他分账方案")
 	ErrProfitDistributionRuleStatusInvalid     = errors.New("分账方案状态无效")
-	ErrProfitDistributionRuleDateInvalid       = errors.New("方案生效日期必须早于方案失效日期")
+	ErrProfitDistributionRuleDateInvalid       = errors.New("方案生效日期必须必须晚于今天，生效日期要早于失效日期")
 	ErrProfitDistributionRuleSplitRatioInvalid = errors.New("分账比例必须为0-1之间的数值")
 )
 
@@ -57,23 +57,30 @@ func (ProfitDistributionRuleBillingCycle) Values() []string {
 	}
 }
 
+// ProfitDistributionConfig 分账任务配置
+type ProfitDistributionConfig struct {
+	TaskHour   int // 定时任务执行小时
+	TaskMinute int // 定时任务执行分钟
+}
+
 // ------------------------------------------------------------
 // 实体定义
 // ------------------------------------------------------------
 
 // ProfitDistributionRule 分账方案实体
 type ProfitDistributionRule struct {
-	ID            uuid.UUID                          `json:"id"`             // 分账方案ID
-	MerchantID    uuid.UUID                          `json:"merchant_id"`    // 品牌商ID
-	Name          string                             `json:"name"`           // 分账方案名称
-	SplitRatio    decimal.Decimal                    `json:"split_ratio"`    // 分账比例（0-1，单位：小数）
-	BillingCycle  ProfitDistributionRuleBillingCycle `json:"billing_cycle"`  // 账单生成周期
-	EffectiveDate time.Time                          `json:"effective_date"` // 方案生效日期
-	ExpiryDate    time.Time                          `json:"expiry_date"`    // 方案失效日期
-	Status        ProfitDistributionRuleStatus       `json:"status"`         // 状态
-	StoreCount    int                                `json:"store_count"`    // 关联门店数量
-	CreatedAt     time.Time                          `json:"created_at"`     // 创建时间
-	UpdatedAt     time.Time                          `json:"updated_at"`     // 更新时间
+	ID                uuid.UUID                          `json:"id"`                  // 分账方案ID
+	MerchantID        uuid.UUID                          `json:"merchant_id"`         // 品牌商ID
+	Name              string                             `json:"name"`                // 分账方案名称
+	SplitRatio        decimal.Decimal                    `json:"split_ratio"`         // 分账比例（0-1，单位：小数）
+	BillingCycle      ProfitDistributionRuleBillingCycle `json:"billing_cycle"`       // 账单生成周期
+	EffectiveDate     time.Time                          `json:"effective_date"`      // 方案生效日期
+	ExpiryDate        time.Time                          `json:"expiry_date"`         // 方案失效日期
+	BillGenerationDay int                                `json:"bill_generation_day"` // 账单生成日：1-28号
+	Status            ProfitDistributionRuleStatus       `json:"status"`              // 状态
+	StoreCount        int                                `json:"store_count"`         // 关联门店数量
+	CreatedAt         time.Time                          `json:"created_at"`          // 创建时间
+	UpdatedAt         time.Time                          `json:"updated_at"`          // 更新时间
 
 	// 关联信息
 	Stores []*StoreSimple `json:"stores,omitempty"` // 关联门店列表
@@ -97,7 +104,6 @@ type ProfitDistributionRuleRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params ProfitDistributionRuleExistsParams) (bool, error)
 	CheckStoreBound(ctx context.Context, storeIDs []uuid.UUID, excludeRuleID uuid.UUID) (bool, error)
-	CountStores(ctx context.Context, ruleID uuid.UUID) (int, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProfitDistributionRuleSearchParams) (*ProfitDistributionRuleSearchRes, error)
 }
 

@@ -79,6 +79,7 @@ func (repo *ProfitDistributionRuleRepository) Create(ctx context.Context, rule *
 		SetBillingCycle(rule.BillingCycle).
 		SetEffectiveDate(rule.EffectiveDate).
 		SetExpiryDate(rule.ExpiryDate).
+		SetBillGenerationDay(rule.BillGenerationDay).
 		SetStatus(rule.Status).
 		SetStoreCount(rule.StoreCount)
 
@@ -114,6 +115,7 @@ func (repo *ProfitDistributionRuleRepository) Update(ctx context.Context, rule *
 		SetBillingCycle(rule.BillingCycle).
 		SetEffectiveDate(rule.EffectiveDate).
 		SetExpiryDate(rule.ExpiryDate).
+		SetBillGenerationDay(rule.BillGenerationDay).
 		SetStatus(rule.Status).
 		SetStoreCount(rule.StoreCount)
 
@@ -193,23 +195,6 @@ func (repo *ProfitDistributionRuleRepository) CheckStoreBound(ctx context.Contex
 	return len(rules) > 0, nil
 }
 
-func (repo *ProfitDistributionRuleRepository) CountStores(ctx context.Context, ruleID uuid.UUID) (count int, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "ProfitDistributionRuleRepository.CountStores")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
-
-	count, err = repo.Client.ProfitDistributionRule.Query().
-		Where(profitdistributionrule.IDEQ(ruleID)).
-		QueryStores().
-		Count(ctx)
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
-}
-
 func (repo *ProfitDistributionRuleRepository) PagedListBySearch(
 	ctx context.Context,
 	page *upagination.Pagination,
@@ -274,17 +259,18 @@ func convertProfitDistributionRuleToDomain(epdr *ent.ProfitDistributionRule) *do
 	}
 
 	r := &domain.ProfitDistributionRule{
-		ID:            epdr.ID,
-		MerchantID:    epdr.MerchantID,
-		Name:          epdr.Name,
-		SplitRatio:    epdr.SplitRatio,
-		BillingCycle:  epdr.BillingCycle,
-		EffectiveDate: epdr.EffectiveDate,
-		ExpiryDate:    epdr.ExpiryDate,
-		Status:        epdr.Status,
-		StoreCount:    epdr.StoreCount,
-		CreatedAt:     epdr.CreatedAt,
-		UpdatedAt:     epdr.UpdatedAt,
+		ID:                epdr.ID,
+		MerchantID:        epdr.MerchantID,
+		Name:              epdr.Name,
+		SplitRatio:        epdr.SplitRatio,
+		BillingCycle:      epdr.BillingCycle,
+		EffectiveDate:     epdr.EffectiveDate,
+		ExpiryDate:        epdr.ExpiryDate,
+		BillGenerationDay: epdr.BillGenerationDay,
+		Status:            epdr.Status,
+		StoreCount:        epdr.StoreCount,
+		CreatedAt:         epdr.CreatedAt,
+		UpdatedAt:         epdr.UpdatedAt,
 	}
 
 	// 转换门店列表

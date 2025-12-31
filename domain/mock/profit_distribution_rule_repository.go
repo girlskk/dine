@@ -52,21 +52,6 @@ func (mr *MockProfitDistributionRuleRepositoryMockRecorder) CheckStoreBound(arg0
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckStoreBound", reflect.TypeOf((*MockProfitDistributionRuleRepository)(nil).CheckStoreBound), arg0, arg1, arg2)
 }
 
-// CountStores mocks base method.
-func (m *MockProfitDistributionRuleRepository) CountStores(arg0 context.Context, arg1 uuid.UUID) (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CountStores", arg0, arg1)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CountStores indicates an expected call of CountStores.
-func (mr *MockProfitDistributionRuleRepositoryMockRecorder) CountStores(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountStores", reflect.TypeOf((*MockProfitDistributionRuleRepository)(nil).CountStores), arg0, arg1)
-}
-
 // Create mocks base method.
 func (m *MockProfitDistributionRuleRepository) Create(arg0 context.Context, arg1 *domain.ProfitDistributionRule) error {
 	m.ctrl.T.Helper()

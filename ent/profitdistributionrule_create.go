@@ -113,6 +113,20 @@ func (pdrc *ProfitDistributionRuleCreate) SetExpiryDate(t time.Time) *ProfitDist
 	return pdrc
 }
 
+// SetBillGenerationDay sets the "bill_generation_day" field.
+func (pdrc *ProfitDistributionRuleCreate) SetBillGenerationDay(i int) *ProfitDistributionRuleCreate {
+	pdrc.mutation.SetBillGenerationDay(i)
+	return pdrc
+}
+
+// SetNillableBillGenerationDay sets the "bill_generation_day" field if the given value is not nil.
+func (pdrc *ProfitDistributionRuleCreate) SetNillableBillGenerationDay(i *int) *ProfitDistributionRuleCreate {
+	if i != nil {
+		pdrc.SetBillGenerationDay(*i)
+	}
+	return pdrc
+}
+
 // SetStatus sets the "status" field.
 func (pdrc *ProfitDistributionRuleCreate) SetStatus(ddrs domain.ProfitDistributionRuleStatus) *ProfitDistributionRuleCreate {
 	pdrc.mutation.SetStatus(ddrs)
@@ -229,6 +243,10 @@ func (pdrc *ProfitDistributionRuleCreate) defaults() error {
 		v := profitdistributionrule.DefaultBillingCycle
 		pdrc.mutation.SetBillingCycle(v)
 	}
+	if _, ok := pdrc.mutation.BillGenerationDay(); !ok {
+		v := profitdistributionrule.DefaultBillGenerationDay
+		pdrc.mutation.SetBillGenerationDay(v)
+	}
 	if _, ok := pdrc.mutation.Status(); !ok {
 		v := profitdistributionrule.DefaultStatus
 		pdrc.mutation.SetStatus(v)
@@ -285,6 +303,9 @@ func (pdrc *ProfitDistributionRuleCreate) check() error {
 	}
 	if _, ok := pdrc.mutation.ExpiryDate(); !ok {
 		return &ValidationError{Name: "expiry_date", err: errors.New(`ent: missing required field "ProfitDistributionRule.expiry_date"`)}
+	}
+	if _, ok := pdrc.mutation.BillGenerationDay(); !ok {
+		return &ValidationError{Name: "bill_generation_day", err: errors.New(`ent: missing required field "ProfitDistributionRule.bill_generation_day"`)}
 	}
 	if _, ok := pdrc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "ProfitDistributionRule.status"`)}
@@ -368,6 +389,10 @@ func (pdrc *ProfitDistributionRuleCreate) createSpec() (*ProfitDistributionRule,
 	if value, ok := pdrc.mutation.ExpiryDate(); ok {
 		_spec.SetField(profitdistributionrule.FieldExpiryDate, field.TypeTime, value)
 		_node.ExpiryDate = value
+	}
+	if value, ok := pdrc.mutation.BillGenerationDay(); ok {
+		_spec.SetField(profitdistributionrule.FieldBillGenerationDay, field.TypeInt, value)
+		_node.BillGenerationDay = value
 	}
 	if value, ok := pdrc.mutation.Status(); ok {
 		_spec.SetField(profitdistributionrule.FieldStatus, field.TypeEnum, value)
@@ -532,6 +557,24 @@ func (u *ProfitDistributionRuleUpsert) SetExpiryDate(v time.Time) *ProfitDistrib
 // UpdateExpiryDate sets the "expiry_date" field to the value that was provided on create.
 func (u *ProfitDistributionRuleUpsert) UpdateExpiryDate() *ProfitDistributionRuleUpsert {
 	u.SetExcluded(profitdistributionrule.FieldExpiryDate)
+	return u
+}
+
+// SetBillGenerationDay sets the "bill_generation_day" field.
+func (u *ProfitDistributionRuleUpsert) SetBillGenerationDay(v int) *ProfitDistributionRuleUpsert {
+	u.Set(profitdistributionrule.FieldBillGenerationDay, v)
+	return u
+}
+
+// UpdateBillGenerationDay sets the "bill_generation_day" field to the value that was provided on create.
+func (u *ProfitDistributionRuleUpsert) UpdateBillGenerationDay() *ProfitDistributionRuleUpsert {
+	u.SetExcluded(profitdistributionrule.FieldBillGenerationDay)
+	return u
+}
+
+// AddBillGenerationDay adds v to the "bill_generation_day" field.
+func (u *ProfitDistributionRuleUpsert) AddBillGenerationDay(v int) *ProfitDistributionRuleUpsert {
+	u.Add(profitdistributionrule.FieldBillGenerationDay, v)
 	return u
 }
 
@@ -721,6 +764,27 @@ func (u *ProfitDistributionRuleUpsertOne) SetExpiryDate(v time.Time) *ProfitDist
 func (u *ProfitDistributionRuleUpsertOne) UpdateExpiryDate() *ProfitDistributionRuleUpsertOne {
 	return u.Update(func(s *ProfitDistributionRuleUpsert) {
 		s.UpdateExpiryDate()
+	})
+}
+
+// SetBillGenerationDay sets the "bill_generation_day" field.
+func (u *ProfitDistributionRuleUpsertOne) SetBillGenerationDay(v int) *ProfitDistributionRuleUpsertOne {
+	return u.Update(func(s *ProfitDistributionRuleUpsert) {
+		s.SetBillGenerationDay(v)
+	})
+}
+
+// AddBillGenerationDay adds v to the "bill_generation_day" field.
+func (u *ProfitDistributionRuleUpsertOne) AddBillGenerationDay(v int) *ProfitDistributionRuleUpsertOne {
+	return u.Update(func(s *ProfitDistributionRuleUpsert) {
+		s.AddBillGenerationDay(v)
+	})
+}
+
+// UpdateBillGenerationDay sets the "bill_generation_day" field to the value that was provided on create.
+func (u *ProfitDistributionRuleUpsertOne) UpdateBillGenerationDay() *ProfitDistributionRuleUpsertOne {
+	return u.Update(func(s *ProfitDistributionRuleUpsert) {
+		s.UpdateBillGenerationDay()
 	})
 }
 
@@ -1082,6 +1146,27 @@ func (u *ProfitDistributionRuleUpsertBulk) SetExpiryDate(v time.Time) *ProfitDis
 func (u *ProfitDistributionRuleUpsertBulk) UpdateExpiryDate() *ProfitDistributionRuleUpsertBulk {
 	return u.Update(func(s *ProfitDistributionRuleUpsert) {
 		s.UpdateExpiryDate()
+	})
+}
+
+// SetBillGenerationDay sets the "bill_generation_day" field.
+func (u *ProfitDistributionRuleUpsertBulk) SetBillGenerationDay(v int) *ProfitDistributionRuleUpsertBulk {
+	return u.Update(func(s *ProfitDistributionRuleUpsert) {
+		s.SetBillGenerationDay(v)
+	})
+}
+
+// AddBillGenerationDay adds v to the "bill_generation_day" field.
+func (u *ProfitDistributionRuleUpsertBulk) AddBillGenerationDay(v int) *ProfitDistributionRuleUpsertBulk {
+	return u.Update(func(s *ProfitDistributionRuleUpsert) {
+		s.AddBillGenerationDay(v)
+	})
+}
+
+// UpdateBillGenerationDay sets the "bill_generation_day" field to the value that was provided on create.
+func (u *ProfitDistributionRuleUpsertBulk) UpdateBillGenerationDay() *ProfitDistributionRuleUpsertBulk {
+	return u.Update(func(s *ProfitDistributionRuleUpsert) {
+		s.UpdateBillGenerationDay()
 	})
 }
 
