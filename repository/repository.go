@@ -36,6 +36,7 @@ type Repository struct {
 	remarkRepo               *RemarkRepository
 	remarkCategoryRepo       *RemarkCategoryRepository
 	menuRepo                 *MenuRepository
+	paymentMethodRepo        *PaymentMethodRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -279,4 +280,13 @@ func (repo *Repository) StoreUserRepo() domain.StoreUserRepository {
 		repo.storeUserRepo = NewStoreUserRepository(repo.client)
 	}
 	return repo.storeUserRepo
+}
+
+func (repo *Repository) MenuPaymentMethodRepo() domain.PaymentMethodRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.paymentMethodRepo == nil {
+		repo.paymentMethodRepo = NewPaymentMethodRepository(repo.client)
+	}
+	return repo.paymentMethodRepo
 }

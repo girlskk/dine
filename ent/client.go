@@ -27,6 +27,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
@@ -70,6 +71,8 @@ type Client struct {
 	MerchantBusinessType *MerchantBusinessTypeClient
 	// MerchantRenewal is the client for interacting with the MerchantRenewal builders.
 	MerchantRenewal *MerchantRenewalClient
+	// PaymentMethod is the client for interacting with the PaymentMethod builders.
+	PaymentMethod *PaymentMethodClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
@@ -120,6 +123,7 @@ func (c *Client) init() {
 	c.Merchant = NewMerchantClient(c.config)
 	c.MerchantBusinessType = NewMerchantBusinessTypeClient(c.config)
 	c.MerchantRenewal = NewMerchantRenewalClient(c.config)
+	c.PaymentMethod = NewPaymentMethodClient(c.config)
 	c.Product = NewProductClient(c.config)
 	c.ProductAttr = NewProductAttrClient(c.config)
 	c.ProductAttrItem = NewProductAttrItemClient(c.config)
@@ -237,6 +241,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Merchant:             NewMerchantClient(cfg),
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
 		MerchantRenewal:      NewMerchantRenewalClient(cfg),
+		PaymentMethod:        NewPaymentMethodClient(cfg),
 		Product:              NewProductClient(cfg),
 		ProductAttr:          NewProductAttrClient(cfg),
 		ProductAttrItem:      NewProductAttrItemClient(cfg),
@@ -281,6 +286,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Merchant:             NewMerchantClient(cfg),
 		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
 		MerchantRenewal:      NewMerchantRenewalClient(cfg),
+		PaymentMethod:        NewPaymentMethodClient(cfg),
 		Product:              NewProductClient(cfg),
 		ProductAttr:          NewProductAttrClient(cfg),
 		ProductAttrItem:      NewProductAttrItemClient(cfg),
@@ -325,10 +331,11 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
-		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
-		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province, c.Remark,
-		c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal,
+		c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
+		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail,
+		c.SetMealGroup, c.Store,
 	} {
 		n.Use(hooks...)
 	}
@@ -339,10 +346,11 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AdminUser, c.BackendUser, c.Category, c.City, c.Country, c.District, c.Menu,
-		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Product,
-		c.ProductAttr, c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec,
-		c.ProductSpecRelation, c.ProductTag, c.ProductUnit, c.Province, c.Remark,
-		c.RemarkCategory, c.SetMealDetail, c.SetMealGroup, c.Store,
+		c.MenuItem, c.Merchant, c.MerchantBusinessType, c.MerchantRenewal,
+		c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
+		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.SetMealDetail,
+		c.SetMealGroup, c.Store,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -373,6 +381,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.MerchantBusinessType.mutate(ctx, m)
 	case *MerchantRenewalMutation:
 		return c.MerchantRenewal.mutate(ctx, m)
+	case *PaymentMethodMutation:
+		return c.PaymentMethod.mutate(ctx, m)
 	case *ProductMutation:
 		return c.Product.mutate(ctx, m)
 	case *ProductAttrMutation:
@@ -2480,6 +2490,141 @@ func (c *MerchantRenewalClient) mutate(ctx context.Context, m *MerchantRenewalMu
 		return (&MerchantRenewalDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown MerchantRenewal mutation op: %q", m.Op())
+	}
+}
+
+// PaymentMethodClient is a client for the PaymentMethod schema.
+type PaymentMethodClient struct {
+	config
+}
+
+// NewPaymentMethodClient returns a client for the PaymentMethod from the given config.
+func NewPaymentMethodClient(c config) *PaymentMethodClient {
+	return &PaymentMethodClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `paymentmethod.Hooks(f(g(h())))`.
+func (c *PaymentMethodClient) Use(hooks ...Hook) {
+	c.hooks.PaymentMethod = append(c.hooks.PaymentMethod, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `paymentmethod.Intercept(f(g(h())))`.
+func (c *PaymentMethodClient) Intercept(interceptors ...Interceptor) {
+	c.inters.PaymentMethod = append(c.inters.PaymentMethod, interceptors...)
+}
+
+// Create returns a builder for creating a PaymentMethod entity.
+func (c *PaymentMethodClient) Create() *PaymentMethodCreate {
+	mutation := newPaymentMethodMutation(c.config, OpCreate)
+	return &PaymentMethodCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of PaymentMethod entities.
+func (c *PaymentMethodClient) CreateBulk(builders ...*PaymentMethodCreate) *PaymentMethodCreateBulk {
+	return &PaymentMethodCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PaymentMethodClient) MapCreateBulk(slice any, setFunc func(*PaymentMethodCreate, int)) *PaymentMethodCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PaymentMethodCreateBulk{err: fmt.Errorf("calling to PaymentMethodClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PaymentMethodCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PaymentMethodCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for PaymentMethod.
+func (c *PaymentMethodClient) Update() *PaymentMethodUpdate {
+	mutation := newPaymentMethodMutation(c.config, OpUpdate)
+	return &PaymentMethodUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PaymentMethodClient) UpdateOne(pm *PaymentMethod) *PaymentMethodUpdateOne {
+	mutation := newPaymentMethodMutation(c.config, OpUpdateOne, withPaymentMethod(pm))
+	return &PaymentMethodUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PaymentMethodClient) UpdateOneID(id uuid.UUID) *PaymentMethodUpdateOne {
+	mutation := newPaymentMethodMutation(c.config, OpUpdateOne, withPaymentMethodID(id))
+	return &PaymentMethodUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for PaymentMethod.
+func (c *PaymentMethodClient) Delete() *PaymentMethodDelete {
+	mutation := newPaymentMethodMutation(c.config, OpDelete)
+	return &PaymentMethodDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PaymentMethodClient) DeleteOne(pm *PaymentMethod) *PaymentMethodDeleteOne {
+	return c.DeleteOneID(pm.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PaymentMethodClient) DeleteOneID(id uuid.UUID) *PaymentMethodDeleteOne {
+	builder := c.Delete().Where(paymentmethod.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PaymentMethodDeleteOne{builder}
+}
+
+// Query returns a query builder for PaymentMethod.
+func (c *PaymentMethodClient) Query() *PaymentMethodQuery {
+	return &PaymentMethodQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePaymentMethod},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a PaymentMethod entity by its id.
+func (c *PaymentMethodClient) Get(ctx context.Context, id uuid.UUID) (*PaymentMethod, error) {
+	return c.Query().Where(paymentmethod.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PaymentMethodClient) GetX(ctx context.Context, id uuid.UUID) *PaymentMethod {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *PaymentMethodClient) Hooks() []Hook {
+	hooks := c.hooks.PaymentMethod
+	return append(hooks[:len(hooks):len(hooks)], paymentmethod.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *PaymentMethodClient) Interceptors() []Interceptor {
+	inters := c.inters.PaymentMethod
+	return append(inters[:len(inters):len(inters)], paymentmethod.Interceptors[:]...)
+}
+
+func (c *PaymentMethodClient) mutate(ctx context.Context, m *PaymentMethodMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PaymentMethodCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PaymentMethodUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PaymentMethodUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PaymentMethodDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown PaymentMethod mutation op: %q", m.Op())
 	}
 }
 
@@ -5065,16 +5210,16 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 type (
 	hooks struct {
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
-		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
-		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Hook
+		Merchant, MerchantBusinessType, MerchantRenewal, PaymentMethod, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
+		SetMealDetail, SetMealGroup, Store []ent.Hook
 	}
 	inters struct {
 		AdminUser, BackendUser, Category, City, Country, District, Menu, MenuItem,
-		Merchant, MerchantBusinessType, MerchantRenewal, Product, ProductAttr,
-		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, Province, Remark, RemarkCategory, SetMealDetail,
-		SetMealGroup, Store []ent.Interceptor
+		Merchant, MerchantBusinessType, MerchantRenewal, PaymentMethod, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
+		SetMealDetail, SetMealGroup, Store []ent.Interceptor
 	}
 )
