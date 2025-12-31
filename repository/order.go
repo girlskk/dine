@@ -178,10 +178,6 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		return fmt.Errorf("failed to create order: %w", err)
 	}
 
-	o.ID = created.ID
-	o.CreatedAt = created.CreatedAt
-	o.UpdatedAt = created.UpdatedAt
-
 	// 创建订单商品明细
 	if len(o.OrderProducts) > 0 {
 		for i := range o.OrderProducts {
@@ -314,7 +310,7 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	}
 	builder = builder.SetAmount(b)
 
-	updated, err := builder.Save(ctx)
+	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return domain.NotFoundError(err)
@@ -327,8 +323,6 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		}
 		return fmt.Errorf("failed to update order: %w", err)
 	}
-
-	o.UpdatedAt = updated.UpdatedAt
 
 	// 更新订单商品（全量替换：先删除旧商品，再插入新商品）
 	if len(o.OrderProducts) > 0 {
@@ -528,7 +522,7 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 		builder = builder.SetAttrRelations(op.AttrRelations)
 	}
 
-	created, err := builder.Save(ctx)
+	_, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsValidationError(err) {
 			return domain.ParamsError(fmt.Errorf("invalid order product params: %w", err))
@@ -538,10 +532,6 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 		}
 		return fmt.Errorf("failed to create order product: %w", err)
 	}
-
-	op.ID = created.ID
-	op.CreatedAt = created.CreatedAt
-	op.UpdatedAt = created.UpdatedAt
 	return nil
 }
 
