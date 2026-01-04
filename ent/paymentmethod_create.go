@@ -68,6 +68,12 @@ func (pmc *PaymentMethodCreate) SetNillableDeletedAt(i *int64) *PaymentMethodCre
 	return pmc
 }
 
+// SetMerchantID sets the "merchant_id" field.
+func (pmc *PaymentMethodCreate) SetMerchantID(u uuid.UUID) *PaymentMethodCreate {
+	pmc.mutation.SetMerchantID(u)
+	return pmc
+}
+
 // SetName sets the "name" field.
 func (pmc *PaymentMethodCreate) SetName(s string) *PaymentMethodCreate {
 	pmc.mutation.SetName(s)
@@ -274,6 +280,9 @@ func (pmc *PaymentMethodCreate) check() error {
 	if _, ok := pmc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "PaymentMethod.deleted_at"`)}
 	}
+	if _, ok := pmc.mutation.MerchantID(); !ok {
+		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "PaymentMethod.merchant_id"`)}
+	}
 	if _, ok := pmc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "PaymentMethod.name"`)}
 	}
@@ -362,6 +371,10 @@ func (pmc *PaymentMethodCreate) createSpec() (*PaymentMethod, *sqlgraph.CreateSp
 	if value, ok := pmc.mutation.DeletedAt(); ok {
 		_spec.SetField(paymentmethod.FieldDeletedAt, field.TypeInt64, value)
 		_node.DeletedAt = value
+	}
+	if value, ok := pmc.mutation.MerchantID(); ok {
+		_spec.SetField(paymentmethod.FieldMerchantID, field.TypeUUID, value)
+		_node.MerchantID = value
 	}
 	if value, ok := pmc.mutation.Name(); ok {
 		_spec.SetField(paymentmethod.FieldName, field.TypeString, value)
@@ -598,6 +611,9 @@ func (u *PaymentMethodUpsertOne) UpdateNewValues() *PaymentMethodUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(paymentmethod.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.MerchantID(); exists {
+			s.SetIgnore(paymentmethod.FieldMerchantID)
 		}
 	}))
 	return u
@@ -969,6 +985,9 @@ func (u *PaymentMethodUpsertBulk) UpdateNewValues() *PaymentMethodUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(paymentmethod.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.MerchantID(); exists {
+				s.SetIgnore(paymentmethod.FieldMerchantID)
 			}
 		}
 	}))

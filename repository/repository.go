@@ -282,7 +282,7 @@ func (repo *Repository) StoreUserRepo() domain.StoreUserRepository {
 	return repo.storeUserRepo
 }
 
-func (repo *Repository) MenuPaymentMethodRepo() domain.PaymentMethodRepository {
+func (repo *Repository) PaymentMethodRepo() domain.PaymentMethodRepository {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 	if repo.paymentMethodRepo == nil {

@@ -808,7 +808,7 @@ func init() {
 	// paymentmethod.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	paymentmethod.DefaultDeletedAt = paymentmethodDescDeletedAt.Default.(int64)
 	// paymentmethodDescName is the schema descriptor for name field.
-	paymentmethodDescName := paymentmethodFields[0].Descriptor()
+	paymentmethodDescName := paymentmethodFields[1].Descriptor()
 	// paymentmethod.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	paymentmethod.NameValidator = func() func(string) error {
 		validators := paymentmethodDescName.Validators
@@ -826,11 +826,11 @@ func init() {
 		}
 	}()
 	// paymentmethodDescCashDrawerStatus is the schema descriptor for cash_drawer_status field.
-	paymentmethodDescCashDrawerStatus := paymentmethodFields[5].Descriptor()
+	paymentmethodDescCashDrawerStatus := paymentmethodFields[6].Descriptor()
 	// paymentmethod.DefaultCashDrawerStatus holds the default value on creation for the cash_drawer_status field.
 	paymentmethod.DefaultCashDrawerStatus = paymentmethodDescCashDrawerStatus.Default.(bool)
 	// paymentmethodDescStatus is the schema descriptor for status field.
-	paymentmethodDescStatus := paymentmethodFields[7].Descriptor()
+	paymentmethodDescStatus := paymentmethodFields[8].Descriptor()
 	// paymentmethod.DefaultStatus holds the default value on creation for the status field.
 	paymentmethod.DefaultStatus = paymentmethodDescStatus.Default.(bool)
 	// paymentmethodDescID is the schema descriptor for id field.

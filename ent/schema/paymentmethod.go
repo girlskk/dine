@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
@@ -26,6 +27,7 @@ func (PaymentMethod) Mixin() []ent.Mixin {
 // Fields of the PaymentMethod.
 func (PaymentMethod) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("品牌商ID"),
 		field.String("name").MaxLen(255).NotEmpty().Comment("结算方式名称"),
 		field.Enum("accounting_rule").
 			GoType(domain.PaymentMethodAccountingRule("")).

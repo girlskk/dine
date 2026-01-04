@@ -28,6 +28,8 @@ type PaymentMethod struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// 删除时间
 	DeletedAt int64 `json:"deleted_at,omitempty"`
+	// 品牌商ID
+	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 结算方式名称
 	Name string `json:"name,omitempty"`
 	// 计入规则:income-计入实收,discount-计入优惠
@@ -64,7 +66,7 @@ func (*PaymentMethod) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case paymentmethod.FieldCreatedAt, paymentmethod.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case paymentmethod.FieldID:
+		case paymentmethod.FieldID, paymentmethod.FieldMerchantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -104,6 +106,12 @@ func (pm *PaymentMethod) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				pm.DeletedAt = value.Int64
+			}
+		case paymentmethod.FieldMerchantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
+			} else if value != nil {
+				pm.MerchantID = *value
 			}
 		case paymentmethod.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -200,6 +208,9 @@ func (pm *PaymentMethod) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", pm.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("merchant_id=")
+	builder.WriteString(fmt.Sprintf("%v", pm.MerchantID))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(pm.Name)

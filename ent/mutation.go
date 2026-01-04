@@ -11905,6 +11905,7 @@ type PaymentMethodMutation struct {
 	updated_at             *time.Time
 	deleted_at             *int64
 	adddeleted_at          *int64
+	merchant_id            *uuid.UUID
 	name                   *string
 	accounting_rule        *domain.PaymentMethodAccountingRule
 	payment_type           *domain.PaymentMethodPayType
@@ -12150,6 +12151,42 @@ func (m *PaymentMethodMutation) AddedDeletedAt() (r int64, exists bool) {
 func (m *PaymentMethodMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	m.adddeleted_at = nil
+}
+
+// SetMerchantID sets the "merchant_id" field.
+func (m *PaymentMethodMutation) SetMerchantID(u uuid.UUID) {
+	m.merchant_id = &u
+}
+
+// MerchantID returns the value of the "merchant_id" field in the mutation.
+func (m *PaymentMethodMutation) MerchantID() (r uuid.UUID, exists bool) {
+	v := m.merchant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMerchantID returns the old "merchant_id" field's value of the PaymentMethod entity.
+// If the PaymentMethod object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentMethodMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMerchantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMerchantID: %w", err)
+	}
+	return oldValue.MerchantID, nil
+}
+
+// ResetMerchantID resets all changes to the "merchant_id" field.
+func (m *PaymentMethodMutation) ResetMerchantID() {
+	m.merchant_id = nil
 }
 
 // SetName sets the "name" field.
@@ -12502,7 +12539,7 @@ func (m *PaymentMethodMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentMethodMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.created_at != nil {
 		fields = append(fields, paymentmethod.FieldCreatedAt)
 	}
@@ -12511,6 +12548,9 @@ func (m *PaymentMethodMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, paymentmethod.FieldDeletedAt)
+	}
+	if m.merchant_id != nil {
+		fields = append(fields, paymentmethod.FieldMerchantID)
 	}
 	if m.name != nil {
 		fields = append(fields, paymentmethod.FieldName)
@@ -12550,6 +12590,8 @@ func (m *PaymentMethodMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case paymentmethod.FieldDeletedAt:
 		return m.DeletedAt()
+	case paymentmethod.FieldMerchantID:
+		return m.MerchantID()
 	case paymentmethod.FieldName:
 		return m.Name()
 	case paymentmethod.FieldAccountingRule:
@@ -12581,6 +12623,8 @@ func (m *PaymentMethodMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case paymentmethod.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case paymentmethod.FieldMerchantID:
+		return m.OldMerchantID(ctx)
 	case paymentmethod.FieldName:
 		return m.OldName(ctx)
 	case paymentmethod.FieldAccountingRule:
@@ -12626,6 +12670,13 @@ func (m *PaymentMethodMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case paymentmethod.FieldMerchantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMerchantID(v)
 		return nil
 	case paymentmethod.FieldName:
 		v, ok := value.(string)
@@ -12764,6 +12815,9 @@ func (m *PaymentMethodMutation) ResetField(name string) error {
 		return nil
 	case paymentmethod.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case paymentmethod.FieldMerchantID:
+		m.ResetMerchantID()
 		return nil
 	case paymentmethod.FieldName:
 		m.ResetName()

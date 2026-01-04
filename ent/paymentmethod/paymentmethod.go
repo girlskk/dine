@@ -23,6 +23,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldMerchantID holds the string denoting the merchant_id field in the database.
+	FieldMerchantID = "merchant_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldAccountingRule holds the string denoting the accounting_rule field in the database.
@@ -49,6 +51,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldMerchantID,
 	FieldName,
 	FieldAccountingRule,
 	FieldPaymentType,
@@ -152,6 +155,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByMerchantID orders the results by the merchant_id field.
+func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
 }
 
 // ByName orders the results by the name field.

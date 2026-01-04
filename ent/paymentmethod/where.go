@@ -72,6 +72,11 @@ func DeletedAt(v int64) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
+func MerchantID(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldEQ(FieldMerchantID, v))
+}
+
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldName, v))
@@ -210,6 +215,46 @@ func DeletedAtLT(v int64) predicate.PaymentMethod {
 // DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
 func DeletedAtLTE(v int64) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
+func MerchantIDEQ(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldEQ(FieldMerchantID, v))
+}
+
+// MerchantIDNEQ applies the NEQ predicate on the "merchant_id" field.
+func MerchantIDNEQ(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNEQ(FieldMerchantID, v))
+}
+
+// MerchantIDIn applies the In predicate on the "merchant_id" field.
+func MerchantIDIn(vs ...uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldIn(FieldMerchantID, vs...))
+}
+
+// MerchantIDNotIn applies the NotIn predicate on the "merchant_id" field.
+func MerchantIDNotIn(vs ...uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNotIn(FieldMerchantID, vs...))
+}
+
+// MerchantIDGT applies the GT predicate on the "merchant_id" field.
+func MerchantIDGT(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldGT(FieldMerchantID, v))
+}
+
+// MerchantIDGTE applies the GTE predicate on the "merchant_id" field.
+func MerchantIDGTE(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldGTE(FieldMerchantID, v))
+}
+
+// MerchantIDLT applies the LT predicate on the "merchant_id" field.
+func MerchantIDLT(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldLT(FieldMerchantID, v))
+}
+
+// MerchantIDLTE applies the LTE predicate on the "merchant_id" field.
+func MerchantIDLTE(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldLTE(FieldMerchantID, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

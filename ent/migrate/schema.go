@@ -456,6 +456,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "accounting_rule", Type: field.TypeEnum, Enums: []string{"income", "discount"}, Default: "income"},
 		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"other", "cash", "offline_card", "custom_coupon", "partner_coupon"}, Default: "other"},
@@ -479,7 +480,7 @@ var (
 			{
 				Name:    "paymentmethod_name_deleted_at",
 				Unique:  true,
-				Columns: []*schema.Column{PaymentMethodsColumns[4], PaymentMethodsColumns[3]},
+				Columns: []*schema.Column{PaymentMethodsColumns[5], PaymentMethodsColumns[3]},
 			},
 		},
 	}

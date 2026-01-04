@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // ------------------------------------------------------------
@@ -95,6 +96,7 @@ func (PaymentMethodDisplayChannel) Values() []string {
 
 type PaymentMethod struct {
 	ID               uuid.UUID                     `json:"id"`
+	MerchantID       uuid.UUID                     `json:"merchant_id"`        // 品牌商ID
 	Name             string                        `json:"name"`               // 结算方式名称
 	AccountingRule   PaymentMethodAccountingRule   `json:"accounting_rule"`    // 计入规则:income-计入实收,discount-计入优惠
 	PaymentType      PaymentMethodPayType          `json:"payment_type"`       // 结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券
@@ -107,10 +109,31 @@ type PaymentMethod struct {
 	UpdatedAt        time.Time                     `json:"updated_at"`         // 更新时间
 }
 
+type PaymentMethods []*PaymentMethod
+
 type PaymentMethodRepository interface {
+	FindByID(ctx context.Context, id uuid.UUID) (*PaymentMethod, error)
+	GetDetail(ctx context.Context, id uuid.UUID) (*PaymentMethod, error)
 	Create(ctx context.Context, menu *PaymentMethod) error
+	Update(ctx context.Context, menu *PaymentMethod) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params PaymentMethodSearchParams) (*PaymentMethodSearchRes, error)
 }
 
 type PaymentMethodInteractor interface {
-	Create(ctx context.Context, menu *Menu) error
+	Create(ctx context.Context, menu *PaymentMethod) error
+	Update(ctx context.Context, menu *PaymentMethod, user User) error
+	Delete(ctx context.Context, id uuid.UUID, user User) error
+	GetDetail(ctx context.Context, id uuid.UUID, user User) (*PaymentMethod, error)
+	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params PaymentMethodSearchParams) (*PaymentMethodSearchRes, error)
+}
+type PaymentMethodSearchParams struct {
+	MerchantID uuid.UUID
+	Name       string // 菜单名称（模糊匹配）
+}
+
+// PaymentMethodSearchRes 查询结果
+type PaymentMethodSearchRes struct {
+	*upagination.Pagination
+	Items PaymentMethods `json:"items"`
 }
