@@ -407,6 +407,16 @@ func MerchantIDNotIn(vs ...uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldNotIn(FieldMerchantID, vs...))
 }
 
+// MerchantIDIsNil applies the IsNil predicate on the "merchant_id" field.
+func MerchantIDIsNil() predicate.Role {
+	return predicate.Role(sql.FieldIsNull(FieldMerchantID))
+}
+
+// MerchantIDNotNil applies the NotNil predicate on the "merchant_id" field.
+func MerchantIDNotNil() predicate.Role {
+	return predicate.Role(sql.FieldNotNull(FieldMerchantID))
+}
+
 // StoreIDEQ applies the EQ predicate on the "store_id" field.
 func StoreIDEQ(v uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldEQ(FieldStoreID, v))
@@ -425,6 +435,16 @@ func StoreIDIn(vs ...uuid.UUID) predicate.Role {
 // StoreIDNotIn applies the NotIn predicate on the "store_id" field.
 func StoreIDNotIn(vs ...uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldNotIn(FieldStoreID, vs...))
+}
+
+// StoreIDIsNil applies the IsNil predicate on the "store_id" field.
+func StoreIDIsNil() predicate.Role {
+	return predicate.Role(sql.FieldIsNull(FieldStoreID))
+}
+
+// StoreIDNotNil applies the NotNil predicate on the "store_id" field.
+func StoreIDNotNil() predicate.Role {
+	return predicate.Role(sql.FieldNotNull(FieldStoreID))
 }
 
 // HasMerchant applies the HasEdge predicate on the "merchant" edge.

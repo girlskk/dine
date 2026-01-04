@@ -31,9 +31,11 @@ func (Role) Fields() []ent.Field {
 			Default(true).
 			Comment("是否启用"),
 		field.UUID("merchant_id", uuid.UUID{}).
+			Optional().
 			Immutable().
 			Comment("所属商户 ID"),
 		field.UUID("store_id", uuid.UUID{}).
+			Optional().
 			Immutable().
 			Comment("所属门店 ID，若为空则表示为商户级部门"),
 	}
@@ -46,14 +48,12 @@ func (Role) Edges() []ent.Edge {
 			Ref("roles").
 			Field("merchant_id").
 			Immutable().
-			Unique().
-			Required(),
+			Unique(),
 		edge.From("store", Store.Type).
 			Ref("roles").
 			Field("store_id").
 			Immutable().
-			Unique().
-			Required(),
+			Unique(),
 	}
 }
 

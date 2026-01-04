@@ -107,9 +107,25 @@ func (dc *DepartmentCreate) SetMerchantID(u uuid.UUID) *DepartmentCreate {
 	return dc
 }
 
+// SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
+func (dc *DepartmentCreate) SetNillableMerchantID(u *uuid.UUID) *DepartmentCreate {
+	if u != nil {
+		dc.SetMerchantID(*u)
+	}
+	return dc
+}
+
 // SetStoreID sets the "store_id" field.
 func (dc *DepartmentCreate) SetStoreID(u uuid.UUID) *DepartmentCreate {
 	dc.mutation.SetStoreID(u)
+	return dc
+}
+
+// SetNillableStoreID sets the "store_id" field if the given value is not nil.
+func (dc *DepartmentCreate) SetNillableStoreID(u *uuid.UUID) *DepartmentCreate {
+	if u != nil {
+		dc.SetStoreID(*u)
+	}
 	return dc
 }
 
@@ -233,18 +249,6 @@ func (dc *DepartmentCreate) check() error {
 	}
 	if _, ok := dc.mutation.Enable(); !ok {
 		return &ValidationError{Name: "enable", err: errors.New(`ent: missing required field "Department.enable"`)}
-	}
-	if _, ok := dc.mutation.MerchantID(); !ok {
-		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "Department.merchant_id"`)}
-	}
-	if _, ok := dc.mutation.StoreID(); !ok {
-		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "Department.store_id"`)}
-	}
-	if len(dc.mutation.MerchantIDs()) == 0 {
-		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "Department.merchant"`)}
-	}
-	if len(dc.mutation.StoreIDs()) == 0 {
-		return &ValidationError{Name: "store", err: errors.New(`ent: missing required edge "Department.store"`)}
 	}
 	return nil
 }

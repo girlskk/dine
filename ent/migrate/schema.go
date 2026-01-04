@@ -265,8 +265,8 @@ var (
 		{Name: "code", Type: field.TypeString},
 		{Name: "department_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
 		{Name: "enable", Type: field.TypeBool, Default: true},
-		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// DepartmentsTable holds the schema information for the "departments" table.
 	DepartmentsTable = &schema.Table{
@@ -278,13 +278,13 @@ var (
 				Symbol:     "departments_merchants_departments",
 				Columns:    []*schema.Column{DepartmentsColumns[8]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "departments_stores_departments",
 				Columns:    []*schema.Column{DepartmentsColumns[9]},
 				RefColumns: []*schema.Column{StoresColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -1337,8 +1337,8 @@ var (
 		{Name: "code", Type: field.TypeString},
 		{Name: "role_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
 		{Name: "enable", Type: field.TypeBool, Default: true},
-		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// RolesTable holds the schema information for the "roles" table.
 	RolesTable = &schema.Table{
@@ -1350,13 +1350,13 @@ var (
 				Symbol:     "roles_merchants_roles",
 				Columns:    []*schema.Column{RolesColumns[8]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "roles_stores_roles",
 				Columns:    []*schema.Column{RolesColumns[9]},
 				RefColumns: []*schema.Column{StoresColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{

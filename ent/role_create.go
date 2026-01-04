@@ -107,9 +107,25 @@ func (rc *RoleCreate) SetMerchantID(u uuid.UUID) *RoleCreate {
 	return rc
 }
 
+// SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableMerchantID(u *uuid.UUID) *RoleCreate {
+	if u != nil {
+		rc.SetMerchantID(*u)
+	}
+	return rc
+}
+
 // SetStoreID sets the "store_id" field.
 func (rc *RoleCreate) SetStoreID(u uuid.UUID) *RoleCreate {
 	rc.mutation.SetStoreID(u)
+	return rc
+}
+
+// SetNillableStoreID sets the "store_id" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableStoreID(u *uuid.UUID) *RoleCreate {
+	if u != nil {
+		rc.SetStoreID(*u)
+	}
 	return rc
 }
 
@@ -233,18 +249,6 @@ func (rc *RoleCreate) check() error {
 	}
 	if _, ok := rc.mutation.Enable(); !ok {
 		return &ValidationError{Name: "enable", err: errors.New(`ent: missing required field "Role.enable"`)}
-	}
-	if _, ok := rc.mutation.MerchantID(); !ok {
-		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "Role.merchant_id"`)}
-	}
-	if _, ok := rc.mutation.StoreID(); !ok {
-		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "Role.store_id"`)}
-	}
-	if len(rc.mutation.MerchantIDs()) == 0 {
-		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "Role.merchant"`)}
-	}
-	if len(rc.mutation.StoreIDs()) == 0 {
-		return &ValidationError{Name: "store", err: errors.New(`ent: missing required edge "Role.store"`)}
 	}
 	return nil
 }
