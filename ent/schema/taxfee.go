@@ -72,6 +72,8 @@ func (TaxFee) Edges() []ent.Edge {
 			Immutable(),
 		edge.To("categories", Category.Type).
 			Comment("关联的分类"),
+		edge.To("products", Product.Type).
+			Comment("关联的商品"),
 	}
 }
 

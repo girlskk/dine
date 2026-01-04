@@ -871,6 +871,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 指定出品部门ID
         type: string
@@ -887,6 +891,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductTag'
         type: array
+      tax_rate:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFee'
+        description: 税率
       tax_rate_id:
         description: 指定税率ID
         type: string
@@ -2773,36 +2781,6 @@ definitions:
     - sale_status
     - spec_relations
     - unit_id
-    type: object
-  types.ProductDistributeReq:
-    properties:
-      distribution_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuDistributionRule'
-        description: 下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
-        enum:
-        - override
-        - keep
-      product_id:
-        description: 商品ID（必选）
-        type: string
-      sale_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuItemSaleRule'
-        description: 下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
-        enum:
-        - keep_brand_status
-        - keep_store_status
-      store_ids:
-        description: 门店ID列表（必选，多选）
-        items:
-          type: string
-        minItems: 1
-        type: array
-    required:
-    - distribution_rule
-    - product_id
-    - store_ids
     type: object
   types.ProductSpecCreateReq:
     properties:
@@ -4714,23 +4692,6 @@ paths:
       summary: 重排序商品分类
       tags:
       - 商品分类
-  /product/distribute:
-    post:
-      parameters:
-      - description: 请求信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.ProductDistributeReq'
-      responses:
-        "200":
-          description: OK
-      security:
-      - BearerAuth: []
-      summary: 下发商品到门店
-      tags:
-      - 商品管理
   /product/setmeal:
     post:
       parameters:

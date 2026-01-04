@@ -58,9 +58,11 @@ type StallEdges struct {
 	Devices []*Device `json:"devices,omitempty"`
 	// 关联的分类
 	Categories []*Category `json:"categories,omitempty"`
+	// 关联的商品
+	Products []*Product `json:"products,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -101,6 +103,15 @@ func (e StallEdges) CategoriesOrErr() ([]*Category, error) {
 		return e.Categories, nil
 	}
 	return nil, &NotLoadedError{edge: "categories"}
+}
+
+// ProductsOrErr returns the Products value or an error if the edge
+// was not loaded in eager-loading.
+func (e StallEdges) ProductsOrErr() ([]*Product, error) {
+	if e.loadedTypes[4] {
+		return e.Products, nil
+	}
+	return nil, &NotLoadedError{edge: "products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -230,6 +241,11 @@ func (s *Stall) QueryDevices() *DeviceQuery {
 // QueryCategories queries the "categories" edge of the Stall entity.
 func (s *Stall) QueryCategories() *CategoryQuery {
 	return NewStallClient(s.config).QueryCategories(s)
+}
+
+// QueryProducts queries the "products" edge of the Stall entity.
+func (s *Stall) QueryProducts() *ProductQuery {
+	return NewStallClient(s.config).QueryProducts(s)
 }
 
 // Update returns a builder for updating this Stall.

@@ -80,6 +80,10 @@ const (
 	EdgeCategory = "category"
 	// EdgeUnit holds the string denoting the unit edge name in mutations.
 	EdgeUnit = "unit"
+	// EdgeTaxRate holds the string denoting the tax_rate edge name in mutations.
+	EdgeTaxRate = "tax_rate"
+	// EdgeStall holds the string denoting the stall edge name in mutations.
+	EdgeStall = "stall"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
 	EdgeTags = "tags"
 	// EdgeProductSpecs holds the string denoting the product_specs edge name in mutations.
@@ -108,6 +112,20 @@ const (
 	UnitInverseTable = "product_units"
 	// UnitColumn is the table column denoting the unit relation/edge.
 	UnitColumn = "unit_id"
+	// TaxRateTable is the table that holds the tax_rate relation/edge.
+	TaxRateTable = "products"
+	// TaxRateInverseTable is the table name for the TaxFee entity.
+	// It exists in this package in order to avoid circular dependency with the "taxfee" package.
+	TaxRateInverseTable = "tax_fees"
+	// TaxRateColumn is the table column denoting the tax_rate relation/edge.
+	TaxRateColumn = "tax_rate_id"
+	// StallTable is the table that holds the stall relation/edge.
+	StallTable = "products"
+	// StallInverseTable is the table name for the Stall entity.
+	// It exists in this package in order to avoid circular dependency with the "stall" package.
+	StallInverseTable = "stalls"
+	// StallColumn is the table column denoting the stall relation/edge.
+	StallColumn = "stall_id"
 	// TagsTable is the table that holds the tags relation/edge. The primary key declared below.
 	TagsTable = "product_tag_relations"
 	// TagsInverseTable is the table name for the ProductTag entity.
@@ -428,6 +446,20 @@ func ByUnitField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByTaxRateField orders the results by tax_rate field.
+func ByTaxRateField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTaxRateStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByStallField orders the results by stall field.
+func ByStallField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStallStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByTagsCount orders the results by tags count.
 func ByTagsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -523,6 +555,20 @@ func newUnitStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UnitInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UnitTable, UnitColumn),
+	)
+}
+func newTaxRateStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TaxRateInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, TaxRateTable, TaxRateColumn),
+	)
+}
+func newStallStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StallInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, StallTable, StallColumn),
 	)
 }
 func newTagsStep() *sqlgraph.Step {

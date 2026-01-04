@@ -16,6 +16,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 )
 
@@ -153,6 +154,21 @@ func (su *StallUpdate) AddCategories(c ...*Category) *StallUpdate {
 	return su.AddCategoryIDs(ids...)
 }
 
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (su *StallUpdate) AddProductIDs(ids ...uuid.UUID) *StallUpdate {
+	su.mutation.AddProductIDs(ids...)
+	return su
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (su *StallUpdate) AddProducts(p ...*Product) *StallUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.AddProductIDs(ids...)
+}
+
 // Mutation returns the StallMutation object of the builder.
 func (su *StallUpdate) Mutation() *StallMutation {
 	return su.mutation
@@ -198,6 +214,27 @@ func (su *StallUpdate) RemoveCategories(c ...*Category) *StallUpdate {
 		ids[i] = c[i].ID
 	}
 	return su.RemoveCategoryIDs(ids...)
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (su *StallUpdate) ClearProducts() *StallUpdate {
+	su.mutation.ClearProducts()
+	return su
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (su *StallUpdate) RemoveProductIDs(ids ...uuid.UUID) *StallUpdate {
+	su.mutation.RemoveProductIDs(ids...)
+	return su
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (su *StallUpdate) RemoveProducts(p ...*Product) *StallUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.RemoveProductIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -389,6 +426,51 @@ func (su *StallUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.ProductsTable,
+			Columns: []string{stall.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedProductsIDs(); len(nodes) > 0 && !su.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.ProductsTable,
+			Columns: []string{stall.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.ProductsTable,
+			Columns: []string{stall.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(su.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -531,6 +613,21 @@ func (suo *StallUpdateOne) AddCategories(c ...*Category) *StallUpdateOne {
 	return suo.AddCategoryIDs(ids...)
 }
 
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (suo *StallUpdateOne) AddProductIDs(ids ...uuid.UUID) *StallUpdateOne {
+	suo.mutation.AddProductIDs(ids...)
+	return suo
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (suo *StallUpdateOne) AddProducts(p ...*Product) *StallUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.AddProductIDs(ids...)
+}
+
 // Mutation returns the StallMutation object of the builder.
 func (suo *StallUpdateOne) Mutation() *StallMutation {
 	return suo.mutation
@@ -576,6 +673,27 @@ func (suo *StallUpdateOne) RemoveCategories(c ...*Category) *StallUpdateOne {
 		ids[i] = c[i].ID
 	}
 	return suo.RemoveCategoryIDs(ids...)
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (suo *StallUpdateOne) ClearProducts() *StallUpdateOne {
+	suo.mutation.ClearProducts()
+	return suo
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (suo *StallUpdateOne) RemoveProductIDs(ids ...uuid.UUID) *StallUpdateOne {
+	suo.mutation.RemoveProductIDs(ids...)
+	return suo
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (suo *StallUpdateOne) RemoveProducts(p ...*Product) *StallUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.RemoveProductIDs(ids...)
 }
 
 // Where appends a list predicates to the StallUpdate builder.
@@ -790,6 +908,51 @@ func (suo *StallUpdateOne) sqlSave(ctx context.Context) (_node *Stall, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.ProductsTable,
+			Columns: []string{stall.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedProductsIDs(); len(nodes) > 0 && !suo.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.ProductsTable,
+			Columns: []string{stall.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.ProductsTable,
+			Columns: []string{stall.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

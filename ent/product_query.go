@@ -24,6 +24,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // ProductQuery is the builder for querying Product entities.
@@ -35,6 +37,8 @@ type ProductQuery struct {
 	predicates         []predicate.Product
 	withCategory       *CategoryQuery
 	withUnit           *ProductUnitQuery
+	withTaxRate        *TaxFeeQuery
+	withStall          *StallQuery
 	withTags           *ProductTagQuery
 	withProductSpecs   *ProductSpecRelationQuery
 	withProductAttrs   *ProductAttrRelationQuery
@@ -115,6 +119,50 @@ func (pq *ProductQuery) QueryUnit() *ProductUnitQuery {
 			sqlgraph.From(product.Table, product.FieldID, selector),
 			sqlgraph.To(productunit.Table, productunit.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, product.UnitTable, product.UnitColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTaxRate chains the current query on the "tax_rate" edge.
+func (pq *ProductQuery) QueryTaxRate() *TaxFeeQuery {
+	query := (&TaxFeeClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, selector),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.TaxRateTable, product.TaxRateColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStall chains the current query on the "stall" edge.
+func (pq *ProductQuery) QueryStall() *StallQuery {
+	query := (&StallClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, selector),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.StallTable, product.StallColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -448,6 +496,8 @@ func (pq *ProductQuery) Clone() *ProductQuery {
 		predicates:         append([]predicate.Product{}, pq.predicates...),
 		withCategory:       pq.withCategory.Clone(),
 		withUnit:           pq.withUnit.Clone(),
+		withTaxRate:        pq.withTaxRate.Clone(),
+		withStall:          pq.withStall.Clone(),
 		withTags:           pq.withTags.Clone(),
 		withProductSpecs:   pq.withProductSpecs.Clone(),
 		withProductAttrs:   pq.withProductAttrs.Clone(),
@@ -480,6 +530,28 @@ func (pq *ProductQuery) WithUnit(opts ...func(*ProductUnitQuery)) *ProductQuery 
 		opt(query)
 	}
 	pq.withUnit = query
+	return pq
+}
+
+// WithTaxRate tells the query-builder to eager-load the nodes that are connected to
+// the "tax_rate" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProductQuery) WithTaxRate(opts ...func(*TaxFeeQuery)) *ProductQuery {
+	query := (&TaxFeeClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withTaxRate = query
+	return pq
+}
+
+// WithStall tells the query-builder to eager-load the nodes that are connected to
+// the "stall" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProductQuery) WithStall(opts ...func(*StallQuery)) *ProductQuery {
+	query := (&StallClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withStall = query
 	return pq
 }
 
@@ -627,9 +699,11 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 	var (
 		nodes       = []*Product{}
 		_spec       = pq.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [10]bool{
 			pq.withCategory != nil,
 			pq.withUnit != nil,
+			pq.withTaxRate != nil,
+			pq.withStall != nil,
 			pq.withTags != nil,
 			pq.withProductSpecs != nil,
 			pq.withProductAttrs != nil,
@@ -668,6 +742,18 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 	if query := pq.withUnit; query != nil {
 		if err := pq.loadUnit(ctx, query, nodes, nil,
 			func(n *Product, e *ProductUnit) { n.Edges.Unit = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withTaxRate; query != nil {
+		if err := pq.loadTaxRate(ctx, query, nodes, nil,
+			func(n *Product, e *TaxFee) { n.Edges.TaxRate = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withStall; query != nil {
+		if err := pq.loadStall(ctx, query, nodes, nil,
+			func(n *Product, e *Stall) { n.Edges.Stall = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -767,6 +853,64 @@ func (pq *ProductQuery) loadUnit(ctx context.Context, query *ProductUnitQuery, n
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "unit_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (pq *ProductQuery) loadTaxRate(ctx context.Context, query *TaxFeeQuery, nodes []*Product, init func(*Product), assign func(*Product, *TaxFee)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Product)
+	for i := range nodes {
+		fk := nodes[i].TaxRateID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(taxfee.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "tax_rate_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (pq *ProductQuery) loadStall(ctx context.Context, query *StallQuery, nodes []*Product, init func(*Product), assign func(*Product, *Stall)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Product)
+	for i := range nodes {
+		fk := nodes[i].StallID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(stall.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "stall_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -1019,6 +1163,12 @@ func (pq *ProductQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if pq.withUnit != nil {
 			_spec.Node.AddColumnOnce(product.FieldUnitID)
+		}
+		if pq.withTaxRate != nil {
+			_spec.Node.AddColumnOnce(product.FieldTaxRateID)
+		}
+		if pq.withStall != nil {
+			_spec.Node.AddColumnOnce(product.FieldStallID)
 		}
 	}
 	if ps := pq.predicates; len(ps) > 0 {

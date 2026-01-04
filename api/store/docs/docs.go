@@ -2054,7 +2054,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -2831,6 +2831,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "指定出品部门ID",
                     "type": "string"
@@ -2852,6 +2860,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductTag"
                     }
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "指定税率ID",
@@ -3940,27 +3956,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.Address": {
             "type": "object",

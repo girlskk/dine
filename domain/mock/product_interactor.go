@@ -38,31 +38,31 @@ func (m *MockProductInteractor) EXPECT() *MockProductInteractorMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockProductInteractor) Create(arg0 context.Context, arg1 *domain.Product) error {
+func (m *MockProductInteractor) Create(arg0 context.Context, arg1 *domain.Product, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockProductInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) Create(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProductInteractor)(nil).Create), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProductInteractor)(nil).Create), arg0, arg1, arg2)
 }
 
 // CreateSetMeal mocks base method.
-func (m *MockProductInteractor) CreateSetMeal(arg0 context.Context, arg1 *domain.Product) error {
+func (m *MockProductInteractor) CreateSetMeal(arg0 context.Context, arg1 *domain.Product, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSetMeal", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateSetMeal", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateSetMeal indicates an expected call of CreateSetMeal.
-func (mr *MockProductInteractorMockRecorder) CreateSetMeal(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductInteractorMockRecorder) CreateSetMeal(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSetMeal", reflect.TypeOf((*MockProductInteractor)(nil).CreateSetMeal), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSetMeal", reflect.TypeOf((*MockProductInteractor)(nil).CreateSetMeal), arg0, arg1, arg2)
 }
 
 // Delete mocks base method.

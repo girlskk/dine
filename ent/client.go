@@ -3646,6 +3646,38 @@ func (c *ProductClient) QueryUnit(pr *Product) *ProductUnitQuery {
 	return query
 }
 
+// QueryTaxRate queries the tax_rate edge of a Product.
+func (c *ProductClient) QueryTaxRate(pr *Product) *TaxFeeQuery {
+	query := (&TaxFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.TaxRateTable, product.TaxRateColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStall queries the stall edge of a Product.
+func (c *ProductClient) QueryStall(pr *Product) *StallQuery {
+	query := (&StallClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.StallTable, product.StallColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryTags queries the tags edge of a Product.
 func (c *ProductClient) QueryTags(pr *Product) *ProductTagQuery {
 	query := (&ProductTagClient{config: c.config}).Query()
@@ -6430,6 +6462,22 @@ func (c *StallClient) QueryCategories(s *Stall) *CategoryQuery {
 	return query
 }
 
+// QueryProducts queries the products edge of a Stall.
+func (c *StallClient) QueryProducts(s *Stall) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(stall.Table, stall.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, stall.ProductsTable, stall.ProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StallClient) Hooks() []Hook {
 	hooks := c.hooks.Stall
@@ -7164,6 +7212,22 @@ func (c *TaxFeeClient) QueryCategories(tf *TaxFee) *CategoryQuery {
 			sqlgraph.From(taxfee.Table, taxfee.FieldID, id),
 			sqlgraph.To(category.Table, category.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, taxfee.CategoriesTable, taxfee.CategoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProducts queries the products edge of a TaxFee.
+func (c *TaxFeeClient) QueryProducts(tf *TaxFee) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(taxfee.Table, taxfee.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, taxfee.ProductsTable, taxfee.ProductsColumn),
 		)
 		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
 		return fromV, nil

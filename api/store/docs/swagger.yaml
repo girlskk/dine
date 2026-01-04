@@ -55,7 +55,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -600,6 +600,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 指定出品部门ID
         type: string
@@ -616,6 +620,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductTag'
         type: array
+      tax_rate:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFee'
+        description: 税率
       tax_rate_id:
         description: 指定税率ID
         type: string
@@ -1378,24 +1386,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.Address:
     properties:
       address:

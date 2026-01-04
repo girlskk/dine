@@ -1373,35 +1373,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/product/distribute": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "商品管理"
-                ],
-                "summary": "下发商品到门店",
-                "parameters": [
-                    {
-                        "description": "请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.ProductDistributeReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/product/setmeal": {
             "post": {
                 "security": [
@@ -5944,6 +5915,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "指定出品部门ID",
                     "type": "string"
@@ -5965,6 +5944,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductTag"
                     }
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "指定税率ID",
@@ -8635,52 +8622,6 @@ const docTemplate = `{
                 "unit_id": {
                     "description": "属性关联",
                     "type": "string"
-                }
-            }
-        },
-        "types.ProductDistributeReq": {
-            "type": "object",
-            "required": [
-                "distribution_rule",
-                "product_id",
-                "store_ids"
-            ],
-            "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
-                "product_id": {
-                    "description": "商品ID（必选）",
-                    "type": "string"
-                },
-                "sale_rule": {
-                    "description": "下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）",
-                    "enum": [
-                        "keep_brand_status",
-                        "keep_store_status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
-                "store_ids": {
-                    "description": "门店ID列表（必选，多选）",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

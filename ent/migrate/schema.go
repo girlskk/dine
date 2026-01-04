@@ -847,9 +847,7 @@ var (
 		{Name: "min_sale_quantity", Type: field.TypeInt, Nullable: true},
 		{Name: "add_sale_quantity", Type: field.TypeInt, Nullable: true},
 		{Name: "inherit_tax_rate", Type: field.TypeBool, Default: true},
-		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "inherit_stall", Type: field.TypeBool, Default: true},
-		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "detail_images", Type: field.TypeJSON, Nullable: true},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
@@ -859,6 +857,8 @@ var (
 		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "category_id", Type: field.TypeUUID},
 		{Name: "unit_id", Type: field.TypeUUID},
+		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// ProductsTable holds the schema information for the "products" table.
 	ProductsTable = &schema.Table{
@@ -868,15 +868,27 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "products_categories_products",
-				Columns:    []*schema.Column{ProductsColumns[28]},
+				Columns:    []*schema.Column{ProductsColumns[26]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "products_product_units_products",
-				Columns:    []*schema.Column{ProductsColumns[29]},
+				Columns:    []*schema.Column{ProductsColumns[27]},
 				RefColumns: []*schema.Column{ProductUnitsColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "products_stalls_products",
+				Columns:    []*schema.Column{ProductsColumns[28]},
+				RefColumns: []*schema.Column{StallsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "products_tax_fees_products",
+				Columns:    []*schema.Column{ProductsColumns[29]},
+				RefColumns: []*schema.Column{TaxFeesColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -888,22 +900,22 @@ var (
 			{
 				Name:    "product_merchant_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProductsColumns[26]},
+				Columns: []*schema.Column{ProductsColumns[24]},
 			},
 			{
 				Name:    "product_store_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProductsColumns[27]},
+				Columns: []*schema.Column{ProductsColumns[25]},
 			},
 			{
 				Name:    "product_category_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProductsColumns[28]},
+				Columns: []*schema.Column{ProductsColumns[26]},
 			},
 			{
 				Name:    "product_merchant_id_store_id_name_deleted_at",
 				Unique:  true,
-				Columns: []*schema.Column{ProductsColumns[26], ProductsColumns[27], ProductsColumns[5], ProductsColumns[3]},
+				Columns: []*schema.Column{ProductsColumns[24], ProductsColumns[25], ProductsColumns[5], ProductsColumns[3]},
 			},
 		},
 	}
@@ -1976,6 +1988,8 @@ func init() {
 	OrderProductsTable.ForeignKeys[0].RefTable = OrdersTable
 	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
 	ProductsTable.ForeignKeys[1].RefTable = ProductUnitsTable
+	ProductsTable.ForeignKeys[2].RefTable = StallsTable
+	ProductsTable.ForeignKeys[3].RefTable = TaxFeesTable
 	ProductAttrItemsTable.ForeignKeys[0].RefTable = ProductAttrsTable
 	ProductAttrRelationsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductAttrRelationsTable.ForeignKeys[1].RefTable = ProductAttrsTable

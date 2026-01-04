@@ -22068,9 +22068,7 @@ type ProductMutation struct {
 	add_sale_quantity       *int
 	addadd_sale_quantity    *int
 	inherit_tax_rate        *bool
-	tax_rate_id             *uuid.UUID
 	inherit_stall           *bool
-	stall_id                *uuid.UUID
 	main_image              *string
 	detail_images           *[]string
 	appenddetail_images     []string
@@ -22084,6 +22082,10 @@ type ProductMutation struct {
 	clearedcategory         bool
 	unit                    *uuid.UUID
 	clearedunit             bool
+	tax_rate                *uuid.UUID
+	clearedtax_rate         bool
+	stall                   *uuid.UUID
+	clearedstall            bool
 	tags                    map[uuid.UUID]struct{}
 	removedtags             map[uuid.UUID]struct{}
 	clearedtags             bool
@@ -23087,12 +23089,12 @@ func (m *ProductMutation) ResetInheritTaxRate() {
 
 // SetTaxRateID sets the "tax_rate_id" field.
 func (m *ProductMutation) SetTaxRateID(u uuid.UUID) {
-	m.tax_rate_id = &u
+	m.tax_rate = &u
 }
 
 // TaxRateID returns the value of the "tax_rate_id" field in the mutation.
 func (m *ProductMutation) TaxRateID() (r uuid.UUID, exists bool) {
-	v := m.tax_rate_id
+	v := m.tax_rate
 	if v == nil {
 		return
 	}
@@ -23118,7 +23120,7 @@ func (m *ProductMutation) OldTaxRateID(ctx context.Context) (v uuid.UUID, err er
 
 // ClearTaxRateID clears the value of the "tax_rate_id" field.
 func (m *ProductMutation) ClearTaxRateID() {
-	m.tax_rate_id = nil
+	m.tax_rate = nil
 	m.clearedFields[product.FieldTaxRateID] = struct{}{}
 }
 
@@ -23130,7 +23132,7 @@ func (m *ProductMutation) TaxRateIDCleared() bool {
 
 // ResetTaxRateID resets all changes to the "tax_rate_id" field.
 func (m *ProductMutation) ResetTaxRateID() {
-	m.tax_rate_id = nil
+	m.tax_rate = nil
 	delete(m.clearedFields, product.FieldTaxRateID)
 }
 
@@ -23172,12 +23174,12 @@ func (m *ProductMutation) ResetInheritStall() {
 
 // SetStallID sets the "stall_id" field.
 func (m *ProductMutation) SetStallID(u uuid.UUID) {
-	m.stall_id = &u
+	m.stall = &u
 }
 
 // StallID returns the value of the "stall_id" field in the mutation.
 func (m *ProductMutation) StallID() (r uuid.UUID, exists bool) {
-	v := m.stall_id
+	v := m.stall
 	if v == nil {
 		return
 	}
@@ -23203,7 +23205,7 @@ func (m *ProductMutation) OldStallID(ctx context.Context) (v uuid.UUID, err erro
 
 // ClearStallID clears the value of the "stall_id" field.
 func (m *ProductMutation) ClearStallID() {
-	m.stall_id = nil
+	m.stall = nil
 	m.clearedFields[product.FieldStallID] = struct{}{}
 }
 
@@ -23215,7 +23217,7 @@ func (m *ProductMutation) StallIDCleared() bool {
 
 // ResetStallID resets all changes to the "stall_id" field.
 func (m *ProductMutation) ResetStallID() {
-	m.stall_id = nil
+	m.stall = nil
 	delete(m.clearedFields, product.FieldStallID)
 }
 
@@ -23578,6 +23580,60 @@ func (m *ProductMutation) UnitIDs() (ids []uuid.UUID) {
 func (m *ProductMutation) ResetUnit() {
 	m.unit = nil
 	m.clearedunit = false
+}
+
+// ClearTaxRate clears the "tax_rate" edge to the TaxFee entity.
+func (m *ProductMutation) ClearTaxRate() {
+	m.clearedtax_rate = true
+	m.clearedFields[product.FieldTaxRateID] = struct{}{}
+}
+
+// TaxRateCleared reports if the "tax_rate" edge to the TaxFee entity was cleared.
+func (m *ProductMutation) TaxRateCleared() bool {
+	return m.TaxRateIDCleared() || m.clearedtax_rate
+}
+
+// TaxRateIDs returns the "tax_rate" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// TaxRateID instead. It exists only for internal usage by the builders.
+func (m *ProductMutation) TaxRateIDs() (ids []uuid.UUID) {
+	if id := m.tax_rate; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetTaxRate resets all changes to the "tax_rate" edge.
+func (m *ProductMutation) ResetTaxRate() {
+	m.tax_rate = nil
+	m.clearedtax_rate = false
+}
+
+// ClearStall clears the "stall" edge to the Stall entity.
+func (m *ProductMutation) ClearStall() {
+	m.clearedstall = true
+	m.clearedFields[product.FieldStallID] = struct{}{}
+}
+
+// StallCleared reports if the "stall" edge to the Stall entity was cleared.
+func (m *ProductMutation) StallCleared() bool {
+	return m.StallIDCleared() || m.clearedstall
+}
+
+// StallIDs returns the "stall" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// StallID instead. It exists only for internal usage by the builders.
+func (m *ProductMutation) StallIDs() (ids []uuid.UUID) {
+	if id := m.stall; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetStall resets all changes to the "stall" edge.
+func (m *ProductMutation) ResetStall() {
+	m.stall = nil
+	m.clearedstall = false
 }
 
 // AddTagIDs adds the "tags" edge to the ProductTag entity by ids.
@@ -23996,13 +24052,13 @@ func (m *ProductMutation) Fields() []string {
 	if m.inherit_tax_rate != nil {
 		fields = append(fields, product.FieldInheritTaxRate)
 	}
-	if m.tax_rate_id != nil {
+	if m.tax_rate != nil {
 		fields = append(fields, product.FieldTaxRateID)
 	}
 	if m.inherit_stall != nil {
 		fields = append(fields, product.FieldInheritStall)
 	}
-	if m.stall_id != nil {
+	if m.stall != nil {
 		fields = append(fields, product.FieldStallID)
 	}
 	if m.main_image != nil {
@@ -24633,12 +24689,18 @@ func (m *ProductMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProductMutation) AddedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 10)
 	if m.category != nil {
 		edges = append(edges, product.EdgeCategory)
 	}
 	if m.unit != nil {
 		edges = append(edges, product.EdgeUnit)
+	}
+	if m.tax_rate != nil {
+		edges = append(edges, product.EdgeTaxRate)
+	}
+	if m.stall != nil {
+		edges = append(edges, product.EdgeStall)
 	}
 	if m.tags != nil {
 		edges = append(edges, product.EdgeTags)
@@ -24671,6 +24733,14 @@ func (m *ProductMutation) AddedIDs(name string) []ent.Value {
 		}
 	case product.EdgeUnit:
 		if id := m.unit; id != nil {
+			return []ent.Value{*id}
+		}
+	case product.EdgeTaxRate:
+		if id := m.tax_rate; id != nil {
+			return []ent.Value{*id}
+		}
+	case product.EdgeStall:
+		if id := m.stall; id != nil {
 			return []ent.Value{*id}
 		}
 	case product.EdgeTags:
@@ -24715,7 +24785,7 @@ func (m *ProductMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProductMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 10)
 	if m.removedtags != nil {
 		edges = append(edges, product.EdgeTags)
 	}
@@ -24783,12 +24853,18 @@ func (m *ProductMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProductMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 10)
 	if m.clearedcategory {
 		edges = append(edges, product.EdgeCategory)
 	}
 	if m.clearedunit {
 		edges = append(edges, product.EdgeUnit)
+	}
+	if m.clearedtax_rate {
+		edges = append(edges, product.EdgeTaxRate)
+	}
+	if m.clearedstall {
+		edges = append(edges, product.EdgeStall)
 	}
 	if m.clearedtags {
 		edges = append(edges, product.EdgeTags)
@@ -24819,6 +24895,10 @@ func (m *ProductMutation) EdgeCleared(name string) bool {
 		return m.clearedcategory
 	case product.EdgeUnit:
 		return m.clearedunit
+	case product.EdgeTaxRate:
+		return m.clearedtax_rate
+	case product.EdgeStall:
+		return m.clearedstall
 	case product.EdgeTags:
 		return m.clearedtags
 	case product.EdgeProductSpecs:
@@ -24845,6 +24925,12 @@ func (m *ProductMutation) ClearEdge(name string) error {
 	case product.EdgeUnit:
 		m.ClearUnit()
 		return nil
+	case product.EdgeTaxRate:
+		m.ClearTaxRate()
+		return nil
+	case product.EdgeStall:
+		m.ClearStall()
+		return nil
 	}
 	return fmt.Errorf("unknown Product unique edge %s", name)
 }
@@ -24858,6 +24944,12 @@ func (m *ProductMutation) ResetEdge(name string) error {
 		return nil
 	case product.EdgeUnit:
 		m.ResetUnit()
+		return nil
+	case product.EdgeTaxRate:
+		m.ResetTaxRate()
+		return nil
+	case product.EdgeStall:
+		m.ResetStall()
 		return nil
 	case product.EdgeTags:
 		m.ResetTags()
@@ -39283,6 +39375,9 @@ type StallMutation struct {
 	categories        map[uuid.UUID]struct{}
 	removedcategories map[uuid.UUID]struct{}
 	clearedcategories bool
+	products          map[uuid.UUID]struct{}
+	removedproducts   map[uuid.UUID]struct{}
+	clearedproducts   bool
 	done              bool
 	oldValue          func(context.Context) (*Stall, error)
 	predicates        []predicate.Stall
@@ -39980,6 +40075,60 @@ func (m *StallMutation) ResetCategories() {
 	m.removedcategories = nil
 }
 
+// AddProductIDs adds the "products" edge to the Product entity by ids.
+func (m *StallMutation) AddProductIDs(ids ...uuid.UUID) {
+	if m.products == nil {
+		m.products = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.products[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProducts clears the "products" edge to the Product entity.
+func (m *StallMutation) ClearProducts() {
+	m.clearedproducts = true
+}
+
+// ProductsCleared reports if the "products" edge to the Product entity was cleared.
+func (m *StallMutation) ProductsCleared() bool {
+	return m.clearedproducts
+}
+
+// RemoveProductIDs removes the "products" edge to the Product entity by IDs.
+func (m *StallMutation) RemoveProductIDs(ids ...uuid.UUID) {
+	if m.removedproducts == nil {
+		m.removedproducts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.products, ids[i])
+		m.removedproducts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProducts returns the removed IDs of the "products" edge to the Product entity.
+func (m *StallMutation) RemovedProductsIDs() (ids []uuid.UUID) {
+	for id := range m.removedproducts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProductsIDs returns the "products" edge IDs in the mutation.
+func (m *StallMutation) ProductsIDs() (ids []uuid.UUID) {
+	for id := range m.products {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProducts resets all changes to the "products" edge.
+func (m *StallMutation) ResetProducts() {
+	m.products = nil
+	m.clearedproducts = false
+	m.removedproducts = nil
+}
+
 // Where appends a list predicates to the StallMutation builder.
 func (m *StallMutation) Where(ps ...predicate.Stall) {
 	m.predicates = append(m.predicates, ps...)
@@ -40308,7 +40457,7 @@ func (m *StallMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StallMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.merchant != nil {
 		edges = append(edges, stall.EdgeMerchant)
 	}
@@ -40320,6 +40469,9 @@ func (m *StallMutation) AddedEdges() []string {
 	}
 	if m.categories != nil {
 		edges = append(edges, stall.EdgeCategories)
+	}
+	if m.products != nil {
+		edges = append(edges, stall.EdgeProducts)
 	}
 	return edges
 }
@@ -40348,18 +40500,27 @@ func (m *StallMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case stall.EdgeProducts:
+		ids := make([]ent.Value, 0, len(m.products))
+		for id := range m.products {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StallMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.removeddevices != nil {
 		edges = append(edges, stall.EdgeDevices)
 	}
 	if m.removedcategories != nil {
 		edges = append(edges, stall.EdgeCategories)
+	}
+	if m.removedproducts != nil {
+		edges = append(edges, stall.EdgeProducts)
 	}
 	return edges
 }
@@ -40380,13 +40541,19 @@ func (m *StallMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case stall.EdgeProducts:
+		ids := make([]ent.Value, 0, len(m.removedproducts))
+		for id := range m.removedproducts {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StallMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.clearedmerchant {
 		edges = append(edges, stall.EdgeMerchant)
 	}
@@ -40398,6 +40565,9 @@ func (m *StallMutation) ClearedEdges() []string {
 	}
 	if m.clearedcategories {
 		edges = append(edges, stall.EdgeCategories)
+	}
+	if m.clearedproducts {
+		edges = append(edges, stall.EdgeProducts)
 	}
 	return edges
 }
@@ -40414,6 +40584,8 @@ func (m *StallMutation) EdgeCleared(name string) bool {
 		return m.cleareddevices
 	case stall.EdgeCategories:
 		return m.clearedcategories
+	case stall.EdgeProducts:
+		return m.clearedproducts
 	}
 	return false
 }
@@ -40447,6 +40619,9 @@ func (m *StallMutation) ResetEdge(name string) error {
 		return nil
 	case stall.EdgeCategories:
 		m.ResetCategories()
+		return nil
+	case stall.EdgeProducts:
+		m.ResetProducts()
 		return nil
 	}
 	return fmt.Errorf("unknown Stall edge %s", name)
@@ -44867,6 +45042,9 @@ type TaxFeeMutation struct {
 	categories        map[uuid.UUID]struct{}
 	removedcategories map[uuid.UUID]struct{}
 	clearedcategories bool
+	products          map[uuid.UUID]struct{}
+	removedproducts   map[uuid.UUID]struct{}
+	clearedproducts   bool
 	done              bool
 	oldValue          func(context.Context) (*TaxFee, error)
 	predicates        []predicate.TaxFee
@@ -45526,6 +45704,60 @@ func (m *TaxFeeMutation) ResetCategories() {
 	m.removedcategories = nil
 }
 
+// AddProductIDs adds the "products" edge to the Product entity by ids.
+func (m *TaxFeeMutation) AddProductIDs(ids ...uuid.UUID) {
+	if m.products == nil {
+		m.products = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.products[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProducts clears the "products" edge to the Product entity.
+func (m *TaxFeeMutation) ClearProducts() {
+	m.clearedproducts = true
+}
+
+// ProductsCleared reports if the "products" edge to the Product entity was cleared.
+func (m *TaxFeeMutation) ProductsCleared() bool {
+	return m.clearedproducts
+}
+
+// RemoveProductIDs removes the "products" edge to the Product entity by IDs.
+func (m *TaxFeeMutation) RemoveProductIDs(ids ...uuid.UUID) {
+	if m.removedproducts == nil {
+		m.removedproducts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.products, ids[i])
+		m.removedproducts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProducts returns the removed IDs of the "products" edge to the Product entity.
+func (m *TaxFeeMutation) RemovedProductsIDs() (ids []uuid.UUID) {
+	for id := range m.removedproducts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProductsIDs returns the "products" edge IDs in the mutation.
+func (m *TaxFeeMutation) ProductsIDs() (ids []uuid.UUID) {
+	for id := range m.products {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProducts resets all changes to the "products" edge.
+func (m *TaxFeeMutation) ResetProducts() {
+	m.products = nil
+	m.clearedproducts = false
+	m.removedproducts = nil
+}
+
 // Where appends a list predicates to the TaxFeeMutation builder.
 func (m *TaxFeeMutation) Where(ps ...predicate.TaxFee) {
 	m.predicates = append(m.predicates, ps...)
@@ -45859,7 +46091,7 @@ func (m *TaxFeeMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TaxFeeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.merchant != nil {
 		edges = append(edges, taxfee.EdgeMerchant)
 	}
@@ -45868,6 +46100,9 @@ func (m *TaxFeeMutation) AddedEdges() []string {
 	}
 	if m.categories != nil {
 		edges = append(edges, taxfee.EdgeCategories)
+	}
+	if m.products != nil {
+		edges = append(edges, taxfee.EdgeProducts)
 	}
 	return edges
 }
@@ -45890,15 +46125,24 @@ func (m *TaxFeeMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case taxfee.EdgeProducts:
+		ids := make([]ent.Value, 0, len(m.products))
+		for id := range m.products {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TaxFeeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedcategories != nil {
 		edges = append(edges, taxfee.EdgeCategories)
+	}
+	if m.removedproducts != nil {
+		edges = append(edges, taxfee.EdgeProducts)
 	}
 	return edges
 }
@@ -45913,13 +46157,19 @@ func (m *TaxFeeMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case taxfee.EdgeProducts:
+		ids := make([]ent.Value, 0, len(m.removedproducts))
+		for id := range m.removedproducts {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TaxFeeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedmerchant {
 		edges = append(edges, taxfee.EdgeMerchant)
 	}
@@ -45928,6 +46178,9 @@ func (m *TaxFeeMutation) ClearedEdges() []string {
 	}
 	if m.clearedcategories {
 		edges = append(edges, taxfee.EdgeCategories)
+	}
+	if m.clearedproducts {
+		edges = append(edges, taxfee.EdgeProducts)
 	}
 	return edges
 }
@@ -45942,6 +46195,8 @@ func (m *TaxFeeMutation) EdgeCleared(name string) bool {
 		return m.clearedstore
 	case taxfee.EdgeCategories:
 		return m.clearedcategories
+	case taxfee.EdgeProducts:
+		return m.clearedproducts
 	}
 	return false
 }
@@ -45972,6 +46227,9 @@ func (m *TaxFeeMutation) ResetEdge(name string) error {
 		return nil
 	case taxfee.EdgeCategories:
 		m.ResetCategories()
+		return nil
+	case taxfee.EdgeProducts:
+		m.ResetProducts()
 		return nil
 	}
 	return fmt.Errorf("unknown TaxFee edge %s", name)

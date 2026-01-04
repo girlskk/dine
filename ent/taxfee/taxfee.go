@@ -46,6 +46,8 @@ const (
 	EdgeStore = "store"
 	// EdgeCategories holds the string denoting the categories edge name in mutations.
 	EdgeCategories = "categories"
+	// EdgeProducts holds the string denoting the products edge name in mutations.
+	EdgeProducts = "products"
 	// Table holds the table name of the taxfee in the database.
 	Table = "tax_fees"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -69,6 +71,13 @@ const (
 	CategoriesInverseTable = "categories"
 	// CategoriesColumn is the table column denoting the categories relation/edge.
 	CategoriesColumn = "tax_fee_categories"
+	// ProductsTable is the table that holds the products relation/edge.
+	ProductsTable = "products"
+	// ProductsInverseTable is the table name for the Product entity.
+	// It exists in this package in order to avoid circular dependency with the "product" package.
+	ProductsInverseTable = "products"
+	// ProductsColumn is the table column denoting the products relation/edge.
+	ProductsColumn = "tax_rate_id"
 )
 
 // Columns holds all SQL columns for taxfee fields.
@@ -235,6 +244,20 @@ func ByCategories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newCategoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByProductsCount orders the results by products count.
+func ByProductsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProductsStep(), opts...)
+	}
+}
+
+// ByProducts orders the results by products terms.
+func ByProducts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProductsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -254,5 +277,12 @@ func newCategoriesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CategoriesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, CategoriesTable, CategoriesColumn),
+	)
+}
+func newProductsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProductsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProductsTable, ProductsColumn),
 	)
 }

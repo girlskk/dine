@@ -74,8 +74,8 @@ type ProductRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/product_interactor.go -package=mock . ProductInteractor
 type ProductInteractor interface {
-	Create(ctx context.Context, product *Product) error
-	CreateSetMeal(ctx context.Context, product *Product) error
+	Create(ctx context.Context, product *Product, user User) error
+	CreateSetMeal(ctx context.Context, product *Product, user User) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
 	Update(ctx context.Context, product *Product, user User) error
 	UpdateSetMeal(ctx context.Context, product *Product, user User) error
@@ -226,6 +226,8 @@ type Product struct {
 	Groups        SetMealGroups        `json:"groups,omitempty"`         // 套餐组列表
 	Category      *Category            `json:"category,omitempty"`       // 分类
 	Unit          *ProductUnit         `json:"unit,omitempty"`           // 单位
+	TaxRate       *TaxFee              `json:"tax_rate,omitempty"`       // 税率
+	Stall         *Stall               `json:"stall,omitempty"`          // 出品部门
 }
 
 // Products 商品集合

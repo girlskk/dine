@@ -15,7 +15,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 type ProductHandler struct {
@@ -39,7 +38,7 @@ func (h *ProductHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id/off-sale", h.OffSale())
 	r.PUT("/:id/on-sale", h.OnSale())
 	r.GET("/:id", h.GetDetail())
-	r.POST("/distribute", h.Distribute())
+	// r.POST("/distribute", h.Distribute())
 }
 
 func (h *ProductHandler) NoAuths() []string {
@@ -166,7 +165,7 @@ func (h *ProductHandler) Create() gin.HandlerFunc {
 			}
 		}
 
-		err := h.ProductInteractor.Create(ctx, product)
+		err := h.ProductInteractor.Create(ctx, product, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
@@ -321,7 +320,7 @@ func (h *ProductHandler) CreateSetMeal() gin.HandlerFunc {
 		}
 		product.Groups = groups
 
-		err := h.ProductInteractor.CreateSetMeal(ctx, product)
+		err := h.ProductInteractor.CreateSetMeal(ctx, product, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
@@ -418,8 +417,6 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		if req.Type != "" {
 			params.Type = domain.ProductType(req.Type)
 		}
-
-		util.PrettyJson(params)
 
 		res, err := h.ProductInteractor.PagedListBySearch(ctx, page, params)
 		if err != nil {
@@ -917,43 +914,44 @@ func (h *ProductHandler) GetDetail() gin.HandlerFunc {
 //	@Tags		商品管理
 //	@Security	BearerAuth
 //	@Summary	下发商品到门店
+//	@Deprecated
 //	@Param		data	body	types.ProductDistributeReq	true	"请求信息"
 //	@Success	200
 //	@Router		/product/distribute [post]
-func (h *ProductHandler) Distribute() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("ProductHandler.Distribute")
-		ctx = logging.NewContext(ctx, logger)
-		c.Request = c.Request.Clone(ctx)
+// func (h *ProductHandler) Distribute() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		ctx := c.Request.Context()
+// 		logger := logging.FromContext(ctx).Named("ProductHandler.Distribute")
+// 		ctx = logging.NewContext(ctx, logger)
+// 		c.Request = c.Request.Clone(ctx)
 
-		var req types.ProductDistributeReq
-		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
+// 		var req types.ProductDistributeReq
+// 		if err := c.ShouldBind(&req); err != nil {
+// 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+// 			return
+// 		}
 
-		user := domain.FromBackendUserContext(ctx)
+// 		user := domain.FromBackendUserContext(ctx)
 
-		params := domain.ProductDistributeParams{
-			ProductID:        req.ProductID,
-			MerchantID:       user.MerchantID,
-			StoreIDs:         req.StoreIDs,
-			DistributionRule: req.DistributionRule,
-			SaleRule:         req.SaleRule,
-		}
+// 		params := domain.ProductDistributeParams{
+// 			ProductID:        req.ProductID,
+// 			MerchantID:       user.MerchantID,
+// 			StoreIDs:         req.StoreIDs,
+// 			DistributionRule: req.DistributionRule,
+// 			SaleRule:         req.SaleRule,
+// 		}
 
-		err := h.ProductInteractor.Distribute(ctx, params, user)
-		if err != nil {
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to distribute product: %w", err)
-			c.Error(err)
-			return
-		}
+// 		err := h.ProductInteractor.Distribute(ctx, params, user)
+// 		if err != nil {
+// 			if domain.IsParamsError(err) {
+// 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+// 				return
+// 			}
+// 			err = fmt.Errorf("failed to distribute product: %w", err)
+// 			c.Error(err)
+// 			return
+// 		}
 
-		response.Ok(c, nil)
-	}
-}
+// 		response.Ok(c, nil)
+// 	}
+// }

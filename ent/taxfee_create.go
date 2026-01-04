@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -188,6 +189,21 @@ func (tfc *TaxFeeCreate) AddCategories(c ...*Category) *TaxFeeCreate {
 		ids[i] = c[i].ID
 	}
 	return tfc.AddCategoryIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (tfc *TaxFeeCreate) AddProductIDs(ids ...uuid.UUID) *TaxFeeCreate {
+	tfc.mutation.AddProductIDs(ids...)
+	return tfc
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (tfc *TaxFeeCreate) AddProducts(p ...*Product) *TaxFeeCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tfc.AddProductIDs(ids...)
 }
 
 // Mutation returns the TaxFeeMutation object of the builder.
@@ -427,6 +443,22 @@ func (tfc *TaxFeeCreate) createSpec() (*TaxFee, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tfc.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

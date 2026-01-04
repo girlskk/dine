@@ -165,7 +165,7 @@ func (h *ProductHandler) Create() gin.HandlerFunc {
 			}
 		}
 
-		err := h.ProductInteractor.Create(ctx, product)
+		err := h.ProductInteractor.Create(ctx, product, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
@@ -321,7 +321,7 @@ func (h *ProductHandler) CreateSetMeal() gin.HandlerFunc {
 		}
 		product.Groups = groups
 
-		err := h.ProductInteractor.CreateSetMeal(ctx, product)
+		err := h.ProductInteractor.CreateSetMeal(ctx, product, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
