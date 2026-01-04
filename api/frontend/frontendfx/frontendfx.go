@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"gitlab.jiguang.dev/pos-dine/dine/api/frontend"
+	"gitlab.jiguang.dev/pos-dine/dine/api/frontend/handler"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/middleware"
@@ -33,7 +34,9 @@ var Module = fx.Module(
 		asMiddleware(middleware.NewLogger),
 	),
 	// handler
-	fx.Provide(),
+	fx.Provide(
+		asHandler(handler.NewOrderHandler),
+	),
 )
 
 func asHandler(f any) any {

@@ -25,6 +25,7 @@ type DataStore interface {
 	MerchantBusinessTypeRepo() MerchantBusinessTypeRepository
 	RemarkRepo() RemarkRepository
 	RemarkCategoryRepo() RemarkCategoryRepository
+	OrderRepo() OrderRepository
 	MenuRepo() MenuRepository
 }
 
