@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"encoding/json"
-
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -35,7 +33,7 @@ func (Order) Fields() []ent.Field {
 		field.String("order_no").NotEmpty().Comment("订单号（门店内唯一可读编号）"),
 
 		field.Enum("order_type").GoType(domain.OrderType("")).Default(string(domain.OrderTypeSale)).Comment("订单类型：SALE=销售单；REFUND=退单；PARTIAL_REFUND=部分退款单"),
-		field.JSON("refund", json.RawMessage{}).Optional().Comment("退款单信息（包含原单信息与退款原因）"),
+		field.JSON("refund", domain.OrderRefund{}).Optional().Comment("退款单信息（包含原单信息与退款原因）"),
 
 		field.Time("placed_at").Optional().Nillable().Comment("下单时间"),
 		field.Time("paid_at").Optional().Nillable().Comment("支付完成时间"),
@@ -51,16 +49,16 @@ func (Order) Fields() []ent.Field {
 		field.String("table_name").Optional().Comment("桌位名称（堂食，如A01/1号桌）"),
 		field.Int("guest_count").Optional().Comment("用餐人数（堂食）"),
 
-		field.JSON("store", json.RawMessage{}).Default(json.RawMessage("{}")).Comment("门店信息"),
+		field.JSON("store", domain.OrderStore{}).Comment("门店信息"),
 		field.Enum("channel").GoType(domain.Channel("")).Default(string(domain.ChannelPOS)).Comment("下单渠道"),
-		field.JSON("pos", json.RawMessage{}).Default(json.RawMessage("{}")).Comment("POS终端信息"),
-		field.JSON("cashier", json.RawMessage{}).Default(json.RawMessage("{}")).Comment("收银员信息"),
+		field.JSON("pos", domain.OrderPOS{}).Comment("POS终端信息"),
+		field.JSON("cashier", domain.OrderCashier{}).Comment("收银员信息"),
 
-		field.JSON("tax_rates", json.RawMessage{}).Optional().Comment("税率明细"),
-		field.JSON("fees", json.RawMessage{}).Optional().Comment("费用明细"),
-		field.JSON("payments", json.RawMessage{}).Optional().Comment("支付记录"),
+		field.JSON("tax_rates", []domain.OrderTaxRate{}).Optional().Comment("税率明细"),
+		field.JSON("fees", []domain.OrderFee{}).Optional().Comment("费用明细"),
+		field.JSON("payments", []domain.OrderPayment{}).Optional().Comment("支付记录"),
 
-		field.JSON("amount", json.RawMessage{}).Default(json.RawMessage("{}")).Comment("金额汇总"),
+		field.JSON("amount", domain.OrderAmount{}).Comment("金额汇总"),
 	}
 }
 
