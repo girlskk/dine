@@ -12,17 +12,22 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
@@ -36,9 +41,13 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -99,17 +108,22 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			additionalfee.Table:          additionalfee.ValidColumn,
 			adminuser.Table:              adminuser.ValidColumn,
 			backenduser.Table:            backenduser.ValidColumn,
 			category.Table:               category.ValidColumn,
 			city.Table:                   city.ValidColumn,
 			country.Table:                country.ValidColumn,
+			department.Table:             department.ValidColumn,
+			device.Table:                 device.ValidColumn,
 			district.Table:               district.ValidColumn,
 			menu.Table:                   menu.ValidColumn,
 			menuitem.Table:               menuitem.ValidColumn,
 			merchant.Table:               merchant.ValidColumn,
 			merchantbusinesstype.Table:   merchantbusinesstype.ValidColumn,
 			merchantrenewal.Table:        merchantrenewal.ValidColumn,
+			order.Table:                  order.ValidColumn,
+			orderproduct.Table:           orderproduct.ValidColumn,
 			product.Table:                product.ValidColumn,
 			productattr.Table:            productattr.ValidColumn,
 			productattritem.Table:        productattritem.ValidColumn,
@@ -123,9 +137,13 @@ func checkColumn(table, column string) error {
 			province.Table:               province.ValidColumn,
 			remark.Table:                 remark.ValidColumn,
 			remarkcategory.Table:         remarkcategory.ValidColumn,
+			role.Table:                   role.ValidColumn,
 			setmealdetail.Table:          setmealdetail.ValidColumn,
 			setmealgroup.Table:           setmealgroup.ValidColumn,
+			stall.Table:                  stall.ValidColumn,
 			store.Table:                  store.ValidColumn,
+			storeuser.Table:              storeuser.ValidColumn,
+			taxfee.Table:                 taxfee.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

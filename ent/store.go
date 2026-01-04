@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
@@ -70,11 +70,11 @@ type Store struct {
 	// 食品经营许可证照片
 	FoodOperationLicenseURL string `json:"food_operation_license_url,omitempty"`
 	// 营业时间段，JSON格式存储
-	BusinessHours string `json:"business_hours,omitempty"`
+	BusinessHours []domain.BusinessHours `json:"business_hours,omitempty"`
 	// 就餐时段，JSON格式存储
-	DiningPeriods string `json:"dining_periods,omitempty"`
+	DiningPeriods []domain.DiningPeriod `json:"dining_periods,omitempty"`
 	// 班次时间，JSON格式存储
-	ShiftTimes string `json:"shift_times,omitempty"`
+	ShiftTimes []domain.ShiftTime `json:"shift_times,omitempty"`
 	// 国家/地区id
 	CountryID uuid.UUID `json:"country_id,omitempty"`
 	// 省份 id
@@ -89,8 +89,8 @@ type Store struct {
 	Lng string `json:"lng,omitempty"`
 	// 纬度
 	Lat string `json:"lat,omitempty"`
-	// 登陆账号 ID
-	AdminUserID uuid.UUID `json:"admin_user_id,omitempty"`
+	// 登陆账号
+	SuperAccount string `json:"super_account,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the StoreQuery when eager-loading is set.
 	Edges        StoreEdges `json:"edges"`
@@ -101,8 +101,6 @@ type Store struct {
 type StoreEdges struct {
 	// Merchant holds the value of the merchant edge.
 	Merchant *Merchant `json:"merchant,omitempty"`
-	// AdminUser holds the value of the admin_user edge.
-	AdminUser *AdminUser `json:"admin_user,omitempty"`
 	// MerchantBusinessType holds the value of the merchant_business_type edge.
 	MerchantBusinessType *MerchantBusinessType `json:"merchant_business_type,omitempty"`
 	// Country holds the value of the country edge.
@@ -113,15 +111,29 @@ type StoreEdges struct {
 	City *City `json:"city,omitempty"`
 	// District holds the value of the district edge.
 	District *District `json:"district,omitempty"`
+	// StoreUsers holds the value of the store_users edge.
+	StoreUsers []*StoreUser `json:"store_users,omitempty"`
 	// Remarks holds the value of the remarks edge.
 	Remarks []*Remark `json:"remarks,omitempty"`
+	// Stalls holds the value of the stalls edge.
+	Stalls []*Stall `json:"stalls,omitempty"`
+	// AdditionalFees holds the value of the additional_fees edge.
+	AdditionalFees []*AdditionalFee `json:"additional_fees,omitempty"`
+	// TaxFees holds the value of the tax_fees edge.
+	TaxFees []*TaxFee `json:"tax_fees,omitempty"`
+	// Devices holds the value of the devices edge.
+	Devices []*Device `json:"devices,omitempty"`
 	// 关联的菜单
 	Menus []*Menu `json:"menus,omitempty"`
+	// Departments holds the value of the departments edge.
+	Departments []*Department `json:"departments,omitempty"`
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
 	// 关联的分账方案
 	ProfitDistributionRules []*ProfitDistributionRule `json:"profit_distribution_rules,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [10]bool
+	loadedTypes [16]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -135,23 +147,12 @@ func (e StoreEdges) MerchantOrErr() (*Merchant, error) {
 	return nil, &NotLoadedError{edge: "merchant"}
 }
 
-// AdminUserOrErr returns the AdminUser value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e StoreEdges) AdminUserOrErr() (*AdminUser, error) {
-	if e.AdminUser != nil {
-		return e.AdminUser, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: adminuser.Label}
-	}
-	return nil, &NotLoadedError{edge: "admin_user"}
-}
-
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e StoreEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error) {
 	if e.MerchantBusinessType != nil {
 		return e.MerchantBusinessType, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: merchantbusinesstype.Label}
 	}
 	return nil, &NotLoadedError{edge: "merchant_business_type"}
@@ -162,7 +163,7 @@ func (e StoreEdges) MerchantBusinessTypeOrErr() (*MerchantBusinessType, error) {
 func (e StoreEdges) CountryOrErr() (*Country, error) {
 	if e.Country != nil {
 		return e.Country, nil
-	} else if e.loadedTypes[3] {
+	} else if e.loadedTypes[2] {
 		return nil, &NotFoundError{label: country.Label}
 	}
 	return nil, &NotLoadedError{edge: "country"}
@@ -173,7 +174,7 @@ func (e StoreEdges) CountryOrErr() (*Country, error) {
 func (e StoreEdges) ProvinceOrErr() (*Province, error) {
 	if e.Province != nil {
 		return e.Province, nil
-	} else if e.loadedTypes[4] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: province.Label}
 	}
 	return nil, &NotLoadedError{edge: "province"}
@@ -184,7 +185,7 @@ func (e StoreEdges) ProvinceOrErr() (*Province, error) {
 func (e StoreEdges) CityOrErr() (*City, error) {
 	if e.City != nil {
 		return e.City, nil
-	} else if e.loadedTypes[5] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: city.Label}
 	}
 	return nil, &NotLoadedError{edge: "city"}
@@ -195,10 +196,19 @@ func (e StoreEdges) CityOrErr() (*City, error) {
 func (e StoreEdges) DistrictOrErr() (*District, error) {
 	if e.District != nil {
 		return e.District, nil
-	} else if e.loadedTypes[6] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: district.Label}
 	}
 	return nil, &NotLoadedError{edge: "district"}
+}
+
+// StoreUsersOrErr returns the StoreUsers value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) StoreUsersOrErr() ([]*StoreUser, error) {
+	if e.loadedTypes[6] {
+		return e.StoreUsers, nil
+	}
+	return nil, &NotLoadedError{edge: "store_users"}
 }
 
 // RemarksOrErr returns the Remarks value or an error if the edge
@@ -210,19 +220,73 @@ func (e StoreEdges) RemarksOrErr() ([]*Remark, error) {
 	return nil, &NotLoadedError{edge: "remarks"}
 }
 
+// StallsOrErr returns the Stalls value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) StallsOrErr() ([]*Stall, error) {
+	if e.loadedTypes[8] {
+		return e.Stalls, nil
+	}
+	return nil, &NotLoadedError{edge: "stalls"}
+}
+
+// AdditionalFeesOrErr returns the AdditionalFees value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) AdditionalFeesOrErr() ([]*AdditionalFee, error) {
+	if e.loadedTypes[9] {
+		return e.AdditionalFees, nil
+	}
+	return nil, &NotLoadedError{edge: "additional_fees"}
+}
+
+// TaxFeesOrErr returns the TaxFees value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) TaxFeesOrErr() ([]*TaxFee, error) {
+	if e.loadedTypes[10] {
+		return e.TaxFees, nil
+	}
+	return nil, &NotLoadedError{edge: "tax_fees"}
+}
+
+// DevicesOrErr returns the Devices value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) DevicesOrErr() ([]*Device, error) {
+	if e.loadedTypes[11] {
+		return e.Devices, nil
+	}
+	return nil, &NotLoadedError{edge: "devices"}
+}
+
 // MenusOrErr returns the Menus value or an error if the edge
 // was not loaded in eager-loading.
 func (e StoreEdges) MenusOrErr() ([]*Menu, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[12] {
 		return e.Menus, nil
 	}
 	return nil, &NotLoadedError{edge: "menus"}
 }
 
+// DepartmentsOrErr returns the Departments value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) DepartmentsOrErr() ([]*Department, error) {
+	if e.loadedTypes[13] {
+		return e.Departments, nil
+	}
+	return nil, &NotLoadedError{edge: "departments"}
+}
+
+// RolesOrErr returns the Roles value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) RolesOrErr() ([]*Role, error) {
+	if e.loadedTypes[14] {
+		return e.Roles, nil
+	}
+	return nil, &NotLoadedError{edge: "roles"}
+}
+
 // ProfitDistributionRulesOrErr returns the ProfitDistributionRules value or an error if the edge
 // was not loaded in eager-loading.
 func (e StoreEdges) ProfitDistributionRulesOrErr() ([]*ProfitDistributionRule, error) {
-	if e.loadedTypes[9] {
+	if e.loadedTypes[15] {
 		return e.ProfitDistributionRules, nil
 	}
 	return nil, &NotLoadedError{edge: "profit_distribution_rules"}
@@ -233,13 +297,15 @@ func (*Store) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case store.FieldBusinessHours, store.FieldDiningPeriods, store.FieldShiftTimes:
+			values[i] = new([]byte)
 		case store.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldLocationNumber, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldBusinessHours, store.FieldDiningPeriods, store.FieldShiftTimes, store.FieldAddress, store.FieldLng, store.FieldLat:
+		case store.FieldAdminPhoneNumber, store.FieldStoreName, store.FieldStoreShortName, store.FieldStoreCode, store.FieldStatus, store.FieldBusinessModel, store.FieldLocationNumber, store.FieldContactName, store.FieldContactPhone, store.FieldUnifiedSocialCreditCode, store.FieldStoreLogo, store.FieldBusinessLicenseURL, store.FieldStorefrontURL, store.FieldCashierDeskURL, store.FieldDiningEnvironmentURL, store.FieldFoodOperationLicenseURL, store.FieldAddress, store.FieldLng, store.FieldLat, store.FieldSuperAccount:
 			values[i] = new(sql.NullString)
 		case store.FieldCreatedAt, store.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case store.FieldID, store.FieldMerchantID, store.FieldBusinessTypeID, store.FieldCountryID, store.FieldProvinceID, store.FieldCityID, store.FieldDistrictID, store.FieldAdminUserID:
+		case store.FieldID, store.FieldMerchantID, store.FieldBusinessTypeID, store.FieldCountryID, store.FieldProvinceID, store.FieldCityID, store.FieldDistrictID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -389,22 +455,28 @@ func (s *Store) assignValues(columns []string, values []any) error {
 				s.FoodOperationLicenseURL = value.String
 			}
 		case store.FieldBusinessHours:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field business_hours", values[i])
-			} else if value.Valid {
-				s.BusinessHours = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.BusinessHours); err != nil {
+					return fmt.Errorf("unmarshal field business_hours: %w", err)
+				}
 			}
 		case store.FieldDiningPeriods:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field dining_periods", values[i])
-			} else if value.Valid {
-				s.DiningPeriods = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.DiningPeriods); err != nil {
+					return fmt.Errorf("unmarshal field dining_periods: %w", err)
+				}
 			}
 		case store.FieldShiftTimes:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field shift_times", values[i])
-			} else if value.Valid {
-				s.ShiftTimes = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.ShiftTimes); err != nil {
+					return fmt.Errorf("unmarshal field shift_times: %w", err)
+				}
 			}
 		case store.FieldCountryID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -448,11 +520,11 @@ func (s *Store) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Lat = value.String
 			}
-		case store.FieldAdminUserID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field admin_user_id", values[i])
-			} else if value != nil {
-				s.AdminUserID = *value
+		case store.FieldSuperAccount:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field super_account", values[i])
+			} else if value.Valid {
+				s.SuperAccount = value.String
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -470,11 +542,6 @@ func (s *Store) Value(name string) (ent.Value, error) {
 // QueryMerchant queries the "merchant" edge of the Store entity.
 func (s *Store) QueryMerchant() *MerchantQuery {
 	return NewStoreClient(s.config).QueryMerchant(s)
-}
-
-// QueryAdminUser queries the "admin_user" edge of the Store entity.
-func (s *Store) QueryAdminUser() *AdminUserQuery {
-	return NewStoreClient(s.config).QueryAdminUser(s)
 }
 
 // QueryMerchantBusinessType queries the "merchant_business_type" edge of the Store entity.
@@ -502,14 +569,49 @@ func (s *Store) QueryDistrict() *DistrictQuery {
 	return NewStoreClient(s.config).QueryDistrict(s)
 }
 
+// QueryStoreUsers queries the "store_users" edge of the Store entity.
+func (s *Store) QueryStoreUsers() *StoreUserQuery {
+	return NewStoreClient(s.config).QueryStoreUsers(s)
+}
+
 // QueryRemarks queries the "remarks" edge of the Store entity.
 func (s *Store) QueryRemarks() *RemarkQuery {
 	return NewStoreClient(s.config).QueryRemarks(s)
 }
 
+// QueryStalls queries the "stalls" edge of the Store entity.
+func (s *Store) QueryStalls() *StallQuery {
+	return NewStoreClient(s.config).QueryStalls(s)
+}
+
+// QueryAdditionalFees queries the "additional_fees" edge of the Store entity.
+func (s *Store) QueryAdditionalFees() *AdditionalFeeQuery {
+	return NewStoreClient(s.config).QueryAdditionalFees(s)
+}
+
+// QueryTaxFees queries the "tax_fees" edge of the Store entity.
+func (s *Store) QueryTaxFees() *TaxFeeQuery {
+	return NewStoreClient(s.config).QueryTaxFees(s)
+}
+
+// QueryDevices queries the "devices" edge of the Store entity.
+func (s *Store) QueryDevices() *DeviceQuery {
+	return NewStoreClient(s.config).QueryDevices(s)
+}
+
 // QueryMenus queries the "menus" edge of the Store entity.
 func (s *Store) QueryMenus() *MenuQuery {
 	return NewStoreClient(s.config).QueryMenus(s)
+}
+
+// QueryDepartments queries the "departments" edge of the Store entity.
+func (s *Store) QueryDepartments() *DepartmentQuery {
+	return NewStoreClient(s.config).QueryDepartments(s)
+}
+
+// QueryRoles queries the "roles" edge of the Store entity.
+func (s *Store) QueryRoles() *RoleQuery {
+	return NewStoreClient(s.config).QueryRoles(s)
 }
 
 // QueryProfitDistributionRules queries the "profit_distribution_rules" edge of the Store entity.
@@ -604,13 +706,13 @@ func (s *Store) String() string {
 	builder.WriteString(s.FoodOperationLicenseURL)
 	builder.WriteString(", ")
 	builder.WriteString("business_hours=")
-	builder.WriteString(s.BusinessHours)
+	builder.WriteString(fmt.Sprintf("%v", s.BusinessHours))
 	builder.WriteString(", ")
 	builder.WriteString("dining_periods=")
-	builder.WriteString(s.DiningPeriods)
+	builder.WriteString(fmt.Sprintf("%v", s.DiningPeriods))
 	builder.WriteString(", ")
 	builder.WriteString("shift_times=")
-	builder.WriteString(s.ShiftTimes)
+	builder.WriteString(fmt.Sprintf("%v", s.ShiftTimes))
 	builder.WriteString(", ")
 	builder.WriteString("country_id=")
 	builder.WriteString(fmt.Sprintf("%v", s.CountryID))
@@ -633,8 +735,8 @@ func (s *Store) String() string {
 	builder.WriteString("lat=")
 	builder.WriteString(s.Lat)
 	builder.WriteString(", ")
-	builder.WriteString("admin_user_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.AdminUserID))
+	builder.WriteString("super_account=")
+	builder.WriteString(s.SuperAccount)
 	builder.WriteByte(')')
 	return builder.String()
 }

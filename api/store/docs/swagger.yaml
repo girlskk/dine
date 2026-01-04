@@ -36,7 +36,7 @@ definitions:
         description: 省份名称
         type: string
     type: object
-  domain.BusinessHours:
+  domain.BusinessHour:
     properties:
       end_time:
         description: 结束时间，格式 HH:MM:SS
@@ -44,6 +44,14 @@ definitions:
       start_time:
         description: 开始时间，格式 HH:MM:SS
         type: string
+    type: object
+  domain.BusinessHours:
+    properties:
+      business_hours:
+        description: 营业时间段
+        items:
+          $ref: '#/definitions/domain.BusinessHour'
+        type: array
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
@@ -115,6 +123,174 @@ definitions:
         description: 更新时间
         type: string
     type: object
+  domain.Country:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      sort:
+        type: integer
+    type: object
+  domain.Device:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      device_brand:
+        description: 设备品牌
+        type: string
+      device_code:
+        description: 设备编号/序列号
+        type: string
+      device_model:
+        description: 设备型号
+        type: string
+      device_stall_print_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceStallPrintType'
+        description: 出品部门总分单
+      device_stall_receipt_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceStallReceiptType'
+        description: 打印出品部门全部票据
+      device_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceType'
+        description: 设备类型
+      dining_ways:
+        description: 订单类型/就餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      enabled:
+        description: 启用/停用状态
+        type: boolean
+      id:
+        description: 设备 ID
+        type: string
+      ip:
+        description: 设备 IP 地址
+        type: string
+      location:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceLocation'
+        description: 设备位置
+      merchant_id:
+        description: 所属商户 ID
+        type: string
+      name:
+        description: 设备名称
+        type: string
+      open_cash_drawer:
+        description: 收银机 开钱箱
+        type: boolean
+      order_channels:
+        description: 订单来源
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      paper_size:
+        allOf:
+        - $ref: '#/definitions/domain.PaperSize'
+        description: 打印纸张尺寸
+      sort_order:
+        description: 排序
+        type: integer
+      stall_id:
+        description: 出品部门 ID
+        type: string
+      stall_name:
+        description: 出品部门名称
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceStatus'
+        description: 设备状态
+      store_id:
+        description: 所属门店 ID
+        type: string
+      store_name:
+        description: 门店名称
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.DeviceLocation:
+    enum:
+    - front_hall
+    - back_kitchen
+    type: string
+    x-enum-comments:
+      DeviceLocationBackKitchen: 后厨
+      DeviceLocationFrontHall: 前厅
+    x-enum-descriptions:
+    - 前厅
+    - 后厨
+    x-enum-varnames:
+    - DeviceLocationFrontHall
+    - DeviceLocationBackKitchen
+  domain.DeviceStallPrintType:
+    enum:
+    - all
+    - combined
+    - separate
+    type: string
+    x-enum-comments:
+      DeviceStallPrintTypeAll: 全部打印 总单+分单
+      DeviceStallPrintTypeCombined: 总单
+      DeviceStallPrintTypeSeparate: 分单
+    x-enum-descriptions:
+    - 全部打印 总单+分单
+    - 总单
+    - 分单
+    x-enum-varnames:
+    - DeviceStallPrintTypeAll
+    - DeviceStallPrintTypeCombined
+    - DeviceStallPrintTypeSeparate
+  domain.DeviceStallReceiptType:
+    enum:
+    - all
+    - exclude
+    type: string
+    x-enum-comments:
+      DeviceStallReceiptTypeAll: 全部打印
+      DeviceStallReceiptTypeExclude: 剔除部门商户
+    x-enum-descriptions:
+    - 全部打印
+    - 剔除部门商户
+    x-enum-varnames:
+    - DeviceStallReceiptTypeAll
+    - DeviceStallReceiptTypeExclude
+  domain.DeviceStatus:
+    enum:
+    - online
+    - offline
+    type: string
+    x-enum-comments:
+      DeviceStatusOffline: 离线
+      DeviceStatusOnline: 在线
+    x-enum-descriptions:
+    - 在线
+    - 离线
+    x-enum-varnames:
+    - DeviceStatusOnline
+    - DeviceStatusOffline
+  domain.DeviceType:
+    enum:
+    - cashier
+    - printer
+    type: string
+    x-enum-comments:
+      DeviceTypeCashier: 收银机
+      DeviceTypePrinter: 打印机
+    x-enum-descriptions:
+    - 收银机
+    - 打印机
+    x-enum-varnames:
+    - DeviceTypeCashier
+    - DeviceTypePrinter
   domain.DiningPeriod:
     properties:
       end_time:
@@ -127,6 +303,24 @@ definitions:
         description: 开始时间，格式 HH:MM:SS
         type: string
     type: object
+  domain.DiningWay:
+    enum:
+    - dine_in
+    - take_out
+    - delivery
+    type: string
+    x-enum-comments:
+      DiningWayDelivery: 外送
+      DiningWayDineIn: 堂食
+      DiningWayTakeOut: 外带
+    x-enum-descriptions:
+    - 堂食
+    - 外带
+    - 外送
+    x-enum-varnames:
+    - DiningWayDineIn
+    - DiningWayTakeOut
+    - DiningWayDelivery
   domain.EffectiveDateType:
     enum:
     - daily
@@ -255,6 +449,36 @@ definitions:
         description: 总页数
         type: integer
     type: object
+  domain.OrderChannel:
+    enum:
+    - pos
+    - self_order
+    - mini_program
+    - mobile_order
+    - scan_order
+    - third_delivery
+    type: string
+    x-enum-comments:
+      OrderChannelMiniProgram: 小程序
+      OrderChannelMobileOrder: 手机点餐
+      OrderChannelPOS: POS 端
+      OrderChannelScanOrder: 扫码点餐
+      OrderChannelSelfOrder: 自助点餐
+      OrderChannelThirdDelivery: 三方外卖
+    x-enum-descriptions:
+    - POS 端
+    - 自助点餐
+    - 小程序
+    - 手机点餐
+    - 扫码点餐
+    - 三方外卖
+    x-enum-varnames:
+    - OrderChannelPOS
+    - OrderChannelSelfOrder
+    - OrderChannelMiniProgram
+    - OrderChannelMobileOrder
+    - OrderChannelScanOrder
+    - OrderChannelThirdDelivery
   domain.PackingFee:
     properties:
       id:
@@ -267,6 +491,14 @@ definitions:
         description: 打包费价格
         type: number
     type: object
+  domain.PaperSize:
+    enum:
+    - 58mm
+    - 80mm
+    type: string
+    x-enum-varnames:
+    - PaperSize58mm
+    - PaperSize80mm
   domain.Product:
     properties:
       add_sale_quantity:
@@ -739,6 +971,17 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.Province:
+    properties:
+      country_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      sort:
+        type: integer
+    type: object
   domain.SaleChannel:
     enum:
     - POS
@@ -865,9 +1108,6 @@ definitions:
       admin_phone_number:
         description: 管理员手机号
         type: string
-      admin_user_id:
-        description: 登陆账号 ID
-        type: string
       business_hours:
         description: 营业时间段
         items:
@@ -982,7 +1222,6 @@ definitions:
       id:
         type: string
       merchant_id:
-        description: 品牌商ID
         type: string
       nickname:
         type: string
@@ -996,15 +1235,14 @@ definitions:
       username:
         type: string
     type: object
+  response.Response:
+    properties:
+      code:
+        type: string
+      data: {}
+    type: object
   time.Weekday:
     enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     - 0
     - 1
     - 2
@@ -1021,13 +1259,45 @@ definitions:
     - Thursday
     - Friday
     - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
+  types.Address:
+    properties:
+      address:
+        description: 详细地址
+        maxLength: 100
+        type: string
+      city_id:
+        description: 城市 ID
+        type: string
+      city_name:
+        description: 城市名称
+        type: string
+      country_id:
+        description: 国家/地区 ID
+        type: string
+      country_name:
+        description: 国家/地区 名称
+        type: string
+      district_id:
+        description: 区县 ID
+        type: string
+      district_name:
+        description: 区县名称
+        type: string
+      lat:
+        description: 纬度
+        maxLength: 50
+        type: string
+      lng:
+        description: 经度
+        maxLength: 50
+        type: string
+      province_id:
+        description: 省份 ID
+        type: string
+      province_name:
+        description: 省份名称
+        type: string
+    type: object
   types.CategoryCreateChildReq:
     properties:
       inherit_stall:
@@ -1082,6 +1352,185 @@ definitions:
         type: string
     required:
     - category_ids
+    type: object
+  types.CountryListResp:
+    properties:
+      countries:
+        items:
+          $ref: '#/definitions/domain.Country'
+        type: array
+    type: object
+  types.DeviceCashier:
+    properties:
+      open_cash_drawer:
+        description: 开启钱箱
+        type: boolean
+    type: object
+  types.DeviceCreateReq:
+    properties:
+      device_brand:
+        description: 设备品牌
+        maxLength: 100
+        type: string
+      device_cashier:
+        allOf:
+        - $ref: '#/definitions/types.DeviceCashier'
+        description: 收银机设备配置
+      device_code:
+        description: 设备编号
+        maxLength: 100
+        type: string
+      device_model:
+        description: 设备型号
+        maxLength: 100
+        type: string
+      device_print:
+        allOf:
+        - $ref: '#/definitions/types.DevicePrint'
+        description: 打印机设备配置
+      device_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceType'
+        description: 设备类型
+        enum:
+        - cashier
+        - printer
+      enabled:
+        description: 是否启用
+        type: boolean
+      location:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceLocation'
+        description: 设备位置
+        enum:
+        - front_hall
+        - back_kitchen
+      name:
+        description: 设备名称
+        maxLength: 50
+        type: string
+      sort_order:
+        description: 排序值，越小越靠前
+        minimum: 0
+        type: integer
+    required:
+    - device_code
+    - device_type
+    - location
+    - name
+    type: object
+  types.DeviceListResp:
+    properties:
+      devices:
+        description: 设备列表
+        items:
+          $ref: '#/definitions/domain.Device'
+        type: array
+      total:
+        description: 总数
+        type: integer
+    type: object
+  types.DevicePrint:
+    properties:
+      device_stall_print_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceStallPrintType'
+        description: 打印出品部门总分单
+        enum:
+        - all
+        - combined
+        - separate
+      device_stall_receipt_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceStallReceiptType'
+        description: 打印出品部门全部票据
+        enum:
+        - all
+        - exclude
+      dining_ways:
+        description: 用餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      ip:
+        description: 打印机 IP 地址
+        maxLength: 50
+        type: string
+      order_channels:
+        description: 订单来源
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      paper_size:
+        allOf:
+        - $ref: '#/definitions/domain.PaperSize'
+        description: 纸张大小
+        enum:
+        - 58mm
+        - 80mm
+      stall_id:
+        description: 出品部门 ID
+        type: string
+    required:
+    - device_stall_print_type
+    - device_stall_receipt_type
+    - dining_ways
+    - ip
+    - order_channels
+    - paper_size
+    - stall_id
+    type: object
+  types.DeviceUpdateReq:
+    properties:
+      device_brand:
+        description: 设备品牌
+        maxLength: 100
+        type: string
+      device_cashier:
+        allOf:
+        - $ref: '#/definitions/types.DeviceCashier'
+        description: 收银机设备配置
+      device_code:
+        description: 设备编号
+        maxLength: 100
+        type: string
+      device_model:
+        description: 设备型号
+        maxLength: 100
+        type: string
+      device_print:
+        allOf:
+        - $ref: '#/definitions/types.DevicePrint'
+        description: 打印机设备配置
+      device_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceType'
+        description: 设备类型
+        enum:
+        - cashier
+        - printer
+      enabled:
+        description: 是否启用
+        type: boolean
+      location:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceLocation'
+        description: 设备位置
+        enum:
+        - front_hall
+        - back_kitchen
+      name:
+        description: 设备名称
+        maxLength: 50
+        type: string
+      sort_order:
+        description: 排序值，越小越靠前
+        minimum: 0
+        type: integer
+    required:
+    - device_type
+    - location
+    - name
     type: object
   types.LoginReq:
     properties:
@@ -1488,6 +1937,13 @@ definitions:
     - spec_relations
     - unit_id
     type: object
+  types.ProvinceListResp:
+    properties:
+      provinces:
+        items:
+          $ref: '#/definitions/domain.Province'
+        type: array
+    type: object
   types.SetMealCreateReq:
     properties:
       add_sale_quantity:
@@ -1779,6 +2235,110 @@ definitions:
       tax_rate_id:
         description: 税率ID
         type: string
+    type: object
+  types.UpdateStoreReq:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/types.Address'
+        description: 地址
+      admin_phone_number:
+        description: 管理员手机号
+        maxLength: 20
+        type: string
+      business_hours:
+        description: 营业时间段
+        items:
+          $ref: '#/definitions/domain.BusinessHours'
+        type: array
+      business_license_url:
+        description: 营业执照图片地址
+        maxLength: 500
+        type: string
+      business_model:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessModel'
+        description: 直营/加盟
+      business_type_id:
+        description: 业态类型
+        type: string
+      cashier_desk_url:
+        description: 收银台照片地址
+        maxLength: 500
+        type: string
+      contact_name:
+        description: 联系人
+        maxLength: 255
+        type: string
+      contact_phone:
+        description: 联系电话
+        maxLength: 255
+        type: string
+      dining_environment_url:
+        description: 就餐环境照片地址
+        maxLength: 500
+        type: string
+      dining_periods:
+        description: 就餐时段
+        items:
+          $ref: '#/definitions/domain.DiningPeriod'
+        type: array
+      food_operation_license_url:
+        description: 食品经营许可证照片地址
+        maxLength: 500
+        type: string
+      location_number:
+        description: 门店位置编号
+        maxLength: 255
+        type: string
+      login_password:
+        description: 登录密码(加密存储)
+        type: string
+      shift_times:
+        description: 班次时间
+        items:
+          $ref: '#/definitions/domain.ShiftTime'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.StoreStatus'
+        description: 营业/停业
+      store_code:
+        description: 门店编码(保留字段)
+        maxLength: 50
+        type: string
+      store_logo:
+        description: logo 图片地址
+        maxLength: 500
+        type: string
+      store_name:
+        description: 门店名称,长度不超过30个字
+        maxLength: 30
+        type: string
+      store_short_name:
+        description: 门店简称
+        maxLength: 30
+        type: string
+      storefront_url:
+        description: 门店门头照片地址
+        maxLength: 500
+        type: string
+      unified_social_credit_code:
+        description: 统一社会信用代码
+        maxLength: 255
+        type: string
+    required:
+    - address
+    - admin_phone_number
+    - business_hours
+    - business_model
+    - business_type_id
+    - dining_periods
+    - location_number
+    - login_password
+    - shift_times
+    - status
+    - store_name
     type: object
 info:
   contact: {}
@@ -2500,6 +3060,443 @@ paths:
       summary: 更新商品单位
       tags:
       - 商品单位
+  /region/countries:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.CountryListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取国家/地区列表
+      tags:
+      - 地区
+  /region/provinces:
+    get:
+      parameters:
+      - description: 国家/地区ID
+        in: query
+        name: country_id
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.ProvinceListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取省份列表
+      tags:
+      - 地区
+  /restaurant/device:
+    get:
+      description: 分页查询设备列表
+      parameters:
+      - description: 设备类型
+        enum:
+        - cashier
+        - printer
+        in: query
+        name: device_type
+        type: string
+        x-enum-comments:
+          DeviceTypeCashier: 收银机
+          DeviceTypePrinter: 打印机
+        x-enum-descriptions:
+        - 收银机
+        - 打印机
+        x-enum-varnames:
+        - DeviceTypeCashier
+        - DeviceTypePrinter
+      - description: 设备名称模糊查询
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 设备状态
+        enum:
+        - online
+        - offline
+        in: query
+        name: status
+        type: string
+        x-enum-comments:
+          DeviceStatusOffline: 离线
+          DeviceStatusOnline: 在线
+        x-enum-descriptions:
+        - 在线
+        - 离线
+        x-enum-varnames:
+        - DeviceStatusOnline
+        - DeviceStatusOffline
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.DeviceListResp'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取设备列表
+      tags:
+      - 设备管理
+    post:
+      consumes:
+      - application/json
+      description: 创建设备
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.DeviceCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建设备
+      tags:
+      - 设备管理
+  /restaurant/device/{id}:
+    delete:
+      description: 删除设备
+      parameters:
+      - description: 设备ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除设备
+      tags:
+      - 设备管理
+    get:
+      description: 根据设备ID获取详情
+      parameters:
+      - description: 设备ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Device'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取设备详情
+      tags:
+      - 设备管理
+    put:
+      consumes:
+      - application/json
+      description: 更新设备
+      parameters:
+      - description: 设备ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.DeviceUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新设备
+      tags:
+      - 设备管理
+  /restaurant/device/{id}/disable:
+    put:
+      description: 将设备置为禁用
+      parameters:
+      - description: 设备ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用设备
+      tags:
+      - 设备管理
+  /restaurant/device/{id}/enable:
+    put:
+      description: 将设备置为启用
+      parameters:
+      - description: 设备ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用设备
+      tags:
+      - 设备管理
+  /store:
+    get:
+      consumes:
+      - application/json
+      description: 根据门店ID获取门店信息
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Store'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取门店
+      tags:
+      - 门店管理
+    put:
+      consumes:
+      - application/json
+      description: 更新单个门店
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新门店请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.UpdateStoreReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新门店
+      tags:
+      - 门店管理
+  /store/disable:
+    put:
+      description: 将门店状态置为停业
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用门店
+      tags:
+      - 门店管理
+  /store/enable:
+    put:
+      description: 将门店状态置为营业
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用门店
+      tags:
+      - 门店管理
   /user/info:
     post:
       consumes:

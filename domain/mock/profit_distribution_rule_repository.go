@@ -125,6 +125,21 @@ func (mr *MockProfitDistributionRuleRepositoryMockRecorder) GetDetail(arg0, arg1
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockProfitDistributionRuleRepository)(nil).GetDetail), arg0, arg1)
 }
 
+// ListAllEnabled mocks base method.
+func (m *MockProfitDistributionRuleRepository) ListAllEnabled(arg0 context.Context) (domain.ProfitDistributionRules, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAllEnabled", arg0)
+	ret0, _ := ret[0].(domain.ProfitDistributionRules)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAllEnabled indicates an expected call of ListAllEnabled.
+func (mr *MockProfitDistributionRuleRepositoryMockRecorder) ListAllEnabled(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAllEnabled", reflect.TypeOf((*MockProfitDistributionRuleRepository)(nil).ListAllEnabled), arg0)
+}
+
 // PagedListBySearch mocks base method.
 func (m *MockProfitDistributionRuleRepository) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.ProfitDistributionRuleSearchParams) (*domain.ProfitDistributionRuleSearchRes, error) {
 	m.ctrl.T.Helper()

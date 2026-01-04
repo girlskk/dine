@@ -10,11 +10,15 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -22,7 +26,11 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // StoreUpdate is the builder for updating Store entities.
@@ -108,6 +116,12 @@ func (su *StoreUpdate) SetNillableStoreShortName(s *string) *StoreUpdate {
 	return su
 }
 
+// ClearStoreShortName clears the value of the "store_short_name" field.
+func (su *StoreUpdate) ClearStoreShortName() *StoreUpdate {
+	su.mutation.ClearStoreShortName()
+	return su
+}
+
 // SetStoreCode sets the "store_code" field.
 func (su *StoreUpdate) SetStoreCode(s string) *StoreUpdate {
 	su.mutation.SetStoreCode(s)
@@ -119,6 +133,12 @@ func (su *StoreUpdate) SetNillableStoreCode(s *string) *StoreUpdate {
 	if s != nil {
 		su.SetStoreCode(*s)
 	}
+	return su
+}
+
+// ClearStoreCode clears the value of the "store_code" field.
+func (su *StoreUpdate) ClearStoreCode() *StoreUpdate {
+	su.mutation.ClearStoreCode()
 	return su
 }
 
@@ -192,6 +212,12 @@ func (su *StoreUpdate) SetNillableContactName(s *string) *StoreUpdate {
 	return su
 }
 
+// ClearContactName clears the value of the "contact_name" field.
+func (su *StoreUpdate) ClearContactName() *StoreUpdate {
+	su.mutation.ClearContactName()
+	return su
+}
+
 // SetContactPhone sets the "contact_phone" field.
 func (su *StoreUpdate) SetContactPhone(s string) *StoreUpdate {
 	su.mutation.SetContactPhone(s)
@@ -203,6 +229,12 @@ func (su *StoreUpdate) SetNillableContactPhone(s *string) *StoreUpdate {
 	if s != nil {
 		su.SetContactPhone(*s)
 	}
+	return su
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (su *StoreUpdate) ClearContactPhone() *StoreUpdate {
+	su.mutation.ClearContactPhone()
 	return su
 }
 
@@ -220,6 +252,12 @@ func (su *StoreUpdate) SetNillableUnifiedSocialCreditCode(s *string) *StoreUpdat
 	return su
 }
 
+// ClearUnifiedSocialCreditCode clears the value of the "unified_social_credit_code" field.
+func (su *StoreUpdate) ClearUnifiedSocialCreditCode() *StoreUpdate {
+	su.mutation.ClearUnifiedSocialCreditCode()
+	return su
+}
+
 // SetStoreLogo sets the "store_logo" field.
 func (su *StoreUpdate) SetStoreLogo(s string) *StoreUpdate {
 	su.mutation.SetStoreLogo(s)
@@ -231,6 +269,12 @@ func (su *StoreUpdate) SetNillableStoreLogo(s *string) *StoreUpdate {
 	if s != nil {
 		su.SetStoreLogo(*s)
 	}
+	return su
+}
+
+// ClearStoreLogo clears the value of the "store_logo" field.
+func (su *StoreUpdate) ClearStoreLogo() *StoreUpdate {
+	su.mutation.ClearStoreLogo()
 	return su
 }
 
@@ -248,6 +292,12 @@ func (su *StoreUpdate) SetNillableBusinessLicenseURL(s *string) *StoreUpdate {
 	return su
 }
 
+// ClearBusinessLicenseURL clears the value of the "business_license_url" field.
+func (su *StoreUpdate) ClearBusinessLicenseURL() *StoreUpdate {
+	su.mutation.ClearBusinessLicenseURL()
+	return su
+}
+
 // SetStorefrontURL sets the "storefront_url" field.
 func (su *StoreUpdate) SetStorefrontURL(s string) *StoreUpdate {
 	su.mutation.SetStorefrontURL(s)
@@ -259,6 +309,12 @@ func (su *StoreUpdate) SetNillableStorefrontURL(s *string) *StoreUpdate {
 	if s != nil {
 		su.SetStorefrontURL(*s)
 	}
+	return su
+}
+
+// ClearStorefrontURL clears the value of the "storefront_url" field.
+func (su *StoreUpdate) ClearStorefrontURL() *StoreUpdate {
+	su.mutation.ClearStorefrontURL()
 	return su
 }
 
@@ -276,6 +332,12 @@ func (su *StoreUpdate) SetNillableCashierDeskURL(s *string) *StoreUpdate {
 	return su
 }
 
+// ClearCashierDeskURL clears the value of the "cashier_desk_url" field.
+func (su *StoreUpdate) ClearCashierDeskURL() *StoreUpdate {
+	su.mutation.ClearCashierDeskURL()
+	return su
+}
+
 // SetDiningEnvironmentURL sets the "dining_environment_url" field.
 func (su *StoreUpdate) SetDiningEnvironmentURL(s string) *StoreUpdate {
 	su.mutation.SetDiningEnvironmentURL(s)
@@ -287,6 +349,12 @@ func (su *StoreUpdate) SetNillableDiningEnvironmentURL(s *string) *StoreUpdate {
 	if s != nil {
 		su.SetDiningEnvironmentURL(*s)
 	}
+	return su
+}
+
+// ClearDiningEnvironmentURL clears the value of the "dining_environment_url" field.
+func (su *StoreUpdate) ClearDiningEnvironmentURL() *StoreUpdate {
+	su.mutation.ClearDiningEnvironmentURL()
 	return su
 }
 
@@ -304,45 +372,45 @@ func (su *StoreUpdate) SetNillableFoodOperationLicenseURL(s *string) *StoreUpdat
 	return su
 }
 
-// SetBusinessHours sets the "business_hours" field.
-func (su *StoreUpdate) SetBusinessHours(s string) *StoreUpdate {
-	su.mutation.SetBusinessHours(s)
+// ClearFoodOperationLicenseURL clears the value of the "food_operation_license_url" field.
+func (su *StoreUpdate) ClearFoodOperationLicenseURL() *StoreUpdate {
+	su.mutation.ClearFoodOperationLicenseURL()
 	return su
 }
 
-// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableBusinessHours(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetBusinessHours(*s)
-	}
+// SetBusinessHours sets the "business_hours" field.
+func (su *StoreUpdate) SetBusinessHours(dh []domain.BusinessHours) *StoreUpdate {
+	su.mutation.SetBusinessHours(dh)
+	return su
+}
+
+// AppendBusinessHours appends dh to the "business_hours" field.
+func (su *StoreUpdate) AppendBusinessHours(dh []domain.BusinessHours) *StoreUpdate {
+	su.mutation.AppendBusinessHours(dh)
 	return su
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (su *StoreUpdate) SetDiningPeriods(s string) *StoreUpdate {
-	su.mutation.SetDiningPeriods(s)
+func (su *StoreUpdate) SetDiningPeriods(dp []domain.DiningPeriod) *StoreUpdate {
+	su.mutation.SetDiningPeriods(dp)
 	return su
 }
 
-// SetNillableDiningPeriods sets the "dining_periods" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableDiningPeriods(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetDiningPeriods(*s)
-	}
+// AppendDiningPeriods appends dp to the "dining_periods" field.
+func (su *StoreUpdate) AppendDiningPeriods(dp []domain.DiningPeriod) *StoreUpdate {
+	su.mutation.AppendDiningPeriods(dp)
 	return su
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (su *StoreUpdate) SetShiftTimes(s string) *StoreUpdate {
-	su.mutation.SetShiftTimes(s)
+func (su *StoreUpdate) SetShiftTimes(dt []domain.ShiftTime) *StoreUpdate {
+	su.mutation.SetShiftTimes(dt)
 	return su
 }
 
-// SetNillableShiftTimes sets the "shift_times" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableShiftTimes(s *string) *StoreUpdate {
-	if s != nil {
-		su.SetShiftTimes(*s)
-	}
+// AppendShiftTimes appends dt to the "shift_times" field.
+func (su *StoreUpdate) AppendShiftTimes(dt []domain.ShiftTime) *StoreUpdate {
+	su.mutation.AppendShiftTimes(dt)
 	return su
 }
 
@@ -454,6 +522,12 @@ func (su *StoreUpdate) SetNillableLng(s *string) *StoreUpdate {
 	return su
 }
 
+// ClearLng clears the value of the "lng" field.
+func (su *StoreUpdate) ClearLng() *StoreUpdate {
+	su.mutation.ClearLng()
+	return su
+}
+
 // SetLat sets the "lat" field.
 func (su *StoreUpdate) SetLat(s string) *StoreUpdate {
 	su.mutation.SetLat(s)
@@ -465,6 +539,12 @@ func (su *StoreUpdate) SetNillableLat(s *string) *StoreUpdate {
 	if s != nil {
 		su.SetLat(*s)
 	}
+	return su
+}
+
+// ClearLat clears the value of the "lat" field.
+func (su *StoreUpdate) ClearLat() *StoreUpdate {
+	su.mutation.ClearLat()
 	return su
 }
 
@@ -499,6 +579,21 @@ func (su *StoreUpdate) SetDistrict(d *District) *StoreUpdate {
 	return su.SetDistrictID(d.ID)
 }
 
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (su *StoreUpdate) AddStoreUserIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddStoreUserIDs(ids...)
+	return su
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (su *StoreUpdate) AddStoreUsers(s ...*StoreUser) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddStoreUserIDs(ids...)
+}
+
 // AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
 func (su *StoreUpdate) AddRemarkIDs(ids ...uuid.UUID) *StoreUpdate {
 	su.mutation.AddRemarkIDs(ids...)
@@ -514,6 +609,66 @@ func (su *StoreUpdate) AddRemarks(r ...*Remark) *StoreUpdate {
 	return su.AddRemarkIDs(ids...)
 }
 
+// AddStallIDs adds the "stalls" edge to the Stall entity by IDs.
+func (su *StoreUpdate) AddStallIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddStallIDs(ids...)
+	return su
+}
+
+// AddStalls adds the "stalls" edges to the Stall entity.
+func (su *StoreUpdate) AddStalls(s ...*Stall) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddStallIDs(ids...)
+}
+
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (su *StoreUpdate) AddAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddAdditionalFeeIDs(ids...)
+	return su
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (su *StoreUpdate) AddAdditionalFees(a ...*AdditionalFee) *StoreUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.AddAdditionalFeeIDs(ids...)
+}
+
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by IDs.
+func (su *StoreUpdate) AddTaxFeeIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddTaxFeeIDs(ids...)
+	return su
+}
+
+// AddTaxFees adds the "tax_fees" edges to the TaxFee entity.
+func (su *StoreUpdate) AddTaxFees(t ...*TaxFee) *StoreUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return su.AddTaxFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (su *StoreUpdate) AddDeviceIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddDeviceIDs(ids...)
+	return su
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (su *StoreUpdate) AddDevices(d ...*Device) *StoreUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.AddDeviceIDs(ids...)
+}
+
 // AddMenuIDs adds the "menus" edge to the Menu entity by IDs.
 func (su *StoreUpdate) AddMenuIDs(ids ...uuid.UUID) *StoreUpdate {
 	su.mutation.AddMenuIDs(ids...)
@@ -527,6 +682,36 @@ func (su *StoreUpdate) AddMenus(m ...*Menu) *StoreUpdate {
 		ids[i] = m[i].ID
 	}
 	return su.AddMenuIDs(ids...)
+}
+
+// AddDepartmentIDs adds the "departments" edge to the Department entity by IDs.
+func (su *StoreUpdate) AddDepartmentIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddDepartmentIDs(ids...)
+	return su
+}
+
+// AddDepartments adds the "departments" edges to the Department entity.
+func (su *StoreUpdate) AddDepartments(d ...*Department) *StoreUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.AddDepartmentIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (su *StoreUpdate) AddRoleIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddRoleIDs(ids...)
+	return su
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (su *StoreUpdate) AddRoles(r ...*Role) *StoreUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return su.AddRoleIDs(ids...)
 }
 
 // AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
@@ -579,6 +764,27 @@ func (su *StoreUpdate) ClearDistrict() *StoreUpdate {
 	return su
 }
 
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (su *StoreUpdate) ClearStoreUsers() *StoreUpdate {
+	su.mutation.ClearStoreUsers()
+	return su
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (su *StoreUpdate) RemoveStoreUserIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveStoreUserIDs(ids...)
+	return su
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (su *StoreUpdate) RemoveStoreUsers(s ...*StoreUser) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveStoreUserIDs(ids...)
+}
+
 // ClearRemarks clears all "remarks" edges to the Remark entity.
 func (su *StoreUpdate) ClearRemarks() *StoreUpdate {
 	su.mutation.ClearRemarks()
@@ -600,6 +806,90 @@ func (su *StoreUpdate) RemoveRemarks(r ...*Remark) *StoreUpdate {
 	return su.RemoveRemarkIDs(ids...)
 }
 
+// ClearStalls clears all "stalls" edges to the Stall entity.
+func (su *StoreUpdate) ClearStalls() *StoreUpdate {
+	su.mutation.ClearStalls()
+	return su
+}
+
+// RemoveStallIDs removes the "stalls" edge to Stall entities by IDs.
+func (su *StoreUpdate) RemoveStallIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveStallIDs(ids...)
+	return su
+}
+
+// RemoveStalls removes "stalls" edges to Stall entities.
+func (su *StoreUpdate) RemoveStalls(s ...*Stall) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveStallIDs(ids...)
+}
+
+// ClearAdditionalFees clears all "additional_fees" edges to the AdditionalFee entity.
+func (su *StoreUpdate) ClearAdditionalFees() *StoreUpdate {
+	su.mutation.ClearAdditionalFees()
+	return su
+}
+
+// RemoveAdditionalFeeIDs removes the "additional_fees" edge to AdditionalFee entities by IDs.
+func (su *StoreUpdate) RemoveAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveAdditionalFeeIDs(ids...)
+	return su
+}
+
+// RemoveAdditionalFees removes "additional_fees" edges to AdditionalFee entities.
+func (su *StoreUpdate) RemoveAdditionalFees(a ...*AdditionalFee) *StoreUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearTaxFees clears all "tax_fees" edges to the TaxFee entity.
+func (su *StoreUpdate) ClearTaxFees() *StoreUpdate {
+	su.mutation.ClearTaxFees()
+	return su
+}
+
+// RemoveTaxFeeIDs removes the "tax_fees" edge to TaxFee entities by IDs.
+func (su *StoreUpdate) RemoveTaxFeeIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveTaxFeeIDs(ids...)
+	return su
+}
+
+// RemoveTaxFees removes "tax_fees" edges to TaxFee entities.
+func (su *StoreUpdate) RemoveTaxFees(t ...*TaxFee) *StoreUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return su.RemoveTaxFeeIDs(ids...)
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (su *StoreUpdate) ClearDevices() *StoreUpdate {
+	su.mutation.ClearDevices()
+	return su
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (su *StoreUpdate) RemoveDeviceIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveDeviceIDs(ids...)
+	return su
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (su *StoreUpdate) RemoveDevices(d ...*Device) *StoreUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.RemoveDeviceIDs(ids...)
+}
+
 // ClearMenus clears all "menus" edges to the Menu entity.
 func (su *StoreUpdate) ClearMenus() *StoreUpdate {
 	su.mutation.ClearMenus()
@@ -619,6 +909,48 @@ func (su *StoreUpdate) RemoveMenus(m ...*Menu) *StoreUpdate {
 		ids[i] = m[i].ID
 	}
 	return su.RemoveMenuIDs(ids...)
+}
+
+// ClearDepartments clears all "departments" edges to the Department entity.
+func (su *StoreUpdate) ClearDepartments() *StoreUpdate {
+	su.mutation.ClearDepartments()
+	return su
+}
+
+// RemoveDepartmentIDs removes the "departments" edge to Department entities by IDs.
+func (su *StoreUpdate) RemoveDepartmentIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveDepartmentIDs(ids...)
+	return su
+}
+
+// RemoveDepartments removes "departments" edges to Department entities.
+func (su *StoreUpdate) RemoveDepartments(d ...*Department) *StoreUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return su.RemoveDepartmentIDs(ids...)
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (su *StoreUpdate) ClearRoles() *StoreUpdate {
+	su.mutation.ClearRoles()
+	return su
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (su *StoreUpdate) RemoveRoleIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveRoleIDs(ids...)
+	return su
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (su *StoreUpdate) RemoveRoles(r ...*Role) *StoreUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return su.RemoveRoleIDs(ids...)
 }
 
 // ClearProfitDistributionRules clears all "profit_distribution_rules" edges to the ProfitDistributionRule entity.
@@ -701,11 +1033,6 @@ func (su *StoreUpdate) check() error {
 			return &ValidationError{Name: "store_short_name", err: fmt.Errorf(`ent: validator failed for field "Store.store_short_name": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.StoreCode(); ok {
-		if err := store.StoreCodeValidator(v); err != nil {
-			return &ValidationError{Name: "store_code", err: fmt.Errorf(`ent: validator failed for field "Store.store_code": %w`, err)}
-		}
-	}
 	if v, ok := su.mutation.Status(); ok {
 		if err := store.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Store.status": %w`, err)}
@@ -766,21 +1093,6 @@ func (su *StoreUpdate) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.BusinessHours(); ok {
-		if err := store.BusinessHoursValidator(v); err != nil {
-			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.DiningPeriods(); ok {
-		if err := store.DiningPeriodsValidator(v); err != nil {
-			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.ShiftTimes(); ok {
-		if err := store.ShiftTimesValidator(v); err != nil {
-			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
-		}
-	}
 	if v, ok := su.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -798,9 +1110,6 @@ func (su *StoreUpdate) check() error {
 	}
 	if su.mutation.MerchantCleared() && len(su.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
-	}
-	if su.mutation.AdminUserCleared() && len(su.mutation.AdminUserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
 	}
 	if su.mutation.MerchantBusinessTypeCleared() && len(su.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
@@ -844,8 +1153,14 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.StoreShortName(); ok {
 		_spec.SetField(store.FieldStoreShortName, field.TypeString, value)
 	}
+	if su.mutation.StoreShortNameCleared() {
+		_spec.ClearField(store.FieldStoreShortName, field.TypeString)
+	}
 	if value, ok := su.mutation.StoreCode(); ok {
 		_spec.SetField(store.FieldStoreCode, field.TypeString, value)
+	}
+	if su.mutation.StoreCodeCleared() {
+		_spec.ClearField(store.FieldStoreCode, field.TypeString)
 	}
 	if value, ok := su.mutation.Status(); ok {
 		_spec.SetField(store.FieldStatus, field.TypeEnum, value)
@@ -859,38 +1174,80 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)
 	}
+	if su.mutation.ContactNameCleared() {
+		_spec.ClearField(store.FieldContactName, field.TypeString)
+	}
 	if value, ok := su.mutation.ContactPhone(); ok {
 		_spec.SetField(store.FieldContactPhone, field.TypeString, value)
+	}
+	if su.mutation.ContactPhoneCleared() {
+		_spec.ClearField(store.FieldContactPhone, field.TypeString)
 	}
 	if value, ok := su.mutation.UnifiedSocialCreditCode(); ok {
 		_spec.SetField(store.FieldUnifiedSocialCreditCode, field.TypeString, value)
 	}
+	if su.mutation.UnifiedSocialCreditCodeCleared() {
+		_spec.ClearField(store.FieldUnifiedSocialCreditCode, field.TypeString)
+	}
 	if value, ok := su.mutation.StoreLogo(); ok {
 		_spec.SetField(store.FieldStoreLogo, field.TypeString, value)
+	}
+	if su.mutation.StoreLogoCleared() {
+		_spec.ClearField(store.FieldStoreLogo, field.TypeString)
 	}
 	if value, ok := su.mutation.BusinessLicenseURL(); ok {
 		_spec.SetField(store.FieldBusinessLicenseURL, field.TypeString, value)
 	}
+	if su.mutation.BusinessLicenseURLCleared() {
+		_spec.ClearField(store.FieldBusinessLicenseURL, field.TypeString)
+	}
 	if value, ok := su.mutation.StorefrontURL(); ok {
 		_spec.SetField(store.FieldStorefrontURL, field.TypeString, value)
+	}
+	if su.mutation.StorefrontURLCleared() {
+		_spec.ClearField(store.FieldStorefrontURL, field.TypeString)
 	}
 	if value, ok := su.mutation.CashierDeskURL(); ok {
 		_spec.SetField(store.FieldCashierDeskURL, field.TypeString, value)
 	}
+	if su.mutation.CashierDeskURLCleared() {
+		_spec.ClearField(store.FieldCashierDeskURL, field.TypeString)
+	}
 	if value, ok := su.mutation.DiningEnvironmentURL(); ok {
 		_spec.SetField(store.FieldDiningEnvironmentURL, field.TypeString, value)
+	}
+	if su.mutation.DiningEnvironmentURLCleared() {
+		_spec.ClearField(store.FieldDiningEnvironmentURL, field.TypeString)
 	}
 	if value, ok := su.mutation.FoodOperationLicenseURL(); ok {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 	}
+	if su.mutation.FoodOperationLicenseURLCleared() {
+		_spec.ClearField(store.FieldFoodOperationLicenseURL, field.TypeString)
+	}
 	if value, ok := su.mutation.BusinessHours(); ok {
-		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+		_spec.SetField(store.FieldBusinessHours, field.TypeJSON, value)
+	}
+	if value, ok := su.mutation.AppendedBusinessHours(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldBusinessHours, value)
+		})
 	}
 	if value, ok := su.mutation.DiningPeriods(); ok {
-		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+		_spec.SetField(store.FieldDiningPeriods, field.TypeJSON, value)
+	}
+	if value, ok := su.mutation.AppendedDiningPeriods(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldDiningPeriods, value)
+		})
 	}
 	if value, ok := su.mutation.ShiftTimes(); ok {
-		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
+		_spec.SetField(store.FieldShiftTimes, field.TypeJSON, value)
+	}
+	if value, ok := su.mutation.AppendedShiftTimes(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldShiftTimes, value)
+		})
 	}
 	if value, ok := su.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
@@ -898,8 +1255,14 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.Lng(); ok {
 		_spec.SetField(store.FieldLng, field.TypeString, value)
 	}
+	if su.mutation.LngCleared() {
+		_spec.ClearField(store.FieldLng, field.TypeString)
+	}
 	if value, ok := su.mutation.Lat(); ok {
 		_spec.SetField(store.FieldLat, field.TypeString, value)
+	}
+	if su.mutation.LatCleared() {
+		_spec.ClearField(store.FieldLat, field.TypeString)
 	}
 	if su.mutation.MerchantBusinessTypeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1046,6 +1409,51 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !su.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if su.mutation.RemarksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -1091,6 +1499,186 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedStallsIDs(); len(nodes) > 0 && !su.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.StallsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedAdditionalFeesIDs(); len(nodes) > 0 && !su.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.TaxFeesTable,
+			Columns: []string{store.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedTaxFeesIDs(); len(nodes) > 0 && !su.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.TaxFeesTable,
+			Columns: []string{store.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.TaxFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.TaxFeesTable,
+			Columns: []string{store.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !su.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if su.mutation.MenusCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -1129,6 +1717,96 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DepartmentsTable,
+			Columns: []string{store.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedDepartmentsIDs(); len(nodes) > 0 && !su.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DepartmentsTable,
+			Columns: []string{store.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.DepartmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DepartmentsTable,
+			Columns: []string{store.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RolesTable,
+			Columns: []string{store.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedRolesIDs(); len(nodes) > 0 && !su.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RolesTable,
+			Columns: []string{store.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RolesTable,
+			Columns: []string{store.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1272,6 +1950,12 @@ func (suo *StoreUpdateOne) SetNillableStoreShortName(s *string) *StoreUpdateOne 
 	return suo
 }
 
+// ClearStoreShortName clears the value of the "store_short_name" field.
+func (suo *StoreUpdateOne) ClearStoreShortName() *StoreUpdateOne {
+	suo.mutation.ClearStoreShortName()
+	return suo
+}
+
 // SetStoreCode sets the "store_code" field.
 func (suo *StoreUpdateOne) SetStoreCode(s string) *StoreUpdateOne {
 	suo.mutation.SetStoreCode(s)
@@ -1283,6 +1967,12 @@ func (suo *StoreUpdateOne) SetNillableStoreCode(s *string) *StoreUpdateOne {
 	if s != nil {
 		suo.SetStoreCode(*s)
 	}
+	return suo
+}
+
+// ClearStoreCode clears the value of the "store_code" field.
+func (suo *StoreUpdateOne) ClearStoreCode() *StoreUpdateOne {
+	suo.mutation.ClearStoreCode()
 	return suo
 }
 
@@ -1356,6 +2046,12 @@ func (suo *StoreUpdateOne) SetNillableContactName(s *string) *StoreUpdateOne {
 	return suo
 }
 
+// ClearContactName clears the value of the "contact_name" field.
+func (suo *StoreUpdateOne) ClearContactName() *StoreUpdateOne {
+	suo.mutation.ClearContactName()
+	return suo
+}
+
 // SetContactPhone sets the "contact_phone" field.
 func (suo *StoreUpdateOne) SetContactPhone(s string) *StoreUpdateOne {
 	suo.mutation.SetContactPhone(s)
@@ -1367,6 +2063,12 @@ func (suo *StoreUpdateOne) SetNillableContactPhone(s *string) *StoreUpdateOne {
 	if s != nil {
 		suo.SetContactPhone(*s)
 	}
+	return suo
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (suo *StoreUpdateOne) ClearContactPhone() *StoreUpdateOne {
+	suo.mutation.ClearContactPhone()
 	return suo
 }
 
@@ -1384,6 +2086,12 @@ func (suo *StoreUpdateOne) SetNillableUnifiedSocialCreditCode(s *string) *StoreU
 	return suo
 }
 
+// ClearUnifiedSocialCreditCode clears the value of the "unified_social_credit_code" field.
+func (suo *StoreUpdateOne) ClearUnifiedSocialCreditCode() *StoreUpdateOne {
+	suo.mutation.ClearUnifiedSocialCreditCode()
+	return suo
+}
+
 // SetStoreLogo sets the "store_logo" field.
 func (suo *StoreUpdateOne) SetStoreLogo(s string) *StoreUpdateOne {
 	suo.mutation.SetStoreLogo(s)
@@ -1395,6 +2103,12 @@ func (suo *StoreUpdateOne) SetNillableStoreLogo(s *string) *StoreUpdateOne {
 	if s != nil {
 		suo.SetStoreLogo(*s)
 	}
+	return suo
+}
+
+// ClearStoreLogo clears the value of the "store_logo" field.
+func (suo *StoreUpdateOne) ClearStoreLogo() *StoreUpdateOne {
+	suo.mutation.ClearStoreLogo()
 	return suo
 }
 
@@ -1412,6 +2126,12 @@ func (suo *StoreUpdateOne) SetNillableBusinessLicenseURL(s *string) *StoreUpdate
 	return suo
 }
 
+// ClearBusinessLicenseURL clears the value of the "business_license_url" field.
+func (suo *StoreUpdateOne) ClearBusinessLicenseURL() *StoreUpdateOne {
+	suo.mutation.ClearBusinessLicenseURL()
+	return suo
+}
+
 // SetStorefrontURL sets the "storefront_url" field.
 func (suo *StoreUpdateOne) SetStorefrontURL(s string) *StoreUpdateOne {
 	suo.mutation.SetStorefrontURL(s)
@@ -1423,6 +2143,12 @@ func (suo *StoreUpdateOne) SetNillableStorefrontURL(s *string) *StoreUpdateOne {
 	if s != nil {
 		suo.SetStorefrontURL(*s)
 	}
+	return suo
+}
+
+// ClearStorefrontURL clears the value of the "storefront_url" field.
+func (suo *StoreUpdateOne) ClearStorefrontURL() *StoreUpdateOne {
+	suo.mutation.ClearStorefrontURL()
 	return suo
 }
 
@@ -1440,6 +2166,12 @@ func (suo *StoreUpdateOne) SetNillableCashierDeskURL(s *string) *StoreUpdateOne 
 	return suo
 }
 
+// ClearCashierDeskURL clears the value of the "cashier_desk_url" field.
+func (suo *StoreUpdateOne) ClearCashierDeskURL() *StoreUpdateOne {
+	suo.mutation.ClearCashierDeskURL()
+	return suo
+}
+
 // SetDiningEnvironmentURL sets the "dining_environment_url" field.
 func (suo *StoreUpdateOne) SetDiningEnvironmentURL(s string) *StoreUpdateOne {
 	suo.mutation.SetDiningEnvironmentURL(s)
@@ -1451,6 +2183,12 @@ func (suo *StoreUpdateOne) SetNillableDiningEnvironmentURL(s *string) *StoreUpda
 	if s != nil {
 		suo.SetDiningEnvironmentURL(*s)
 	}
+	return suo
+}
+
+// ClearDiningEnvironmentURL clears the value of the "dining_environment_url" field.
+func (suo *StoreUpdateOne) ClearDiningEnvironmentURL() *StoreUpdateOne {
+	suo.mutation.ClearDiningEnvironmentURL()
 	return suo
 }
 
@@ -1468,45 +2206,45 @@ func (suo *StoreUpdateOne) SetNillableFoodOperationLicenseURL(s *string) *StoreU
 	return suo
 }
 
-// SetBusinessHours sets the "business_hours" field.
-func (suo *StoreUpdateOne) SetBusinessHours(s string) *StoreUpdateOne {
-	suo.mutation.SetBusinessHours(s)
+// ClearFoodOperationLicenseURL clears the value of the "food_operation_license_url" field.
+func (suo *StoreUpdateOne) ClearFoodOperationLicenseURL() *StoreUpdateOne {
+	suo.mutation.ClearFoodOperationLicenseURL()
 	return suo
 }
 
-// SetNillableBusinessHours sets the "business_hours" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableBusinessHours(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetBusinessHours(*s)
-	}
+// SetBusinessHours sets the "business_hours" field.
+func (suo *StoreUpdateOne) SetBusinessHours(dh []domain.BusinessHours) *StoreUpdateOne {
+	suo.mutation.SetBusinessHours(dh)
+	return suo
+}
+
+// AppendBusinessHours appends dh to the "business_hours" field.
+func (suo *StoreUpdateOne) AppendBusinessHours(dh []domain.BusinessHours) *StoreUpdateOne {
+	suo.mutation.AppendBusinessHours(dh)
 	return suo
 }
 
 // SetDiningPeriods sets the "dining_periods" field.
-func (suo *StoreUpdateOne) SetDiningPeriods(s string) *StoreUpdateOne {
-	suo.mutation.SetDiningPeriods(s)
+func (suo *StoreUpdateOne) SetDiningPeriods(dp []domain.DiningPeriod) *StoreUpdateOne {
+	suo.mutation.SetDiningPeriods(dp)
 	return suo
 }
 
-// SetNillableDiningPeriods sets the "dining_periods" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableDiningPeriods(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetDiningPeriods(*s)
-	}
+// AppendDiningPeriods appends dp to the "dining_periods" field.
+func (suo *StoreUpdateOne) AppendDiningPeriods(dp []domain.DiningPeriod) *StoreUpdateOne {
+	suo.mutation.AppendDiningPeriods(dp)
 	return suo
 }
 
 // SetShiftTimes sets the "shift_times" field.
-func (suo *StoreUpdateOne) SetShiftTimes(s string) *StoreUpdateOne {
-	suo.mutation.SetShiftTimes(s)
+func (suo *StoreUpdateOne) SetShiftTimes(dt []domain.ShiftTime) *StoreUpdateOne {
+	suo.mutation.SetShiftTimes(dt)
 	return suo
 }
 
-// SetNillableShiftTimes sets the "shift_times" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableShiftTimes(s *string) *StoreUpdateOne {
-	if s != nil {
-		suo.SetShiftTimes(*s)
-	}
+// AppendShiftTimes appends dt to the "shift_times" field.
+func (suo *StoreUpdateOne) AppendShiftTimes(dt []domain.ShiftTime) *StoreUpdateOne {
+	suo.mutation.AppendShiftTimes(dt)
 	return suo
 }
 
@@ -1618,6 +2356,12 @@ func (suo *StoreUpdateOne) SetNillableLng(s *string) *StoreUpdateOne {
 	return suo
 }
 
+// ClearLng clears the value of the "lng" field.
+func (suo *StoreUpdateOne) ClearLng() *StoreUpdateOne {
+	suo.mutation.ClearLng()
+	return suo
+}
+
 // SetLat sets the "lat" field.
 func (suo *StoreUpdateOne) SetLat(s string) *StoreUpdateOne {
 	suo.mutation.SetLat(s)
@@ -1629,6 +2373,12 @@ func (suo *StoreUpdateOne) SetNillableLat(s *string) *StoreUpdateOne {
 	if s != nil {
 		suo.SetLat(*s)
 	}
+	return suo
+}
+
+// ClearLat clears the value of the "lat" field.
+func (suo *StoreUpdateOne) ClearLat() *StoreUpdateOne {
+	suo.mutation.ClearLat()
 	return suo
 }
 
@@ -1663,6 +2413,21 @@ func (suo *StoreUpdateOne) SetDistrict(d *District) *StoreUpdateOne {
 	return suo.SetDistrictID(d.ID)
 }
 
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (suo *StoreUpdateOne) AddStoreUserIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddStoreUserIDs(ids...)
+	return suo
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (suo *StoreUpdateOne) AddStoreUsers(s ...*StoreUser) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddStoreUserIDs(ids...)
+}
+
 // AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
 func (suo *StoreUpdateOne) AddRemarkIDs(ids ...uuid.UUID) *StoreUpdateOne {
 	suo.mutation.AddRemarkIDs(ids...)
@@ -1678,6 +2443,66 @@ func (suo *StoreUpdateOne) AddRemarks(r ...*Remark) *StoreUpdateOne {
 	return suo.AddRemarkIDs(ids...)
 }
 
+// AddStallIDs adds the "stalls" edge to the Stall entity by IDs.
+func (suo *StoreUpdateOne) AddStallIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddStallIDs(ids...)
+	return suo
+}
+
+// AddStalls adds the "stalls" edges to the Stall entity.
+func (suo *StoreUpdateOne) AddStalls(s ...*Stall) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddStallIDs(ids...)
+}
+
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (suo *StoreUpdateOne) AddAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddAdditionalFeeIDs(ids...)
+	return suo
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (suo *StoreUpdateOne) AddAdditionalFees(a ...*AdditionalFee) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.AddAdditionalFeeIDs(ids...)
+}
+
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by IDs.
+func (suo *StoreUpdateOne) AddTaxFeeIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddTaxFeeIDs(ids...)
+	return suo
+}
+
+// AddTaxFees adds the "tax_fees" edges to the TaxFee entity.
+func (suo *StoreUpdateOne) AddTaxFees(t ...*TaxFee) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return suo.AddTaxFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (suo *StoreUpdateOne) AddDeviceIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddDeviceIDs(ids...)
+	return suo
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (suo *StoreUpdateOne) AddDevices(d ...*Device) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.AddDeviceIDs(ids...)
+}
+
 // AddMenuIDs adds the "menus" edge to the Menu entity by IDs.
 func (suo *StoreUpdateOne) AddMenuIDs(ids ...uuid.UUID) *StoreUpdateOne {
 	suo.mutation.AddMenuIDs(ids...)
@@ -1691,6 +2516,36 @@ func (suo *StoreUpdateOne) AddMenus(m ...*Menu) *StoreUpdateOne {
 		ids[i] = m[i].ID
 	}
 	return suo.AddMenuIDs(ids...)
+}
+
+// AddDepartmentIDs adds the "departments" edge to the Department entity by IDs.
+func (suo *StoreUpdateOne) AddDepartmentIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddDepartmentIDs(ids...)
+	return suo
+}
+
+// AddDepartments adds the "departments" edges to the Department entity.
+func (suo *StoreUpdateOne) AddDepartments(d ...*Department) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.AddDepartmentIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (suo *StoreUpdateOne) AddRoleIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddRoleIDs(ids...)
+	return suo
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (suo *StoreUpdateOne) AddRoles(r ...*Role) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return suo.AddRoleIDs(ids...)
 }
 
 // AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
@@ -1743,6 +2598,27 @@ func (suo *StoreUpdateOne) ClearDistrict() *StoreUpdateOne {
 	return suo
 }
 
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (suo *StoreUpdateOne) ClearStoreUsers() *StoreUpdateOne {
+	suo.mutation.ClearStoreUsers()
+	return suo
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (suo *StoreUpdateOne) RemoveStoreUserIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveStoreUserIDs(ids...)
+	return suo
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (suo *StoreUpdateOne) RemoveStoreUsers(s ...*StoreUser) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveStoreUserIDs(ids...)
+}
+
 // ClearRemarks clears all "remarks" edges to the Remark entity.
 func (suo *StoreUpdateOne) ClearRemarks() *StoreUpdateOne {
 	suo.mutation.ClearRemarks()
@@ -1764,6 +2640,90 @@ func (suo *StoreUpdateOne) RemoveRemarks(r ...*Remark) *StoreUpdateOne {
 	return suo.RemoveRemarkIDs(ids...)
 }
 
+// ClearStalls clears all "stalls" edges to the Stall entity.
+func (suo *StoreUpdateOne) ClearStalls() *StoreUpdateOne {
+	suo.mutation.ClearStalls()
+	return suo
+}
+
+// RemoveStallIDs removes the "stalls" edge to Stall entities by IDs.
+func (suo *StoreUpdateOne) RemoveStallIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveStallIDs(ids...)
+	return suo
+}
+
+// RemoveStalls removes "stalls" edges to Stall entities.
+func (suo *StoreUpdateOne) RemoveStalls(s ...*Stall) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveStallIDs(ids...)
+}
+
+// ClearAdditionalFees clears all "additional_fees" edges to the AdditionalFee entity.
+func (suo *StoreUpdateOne) ClearAdditionalFees() *StoreUpdateOne {
+	suo.mutation.ClearAdditionalFees()
+	return suo
+}
+
+// RemoveAdditionalFeeIDs removes the "additional_fees" edge to AdditionalFee entities by IDs.
+func (suo *StoreUpdateOne) RemoveAdditionalFeeIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveAdditionalFeeIDs(ids...)
+	return suo
+}
+
+// RemoveAdditionalFees removes "additional_fees" edges to AdditionalFee entities.
+func (suo *StoreUpdateOne) RemoveAdditionalFees(a ...*AdditionalFee) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.RemoveAdditionalFeeIDs(ids...)
+}
+
+// ClearTaxFees clears all "tax_fees" edges to the TaxFee entity.
+func (suo *StoreUpdateOne) ClearTaxFees() *StoreUpdateOne {
+	suo.mutation.ClearTaxFees()
+	return suo
+}
+
+// RemoveTaxFeeIDs removes the "tax_fees" edge to TaxFee entities by IDs.
+func (suo *StoreUpdateOne) RemoveTaxFeeIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveTaxFeeIDs(ids...)
+	return suo
+}
+
+// RemoveTaxFees removes "tax_fees" edges to TaxFee entities.
+func (suo *StoreUpdateOne) RemoveTaxFees(t ...*TaxFee) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return suo.RemoveTaxFeeIDs(ids...)
+}
+
+// ClearDevices clears all "devices" edges to the Device entity.
+func (suo *StoreUpdateOne) ClearDevices() *StoreUpdateOne {
+	suo.mutation.ClearDevices()
+	return suo
+}
+
+// RemoveDeviceIDs removes the "devices" edge to Device entities by IDs.
+func (suo *StoreUpdateOne) RemoveDeviceIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveDeviceIDs(ids...)
+	return suo
+}
+
+// RemoveDevices removes "devices" edges to Device entities.
+func (suo *StoreUpdateOne) RemoveDevices(d ...*Device) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.RemoveDeviceIDs(ids...)
+}
+
 // ClearMenus clears all "menus" edges to the Menu entity.
 func (suo *StoreUpdateOne) ClearMenus() *StoreUpdateOne {
 	suo.mutation.ClearMenus()
@@ -1783,6 +2743,48 @@ func (suo *StoreUpdateOne) RemoveMenus(m ...*Menu) *StoreUpdateOne {
 		ids[i] = m[i].ID
 	}
 	return suo.RemoveMenuIDs(ids...)
+}
+
+// ClearDepartments clears all "departments" edges to the Department entity.
+func (suo *StoreUpdateOne) ClearDepartments() *StoreUpdateOne {
+	suo.mutation.ClearDepartments()
+	return suo
+}
+
+// RemoveDepartmentIDs removes the "departments" edge to Department entities by IDs.
+func (suo *StoreUpdateOne) RemoveDepartmentIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveDepartmentIDs(ids...)
+	return suo
+}
+
+// RemoveDepartments removes "departments" edges to Department entities.
+func (suo *StoreUpdateOne) RemoveDepartments(d ...*Department) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return suo.RemoveDepartmentIDs(ids...)
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (suo *StoreUpdateOne) ClearRoles() *StoreUpdateOne {
+	suo.mutation.ClearRoles()
+	return suo
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (suo *StoreUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveRoleIDs(ids...)
+	return suo
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (suo *StoreUpdateOne) RemoveRoles(r ...*Role) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return suo.RemoveRoleIDs(ids...)
 }
 
 // ClearProfitDistributionRules clears all "profit_distribution_rules" edges to the ProfitDistributionRule entity.
@@ -1878,11 +2880,6 @@ func (suo *StoreUpdateOne) check() error {
 			return &ValidationError{Name: "store_short_name", err: fmt.Errorf(`ent: validator failed for field "Store.store_short_name": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.StoreCode(); ok {
-		if err := store.StoreCodeValidator(v); err != nil {
-			return &ValidationError{Name: "store_code", err: fmt.Errorf(`ent: validator failed for field "Store.store_code": %w`, err)}
-		}
-	}
 	if v, ok := suo.mutation.Status(); ok {
 		if err := store.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Store.status": %w`, err)}
@@ -1943,21 +2940,6 @@ func (suo *StoreUpdateOne) check() error {
 			return &ValidationError{Name: "food_operation_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.food_operation_license_url": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.BusinessHours(); ok {
-		if err := store.BusinessHoursValidator(v); err != nil {
-			return &ValidationError{Name: "business_hours", err: fmt.Errorf(`ent: validator failed for field "Store.business_hours": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.DiningPeriods(); ok {
-		if err := store.DiningPeriodsValidator(v); err != nil {
-			return &ValidationError{Name: "dining_periods", err: fmt.Errorf(`ent: validator failed for field "Store.dining_periods": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.ShiftTimes(); ok {
-		if err := store.ShiftTimesValidator(v); err != nil {
-			return &ValidationError{Name: "shift_times", err: fmt.Errorf(`ent: validator failed for field "Store.shift_times": %w`, err)}
-		}
-	}
 	if v, ok := suo.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -1975,9 +2957,6 @@ func (suo *StoreUpdateOne) check() error {
 	}
 	if suo.mutation.MerchantCleared() && len(suo.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
-	}
-	if suo.mutation.AdminUserCleared() && len(suo.mutation.AdminUserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Store.admin_user"`)
 	}
 	if suo.mutation.MerchantBusinessTypeCleared() && len(suo.mutation.MerchantBusinessTypeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
@@ -2038,8 +3017,14 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	if value, ok := suo.mutation.StoreShortName(); ok {
 		_spec.SetField(store.FieldStoreShortName, field.TypeString, value)
 	}
+	if suo.mutation.StoreShortNameCleared() {
+		_spec.ClearField(store.FieldStoreShortName, field.TypeString)
+	}
 	if value, ok := suo.mutation.StoreCode(); ok {
 		_spec.SetField(store.FieldStoreCode, field.TypeString, value)
+	}
+	if suo.mutation.StoreCodeCleared() {
+		_spec.ClearField(store.FieldStoreCode, field.TypeString)
 	}
 	if value, ok := suo.mutation.Status(); ok {
 		_spec.SetField(store.FieldStatus, field.TypeEnum, value)
@@ -2053,38 +3038,80 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	if value, ok := suo.mutation.ContactName(); ok {
 		_spec.SetField(store.FieldContactName, field.TypeString, value)
 	}
+	if suo.mutation.ContactNameCleared() {
+		_spec.ClearField(store.FieldContactName, field.TypeString)
+	}
 	if value, ok := suo.mutation.ContactPhone(); ok {
 		_spec.SetField(store.FieldContactPhone, field.TypeString, value)
+	}
+	if suo.mutation.ContactPhoneCleared() {
+		_spec.ClearField(store.FieldContactPhone, field.TypeString)
 	}
 	if value, ok := suo.mutation.UnifiedSocialCreditCode(); ok {
 		_spec.SetField(store.FieldUnifiedSocialCreditCode, field.TypeString, value)
 	}
+	if suo.mutation.UnifiedSocialCreditCodeCleared() {
+		_spec.ClearField(store.FieldUnifiedSocialCreditCode, field.TypeString)
+	}
 	if value, ok := suo.mutation.StoreLogo(); ok {
 		_spec.SetField(store.FieldStoreLogo, field.TypeString, value)
+	}
+	if suo.mutation.StoreLogoCleared() {
+		_spec.ClearField(store.FieldStoreLogo, field.TypeString)
 	}
 	if value, ok := suo.mutation.BusinessLicenseURL(); ok {
 		_spec.SetField(store.FieldBusinessLicenseURL, field.TypeString, value)
 	}
+	if suo.mutation.BusinessLicenseURLCleared() {
+		_spec.ClearField(store.FieldBusinessLicenseURL, field.TypeString)
+	}
 	if value, ok := suo.mutation.StorefrontURL(); ok {
 		_spec.SetField(store.FieldStorefrontURL, field.TypeString, value)
+	}
+	if suo.mutation.StorefrontURLCleared() {
+		_spec.ClearField(store.FieldStorefrontURL, field.TypeString)
 	}
 	if value, ok := suo.mutation.CashierDeskURL(); ok {
 		_spec.SetField(store.FieldCashierDeskURL, field.TypeString, value)
 	}
+	if suo.mutation.CashierDeskURLCleared() {
+		_spec.ClearField(store.FieldCashierDeskURL, field.TypeString)
+	}
 	if value, ok := suo.mutation.DiningEnvironmentURL(); ok {
 		_spec.SetField(store.FieldDiningEnvironmentURL, field.TypeString, value)
+	}
+	if suo.mutation.DiningEnvironmentURLCleared() {
+		_spec.ClearField(store.FieldDiningEnvironmentURL, field.TypeString)
 	}
 	if value, ok := suo.mutation.FoodOperationLicenseURL(); ok {
 		_spec.SetField(store.FieldFoodOperationLicenseURL, field.TypeString, value)
 	}
+	if suo.mutation.FoodOperationLicenseURLCleared() {
+		_spec.ClearField(store.FieldFoodOperationLicenseURL, field.TypeString)
+	}
 	if value, ok := suo.mutation.BusinessHours(); ok {
-		_spec.SetField(store.FieldBusinessHours, field.TypeString, value)
+		_spec.SetField(store.FieldBusinessHours, field.TypeJSON, value)
+	}
+	if value, ok := suo.mutation.AppendedBusinessHours(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldBusinessHours, value)
+		})
 	}
 	if value, ok := suo.mutation.DiningPeriods(); ok {
-		_spec.SetField(store.FieldDiningPeriods, field.TypeString, value)
+		_spec.SetField(store.FieldDiningPeriods, field.TypeJSON, value)
+	}
+	if value, ok := suo.mutation.AppendedDiningPeriods(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldDiningPeriods, value)
+		})
 	}
 	if value, ok := suo.mutation.ShiftTimes(); ok {
-		_spec.SetField(store.FieldShiftTimes, field.TypeString, value)
+		_spec.SetField(store.FieldShiftTimes, field.TypeJSON, value)
+	}
+	if value, ok := suo.mutation.AppendedShiftTimes(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, store.FieldShiftTimes, value)
+		})
 	}
 	if value, ok := suo.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
@@ -2092,8 +3119,14 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	if value, ok := suo.mutation.Lng(); ok {
 		_spec.SetField(store.FieldLng, field.TypeString, value)
 	}
+	if suo.mutation.LngCleared() {
+		_spec.ClearField(store.FieldLng, field.TypeString)
+	}
 	if value, ok := suo.mutation.Lat(); ok {
 		_spec.SetField(store.FieldLat, field.TypeString, value)
+	}
+	if suo.mutation.LatCleared() {
+		_spec.ClearField(store.FieldLat, field.TypeString)
 	}
 	if suo.mutation.MerchantBusinessTypeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -2240,6 +3273,51 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if suo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !suo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StoreUsersTable,
+			Columns: []string{store.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if suo.mutation.RemarksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -2285,6 +3363,186 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if suo.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedStallsIDs(); len(nodes) > 0 && !suo.mutation.StallsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.StallsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StallsTable,
+			Columns: []string{store.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedAdditionalFeesIDs(); len(nodes) > 0 && !suo.mutation.AdditionalFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.AdditionalFeesTable,
+			Columns: []string{store.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.TaxFeesTable,
+			Columns: []string{store.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedTaxFeesIDs(); len(nodes) > 0 && !suo.mutation.TaxFeesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.TaxFeesTable,
+			Columns: []string{store.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.TaxFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.TaxFeesTable,
+			Columns: []string{store.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedDevicesIDs(); len(nodes) > 0 && !suo.mutation.DevicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DevicesTable,
+			Columns: []string{store.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if suo.mutation.MenusCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -2323,6 +3581,96 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(menu.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DepartmentsTable,
+			Columns: []string{store.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedDepartmentsIDs(); len(nodes) > 0 && !suo.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DepartmentsTable,
+			Columns: []string{store.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.DepartmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DepartmentsTable,
+			Columns: []string{store.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RolesTable,
+			Columns: []string{store.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedRolesIDs(); len(nodes) > 0 && !suo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RolesTable,
+			Columns: []string{store.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RolesTable,
+			Columns: []string{store.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

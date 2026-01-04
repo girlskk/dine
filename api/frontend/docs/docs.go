@@ -272,6 +272,9 @@ const docTemplate = `{
             "x-enum-comments": {
                 "ChannelPOS": "POS终端"
             },
+            "x-enum-descriptions": [
+                "POS终端"
+            ],
             "x-enum-varnames": [
                 "ChannelPOS"
             ]
@@ -284,6 +287,9 @@ const docTemplate = `{
             "x-enum-comments": {
                 "DiningModeDineIn": "堂食"
             },
+            "x-enum-descriptions": [
+                "堂食"
+            ],
             "x-enum-varnames": [
                 "DiningModeDineIn"
             ]
@@ -800,6 +806,11 @@ const docTemplate = `{
                 "OrderStatusCompleted": "已完成",
                 "OrderStatusPlaced": "已下单"
             },
+            "x-enum-descriptions": [
+                "已下单",
+                "已完成",
+                "已取消"
+            ],
             "x-enum-varnames": [
                 "OrderStatusPlaced",
                 "OrderStatusCompleted",
@@ -874,6 +885,11 @@ const docTemplate = `{
                 "OrderTypeRefund": "退单",
                 "OrderTypeSale": "销售单"
             },
+            "x-enum-descriptions": [
+                "销售单",
+                "退单",
+                "部分退款单"
+            ],
             "x-enum-varnames": [
                 "OrderTypeSale",
                 "OrderTypeRefund",
@@ -894,6 +910,12 @@ const docTemplate = `{
                 "PaymentStatusRefunded": "全额退款",
                 "PaymentStatusUnpaid": "未支付"
             },
+            "x-enum-descriptions": [
+                "未支付",
+                "支付中",
+                "已支付",
+                "全额退款"
+            ],
             "x-enum-varnames": [
                 "PaymentStatusUnpaid",
                 "PaymentStatusPaying",
@@ -911,6 +933,10 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
+            "x-enum-descriptions": [
+                "在售",
+                "停售"
+            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -928,6 +954,11 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外卖"
+            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -944,6 +975,10 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
+            "x-enum-descriptions": [
+                "普通商品",
+                "套餐商品"
+            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -965,6 +1000,13 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
@@ -1205,6 +1247,13 @@ const docTemplate = `{
                 "order_no": {
                     "description": "订单号",
                     "type": "string"
+                },
+                "order_products": {
+                    "description": "订单商品明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderProduct"
+                    }
                 },
                 "order_status": {
                     "description": "订单状态",
