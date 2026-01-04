@@ -77,5 +77,7 @@ func (Stall) Edges() []ent.Edge {
 			Unique().
 			Immutable(),
 		edge.To("devices", Device.Type),
+		edge.To("categories", Category.Type).
+			Comment("关联的分类"),
 	}
 }

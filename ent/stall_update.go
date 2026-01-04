@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -137,6 +138,21 @@ func (su *StallUpdate) AddDevices(d ...*Device) *StallUpdate {
 	return su.AddDeviceIDs(ids...)
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (su *StallUpdate) AddCategoryIDs(ids ...uuid.UUID) *StallUpdate {
+	su.mutation.AddCategoryIDs(ids...)
+	return su
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (su *StallUpdate) AddCategories(c ...*Category) *StallUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return su.AddCategoryIDs(ids...)
+}
+
 // Mutation returns the StallMutation object of the builder.
 func (su *StallUpdate) Mutation() *StallMutation {
 	return su.mutation
@@ -161,6 +177,27 @@ func (su *StallUpdate) RemoveDevices(d ...*Device) *StallUpdate {
 		ids[i] = d[i].ID
 	}
 	return su.RemoveDeviceIDs(ids...)
+}
+
+// ClearCategories clears all "categories" edges to the Category entity.
+func (su *StallUpdate) ClearCategories() *StallUpdate {
+	su.mutation.ClearCategories()
+	return su
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (su *StallUpdate) RemoveCategoryIDs(ids ...uuid.UUID) *StallUpdate {
+	su.mutation.RemoveCategoryIDs(ids...)
+	return su
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (su *StallUpdate) RemoveCategories(c ...*Category) *StallUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return su.RemoveCategoryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -307,6 +344,51 @@ func (su *StallUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !su.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(su.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -434,6 +516,21 @@ func (suo *StallUpdateOne) AddDevices(d ...*Device) *StallUpdateOne {
 	return suo.AddDeviceIDs(ids...)
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (suo *StallUpdateOne) AddCategoryIDs(ids ...uuid.UUID) *StallUpdateOne {
+	suo.mutation.AddCategoryIDs(ids...)
+	return suo
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (suo *StallUpdateOne) AddCategories(c ...*Category) *StallUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return suo.AddCategoryIDs(ids...)
+}
+
 // Mutation returns the StallMutation object of the builder.
 func (suo *StallUpdateOne) Mutation() *StallMutation {
 	return suo.mutation
@@ -458,6 +555,27 @@ func (suo *StallUpdateOne) RemoveDevices(d ...*Device) *StallUpdateOne {
 		ids[i] = d[i].ID
 	}
 	return suo.RemoveDeviceIDs(ids...)
+}
+
+// ClearCategories clears all "categories" edges to the Category entity.
+func (suo *StallUpdateOne) ClearCategories() *StallUpdateOne {
+	suo.mutation.ClearCategories()
+	return suo
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (suo *StallUpdateOne) RemoveCategoryIDs(ids ...uuid.UUID) *StallUpdateOne {
+	suo.mutation.RemoveCategoryIDs(ids...)
+	return suo
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (suo *StallUpdateOne) RemoveCategories(c ...*Category) *StallUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return suo.RemoveCategoryIDs(ids...)
 }
 
 // Where appends a list predicates to the StallUpdate builder.
@@ -627,6 +745,51 @@ func (suo *StallUpdateOne) sqlSave(ctx context.Context) (_node *Stall, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !suo.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

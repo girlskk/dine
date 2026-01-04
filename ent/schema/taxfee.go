@@ -70,6 +70,8 @@ func (TaxFee) Edges() []ent.Edge {
 			Field("store_id").
 			Unique().
 			Immutable(),
+		edge.To("categories", Category.Type).
+			Comment("关联的分类"),
 	}
 }
 

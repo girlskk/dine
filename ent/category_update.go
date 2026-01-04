@@ -15,6 +15,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // CategoryUpdate is the builder for updating Category entities.
@@ -231,6 +233,16 @@ func (cu *CategoryUpdate) AddProducts(p ...*Product) *CategoryUpdate {
 	return cu.AddProductIDs(ids...)
 }
 
+// SetTaxRate sets the "tax_rate" edge to the TaxFee entity.
+func (cu *CategoryUpdate) SetTaxRate(t *TaxFee) *CategoryUpdate {
+	return cu.SetTaxRateID(t.ID)
+}
+
+// SetStall sets the "stall" edge to the Stall entity.
+func (cu *CategoryUpdate) SetStall(s *Stall) *CategoryUpdate {
+	return cu.SetStallID(s.ID)
+}
+
 // Mutation returns the CategoryMutation object of the builder.
 func (cu *CategoryUpdate) Mutation() *CategoryMutation {
 	return cu.mutation
@@ -282,6 +294,18 @@ func (cu *CategoryUpdate) RemoveProducts(p ...*Product) *CategoryUpdate {
 		ids[i] = p[i].ID
 	}
 	return cu.RemoveProductIDs(ids...)
+}
+
+// ClearTaxRate clears the "tax_rate" edge to the TaxFee entity.
+func (cu *CategoryUpdate) ClearTaxRate() *CategoryUpdate {
+	cu.mutation.ClearTaxRate()
+	return cu
+}
+
+// ClearStall clears the "stall" edge to the Stall entity.
+func (cu *CategoryUpdate) ClearStall() *CategoryUpdate {
+	cu.mutation.ClearStall()
+	return cu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -372,20 +396,8 @@ func (cu *CategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.InheritTaxRate(); ok {
 		_spec.SetField(category.FieldInheritTaxRate, field.TypeBool, value)
 	}
-	if value, ok := cu.mutation.TaxRateID(); ok {
-		_spec.SetField(category.FieldTaxRateID, field.TypeUUID, value)
-	}
-	if cu.mutation.TaxRateIDCleared() {
-		_spec.ClearField(category.FieldTaxRateID, field.TypeUUID)
-	}
 	if value, ok := cu.mutation.InheritStall(); ok {
 		_spec.SetField(category.FieldInheritStall, field.TypeBool, value)
-	}
-	if value, ok := cu.mutation.StallID(); ok {
-		_spec.SetField(category.FieldStallID, field.TypeUUID, value)
-	}
-	if cu.mutation.StallIDCleared() {
-		_spec.ClearField(category.FieldStallID, field.TypeUUID)
 	}
 	if value, ok := cu.mutation.ProductCount(); ok {
 		_spec.SetField(category.FieldProductCount, field.TypeInt, value)
@@ -511,6 +523,64 @@ func (cu *CategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.TaxRateCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.TaxRateTable,
+			Columns: []string{category.TaxRateColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.TaxRateIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.TaxRateTable,
+			Columns: []string{category.TaxRateColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.StallCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.StallTable,
+			Columns: []string{category.StallColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.StallIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.StallTable,
+			Columns: []string{category.StallColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -740,6 +810,16 @@ func (cuo *CategoryUpdateOne) AddProducts(p ...*Product) *CategoryUpdateOne {
 	return cuo.AddProductIDs(ids...)
 }
 
+// SetTaxRate sets the "tax_rate" edge to the TaxFee entity.
+func (cuo *CategoryUpdateOne) SetTaxRate(t *TaxFee) *CategoryUpdateOne {
+	return cuo.SetTaxRateID(t.ID)
+}
+
+// SetStall sets the "stall" edge to the Stall entity.
+func (cuo *CategoryUpdateOne) SetStall(s *Stall) *CategoryUpdateOne {
+	return cuo.SetStallID(s.ID)
+}
+
 // Mutation returns the CategoryMutation object of the builder.
 func (cuo *CategoryUpdateOne) Mutation() *CategoryMutation {
 	return cuo.mutation
@@ -791,6 +871,18 @@ func (cuo *CategoryUpdateOne) RemoveProducts(p ...*Product) *CategoryUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return cuo.RemoveProductIDs(ids...)
+}
+
+// ClearTaxRate clears the "tax_rate" edge to the TaxFee entity.
+func (cuo *CategoryUpdateOne) ClearTaxRate() *CategoryUpdateOne {
+	cuo.mutation.ClearTaxRate()
+	return cuo
+}
+
+// ClearStall clears the "stall" edge to the Stall entity.
+func (cuo *CategoryUpdateOne) ClearStall() *CategoryUpdateOne {
+	cuo.mutation.ClearStall()
+	return cuo
 }
 
 // Where appends a list predicates to the CategoryUpdate builder.
@@ -911,20 +1003,8 @@ func (cuo *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err
 	if value, ok := cuo.mutation.InheritTaxRate(); ok {
 		_spec.SetField(category.FieldInheritTaxRate, field.TypeBool, value)
 	}
-	if value, ok := cuo.mutation.TaxRateID(); ok {
-		_spec.SetField(category.FieldTaxRateID, field.TypeUUID, value)
-	}
-	if cuo.mutation.TaxRateIDCleared() {
-		_spec.ClearField(category.FieldTaxRateID, field.TypeUUID)
-	}
 	if value, ok := cuo.mutation.InheritStall(); ok {
 		_spec.SetField(category.FieldInheritStall, field.TypeBool, value)
-	}
-	if value, ok := cuo.mutation.StallID(); ok {
-		_spec.SetField(category.FieldStallID, field.TypeUUID, value)
-	}
-	if cuo.mutation.StallIDCleared() {
-		_spec.ClearField(category.FieldStallID, field.TypeUUID)
 	}
 	if value, ok := cuo.mutation.ProductCount(); ok {
 		_spec.SetField(category.FieldProductCount, field.TypeInt, value)
@@ -1050,6 +1130,64 @@ func (cuo *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.TaxRateCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.TaxRateTable,
+			Columns: []string{category.TaxRateColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.TaxRateIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.TaxRateTable,
+			Columns: []string{category.TaxRateColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.StallCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.StallTable,
+			Columns: []string{category.StallColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.StallIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.StallTable,
+			Columns: []string{category.StallColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

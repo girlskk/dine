@@ -147,12 +147,14 @@ var (
 		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "inherit_tax_rate", Type: field.TypeBool, Default: false},
-		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "inherit_stall", Type: field.TypeBool, Default: false},
-		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "product_count", Type: field.TypeInt, Default: 0},
 		{Name: "sort_order", Type: field.TypeInt, Default: 32767},
 		{Name: "parent_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "tax_rate_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "stall_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "stall_categories", Type: field.TypeUUID, Nullable: true},
+		{Name: "tax_fee_categories", Type: field.TypeUUID, Nullable: true},
 	}
 	// CategoriesTable holds the schema information for the "categories" table.
 	CategoriesTable = &schema.Table{
@@ -162,8 +164,32 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "categories_categories_children",
-				Columns:    []*schema.Column{CategoriesColumns[13]},
+				Columns:    []*schema.Column{CategoriesColumns[11]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "categories_tax_fees_tax_rate",
+				Columns:    []*schema.Column{CategoriesColumns[12]},
+				RefColumns: []*schema.Column{TaxFeesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "categories_stalls_stall",
+				Columns:    []*schema.Column{CategoriesColumns[13]},
+				RefColumns: []*schema.Column{StallsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "categories_stalls_categories",
+				Columns:    []*schema.Column{CategoriesColumns[14]},
+				RefColumns: []*schema.Column{StallsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "categories_tax_fees_categories",
+				Columns:    []*schema.Column{CategoriesColumns[15]},
+				RefColumns: []*schema.Column{TaxFeesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -186,7 +212,7 @@ var (
 			{
 				Name:    "category_merchant_id_store_id_parent_id_name_deleted_at",
 				Unique:  true,
-				Columns: []*schema.Column{CategoriesColumns[5], CategoriesColumns[6], CategoriesColumns[13], CategoriesColumns[4], CategoriesColumns[3]},
+				Columns: []*schema.Column{CategoriesColumns[5], CategoriesColumns[6], CategoriesColumns[11], CategoriesColumns[4], CategoriesColumns[3]},
 			},
 		},
 	}
@@ -1925,6 +1951,10 @@ func init() {
 	AdditionalFeesTable.ForeignKeys[1].RefTable = StoresTable
 	BackendUsersTable.ForeignKeys[0].RefTable = MerchantsTable
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
+	CategoriesTable.ForeignKeys[1].RefTable = TaxFeesTable
+	CategoriesTable.ForeignKeys[2].RefTable = StallsTable
+	CategoriesTable.ForeignKeys[3].RefTable = StallsTable
+	CategoriesTable.ForeignKeys[4].RefTable = TaxFeesTable
 	CitiesTable.ForeignKeys[0].RefTable = CountriesTable
 	CitiesTable.ForeignKeys[1].RefTable = ProvincesTable
 	DepartmentsTable.ForeignKeys[0].RefTable = MerchantsTable

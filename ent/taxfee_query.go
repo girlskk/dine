@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -13,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -22,13 +24,14 @@ import (
 // TaxFeeQuery is the builder for querying TaxFee entities.
 type TaxFeeQuery struct {
 	config
-	ctx          *QueryContext
-	order        []taxfee.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.TaxFee
-	withMerchant *MerchantQuery
-	withStore    *StoreQuery
-	modifiers    []func(*sql.Selector)
+	ctx            *QueryContext
+	order          []taxfee.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.TaxFee
+	withMerchant   *MerchantQuery
+	withStore      *StoreQuery
+	withCategories *CategoryQuery
+	modifiers      []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +105,28 @@ func (tfq *TaxFeeQuery) QueryStore() *StoreQuery {
 			sqlgraph.From(taxfee.Table, taxfee.FieldID, selector),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, taxfee.StoreTable, taxfee.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tfq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCategories chains the current query on the "categories" edge.
+func (tfq *TaxFeeQuery) QueryCategories() *CategoryQuery {
+	query := (&CategoryClient{config: tfq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tfq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tfq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(taxfee.Table, taxfee.FieldID, selector),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, taxfee.CategoriesTable, taxfee.CategoriesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tfq.driver.Dialect(), step)
 		return fromU, nil
@@ -296,13 +321,14 @@ func (tfq *TaxFeeQuery) Clone() *TaxFeeQuery {
 		return nil
 	}
 	return &TaxFeeQuery{
-		config:       tfq.config,
-		ctx:          tfq.ctx.Clone(),
-		order:        append([]taxfee.OrderOption{}, tfq.order...),
-		inters:       append([]Interceptor{}, tfq.inters...),
-		predicates:   append([]predicate.TaxFee{}, tfq.predicates...),
-		withMerchant: tfq.withMerchant.Clone(),
-		withStore:    tfq.withStore.Clone(),
+		config:         tfq.config,
+		ctx:            tfq.ctx.Clone(),
+		order:          append([]taxfee.OrderOption{}, tfq.order...),
+		inters:         append([]Interceptor{}, tfq.inters...),
+		predicates:     append([]predicate.TaxFee{}, tfq.predicates...),
+		withMerchant:   tfq.withMerchant.Clone(),
+		withStore:      tfq.withStore.Clone(),
+		withCategories: tfq.withCategories.Clone(),
 		// clone intermediate query.
 		sql:       tfq.sql.Clone(),
 		path:      tfq.path,
@@ -329,6 +355,17 @@ func (tfq *TaxFeeQuery) WithStore(opts ...func(*StoreQuery)) *TaxFeeQuery {
 		opt(query)
 	}
 	tfq.withStore = query
+	return tfq
+}
+
+// WithCategories tells the query-builder to eager-load the nodes that are connected to
+// the "categories" edge. The optional arguments are used to configure the query builder of the edge.
+func (tfq *TaxFeeQuery) WithCategories(opts ...func(*CategoryQuery)) *TaxFeeQuery {
+	query := (&CategoryClient{config: tfq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tfq.withCategories = query
 	return tfq
 }
 
@@ -410,9 +447,10 @@ func (tfq *TaxFeeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*TaxF
 	var (
 		nodes       = []*TaxFee{}
 		_spec       = tfq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			tfq.withMerchant != nil,
 			tfq.withStore != nil,
+			tfq.withCategories != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +483,13 @@ func (tfq *TaxFeeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*TaxF
 	if query := tfq.withStore; query != nil {
 		if err := tfq.loadStore(ctx, query, nodes, nil,
 			func(n *TaxFee, e *Store) { n.Edges.Store = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := tfq.withCategories; query != nil {
+		if err := tfq.loadCategories(ctx, query, nodes,
+			func(n *TaxFee) { n.Edges.Categories = []*Category{} },
+			func(n *TaxFee, e *Category) { n.Edges.Categories = append(n.Edges.Categories, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -506,6 +551,37 @@ func (tfq *TaxFeeQuery) loadStore(ctx context.Context, query *StoreQuery, nodes 
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (tfq *TaxFeeQuery) loadCategories(ctx context.Context, query *CategoryQuery, nodes []*TaxFee, init func(*TaxFee), assign func(*TaxFee, *Category)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*TaxFee)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Category(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(taxfee.CategoriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.tax_fee_categories
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "tax_fee_categories" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "tax_fee_categories" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

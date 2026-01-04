@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -181,6 +182,21 @@ func (sc *StallCreate) AddDevices(d ...*Device) *StallCreate {
 		ids[i] = d[i].ID
 	}
 	return sc.AddDeviceIDs(ids...)
+}
+
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (sc *StallCreate) AddCategoryIDs(ids ...uuid.UUID) *StallCreate {
+	sc.mutation.AddCategoryIDs(ids...)
+	return sc
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (sc *StallCreate) AddCategories(c ...*Category) *StallCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return sc.AddCategoryIDs(ids...)
 }
 
 // Mutation returns the StallMutation object of the builder.
@@ -408,6 +424,22 @@ func (sc *StallCreate) createSpec() (*Stall, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

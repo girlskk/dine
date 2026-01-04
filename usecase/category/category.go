@@ -33,7 +33,7 @@ func (i *CategoryInteractor) ListBySearch(ctx context.Context, params domain.Cat
 
 // verifyCategoryOwnership 验证分类是否属于当前用户可操作
 func verifyCategoryOwnership(user domain.User, category *domain.Category) error {
-	if user.GetMerchantID() != category.MerchantID || user.GetStoreID() != category.StoreID {
+	if !domain.VerifyOwnerShip(user, category.MerchantID, category.StoreID) {
 		return domain.ParamsError(domain.ErrCategoryNotExists)
 	}
 	return nil
@@ -110,4 +110,45 @@ func (i *CategoryInteractor) Reorder(ctx context.Context, parentID *uuid.UUID, c
 		// 7. 调用 Repository 批量更新
 		return ds.CategoryRepo().UpdateSortOrders(ctx, updates)
 	})
+}
+
+// 检查税率是否有效
+func (i *CategoryInteractor) checkTaxRate(ctx context.Context, ds domain.DataStore,
+	category *domain.Category, user domain.User,
+) error {
+	if category.TaxRateID == uuid.Nil {
+		return nil
+	}
+	taxRate, err := ds.TaxFeeRepo().FindByID(ctx, category.TaxRateID)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrTaxFeeNotExists)
+		}
+		return err
+	}
+	if !domain.VerifyOwnerShip(user, taxRate.MerchantID, taxRate.StoreID) {
+		return domain.ParamsError(domain.ErrTaxFeeNotExists)
+	}
+	return nil
+}
+
+// 检查出品部门是否有效
+func (i *CategoryInteractor) checkStall(ctx context.Context, ds domain.DataStore,
+	category *domain.Category, user domain.User,
+) error {
+	if category.StallID == uuid.Nil {
+		return nil
+	}
+	stall, err := ds.StallRepo().FindByID(ctx, category.StallID)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrStallNotExists)
+		}
+		return err
+	}
+
+	if !domain.VerifyOwnerShip(user, stall.MerchantID, stall.StoreID) {
+		return domain.ParamsError(domain.ErrStallNotExists)
+	}
+	return nil
 }
