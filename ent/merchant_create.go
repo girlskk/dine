@@ -14,9 +14,12 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
@@ -24,7 +27,11 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // MerchantCreate is the builder for creating a Merchant entity.
@@ -305,9 +312,9 @@ func (mc *MerchantCreate) SetNillableLat(s *string) *MerchantCreate {
 	return mc
 }
 
-// SetAdminUserID sets the "admin_user_id" field.
-func (mc *MerchantCreate) SetAdminUserID(u uuid.UUID) *MerchantCreate {
-	mc.mutation.SetAdminUserID(u)
+// SetSuperAccount sets the "super_account" field.
+func (mc *MerchantCreate) SetSuperAccount(s string) *MerchantCreate {
+	mc.mutation.SetSuperAccount(s)
 	return mc
 }
 
@@ -323,6 +330,52 @@ func (mc *MerchantCreate) SetNillableID(u *uuid.UUID) *MerchantCreate {
 		mc.SetID(*u)
 	}
 	return mc
+}
+
+// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
+func (mc *MerchantCreate) SetMerchantBusinessTypeID(id uuid.UUID) *MerchantCreate {
+	mc.mutation.SetMerchantBusinessTypeID(id)
+	return mc
+}
+
+// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
+func (mc *MerchantCreate) SetMerchantBusinessType(m *MerchantBusinessType) *MerchantCreate {
+	return mc.SetMerchantBusinessTypeID(m.ID)
+}
+
+// SetCountry sets the "country" edge to the Country entity.
+func (mc *MerchantCreate) SetCountry(c *Country) *MerchantCreate {
+	return mc.SetCountryID(c.ID)
+}
+
+// SetProvince sets the "province" edge to the Province entity.
+func (mc *MerchantCreate) SetProvince(p *Province) *MerchantCreate {
+	return mc.SetProvinceID(p.ID)
+}
+
+// SetCity sets the "city" edge to the City entity.
+func (mc *MerchantCreate) SetCity(c *City) *MerchantCreate {
+	return mc.SetCityID(c.ID)
+}
+
+// SetDistrict sets the "district" edge to the District entity.
+func (mc *MerchantCreate) SetDistrict(d *District) *MerchantCreate {
+	return mc.SetDistrictID(d.ID)
+}
+
+// AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
+func (mc *MerchantCreate) AddBackendUserIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddBackendUserIDs(ids...)
+	return mc
+}
+
+// AddBackendUsers adds the "backend_users" edges to the BackendUser entity.
+func (mc *MerchantCreate) AddBackendUsers(b ...*BackendUser) *MerchantCreate {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return mc.AddBackendUserIDs(ids...)
 }
 
 // AddStoreIDs adds the "stores" edge to the Store entity by IDs.
@@ -355,42 +408,6 @@ func (mc *MerchantCreate) AddMerchantRenewals(m ...*MerchantRenewal) *MerchantCr
 	return mc.AddMerchantRenewalIDs(ids...)
 }
 
-// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
-func (mc *MerchantCreate) SetMerchantBusinessTypeID(id uuid.UUID) *MerchantCreate {
-	mc.mutation.SetMerchantBusinessTypeID(id)
-	return mc
-}
-
-// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (mc *MerchantCreate) SetMerchantBusinessType(m *MerchantBusinessType) *MerchantCreate {
-	return mc.SetMerchantBusinessTypeID(m.ID)
-}
-
-// SetAdminUser sets the "admin_user" edge to the AdminUser entity.
-func (mc *MerchantCreate) SetAdminUser(a *AdminUser) *MerchantCreate {
-	return mc.SetAdminUserID(a.ID)
-}
-
-// SetCountry sets the "country" edge to the Country entity.
-func (mc *MerchantCreate) SetCountry(c *Country) *MerchantCreate {
-	return mc.SetCountryID(c.ID)
-}
-
-// SetProvince sets the "province" edge to the Province entity.
-func (mc *MerchantCreate) SetProvince(p *Province) *MerchantCreate {
-	return mc.SetProvinceID(p.ID)
-}
-
-// SetCity sets the "city" edge to the City entity.
-func (mc *MerchantCreate) SetCity(c *City) *MerchantCreate {
-	return mc.SetCityID(c.ID)
-}
-
-// SetDistrict sets the "district" edge to the District entity.
-func (mc *MerchantCreate) SetDistrict(d *District) *MerchantCreate {
-	return mc.SetDistrictID(d.ID)
-}
-
 // AddRemarkCategoryIDs adds the "remark_categories" edge to the RemarkCategory entity by IDs.
 func (mc *MerchantCreate) AddRemarkCategoryIDs(ids ...uuid.UUID) *MerchantCreate {
 	mc.mutation.AddRemarkCategoryIDs(ids...)
@@ -419,6 +436,111 @@ func (mc *MerchantCreate) AddRemarks(r ...*Remark) *MerchantCreate {
 		ids[i] = r[i].ID
 	}
 	return mc.AddRemarkIDs(ids...)
+}
+
+// AddStallIDs adds the "stalls" edge to the Stall entity by IDs.
+func (mc *MerchantCreate) AddStallIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddStallIDs(ids...)
+	return mc
+}
+
+// AddStalls adds the "stalls" edges to the Stall entity.
+func (mc *MerchantCreate) AddStalls(s ...*Stall) *MerchantCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mc.AddStallIDs(ids...)
+}
+
+// AddAdditionalFeeIDs adds the "additional_fees" edge to the AdditionalFee entity by IDs.
+func (mc *MerchantCreate) AddAdditionalFeeIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddAdditionalFeeIDs(ids...)
+	return mc
+}
+
+// AddAdditionalFees adds the "additional_fees" edges to the AdditionalFee entity.
+func (mc *MerchantCreate) AddAdditionalFees(a ...*AdditionalFee) *MerchantCreate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return mc.AddAdditionalFeeIDs(ids...)
+}
+
+// AddTaxFeeIDs adds the "tax_fees" edge to the TaxFee entity by IDs.
+func (mc *MerchantCreate) AddTaxFeeIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddTaxFeeIDs(ids...)
+	return mc
+}
+
+// AddTaxFees adds the "tax_fees" edges to the TaxFee entity.
+func (mc *MerchantCreate) AddTaxFees(t ...*TaxFee) *MerchantCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return mc.AddTaxFeeIDs(ids...)
+}
+
+// AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
+func (mc *MerchantCreate) AddDeviceIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddDeviceIDs(ids...)
+	return mc
+}
+
+// AddDevices adds the "devices" edges to the Device entity.
+func (mc *MerchantCreate) AddDevices(d ...*Device) *MerchantCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mc.AddDeviceIDs(ids...)
+}
+
+// AddDepartmentIDs adds the "departments" edge to the Department entity by IDs.
+func (mc *MerchantCreate) AddDepartmentIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddDepartmentIDs(ids...)
+	return mc
+}
+
+// AddDepartments adds the "departments" edges to the Department entity.
+func (mc *MerchantCreate) AddDepartments(d ...*Department) *MerchantCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mc.AddDepartmentIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (mc *MerchantCreate) AddRoleIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddRoleIDs(ids...)
+	return mc
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (mc *MerchantCreate) AddRoles(r ...*Role) *MerchantCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mc.AddRoleIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (mc *MerchantCreate) AddStoreUserIDs(ids ...uuid.UUID) *MerchantCreate {
+	mc.mutation.AddStoreUserIDs(ids...)
+	return mc
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (mc *MerchantCreate) AddStoreUsers(s ...*StoreUser) *MerchantCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mc.AddStoreUserIDs(ids...)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -537,14 +659,6 @@ func (mc *MerchantCreate) check() error {
 	if _, ok := mc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Merchant.deleted_at"`)}
 	}
-	if _, ok := mc.mutation.MerchantCode(); !ok {
-		return &ValidationError{Name: "merchant_code", err: errors.New(`ent: missing required field "Merchant.merchant_code"`)}
-	}
-	if v, ok := mc.mutation.MerchantCode(); ok {
-		if err := merchant.MerchantCodeValidator(v); err != nil {
-			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
-		}
-	}
 	if _, ok := mc.mutation.MerchantName(); !ok {
 		return &ValidationError{Name: "merchant_name", err: errors.New(`ent: missing required field "Merchant.merchant_name"`)}
 	}
@@ -552,9 +666,6 @@ func (mc *MerchantCreate) check() error {
 		if err := merchant.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_name": %w`, err)}
 		}
-	}
-	if _, ok := mc.mutation.MerchantShortName(); !ok {
-		return &ValidationError{Name: "merchant_short_name", err: errors.New(`ent: missing required field "Merchant.merchant_short_name"`)}
 	}
 	if v, ok := mc.mutation.MerchantShortName(); ok {
 		if err := merchant.MerchantShortNameValidator(v); err != nil {
@@ -567,14 +678,6 @@ func (mc *MerchantCreate) check() error {
 	if v, ok := mc.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
-		}
-	}
-	if _, ok := mc.mutation.BrandName(); !ok {
-		return &ValidationError{Name: "brand_name", err: errors.New(`ent: missing required field "Merchant.brand_name"`)}
-	}
-	if v, ok := mc.mutation.BrandName(); ok {
-		if err := merchant.BrandNameValidator(v); err != nil {
-			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if _, ok := mc.mutation.AdminPhoneNumber(); !ok {
@@ -596,9 +699,6 @@ func (mc *MerchantCreate) check() error {
 			return &ValidationError{Name: "merchant_logo", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_logo": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.Description(); !ok {
-		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Merchant.description"`)}
-	}
 	if v, ok := mc.mutation.Description(); ok {
 		if err := merchant.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Merchant.description": %w`, err)}
@@ -612,38 +712,16 @@ func (mc *MerchantCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Merchant.status": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.Address(); !ok {
-		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Merchant.address"`)}
-	}
 	if v, ok := mc.mutation.Address(); ok {
 		if err := merchant.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Merchant.address": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.Lng(); !ok {
-		return &ValidationError{Name: "lng", err: errors.New(`ent: missing required field "Merchant.lng"`)}
-	}
-	if v, ok := mc.mutation.Lng(); ok {
-		if err := merchant.LngValidator(v); err != nil {
-			return &ValidationError{Name: "lng", err: fmt.Errorf(`ent: validator failed for field "Merchant.lng": %w`, err)}
-		}
-	}
-	if _, ok := mc.mutation.Lat(); !ok {
-		return &ValidationError{Name: "lat", err: errors.New(`ent: missing required field "Merchant.lat"`)}
-	}
-	if v, ok := mc.mutation.Lat(); ok {
-		if err := merchant.LatValidator(v); err != nil {
-			return &ValidationError{Name: "lat", err: fmt.Errorf(`ent: validator failed for field "Merchant.lat": %w`, err)}
-		}
-	}
-	if _, ok := mc.mutation.AdminUserID(); !ok {
-		return &ValidationError{Name: "admin_user_id", err: errors.New(`ent: missing required field "Merchant.admin_user_id"`)}
+	if _, ok := mc.mutation.SuperAccount(); !ok {
+		return &ValidationError{Name: "super_account", err: errors.New(`ent: missing required field "Merchant.super_account"`)}
 	}
 	if len(mc.mutation.MerchantBusinessTypeIDs()) == 0 {
 		return &ValidationError{Name: "merchant_business_type", err: errors.New(`ent: missing required edge "Merchant.merchant_business_type"`)}
-	}
-	if len(mc.mutation.AdminUserIDs()) == 0 {
-		return &ValidationError{Name: "admin_user", err: errors.New(`ent: missing required edge "Merchant.admin_user"`)}
 	}
 	return nil
 }
@@ -745,37 +823,9 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 		_spec.SetField(merchant.FieldLat, field.TypeString, value)
 		_node.Lat = value
 	}
-	if nodes := mc.mutation.StoresIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.StoresTable,
-			Columns: []string{merchant.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mc.mutation.MerchantRenewalsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.MerchantRenewalsTable,
-			Columns: []string{merchant.MerchantRenewalsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := mc.mutation.SuperAccount(); ok {
+		_spec.SetField(merchant.FieldSuperAccount, field.TypeString, value)
+		_node.SuperAccount = value
 	}
 	if nodes := mc.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -792,23 +842,6 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BusinessTypeID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mc.mutation.AdminUserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.AdminUserTable,
-			Columns: []string{merchant.AdminUserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.AdminUserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := mc.mutation.CountryIDs(); len(nodes) > 0 {
@@ -879,6 +912,54 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 		_node.DistrictID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := mc.mutation.BackendUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.BackendUsersTable,
+			Columns: []string{merchant.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.StoresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoresTable,
+			Columns: []string{merchant.StoresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.MerchantRenewalsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.MerchantRenewalsTable,
+			Columns: []string{merchant.MerchantRenewalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := mc.mutation.RemarkCategoriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -904,6 +985,118 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.StallsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StallsTable,
+			Columns: []string{merchant.StallsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.AdditionalFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.AdditionalFeesTable,
+			Columns: []string{merchant.AdditionalFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.TaxFeesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.TaxFeesTable,
+			Columns: []string{merchant.TaxFeesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.DevicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DevicesTable,
+			Columns: []string{merchant.DevicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.DepartmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DepartmentsTable,
+			Columns: []string{merchant.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RolesTable,
+			Columns: []string{merchant.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1005,6 +1198,12 @@ func (u *MerchantUpsert) UpdateMerchantCode() *MerchantUpsert {
 	return u
 }
 
+// ClearMerchantCode clears the value of the "merchant_code" field.
+func (u *MerchantUpsert) ClearMerchantCode() *MerchantUpsert {
+	u.SetNull(merchant.FieldMerchantCode)
+	return u
+}
+
 // SetMerchantName sets the "merchant_name" field.
 func (u *MerchantUpsert) SetMerchantName(v string) *MerchantUpsert {
 	u.Set(merchant.FieldMerchantName, v)
@@ -1029,6 +1228,12 @@ func (u *MerchantUpsert) UpdateMerchantShortName() *MerchantUpsert {
 	return u
 }
 
+// ClearMerchantShortName clears the value of the "merchant_short_name" field.
+func (u *MerchantUpsert) ClearMerchantShortName() *MerchantUpsert {
+	u.SetNull(merchant.FieldMerchantShortName)
+	return u
+}
+
 // SetMerchantType sets the "merchant_type" field.
 func (u *MerchantUpsert) SetMerchantType(v domain.MerchantType) *MerchantUpsert {
 	u.Set(merchant.FieldMerchantType, v)
@@ -1050,6 +1255,12 @@ func (u *MerchantUpsert) SetBrandName(v string) *MerchantUpsert {
 // UpdateBrandName sets the "brand_name" field to the value that was provided on create.
 func (u *MerchantUpsert) UpdateBrandName() *MerchantUpsert {
 	u.SetExcluded(merchant.FieldBrandName)
+	return u
+}
+
+// ClearBrandName clears the value of the "brand_name" field.
+func (u *MerchantUpsert) ClearBrandName() *MerchantUpsert {
+	u.SetNull(merchant.FieldBrandName)
 	return u
 }
 
@@ -1116,6 +1327,12 @@ func (u *MerchantUpsert) SetDescription(v string) *MerchantUpsert {
 // UpdateDescription sets the "description" field to the value that was provided on create.
 func (u *MerchantUpsert) UpdateDescription() *MerchantUpsert {
 	u.SetExcluded(merchant.FieldDescription)
+	return u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *MerchantUpsert) ClearDescription() *MerchantUpsert {
+	u.SetNull(merchant.FieldDescription)
 	return u
 }
 
@@ -1215,6 +1432,12 @@ func (u *MerchantUpsert) UpdateAddress() *MerchantUpsert {
 	return u
 }
 
+// ClearAddress clears the value of the "address" field.
+func (u *MerchantUpsert) ClearAddress() *MerchantUpsert {
+	u.SetNull(merchant.FieldAddress)
+	return u
+}
+
 // SetLng sets the "lng" field.
 func (u *MerchantUpsert) SetLng(v string) *MerchantUpsert {
 	u.Set(merchant.FieldLng, v)
@@ -1227,6 +1450,12 @@ func (u *MerchantUpsert) UpdateLng() *MerchantUpsert {
 	return u
 }
 
+// ClearLng clears the value of the "lng" field.
+func (u *MerchantUpsert) ClearLng() *MerchantUpsert {
+	u.SetNull(merchant.FieldLng)
+	return u
+}
+
 // SetLat sets the "lat" field.
 func (u *MerchantUpsert) SetLat(v string) *MerchantUpsert {
 	u.Set(merchant.FieldLat, v)
@@ -1236,6 +1465,12 @@ func (u *MerchantUpsert) SetLat(v string) *MerchantUpsert {
 // UpdateLat sets the "lat" field to the value that was provided on create.
 func (u *MerchantUpsert) UpdateLat() *MerchantUpsert {
 	u.SetExcluded(merchant.FieldLat)
+	return u
+}
+
+// ClearLat clears the value of the "lat" field.
+func (u *MerchantUpsert) ClearLat() *MerchantUpsert {
+	u.SetNull(merchant.FieldLat)
 	return u
 }
 
@@ -1259,8 +1494,8 @@ func (u *MerchantUpsertOne) UpdateNewValues() *MerchantUpsertOne {
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(merchant.FieldCreatedAt)
 		}
-		if _, exists := u.create.mutation.AdminUserID(); exists {
-			s.SetIgnore(merchant.FieldAdminUserID)
+		if _, exists := u.create.mutation.SuperAccount(); exists {
+			s.SetIgnore(merchant.FieldSuperAccount)
 		}
 	}))
 	return u
@@ -1342,6 +1577,13 @@ func (u *MerchantUpsertOne) UpdateMerchantCode() *MerchantUpsertOne {
 	})
 }
 
+// ClearMerchantCode clears the value of the "merchant_code" field.
+func (u *MerchantUpsertOne) ClearMerchantCode() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearMerchantCode()
+	})
+}
+
 // SetMerchantName sets the "merchant_name" field.
 func (u *MerchantUpsertOne) SetMerchantName(v string) *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
@@ -1370,6 +1612,13 @@ func (u *MerchantUpsertOne) UpdateMerchantShortName() *MerchantUpsertOne {
 	})
 }
 
+// ClearMerchantShortName clears the value of the "merchant_short_name" field.
+func (u *MerchantUpsertOne) ClearMerchantShortName() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearMerchantShortName()
+	})
+}
+
 // SetMerchantType sets the "merchant_type" field.
 func (u *MerchantUpsertOne) SetMerchantType(v domain.MerchantType) *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
@@ -1395,6 +1644,13 @@ func (u *MerchantUpsertOne) SetBrandName(v string) *MerchantUpsertOne {
 func (u *MerchantUpsertOne) UpdateBrandName() *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateBrandName()
+	})
+}
+
+// ClearBrandName clears the value of the "brand_name" field.
+func (u *MerchantUpsertOne) ClearBrandName() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearBrandName()
 	})
 }
 
@@ -1472,6 +1728,13 @@ func (u *MerchantUpsertOne) SetDescription(v string) *MerchantUpsertOne {
 func (u *MerchantUpsertOne) UpdateDescription() *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *MerchantUpsertOne) ClearDescription() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearDescription()
 	})
 }
 
@@ -1587,6 +1850,13 @@ func (u *MerchantUpsertOne) UpdateAddress() *MerchantUpsertOne {
 	})
 }
 
+// ClearAddress clears the value of the "address" field.
+func (u *MerchantUpsertOne) ClearAddress() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearAddress()
+	})
+}
+
 // SetLng sets the "lng" field.
 func (u *MerchantUpsertOne) SetLng(v string) *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
@@ -1601,6 +1871,13 @@ func (u *MerchantUpsertOne) UpdateLng() *MerchantUpsertOne {
 	})
 }
 
+// ClearLng clears the value of the "lng" field.
+func (u *MerchantUpsertOne) ClearLng() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearLng()
+	})
+}
+
 // SetLat sets the "lat" field.
 func (u *MerchantUpsertOne) SetLat(v string) *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
@@ -1612,6 +1889,13 @@ func (u *MerchantUpsertOne) SetLat(v string) *MerchantUpsertOne {
 func (u *MerchantUpsertOne) UpdateLat() *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateLat()
+	})
+}
+
+// ClearLat clears the value of the "lat" field.
+func (u *MerchantUpsertOne) ClearLat() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearLat()
 	})
 }
 
@@ -1801,8 +2085,8 @@ func (u *MerchantUpsertBulk) UpdateNewValues() *MerchantUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(merchant.FieldCreatedAt)
 			}
-			if _, exists := b.mutation.AdminUserID(); exists {
-				s.SetIgnore(merchant.FieldAdminUserID)
+			if _, exists := b.mutation.SuperAccount(); exists {
+				s.SetIgnore(merchant.FieldSuperAccount)
 			}
 		}
 	}))
@@ -1885,6 +2169,13 @@ func (u *MerchantUpsertBulk) UpdateMerchantCode() *MerchantUpsertBulk {
 	})
 }
 
+// ClearMerchantCode clears the value of the "merchant_code" field.
+func (u *MerchantUpsertBulk) ClearMerchantCode() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearMerchantCode()
+	})
+}
+
 // SetMerchantName sets the "merchant_name" field.
 func (u *MerchantUpsertBulk) SetMerchantName(v string) *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
@@ -1913,6 +2204,13 @@ func (u *MerchantUpsertBulk) UpdateMerchantShortName() *MerchantUpsertBulk {
 	})
 }
 
+// ClearMerchantShortName clears the value of the "merchant_short_name" field.
+func (u *MerchantUpsertBulk) ClearMerchantShortName() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearMerchantShortName()
+	})
+}
+
 // SetMerchantType sets the "merchant_type" field.
 func (u *MerchantUpsertBulk) SetMerchantType(v domain.MerchantType) *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
@@ -1938,6 +2236,13 @@ func (u *MerchantUpsertBulk) SetBrandName(v string) *MerchantUpsertBulk {
 func (u *MerchantUpsertBulk) UpdateBrandName() *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateBrandName()
+	})
+}
+
+// ClearBrandName clears the value of the "brand_name" field.
+func (u *MerchantUpsertBulk) ClearBrandName() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearBrandName()
 	})
 }
 
@@ -2015,6 +2320,13 @@ func (u *MerchantUpsertBulk) SetDescription(v string) *MerchantUpsertBulk {
 func (u *MerchantUpsertBulk) UpdateDescription() *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *MerchantUpsertBulk) ClearDescription() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearDescription()
 	})
 }
 
@@ -2130,6 +2442,13 @@ func (u *MerchantUpsertBulk) UpdateAddress() *MerchantUpsertBulk {
 	})
 }
 
+// ClearAddress clears the value of the "address" field.
+func (u *MerchantUpsertBulk) ClearAddress() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearAddress()
+	})
+}
+
 // SetLng sets the "lng" field.
 func (u *MerchantUpsertBulk) SetLng(v string) *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
@@ -2144,6 +2463,13 @@ func (u *MerchantUpsertBulk) UpdateLng() *MerchantUpsertBulk {
 	})
 }
 
+// ClearLng clears the value of the "lng" field.
+func (u *MerchantUpsertBulk) ClearLng() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearLng()
+	})
+}
+
 // SetLat sets the "lat" field.
 func (u *MerchantUpsertBulk) SetLat(v string) *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
@@ -2155,6 +2481,13 @@ func (u *MerchantUpsertBulk) SetLat(v string) *MerchantUpsertBulk {
 func (u *MerchantUpsertBulk) UpdateLat() *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateLat()
+	})
+}
+
+// ClearLat clears the value of the "lat" field.
+func (u *MerchantUpsertBulk) ClearLat() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.ClearLat()
 	})
 }
 

@@ -7,6 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_renewal_repository.go -package=mock . MerchantRenewalRepository
+type MerchantRenewalRepository interface {
+	GetByMerchant(ctx context.Context, merchantId uuid.UUID) (renewals []*MerchantRenewal, err error)
+	Create(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
+}
 type PurchaseDurationUnit string
 
 const (
@@ -38,12 +43,6 @@ func (u PurchaseDurationUnit) ToString() string {
 	default:
 		return ""
 	}
-}
-
-//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_renewal_repository.go -package=mock . MerchantRenewalRepository
-type MerchantRenewalRepository interface {
-	GetByMerchant(ctx context.Context, merchantId uuid.UUID) (renewals []*MerchantRenewal, err error)
-	Create(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
 }
 
 type MerchantRenewal struct {

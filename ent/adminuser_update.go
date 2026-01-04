@@ -11,11 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // AdminUserUpdate is the builder for updating AdminUser entities.
@@ -101,81 +98,9 @@ func (auu *AdminUserUpdate) SetNillableNickname(s *string) *AdminUserUpdate {
 	return auu
 }
 
-// AddMerchantIDs adds the "merchant" edge to the Merchant entity by IDs.
-func (auu *AdminUserUpdate) AddMerchantIDs(ids ...uuid.UUID) *AdminUserUpdate {
-	auu.mutation.AddMerchantIDs(ids...)
-	return auu
-}
-
-// AddMerchant adds the "merchant" edges to the Merchant entity.
-func (auu *AdminUserUpdate) AddMerchant(m ...*Merchant) *AdminUserUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return auu.AddMerchantIDs(ids...)
-}
-
-// AddStoreIDs adds the "store" edge to the Store entity by IDs.
-func (auu *AdminUserUpdate) AddStoreIDs(ids ...uuid.UUID) *AdminUserUpdate {
-	auu.mutation.AddStoreIDs(ids...)
-	return auu
-}
-
-// AddStore adds the "store" edges to the Store entity.
-func (auu *AdminUserUpdate) AddStore(s ...*Store) *AdminUserUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return auu.AddStoreIDs(ids...)
-}
-
 // Mutation returns the AdminUserMutation object of the builder.
 func (auu *AdminUserUpdate) Mutation() *AdminUserMutation {
 	return auu.mutation
-}
-
-// ClearMerchant clears all "merchant" edges to the Merchant entity.
-func (auu *AdminUserUpdate) ClearMerchant() *AdminUserUpdate {
-	auu.mutation.ClearMerchant()
-	return auu
-}
-
-// RemoveMerchantIDs removes the "merchant" edge to Merchant entities by IDs.
-func (auu *AdminUserUpdate) RemoveMerchantIDs(ids ...uuid.UUID) *AdminUserUpdate {
-	auu.mutation.RemoveMerchantIDs(ids...)
-	return auu
-}
-
-// RemoveMerchant removes "merchant" edges to Merchant entities.
-func (auu *AdminUserUpdate) RemoveMerchant(m ...*Merchant) *AdminUserUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return auu.RemoveMerchantIDs(ids...)
-}
-
-// ClearStore clears all "store" edges to the Store entity.
-func (auu *AdminUserUpdate) ClearStore() *AdminUserUpdate {
-	auu.mutation.ClearStore()
-	return auu
-}
-
-// RemoveStoreIDs removes the "store" edge to Store entities by IDs.
-func (auu *AdminUserUpdate) RemoveStoreIDs(ids ...uuid.UUID) *AdminUserUpdate {
-	auu.mutation.RemoveStoreIDs(ids...)
-	return auu
-}
-
-// RemoveStore removes "store" edges to Store entities.
-func (auu *AdminUserUpdate) RemoveStore(s ...*Store) *AdminUserUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return auu.RemoveStoreIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -271,96 +196,6 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := auu.mutation.Nickname(); ok {
 		_spec.SetField(adminuser.FieldNickname, field.TypeString, value)
 	}
-	if auu.mutation.MerchantCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.MerchantTable,
-			Columns: []string{adminuser.MerchantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auu.mutation.RemovedMerchantIDs(); len(nodes) > 0 && !auu.mutation.MerchantCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.MerchantTable,
-			Columns: []string{adminuser.MerchantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auu.mutation.MerchantIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.MerchantTable,
-			Columns: []string{adminuser.MerchantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if auu.mutation.StoreCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.StoreTable,
-			Columns: []string{adminuser.StoreColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auu.mutation.RemovedStoreIDs(); len(nodes) > 0 && !auu.mutation.StoreCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.StoreTable,
-			Columns: []string{adminuser.StoreColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auu.mutation.StoreIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.StoreTable,
-			Columns: []string{adminuser.StoreColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	_spec.AddModifiers(auu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, auu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -452,81 +287,9 @@ func (auuo *AdminUserUpdateOne) SetNillableNickname(s *string) *AdminUserUpdateO
 	return auuo
 }
 
-// AddMerchantIDs adds the "merchant" edge to the Merchant entity by IDs.
-func (auuo *AdminUserUpdateOne) AddMerchantIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
-	auuo.mutation.AddMerchantIDs(ids...)
-	return auuo
-}
-
-// AddMerchant adds the "merchant" edges to the Merchant entity.
-func (auuo *AdminUserUpdateOne) AddMerchant(m ...*Merchant) *AdminUserUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return auuo.AddMerchantIDs(ids...)
-}
-
-// AddStoreIDs adds the "store" edge to the Store entity by IDs.
-func (auuo *AdminUserUpdateOne) AddStoreIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
-	auuo.mutation.AddStoreIDs(ids...)
-	return auuo
-}
-
-// AddStore adds the "store" edges to the Store entity.
-func (auuo *AdminUserUpdateOne) AddStore(s ...*Store) *AdminUserUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return auuo.AddStoreIDs(ids...)
-}
-
 // Mutation returns the AdminUserMutation object of the builder.
 func (auuo *AdminUserUpdateOne) Mutation() *AdminUserMutation {
 	return auuo.mutation
-}
-
-// ClearMerchant clears all "merchant" edges to the Merchant entity.
-func (auuo *AdminUserUpdateOne) ClearMerchant() *AdminUserUpdateOne {
-	auuo.mutation.ClearMerchant()
-	return auuo
-}
-
-// RemoveMerchantIDs removes the "merchant" edge to Merchant entities by IDs.
-func (auuo *AdminUserUpdateOne) RemoveMerchantIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
-	auuo.mutation.RemoveMerchantIDs(ids...)
-	return auuo
-}
-
-// RemoveMerchant removes "merchant" edges to Merchant entities.
-func (auuo *AdminUserUpdateOne) RemoveMerchant(m ...*Merchant) *AdminUserUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return auuo.RemoveMerchantIDs(ids...)
-}
-
-// ClearStore clears all "store" edges to the Store entity.
-func (auuo *AdminUserUpdateOne) ClearStore() *AdminUserUpdateOne {
-	auuo.mutation.ClearStore()
-	return auuo
-}
-
-// RemoveStoreIDs removes the "store" edge to Store entities by IDs.
-func (auuo *AdminUserUpdateOne) RemoveStoreIDs(ids ...uuid.UUID) *AdminUserUpdateOne {
-	auuo.mutation.RemoveStoreIDs(ids...)
-	return auuo
-}
-
-// RemoveStore removes "store" edges to Store entities.
-func (auuo *AdminUserUpdateOne) RemoveStore(s ...*Store) *AdminUserUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return auuo.RemoveStoreIDs(ids...)
 }
 
 // Where appends a list predicates to the AdminUserUpdate builder.
@@ -651,96 +414,6 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 	}
 	if value, ok := auuo.mutation.Nickname(); ok {
 		_spec.SetField(adminuser.FieldNickname, field.TypeString, value)
-	}
-	if auuo.mutation.MerchantCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.MerchantTable,
-			Columns: []string{adminuser.MerchantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auuo.mutation.RemovedMerchantIDs(); len(nodes) > 0 && !auuo.mutation.MerchantCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.MerchantTable,
-			Columns: []string{adminuser.MerchantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auuo.mutation.MerchantIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.MerchantTable,
-			Columns: []string{adminuser.MerchantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if auuo.mutation.StoreCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.StoreTable,
-			Columns: []string{adminuser.StoreColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auuo.mutation.RemovedStoreIDs(); len(nodes) > 0 && !auuo.mutation.StoreCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.StoreTable,
-			Columns: []string{adminuser.StoreColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auuo.mutation.StoreIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   adminuser.StoreTable,
-			Columns: []string{adminuser.StoreColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(auuo.modifiers...)
 	_node = &AdminUser{config: auuo.config}

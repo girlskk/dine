@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -12,6 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 type MerchantHandler struct {
@@ -36,14 +38,17 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 	r.GET("/:id", h.GetMerchant())
 	r.GET("/list", h.GetMerchants())
 	r.POST("/renewal", h.MerchantRenewal())
-	r.PATCH("/:id", h.MerchantSimpleUpdate())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
+	r.GET("/count", h.CountMerchant())
 }
 
 // CreateBrandMerchant 创建品牌商户
 //
 //	@Summary		创建品牌商户
 //	@Description	创建品牌商户
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.CreateMerchantReq	true	"创建品牌商户请求"
@@ -68,6 +73,11 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
+		hashPwd, err := util.HashPassword(req.LoginPassword)
+		if err != nil {
+			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
+			return
+		}
 		createBrandMerchant := &domain.CreateMerchantParams{
 			MerchantCode:         req.MerchantCode,
 			MerchantName:         req.MerchantName,
@@ -80,9 +90,8 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 			BusinessTypeID:       req.BusinessTypeID,
 			MerchantLogo:         req.MerchantLogo,
 			Description:          req.Description,
-			Status:               req.Status,
 			LoginAccount:         req.LoginAccount,
-			LoginPassword:        req.LoginPassword,
+			LoginPassword:        hashPwd,
 		}
 		if req.Address.CountryID != uuid.Nil {
 			createBrandMerchant.Address = &domain.Address{
@@ -97,6 +106,10 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 		}
 		err = h.MerchantInteractor.CreateMerchant(ctx, createBrandMerchant)
 		if err != nil {
+			if errors.Is(err, domain.ErrUserExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.BackendUserExists, err))
+				return
+			}
 			if domain.IsConflict(err) {
 				c.Error(errorx.New(http.StatusConflict, errcode.MerchantNameExists, err))
 				return
@@ -114,7 +127,8 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 //
 //	@Summary		创建门店商户
 //	@Description	创建门店商户（商户 + 门店）
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.CreateStoreMerchantReq	true	"创建门店商户请求"
@@ -150,7 +164,11 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			Lng:        req.Store.Address.Lng,
 			Lat:        req.Store.Address.Lat,
 		}
-
+		hashPwd, err := util.HashPassword(req.Merchant.LoginPassword)
+		if err != nil {
+			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
+			return
+		}
 		createMerchant := &domain.CreateMerchantParams{
 			MerchantCode:         req.Merchant.MerchantCode,
 			MerchantName:         req.Merchant.MerchantName,
@@ -163,9 +181,8 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			BusinessTypeID:       req.Merchant.BusinessTypeID,
 			MerchantLogo:         req.Merchant.MerchantLogo,
 			Description:          req.Merchant.Description,
-			Status:               req.Merchant.Status,
 			LoginAccount:         req.Merchant.LoginAccount,
-			LoginPassword:        req.Merchant.LoginPassword,
+			LoginPassword:        hashPwd,
 			Address:              address,
 		}
 
@@ -190,9 +207,9 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
 			LoginAccount:            req.Store.LoginAccount,
 			LoginPassword:           req.Store.LoginPassword,
-			BusinessHours:           toBusinessHoursPtr(req.Store.BusinessHours),
-			DiningPeriods:           toDiningPeriodsPtr(req.Store.DiningPeriods),
-			ShiftTimes:              toShiftTimesPtr(req.Store.ShiftTimes),
+			BusinessHours:           req.Store.BusinessHours,
+			DiningPeriods:           req.Store.DiningPeriods,
+			ShiftTimes:              req.Store.ShiftTimes,
 			Address:                 address,
 		}
 
@@ -214,7 +231,8 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 //
 //	@Summary		更新品牌商户
 //	@Description	更新品牌商户
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string					true	"商户ID"
@@ -256,9 +274,6 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			BusinessTypeID:    req.BusinessTypeID,
 			MerchantLogo:      req.MerchantLogo,
 			Description:       req.Description,
-			Status:            req.Status,
-			LoginAccount:      req.LoginAccount,
-			LoginPassword:     req.LoginPassword,
 		}
 		if req.Address.CountryID != uuid.Nil {
 			updateBrandMerchant.Address = &domain.Address{
@@ -292,7 +307,8 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 //
 //	@Summary		更新门店商户
 //	@Description	更新门店商户（商户 + 门店）
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string							true	"商户ID"
@@ -341,9 +357,6 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			BusinessTypeID:    req.Merchant.BusinessTypeID,
 			MerchantLogo:      req.Merchant.MerchantLogo,
 			Description:       req.Merchant.Description,
-			Status:            req.Merchant.Status,
-			LoginAccount:      req.Merchant.LoginAccount,
-			LoginPassword:     req.Merchant.LoginPassword,
 			Address:           address, // 门店商户的地址使用门店的地址
 		}
 
@@ -376,11 +389,10 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			CashierDeskURL:          req.Store.CashierDeskURL,
 			DiningEnvironmentURL:    req.Store.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
-			LoginAccount:            req.Store.LoginAccount,
 			LoginPassword:           req.Store.LoginPassword,
-			BusinessHours:           toBusinessHoursPtr(req.Store.BusinessHours),
-			DiningPeriods:           toDiningPeriodsPtr(req.Store.DiningPeriods),
-			ShiftTimes:              toShiftTimesPtr(req.Store.ShiftTimes),
+			BusinessHours:           req.Store.BusinessHours,
+			DiningPeriods:           req.Store.DiningPeriods,
+			ShiftTimes:              req.Store.ShiftTimes,
 			Address:                 address,
 		}
 
@@ -402,7 +414,8 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 //
 //	@Summary		删除商户
 //	@Description	删除商户
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path	string	true	"商户ID"
@@ -445,7 +458,8 @@ func (h *MerchantHandler) DeleteMerchant() gin.HandlerFunc {
 //
 //	@Summary		获取商户信息
 //	@Description	根据商户ID获取商户信息
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"商户ID"
@@ -503,7 +517,8 @@ func (h *MerchantHandler) GetMerchant() gin.HandlerFunc {
 //
 //	@Summary		商户列表
 //	@Description	分页查询商户列表
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Produce		json
 //	@Param			data	query		types.MerchantListReq	true	"商户列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.MerchantListResp}
@@ -555,7 +570,8 @@ func (h *MerchantHandler) GetMerchants() gin.HandlerFunc {
 //
 //	@Summary		商户续期
 //	@Description	商户续费续期
-//	@Tags			Merchant
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.MerchantRenewalReq	true	"商户续期请求"
@@ -600,43 +616,35 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 	}
 }
 
-// MerchantSimpleUpdate 商户简单更新
+// Enable 启用商户
 //
-//	@Summary		商户简单更新
-//	@Description	简单字段更新（目前仅状态）
-//	@Tags			Merchant
-//	@Accept			json
+//	@Summary		启用商户
+//	@Description	将商户状态置为激活
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
 //	@Produce		json
-//	@Param			data	body	types.MerchantSimpleUpdateReq	true	"商户简单更新请求"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
-//	@Router			/merchant/merchant/{id} [patch]
-func (h *MerchantHandler) MerchantSimpleUpdate() gin.HandlerFunc {
+//	@Param			id	path	string	true	"商户ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/merchant/merchant/{id}/enable [put]
+func (h *MerchantHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("MerchantHandler.MerchantSimpleUpdate")
+		logger := logging.FromContext(ctx).Named("MerchantHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		var req types.MerchantSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-
-		// 从路径参数获取商户 ID
-		merchantIDStr := c.Param("id")
-		merchantID, err := uuid.Parse(merchantIDStr)
+		id, err := uuid.Parse(c.Param("id"))
 		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		updateParams := &domain.UpdateMerchantParams{ID: merchantID, Status: req.Status}
+		updateParams := &domain.Merchant{ID: id, Status: domain.MerchantStatusActive}
 
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, req.SimpleUpdateType, updateParams); err != nil {
+		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -650,38 +658,77 @@ func (h *MerchantHandler) MerchantSimpleUpdate() gin.HandlerFunc {
 	}
 }
 
-func toBusinessHoursPtr(src []domain.BusinessHours) []*domain.BusinessHours {
-	if len(src) == 0 {
-		return nil
+// Disable 禁用商户
+//
+//	@Summary		禁用商户
+//	@Description	将商户状态置为禁用
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Param			id	path	string	true	"商户ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/merchant/merchant/{id}/disable [put]
+func (h *MerchantHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("MerchantHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		updateParams := &domain.Merchant{ID: id, Status: domain.MerchantStatusDisabled}
+
+		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to simple update merchant: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
 	}
-	res := make([]*domain.BusinessHours, 0, len(src))
-	for i := range src {
-		bh := src[i]
-		res = append(res, &bh)
-	}
-	return res
 }
 
-func toDiningPeriodsPtr(src []domain.DiningPeriod) []*domain.DiningPeriod {
-	if len(src) == 0 {
-		return nil
-	}
-	res := make([]*domain.DiningPeriod, 0, len(src))
-	for i := range src {
-		dp := src[i]
-		res = append(res, &dp)
-	}
-	return res
-}
+// CountMerchant 商户数量统计
+//
+//	@Summary		商户数量统计
+//	@Description	获取商户数量统计
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	response.Response{data=types.MerchantCount}
+//	@Failure		500	{object}	response.Response
+//	@Router			/merchant/merchant/count [get]
+func (h *MerchantHandler) CountMerchant() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("MerchantHandler.CountMerchant")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
 
-func toShiftTimesPtr(src []domain.ShiftTime) []*domain.ShiftTime {
-	if len(src) == 0 {
-		return nil
+		merchantCount, err := h.MerchantInteractor.CountMerchant(ctx)
+		if err != nil {
+			err = fmt.Errorf("failed to count merchants: %w", err)
+			c.Error(err)
+			return
+		}
+		resp := &types.MerchantCount{}
+		if merchantCount != nil {
+			resp.MerchantTypeBrand = merchantCount.MerchantTypeBrand
+			resp.MerchantTypeStore = merchantCount.MerchantTypeStore
+			resp.Expired = merchantCount.Expired
+		}
+		response.Ok(c, resp)
 	}
-	res := make([]*domain.ShiftTime, 0, len(src))
-	for i := range src {
-		st := src[i]
-		res = append(res, &st)
-	}
-	return res
 }

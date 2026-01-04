@@ -500,18 +500,6 @@ func (u *RemarkUpsert) UpdateName() *RemarkUpsert {
 	return u
 }
 
-// SetRemarkType sets the "remark_type" field.
-func (u *RemarkUpsert) SetRemarkType(v domain.RemarkType) *RemarkUpsert {
-	u.Set(remark.FieldRemarkType, v)
-	return u
-}
-
-// UpdateRemarkType sets the "remark_type" field to the value that was provided on create.
-func (u *RemarkUpsert) UpdateRemarkType() *RemarkUpsert {
-	u.SetExcluded(remark.FieldRemarkType)
-	return u
-}
-
 // SetEnabled sets the "enabled" field.
 func (u *RemarkUpsert) SetEnabled(v bool) *RemarkUpsert {
 	u.Set(remark.FieldEnabled, v)
@@ -542,54 +530,6 @@ func (u *RemarkUpsert) AddSortOrder(v int) *RemarkUpsert {
 	return u
 }
 
-// SetCategoryID sets the "category_id" field.
-func (u *RemarkUpsert) SetCategoryID(v uuid.UUID) *RemarkUpsert {
-	u.Set(remark.FieldCategoryID, v)
-	return u
-}
-
-// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
-func (u *RemarkUpsert) UpdateCategoryID() *RemarkUpsert {
-	u.SetExcluded(remark.FieldCategoryID)
-	return u
-}
-
-// SetMerchantID sets the "merchant_id" field.
-func (u *RemarkUpsert) SetMerchantID(v uuid.UUID) *RemarkUpsert {
-	u.Set(remark.FieldMerchantID, v)
-	return u
-}
-
-// UpdateMerchantID sets the "merchant_id" field to the value that was provided on create.
-func (u *RemarkUpsert) UpdateMerchantID() *RemarkUpsert {
-	u.SetExcluded(remark.FieldMerchantID)
-	return u
-}
-
-// ClearMerchantID clears the value of the "merchant_id" field.
-func (u *RemarkUpsert) ClearMerchantID() *RemarkUpsert {
-	u.SetNull(remark.FieldMerchantID)
-	return u
-}
-
-// SetStoreID sets the "store_id" field.
-func (u *RemarkUpsert) SetStoreID(v uuid.UUID) *RemarkUpsert {
-	u.Set(remark.FieldStoreID, v)
-	return u
-}
-
-// UpdateStoreID sets the "store_id" field to the value that was provided on create.
-func (u *RemarkUpsert) UpdateStoreID() *RemarkUpsert {
-	u.SetExcluded(remark.FieldStoreID)
-	return u
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (u *RemarkUpsert) ClearStoreID() *RemarkUpsert {
-	u.SetNull(remark.FieldStoreID)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -609,6 +549,18 @@ func (u *RemarkUpsertOne) UpdateNewValues() *RemarkUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(remark.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.RemarkType(); exists {
+			s.SetIgnore(remark.FieldRemarkType)
+		}
+		if _, exists := u.create.mutation.CategoryID(); exists {
+			s.SetIgnore(remark.FieldCategoryID)
+		}
+		if _, exists := u.create.mutation.MerchantID(); exists {
+			s.SetIgnore(remark.FieldMerchantID)
+		}
+		if _, exists := u.create.mutation.StoreID(); exists {
+			s.SetIgnore(remark.FieldStoreID)
 		}
 	}))
 	return u
@@ -690,20 +642,6 @@ func (u *RemarkUpsertOne) UpdateName() *RemarkUpsertOne {
 	})
 }
 
-// SetRemarkType sets the "remark_type" field.
-func (u *RemarkUpsertOne) SetRemarkType(v domain.RemarkType) *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetRemarkType(v)
-	})
-}
-
-// UpdateRemarkType sets the "remark_type" field to the value that was provided on create.
-func (u *RemarkUpsertOne) UpdateRemarkType() *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateRemarkType()
-	})
-}
-
 // SetEnabled sets the "enabled" field.
 func (u *RemarkUpsertOne) SetEnabled(v bool) *RemarkUpsertOne {
 	return u.Update(func(s *RemarkUpsert) {
@@ -736,62 +674,6 @@ func (u *RemarkUpsertOne) AddSortOrder(v int) *RemarkUpsertOne {
 func (u *RemarkUpsertOne) UpdateSortOrder() *RemarkUpsertOne {
 	return u.Update(func(s *RemarkUpsert) {
 		s.UpdateSortOrder()
-	})
-}
-
-// SetCategoryID sets the "category_id" field.
-func (u *RemarkUpsertOne) SetCategoryID(v uuid.UUID) *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetCategoryID(v)
-	})
-}
-
-// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
-func (u *RemarkUpsertOne) UpdateCategoryID() *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateCategoryID()
-	})
-}
-
-// SetMerchantID sets the "merchant_id" field.
-func (u *RemarkUpsertOne) SetMerchantID(v uuid.UUID) *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetMerchantID(v)
-	})
-}
-
-// UpdateMerchantID sets the "merchant_id" field to the value that was provided on create.
-func (u *RemarkUpsertOne) UpdateMerchantID() *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateMerchantID()
-	})
-}
-
-// ClearMerchantID clears the value of the "merchant_id" field.
-func (u *RemarkUpsertOne) ClearMerchantID() *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.ClearMerchantID()
-	})
-}
-
-// SetStoreID sets the "store_id" field.
-func (u *RemarkUpsertOne) SetStoreID(v uuid.UUID) *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetStoreID(v)
-	})
-}
-
-// UpdateStoreID sets the "store_id" field to the value that was provided on create.
-func (u *RemarkUpsertOne) UpdateStoreID() *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateStoreID()
-	})
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (u *RemarkUpsertOne) ClearStoreID() *RemarkUpsertOne {
-	return u.Update(func(s *RemarkUpsert) {
-		s.ClearStoreID()
 	})
 }
 
@@ -981,6 +863,18 @@ func (u *RemarkUpsertBulk) UpdateNewValues() *RemarkUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(remark.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.RemarkType(); exists {
+				s.SetIgnore(remark.FieldRemarkType)
+			}
+			if _, exists := b.mutation.CategoryID(); exists {
+				s.SetIgnore(remark.FieldCategoryID)
+			}
+			if _, exists := b.mutation.MerchantID(); exists {
+				s.SetIgnore(remark.FieldMerchantID)
+			}
+			if _, exists := b.mutation.StoreID(); exists {
+				s.SetIgnore(remark.FieldStoreID)
+			}
 		}
 	}))
 	return u
@@ -1062,20 +956,6 @@ func (u *RemarkUpsertBulk) UpdateName() *RemarkUpsertBulk {
 	})
 }
 
-// SetRemarkType sets the "remark_type" field.
-func (u *RemarkUpsertBulk) SetRemarkType(v domain.RemarkType) *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetRemarkType(v)
-	})
-}
-
-// UpdateRemarkType sets the "remark_type" field to the value that was provided on create.
-func (u *RemarkUpsertBulk) UpdateRemarkType() *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateRemarkType()
-	})
-}
-
 // SetEnabled sets the "enabled" field.
 func (u *RemarkUpsertBulk) SetEnabled(v bool) *RemarkUpsertBulk {
 	return u.Update(func(s *RemarkUpsert) {
@@ -1108,62 +988,6 @@ func (u *RemarkUpsertBulk) AddSortOrder(v int) *RemarkUpsertBulk {
 func (u *RemarkUpsertBulk) UpdateSortOrder() *RemarkUpsertBulk {
 	return u.Update(func(s *RemarkUpsert) {
 		s.UpdateSortOrder()
-	})
-}
-
-// SetCategoryID sets the "category_id" field.
-func (u *RemarkUpsertBulk) SetCategoryID(v uuid.UUID) *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetCategoryID(v)
-	})
-}
-
-// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
-func (u *RemarkUpsertBulk) UpdateCategoryID() *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateCategoryID()
-	})
-}
-
-// SetMerchantID sets the "merchant_id" field.
-func (u *RemarkUpsertBulk) SetMerchantID(v uuid.UUID) *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetMerchantID(v)
-	})
-}
-
-// UpdateMerchantID sets the "merchant_id" field to the value that was provided on create.
-func (u *RemarkUpsertBulk) UpdateMerchantID() *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateMerchantID()
-	})
-}
-
-// ClearMerchantID clears the value of the "merchant_id" field.
-func (u *RemarkUpsertBulk) ClearMerchantID() *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.ClearMerchantID()
-	})
-}
-
-// SetStoreID sets the "store_id" field.
-func (u *RemarkUpsertBulk) SetStoreID(v uuid.UUID) *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.SetStoreID(v)
-	})
-}
-
-// UpdateStoreID sets the "store_id" field to the value that was provided on create.
-func (u *RemarkUpsertBulk) UpdateStoreID() *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.UpdateStoreID()
-	})
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (u *RemarkUpsertBulk) ClearStoreID() *RemarkUpsertBulk {
-	return u.Update(func(s *RemarkUpsert) {
-		s.ClearStoreID()
 	})
 }
 

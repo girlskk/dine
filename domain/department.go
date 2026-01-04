@@ -1,0 +1,120 @@
+package domain
+
+import (
+	"context"
+	"errors"
+	"time"
+
+	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
+)
+
+var (
+	ErrDepartmentNotExists  = errors.New("部门不存在")
+	ErrDepartmentNameExists = errors.New("部门名称已存在")
+	ErrDepartmentCodeExists = errors.New("部门编码已存在")
+)
+
+// DepartmentRepository 部门仓储接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/department_repository.go -package=mock . DepartmentRepository
+type DepartmentRepository interface {
+	FindByID(ctx context.Context, id uuid.UUID) (department *Department, err error)
+	Create(ctx context.Context, department *Department) (err error)
+	Update(ctx context.Context, department *Department) (err error)
+	Delete(ctx context.Context, id uuid.UUID) (err error)
+	Exists(ctx context.Context, params DepartmentExistsParams) (exists bool, err error)
+	GetDepartments(ctx context.Context, pager *upagination.Pagination, filter *DepartmentListFilter, orderBys ...DepartmentListOrderBy) (departments []*Department, total int, err error)
+}
+
+// DepartmentInteractor 部门用例接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/department_interactor.go -package=mock . DepartmentInteractor
+type DepartmentInteractor interface {
+	CreateDepartment(ctx context.Context, params *CreateDepartmentParams) (err error)
+	UpdateDepartment(ctx context.Context, params *UpdateDepartmentParams) (err error)
+	DeleteDepartment(ctx context.Context, id uuid.UUID) (err error)
+	GetDepartment(ctx context.Context, id uuid.UUID) (department *Department, err error)
+	GetDepartments(ctx context.Context, pager *upagination.Pagination, filter *DepartmentListFilter, orderBys ...DepartmentListOrderBy) (departments []*Department, total int, err error)
+}
+
+type DepartmentType string
+
+const (
+	DepartmentTypeAdmin DepartmentType = "admin"
+	DepartmentBackend   DepartmentType = "backend"
+	DepartmentStore     DepartmentType = "store"
+)
+
+func (DepartmentType) Values() []string {
+	return []string{string(DepartmentTypeAdmin), string(DepartmentBackend), string(DepartmentStore)}
+}
+
+type DepartmentListOrderByType int
+
+const (
+	_ DepartmentListOrderByType = iota
+	DepartmentListOrderByID
+	DepartmentListOrderByCreatedAt
+)
+
+type DepartmentListOrderBy struct {
+	OrderBy DepartmentListOrderByType
+	Desc    bool
+}
+
+func NewDepartmentListOrderByID(desc bool) DepartmentListOrderBy {
+	return DepartmentListOrderBy{OrderBy: DepartmentListOrderByID, Desc: desc}
+}
+
+func NewDepartmentListOrderByCreatedAt(desc bool) DepartmentListOrderBy {
+	return DepartmentListOrderBy{OrderBy: DepartmentListOrderByCreatedAt, Desc: desc}
+}
+
+type Department struct {
+	ID             uuid.UUID      `json:"id"`
+	Name           string         `json:"name"`
+	Code           string         `json:"code"`
+	DepartmentType DepartmentType `json:"department_type"`
+	Enable         bool           `json:"enable"`
+	MerchantID     uuid.UUID      `json:"merchant_id"`
+	StoreID        uuid.UUID      `json:"store_id"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+}
+
+type DepartmentListFilter struct {
+	Name           string         `json:"name"`
+	Code           string         `json:"code"`
+	DepartmentType DepartmentType `json:"department_type"`
+	Enable         *bool          `json:"enable"`
+	MerchantID     uuid.UUID      `json:"merchant_id"`
+	StoreID        uuid.UUID      `json:"store_id"`
+}
+
+type CreateDepartmentParams struct {
+	Name           string         `json:"name"`
+	Code           string         `json:"code"`
+	DepartmentType DepartmentType `json:"department_type"`
+	Enable         bool           `json:"enable"`
+	MerchantID     uuid.UUID      `json:"merchant_id"`
+	StoreID        uuid.UUID      `json:"store_id"`
+}
+
+type UpdateDepartmentParams struct {
+	ID             uuid.UUID      `json:"id"`
+	Name           string         `json:"name"`
+	Code           string         `json:"code"`
+	DepartmentType DepartmentType `json:"department_type"`
+	Enable         bool           `json:"enable"`
+	MerchantID     uuid.UUID      `json:"merchant_id"`
+	StoreID        uuid.UUID      `json:"store_id"`
+}
+
+type DepartmentExistsParams struct {
+	Name       string    `json:"name"`
+	Code       string    `json:"code"`
+	ExcludeID  uuid.UUID `json:"exclude_id"`
+	MerchantID uuid.UUID `json:"merchant_id"`
+	StoreID    uuid.UUID `json:"store_id"`
+}

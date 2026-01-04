@@ -60,8 +60,6 @@ type UpdateMerchantReq struct {
 	MerchantLogo      string                `json:"merchant_logo" binding:"omitempty,max=500"`      // logo 图片地址
 	Description       string                `json:"description" binding:"omitempty,max=255"`        // 商户描述(保留字段)
 	Status            domain.MerchantStatus `json:"status" binding:"omitempty"`                     // 状态: 正常,停用,过期
-	LoginAccount      string                `json:"login_account" binding:"required"`               // 登录账号
-	LoginPassword     string                `json:"login_password" binding:"required"`              // 登录密码(加密存储)
 	Address           Address               `json:"address" binding:"omitempty"`                    // 地址
 }
 
@@ -95,4 +93,14 @@ type MerchantRenewalReq struct {
 type MerchantSimpleUpdateReq struct {
 	SimpleUpdateType domain.MerchantSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
 	Status           domain.MerchantStatus           `json:"status" binding:"omitempty"`                         // 状态: 正常,停用,过期
+}
+
+type MerchantCount struct {
+	MerchantTypeBrand int `json:"merchant_type_brand"` // 品牌商户数量
+	MerchantTypeStore int `json:"merchant_type_store"` // 门店商户数量
+	Expired           int `json:"expired"`             // 过期商户数量
+}
+
+type MerchantBusinessTypeListResp struct {
+	BusinessTypes []*domain.MerchantBusinessType `json:"business_types"` // 业务类型列表
 }

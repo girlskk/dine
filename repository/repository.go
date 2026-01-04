@@ -35,7 +35,15 @@ type Repository struct {
 	merchantBusinessTypeRepo   *MerchantBusinessTypeRepository
 	remarkRepo                 *RemarkRepository
 	remarkCategoryRepo         *RemarkCategoryRepository
+	orderRepo                  *OrderRepository
 	menuRepo                   *MenuRepository
+	stallRepo                  *StallRepository
+	additionalFeeRepo          *AdditionalFeeRepository
+	taxFeeRepo                 *TaxFeeRepository
+	deviceRepo                 *DeviceRepository
+	countryRepo                *CountryRepository
+	provinceRepo               *ProvinceRepository
+	departmentRepo             *DepartmentRepository
 	profitDistributionRuleRepo *ProfitDistributionRuleRepository
 }
 
@@ -264,6 +272,15 @@ func (repo *Repository) RemarkCategoryRepo() domain.RemarkCategoryRepository {
 	return repo.remarkCategoryRepo
 }
 
+func (repo *Repository) OrderRepo() domain.OrderRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.orderRepo == nil {
+		repo.orderRepo = NewOrderRepository(repo.client)
+	}
+	return repo.orderRepo
+}
+
 func (repo *Repository) MenuRepo() domain.MenuRepository {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -289,4 +306,74 @@ func (repo *Repository) ProfitDistributionRuleRepo() domain.ProfitDistributionRu
 		repo.profitDistributionRuleRepo = NewProfitDistributionRuleRepository(repo.client)
 	}
 	return repo.profitDistributionRuleRepo
+}
+
+func (repo *Repository) StallRepo() domain.StallRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.stallRepo == nil {
+		repo.stallRepo = NewStallRepository(repo.client)
+	}
+	return repo.stallRepo
+}
+func (repo *Repository) AdditionalFeeRepo() domain.AdditionalFeeRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.additionalFeeRepo == nil {
+		repo.additionalFeeRepo = NewAdditionalFeeRepository(repo.client)
+	}
+	return repo.additionalFeeRepo
+}
+
+func (repo *Repository) TaxFeeRepo() domain.TaxFeeRepository {
+	{
+		repo.mu.Lock()
+		defer repo.mu.Unlock()
+
+		if repo.taxFeeRepo == nil {
+			repo.taxFeeRepo = NewTaxFeeRepository(repo.client)
+		}
+		return repo.taxFeeRepo
+	}
+}
+
+func (repo *Repository) DeviceRepo() domain.DeviceRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.deviceRepo == nil {
+		repo.deviceRepo = NewDeviceRepository(repo.client)
+	}
+	return repo.deviceRepo
+}
+
+func (repo *Repository) CountryRepo() domain.CountryRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.countryRepo == nil {
+		repo.countryRepo = NewCountryRepository(repo.client)
+	}
+	return repo.countryRepo
+}
+
+func (repo *Repository) ProvinceRepo() domain.ProvinceRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.provinceRepo == nil {
+		repo.provinceRepo = NewProvinceRepository(repo.client)
+	}
+	return repo.provinceRepo
+}
+
+func (repo *Repository) DepartmentRepo() domain.DepartmentRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.departmentRepo == nil {
+		repo.departmentRepo = NewDepartmentRepository(repo.client)
+	}
+	return repo.departmentRepo
 }

@@ -14,6 +14,9 @@ services:
 
   redis:
     image: redis:7
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=123456
     ports:
       - 63791:6379
     volumes:

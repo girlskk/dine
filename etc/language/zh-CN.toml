@@ -95,3 +95,21 @@ other = "备注名称已存在"
 
 [REMARK_DELETE_SYSTEM]
 other = "不能删除系统内置备注"
+
+[STALL_NOT_EXISTS]
+other = "出品部门不存在"
+
+[STALL_NAME_EXISTS]
+other = "出品部门名称已存在"
+
+[Device_NOT_EXISTS]
+other = "设备不存在"
+
+[Device_NAME_EXISTS]
+other = "设备名称已存在"
+
+[TAX_FEE_NAME_EXISTS]
+other = "税费名称已存在"
+
+[BACKEND_USER_EXISTS]
+other = "后台用户已存在"
