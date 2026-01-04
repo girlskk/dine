@@ -35,6 +35,7 @@ type Repository struct {
 	merchantBusinessTypeRepo *MerchantBusinessTypeRepository
 	remarkRepo               *RemarkRepository
 	remarkCategoryRepo       *RemarkCategoryRepository
+	orderRepo                *OrderRepository
 	menuRepo                 *MenuRepository
 	stallRepo                *StallRepository
 	additionalFeeRepo        *AdditionalFeeRepository
@@ -268,6 +269,15 @@ func (repo *Repository) RemarkCategoryRepo() domain.RemarkCategoryRepository {
 		repo.remarkCategoryRepo = NewRemarkCategoryRepository(repo.client)
 	}
 	return repo.remarkCategoryRepo
+}
+
+func (repo *Repository) OrderRepo() domain.OrderRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.orderRepo == nil {
+		repo.orderRepo = NewOrderRepository(repo.client)
+	}
+	return repo.orderRepo
 }
 
 func (repo *Repository) MenuRepo() domain.MenuRepository {
