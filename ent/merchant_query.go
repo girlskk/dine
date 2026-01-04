@@ -18,6 +18,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
@@ -27,8 +28,10 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
@@ -53,6 +56,9 @@ type MerchantQuery struct {
 	withAdditionalFees       *AdditionalFeeQuery
 	withTaxFees              *TaxFeeQuery
 	withDevices              *DeviceQuery
+	withDepartments          *DepartmentQuery
+	withRoles                *RoleQuery
+	withStoreUsers           *StoreUserQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -398,6 +404,72 @@ func (mq *MerchantQuery) QueryDevices() *DeviceQuery {
 	return query
 }
 
+// QueryDepartments chains the current query on the "departments" edge.
+func (mq *MerchantQuery) QueryDepartments() *DepartmentQuery {
+	query := (&DepartmentClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.DepartmentsTable, merchant.DepartmentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRoles chains the current query on the "roles" edge.
+func (mq *MerchantQuery) QueryRoles() *RoleQuery {
+	query := (&RoleClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RolesTable, merchant.RolesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStoreUsers chains the current query on the "store_users" edge.
+func (mq *MerchantQuery) QueryStoreUsers() *StoreUserQuery {
+	query := (&StoreUserClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(storeuser.Table, storeuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.StoreUsersTable, merchant.StoreUsersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Merchant entity from the query.
 // Returns a *NotFoundError when no Merchant was found.
 func (mq *MerchantQuery) First(ctx context.Context) (*Merchant, error) {
@@ -604,6 +676,9 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		withAdditionalFees:       mq.withAdditionalFees.Clone(),
 		withTaxFees:              mq.withTaxFees.Clone(),
 		withDevices:              mq.withDevices.Clone(),
+		withDepartments:          mq.withDepartments.Clone(),
+		withRoles:                mq.withRoles.Clone(),
+		withStoreUsers:           mq.withStoreUsers.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
 		path:      mq.path,
@@ -765,6 +840,39 @@ func (mq *MerchantQuery) WithDevices(opts ...func(*DeviceQuery)) *MerchantQuery 
 	return mq
 }
 
+// WithDepartments tells the query-builder to eager-load the nodes that are connected to
+// the "departments" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithDepartments(opts ...func(*DepartmentQuery)) *MerchantQuery {
+	query := (&DepartmentClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withDepartments = query
+	return mq
+}
+
+// WithRoles tells the query-builder to eager-load the nodes that are connected to
+// the "roles" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithRoles(opts ...func(*RoleQuery)) *MerchantQuery {
+	query := (&RoleClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withRoles = query
+	return mq
+}
+
+// WithStoreUsers tells the query-builder to eager-load the nodes that are connected to
+// the "store_users" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithStoreUsers(opts ...func(*StoreUserQuery)) *MerchantQuery {
+	query := (&StoreUserClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withStoreUsers = query
+	return mq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -843,7 +951,7 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [14]bool{
+		loadedTypes = [17]bool{
 			mq.withMerchantBusinessType != nil,
 			mq.withCountry != nil,
 			mq.withProvince != nil,
@@ -858,6 +966,9 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			mq.withAdditionalFees != nil,
 			mq.withTaxFees != nil,
 			mq.withDevices != nil,
+			mq.withDepartments != nil,
+			mq.withRoles != nil,
+			mq.withStoreUsers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -971,6 +1082,27 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 		if err := mq.loadDevices(ctx, query, nodes,
 			func(n *Merchant) { n.Edges.Devices = []*Device{} },
 			func(n *Merchant, e *Device) { n.Edges.Devices = append(n.Edges.Devices, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withDepartments; query != nil {
+		if err := mq.loadDepartments(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.Departments = []*Department{} },
+			func(n *Merchant, e *Department) { n.Edges.Departments = append(n.Edges.Departments, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withRoles; query != nil {
+		if err := mq.loadRoles(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.Roles = []*Role{} },
+			func(n *Merchant, e *Role) { n.Edges.Roles = append(n.Edges.Roles, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withStoreUsers; query != nil {
+		if err := mq.loadStoreUsers(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.StoreUsers = []*StoreUser{} },
+			func(n *Merchant, e *StoreUser) { n.Edges.StoreUsers = append(n.Edges.StoreUsers, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1378,6 +1510,96 @@ func (mq *MerchantQuery) loadDevices(ctx context.Context, query *DeviceQuery, no
 	}
 	query.Where(predicate.Device(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.DevicesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadDepartments(ctx context.Context, query *DepartmentQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Department)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(department.FieldMerchantID)
+	}
+	query.Where(predicate.Department(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.DepartmentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadRoles(ctx context.Context, query *RoleQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Role)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(role.FieldMerchantID)
+	}
+	query.Where(predicate.Role(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.RolesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MerchantQuery) loadStoreUsers(ctx context.Context, query *StoreUserQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *StoreUser)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(storeuser.FieldMerchantID)
+	}
+	query.Where(predicate.StoreUser(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.StoreUsersColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

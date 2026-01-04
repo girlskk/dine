@@ -33,8 +33,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("address is nil")
 		return
 	}
-
-	created, err := repo.Client.Store.Create().SetID(domainStore.ID).
+	builder := repo.Client.Store.Create().SetID(domainStore.ID).
 		SetMerchantID(domainStore.MerchantID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
@@ -63,8 +62,8 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetAddress(domainStore.Address.Address).
 		SetLng(domainStore.Address.Lng).
 		SetLat(domainStore.Address.Lat).
-		SetSuperAccount(domainStore.LoginAccount).
-		Save(ctx)
+		SetSuperAccount(domainStore.LoginAccount)
+	created, err := builder.Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create store: %w", err)
 		return
@@ -86,7 +85,8 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		err = fmt.Errorf("address is nil")
 		return
 	}
-	updated, err := repo.Client.Store.UpdateOneID(domainStore.ID).
+
+	builder := repo.Client.Store.UpdateOneID(domainStore.ID).
 		SetAdminPhoneNumber(domainStore.AdminPhoneNumber).
 		SetStoreName(domainStore.StoreName).
 		SetStoreShortName(domainStore.StoreShortName).
@@ -113,8 +113,8 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		SetDistrictID(domainStore.Address.DistrictID).
 		SetAddress(domainStore.Address.Address).
 		SetLng(domainStore.Address.Lng).
-		SetLat(domainStore.Address.Lat).
-		Save(ctx)
+		SetLat(domainStore.Address.Lat)
+	updated, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)

@@ -32,7 +32,8 @@ func (h *AdditionalFeeHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PATCH("/:id", h.SimpleUpdate())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 // Create 创建附加费
@@ -297,24 +298,23 @@ func (h *AdditionalFeeHandler) List() gin.HandlerFunc {
 	}
 }
 
-// SimpleUpdate 更新附加费单个字段（仅 enabled）
+// Enable 启用附加费
 //
-//	@Tags		费用管理-附加费管理
-//	@Security	BearerAuth
-//	@Summary	更新附加费单个字段
-//	@Accept		json
-//	@Produce	json
-//	@Param		id		path	string								true	"附加费ID"
-//	@Param		data	body	types.AdditionalFeeSimpleUpdateReq	true	"请求信息"
-//	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	404		{object}	response.Response
-//	@Failure	500		{object}	response.Response
-//	@Router		/additional_fee/{id} [patch]
-func (h *AdditionalFeeHandler) SimpleUpdate() gin.HandlerFunc {
+//	@Tags			费用管理-附加费管理
+//	@Security		BearerAuth
+//	@Summary		启用附加费
+//	@Description	将附加费置为启用
+//	@Produce		json
+//	@Param			id	path	string	true	"附加费ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/additional_fee/{id}/enable [put]
+func (h *AdditionalFeeHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("AdditionalFeeHandler.SimpleUpdate")
+		logger := logging.FromContext(ctx).Named("AdditionalFeeHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -324,14 +324,53 @@ func (h *AdditionalFeeHandler) SimpleUpdate() gin.HandlerFunc {
 			return
 		}
 
-		var req types.AdditionalFeeSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
+		fee := &domain.AdditionalFee{ID: id, Enabled: true}
+		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to simple update additional fee: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用附加费
+//
+//	@Tags			费用管理-附加费管理
+//	@Security		BearerAuth
+//	@Summary		禁用附加费
+//	@Description	将附加费置为禁用
+//	@Produce		json
+//	@Param			id	path	string	true	"附加费ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/additional_fee/{id}/disable [put]
+func (h *AdditionalFeeHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("AdditionalFeeHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		fee := &domain.AdditionalFee{ID: id, Enabled: req.Enabled}
-		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, req.SimpleUpdateType, fee); err != nil {
+		fee := &domain.AdditionalFee{ID: id, Enabled: false}
+		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

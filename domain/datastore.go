@@ -32,6 +32,7 @@ type DataStore interface {
 	DeviceRepo() DeviceRepository
 	CountryRepo() CountryRepository
 	ProvinceRepo() ProvinceRepository
+	DepartmentRepo() DepartmentRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

@@ -77,8 +77,3 @@ type StoreListResp struct {
 	Stores []*domain.Store `json:"stores"` // 门店列表
 	Total  int             `json:"total"`  // 总数
 }
-
-type StoreSimpleUpdateReq struct {
-	SimpleUpdateType domain.StoreSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
-	Status           domain.StoreStatus           `json:"status" binding:"required"`                          // 营业/停业
-}

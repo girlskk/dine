@@ -332,6 +332,16 @@ func MerchantCodeHasSuffix(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldHasSuffix(FieldMerchantCode, v))
 }
 
+// MerchantCodeIsNil applies the IsNil predicate on the "merchant_code" field.
+func MerchantCodeIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldMerchantCode))
+}
+
+// MerchantCodeNotNil applies the NotNil predicate on the "merchant_code" field.
+func MerchantCodeNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldMerchantCode))
+}
+
 // MerchantCodeEqualFold applies the EqualFold predicate on the "merchant_code" field.
 func MerchantCodeEqualFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEqualFold(FieldMerchantCode, v))
@@ -462,6 +472,16 @@ func MerchantShortNameHasSuffix(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldHasSuffix(FieldMerchantShortName, v))
 }
 
+// MerchantShortNameIsNil applies the IsNil predicate on the "merchant_short_name" field.
+func MerchantShortNameIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldMerchantShortName))
+}
+
+// MerchantShortNameNotNil applies the NotNil predicate on the "merchant_short_name" field.
+func MerchantShortNameNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldMerchantShortName))
+}
+
 // MerchantShortNameEqualFold applies the EqualFold predicate on the "merchant_short_name" field.
 func MerchantShortNameEqualFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEqualFold(FieldMerchantShortName, v))
@@ -555,6 +575,16 @@ func BrandNameHasPrefix(v string) predicate.Merchant {
 // BrandNameHasSuffix applies the HasSuffix predicate on the "brand_name" field.
 func BrandNameHasSuffix(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldHasSuffix(FieldBrandName, v))
+}
+
+// BrandNameIsNil applies the IsNil predicate on the "brand_name" field.
+func BrandNameIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldBrandName))
+}
+
+// BrandNameNotNil applies the NotNil predicate on the "brand_name" field.
+func BrandNameNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldBrandName))
 }
 
 // BrandNameEqualFold applies the EqualFold predicate on the "brand_name" field.
@@ -822,6 +852,16 @@ func DescriptionHasSuffix(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldHasSuffix(FieldDescription, v))
 }
 
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldDescription))
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldDescription))
+}
+
 // DescriptionEqualFold applies the EqualFold predicate on the "description" field.
 func DescriptionEqualFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEqualFold(FieldDescription, v))
@@ -1037,6 +1077,16 @@ func AddressHasSuffix(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldHasSuffix(FieldAddress, v))
 }
 
+// AddressIsNil applies the IsNil predicate on the "address" field.
+func AddressIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldAddress))
+}
+
+// AddressNotNil applies the NotNil predicate on the "address" field.
+func AddressNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldAddress))
+}
+
 // AddressEqualFold applies the EqualFold predicate on the "address" field.
 func AddressEqualFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEqualFold(FieldAddress, v))
@@ -1102,6 +1152,16 @@ func LngHasSuffix(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldHasSuffix(FieldLng, v))
 }
 
+// LngIsNil applies the IsNil predicate on the "lng" field.
+func LngIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldLng))
+}
+
+// LngNotNil applies the NotNil predicate on the "lng" field.
+func LngNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldLng))
+}
+
 // LngEqualFold applies the EqualFold predicate on the "lng" field.
 func LngEqualFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEqualFold(FieldLng, v))
@@ -1165,6 +1225,16 @@ func LatHasPrefix(v string) predicate.Merchant {
 // LatHasSuffix applies the HasSuffix predicate on the "lat" field.
 func LatHasSuffix(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldHasSuffix(FieldLat, v))
+}
+
+// LatIsNil applies the IsNil predicate on the "lat" field.
+func LatIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldLat))
+}
+
+// LatNotNil applies the NotNil predicate on the "lat" field.
+func LatNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldLat))
 }
 
 // LatEqualFold applies the EqualFold predicate on the "lat" field.
@@ -1556,6 +1626,75 @@ func HasDevices() predicate.Merchant {
 func HasDevicesWith(preds ...predicate.Device) predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
 		step := newDevicesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDepartments applies the HasEdge predicate on the "departments" edge.
+func HasDepartments() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DepartmentsTable, DepartmentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDepartmentsWith applies the HasEdge predicate on the "departments" edge with a given conditions (other predicates).
+func HasDepartmentsWith(preds ...predicate.Department) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newDepartmentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRoles applies the HasEdge predicate on the "roles" edge.
+func HasRoles() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RolesTable, RolesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRolesWith applies the HasEdge predicate on the "roles" edge with a given conditions (other predicates).
+func HasRolesWith(preds ...predicate.Role) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newRolesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasStoreUsers applies the HasEdge predicate on the "store_users" edge.
+func HasStoreUsers() predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStoreUsersWith applies the HasEdge predicate on the "store_users" edge with a given conditions (other predicates).
+func HasStoreUsersWith(preds ...predicate.StoreUser) predicate.Merchant {
+	return predicate.Merchant(func(s *sql.Selector) {
+		step := newStoreUsersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

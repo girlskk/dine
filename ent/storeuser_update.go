@@ -157,6 +157,9 @@ func (suu *StoreUserUpdate) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "StoreUser.hashed_password": %w`, err)}
 		}
 	}
+	if suu.mutation.MerchantCleared() && len(suu.mutation.MerchantIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "StoreUser.merchant"`)
+	}
 	if suu.mutation.StoreCleared() && len(suu.mutation.StoreIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.store"`)
 	}
@@ -361,6 +364,9 @@ func (suuo *StoreUserUpdateOne) check() error {
 		if err := storeuser.HashedPasswordValidator(v); err != nil {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "StoreUser.hashed_password": %w`, err)}
 		}
+	}
+	if suuo.mutation.MerchantCleared() && len(suuo.mutation.MerchantIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "StoreUser.merchant"`)
 	}
 	if suuo.mutation.StoreCleared() && len(suuo.mutation.StoreIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.store"`)

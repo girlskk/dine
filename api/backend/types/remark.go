@@ -37,8 +37,3 @@ type RemarkListResp struct {
 	Remarks []*domain.Remark `json:"remarks"` // 备注列表
 	Total   int              `json:"total"`   // 备注总数
 }
-
-type RemarkSimpleUpdateReq struct {
-	SimpleUpdateType domain.RemarkSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
-	Enabled          bool                          `json:"enabled"`                                            // 启用状态
-}

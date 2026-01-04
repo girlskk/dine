@@ -48,9 +48,3 @@ type AdditionalFeeListResp struct {
 	AdditionalFees []*domain.AdditionalFee `json:"additional_fees"` // 附加费列表
 	Total          int                     `json:"total"`           // 总数
 }
-
-// AdditionalFeeSimpleUpdateReq 更新附加费单字段
-type AdditionalFeeSimpleUpdateReq struct {
-	SimpleUpdateType domain.AdditionalFeeSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=enabled"` // 简单更新类型，目前仅支持 enabled
-	Enabled          bool                                 `json:"enabled"`                                             // 是否启用
-}

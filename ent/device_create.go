@@ -459,9 +459,6 @@ func (dc *DeviceCreate) check() error {
 			return &ValidationError{Name: "ip", err: fmt.Errorf(`ent: validator failed for field "Device.ip": %w`, err)}
 		}
 	}
-	if _, ok := dc.mutation.SortOrder(); !ok {
-		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Device.sort_order"`)}
-	}
 	if v, ok := dc.mutation.PaperSize(); ok {
 		if err := device.PaperSizeValidator(v); err != nil {
 			return &ValidationError{Name: "paper_size", err: fmt.Errorf(`ent: validator failed for field "Device.paper_size": %w`, err)}
@@ -872,6 +869,12 @@ func (u *DeviceUpsert) AddSortOrder(v int) *DeviceUpsert {
 	return u
 }
 
+// ClearSortOrder clears the value of the "sort_order" field.
+func (u *DeviceUpsert) ClearSortOrder() *DeviceUpsert {
+	u.SetNull(device.FieldSortOrder)
+	return u
+}
+
 // SetPaperSize sets the "paper_size" field.
 func (u *DeviceUpsert) SetPaperSize(v domain.PaperSize) *DeviceUpsert {
 	u.Set(device.FieldPaperSize, v)
@@ -1255,6 +1258,13 @@ func (u *DeviceUpsertOne) AddSortOrder(v int) *DeviceUpsertOne {
 func (u *DeviceUpsertOne) UpdateSortOrder() *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// ClearSortOrder clears the value of the "sort_order" field.
+func (u *DeviceUpsertOne) ClearSortOrder() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearSortOrder()
 	})
 }
 
@@ -1829,6 +1839,13 @@ func (u *DeviceUpsertBulk) AddSortOrder(v int) *DeviceUpsertBulk {
 func (u *DeviceUpsertBulk) UpdateSortOrder() *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// ClearSortOrder clears the value of the "sort_order" field.
+func (u *DeviceUpsertBulk) ClearSortOrder() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearSortOrder()
 	})
 }
 

@@ -311,23 +311,23 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/additional_fee/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "将附加费置为禁用",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "费用管理-附加费管理"
                 ],
-                "summary": "更新附加费单个字段",
+                "summary": "禁用附加费",
                 "parameters": [
                     {
                         "type": "string",
@@ -335,15 +335,55 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
                     },
-                    {
-                        "description": "请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.AdditionalFeeSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/additional_fee/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将附加费置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "启用附加费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -593,58 +633,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "修改商户状态，",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "商户管理"
-                ],
-                "summary": "更新商户单个字段信息",
-                "parameters": [
-                    {
-                        "description": "更新商户单个字段信息请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.MerchantSimpleUpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
             }
         },
         "/merchant/brand": {
@@ -695,6 +683,86 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将商户状态置为禁用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理"
+                ],
+                "summary": "禁用商户",
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将商户状态置为激活",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理"
+                ],
+                "summary": "启用商户",
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2330,24 +2398,23 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/remark/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "快速切换启用状态，",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "将备注置为禁用",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "前厅管理"
                 ],
-                "summary": "更新备注单个字段信息",
+                "summary": "禁用备注",
                 "parameters": [
                     {
                         "type": "string",
@@ -2355,15 +2422,55 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
                     },
-                    {
-                        "description": "更新备注单个字段信息请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.RemarkSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/remark/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将备注置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "启用备注",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2919,24 +3026,23 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/restaurant/device/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "快速切换启用状态",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "将设备置为禁用",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "设备管理"
                 ],
-                "summary": "更新设备单个字段信息",
+                "summary": "禁用设备",
                 "parameters": [
                     {
                         "type": "string",
@@ -2944,15 +3050,55 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
                     },
-                    {
-                        "description": "更新设备单个字段信息请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.DeviceSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/device/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将设备置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "启用设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3287,24 +3433,23 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/restaurant/stall/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "快速切换启用状态",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "将出品部门置为禁用",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "后厨管理"
                 ],
-                "summary": "更新出品部门单个字段信息",
+                "summary": "禁用出品部门",
                 "parameters": [
                     {
                         "type": "string",
@@ -3312,15 +3457,55 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
                     },
-                    {
-                        "description": "更新出品部门单个字段信息请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.StallSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/stall/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将出品部门置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "启用出品部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3712,33 +3897,79 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/store/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "修改门店状态",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "将门店状态置为停业",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "门店管理"
                 ],
-                "summary": "更新门店单个字段信息",
+                "summary": "禁用门店",
                 "parameters": [
                     {
-                        "description": "更新门店单个字段信息请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.StoreSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/store/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将门店状态置为营业",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "启用门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -4055,23 +4286,23 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/tax_fee/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "取消默认税费标记",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "费用管理-税费管理"
                 ],
-                "summary": "更新税费单个字段",
+                "summary": "禁用税费",
                 "parameters": [
                     {
                         "type": "string",
@@ -4079,15 +4310,55 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
                     },
-                    {
-                        "description": "请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.TaxFeeSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tax_fee/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将税费标记为默认",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "启用税费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -4344,15 +4615,6 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "AdditionalFeeDiscountScopeBefore",
                 "AdditionalFeeDiscountScopeAfter"
-            ]
-        },
-        "domain.AdditionalFeeSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "enabled"
-            ],
-            "x-enum-varnames": [
-                "AdditionalFeeSimpleUpdateTypeEnabled"
             ]
         },
         "domain.AdditionalFeeType": {
@@ -4720,15 +4982,6 @@ const docTemplate = `{
                 "DeviceLocationBackKitchen"
             ]
         },
-        "domain.DeviceSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "enabled"
-            ],
-            "x-enum-varnames": [
-                "DeviceSimpleUpdateTypeEnabled"
-            ]
-        },
         "domain.DeviceStallPrintType": {
             "type": "string",
             "enum": [
@@ -5092,18 +5345,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.MerchantSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "status"
-            ],
-            "x-enum-comments": {
-                "MerchantSimpleUpdateTypeStatus": "状态"
-            },
-            "x-enum-varnames": [
-                "MerchantSimpleUpdateTypeStatus"
-            ]
         },
         "domain.MerchantStatus": {
             "type": "string",
@@ -6037,15 +6278,6 @@ const docTemplate = `{
                 "RemarkSceneRefundReject"
             ]
         },
-        "domain.RemarkSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "enabled"
-            ],
-            "x-enum-varnames": [
-                "RemarkSimpleUpdateTypeEnabled"
-            ]
-        },
         "domain.RemarkType": {
             "type": "string",
             "enum": [
@@ -6282,15 +6514,6 @@ const docTemplate = `{
                 "StallPrintTypeLabel"
             ]
         },
-        "domain.StallSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "enabled"
-            ],
-            "x-enum-varnames": [
-                "StallSimpleUpdateTypeEnabled"
-            ]
-        },
         "domain.StallType": {
             "type": "string",
             "enum": [
@@ -6460,18 +6683,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.StoreSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "status"
-            ],
-            "x-enum-comments": {
-                "StoreSimpleUpdateTypeStatus": "状态更新"
-            },
-            "x-enum-varnames": [
-                "StoreSimpleUpdateTypeStatus"
-            ]
-        },
         "domain.StoreStatus": {
             "type": "string",
             "enum": [
@@ -6540,15 +6751,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.TaxFeeSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "default_tax"
-            ],
-            "x-enum-varnames": [
-                "TaxFeeSimpleUpdateTypeDefault"
-            ]
         },
         "domain.TaxFeeType": {
             "type": "string",
@@ -6730,29 +6932,6 @@ const docTemplate = `{
                 "total": {
                     "description": "总数",
                     "type": "integer"
-                }
-            }
-        },
-        "types.AdditionalFeeSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "enabled": {
-                    "description": "是否启用",
-                    "type": "boolean"
-                },
-                "simple_update_type": {
-                    "description": "简单更新类型，目前仅支持 enabled",
-                    "enum": [
-                        "enabled"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.AdditionalFeeSimpleUpdateType"
-                        }
-                    ]
                 }
             }
         },
@@ -7218,12 +7397,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "devices": {
+                    "description": "设备列表",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Device"
                     }
                 },
                 "total": {
+                    "description": "总数",
                     "type": "integer"
                 }
             }
@@ -7299,28 +7480,6 @@ const docTemplate = `{
                 "stall_id": {
                     "description": "出品部门 ID",
                     "type": "string"
-                }
-            }
-        },
-        "types.DeviceSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "simple_update_type": {
-                    "description": "更新字段",
-                    "enum": [
-                        "enabled"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.DeviceSimpleUpdateType"
-                        }
-                    ]
                 }
             }
         },
@@ -7597,33 +7756,6 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/domain.PurchaseDurationUnit"
-                        }
-                    ]
-                }
-            }
-        },
-        "types.MerchantSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "simple_update_type": {
-                    "description": "简单更新类型",
-                    "enum": [
-                        "status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MerchantSimpleUpdateType"
-                        }
-                    ]
-                },
-                "status": {
-                    "description": "状态: 正常,停用,过期",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MerchantStatus"
                         }
                     ]
                 }
@@ -8424,29 +8556,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.RemarkSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "enabled": {
-                    "description": "启用状态",
-                    "type": "boolean"
-                },
-                "simple_update_type": {
-                    "description": "简单更新类型",
-                    "enum": [
-                        "status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.RemarkSimpleUpdateType"
-                        }
-                    ]
-                }
-            }
-        },
         "types.RemarkUpdateReq": {
             "type": "object",
             "required": [
@@ -8897,29 +9006,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.StallSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "enabled": {
-                    "description": "启用状态",
-                    "type": "boolean"
-                },
-                "simple_update_type": {
-                    "description": "更新的字段名称",
-                    "enum": [
-                        "enabled"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StallSimpleUpdateType"
-                        }
-                    ]
-                }
-            }
-        },
         "types.StallUpdateReq": {
             "type": "object",
             "required": [
@@ -8967,34 +9053,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.StoreSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type",
-                "status"
-            ],
-            "properties": {
-                "simple_update_type": {
-                    "description": "简单更新类型",
-                    "enum": [
-                        "status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StoreSimpleUpdateType"
-                        }
-                    ]
-                },
-                "status": {
-                    "description": "营业/停业",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StoreStatus"
-                        }
-                    ]
-                }
-            }
-        },
         "types.TaxFeeCreateReq": {
             "type": "object",
             "required": [
@@ -9035,34 +9093,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "tax_fees": {
+                    "description": "税费列表",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.TaxFee"
                     }
                 },
                 "total": {
+                    "description": "总数",
                     "type": "integer"
-                }
-            }
-        },
-        "types.TaxFeeSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "default_tax": {
-                    "type": "boolean"
-                },
-                "simple_update_type": {
-                    "enum": [
-                        "default_tax"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.TaxFeeSimpleUpdateType"
-                        }
-                    ]
                 }
             }
         },

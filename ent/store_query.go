@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
@@ -25,6 +26,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
@@ -51,6 +53,8 @@ type StoreQuery struct {
 	withTaxFees              *TaxFeeQuery
 	withDevices              *DeviceQuery
 	withMenus                *MenuQuery
+	withDepartments          *DepartmentQuery
+	withRoles                *RoleQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -374,6 +378,50 @@ func (sq *StoreQuery) QueryMenus() *MenuQuery {
 	return query
 }
 
+// QueryDepartments chains the current query on the "departments" edge.
+func (sq *StoreQuery) QueryDepartments() *DepartmentQuery {
+	query := (&DepartmentClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.DepartmentsTable, store.DepartmentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRoles chains the current query on the "roles" edge.
+func (sq *StoreQuery) QueryRoles() *RoleQuery {
+	query := (&RoleClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.RolesTable, store.RolesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Store entity from the query.
 // Returns a *NotFoundError when no Store was found.
 func (sq *StoreQuery) First(ctx context.Context) (*Store, error) {
@@ -579,6 +627,8 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		withTaxFees:              sq.withTaxFees.Clone(),
 		withDevices:              sq.withDevices.Clone(),
 		withMenus:                sq.withMenus.Clone(),
+		withDepartments:          sq.withDepartments.Clone(),
+		withRoles:                sq.withRoles.Clone(),
 		// clone intermediate query.
 		sql:       sq.sql.Clone(),
 		path:      sq.path,
@@ -729,6 +779,28 @@ func (sq *StoreQuery) WithMenus(opts ...func(*MenuQuery)) *StoreQuery {
 	return sq
 }
 
+// WithDepartments tells the query-builder to eager-load the nodes that are connected to
+// the "departments" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithDepartments(opts ...func(*DepartmentQuery)) *StoreQuery {
+	query := (&DepartmentClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withDepartments = query
+	return sq
+}
+
+// WithRoles tells the query-builder to eager-load the nodes that are connected to
+// the "roles" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithRoles(opts ...func(*RoleQuery)) *StoreQuery {
+	query := (&RoleClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withRoles = query
+	return sq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -807,7 +879,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [13]bool{
+		loadedTypes = [15]bool{
 			sq.withMerchant != nil,
 			sq.withMerchantBusinessType != nil,
 			sq.withCountry != nil,
@@ -821,6 +893,8 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			sq.withTaxFees != nil,
 			sq.withDevices != nil,
 			sq.withMenus != nil,
+			sq.withDepartments != nil,
+			sq.withRoles != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -926,6 +1000,20 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 		if err := sq.loadMenus(ctx, query, nodes,
 			func(n *Store) { n.Edges.Menus = []*Menu{} },
 			func(n *Store, e *Menu) { n.Edges.Menus = append(n.Edges.Menus, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withDepartments; query != nil {
+		if err := sq.loadDepartments(ctx, query, nodes,
+			func(n *Store) { n.Edges.Departments = []*Department{} },
+			func(n *Store, e *Department) { n.Edges.Departments = append(n.Edges.Departments, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withRoles; query != nil {
+		if err := sq.loadRoles(ctx, query, nodes,
+			func(n *Store) { n.Edges.Roles = []*Role{} },
+			func(n *Store, e *Role) { n.Edges.Roles = append(n.Edges.Roles, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1344,6 +1432,66 @@ func (sq *StoreQuery) loadMenus(ctx context.Context, query *MenuQuery, nodes []*
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (sq *StoreQuery) loadDepartments(ctx context.Context, query *DepartmentQuery, nodes []*Store, init func(*Store), assign func(*Store, *Department)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Store)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(department.FieldStoreID)
+	}
+	query.Where(predicate.Department(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(store.DepartmentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.StoreID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "store_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (sq *StoreQuery) loadRoles(ctx context.Context, query *RoleQuery, nodes []*Store, init func(*Store), assign func(*Store, *Role)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Store)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(role.FieldStoreID)
+	}
+	query.Where(predicate.Role(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(store.RolesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.StoreID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "store_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

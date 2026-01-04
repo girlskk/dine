@@ -46,6 +46,8 @@ var Module = fx.Module(
 	// handler
 	fx.Provide(
 		asHandler(handler.NewRegionHandler),
+		asHandler(handler.NewStoreHandler),
+		asHandler(handler.NewDeviceHandler),
 	),
 )
 

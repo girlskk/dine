@@ -29,11 +29,6 @@ type TaxFeeListReq struct {
 }
 
 type TaxFeeListResp struct {
-	TaxFees []*domain.TaxFee `json:"tax_fees"`
-	Total   int              `json:"total"`
-}
-
-type TaxFeeSimpleUpdateReq struct {
-	SimpleUpdateType domain.TaxFeeSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=default_tax"`
-	DefaultTax       bool                          `json:"default_tax"`
+	TaxFees []*domain.TaxFee `json:"tax_fees"` // 税费列表
+	Total   int              `json:"total"`    // 总数
 }

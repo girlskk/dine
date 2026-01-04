@@ -35,8 +35,16 @@ func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domain
 		return err
 	}
 
+	userExists, err := interactor.loginUserExists(ctx, domainCMerchant.LoginAccount)
+	if err != nil {
+		return fmt.Errorf("failed to check login user existence: %w", err)
+	}
+	if userExists {
+		return domain.ParamsError(domain.ErrUserExists)
+	}
 	expireTime := domain.CalculateExpireTime(time.Now().UTC(), domainCMerchant.PurchaseDuration, domainCMerchant.PurchaseDurationUnit)
 	domainMerchant.ExpireUTC = expireTime
+	domainMerchant.Status = domain.MerchantStatusActive
 	err = interactor.createMerchant(ctx, domainMerchant, nil)
 	if err != nil {
 		err = fmt.Errorf("failed to create merchant: %w", err)
@@ -44,7 +52,9 @@ func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domain
 	}
 	return
 }
-
+func (interactor *MerchantInteractor) loginUserExists(ctx context.Context, loginUser string) (exists bool, err error) {
+	return interactor.DataStore.BackendUserRepo().Exists(ctx, loginUser)
+}
 func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context, domainCMerchant *domain.CreateMerchantParams, domainCStore *domain.CreateStoreParams) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.CreateMerchantAndStore")
 	defer func() {
@@ -76,6 +86,7 @@ func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context
 
 	expireTime := domain.CalculateExpireTime(time.Now().UTC(), domainCMerchant.PurchaseDuration, domainCMerchant.PurchaseDurationUnit)
 	domainMerchant.ExpireUTC = expireTime
+	domainMerchant.Status = domain.MerchantStatusActive
 	err = interactor.createMerchant(ctx, domainMerchant, domainStore)
 	if err != nil {
 		return err
@@ -106,7 +117,6 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 		if err != nil {
 			return err
 		}
-
 		if domainStore != nil {
 			domainStore.MerchantID = merchantID
 			domainStore.ID = uuid.New()
@@ -177,16 +187,16 @@ func (interactor *MerchantInteractor) UpdateMerchantAndStore(ctx context.Context
 	return
 }
 
-func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context, updateField domain.MerchantSimpleUpdateType, domainUMerchant *domain.UpdateMerchantParams) (err error) {
+func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context, updateField domain.MerchantSimpleUpdateType, domainMerchant *domain.Merchant) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.MerchantSimpleUpdate")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
-	if domainUMerchant == nil {
-		return domain.ParamsError(errors.New("domainUMerchant is required"))
+	if domainMerchant == nil {
+		return domain.ParamsError(errors.New("domainMerchant is required"))
 	}
-	merchant, err := interactor.DataStore.MerchantRepo().FindByID(ctx, domainUMerchant.ID)
+	merchant, err := interactor.DataStore.MerchantRepo().FindByID(ctx, domainMerchant.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrMerchantNotExists)
@@ -196,10 +206,10 @@ func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context, 
 	}
 	switch updateField {
 	case domain.MerchantSimpleUpdateTypeStatus:
-		if merchant.Status == domainUMerchant.Status {
+		if merchant.Status == domainMerchant.Status {
 			return
 		}
-		merchant.Status = domainUMerchant.Status
+		merchant.Status = domainMerchant.Status
 
 	default:
 		return domain.ParamsError(fmt.Errorf("unsupported update field: %v", updateField))
@@ -221,17 +231,23 @@ func (interactor *MerchantInteractor) updateMerchant(ctx context.Context, domain
 			return err
 		}
 
-		oldAccount, err := ds.BackendUserRepo().FindByUsername(ctx, domainMerchant.LoginAccount)
-		if err != nil {
-			return err
-		}
-		if oldAccount.HashedPassword != domainMerchant.LoginPassword {
-			oldAccount.HashedPassword = domainMerchant.LoginPassword
-			err = ds.BackendUserRepo().Update(ctx, oldAccount)
-			if err != nil {
-				return err
-			}
-		}
+		// 此处不再需要修改密码
+		//oldAccount, err := ds.BackendUserRepo().FindByUsername(ctx, domainMerchant.LoginAccount)
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//if util.CheckPassword(domainMerchant.LoginPassword, oldAccount.HashedPassword) != nil {
+		//	hashPwd, err := util.HashPassword(domainMerchant.LoginPassword)
+		//	if err != nil {
+		//		return err
+		//	}
+		//	oldAccount.HashedPassword = hashPwd
+		//	err = ds.BackendUserRepo().Update(ctx, oldAccount)
+		//	if err != nil {
+		//		return err
+		//	}
+		//}
 
 		if domainStore != nil {
 			err = ds.StoreRepo().Update(ctx, domainStore)
@@ -295,6 +311,9 @@ func (interactor *MerchantInteractor) GetMerchants(ctx context.Context, pager *u
 		return item.ID
 	})
 
+	if len(merchantIds) == 0 {
+		return
+	}
 	merchantStoreCounts, err := interactor.DataStore.StoreRepo().CountStoresByMerchantID(ctx, merchantIds)
 	if err != nil {
 		err = fmt.Errorf("failed to count stores by merchant ids: %w", err)
@@ -346,7 +365,9 @@ func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merch
 		}
 		oldExpireTime := time.Now().UTC()
 		if m.ExpireUTC != nil {
-			oldExpireTime = *m.ExpireUTC
+			if m.ExpireUTC.After(oldExpireTime) {
+				oldExpireTime = *m.ExpireUTC
+			}
 		}
 		m.ExpireUTC = domain.CalculateExpireTime(oldExpireTime, merchantRenewal.PurchaseDuration, merchantRenewal.PurchaseDurationUnit)
 		err = ds.MerchantRepo().Update(ctx, m)
@@ -374,7 +395,6 @@ func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Cont
 		BusinessTypeID:    domainCMerchant.BusinessTypeID,
 		MerchantLogo:      domainCMerchant.MerchantLogo,
 		Description:       domainCMerchant.Description,
-		Status:            domainCMerchant.Status,
 		LoginAccount:      domainCMerchant.LoginAccount,
 		LoginPassword:     domainCMerchant.LoginPassword,
 		Address:           domainCMerchant.Address,
@@ -409,10 +429,9 @@ func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Cont
 		BusinessTypeID:    domainUMerchant.BusinessTypeID,
 		MerchantLogo:      domainUMerchant.MerchantLogo,
 		Description:       domainUMerchant.Description,
-		Status:            domainUMerchant.Status,
+		Status:            oldMerchant.Status,
 		Address:           domainUMerchant.Address,
 		LoginAccount:      oldMerchant.LoginAccount,
-		LoginPassword:     domainUMerchant.LoginPassword,
 	}
 
 	err = interactor.checkFields(ctx, domainMerchant)

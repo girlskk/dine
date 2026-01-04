@@ -517,6 +517,16 @@ func StoreShortNameHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldStoreShortName, v))
 }
 
+// StoreShortNameIsNil applies the IsNil predicate on the "store_short_name" field.
+func StoreShortNameIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldStoreShortName))
+}
+
+// StoreShortNameNotNil applies the NotNil predicate on the "store_short_name" field.
+func StoreShortNameNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldStoreShortName))
+}
+
 // StoreShortNameEqualFold applies the EqualFold predicate on the "store_short_name" field.
 func StoreShortNameEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldStoreShortName, v))
@@ -580,6 +590,16 @@ func StoreCodeHasPrefix(v string) predicate.Store {
 // StoreCodeHasSuffix applies the HasSuffix predicate on the "store_code" field.
 func StoreCodeHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldStoreCode, v))
+}
+
+// StoreCodeIsNil applies the IsNil predicate on the "store_code" field.
+func StoreCodeIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldStoreCode))
+}
+
+// StoreCodeNotNil applies the NotNil predicate on the "store_code" field.
+func StoreCodeNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldStoreCode))
 }
 
 // StoreCodeEqualFold applies the EqualFold predicate on the "store_code" field.
@@ -792,6 +812,16 @@ func ContactNameHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldContactName, v))
 }
 
+// ContactNameIsNil applies the IsNil predicate on the "contact_name" field.
+func ContactNameIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldContactName))
+}
+
+// ContactNameNotNil applies the NotNil predicate on the "contact_name" field.
+func ContactNameNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldContactName))
+}
+
 // ContactNameEqualFold applies the EqualFold predicate on the "contact_name" field.
 func ContactNameEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldContactName, v))
@@ -855,6 +885,16 @@ func ContactPhoneHasPrefix(v string) predicate.Store {
 // ContactPhoneHasSuffix applies the HasSuffix predicate on the "contact_phone" field.
 func ContactPhoneHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldContactPhone, v))
+}
+
+// ContactPhoneIsNil applies the IsNil predicate on the "contact_phone" field.
+func ContactPhoneIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldContactPhone))
+}
+
+// ContactPhoneNotNil applies the NotNil predicate on the "contact_phone" field.
+func ContactPhoneNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldContactPhone))
 }
 
 // ContactPhoneEqualFold applies the EqualFold predicate on the "contact_phone" field.
@@ -922,6 +962,16 @@ func UnifiedSocialCreditCodeHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldUnifiedSocialCreditCode, v))
 }
 
+// UnifiedSocialCreditCodeIsNil applies the IsNil predicate on the "unified_social_credit_code" field.
+func UnifiedSocialCreditCodeIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldUnifiedSocialCreditCode))
+}
+
+// UnifiedSocialCreditCodeNotNil applies the NotNil predicate on the "unified_social_credit_code" field.
+func UnifiedSocialCreditCodeNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldUnifiedSocialCreditCode))
+}
+
 // UnifiedSocialCreditCodeEqualFold applies the EqualFold predicate on the "unified_social_credit_code" field.
 func UnifiedSocialCreditCodeEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldUnifiedSocialCreditCode, v))
@@ -985,6 +1035,16 @@ func StoreLogoHasPrefix(v string) predicate.Store {
 // StoreLogoHasSuffix applies the HasSuffix predicate on the "store_logo" field.
 func StoreLogoHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldStoreLogo, v))
+}
+
+// StoreLogoIsNil applies the IsNil predicate on the "store_logo" field.
+func StoreLogoIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldStoreLogo))
+}
+
+// StoreLogoNotNil applies the NotNil predicate on the "store_logo" field.
+func StoreLogoNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldStoreLogo))
 }
 
 // StoreLogoEqualFold applies the EqualFold predicate on the "store_logo" field.
@@ -1052,6 +1112,16 @@ func BusinessLicenseURLHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldBusinessLicenseURL, v))
 }
 
+// BusinessLicenseURLIsNil applies the IsNil predicate on the "business_license_url" field.
+func BusinessLicenseURLIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldBusinessLicenseURL))
+}
+
+// BusinessLicenseURLNotNil applies the NotNil predicate on the "business_license_url" field.
+func BusinessLicenseURLNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldBusinessLicenseURL))
+}
+
 // BusinessLicenseURLEqualFold applies the EqualFold predicate on the "business_license_url" field.
 func BusinessLicenseURLEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldBusinessLicenseURL, v))
@@ -1115,6 +1185,16 @@ func StorefrontURLHasPrefix(v string) predicate.Store {
 // StorefrontURLHasSuffix applies the HasSuffix predicate on the "storefront_url" field.
 func StorefrontURLHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldStorefrontURL, v))
+}
+
+// StorefrontURLIsNil applies the IsNil predicate on the "storefront_url" field.
+func StorefrontURLIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldStorefrontURL))
+}
+
+// StorefrontURLNotNil applies the NotNil predicate on the "storefront_url" field.
+func StorefrontURLNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldStorefrontURL))
 }
 
 // StorefrontURLEqualFold applies the EqualFold predicate on the "storefront_url" field.
@@ -1182,6 +1262,16 @@ func CashierDeskURLHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldCashierDeskURL, v))
 }
 
+// CashierDeskURLIsNil applies the IsNil predicate on the "cashier_desk_url" field.
+func CashierDeskURLIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldCashierDeskURL))
+}
+
+// CashierDeskURLNotNil applies the NotNil predicate on the "cashier_desk_url" field.
+func CashierDeskURLNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldCashierDeskURL))
+}
+
 // CashierDeskURLEqualFold applies the EqualFold predicate on the "cashier_desk_url" field.
 func CashierDeskURLEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldCashierDeskURL, v))
@@ -1247,6 +1337,16 @@ func DiningEnvironmentURLHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldDiningEnvironmentURL, v))
 }
 
+// DiningEnvironmentURLIsNil applies the IsNil predicate on the "dining_environment_url" field.
+func DiningEnvironmentURLIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldDiningEnvironmentURL))
+}
+
+// DiningEnvironmentURLNotNil applies the NotNil predicate on the "dining_environment_url" field.
+func DiningEnvironmentURLNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldDiningEnvironmentURL))
+}
+
 // DiningEnvironmentURLEqualFold applies the EqualFold predicate on the "dining_environment_url" field.
 func DiningEnvironmentURLEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldDiningEnvironmentURL, v))
@@ -1310,6 +1410,16 @@ func FoodOperationLicenseURLHasPrefix(v string) predicate.Store {
 // FoodOperationLicenseURLHasSuffix applies the HasSuffix predicate on the "food_operation_license_url" field.
 func FoodOperationLicenseURLHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldFoodOperationLicenseURL, v))
+}
+
+// FoodOperationLicenseURLIsNil applies the IsNil predicate on the "food_operation_license_url" field.
+func FoodOperationLicenseURLIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldFoodOperationLicenseURL))
+}
+
+// FoodOperationLicenseURLNotNil applies the NotNil predicate on the "food_operation_license_url" field.
+func FoodOperationLicenseURLNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldFoodOperationLicenseURL))
 }
 
 // FoodOperationLicenseURLEqualFold applies the EqualFold predicate on the "food_operation_license_url" field.
@@ -1562,6 +1672,16 @@ func LngHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldLng, v))
 }
 
+// LngIsNil applies the IsNil predicate on the "lng" field.
+func LngIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldLng))
+}
+
+// LngNotNil applies the NotNil predicate on the "lng" field.
+func LngNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldLng))
+}
+
 // LngEqualFold applies the EqualFold predicate on the "lng" field.
 func LngEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldLng, v))
@@ -1625,6 +1745,16 @@ func LatHasPrefix(v string) predicate.Store {
 // LatHasSuffix applies the HasSuffix predicate on the "lat" field.
 func LatHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldLat, v))
+}
+
+// LatIsNil applies the IsNil predicate on the "lat" field.
+func LatIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldLat))
+}
+
+// LatNotNil applies the NotNil predicate on the "lat" field.
+func LatNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldLat))
 }
 
 // LatEqualFold applies the EqualFold predicate on the "lat" field.
@@ -1993,6 +2123,52 @@ func HasMenus() predicate.Store {
 func HasMenusWith(preds ...predicate.Menu) predicate.Store {
 	return predicate.Store(func(s *sql.Selector) {
 		step := newMenusStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDepartments applies the HasEdge predicate on the "departments" edge.
+func HasDepartments() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DepartmentsTable, DepartmentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDepartmentsWith applies the HasEdge predicate on the "departments" edge with a given conditions (other predicates).
+func HasDepartmentsWith(preds ...predicate.Department) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newDepartmentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRoles applies the HasEdge predicate on the "roles" edge.
+func HasRoles() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RolesTable, RolesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRolesWith applies the HasEdge predicate on the "roles" edge with a given conditions (other predicates).
+func HasRolesWith(preds ...predicate.Role) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newRolesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

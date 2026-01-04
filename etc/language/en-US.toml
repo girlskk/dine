@@ -108,3 +108,6 @@ other = "Device name already exists"
 
 [TAX_FEE_NAME_EXISTS]
 other = "Tax fee name already exists"
+
+[BACKEND_USER_EXISTS]
+other = "Backend user already exists"

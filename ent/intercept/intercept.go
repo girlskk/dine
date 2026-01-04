@@ -14,6 +14,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
@@ -33,6 +34,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -257,6 +259,33 @@ func (f TraverseCountry) Traverse(ctx context.Context, q ent.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.CountryQuery", q)
+}
+
+// The DepartmentFunc type is an adapter to allow the use of ordinary function as a Querier.
+type DepartmentFunc func(context.Context, *ent.DepartmentQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f DepartmentFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.DepartmentQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.DepartmentQuery", q)
+}
+
+// The TraverseDepartment type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseDepartment func(context.Context, *ent.DepartmentQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseDepartment) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseDepartment) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.DepartmentQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.DepartmentQuery", q)
 }
 
 // The DeviceFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -745,6 +774,33 @@ func (f TraverseRemarkCategory) Traverse(ctx context.Context, q ent.Query) error
 	return fmt.Errorf("unexpected query type %T. expect *ent.RemarkCategoryQuery", q)
 }
 
+// The RoleFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RoleFunc func(context.Context, *ent.RoleQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RoleFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RoleQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RoleQuery", q)
+}
+
+// The TraverseRole type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRole func(context.Context, *ent.RoleQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRole) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRole) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RoleQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RoleQuery", q)
+}
+
 // The SetMealDetailFunc type is an adapter to allow the use of ordinary function as a Querier.
 type SetMealDetailFunc func(context.Context, *ent.SetMealDetailQuery) (ent.Value, error)
 
@@ -922,6 +978,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.CityQuery, predicate.City, city.OrderOption]{typ: ent.TypeCity, tq: q}, nil
 	case *ent.CountryQuery:
 		return &query[*ent.CountryQuery, predicate.Country, country.OrderOption]{typ: ent.TypeCountry, tq: q}, nil
+	case *ent.DepartmentQuery:
+		return &query[*ent.DepartmentQuery, predicate.Department, department.OrderOption]{typ: ent.TypeDepartment, tq: q}, nil
 	case *ent.DeviceQuery:
 		return &query[*ent.DeviceQuery, predicate.Device, device.OrderOption]{typ: ent.TypeDevice, tq: q}, nil
 	case *ent.DistrictQuery:
@@ -958,6 +1016,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.RemarkQuery, predicate.Remark, remark.OrderOption]{typ: ent.TypeRemark, tq: q}, nil
 	case *ent.RemarkCategoryQuery:
 		return &query[*ent.RemarkCategoryQuery, predicate.RemarkCategory, remarkcategory.OrderOption]{typ: ent.TypeRemarkCategory, tq: q}, nil
+	case *ent.RoleQuery:
+		return &query[*ent.RoleQuery, predicate.Role, role.OrderOption]{typ: ent.TypeRole, tq: q}, nil
 	case *ent.SetMealDetailQuery:
 		return &query[*ent.SetMealDetailQuery, predicate.SetMealDetail, setmealdetail.OrderOption]{typ: ent.TypeSetMealDetail, tq: q}, nil
 	case *ent.SetMealGroupQuery:

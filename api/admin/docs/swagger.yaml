@@ -104,6 +104,37 @@ definitions:
       sort:
         type: integer
     type: object
+  domain.Department:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      department_type:
+        $ref: '#/definitions/domain.DepartmentType'
+      enable:
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        type: string
+      name:
+        type: string
+      store_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.DepartmentType:
+    enum:
+    - admin
+    - backend
+    - store
+    type: string
+    x-enum-varnames:
+    - DepartmentTypeAdmin
+    - DepartmentBackend
+    - DepartmentStore
   domain.DiningPeriod:
     properties:
       end_time:
@@ -166,6 +197,13 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.MerchantType'
         description: '商户类型: 品牌商户,门店商户'
+      purchase_duration:
+        description: 购买时长
+        type: integer
+      purchase_duration_unit:
+        allOf:
+        - $ref: '#/definitions/domain.PurchaseDurationUnit'
+        description: 购买时长单位
       status:
         allOf:
         - $ref: '#/definitions/domain.MerchantStatus'
@@ -175,15 +213,21 @@ definitions:
         type: integer
       updated_at:
         type: string
+    required:
+    - purchase_duration
+    - purchase_duration_unit
     type: object
-  domain.MerchantSimpleUpdateType:
-    enum:
-    - status
-    type: string
-    x-enum-comments:
-      MerchantSimpleUpdateTypeStatus: 状态
-    x-enum-varnames:
-    - MerchantSimpleUpdateTypeStatus
+  domain.MerchantBusinessType:
+    properties:
+      id:
+        type: string
+      type_code:
+        description: 业态类型编码（保留字段）
+        type: string
+      type_name:
+        description: 业态类型名称
+        type: string
+    type: object
   domain.MerchantStatus:
     enum:
     - active
@@ -371,14 +415,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  domain.StoreSimpleUpdateType:
-    enum:
-    - status
-    type: string
-    x-enum-comments:
-      StoreSimpleUpdateTypeStatus: 状态更新
-    x-enum-varnames:
-    - StoreSimpleUpdateTypeStatus
   domain.StoreStatus:
     enum:
     - open
@@ -647,6 +683,65 @@ definitions:
     - status
     - store_name
     type: object
+  types.DepartmentCreateReq:
+    properties:
+      code:
+        maxLength: 50
+        type: string
+      department_type:
+        allOf:
+        - $ref: '#/definitions/domain.DepartmentType'
+        enum:
+        - admin
+        - backend
+        - store
+      enable:
+        type: boolean
+      merchant_id:
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      store_id:
+        type: string
+    required:
+    - code
+    - department_type
+    - merchant_id
+    - name
+    - store_id
+    type: object
+  types.DepartmentListResp:
+    properties:
+      departments:
+        items:
+          $ref: '#/definitions/domain.Department'
+        type: array
+      total:
+        type: integer
+    type: object
+  types.DepartmentUpdateReq:
+    properties:
+      code:
+        maxLength: 50
+        type: string
+      department_type:
+        allOf:
+        - $ref: '#/definitions/domain.DepartmentType'
+        enum:
+        - admin
+        - backend
+        - store
+      enable:
+        type: boolean
+      name:
+        maxLength: 50
+        type: string
+    required:
+    - code
+    - department_type
+    - name
+    type: object
   types.LoginReq:
     properties:
       password:
@@ -663,6 +758,14 @@ definitions:
         type: integer
       token:
         type: string
+    type: object
+  types.MerchantBusinessTypeListResp:
+    properties:
+      business_types:
+        description: 业务类型列表
+        items:
+          $ref: '#/definitions/domain.MerchantBusinessType'
+        type: array
     type: object
   types.MerchantCount:
     properties:
@@ -714,21 +817,6 @@ definitions:
     - merchant_id
     - purchase_duration
     - purchase_duration_unit
-    type: object
-  types.MerchantSimpleUpdateReq:
-    properties:
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.MerchantSimpleUpdateType'
-        description: 简单更新类型
-        enum:
-        - status
-      status:
-        allOf:
-        - $ref: '#/definitions/domain.MerchantStatus'
-        description: '状态: 正常,停用,过期'
-    required:
-    - simple_update_type
     type: object
   types.OssTokenReq:
     properties:
@@ -790,22 +878,6 @@ definitions:
         description: 总数
         type: integer
     type: object
-  types.StoreSimpleUpdateReq:
-    properties:
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.StoreSimpleUpdateType'
-        description: 简单更新类型
-        enum:
-        - status
-      status:
-        allOf:
-        - $ref: '#/definitions/domain.StoreStatus'
-        description: 营业/停业
-    required:
-    - simple_update_type
-    - status
-    type: object
   types.UpdateMerchantReq:
     properties:
       address:
@@ -826,9 +898,6 @@ definitions:
       description:
         description: 商户描述(保留字段)
         maxLength: 255
-        type: string
-      login_password:
-        description: 登录密码(加密存储)
         type: string
       merchant_code:
         description: 商户编号(保留字段)
@@ -853,7 +922,6 @@ definitions:
     required:
     - admin_phone_number
     - business_type_id
-    - login_password
     - merchant_name
     type: object
   types.UpdateStoreMerchantReq:
@@ -973,6 +1041,296 @@ info:
   title: 总后台 API
   version: "1.0"
 paths:
+  /common/department:
+    get:
+      consumes:
+      - application/json
+      description: 查询部门列表
+      parameters:
+      - in: query
+        name: code
+        type: string
+      - enum:
+        - admin
+        - backend
+        - store
+        in: query
+        name: department_type
+        type: string
+        x-enum-varnames:
+        - DepartmentTypeAdmin
+        - DepartmentBackend
+        - DepartmentStore
+      - in: query
+        name: enable
+        type: boolean
+      - in: query
+        name: merchant_id
+        required: true
+        type: string
+      - in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - in: query
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.DepartmentListResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 部门列表
+      tags:
+      - 部门管理
+    post:
+      consumes:
+      - application/json
+      description: 新建一个部门
+      parameters:
+      - description: 创建部门请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.DepartmentCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建部门
+      tags:
+      - 部门管理
+  /common/department/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定部门
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除部门
+      tags:
+      - 部门管理
+    get:
+      consumes:
+      - application/json
+      description: 查询指定部门详情
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Department'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取部门
+      tags:
+      - 部门管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定部门
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新部门请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.DepartmentUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新部门
+      tags:
+      - 部门管理
+  /common/department/{id}/disable:
+    put:
+      consumes:
+      - application/json
+      description: 将部门设置为禁用
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用部门
+      tags:
+      - 部门管理
+  /common/department/{id}/enable:
+    put:
+      consumes:
+      - application/json
+      description: 将部门设置为启用
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用部门
+      tags:
+      - 部门管理
+  /merchant/business_type/list:
+    get:
+      description: 业态列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.MerchantBusinessTypeListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 业态列表
+      tags:
+      - 商户管理-业态列表
   /merchant/merchant/{id}:
     delete:
       consumes:
@@ -1043,17 +1401,15 @@ paths:
       summary: 获取商户信息
       tags:
       - 商户管理-商户
-    patch:
-      consumes:
-      - application/json
-      description: 修改商户状态，
+  /merchant/merchant/{id}/disable:
+    put:
+      description: 将商户状态置为禁用
       parameters:
-      - description: 更新商户单个字段信息请求
-        in: body
-        name: data
+      - description: 商户ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/types.MerchantSimpleUpdateReq'
+        type: string
       produces:
       - application/json
       responses:
@@ -1073,7 +1429,38 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
-      summary: 更新商户单个字段信息
+      summary: 禁用商户
+      tags:
+      - 商户管理-商户
+  /merchant/merchant/{id}/enable:
+    put:
+      description: 将商户状态置为激活
+      parameters:
+      - description: 商户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用商户
       tags:
       - 商户管理-商户
   /merchant/merchant/brand:
@@ -1468,39 +1855,6 @@ paths:
       summary: 获取门店
       tags:
       - 商户管理-门店
-    patch:
-      consumes:
-      - application/json
-      description: 修改门店状态，
-      parameters:
-      - description: 更新门店单个字段信息请求
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.StoreSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新门店单个字段信息
-      tags:
-      - 商户管理-门店
     put:
       consumes:
       - application/json
@@ -1537,6 +1891,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新门店
+      tags:
+      - 商户管理-门店
+  /merchant/store/{id}/disable:
+    put:
+      description: 将门店状态置为停业
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用门店
+      tags:
+      - 商户管理-门店
+  /merchant/store/{id}/enable:
+    put:
+      description: 将门店状态置为营业
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用门店
       tags:
       - 商户管理-门店
   /merchant/store/list:

@@ -28,7 +28,8 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 	r = r.Group("store")
 	r.PUT("", h.UpdateStore())
 	r.GET("", h.GetStore())
-	r.PATCH("", h.StoreSimpleUpdate())
+	r.PUT("/enable", h.Enable())
+	r.PUT("/disable", h.Disable())
 }
 
 // UpdateStore 更新门店
@@ -147,37 +148,64 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 	}
 }
 
-// StoreSimpleUpdate 更新门店单个字段信息
+// Enable 启用门店
 //
-//	@Summary		更新门店单个字段信息
-//	@Description	修改门店状态
+//	@Summary		启用门店
+//	@Description	将门店状态置为营业
 //	@Tags			门店管理
 //	@Security		BearerAuth
-//	@Accept			json
 //	@Produce		json
-//	@Param			data	body	types.StoreSimpleUpdateReq	true	"更新门店单个字段信息请求"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
-//	@Router			/store [patch]
-func (h *StoreHandler) StoreSimpleUpdate() gin.HandlerFunc {
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/store/enable [put]
+func (h *StoreHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("StoreHandler.StoreSimpleUpdate")
+		logger := logging.FromContext(ctx).Named("StoreHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		var req types.StoreSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+		user := domain.FromStoreUserContext(ctx)
+
+		updateParams := &domain.UpdateStoreParams{ID: user.StoreID, Status: domain.StoreStatusOpen}
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateTypeStatus, updateParams); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			c.Error(fmt.Errorf("failed to simple update store: %w", err))
 			return
 		}
 
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用门店
+//
+//	@Summary		禁用门店
+//	@Description	将门店状态置为停业
+//	@Tags			门店管理
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/store/disable [put]
+func (h *StoreHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("StoreHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
 		user := domain.FromStoreUserContext(ctx)
 
-		updateParams := &domain.UpdateStoreParams{ID: user.StoreID, Status: req.Status}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, req.SimpleUpdateType, updateParams); err != nil {
+		updateParams := &domain.UpdateStoreParams{ID: user.StoreID, Status: domain.StoreStatusClosed}
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateTypeStatus, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

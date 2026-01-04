@@ -86,6 +86,11 @@ func Nickname(v string) predicate.StoreUser {
 	return predicate.StoreUser(sql.FieldEQ(FieldNickname, v))
 }
 
+// MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
+func MerchantID(v uuid.UUID) predicate.StoreUser {
+	return predicate.StoreUser(sql.FieldEQ(FieldMerchantID, v))
+}
+
 // StoreID applies equality check predicate on the "store_id" field. It's identical to StoreIDEQ.
 func StoreID(v uuid.UUID) predicate.StoreUser {
 	return predicate.StoreUser(sql.FieldEQ(FieldStoreID, v))
@@ -406,6 +411,26 @@ func NicknameContainsFold(v string) predicate.StoreUser {
 	return predicate.StoreUser(sql.FieldContainsFold(FieldNickname, v))
 }
 
+// MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
+func MerchantIDEQ(v uuid.UUID) predicate.StoreUser {
+	return predicate.StoreUser(sql.FieldEQ(FieldMerchantID, v))
+}
+
+// MerchantIDNEQ applies the NEQ predicate on the "merchant_id" field.
+func MerchantIDNEQ(v uuid.UUID) predicate.StoreUser {
+	return predicate.StoreUser(sql.FieldNEQ(FieldMerchantID, v))
+}
+
+// MerchantIDIn applies the In predicate on the "merchant_id" field.
+func MerchantIDIn(vs ...uuid.UUID) predicate.StoreUser {
+	return predicate.StoreUser(sql.FieldIn(FieldMerchantID, vs...))
+}
+
+// MerchantIDNotIn applies the NotIn predicate on the "merchant_id" field.
+func MerchantIDNotIn(vs ...uuid.UUID) predicate.StoreUser {
+	return predicate.StoreUser(sql.FieldNotIn(FieldMerchantID, vs...))
+}
+
 // StoreIDEQ applies the EQ predicate on the "store_id" field.
 func StoreIDEQ(v uuid.UUID) predicate.StoreUser {
 	return predicate.StoreUser(sql.FieldEQ(FieldStoreID, v))
@@ -424,6 +449,29 @@ func StoreIDIn(vs ...uuid.UUID) predicate.StoreUser {
 // StoreIDNotIn applies the NotIn predicate on the "store_id" field.
 func StoreIDNotIn(vs ...uuid.UUID) predicate.StoreUser {
 	return predicate.StoreUser(sql.FieldNotIn(FieldStoreID, vs...))
+}
+
+// HasMerchant applies the HasEdge predicate on the "merchant" edge.
+func HasMerchant() predicate.StoreUser {
+	return predicate.StoreUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMerchantWith applies the HasEdge predicate on the "merchant" edge with a given conditions (other predicates).
+func HasMerchantWith(preds ...predicate.Merchant) predicate.StoreUser {
+	return predicate.StoreUser(func(s *sql.Selector) {
+		step := newMerchantStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // HasStore applies the HasEdge predicate on the "store" edge.

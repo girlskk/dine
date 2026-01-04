@@ -50,7 +50,7 @@ func (s *AdminUserTestSuite) TestAdminUser_Create() {
 
 		user := &domain.AdminUser{
 			ID:             uuid.New(),
-			Username:       "newuser",
+			Username:       "test",
 			HashedPassword: hashedPassword,
 			Nickname:       "新用户",
 		}

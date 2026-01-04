@@ -29,7 +29,10 @@ func (repo *DeviceRepository) FindByID(ctx context.Context, id uuid.UUID) (domai
 	span, ctx := util.StartSpan(ctx, "repository", "DeviceRepository.FindByID")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	es, err := repo.Client.Device.Get(ctx, id)
+	es, err := repo.Client.Device.Query().
+		Where(device.ID(id)).
+		WithStore().
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(domain.ErrDeviceNotExists)
@@ -149,6 +152,7 @@ func (repo *DeviceRepository) GetDevices(ctx context.Context, pager *upagination
 
 	devices, err := query.
 		Order(repo.orderBy(orderBys...)...).
+		WithStore().
 		Offset(pager.Offset()).
 		Limit(pager.Size).
 		All(ctx)
@@ -212,7 +216,7 @@ func (repo *DeviceRepository) buildFilterQuery(filter *domain.DeviceListFilter) 
 	if filter.Name != "" {
 		query = query.Where(device.NameContains(filter.Name))
 	}
-	
+
 	return query
 }
 
@@ -235,8 +239,8 @@ func (repo *DeviceRepository) orderBy(orderBys ...domain.DeviceOrderBy) []device
 	return opts
 }
 
-func convertDeviceToDomain(es *ent.Device) *domain.Device {
-	return &domain.Device{
+func convertDeviceToDomain(es *ent.Device) (d *domain.Device) {
+	d = &domain.Device{
 		ID:                     es.ID,
 		MerchantID:             es.MerchantID,
 		StoreID:                es.StoreID,
@@ -260,4 +264,8 @@ func convertDeviceToDomain(es *ent.Device) *domain.Device {
 		CreatedAt:              es.CreatedAt,
 		UpdatedAt:              es.UpdatedAt,
 	}
+	if es.Edges.Store != nil {
+		d.StoreName = es.Edges.Store.StoreName
+	}
+	return d
 }

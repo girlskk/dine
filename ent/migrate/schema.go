@@ -250,6 +250,61 @@ var (
 			},
 		},
 	}
+	// DepartmentsColumns holds the columns for the "departments" table.
+	DepartmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString},
+		{Name: "code", Type: field.TypeString},
+		{Name: "department_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
+		{Name: "enable", Type: field.TypeBool, Default: true},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+	}
+	// DepartmentsTable holds the schema information for the "departments" table.
+	DepartmentsTable = &schema.Table{
+		Name:       "departments",
+		Columns:    DepartmentsColumns,
+		PrimaryKey: []*schema.Column{DepartmentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "departments_merchants_departments",
+				Columns:    []*schema.Column{DepartmentsColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "departments_stores_departments",
+				Columns:    []*schema.Column{DepartmentsColumns[9]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "department_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{DepartmentsColumns[3]},
+			},
+			{
+				Name:    "department_name",
+				Unique:  false,
+				Columns: []*schema.Column{DepartmentsColumns[4]},
+			},
+			{
+				Name:    "department_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{DepartmentsColumns[8], DepartmentsColumns[9]},
+			},
+			{
+				Name:    "department_code_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{DepartmentsColumns[5], DepartmentsColumns[3]},
+			},
+		},
+	}
 	// DevicesColumns holds the columns for the "devices" table.
 	DevicesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -265,7 +320,7 @@ var (
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"online", "offline"}, Default: "offline"},
 		{Name: "ip", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
-		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "sort_order", Type: field.TypeInt, Nullable: true, Default: 1000},
 		{Name: "paper_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"58mm", "80mm"}},
 		{Name: "order_channels", Type: field.TypeJSON, Nullable: true},
 		{Name: "dining_ways", Type: field.TypeJSON, Nullable: true},
@@ -464,19 +519,19 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "merchant_code", Type: field.TypeString, Default: ""},
+		{Name: "merchant_code", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "merchant_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "merchant_short_name", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "merchant_short_name", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "merchant_type", Type: field.TypeEnum, Enums: []string{"brand", "store"}},
-		{Name: "brand_name", Type: field.TypeString, Default: ""},
+		{Name: "brand_name", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "admin_phone_number", Type: field.TypeString, Size: 20, Default: ""},
 		{Name: "expire_utc", Type: field.TypeTime, Nullable: true},
 		{Name: "merchant_logo", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "description", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "expired", "disabled"}},
-		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
-		{Name: "lng", Type: field.TypeString, Default: ""},
-		{Name: "lat", Type: field.TypeString, Default: ""},
+		{Name: "address", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
+		{Name: "lng", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "lat", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "super_account", Type: field.TypeString},
 		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
@@ -1085,6 +1140,61 @@ var (
 			},
 		},
 	}
+	// RolesColumns holds the columns for the "roles" table.
+	RolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "name", Type: field.TypeString},
+		{Name: "code", Type: field.TypeString},
+		{Name: "role_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
+		{Name: "enable", Type: field.TypeBool, Default: true},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+	}
+	// RolesTable holds the schema information for the "roles" table.
+	RolesTable = &schema.Table{
+		Name:       "roles",
+		Columns:    RolesColumns,
+		PrimaryKey: []*schema.Column{RolesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "roles_merchants_roles",
+				Columns:    []*schema.Column{RolesColumns[8]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "roles_stores_roles",
+				Columns:    []*schema.Column{RolesColumns[9]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "role_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RolesColumns[3]},
+			},
+			{
+				Name:    "role_name",
+				Unique:  false,
+				Columns: []*schema.Column{RolesColumns[4]},
+			},
+			{
+				Name:    "role_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{RolesColumns[8], RolesColumns[9]},
+			},
+			{
+				Name:    "role_code_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{RolesColumns[5], RolesColumns[3]},
+			},
+		},
+	}
 	// SetMealDetailsColumns holds the columns for the "set_meal_details" table.
 	SetMealDetailsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1234,26 +1344,26 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "admin_phone_number", Type: field.TypeString, Size: 20, Default: ""},
 		{Name: "store_name", Type: field.TypeString, Size: 30, Default: ""},
-		{Name: "store_short_name", Type: field.TypeString, Size: 30, Default: ""},
-		{Name: "store_code", Type: field.TypeString, Default: ""},
+		{Name: "store_short_name", Type: field.TypeString, Nullable: true, Size: 30, Default: ""},
+		{Name: "store_code", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"open", "closed"}},
 		{Name: "business_model", Type: field.TypeEnum, Enums: []string{"direct", "franchisee"}},
 		{Name: "location_number", Type: field.TypeString, Size: 255},
-		{Name: "contact_name", Type: field.TypeString, Size: 20, Default: ""},
-		{Name: "contact_phone", Type: field.TypeString, Size: 20, Default: ""},
-		{Name: "unified_social_credit_code", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "store_logo", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "business_license_url", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "storefront_url", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "cashier_desk_url", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "dining_environment_url", Type: field.TypeString, Size: 500, Default: ""},
-		{Name: "food_operation_license_url", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "contact_name", Type: field.TypeString, Nullable: true, Size: 20, Default: ""},
+		{Name: "contact_phone", Type: field.TypeString, Nullable: true, Size: 20, Default: ""},
+		{Name: "unified_social_credit_code", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
+		{Name: "store_logo", Type: field.TypeString, Nullable: true, Size: 500, Default: ""},
+		{Name: "business_license_url", Type: field.TypeString, Nullable: true, Size: 500, Default: ""},
+		{Name: "storefront_url", Type: field.TypeString, Nullable: true, Size: 500, Default: ""},
+		{Name: "cashier_desk_url", Type: field.TypeString, Nullable: true, Size: 500, Default: ""},
+		{Name: "dining_environment_url", Type: field.TypeString, Nullable: true, Size: 500, Default: ""},
+		{Name: "food_operation_license_url", Type: field.TypeString, Nullable: true, Size: 500, Default: ""},
 		{Name: "business_hours", Type: field.TypeJSON},
 		{Name: "dining_periods", Type: field.TypeJSON},
 		{Name: "shift_times", Type: field.TypeJSON},
 		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
-		{Name: "lng", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "lat", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "lng", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
+		{Name: "lat", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "super_account", Type: field.TypeString},
 		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
@@ -1327,6 +1437,7 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
+		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID},
 	}
 	// StoreUsersTable holds the schema information for the "store_users" table.
@@ -1336,8 +1447,14 @@ var (
 		PrimaryKey: []*schema.Column{StoreUsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "store_users_stores_store_users",
+				Symbol:     "store_users_merchants_store_users",
 				Columns:    []*schema.Column{StoreUsersColumns[7]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "store_users_stores_store_users",
+				Columns:    []*schema.Column{StoreUsersColumns[8]},
 				RefColumns: []*schema.Column{StoresColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1470,6 +1587,7 @@ var (
 		CategoriesTable,
 		CitiesTable,
 		CountriesTable,
+		DepartmentsTable,
 		DevicesTable,
 		DistrictsTable,
 		MenusTable,
@@ -1488,6 +1606,7 @@ var (
 		ProvincesTable,
 		RemarksTable,
 		RemarkCategoriesTable,
+		RolesTable,
 		SetMealDetailsTable,
 		SetMealGroupsTable,
 		StallsTable,
@@ -1506,6 +1625,8 @@ func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
 	CitiesTable.ForeignKeys[0].RefTable = CountriesTable
 	CitiesTable.ForeignKeys[1].RefTable = ProvincesTable
+	DepartmentsTable.ForeignKeys[0].RefTable = MerchantsTable
+	DepartmentsTable.ForeignKeys[1].RefTable = StoresTable
 	DevicesTable.ForeignKeys[0].RefTable = MerchantsTable
 	DevicesTable.ForeignKeys[1].RefTable = StallsTable
 	DevicesTable.ForeignKeys[2].RefTable = StoresTable
@@ -1533,6 +1654,8 @@ func init() {
 	RemarksTable.ForeignKeys[1].RefTable = RemarkCategoriesTable
 	RemarksTable.ForeignKeys[2].RefTable = StoresTable
 	RemarkCategoriesTable.ForeignKeys[0].RefTable = MerchantsTable
+	RolesTable.ForeignKeys[0].RefTable = MerchantsTable
+	RolesTable.ForeignKeys[1].RefTable = StoresTable
 	SetMealDetailsTable.ForeignKeys[0].RefTable = ProductsTable
 	SetMealDetailsTable.ForeignKeys[1].RefTable = SetMealGroupsTable
 	SetMealGroupsTable.ForeignKeys[0].RefTable = ProductsTable
@@ -1544,7 +1667,8 @@ func init() {
 	StoresTable.ForeignKeys[3].RefTable = MerchantsTable
 	StoresTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
 	StoresTable.ForeignKeys[5].RefTable = ProvincesTable
-	StoreUsersTable.ForeignKeys[0].RefTable = StoresTable
+	StoreUsersTable.ForeignKeys[0].RefTable = MerchantsTable
+	StoreUsersTable.ForeignKeys[1].RefTable = StoresTable
 	TaxFeesTable.ForeignKeys[0].RefTable = MerchantsTable
 	TaxFeesTable.ForeignKeys[1].RefTable = StoresTable
 	MenuStoreRelationsTable.ForeignKeys[0].RefTable = MenusTable

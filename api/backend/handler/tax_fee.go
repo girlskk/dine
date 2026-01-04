@@ -33,7 +33,8 @@ func (h *TaxFeeHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PATCH("/:id", h.SimpleUpdate())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 // Create 创建税费
@@ -283,24 +284,23 @@ func (h *TaxFeeHandler) List() gin.HandlerFunc {
 	}
 }
 
-// SimpleUpdate 更新税费单个字段（仅 default_tax）
+// Enable 启用税费
 //
-//	@Tags		费用管理-税费管理
-//	@Security	BearerAuth
-//	@Summary	更新税费单个字段
-//	@Accept		json
-//	@Produce	json
-//	@Param		id		path	string						true	"税费ID"
-//	@Param		data	body	types.TaxFeeSimpleUpdateReq	true	"请求信息"
-//	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	404		{object}	response.Response
-//	@Failure	500		{object}	response.Response
-//	@Router		/tax_fee/{id} [patch]
-func (h *TaxFeeHandler) SimpleUpdate() gin.HandlerFunc {
+//	@Tags			费用管理-税费管理
+//	@Security		BearerAuth
+//	@Summary		启用税费
+//	@Description	将税费标记为默认
+//	@Produce		json
+//	@Param			id	path	string	true	"税费ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/tax_fee/{id}/enable [put]
+func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("TaxFeeHandler.SimpleUpdate")
+		logger := logging.FromContext(ctx).Named("TaxFeeHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -310,14 +310,53 @@ func (h *TaxFeeHandler) SimpleUpdate() gin.HandlerFunc {
 			return
 		}
 
-		var req types.TaxFeeSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
+		fee := &domain.TaxFee{ID: id, DefaultTax: true}
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateTypeDefault, fee); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to simple update tax fee: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 取消默认税费
+//
+//	@Tags			费用管理-税费管理
+//	@Security		BearerAuth
+//	@Summary		禁用税费
+//	@Description	取消默认税费标记
+//	@Produce		json
+//	@Param			id	path	string	true	"税费ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/tax_fee/{id}/disable [put]
+func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("TaxFeeHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		fee := &domain.TaxFee{ID: id, DefaultTax: req.DefaultTax}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, req.SimpleUpdateType, fee); err != nil {
+		fee := &domain.TaxFee{ID: id, DefaultTax: false}
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateTypeDefault, fee); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

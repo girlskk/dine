@@ -7,16 +7,6 @@ import (
 )
 
 // DeviceCreateReq 创建设备请求
-// MerchantID/StoreID 从登录上下文获取
-// StallID 可为空
-// OrderChannels/DiningWays 允许为空数组
-// PaperSize 仅打印机需要
-// DeviceCode 可选，用于避免重复绑定
-// DeviceBrand/DeviceModel 可选
-// OpenCashDrawer 仅收银机使用
-// DeviceStallPrintType/DeviceStallReceiptType 仅打印机使用
-// Enabled 默认 true
-// Status 创建时默认 offline（由后端决定）
 type DeviceCreateReq struct {
 	StoreID       uuid.UUID             `json:"store_id" binding:"required"`                               // 门店 ID
 	Name          string                `json:"name" binding:"required,max=50"`                            // 设备名称
@@ -48,7 +38,6 @@ type DeviceCashier struct {
 }
 
 // DeviceUpdateReq 更新设备请求
-// MerchantID/StoreID 不可修改
 type DeviceUpdateReq struct {
 	StoreID       uuid.UUID             `json:"store_id" binding:"required"`                               // 门店 ID
 	Name          string                `json:"name" binding:"required,max=50"`                            // 设备名称
@@ -64,8 +53,6 @@ type DeviceUpdateReq struct {
 }
 
 // DeviceListReq 设备列表查询
-// MerchantID 从登录上下文取
-// StoreID 必填（前台后台约束可以调整）
 type DeviceListReq struct {
 	upagination.RequestPagination
 	StoreID    uuid.UUID           `form:"store_id"`    // 门店 ID
@@ -75,13 +62,6 @@ type DeviceListReq struct {
 }
 
 type DeviceListResp struct {
-	Devices []*domain.Device `json:"devices"`
-	Total   int              `json:"total"`
-}
-
-// DeviceSimpleUpdateReq 更新设备单个字段
-// 目前支持：enabled
-type DeviceSimpleUpdateReq struct {
-	SimpleUpdateType domain.DeviceSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=enabled"` // 更新字段
-	Enabled          bool                          `json:"enabled" binding:"omitempty"`
+	Devices []*domain.Device `json:"devices"` // 设备列表
+	Total   int              `json:"total"`   // 总数
 }

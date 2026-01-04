@@ -40,7 +40,7 @@ type MerchantInteractor interface {
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
 	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
-	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateType, domainUMerchant *UpdateMerchantParams) (err error)
+	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateType, domainMerchant *Merchant) (err error)
 }
 type MerchantListOrderByType int
 
@@ -130,25 +130,28 @@ const (
 )
 
 type Merchant struct {
-	ID                uuid.UUID      `json:"id"`
-	MerchantCode      string         `json:"merchant_code"`       // 商户编号(保留字段)
-	MerchantName      string         `json:"merchant_name"`       // 商户名称,最长不得超过50个字
-	MerchantShortName string         `json:"merchant_short_name"` // 商户简称
-	MerchantType      MerchantType   `json:"merchant_type"`       // 商户类型: 品牌商户,门店商户
-	BrandName         string         `json:"brand_name"`          // 品牌名称
-	AdminPhoneNumber  string         `json:"admin_phone_number"`  // 管理员手机号
-	ExpireUTC         *time.Time     `json:"expire_utc"`          // UTC 时区的过期时间
-	BusinessTypeID    uuid.UUID      `json:"business_type_id"`    // 业务类型
-	BusinessTypeName  string         `json:"business_type_name"`  // 业务类型名称
-	MerchantLogo      string         `json:"merchant_logo"`       // logo 图片地址
-	Description       string         `json:"description"`         // 商户描述(保留字段)
-	Status            MerchantStatus `json:"status"`              // 状态: 正常,停用,过期
-	LoginAccount      string         `json:"login_account"`       // 登录账号
-	LoginPassword     string         `json:"login_password"`      // 登录密码(加密存储)
-	Address           *Address       `json:"address"`             // 地址
-	StoreCount        int            `json:"store_count"`         // 关联门店数量(仅品牌商户有效)
-	CreatedAt         time.Time      `json:"created_at"`
-	UpdatedAt         time.Time      `json:"updated_at"`
+	ID                   uuid.UUID            `json:"id"`
+	MerchantCode         string               `json:"merchant_code"`                             // 商户编号(保留字段)
+	MerchantName         string               `json:"merchant_name"`                             // 商户名称,最长不得超过50个字
+	MerchantShortName    string               `json:"merchant_short_name"`                       // 商户简称
+	MerchantType         MerchantType         `json:"merchant_type"`                             // 商户类型: 品牌商户,门店商户
+	BrandName            string               `json:"brand_name"`                                // 品牌名称
+	AdminPhoneNumber     string               `json:"admin_phone_number"`                        // 管理员手机号
+	ExpireUTC            *time.Time           `json:"expire_utc"`                                // UTC 时区的过期时间
+	BusinessTypeID       uuid.UUID            `json:"business_type_id"`                          // 业务类型
+	BusinessTypeName     string               `json:"business_type_name"`                        // 业务类型名称
+	MerchantLogo         string               `json:"merchant_logo"`                             // logo 图片地址
+	Description          string               `json:"description"`                               // 商户描述(保留字段)
+	Status               MerchantStatus       `json:"status"`                                    // 状态: 正常,停用,过期
+	LoginAccount         string               `json:"login_account"`                             // 登录账号
+	LoginPassword        string               `json:"login_password"`                            // 登录密码(加密存储)
+	Address              *Address             `json:"address"`                                   // 地址
+	StoreCount           int                  `json:"store_count"`                               // 关联门店数量(仅品牌商户有效)
+	PurchaseDuration     int                  `json:"purchase_duration" binding:"required"`      // 购买时长
+	PurchaseDurationUnit PurchaseDurationUnit `json:"purchase_duration_unit" binding:"required"` // 购买时长单位
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Address struct {
@@ -197,23 +200,20 @@ type CreateMerchantParams struct {
 	BusinessTypeID       uuid.UUID            `json:"business_type_id"`       // 业务类型
 	MerchantLogo         string               `json:"merchant_logo"`          // logo 图片地址
 	Description          string               `json:"description"`            // 商户描述(保留字段)
-	Status               MerchantStatus       `json:"status"`                 // 状态: 正常,停用,过期
 	LoginAccount         string               `json:"login_account"`          // 登录账号
 	LoginPassword        string               `json:"login_password"`         // 登录密码(加密存储)
 	Address              *Address             `json:"address"`                // 地址
 }
 
 type UpdateMerchantParams struct {
-	ID                uuid.UUID      `json:"id"`
-	MerchantCode      string         `json:"merchant_code"`       // 商户编号(保留字段)
-	MerchantName      string         `json:"merchant_name"`       // 商户名称,最长不得超过50个字
-	MerchantShortName string         `json:"merchant_short_name"` // 商户简称
-	BrandName         string         `json:"brand_name"`          // 品牌名称
-	AdminPhoneNumber  string         `json:"admin_phone_number"`  // 管理员手机号
-	BusinessTypeID    uuid.UUID      `json:"business_type_id"`    // 业务类型
-	MerchantLogo      string         `json:"merchant_logo"`       // logo 图片地址
-	Description       string         `json:"description"`         // 商户描述(保留字段)
-	Status            MerchantStatus `json:"status"`              // 状态: 正常,停用,过期
-	LoginPassword     string         `json:"login_password"`      // 登录密码(加密存储)
-	Address           *Address       `json:"address"`             // 地址
+	ID                uuid.UUID `json:"id"`
+	MerchantCode      string    `json:"merchant_code"`       // 商户编号(保留字段)
+	MerchantName      string    `json:"merchant_name"`       // 商户名称,最长不得超过50个字
+	MerchantShortName string    `json:"merchant_short_name"` // 商户简称
+	BrandName         string    `json:"brand_name"`          // 品牌名称
+	AdminPhoneNumber  string    `json:"admin_phone_number"`  // 管理员手机号
+	BusinessTypeID    uuid.UUID `json:"business_type_id"`    // 业务类型
+	MerchantLogo      string    `json:"merchant_logo"`       // logo 图片地址
+	Description       string    `json:"description"`         // 商户描述(保留字段)
+	Address           *Address  `json:"address"`             // 地址
 }

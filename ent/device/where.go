@@ -782,6 +782,16 @@ func SortOrderLTE(v int) predicate.Device {
 	return predicate.Device(sql.FieldLTE(FieldSortOrder, v))
 }
 
+// SortOrderIsNil applies the IsNil predicate on the "sort_order" field.
+func SortOrderIsNil() predicate.Device {
+	return predicate.Device(sql.FieldIsNull(FieldSortOrder))
+}
+
+// SortOrderNotNil applies the NotNil predicate on the "sort_order" field.
+func SortOrderNotNil() predicate.Device {
+	return predicate.Device(sql.FieldNotNull(FieldSortOrder))
+}
+
 // PaperSizeEQ applies the EQ predicate on the "paper_size" field.
 func PaperSizeEQ(v domain.PaperSize) predicate.Device {
 	vc := v

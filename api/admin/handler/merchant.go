@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -37,7 +38,8 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 	r.GET("/:id", h.GetMerchant())
 	r.GET("/list", h.GetMerchants())
 	r.POST("/renewal", h.MerchantRenewal())
-	r.PATCH("/:id", h.MerchantSimpleUpdate())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 	r.GET("/count", h.CountMerchant())
 }
 
@@ -88,7 +90,6 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 			BusinessTypeID:       req.BusinessTypeID,
 			MerchantLogo:         req.MerchantLogo,
 			Description:          req.Description,
-			Status:               req.Status,
 			LoginAccount:         req.LoginAccount,
 			LoginPassword:        hashPwd,
 		}
@@ -105,6 +106,10 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 		}
 		err = h.MerchantInteractor.CreateMerchant(ctx, createBrandMerchant)
 		if err != nil {
+			if errors.Is(err, domain.ErrUserExists) {
+				c.Error(errorx.New(http.StatusConflict, errcode.BackendUserExists, err))
+				return
+			}
 			if domain.IsConflict(err) {
 				c.Error(errorx.New(http.StatusConflict, errcode.MerchantNameExists, err))
 				return
@@ -176,7 +181,6 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			BusinessTypeID:       req.Merchant.BusinessTypeID,
 			MerchantLogo:         req.Merchant.MerchantLogo,
 			Description:          req.Merchant.Description,
-			Status:               req.Merchant.Status,
 			LoginAccount:         req.Merchant.LoginAccount,
 			LoginPassword:        hashPwd,
 			Address:              address,
@@ -259,11 +263,7 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		hashPwd, err := util.HashPassword(req.LoginPassword)
-		if err != nil {
-			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
-			return
-		}
+
 		updateBrandMerchant := &domain.UpdateMerchantParams{
 			ID:                merchantID,
 			MerchantCode:      req.MerchantCode,
@@ -274,8 +274,6 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			BusinessTypeID:    req.BusinessTypeID,
 			MerchantLogo:      req.MerchantLogo,
 			Description:       req.Description,
-			Status:            req.Status,
-			LoginPassword:     hashPwd,
 		}
 		if req.Address.CountryID != uuid.Nil {
 			updateBrandMerchant.Address = &domain.Address{
@@ -339,11 +337,7 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		hashPwd, err := util.HashPassword(req.Merchant.LoginPassword)
-		if err != nil {
-			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
-			return
-		}
+
 		address := &domain.Address{
 			CountryID:  req.Store.Address.CountryID,
 			ProvinceID: req.Store.Address.ProvinceID,
@@ -363,8 +357,6 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			BusinessTypeID:    req.Merchant.BusinessTypeID,
 			MerchantLogo:      req.Merchant.MerchantLogo,
 			Description:       req.Merchant.Description,
-			Status:            req.Merchant.Status,
-			LoginPassword:     hashPwd,
 			Address:           address, // 门店商户的地址使用门店的地址
 		}
 
@@ -624,44 +616,77 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 	}
 }
 
-// MerchantSimpleUpdate 更新商户单个字段信息
+// Enable 启用商户
 //
-//	@Summary		更新商户单个字段信息
-//	@Description	修改商户状态，
+//	@Summary		启用商户
+//	@Description	将商户状态置为激活
 //	@Tags			商户管理-商户
 //	@Security		BearerAuth
-//	@Accept			json
 //	@Produce		json
-//	@Param			data	body	types.MerchantSimpleUpdateReq	true	"更新商户单个字段信息请求"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
-//	@Router			/merchant/merchant/{id} [patch]
-func (h *MerchantHandler) MerchantSimpleUpdate() gin.HandlerFunc {
+//	@Param			id	path	string	true	"商户ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/merchant/merchant/{id}/enable [put]
+func (h *MerchantHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("MerchantHandler.MerchantSimpleUpdate")
+		logger := logging.FromContext(ctx).Named("MerchantHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		var req types.MerchantSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-
-		// 从路径参数获取商户 ID
-		merchantIDStr := c.Param("id")
-		merchantID, err := uuid.Parse(merchantIDStr)
+		id, err := uuid.Parse(c.Param("id"))
 		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		updateParams := &domain.UpdateMerchantParams{ID: merchantID, Status: req.Status}
+		updateParams := &domain.Merchant{ID: id, Status: domain.MerchantStatusActive}
 
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, req.SimpleUpdateType, updateParams); err != nil {
+		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to simple update merchant: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用商户
+//
+//	@Summary		禁用商户
+//	@Description	将商户状态置为禁用
+//	@Tags			商户管理-商户
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Param			id	path	string	true	"商户ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/merchant/merchant/{id}/disable [put]
+func (h *MerchantHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("MerchantHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		updateParams := &domain.Merchant{ID: id, Status: domain.MerchantStatusDisabled}
+
+		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

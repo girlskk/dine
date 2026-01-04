@@ -32,7 +32,8 @@ func (h *RemarkHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PATCH("/:id", h.RemarkSimpleUpdate())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 // Create 创建备注
@@ -285,25 +286,23 @@ func (h *RemarkHandler) List() gin.HandlerFunc {
 	}
 }
 
-// RemarkSimpleUpdate 更新备注单个字段信息
+// Enable 启用备注
 //
 //	@Tags			前厅管理
 //	@Security		BearerAuth
-//	@Summary		更新备注单个字段信息
-//	@Description	快速切换启用状态，
-//	@Accept			json
+//	@Summary		启用备注
+//	@Description	将备注置为启用
 //	@Produce		json
-//	@Param			id		path	string						true	"备注ID"
-//	@Param			data	body	types.RemarkSimpleUpdateReq	true	"更新备注单个字段信息请求信息"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
-//	@Router			/remark/{id} [patch]
-func (h *RemarkHandler) RemarkSimpleUpdate() gin.HandlerFunc {
+//	@Param			id	path	string	true	"备注ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/remark/{id}/enable [put]
+func (h *RemarkHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("RemarkHandler.RemarkSimpleUpdate")
+		logger := logging.FromContext(ctx).Named("RemarkHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -313,14 +312,53 @@ func (h *RemarkHandler) RemarkSimpleUpdate() gin.HandlerFunc {
 			return
 		}
 
-		var req types.RemarkSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
+		remark := &domain.Remark{ID: id, Enabled: true}
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateTypeEnabled, remark); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to toggle enabled: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用备注
+//
+//	@Tags			前厅管理
+//	@Security		BearerAuth
+//	@Summary		禁用备注
+//	@Description	将备注置为禁用
+//	@Produce		json
+//	@Param			id	path	string	true	"备注ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/remark/{id}/disable [put]
+func (h *RemarkHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("RemarkHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		remark := &domain.Remark{ID: id, Enabled: req.Enabled}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, req.SimpleUpdateType, remark); err != nil {
+		remark := &domain.Remark{ID: id, Enabled: false}
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateTypeEnabled, remark); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

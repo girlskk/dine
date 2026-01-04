@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
@@ -26,8 +27,10 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
@@ -86,6 +89,12 @@ func (mu *MerchantUpdate) SetNillableMerchantCode(s *string) *MerchantUpdate {
 	return mu
 }
 
+// ClearMerchantCode clears the value of the "merchant_code" field.
+func (mu *MerchantUpdate) ClearMerchantCode() *MerchantUpdate {
+	mu.mutation.ClearMerchantCode()
+	return mu
+}
+
 // SetMerchantName sets the "merchant_name" field.
 func (mu *MerchantUpdate) SetMerchantName(s string) *MerchantUpdate {
 	mu.mutation.SetMerchantName(s)
@@ -114,6 +123,12 @@ func (mu *MerchantUpdate) SetNillableMerchantShortName(s *string) *MerchantUpdat
 	return mu
 }
 
+// ClearMerchantShortName clears the value of the "merchant_short_name" field.
+func (mu *MerchantUpdate) ClearMerchantShortName() *MerchantUpdate {
+	mu.mutation.ClearMerchantShortName()
+	return mu
+}
+
 // SetMerchantType sets the "merchant_type" field.
 func (mu *MerchantUpdate) SetMerchantType(dt domain.MerchantType) *MerchantUpdate {
 	mu.mutation.SetMerchantType(dt)
@@ -139,6 +154,12 @@ func (mu *MerchantUpdate) SetNillableBrandName(s *string) *MerchantUpdate {
 	if s != nil {
 		mu.SetBrandName(*s)
 	}
+	return mu
+}
+
+// ClearBrandName clears the value of the "brand_name" field.
+func (mu *MerchantUpdate) ClearBrandName() *MerchantUpdate {
+	mu.mutation.ClearBrandName()
 	return mu
 }
 
@@ -215,6 +236,12 @@ func (mu *MerchantUpdate) SetNillableDescription(s *string) *MerchantUpdate {
 	if s != nil {
 		mu.SetDescription(*s)
 	}
+	return mu
+}
+
+// ClearDescription clears the value of the "description" field.
+func (mu *MerchantUpdate) ClearDescription() *MerchantUpdate {
+	mu.mutation.ClearDescription()
 	return mu
 }
 
@@ -326,6 +353,12 @@ func (mu *MerchantUpdate) SetNillableAddress(s *string) *MerchantUpdate {
 	return mu
 }
 
+// ClearAddress clears the value of the "address" field.
+func (mu *MerchantUpdate) ClearAddress() *MerchantUpdate {
+	mu.mutation.ClearAddress()
+	return mu
+}
+
 // SetLng sets the "lng" field.
 func (mu *MerchantUpdate) SetLng(s string) *MerchantUpdate {
 	mu.mutation.SetLng(s)
@@ -340,6 +373,12 @@ func (mu *MerchantUpdate) SetNillableLng(s *string) *MerchantUpdate {
 	return mu
 }
 
+// ClearLng clears the value of the "lng" field.
+func (mu *MerchantUpdate) ClearLng() *MerchantUpdate {
+	mu.mutation.ClearLng()
+	return mu
+}
+
 // SetLat sets the "lat" field.
 func (mu *MerchantUpdate) SetLat(s string) *MerchantUpdate {
 	mu.mutation.SetLat(s)
@@ -351,6 +390,12 @@ func (mu *MerchantUpdate) SetNillableLat(s *string) *MerchantUpdate {
 	if s != nil {
 		mu.SetLat(*s)
 	}
+	return mu
+}
+
+// ClearLat clears the value of the "lat" field.
+func (mu *MerchantUpdate) ClearLat() *MerchantUpdate {
+	mu.mutation.ClearLat()
 	return mu
 }
 
@@ -518,6 +563,51 @@ func (mu *MerchantUpdate) AddDevices(d ...*Device) *MerchantUpdate {
 		ids[i] = d[i].ID
 	}
 	return mu.AddDeviceIDs(ids...)
+}
+
+// AddDepartmentIDs adds the "departments" edge to the Department entity by IDs.
+func (mu *MerchantUpdate) AddDepartmentIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddDepartmentIDs(ids...)
+	return mu
+}
+
+// AddDepartments adds the "departments" edges to the Department entity.
+func (mu *MerchantUpdate) AddDepartments(d ...*Department) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mu.AddDepartmentIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (mu *MerchantUpdate) AddRoleIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddRoleIDs(ids...)
+	return mu
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (mu *MerchantUpdate) AddRoles(r ...*Role) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mu.AddRoleIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (mu *MerchantUpdate) AddStoreUserIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.AddStoreUserIDs(ids...)
+	return mu
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (mu *MerchantUpdate) AddStoreUsers(s ...*StoreUser) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mu.AddStoreUserIDs(ids...)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -744,6 +834,69 @@ func (mu *MerchantUpdate) RemoveDevices(d ...*Device) *MerchantUpdate {
 	return mu.RemoveDeviceIDs(ids...)
 }
 
+// ClearDepartments clears all "departments" edges to the Department entity.
+func (mu *MerchantUpdate) ClearDepartments() *MerchantUpdate {
+	mu.mutation.ClearDepartments()
+	return mu
+}
+
+// RemoveDepartmentIDs removes the "departments" edge to Department entities by IDs.
+func (mu *MerchantUpdate) RemoveDepartmentIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveDepartmentIDs(ids...)
+	return mu
+}
+
+// RemoveDepartments removes "departments" edges to Department entities.
+func (mu *MerchantUpdate) RemoveDepartments(d ...*Department) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mu.RemoveDepartmentIDs(ids...)
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (mu *MerchantUpdate) ClearRoles() *MerchantUpdate {
+	mu.mutation.ClearRoles()
+	return mu
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (mu *MerchantUpdate) RemoveRoleIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveRoleIDs(ids...)
+	return mu
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (mu *MerchantUpdate) RemoveRoles(r ...*Role) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return mu.RemoveRoleIDs(ids...)
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (mu *MerchantUpdate) ClearStoreUsers() *MerchantUpdate {
+	mu.mutation.ClearStoreUsers()
+	return mu
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (mu *MerchantUpdate) RemoveStoreUserIDs(ids ...uuid.UUID) *MerchantUpdate {
+	mu.mutation.RemoveStoreUserIDs(ids...)
+	return mu
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (mu *MerchantUpdate) RemoveStoreUsers(s ...*StoreUser) *MerchantUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return mu.RemoveStoreUserIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (mu *MerchantUpdate) Save(ctx context.Context) (int, error) {
 	if err := mu.defaults(); err != nil {
@@ -788,11 +941,6 @@ func (mu *MerchantUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (mu *MerchantUpdate) check() error {
-	if v, ok := mu.mutation.MerchantCode(); ok {
-		if err := merchant.MerchantCodeValidator(v); err != nil {
-			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
-		}
-	}
 	if v, ok := mu.mutation.MerchantName(); ok {
 		if err := merchant.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_name": %w`, err)}
@@ -806,11 +954,6 @@ func (mu *MerchantUpdate) check() error {
 	if v, ok := mu.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
-		}
-	}
-	if v, ok := mu.mutation.BrandName(); ok {
-		if err := merchant.BrandNameValidator(v); err != nil {
-			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if v, ok := mu.mutation.AdminPhoneNumber(); ok {
@@ -836,16 +979,6 @@ func (mu *MerchantUpdate) check() error {
 	if v, ok := mu.mutation.Address(); ok {
 		if err := merchant.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Merchant.address": %w`, err)}
-		}
-	}
-	if v, ok := mu.mutation.Lng(); ok {
-		if err := merchant.LngValidator(v); err != nil {
-			return &ValidationError{Name: "lng", err: fmt.Errorf(`ent: validator failed for field "Merchant.lng": %w`, err)}
-		}
-	}
-	if v, ok := mu.mutation.Lat(); ok {
-		if err := merchant.LatValidator(v); err != nil {
-			return &ValidationError{Name: "lat", err: fmt.Errorf(`ent: validator failed for field "Merchant.lat": %w`, err)}
 		}
 	}
 	if mu.mutation.MerchantBusinessTypeCleared() && len(mu.mutation.MerchantBusinessTypeIDs()) > 0 {
@@ -884,17 +1017,26 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.MerchantCode(); ok {
 		_spec.SetField(merchant.FieldMerchantCode, field.TypeString, value)
 	}
+	if mu.mutation.MerchantCodeCleared() {
+		_spec.ClearField(merchant.FieldMerchantCode, field.TypeString)
+	}
 	if value, ok := mu.mutation.MerchantName(); ok {
 		_spec.SetField(merchant.FieldMerchantName, field.TypeString, value)
 	}
 	if value, ok := mu.mutation.MerchantShortName(); ok {
 		_spec.SetField(merchant.FieldMerchantShortName, field.TypeString, value)
 	}
+	if mu.mutation.MerchantShortNameCleared() {
+		_spec.ClearField(merchant.FieldMerchantShortName, field.TypeString)
+	}
 	if value, ok := mu.mutation.MerchantType(); ok {
 		_spec.SetField(merchant.FieldMerchantType, field.TypeEnum, value)
 	}
 	if value, ok := mu.mutation.BrandName(); ok {
 		_spec.SetField(merchant.FieldBrandName, field.TypeString, value)
+	}
+	if mu.mutation.BrandNameCleared() {
+		_spec.ClearField(merchant.FieldBrandName, field.TypeString)
 	}
 	if value, ok := mu.mutation.AdminPhoneNumber(); ok {
 		_spec.SetField(merchant.FieldAdminPhoneNumber, field.TypeString, value)
@@ -911,17 +1053,29 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.Description(); ok {
 		_spec.SetField(merchant.FieldDescription, field.TypeString, value)
 	}
+	if mu.mutation.DescriptionCleared() {
+		_spec.ClearField(merchant.FieldDescription, field.TypeString)
+	}
 	if value, ok := mu.mutation.Status(); ok {
 		_spec.SetField(merchant.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := mu.mutation.Address(); ok {
 		_spec.SetField(merchant.FieldAddress, field.TypeString, value)
 	}
+	if mu.mutation.AddressCleared() {
+		_spec.ClearField(merchant.FieldAddress, field.TypeString)
+	}
 	if value, ok := mu.mutation.Lng(); ok {
 		_spec.SetField(merchant.FieldLng, field.TypeString, value)
 	}
+	if mu.mutation.LngCleared() {
+		_spec.ClearField(merchant.FieldLng, field.TypeString)
+	}
 	if value, ok := mu.mutation.Lat(); ok {
 		_spec.SetField(merchant.FieldLat, field.TypeString, value)
+	}
+	if mu.mutation.LatCleared() {
+		_spec.ClearField(merchant.FieldLat, field.TypeString)
 	}
 	if mu.mutation.MerchantBusinessTypeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1473,6 +1627,141 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DepartmentsTable,
+			Columns: []string{merchant.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedDepartmentsIDs(); len(nodes) > 0 && !mu.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DepartmentsTable,
+			Columns: []string{merchant.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.DepartmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DepartmentsTable,
+			Columns: []string{merchant.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RolesTable,
+			Columns: []string{merchant.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedRolesIDs(); len(nodes) > 0 && !mu.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RolesTable,
+			Columns: []string{merchant.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RolesTable,
+			Columns: []string{merchant.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !mu.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(mu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1536,6 +1825,12 @@ func (muo *MerchantUpdateOne) SetNillableMerchantCode(s *string) *MerchantUpdate
 	return muo
 }
 
+// ClearMerchantCode clears the value of the "merchant_code" field.
+func (muo *MerchantUpdateOne) ClearMerchantCode() *MerchantUpdateOne {
+	muo.mutation.ClearMerchantCode()
+	return muo
+}
+
 // SetMerchantName sets the "merchant_name" field.
 func (muo *MerchantUpdateOne) SetMerchantName(s string) *MerchantUpdateOne {
 	muo.mutation.SetMerchantName(s)
@@ -1564,6 +1859,12 @@ func (muo *MerchantUpdateOne) SetNillableMerchantShortName(s *string) *MerchantU
 	return muo
 }
 
+// ClearMerchantShortName clears the value of the "merchant_short_name" field.
+func (muo *MerchantUpdateOne) ClearMerchantShortName() *MerchantUpdateOne {
+	muo.mutation.ClearMerchantShortName()
+	return muo
+}
+
 // SetMerchantType sets the "merchant_type" field.
 func (muo *MerchantUpdateOne) SetMerchantType(dt domain.MerchantType) *MerchantUpdateOne {
 	muo.mutation.SetMerchantType(dt)
@@ -1589,6 +1890,12 @@ func (muo *MerchantUpdateOne) SetNillableBrandName(s *string) *MerchantUpdateOne
 	if s != nil {
 		muo.SetBrandName(*s)
 	}
+	return muo
+}
+
+// ClearBrandName clears the value of the "brand_name" field.
+func (muo *MerchantUpdateOne) ClearBrandName() *MerchantUpdateOne {
+	muo.mutation.ClearBrandName()
 	return muo
 }
 
@@ -1665,6 +1972,12 @@ func (muo *MerchantUpdateOne) SetNillableDescription(s *string) *MerchantUpdateO
 	if s != nil {
 		muo.SetDescription(*s)
 	}
+	return muo
+}
+
+// ClearDescription clears the value of the "description" field.
+func (muo *MerchantUpdateOne) ClearDescription() *MerchantUpdateOne {
+	muo.mutation.ClearDescription()
 	return muo
 }
 
@@ -1776,6 +2089,12 @@ func (muo *MerchantUpdateOne) SetNillableAddress(s *string) *MerchantUpdateOne {
 	return muo
 }
 
+// ClearAddress clears the value of the "address" field.
+func (muo *MerchantUpdateOne) ClearAddress() *MerchantUpdateOne {
+	muo.mutation.ClearAddress()
+	return muo
+}
+
 // SetLng sets the "lng" field.
 func (muo *MerchantUpdateOne) SetLng(s string) *MerchantUpdateOne {
 	muo.mutation.SetLng(s)
@@ -1790,6 +2109,12 @@ func (muo *MerchantUpdateOne) SetNillableLng(s *string) *MerchantUpdateOne {
 	return muo
 }
 
+// ClearLng clears the value of the "lng" field.
+func (muo *MerchantUpdateOne) ClearLng() *MerchantUpdateOne {
+	muo.mutation.ClearLng()
+	return muo
+}
+
 // SetLat sets the "lat" field.
 func (muo *MerchantUpdateOne) SetLat(s string) *MerchantUpdateOne {
 	muo.mutation.SetLat(s)
@@ -1801,6 +2126,12 @@ func (muo *MerchantUpdateOne) SetNillableLat(s *string) *MerchantUpdateOne {
 	if s != nil {
 		muo.SetLat(*s)
 	}
+	return muo
+}
+
+// ClearLat clears the value of the "lat" field.
+func (muo *MerchantUpdateOne) ClearLat() *MerchantUpdateOne {
+	muo.mutation.ClearLat()
 	return muo
 }
 
@@ -1968,6 +2299,51 @@ func (muo *MerchantUpdateOne) AddDevices(d ...*Device) *MerchantUpdateOne {
 		ids[i] = d[i].ID
 	}
 	return muo.AddDeviceIDs(ids...)
+}
+
+// AddDepartmentIDs adds the "departments" edge to the Department entity by IDs.
+func (muo *MerchantUpdateOne) AddDepartmentIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddDepartmentIDs(ids...)
+	return muo
+}
+
+// AddDepartments adds the "departments" edges to the Department entity.
+func (muo *MerchantUpdateOne) AddDepartments(d ...*Department) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return muo.AddDepartmentIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (muo *MerchantUpdateOne) AddRoleIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddRoleIDs(ids...)
+	return muo
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (muo *MerchantUpdateOne) AddRoles(r ...*Role) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return muo.AddRoleIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (muo *MerchantUpdateOne) AddStoreUserIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.AddStoreUserIDs(ids...)
+	return muo
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (muo *MerchantUpdateOne) AddStoreUsers(s ...*StoreUser) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return muo.AddStoreUserIDs(ids...)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -2194,6 +2570,69 @@ func (muo *MerchantUpdateOne) RemoveDevices(d ...*Device) *MerchantUpdateOne {
 	return muo.RemoveDeviceIDs(ids...)
 }
 
+// ClearDepartments clears all "departments" edges to the Department entity.
+func (muo *MerchantUpdateOne) ClearDepartments() *MerchantUpdateOne {
+	muo.mutation.ClearDepartments()
+	return muo
+}
+
+// RemoveDepartmentIDs removes the "departments" edge to Department entities by IDs.
+func (muo *MerchantUpdateOne) RemoveDepartmentIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveDepartmentIDs(ids...)
+	return muo
+}
+
+// RemoveDepartments removes "departments" edges to Department entities.
+func (muo *MerchantUpdateOne) RemoveDepartments(d ...*Department) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return muo.RemoveDepartmentIDs(ids...)
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (muo *MerchantUpdateOne) ClearRoles() *MerchantUpdateOne {
+	muo.mutation.ClearRoles()
+	return muo
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (muo *MerchantUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveRoleIDs(ids...)
+	return muo
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (muo *MerchantUpdateOne) RemoveRoles(r ...*Role) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return muo.RemoveRoleIDs(ids...)
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (muo *MerchantUpdateOne) ClearStoreUsers() *MerchantUpdateOne {
+	muo.mutation.ClearStoreUsers()
+	return muo
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (muo *MerchantUpdateOne) RemoveStoreUserIDs(ids ...uuid.UUID) *MerchantUpdateOne {
+	muo.mutation.RemoveStoreUserIDs(ids...)
+	return muo
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (muo *MerchantUpdateOne) RemoveStoreUsers(s ...*StoreUser) *MerchantUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return muo.RemoveStoreUserIDs(ids...)
+}
+
 // Where appends a list predicates to the MerchantUpdate builder.
 func (muo *MerchantUpdateOne) Where(ps ...predicate.Merchant) *MerchantUpdateOne {
 	muo.mutation.Where(ps...)
@@ -2251,11 +2690,6 @@ func (muo *MerchantUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (muo *MerchantUpdateOne) check() error {
-	if v, ok := muo.mutation.MerchantCode(); ok {
-		if err := merchant.MerchantCodeValidator(v); err != nil {
-			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
-		}
-	}
 	if v, ok := muo.mutation.MerchantName(); ok {
 		if err := merchant.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_name": %w`, err)}
@@ -2269,11 +2703,6 @@ func (muo *MerchantUpdateOne) check() error {
 	if v, ok := muo.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
-		}
-	}
-	if v, ok := muo.mutation.BrandName(); ok {
-		if err := merchant.BrandNameValidator(v); err != nil {
-			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if v, ok := muo.mutation.AdminPhoneNumber(); ok {
@@ -2299,16 +2728,6 @@ func (muo *MerchantUpdateOne) check() error {
 	if v, ok := muo.mutation.Address(); ok {
 		if err := merchant.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Merchant.address": %w`, err)}
-		}
-	}
-	if v, ok := muo.mutation.Lng(); ok {
-		if err := merchant.LngValidator(v); err != nil {
-			return &ValidationError{Name: "lng", err: fmt.Errorf(`ent: validator failed for field "Merchant.lng": %w`, err)}
-		}
-	}
-	if v, ok := muo.mutation.Lat(); ok {
-		if err := merchant.LatValidator(v); err != nil {
-			return &ValidationError{Name: "lat", err: fmt.Errorf(`ent: validator failed for field "Merchant.lat": %w`, err)}
 		}
 	}
 	if muo.mutation.MerchantBusinessTypeCleared() && len(muo.mutation.MerchantBusinessTypeIDs()) > 0 {
@@ -2364,17 +2783,26 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	if value, ok := muo.mutation.MerchantCode(); ok {
 		_spec.SetField(merchant.FieldMerchantCode, field.TypeString, value)
 	}
+	if muo.mutation.MerchantCodeCleared() {
+		_spec.ClearField(merchant.FieldMerchantCode, field.TypeString)
+	}
 	if value, ok := muo.mutation.MerchantName(); ok {
 		_spec.SetField(merchant.FieldMerchantName, field.TypeString, value)
 	}
 	if value, ok := muo.mutation.MerchantShortName(); ok {
 		_spec.SetField(merchant.FieldMerchantShortName, field.TypeString, value)
 	}
+	if muo.mutation.MerchantShortNameCleared() {
+		_spec.ClearField(merchant.FieldMerchantShortName, field.TypeString)
+	}
 	if value, ok := muo.mutation.MerchantType(); ok {
 		_spec.SetField(merchant.FieldMerchantType, field.TypeEnum, value)
 	}
 	if value, ok := muo.mutation.BrandName(); ok {
 		_spec.SetField(merchant.FieldBrandName, field.TypeString, value)
+	}
+	if muo.mutation.BrandNameCleared() {
+		_spec.ClearField(merchant.FieldBrandName, field.TypeString)
 	}
 	if value, ok := muo.mutation.AdminPhoneNumber(); ok {
 		_spec.SetField(merchant.FieldAdminPhoneNumber, field.TypeString, value)
@@ -2391,17 +2819,29 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	if value, ok := muo.mutation.Description(); ok {
 		_spec.SetField(merchant.FieldDescription, field.TypeString, value)
 	}
+	if muo.mutation.DescriptionCleared() {
+		_spec.ClearField(merchant.FieldDescription, field.TypeString)
+	}
 	if value, ok := muo.mutation.Status(); ok {
 		_spec.SetField(merchant.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := muo.mutation.Address(); ok {
 		_spec.SetField(merchant.FieldAddress, field.TypeString, value)
 	}
+	if muo.mutation.AddressCleared() {
+		_spec.ClearField(merchant.FieldAddress, field.TypeString)
+	}
 	if value, ok := muo.mutation.Lng(); ok {
 		_spec.SetField(merchant.FieldLng, field.TypeString, value)
 	}
+	if muo.mutation.LngCleared() {
+		_spec.ClearField(merchant.FieldLng, field.TypeString)
+	}
 	if value, ok := muo.mutation.Lat(); ok {
 		_spec.SetField(merchant.FieldLat, field.TypeString, value)
+	}
+	if muo.mutation.LatCleared() {
+		_spec.ClearField(merchant.FieldLat, field.TypeString)
 	}
 	if muo.mutation.MerchantBusinessTypeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -2946,6 +3386,141 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DepartmentsTable,
+			Columns: []string{merchant.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedDepartmentsIDs(); len(nodes) > 0 && !muo.mutation.DepartmentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DepartmentsTable,
+			Columns: []string{merchant.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.DepartmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.DepartmentsTable,
+			Columns: []string{merchant.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RolesTable,
+			Columns: []string{merchant.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedRolesIDs(); len(nodes) > 0 && !muo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RolesTable,
+			Columns: []string{merchant.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.RolesTable,
+			Columns: []string{merchant.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !muo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   merchant.StoreUsersTable,
+			Columns: []string{merchant.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

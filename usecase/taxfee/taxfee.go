@@ -35,6 +35,7 @@ func (interactor *TaxFeeInteractor) Create(ctx context.Context, fee *domain.TaxF
 	}
 
 	fee.ID = uuid.New()
+	fee.TaxCode = ""
 	if err = interactor.ds.TaxFeeRepo().Create(ctx, fee); err != nil {
 		return fmt.Errorf("failed to create tax fee: %w", err)
 	}

@@ -65,6 +65,7 @@ func (Device) Fields() []ent.Field {
 			Default("").
 			Comment("设备 IP 地址"),
 		field.Int("sort_order").
+			Optional().
 			Default(1000).
 			Comment("排序，值越小越靠前"),
 		field.Enum("paper_size").

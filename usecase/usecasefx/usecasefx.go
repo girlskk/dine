@@ -104,5 +104,9 @@ var Module = fx.Module(
 			userauth.NewStoreUserInteractor,
 			fx.As(new(domain.StoreUserInteractor)),
 		),
+		fx.Annotate(
+			merchant.NewMerchantBusinessTypeInteractor,
+			fx.As(new(domain.MerchantBusinessTypeInteractor)),
+		),
 	),
 )

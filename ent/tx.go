@@ -24,6 +24,8 @@ type Tx struct {
 	City *CityClient
 	// Country is the client for interacting with the Country builders.
 	Country *CountryClient
+	// Department is the client for interacting with the Department builders.
+	Department *DepartmentClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
 	// District is the client for interacting with the District builders.
@@ -60,6 +62,8 @@ type Tx struct {
 	Remark *RemarkClient
 	// RemarkCategory is the client for interacting with the RemarkCategory builders.
 	RemarkCategory *RemarkCategoryClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
 	// SetMealDetail is the client for interacting with the SetMealDetail builders.
 	SetMealDetail *SetMealDetailClient
 	// SetMealGroup is the client for interacting with the SetMealGroup builders.
@@ -209,6 +213,7 @@ func (tx *Tx) init() {
 	tx.Category = NewCategoryClient(tx.config)
 	tx.City = NewCityClient(tx.config)
 	tx.Country = NewCountryClient(tx.config)
+	tx.Department = NewDepartmentClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
 	tx.District = NewDistrictClient(tx.config)
 	tx.Menu = NewMenuClient(tx.config)
@@ -227,6 +232,7 @@ func (tx *Tx) init() {
 	tx.Province = NewProvinceClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
 	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
 	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 	tx.Stall = NewStallClient(tx.config)

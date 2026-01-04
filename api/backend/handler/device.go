@@ -31,7 +31,8 @@ func (h *DeviceHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PATCH("/:id", h.DeviceSimpleUpdate())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 // Create 创建设备
@@ -328,25 +329,23 @@ func (h *DeviceHandler) List() gin.HandlerFunc {
 	}
 }
 
-// DeviceSimpleUpdate 更新设备单个字段
+// Enable 启用设备
 //
 //	@Tags			设备管理
 //	@Security		BearerAuth
-//	@Summary		更新设备单个字段信息
-//	@Description	快速切换启用状态
-//	@Accept			json
+//	@Summary		启用设备
+//	@Description	将设备置为启用
 //	@Produce		json
-//	@Param			id		path	string						true	"设备ID"
-//	@Param			data	body	types.DeviceSimpleUpdateReq	true	"更新设备单个字段信息请求信息"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
-//	@Router			/restaurant/device/{id} [patch]
-func (h *DeviceHandler) DeviceSimpleUpdate() gin.HandlerFunc {
+//	@Param			id	path	string	true	"设备ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/restaurant/device/{id}/enable [put]
+func (h *DeviceHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("DeviceHandler.DeviceSimpleUpdate")
+		logger := logging.FromContext(ctx).Named("DeviceHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -356,14 +355,53 @@ func (h *DeviceHandler) DeviceSimpleUpdate() gin.HandlerFunc {
 			return
 		}
 
-		var req types.DeviceSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
+		device := &domain.Device{ID: id, Enabled: true}
+		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to simple update device: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用设备
+//
+//	@Tags			设备管理
+//	@Security		BearerAuth
+//	@Summary		禁用设备
+//	@Description	将设备置为禁用
+//	@Produce		json
+//	@Param			id	path	string	true	"设备ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/restaurant/device/{id}/disable [put]
+func (h *DeviceHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("DeviceHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		device := &domain.Device{ID: id, Enabled: req.Enabled}
-		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, req.SimpleUpdateType, device); err != nil {
+		device := &domain.Device{ID: id, Enabled: false}
+		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

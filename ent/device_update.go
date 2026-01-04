@@ -225,6 +225,12 @@ func (du *DeviceUpdate) AddSortOrder(i int) *DeviceUpdate {
 	return du
 }
 
+// ClearSortOrder clears the value of the "sort_order" field.
+func (du *DeviceUpdate) ClearSortOrder() *DeviceUpdate {
+	du.mutation.ClearSortOrder()
+	return du
+}
+
 // SetPaperSize sets the "paper_size" field.
 func (du *DeviceUpdate) SetPaperSize(ds domain.PaperSize) *DeviceUpdate {
 	du.mutation.SetPaperSize(ds)
@@ -544,6 +550,9 @@ func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := du.mutation.AddedSortOrder(); ok {
 		_spec.AddField(device.FieldSortOrder, field.TypeInt, value)
 	}
+	if du.mutation.SortOrderCleared() {
+		_spec.ClearField(device.FieldSortOrder, field.TypeInt)
+	}
 	if value, ok := du.mutation.PaperSize(); ok {
 		_spec.SetField(device.FieldPaperSize, field.TypeEnum, value)
 	}
@@ -830,6 +839,12 @@ func (duo *DeviceUpdateOne) SetNillableSortOrder(i *int) *DeviceUpdateOne {
 // AddSortOrder adds i to the "sort_order" field.
 func (duo *DeviceUpdateOne) AddSortOrder(i int) *DeviceUpdateOne {
 	duo.mutation.AddSortOrder(i)
+	return duo
+}
+
+// ClearSortOrder clears the value of the "sort_order" field.
+func (duo *DeviceUpdateOne) ClearSortOrder() *DeviceUpdateOne {
+	duo.mutation.ClearSortOrder()
 	return duo
 }
 
@@ -1181,6 +1196,9 @@ func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err err
 	}
 	if value, ok := duo.mutation.AddedSortOrder(); ok {
 		_spec.AddField(device.FieldSortOrder, field.TypeInt, value)
+	}
+	if duo.mutation.SortOrderCleared() {
+		_spec.ClearField(device.FieldSortOrder, field.TypeInt)
 	}
 	if value, ok := duo.mutation.PaperSize(); ok {
 		_spec.SetField(device.FieldPaperSize, field.TypeEnum, value)

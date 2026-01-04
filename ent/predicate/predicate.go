@@ -24,6 +24,9 @@ type City func(*sql.Selector)
 // Country is the predicate function for country builders.
 type Country func(*sql.Selector)
 
+// Department is the predicate function for department builders.
+type Department func(*sql.Selector)
+
 // Device is the predicate function for device builders.
 type Device func(*sql.Selector)
 
@@ -77,6 +80,9 @@ type Remark func(*sql.Selector)
 
 // RemarkCategory is the predicate function for remarkcategory builders.
 type RemarkCategory func(*sql.Selector)
+
+// Role is the predicate function for role builders.
+type Role func(*sql.Selector)
 
 // SetMealDetail is the predicate function for setmealdetail builders.
 type SetMealDetail func(*sql.Selector)

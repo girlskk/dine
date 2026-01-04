@@ -90,6 +90,12 @@ const (
 	EdgeTaxFees = "tax_fees"
 	// EdgeDevices holds the string denoting the devices edge name in mutations.
 	EdgeDevices = "devices"
+	// EdgeDepartments holds the string denoting the departments edge name in mutations.
+	EdgeDepartments = "departments"
+	// EdgeRoles holds the string denoting the roles edge name in mutations.
+	EdgeRoles = "roles"
+	// EdgeStoreUsers holds the string denoting the store_users edge name in mutations.
+	EdgeStoreUsers = "store_users"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
 	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
@@ -190,6 +196,27 @@ const (
 	DevicesInverseTable = "devices"
 	// DevicesColumn is the table column denoting the devices relation/edge.
 	DevicesColumn = "merchant_id"
+	// DepartmentsTable is the table that holds the departments relation/edge.
+	DepartmentsTable = "departments"
+	// DepartmentsInverseTable is the table name for the Department entity.
+	// It exists in this package in order to avoid circular dependency with the "department" package.
+	DepartmentsInverseTable = "departments"
+	// DepartmentsColumn is the table column denoting the departments relation/edge.
+	DepartmentsColumn = "merchant_id"
+	// RolesTable is the table that holds the roles relation/edge.
+	RolesTable = "roles"
+	// RolesInverseTable is the table name for the Role entity.
+	// It exists in this package in order to avoid circular dependency with the "role" package.
+	RolesInverseTable = "roles"
+	// RolesColumn is the table column denoting the roles relation/edge.
+	RolesColumn = "merchant_id"
+	// StoreUsersTable is the table that holds the store_users relation/edge.
+	StoreUsersTable = "store_users"
+	// StoreUsersInverseTable is the table name for the StoreUser entity.
+	// It exists in this package in order to avoid circular dependency with the "storeuser" package.
+	StoreUsersInverseTable = "store_users"
+	// StoreUsersColumn is the table column denoting the store_users relation/edge.
+	StoreUsersColumn = "merchant_id"
 )
 
 // Columns holds all SQL columns for merchant fields.
@@ -247,8 +274,6 @@ var (
 	DefaultDeletedAt int64
 	// DefaultMerchantCode holds the default value on creation for the "merchant_code" field.
 	DefaultMerchantCode string
-	// MerchantCodeValidator is a validator for the "merchant_code" field. It is called by the builders before save.
-	MerchantCodeValidator func(string) error
 	// DefaultMerchantName holds the default value on creation for the "merchant_name" field.
 	DefaultMerchantName string
 	// MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
@@ -259,8 +284,6 @@ var (
 	MerchantShortNameValidator func(string) error
 	// DefaultBrandName holds the default value on creation for the "brand_name" field.
 	DefaultBrandName string
-	// BrandNameValidator is a validator for the "brand_name" field. It is called by the builders before save.
-	BrandNameValidator func(string) error
 	// DefaultAdminPhoneNumber holds the default value on creation for the "admin_phone_number" field.
 	DefaultAdminPhoneNumber string
 	// AdminPhoneNumberValidator is a validator for the "admin_phone_number" field. It is called by the builders before save.
@@ -279,12 +302,8 @@ var (
 	AddressValidator func(string) error
 	// DefaultLng holds the default value on creation for the "lng" field.
 	DefaultLng string
-	// LngValidator is a validator for the "lng" field. It is called by the builders before save.
-	LngValidator func(string) error
 	// DefaultLat holds the default value on creation for the "lat" field.
 	DefaultLat string
-	// LatValidator is a validator for the "lat" field. It is called by the builders before save.
-	LatValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -587,6 +606,48 @@ func ByDevices(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDevicesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByDepartmentsCount orders the results by departments count.
+func ByDepartmentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDepartmentsStep(), opts...)
+	}
+}
+
+// ByDepartments orders the results by departments terms.
+func ByDepartments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDepartmentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRolesCount orders the results by roles count.
+func ByRolesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRolesStep(), opts...)
+	}
+}
+
+// ByRoles orders the results by roles terms.
+func ByRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRolesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByStoreUsersCount orders the results by store_users count.
+func ByStoreUsersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStoreUsersStep(), opts...)
+	}
+}
+
+// ByStoreUsers orders the results by store_users terms.
+func ByStoreUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStoreUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantBusinessTypeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -683,5 +744,26 @@ func newDevicesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DevicesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, DevicesTable, DevicesColumn),
+	)
+}
+func newDepartmentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DepartmentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DepartmentsTable, DepartmentsColumn),
+	)
+}
+func newRolesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RolesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RolesTable, RolesColumn),
+	)
+}
+func newStoreUsersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StoreUsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
 	)
 }

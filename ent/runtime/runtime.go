@@ -13,6 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
@@ -31,6 +32,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
@@ -386,6 +388,41 @@ func init() {
 	countryDescID := countryMixinFields0[0].Descriptor()
 	// country.DefaultID holds the default value on creation for the id field.
 	country.DefaultID = countryDescID.Default.(func() uuid.UUID)
+	departmentMixin := schema.Department{}.Mixin()
+	departmentMixinHooks2 := departmentMixin[2].Hooks()
+	department.Hooks[0] = departmentMixinHooks2[0]
+	departmentMixinInters2 := departmentMixin[2].Interceptors()
+	department.Interceptors[0] = departmentMixinInters2[0]
+	departmentMixinFields0 := departmentMixin[0].Fields()
+	_ = departmentMixinFields0
+	departmentMixinFields1 := departmentMixin[1].Fields()
+	_ = departmentMixinFields1
+	departmentMixinFields2 := departmentMixin[2].Fields()
+	_ = departmentMixinFields2
+	departmentFields := schema.Department{}.Fields()
+	_ = departmentFields
+	// departmentDescCreatedAt is the schema descriptor for created_at field.
+	departmentDescCreatedAt := departmentMixinFields1[0].Descriptor()
+	// department.DefaultCreatedAt holds the default value on creation for the created_at field.
+	department.DefaultCreatedAt = departmentDescCreatedAt.Default.(func() time.Time)
+	// departmentDescUpdatedAt is the schema descriptor for updated_at field.
+	departmentDescUpdatedAt := departmentMixinFields1[1].Descriptor()
+	// department.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	department.DefaultUpdatedAt = departmentDescUpdatedAt.Default.(func() time.Time)
+	// department.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	department.UpdateDefaultUpdatedAt = departmentDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// departmentDescDeletedAt is the schema descriptor for deleted_at field.
+	departmentDescDeletedAt := departmentMixinFields2[0].Descriptor()
+	// department.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	department.DefaultDeletedAt = departmentDescDeletedAt.Default.(int64)
+	// departmentDescEnable is the schema descriptor for enable field.
+	departmentDescEnable := departmentFields[3].Descriptor()
+	// department.DefaultEnable holds the default value on creation for the enable field.
+	department.DefaultEnable = departmentDescEnable.Default.(bool)
+	// departmentDescID is the schema descriptor for id field.
+	departmentDescID := departmentMixinFields0[0].Descriptor()
+	// department.DefaultID holds the default value on creation for the id field.
+	department.DefaultID = departmentDescID.Default.(func() uuid.UUID)
 	deviceMixin := schema.Device{}.Mixin()
 	deviceMixinHooks2 := deviceMixin[2].Hooks()
 	device.Hooks[0] = deviceMixinHooks2[0]
@@ -627,8 +664,6 @@ func init() {
 	merchantDescMerchantCode := merchantFields[0].Descriptor()
 	// merchant.DefaultMerchantCode holds the default value on creation for the merchant_code field.
 	merchant.DefaultMerchantCode = merchantDescMerchantCode.Default.(string)
-	// merchant.MerchantCodeValidator is a validator for the "merchant_code" field. It is called by the builders before save.
-	merchant.MerchantCodeValidator = merchantDescMerchantCode.Validators[0].(func(string) error)
 	// merchantDescMerchantName is the schema descriptor for merchant_name field.
 	merchantDescMerchantName := merchantFields[1].Descriptor()
 	// merchant.DefaultMerchantName holds the default value on creation for the merchant_name field.
@@ -654,27 +689,11 @@ func init() {
 	// merchant.DefaultMerchantShortName holds the default value on creation for the merchant_short_name field.
 	merchant.DefaultMerchantShortName = merchantDescMerchantShortName.Default.(string)
 	// merchant.MerchantShortNameValidator is a validator for the "merchant_short_name" field. It is called by the builders before save.
-	merchant.MerchantShortNameValidator = func() func(string) error {
-		validators := merchantDescMerchantShortName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(merchant_short_name string) error {
-			for _, fn := range fns {
-				if err := fn(merchant_short_name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	merchant.MerchantShortNameValidator = merchantDescMerchantShortName.Validators[0].(func(string) error)
 	// merchantDescBrandName is the schema descriptor for brand_name field.
 	merchantDescBrandName := merchantFields[4].Descriptor()
 	// merchant.DefaultBrandName holds the default value on creation for the brand_name field.
 	merchant.DefaultBrandName = merchantDescBrandName.Default.(string)
-	// merchant.BrandNameValidator is a validator for the "brand_name" field. It is called by the builders before save.
-	merchant.BrandNameValidator = merchantDescBrandName.Validators[0].(func(string) error)
 	// merchantDescAdminPhoneNumber is the schema descriptor for admin_phone_number field.
 	merchantDescAdminPhoneNumber := merchantFields[5].Descriptor()
 	// merchant.DefaultAdminPhoneNumber holds the default value on creation for the admin_phone_number field.
@@ -706,53 +725,21 @@ func init() {
 	// merchant.DefaultDescription holds the default value on creation for the description field.
 	merchant.DefaultDescription = merchantDescDescription.Default.(string)
 	// merchant.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	merchant.DescriptionValidator = func() func(string) error {
-		validators := merchantDescDescription.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(description string) error {
-			for _, fn := range fns {
-				if err := fn(description); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	merchant.DescriptionValidator = merchantDescDescription.Validators[0].(func(string) error)
 	// merchantDescAddress is the schema descriptor for address field.
 	merchantDescAddress := merchantFields[15].Descriptor()
 	// merchant.DefaultAddress holds the default value on creation for the address field.
 	merchant.DefaultAddress = merchantDescAddress.Default.(string)
 	// merchant.AddressValidator is a validator for the "address" field. It is called by the builders before save.
-	merchant.AddressValidator = func() func(string) error {
-		validators := merchantDescAddress.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(address string) error {
-			for _, fn := range fns {
-				if err := fn(address); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	merchant.AddressValidator = merchantDescAddress.Validators[0].(func(string) error)
 	// merchantDescLng is the schema descriptor for lng field.
 	merchantDescLng := merchantFields[16].Descriptor()
 	// merchant.DefaultLng holds the default value on creation for the lng field.
 	merchant.DefaultLng = merchantDescLng.Default.(string)
-	// merchant.LngValidator is a validator for the "lng" field. It is called by the builders before save.
-	merchant.LngValidator = merchantDescLng.Validators[0].(func(string) error)
 	// merchantDescLat is the schema descriptor for lat field.
 	merchantDescLat := merchantFields[17].Descriptor()
 	// merchant.DefaultLat holds the default value on creation for the lat field.
 	merchant.DefaultLat = merchantDescLat.Default.(string)
-	// merchant.LatValidator is a validator for the "lat" field. It is called by the builders before save.
-	merchant.LatValidator = merchantDescLat.Validators[0].(func(string) error)
 	// merchantDescID is the schema descriptor for id field.
 	merchantDescID := merchantMixinFields0[0].Descriptor()
 	// merchant.DefaultID holds the default value on creation for the id field.
@@ -1506,6 +1493,41 @@ func init() {
 	remarkcategoryDescID := remarkcategoryMixinFields0[0].Descriptor()
 	// remarkcategory.DefaultID holds the default value on creation for the id field.
 	remarkcategory.DefaultID = remarkcategoryDescID.Default.(func() uuid.UUID)
+	roleMixin := schema.Role{}.Mixin()
+	roleMixinHooks2 := roleMixin[2].Hooks()
+	role.Hooks[0] = roleMixinHooks2[0]
+	roleMixinInters2 := roleMixin[2].Interceptors()
+	role.Interceptors[0] = roleMixinInters2[0]
+	roleMixinFields0 := roleMixin[0].Fields()
+	_ = roleMixinFields0
+	roleMixinFields1 := roleMixin[1].Fields()
+	_ = roleMixinFields1
+	roleMixinFields2 := roleMixin[2].Fields()
+	_ = roleMixinFields2
+	roleFields := schema.Role{}.Fields()
+	_ = roleFields
+	// roleDescCreatedAt is the schema descriptor for created_at field.
+	roleDescCreatedAt := roleMixinFields1[0].Descriptor()
+	// role.DefaultCreatedAt holds the default value on creation for the created_at field.
+	role.DefaultCreatedAt = roleDescCreatedAt.Default.(func() time.Time)
+	// roleDescUpdatedAt is the schema descriptor for updated_at field.
+	roleDescUpdatedAt := roleMixinFields1[1].Descriptor()
+	// role.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	role.DefaultUpdatedAt = roleDescUpdatedAt.Default.(func() time.Time)
+	// role.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	role.UpdateDefaultUpdatedAt = roleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// roleDescDeletedAt is the schema descriptor for deleted_at field.
+	roleDescDeletedAt := roleMixinFields2[0].Descriptor()
+	// role.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	role.DefaultDeletedAt = roleDescDeletedAt.Default.(int64)
+	// roleDescEnable is the schema descriptor for enable field.
+	roleDescEnable := roleFields[3].Descriptor()
+	// role.DefaultEnable holds the default value on creation for the enable field.
+	role.DefaultEnable = roleDescEnable.Default.(bool)
+	// roleDescID is the schema descriptor for id field.
+	roleDescID := roleMixinFields0[0].Descriptor()
+	// role.DefaultID holds the default value on creation for the id field.
+	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
 	setmealdetailMixin := schema.SetMealDetail{}.Mixin()
 	setmealdetailMixinHooks2 := setmealdetailMixin[2].Hooks()
 	setmealdetail.Hooks[0] = setmealdetailMixinHooks2[0]
@@ -1723,27 +1745,11 @@ func init() {
 	// store.DefaultStoreShortName holds the default value on creation for the store_short_name field.
 	store.DefaultStoreShortName = storeDescStoreShortName.Default.(string)
 	// store.StoreShortNameValidator is a validator for the "store_short_name" field. It is called by the builders before save.
-	store.StoreShortNameValidator = func() func(string) error {
-		validators := storeDescStoreShortName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(store_short_name string) error {
-			for _, fn := range fns {
-				if err := fn(store_short_name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.StoreShortNameValidator = storeDescStoreShortName.Validators[0].(func(string) error)
 	// storeDescStoreCode is the schema descriptor for store_code field.
 	storeDescStoreCode := storeFields[4].Descriptor()
 	// store.DefaultStoreCode holds the default value on creation for the store_code field.
 	store.DefaultStoreCode = storeDescStoreCode.Default.(string)
-	// store.StoreCodeValidator is a validator for the "store_code" field. It is called by the builders before save.
-	store.StoreCodeValidator = storeDescStoreCode.Validators[0].(func(string) error)
 	// storeDescLocationNumber is the schema descriptor for location_number field.
 	storeDescLocationNumber := storeFields[8].Descriptor()
 	// store.LocationNumberValidator is a validator for the "location_number" field. It is called by the builders before save.
@@ -1767,181 +1773,55 @@ func init() {
 	// store.DefaultContactName holds the default value on creation for the contact_name field.
 	store.DefaultContactName = storeDescContactName.Default.(string)
 	// store.ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
-	store.ContactNameValidator = func() func(string) error {
-		validators := storeDescContactName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(contact_name string) error {
-			for _, fn := range fns {
-				if err := fn(contact_name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.ContactNameValidator = storeDescContactName.Validators[0].(func(string) error)
 	// storeDescContactPhone is the schema descriptor for contact_phone field.
 	storeDescContactPhone := storeFields[10].Descriptor()
 	// store.DefaultContactPhone holds the default value on creation for the contact_phone field.
 	store.DefaultContactPhone = storeDescContactPhone.Default.(string)
 	// store.ContactPhoneValidator is a validator for the "contact_phone" field. It is called by the builders before save.
-	store.ContactPhoneValidator = func() func(string) error {
-		validators := storeDescContactPhone.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(contact_phone string) error {
-			for _, fn := range fns {
-				if err := fn(contact_phone); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.ContactPhoneValidator = storeDescContactPhone.Validators[0].(func(string) error)
 	// storeDescUnifiedSocialCreditCode is the schema descriptor for unified_social_credit_code field.
 	storeDescUnifiedSocialCreditCode := storeFields[11].Descriptor()
 	// store.DefaultUnifiedSocialCreditCode holds the default value on creation for the unified_social_credit_code field.
 	store.DefaultUnifiedSocialCreditCode = storeDescUnifiedSocialCreditCode.Default.(string)
 	// store.UnifiedSocialCreditCodeValidator is a validator for the "unified_social_credit_code" field. It is called by the builders before save.
-	store.UnifiedSocialCreditCodeValidator = func() func(string) error {
-		validators := storeDescUnifiedSocialCreditCode.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(unified_social_credit_code string) error {
-			for _, fn := range fns {
-				if err := fn(unified_social_credit_code); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.UnifiedSocialCreditCodeValidator = storeDescUnifiedSocialCreditCode.Validators[0].(func(string) error)
 	// storeDescStoreLogo is the schema descriptor for store_logo field.
 	storeDescStoreLogo := storeFields[12].Descriptor()
 	// store.DefaultStoreLogo holds the default value on creation for the store_logo field.
 	store.DefaultStoreLogo = storeDescStoreLogo.Default.(string)
 	// store.StoreLogoValidator is a validator for the "store_logo" field. It is called by the builders before save.
-	store.StoreLogoValidator = func() func(string) error {
-		validators := storeDescStoreLogo.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(store_logo string) error {
-			for _, fn := range fns {
-				if err := fn(store_logo); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.StoreLogoValidator = storeDescStoreLogo.Validators[0].(func(string) error)
 	// storeDescBusinessLicenseURL is the schema descriptor for business_license_url field.
 	storeDescBusinessLicenseURL := storeFields[13].Descriptor()
 	// store.DefaultBusinessLicenseURL holds the default value on creation for the business_license_url field.
 	store.DefaultBusinessLicenseURL = storeDescBusinessLicenseURL.Default.(string)
 	// store.BusinessLicenseURLValidator is a validator for the "business_license_url" field. It is called by the builders before save.
-	store.BusinessLicenseURLValidator = func() func(string) error {
-		validators := storeDescBusinessLicenseURL.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(business_license_url string) error {
-			for _, fn := range fns {
-				if err := fn(business_license_url); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.BusinessLicenseURLValidator = storeDescBusinessLicenseURL.Validators[0].(func(string) error)
 	// storeDescStorefrontURL is the schema descriptor for storefront_url field.
 	storeDescStorefrontURL := storeFields[14].Descriptor()
 	// store.DefaultStorefrontURL holds the default value on creation for the storefront_url field.
 	store.DefaultStorefrontURL = storeDescStorefrontURL.Default.(string)
 	// store.StorefrontURLValidator is a validator for the "storefront_url" field. It is called by the builders before save.
-	store.StorefrontURLValidator = func() func(string) error {
-		validators := storeDescStorefrontURL.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(storefront_url string) error {
-			for _, fn := range fns {
-				if err := fn(storefront_url); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.StorefrontURLValidator = storeDescStorefrontURL.Validators[0].(func(string) error)
 	// storeDescCashierDeskURL is the schema descriptor for cashier_desk_url field.
 	storeDescCashierDeskURL := storeFields[15].Descriptor()
 	// store.DefaultCashierDeskURL holds the default value on creation for the cashier_desk_url field.
 	store.DefaultCashierDeskURL = storeDescCashierDeskURL.Default.(string)
 	// store.CashierDeskURLValidator is a validator for the "cashier_desk_url" field. It is called by the builders before save.
-	store.CashierDeskURLValidator = func() func(string) error {
-		validators := storeDescCashierDeskURL.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(cashier_desk_url string) error {
-			for _, fn := range fns {
-				if err := fn(cashier_desk_url); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.CashierDeskURLValidator = storeDescCashierDeskURL.Validators[0].(func(string) error)
 	// storeDescDiningEnvironmentURL is the schema descriptor for dining_environment_url field.
 	storeDescDiningEnvironmentURL := storeFields[16].Descriptor()
 	// store.DefaultDiningEnvironmentURL holds the default value on creation for the dining_environment_url field.
 	store.DefaultDiningEnvironmentURL = storeDescDiningEnvironmentURL.Default.(string)
 	// store.DiningEnvironmentURLValidator is a validator for the "dining_environment_url" field. It is called by the builders before save.
-	store.DiningEnvironmentURLValidator = func() func(string) error {
-		validators := storeDescDiningEnvironmentURL.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(dining_environment_url string) error {
-			for _, fn := range fns {
-				if err := fn(dining_environment_url); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.DiningEnvironmentURLValidator = storeDescDiningEnvironmentURL.Validators[0].(func(string) error)
 	// storeDescFoodOperationLicenseURL is the schema descriptor for food_operation_license_url field.
 	storeDescFoodOperationLicenseURL := storeFields[17].Descriptor()
 	// store.DefaultFoodOperationLicenseURL holds the default value on creation for the food_operation_license_url field.
 	store.DefaultFoodOperationLicenseURL = storeDescFoodOperationLicenseURL.Default.(string)
 	// store.FoodOperationLicenseURLValidator is a validator for the "food_operation_license_url" field. It is called by the builders before save.
-	store.FoodOperationLicenseURLValidator = func() func(string) error {
-		validators := storeDescFoodOperationLicenseURL.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(food_operation_license_url string) error {
-			for _, fn := range fns {
-				if err := fn(food_operation_license_url); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.FoodOperationLicenseURLValidator = storeDescFoodOperationLicenseURL.Validators[0].(func(string) error)
 	// storeDescAddress is the schema descriptor for address field.
 	storeDescAddress := storeFields[25].Descriptor()
 	// store.DefaultAddress holds the default value on creation for the address field.
@@ -1967,41 +1847,13 @@ func init() {
 	// store.DefaultLng holds the default value on creation for the lng field.
 	store.DefaultLng = storeDescLng.Default.(string)
 	// store.LngValidator is a validator for the "lng" field. It is called by the builders before save.
-	store.LngValidator = func() func(string) error {
-		validators := storeDescLng.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(lng string) error {
-			for _, fn := range fns {
-				if err := fn(lng); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.LngValidator = storeDescLng.Validators[0].(func(string) error)
 	// storeDescLat is the schema descriptor for lat field.
 	storeDescLat := storeFields[27].Descriptor()
 	// store.DefaultLat holds the default value on creation for the lat field.
 	store.DefaultLat = storeDescLat.Default.(string)
 	// store.LatValidator is a validator for the "lat" field. It is called by the builders before save.
-	store.LatValidator = func() func(string) error {
-		validators := storeDescLat.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(lat string) error {
-			for _, fn := range fns {
-				if err := fn(lat); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	store.LatValidator = storeDescLat.Validators[0].(func(string) error)
 	// storeDescID is the schema descriptor for id field.
 	storeDescID := storeMixinFields0[0].Descriptor()
 	// store.DefaultID holds the default value on creation for the id field.

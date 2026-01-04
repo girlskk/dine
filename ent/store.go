@@ -125,9 +125,13 @@ type StoreEdges struct {
 	Devices []*Device `json:"devices,omitempty"`
 	// 关联的菜单
 	Menus []*Menu `json:"menus,omitempty"`
+	// Departments holds the value of the departments edge.
+	Departments []*Department `json:"departments,omitempty"`
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [13]bool
+	loadedTypes [15]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -257,6 +261,24 @@ func (e StoreEdges) MenusOrErr() ([]*Menu, error) {
 		return e.Menus, nil
 	}
 	return nil, &NotLoadedError{edge: "menus"}
+}
+
+// DepartmentsOrErr returns the Departments value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) DepartmentsOrErr() ([]*Department, error) {
+	if e.loadedTypes[13] {
+		return e.Departments, nil
+	}
+	return nil, &NotLoadedError{edge: "departments"}
+}
+
+// RolesOrErr returns the Roles value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) RolesOrErr() ([]*Role, error) {
+	if e.loadedTypes[14] {
+		return e.Roles, nil
+	}
+	return nil, &NotLoadedError{edge: "roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -569,6 +591,16 @@ func (s *Store) QueryDevices() *DeviceQuery {
 // QueryMenus queries the "menus" edge of the Store entity.
 func (s *Store) QueryMenus() *MenuQuery {
 	return NewStoreClient(s.config).QueryMenus(s)
+}
+
+// QueryDepartments queries the "departments" edge of the Store entity.
+func (s *Store) QueryDepartments() *DepartmentQuery {
+	return NewStoreClient(s.config).QueryDepartments(s)
+}
+
+// QueryRoles queries the "roles" edge of the Store entity.
+func (s *Store) QueryRoles() *RoleQuery {
+	return NewStoreClient(s.config).QueryRoles(s)
 }
 
 // Update returns a builder for updating this Store.

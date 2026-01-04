@@ -18,6 +18,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
@@ -36,6 +37,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -108,6 +110,7 @@ func checkColumn(table, column string) error {
 			category.Table:             category.ValidColumn,
 			city.Table:                 city.ValidColumn,
 			country.Table:              country.ValidColumn,
+			department.Table:           department.ValidColumn,
 			device.Table:               device.ValidColumn,
 			district.Table:             district.ValidColumn,
 			menu.Table:                 menu.ValidColumn,
@@ -126,6 +129,7 @@ func checkColumn(table, column string) error {
 			province.Table:             province.ValidColumn,
 			remark.Table:               remark.ValidColumn,
 			remarkcategory.Table:       remarkcategory.ValidColumn,
+			role.Table:                 role.ValidColumn,
 			setmealdetail.Table:        setmealdetail.ValidColumn,
 			setmealgroup.Table:         setmealgroup.ValidColumn,
 			stall.Table:                stall.ValidColumn,

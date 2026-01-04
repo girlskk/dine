@@ -105,9 +105,15 @@ type MerchantEdges struct {
 	TaxFees []*TaxFee `json:"tax_fees,omitempty"`
 	// Devices holds the value of the devices edge.
 	Devices []*Device `json:"devices,omitempty"`
+	// Departments holds the value of the departments edge.
+	Departments []*Department `json:"departments,omitempty"`
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
+	// StoreUsers holds the value of the store_users edge.
+	StoreUsers []*StoreUser `json:"store_users,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [14]bool
+	loadedTypes [17]bool
 }
 
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
@@ -244,6 +250,33 @@ func (e MerchantEdges) DevicesOrErr() ([]*Device, error) {
 		return e.Devices, nil
 	}
 	return nil, &NotLoadedError{edge: "devices"}
+}
+
+// DepartmentsOrErr returns the Departments value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) DepartmentsOrErr() ([]*Department, error) {
+	if e.loadedTypes[14] {
+		return e.Departments, nil
+	}
+	return nil, &NotLoadedError{edge: "departments"}
+}
+
+// RolesOrErr returns the Roles value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) RolesOrErr() ([]*Role, error) {
+	if e.loadedTypes[15] {
+		return e.Roles, nil
+	}
+	return nil, &NotLoadedError{edge: "roles"}
+}
+
+// StoreUsersOrErr returns the StoreUsers value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) StoreUsersOrErr() ([]*StoreUser, error) {
+	if e.loadedTypes[16] {
+		return e.StoreUsers, nil
+	}
+	return nil, &NotLoadedError{edge: "store_users"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -494,6 +527,21 @@ func (m *Merchant) QueryTaxFees() *TaxFeeQuery {
 // QueryDevices queries the "devices" edge of the Merchant entity.
 func (m *Merchant) QueryDevices() *DeviceQuery {
 	return NewMerchantClient(m.config).QueryDevices(m)
+}
+
+// QueryDepartments queries the "departments" edge of the Merchant entity.
+func (m *Merchant) QueryDepartments() *DepartmentQuery {
+	return NewMerchantClient(m.config).QueryDepartments(m)
+}
+
+// QueryRoles queries the "roles" edge of the Merchant entity.
+func (m *Merchant) QueryRoles() *RoleQuery {
+	return NewMerchantClient(m.config).QueryRoles(m)
+}
+
+// QueryStoreUsers queries the "store_users" edge of the Merchant entity.
+func (m *Merchant) QueryStoreUsers() *StoreUserQuery {
+	return NewMerchantClient(m.config).QueryStoreUsers(m)
 }
 
 // Update returns a builder for updating this Merchant.

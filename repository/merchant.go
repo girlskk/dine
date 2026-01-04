@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -82,7 +83,6 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 	}
 
 	builder := repo.Client.Merchant.UpdateOneID(domainMerchant.ID).
-		SetMerchantCode(domainMerchant.MerchantCode).
 		SetMerchantName(domainMerchant.MerchantName).
 		SetMerchantShortName(domainMerchant.MerchantShortName).
 		SetMerchantType(domainMerchant.MerchantType).
@@ -93,7 +93,15 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status)
-
+	if len(domainMerchant.MerchantCode) > 0 {
+		builder = builder.SetMerchantCode(domainMerchant.MerchantCode)
+		builder = builder.ClearMerchantCode()
+	}
+	if len(domainMerchant.Description) > 0 {
+		builder = builder.SetDescription(domainMerchant.Description)
+	} else {
+		builder = builder.ClearDescription()
+	}
 	if domainMerchant.Address != nil {
 		builder.SetCountryID(domainMerchant.Address.CountryID).
 			SetProvinceID(domainMerchant.Address.ProvinceID).
@@ -148,6 +156,7 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id uuid.UUID) (dom
 		WithCity().
 		WithDistrict().
 		WithMerchantBusinessType().
+		WithMerchantRenewals().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -369,6 +378,14 @@ func convertMerchant(em *ent.Merchant) *domain.Merchant {
 
 	if em.Edges.MerchantBusinessType != nil {
 		repoMerchant.BusinessTypeName = em.Edges.MerchantBusinessType.TypeName
+	}
+	if len(em.Edges.MerchantRenewals) > 0 {
+		// 倒序返回最后一条
+		sort.Slice(em.Edges.MerchantRenewals, func(i, j int) bool {
+			return em.Edges.MerchantRenewals[i].CreatedAt.After(em.Edges.MerchantRenewals[j].CreatedAt)
+		})
+		repoMerchant.PurchaseDuration = em.Edges.MerchantRenewals[0].PurchaseDuration
+		repoMerchant.PurchaseDurationUnit = em.Edges.MerchantRenewals[0].PurchaseDurationUnit
 	}
 	return repoMerchant
 }

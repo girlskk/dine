@@ -16,6 +16,7 @@ type ProvinceRepository interface {
 	GetByFilter(ctx context.Context, filter *ProvinceListFilter) (provinceList []*Province, err error)
 }
 
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/province_interactor.go -package=mock . ProvinceInteractor
 type ProvinceInteractor interface {
 	GetProvinces(ctx context.Context, countryID uuid.UUID) (provinceList []*Province, err error)
 	GetProvince(ctx context.Context, id uuid.UUID) (province *Province, err error)

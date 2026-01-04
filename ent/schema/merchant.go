@@ -19,7 +19,7 @@ func (Merchant) Fields() []ent.Field {
 	return []ent.Field{
 		// 商户基础信息
 		field.String("merchant_code").
-			NotEmpty().
+			Optional().
 			Default("").
 			Comment("商户编号(保留字段)"),
 		field.String("merchant_name").
@@ -28,7 +28,7 @@ func (Merchant) Fields() []ent.Field {
 			MaxLen(50).
 			Comment("商户名称,最长不得超过50个字"),
 		field.String("merchant_short_name").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(50).
 			Comment("商户简称"),
@@ -36,7 +36,7 @@ func (Merchant) Fields() []ent.Field {
 			GoType(domain.MerchantType("")).
 			Comment("商户类型: 品牌商户,门店商户"),
 		field.String("brand_name").
-			NotEmpty().
+			Optional().
 			Default("").
 			Comment("品牌名称"),
 		field.String("admin_phone_number").
@@ -55,7 +55,7 @@ func (Merchant) Fields() []ent.Field {
 			MaxLen(500).
 			Comment("logo 图片地址"),
 		field.String("description").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(255).
 			Comment("商户描述(保留字段)"),
@@ -77,16 +77,16 @@ func (Merchant) Fields() []ent.Field {
 			Optional().
 			Comment("区县 id"),
 		field.String("address").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(255).
 			Comment("详细地址"),
 		field.String("lng").
-			NotEmpty().
+			Optional().
 			Default("").
 			Comment("经度"),
 		field.String("lat").
-			NotEmpty().
+			Optional().
 			Default("").
 			Comment("纬度"),
 		field.String("super_account").
@@ -130,6 +130,9 @@ func (Merchant) Edges() []ent.Edge {
 		edge.To("additional_fees", AdditionalFee.Type),
 		edge.To("tax_fees", TaxFee.Type),
 		edge.To("devices", Device.Type),
+		edge.To("departments", Department.Type),
+		edge.To("roles", Role.Type),
+		edge.To("store_users", StoreUser.Type),
 	}
 }
 

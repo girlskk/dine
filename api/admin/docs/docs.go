@@ -15,6 +15,465 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/common/department": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询部门列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "部门列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "admin",
+                            "backend",
+                            "store"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "DepartmentTypeAdmin",
+                            "DepartmentBackend",
+                            "DepartmentStore"
+                        ],
+                        "name": "department_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "name": "enable",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "merchant_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentListResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "新建一个部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "创建部门",
+                "parameters": [
+                    {
+                        "description": "创建部门请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/common/department/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询指定部门详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "获取部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Department"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "修改指定部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "更新部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新部门请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "删除部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/common/department/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将部门设置为禁用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "禁用部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/common/department/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将部门设置为启用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "启用部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/business_type/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "业态列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-业态列表"
+                ],
+                "summary": "业态列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.MerchantBusinessTypeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/merchant/merchant/brand": {
             "post": {
                 "security": [
@@ -584,33 +1043,79 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/merchant/merchant/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "修改商户状态，",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "将商户状态置为禁用",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "商户管理-商户"
                 ],
-                "summary": "更新商户单个字段信息",
+                "summary": "禁用商户",
                 "parameters": [
                     {
-                        "description": "更新商户单个字段信息请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                        "type": "string",
+                        "description": "商户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.MerchantSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/merchant/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将商户状态置为激活",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-商户"
+                ],
+                "summary": "启用商户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1002,33 +1507,79 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/merchant/store/{id}/disable": {
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "修改门店状态，",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "将门店状态置为停业",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "商户管理-门店"
                 ],
-                "summary": "更新门店单个字段信息",
+                "summary": "禁用门店",
                 "parameters": [
                     {
-                        "description": "更新门店单个字段信息请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.StoreSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/store/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将门店状态置为营业",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-门店"
+                ],
+                "summary": "启用门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1408,6 +1959,51 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Department": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "department_type": {
+                    "$ref": "#/definitions/domain.DepartmentType"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.DepartmentType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-varnames": [
+                "DepartmentTypeAdmin",
+                "DepartmentBackend",
+                "DepartmentStore"
+            ]
+        },
         "domain.DiningPeriod": {
             "type": "object",
             "properties": {
@@ -1427,6 +2023,10 @@ const docTemplate = `{
         },
         "domain.Merchant": {
             "type": "object",
+            "required": [
+                "purchase_duration",
+                "purchase_duration_unit"
+            ],
             "properties": {
                 "address": {
                     "description": "地址",
@@ -1498,6 +2098,18 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "purchase_duration": {
+                    "description": "购买时长",
+                    "type": "integer"
+                },
+                "purchase_duration_unit": {
+                    "description": "购买时长单位",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PurchaseDurationUnit"
+                        }
+                    ]
+                },
                 "status": {
                     "description": "状态: 正常,停用,过期",
                     "allOf": [
@@ -1515,17 +2127,21 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.MerchantSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "status"
-            ],
-            "x-enum-comments": {
-                "MerchantSimpleUpdateTypeStatus": "状态"
-            },
-            "x-enum-varnames": [
-                "MerchantSimpleUpdateTypeStatus"
-            ]
+        "domain.MerchantBusinessType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type_code": {
+                    "description": "业态类型编码（保留字段）",
+                    "type": "string"
+                },
+                "type_name": {
+                    "description": "业态类型名称",
+                    "type": "string"
+                }
+            }
         },
         "domain.MerchantStatus": {
             "type": "string",
@@ -1783,18 +2399,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.StoreSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "status"
-            ],
-            "x-enum-comments": {
-                "StoreSimpleUpdateTypeStatus": "状态更新"
-            },
-            "x-enum-varnames": [
-                "StoreSimpleUpdateTypeStatus"
-            ]
         },
         "domain.StoreStatus": {
             "type": "string",
@@ -2164,6 +2768,94 @@ const docTemplate = `{
                 }
             }
         },
+        "types.DepartmentCreateReq": {
+            "type": "object",
+            "required": [
+                "code",
+                "department_type",
+                "merchant_id",
+                "name",
+                "store_id"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "department_type": {
+                    "enum": [
+                        "admin",
+                        "backend",
+                        "store"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DepartmentType"
+                        }
+                    ]
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.DepartmentListResp": {
+            "type": "object",
+            "properties": {
+                "departments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Department"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.DepartmentUpdateReq": {
+            "type": "object",
+            "required": [
+                "code",
+                "department_type",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "department_type": {
+                    "enum": [
+                        "admin",
+                        "backend",
+                        "store"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DepartmentType"
+                        }
+                    ]
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                }
+            }
+        },
         "types.LoginReq": {
             "type": "object",
             "required": [
@@ -2187,6 +2879,18 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "types.MerchantBusinessTypeListResp": {
+            "type": "object",
+            "properties": {
+                "business_types": {
+                    "description": "业务类型列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.MerchantBusinessType"
+                    }
                 }
             }
         },
@@ -2265,33 +2969,6 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/domain.PurchaseDurationUnit"
-                        }
-                    ]
-                }
-            }
-        },
-        "types.MerchantSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "simple_update_type": {
-                    "description": "简单更新类型",
-                    "enum": [
-                        "status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MerchantSimpleUpdateType"
-                        }
-                    ]
-                },
-                "status": {
-                    "description": "状态: 正常,停用,过期",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MerchantStatus"
                         }
                     ]
                 }
@@ -2388,40 +3065,11 @@ const docTemplate = `{
                 }
             }
         },
-        "types.StoreSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type",
-                "status"
-            ],
-            "properties": {
-                "simple_update_type": {
-                    "description": "简单更新类型",
-                    "enum": [
-                        "status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StoreSimpleUpdateType"
-                        }
-                    ]
-                },
-                "status": {
-                    "description": "营业/停业",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StoreStatus"
-                        }
-                    ]
-                }
-            }
-        },
         "types.UpdateMerchantReq": {
             "type": "object",
             "required": [
                 "admin_phone_number",
                 "business_type_id",
-                "login_password",
                 "merchant_name"
             ],
             "properties": {
@@ -2451,10 +3099,6 @@ const docTemplate = `{
                     "description": "商户描述(保留字段)",
                     "type": "string",
                     "maxLength": 255
-                },
-                "login_password": {
-                    "description": "登录密码(加密存储)",
-                    "type": "string"
                 },
                 "merchant_code": {
                     "description": "商户编号(保留字段)",

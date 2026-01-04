@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
@@ -24,6 +25,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
@@ -569,6 +571,36 @@ func (sc *StoreCreate) AddMenus(m ...*Menu) *StoreCreate {
 	return sc.AddMenuIDs(ids...)
 }
 
+// AddDepartmentIDs adds the "departments" edge to the Department entity by IDs.
+func (sc *StoreCreate) AddDepartmentIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddDepartmentIDs(ids...)
+	return sc
+}
+
+// AddDepartments adds the "departments" edges to the Department entity.
+func (sc *StoreCreate) AddDepartments(d ...*Department) *StoreCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return sc.AddDepartmentIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (sc *StoreCreate) AddRoleIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddRoleIDs(ids...)
+	return sc
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (sc *StoreCreate) AddRoles(r ...*Role) *StoreCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return sc.AddRoleIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (sc *StoreCreate) Mutation() *StoreMutation {
 	return sc.mutation
@@ -728,20 +760,9 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "store_name", err: fmt.Errorf(`ent: validator failed for field "Store.store_name": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.StoreShortName(); !ok {
-		return &ValidationError{Name: "store_short_name", err: errors.New(`ent: missing required field "Store.store_short_name"`)}
-	}
 	if v, ok := sc.mutation.StoreShortName(); ok {
 		if err := store.StoreShortNameValidator(v); err != nil {
 			return &ValidationError{Name: "store_short_name", err: fmt.Errorf(`ent: validator failed for field "Store.store_short_name": %w`, err)}
-		}
-	}
-	if _, ok := sc.mutation.StoreCode(); !ok {
-		return &ValidationError{Name: "store_code", err: errors.New(`ent: missing required field "Store.store_code"`)}
-	}
-	if v, ok := sc.mutation.StoreCode(); ok {
-		if err := store.StoreCodeValidator(v); err != nil {
-			return &ValidationError{Name: "store_code", err: fmt.Errorf(`ent: validator failed for field "Store.store_code": %w`, err)}
 		}
 	}
 	if _, ok := sc.mutation.Status(); !ok {
@@ -771,72 +792,45 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "location_number", err: fmt.Errorf(`ent: validator failed for field "Store.location_number": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.ContactName(); !ok {
-		return &ValidationError{Name: "contact_name", err: errors.New(`ent: missing required field "Store.contact_name"`)}
-	}
 	if v, ok := sc.mutation.ContactName(); ok {
 		if err := store.ContactNameValidator(v); err != nil {
 			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Store.contact_name": %w`, err)}
 		}
-	}
-	if _, ok := sc.mutation.ContactPhone(); !ok {
-		return &ValidationError{Name: "contact_phone", err: errors.New(`ent: missing required field "Store.contact_phone"`)}
 	}
 	if v, ok := sc.mutation.ContactPhone(); ok {
 		if err := store.ContactPhoneValidator(v); err != nil {
 			return &ValidationError{Name: "contact_phone", err: fmt.Errorf(`ent: validator failed for field "Store.contact_phone": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.UnifiedSocialCreditCode(); !ok {
-		return &ValidationError{Name: "unified_social_credit_code", err: errors.New(`ent: missing required field "Store.unified_social_credit_code"`)}
-	}
 	if v, ok := sc.mutation.UnifiedSocialCreditCode(); ok {
 		if err := store.UnifiedSocialCreditCodeValidator(v); err != nil {
 			return &ValidationError{Name: "unified_social_credit_code", err: fmt.Errorf(`ent: validator failed for field "Store.unified_social_credit_code": %w`, err)}
 		}
-	}
-	if _, ok := sc.mutation.StoreLogo(); !ok {
-		return &ValidationError{Name: "store_logo", err: errors.New(`ent: missing required field "Store.store_logo"`)}
 	}
 	if v, ok := sc.mutation.StoreLogo(); ok {
 		if err := store.StoreLogoValidator(v); err != nil {
 			return &ValidationError{Name: "store_logo", err: fmt.Errorf(`ent: validator failed for field "Store.store_logo": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.BusinessLicenseURL(); !ok {
-		return &ValidationError{Name: "business_license_url", err: errors.New(`ent: missing required field "Store.business_license_url"`)}
-	}
 	if v, ok := sc.mutation.BusinessLicenseURL(); ok {
 		if err := store.BusinessLicenseURLValidator(v); err != nil {
 			return &ValidationError{Name: "business_license_url", err: fmt.Errorf(`ent: validator failed for field "Store.business_license_url": %w`, err)}
 		}
-	}
-	if _, ok := sc.mutation.StorefrontURL(); !ok {
-		return &ValidationError{Name: "storefront_url", err: errors.New(`ent: missing required field "Store.storefront_url"`)}
 	}
 	if v, ok := sc.mutation.StorefrontURL(); ok {
 		if err := store.StorefrontURLValidator(v); err != nil {
 			return &ValidationError{Name: "storefront_url", err: fmt.Errorf(`ent: validator failed for field "Store.storefront_url": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.CashierDeskURL(); !ok {
-		return &ValidationError{Name: "cashier_desk_url", err: errors.New(`ent: missing required field "Store.cashier_desk_url"`)}
-	}
 	if v, ok := sc.mutation.CashierDeskURL(); ok {
 		if err := store.CashierDeskURLValidator(v); err != nil {
 			return &ValidationError{Name: "cashier_desk_url", err: fmt.Errorf(`ent: validator failed for field "Store.cashier_desk_url": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.DiningEnvironmentURL(); !ok {
-		return &ValidationError{Name: "dining_environment_url", err: errors.New(`ent: missing required field "Store.dining_environment_url"`)}
-	}
 	if v, ok := sc.mutation.DiningEnvironmentURL(); ok {
 		if err := store.DiningEnvironmentURLValidator(v); err != nil {
 			return &ValidationError{Name: "dining_environment_url", err: fmt.Errorf(`ent: validator failed for field "Store.dining_environment_url": %w`, err)}
 		}
-	}
-	if _, ok := sc.mutation.FoodOperationLicenseURL(); !ok {
-		return &ValidationError{Name: "food_operation_license_url", err: errors.New(`ent: missing required field "Store.food_operation_license_url"`)}
 	}
 	if v, ok := sc.mutation.FoodOperationLicenseURL(); ok {
 		if err := store.FoodOperationLicenseURLValidator(v); err != nil {
@@ -860,16 +854,10 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.Lng(); !ok {
-		return &ValidationError{Name: "lng", err: errors.New(`ent: missing required field "Store.lng"`)}
-	}
 	if v, ok := sc.mutation.Lng(); ok {
 		if err := store.LngValidator(v); err != nil {
 			return &ValidationError{Name: "lng", err: fmt.Errorf(`ent: validator failed for field "Store.lng": %w`, err)}
 		}
-	}
-	if _, ok := sc.mutation.Lat(); !ok {
-		return &ValidationError{Name: "lat", err: errors.New(`ent: missing required field "Store.lat"`)}
 	}
 	if v, ok := sc.mutation.Lat(); ok {
 		if err := store.LatValidator(v); err != nil {
@@ -1239,6 +1227,38 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := sc.mutation.DepartmentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.DepartmentsTable,
+			Columns: []string{store.DepartmentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.RolesTable,
+			Columns: []string{store.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -1357,6 +1377,12 @@ func (u *StoreUpsert) UpdateStoreShortName() *StoreUpsert {
 	return u
 }
 
+// ClearStoreShortName clears the value of the "store_short_name" field.
+func (u *StoreUpsert) ClearStoreShortName() *StoreUpsert {
+	u.SetNull(store.FieldStoreShortName)
+	return u
+}
+
 // SetStoreCode sets the "store_code" field.
 func (u *StoreUpsert) SetStoreCode(v string) *StoreUpsert {
 	u.Set(store.FieldStoreCode, v)
@@ -1366,6 +1392,12 @@ func (u *StoreUpsert) SetStoreCode(v string) *StoreUpsert {
 // UpdateStoreCode sets the "store_code" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateStoreCode() *StoreUpsert {
 	u.SetExcluded(store.FieldStoreCode)
+	return u
+}
+
+// ClearStoreCode clears the value of the "store_code" field.
+func (u *StoreUpsert) ClearStoreCode() *StoreUpsert {
+	u.SetNull(store.FieldStoreCode)
 	return u
 }
 
@@ -1429,6 +1461,12 @@ func (u *StoreUpsert) UpdateContactName() *StoreUpsert {
 	return u
 }
 
+// ClearContactName clears the value of the "contact_name" field.
+func (u *StoreUpsert) ClearContactName() *StoreUpsert {
+	u.SetNull(store.FieldContactName)
+	return u
+}
+
 // SetContactPhone sets the "contact_phone" field.
 func (u *StoreUpsert) SetContactPhone(v string) *StoreUpsert {
 	u.Set(store.FieldContactPhone, v)
@@ -1438,6 +1476,12 @@ func (u *StoreUpsert) SetContactPhone(v string) *StoreUpsert {
 // UpdateContactPhone sets the "contact_phone" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateContactPhone() *StoreUpsert {
 	u.SetExcluded(store.FieldContactPhone)
+	return u
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (u *StoreUpsert) ClearContactPhone() *StoreUpsert {
+	u.SetNull(store.FieldContactPhone)
 	return u
 }
 
@@ -1453,6 +1497,12 @@ func (u *StoreUpsert) UpdateUnifiedSocialCreditCode() *StoreUpsert {
 	return u
 }
 
+// ClearUnifiedSocialCreditCode clears the value of the "unified_social_credit_code" field.
+func (u *StoreUpsert) ClearUnifiedSocialCreditCode() *StoreUpsert {
+	u.SetNull(store.FieldUnifiedSocialCreditCode)
+	return u
+}
+
 // SetStoreLogo sets the "store_logo" field.
 func (u *StoreUpsert) SetStoreLogo(v string) *StoreUpsert {
 	u.Set(store.FieldStoreLogo, v)
@@ -1462,6 +1512,12 @@ func (u *StoreUpsert) SetStoreLogo(v string) *StoreUpsert {
 // UpdateStoreLogo sets the "store_logo" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateStoreLogo() *StoreUpsert {
 	u.SetExcluded(store.FieldStoreLogo)
+	return u
+}
+
+// ClearStoreLogo clears the value of the "store_logo" field.
+func (u *StoreUpsert) ClearStoreLogo() *StoreUpsert {
+	u.SetNull(store.FieldStoreLogo)
 	return u
 }
 
@@ -1477,6 +1533,12 @@ func (u *StoreUpsert) UpdateBusinessLicenseURL() *StoreUpsert {
 	return u
 }
 
+// ClearBusinessLicenseURL clears the value of the "business_license_url" field.
+func (u *StoreUpsert) ClearBusinessLicenseURL() *StoreUpsert {
+	u.SetNull(store.FieldBusinessLicenseURL)
+	return u
+}
+
 // SetStorefrontURL sets the "storefront_url" field.
 func (u *StoreUpsert) SetStorefrontURL(v string) *StoreUpsert {
 	u.Set(store.FieldStorefrontURL, v)
@@ -1486,6 +1548,12 @@ func (u *StoreUpsert) SetStorefrontURL(v string) *StoreUpsert {
 // UpdateStorefrontURL sets the "storefront_url" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateStorefrontURL() *StoreUpsert {
 	u.SetExcluded(store.FieldStorefrontURL)
+	return u
+}
+
+// ClearStorefrontURL clears the value of the "storefront_url" field.
+func (u *StoreUpsert) ClearStorefrontURL() *StoreUpsert {
+	u.SetNull(store.FieldStorefrontURL)
 	return u
 }
 
@@ -1501,6 +1569,12 @@ func (u *StoreUpsert) UpdateCashierDeskURL() *StoreUpsert {
 	return u
 }
 
+// ClearCashierDeskURL clears the value of the "cashier_desk_url" field.
+func (u *StoreUpsert) ClearCashierDeskURL() *StoreUpsert {
+	u.SetNull(store.FieldCashierDeskURL)
+	return u
+}
+
 // SetDiningEnvironmentURL sets the "dining_environment_url" field.
 func (u *StoreUpsert) SetDiningEnvironmentURL(v string) *StoreUpsert {
 	u.Set(store.FieldDiningEnvironmentURL, v)
@@ -1513,6 +1587,12 @@ func (u *StoreUpsert) UpdateDiningEnvironmentURL() *StoreUpsert {
 	return u
 }
 
+// ClearDiningEnvironmentURL clears the value of the "dining_environment_url" field.
+func (u *StoreUpsert) ClearDiningEnvironmentURL() *StoreUpsert {
+	u.SetNull(store.FieldDiningEnvironmentURL)
+	return u
+}
+
 // SetFoodOperationLicenseURL sets the "food_operation_license_url" field.
 func (u *StoreUpsert) SetFoodOperationLicenseURL(v string) *StoreUpsert {
 	u.Set(store.FieldFoodOperationLicenseURL, v)
@@ -1522,6 +1602,12 @@ func (u *StoreUpsert) SetFoodOperationLicenseURL(v string) *StoreUpsert {
 // UpdateFoodOperationLicenseURL sets the "food_operation_license_url" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateFoodOperationLicenseURL() *StoreUpsert {
 	u.SetExcluded(store.FieldFoodOperationLicenseURL)
+	return u
+}
+
+// ClearFoodOperationLicenseURL clears the value of the "food_operation_license_url" field.
+func (u *StoreUpsert) ClearFoodOperationLicenseURL() *StoreUpsert {
+	u.SetNull(store.FieldFoodOperationLicenseURL)
 	return u
 }
 
@@ -1657,6 +1743,12 @@ func (u *StoreUpsert) UpdateLng() *StoreUpsert {
 	return u
 }
 
+// ClearLng clears the value of the "lng" field.
+func (u *StoreUpsert) ClearLng() *StoreUpsert {
+	u.SetNull(store.FieldLng)
+	return u
+}
+
 // SetLat sets the "lat" field.
 func (u *StoreUpsert) SetLat(v string) *StoreUpsert {
 	u.Set(store.FieldLat, v)
@@ -1666,6 +1758,12 @@ func (u *StoreUpsert) SetLat(v string) *StoreUpsert {
 // UpdateLat sets the "lat" field to the value that was provided on create.
 func (u *StoreUpsert) UpdateLat() *StoreUpsert {
 	u.SetExcluded(store.FieldLat)
+	return u
+}
+
+// ClearLat clears the value of the "lat" field.
+func (u *StoreUpsert) ClearLat() *StoreUpsert {
+	u.SetNull(store.FieldLat)
 	return u
 }
 
@@ -1803,6 +1901,13 @@ func (u *StoreUpsertOne) UpdateStoreShortName() *StoreUpsertOne {
 	})
 }
 
+// ClearStoreShortName clears the value of the "store_short_name" field.
+func (u *StoreUpsertOne) ClearStoreShortName() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStoreShortName()
+	})
+}
+
 // SetStoreCode sets the "store_code" field.
 func (u *StoreUpsertOne) SetStoreCode(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
@@ -1814,6 +1919,13 @@ func (u *StoreUpsertOne) SetStoreCode(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateStoreCode() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateStoreCode()
+	})
+}
+
+// ClearStoreCode clears the value of the "store_code" field.
+func (u *StoreUpsertOne) ClearStoreCode() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStoreCode()
 	})
 }
 
@@ -1887,6 +1999,13 @@ func (u *StoreUpsertOne) UpdateContactName() *StoreUpsertOne {
 	})
 }
 
+// ClearContactName clears the value of the "contact_name" field.
+func (u *StoreUpsertOne) ClearContactName() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearContactName()
+	})
+}
+
 // SetContactPhone sets the "contact_phone" field.
 func (u *StoreUpsertOne) SetContactPhone(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
@@ -1898,6 +2017,13 @@ func (u *StoreUpsertOne) SetContactPhone(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateContactPhone() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateContactPhone()
+	})
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (u *StoreUpsertOne) ClearContactPhone() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearContactPhone()
 	})
 }
 
@@ -1915,6 +2041,13 @@ func (u *StoreUpsertOne) UpdateUnifiedSocialCreditCode() *StoreUpsertOne {
 	})
 }
 
+// ClearUnifiedSocialCreditCode clears the value of the "unified_social_credit_code" field.
+func (u *StoreUpsertOne) ClearUnifiedSocialCreditCode() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearUnifiedSocialCreditCode()
+	})
+}
+
 // SetStoreLogo sets the "store_logo" field.
 func (u *StoreUpsertOne) SetStoreLogo(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
@@ -1926,6 +2059,13 @@ func (u *StoreUpsertOne) SetStoreLogo(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateStoreLogo() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateStoreLogo()
+	})
+}
+
+// ClearStoreLogo clears the value of the "store_logo" field.
+func (u *StoreUpsertOne) ClearStoreLogo() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStoreLogo()
 	})
 }
 
@@ -1943,6 +2083,13 @@ func (u *StoreUpsertOne) UpdateBusinessLicenseURL() *StoreUpsertOne {
 	})
 }
 
+// ClearBusinessLicenseURL clears the value of the "business_license_url" field.
+func (u *StoreUpsertOne) ClearBusinessLicenseURL() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearBusinessLicenseURL()
+	})
+}
+
 // SetStorefrontURL sets the "storefront_url" field.
 func (u *StoreUpsertOne) SetStorefrontURL(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
@@ -1954,6 +2101,13 @@ func (u *StoreUpsertOne) SetStorefrontURL(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateStorefrontURL() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateStorefrontURL()
+	})
+}
+
+// ClearStorefrontURL clears the value of the "storefront_url" field.
+func (u *StoreUpsertOne) ClearStorefrontURL() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStorefrontURL()
 	})
 }
 
@@ -1971,6 +2125,13 @@ func (u *StoreUpsertOne) UpdateCashierDeskURL() *StoreUpsertOne {
 	})
 }
 
+// ClearCashierDeskURL clears the value of the "cashier_desk_url" field.
+func (u *StoreUpsertOne) ClearCashierDeskURL() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearCashierDeskURL()
+	})
+}
+
 // SetDiningEnvironmentURL sets the "dining_environment_url" field.
 func (u *StoreUpsertOne) SetDiningEnvironmentURL(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
@@ -1985,6 +2146,13 @@ func (u *StoreUpsertOne) UpdateDiningEnvironmentURL() *StoreUpsertOne {
 	})
 }
 
+// ClearDiningEnvironmentURL clears the value of the "dining_environment_url" field.
+func (u *StoreUpsertOne) ClearDiningEnvironmentURL() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearDiningEnvironmentURL()
+	})
+}
+
 // SetFoodOperationLicenseURL sets the "food_operation_license_url" field.
 func (u *StoreUpsertOne) SetFoodOperationLicenseURL(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
@@ -1996,6 +2164,13 @@ func (u *StoreUpsertOne) SetFoodOperationLicenseURL(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateFoodOperationLicenseURL() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateFoodOperationLicenseURL()
+	})
+}
+
+// ClearFoodOperationLicenseURL clears the value of the "food_operation_license_url" field.
+func (u *StoreUpsertOne) ClearFoodOperationLicenseURL() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearFoodOperationLicenseURL()
 	})
 }
 
@@ -2153,6 +2328,13 @@ func (u *StoreUpsertOne) UpdateLng() *StoreUpsertOne {
 	})
 }
 
+// ClearLng clears the value of the "lng" field.
+func (u *StoreUpsertOne) ClearLng() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearLng()
+	})
+}
+
 // SetLat sets the "lat" field.
 func (u *StoreUpsertOne) SetLat(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
@@ -2164,6 +2346,13 @@ func (u *StoreUpsertOne) SetLat(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateLat() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateLat()
+	})
+}
+
+// ClearLat clears the value of the "lat" field.
+func (u *StoreUpsertOne) ClearLat() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearLat()
 	})
 }
 
@@ -2468,6 +2657,13 @@ func (u *StoreUpsertBulk) UpdateStoreShortName() *StoreUpsertBulk {
 	})
 }
 
+// ClearStoreShortName clears the value of the "store_short_name" field.
+func (u *StoreUpsertBulk) ClearStoreShortName() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStoreShortName()
+	})
+}
+
 // SetStoreCode sets the "store_code" field.
 func (u *StoreUpsertBulk) SetStoreCode(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
@@ -2479,6 +2675,13 @@ func (u *StoreUpsertBulk) SetStoreCode(v string) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateStoreCode() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateStoreCode()
+	})
+}
+
+// ClearStoreCode clears the value of the "store_code" field.
+func (u *StoreUpsertBulk) ClearStoreCode() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStoreCode()
 	})
 }
 
@@ -2552,6 +2755,13 @@ func (u *StoreUpsertBulk) UpdateContactName() *StoreUpsertBulk {
 	})
 }
 
+// ClearContactName clears the value of the "contact_name" field.
+func (u *StoreUpsertBulk) ClearContactName() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearContactName()
+	})
+}
+
 // SetContactPhone sets the "contact_phone" field.
 func (u *StoreUpsertBulk) SetContactPhone(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
@@ -2563,6 +2773,13 @@ func (u *StoreUpsertBulk) SetContactPhone(v string) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateContactPhone() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateContactPhone()
+	})
+}
+
+// ClearContactPhone clears the value of the "contact_phone" field.
+func (u *StoreUpsertBulk) ClearContactPhone() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearContactPhone()
 	})
 }
 
@@ -2580,6 +2797,13 @@ func (u *StoreUpsertBulk) UpdateUnifiedSocialCreditCode() *StoreUpsertBulk {
 	})
 }
 
+// ClearUnifiedSocialCreditCode clears the value of the "unified_social_credit_code" field.
+func (u *StoreUpsertBulk) ClearUnifiedSocialCreditCode() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearUnifiedSocialCreditCode()
+	})
+}
+
 // SetStoreLogo sets the "store_logo" field.
 func (u *StoreUpsertBulk) SetStoreLogo(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
@@ -2591,6 +2815,13 @@ func (u *StoreUpsertBulk) SetStoreLogo(v string) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateStoreLogo() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateStoreLogo()
+	})
+}
+
+// ClearStoreLogo clears the value of the "store_logo" field.
+func (u *StoreUpsertBulk) ClearStoreLogo() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStoreLogo()
 	})
 }
 
@@ -2608,6 +2839,13 @@ func (u *StoreUpsertBulk) UpdateBusinessLicenseURL() *StoreUpsertBulk {
 	})
 }
 
+// ClearBusinessLicenseURL clears the value of the "business_license_url" field.
+func (u *StoreUpsertBulk) ClearBusinessLicenseURL() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearBusinessLicenseURL()
+	})
+}
+
 // SetStorefrontURL sets the "storefront_url" field.
 func (u *StoreUpsertBulk) SetStorefrontURL(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
@@ -2619,6 +2857,13 @@ func (u *StoreUpsertBulk) SetStorefrontURL(v string) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateStorefrontURL() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateStorefrontURL()
+	})
+}
+
+// ClearStorefrontURL clears the value of the "storefront_url" field.
+func (u *StoreUpsertBulk) ClearStorefrontURL() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearStorefrontURL()
 	})
 }
 
@@ -2636,6 +2881,13 @@ func (u *StoreUpsertBulk) UpdateCashierDeskURL() *StoreUpsertBulk {
 	})
 }
 
+// ClearCashierDeskURL clears the value of the "cashier_desk_url" field.
+func (u *StoreUpsertBulk) ClearCashierDeskURL() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearCashierDeskURL()
+	})
+}
+
 // SetDiningEnvironmentURL sets the "dining_environment_url" field.
 func (u *StoreUpsertBulk) SetDiningEnvironmentURL(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
@@ -2650,6 +2902,13 @@ func (u *StoreUpsertBulk) UpdateDiningEnvironmentURL() *StoreUpsertBulk {
 	})
 }
 
+// ClearDiningEnvironmentURL clears the value of the "dining_environment_url" field.
+func (u *StoreUpsertBulk) ClearDiningEnvironmentURL() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearDiningEnvironmentURL()
+	})
+}
+
 // SetFoodOperationLicenseURL sets the "food_operation_license_url" field.
 func (u *StoreUpsertBulk) SetFoodOperationLicenseURL(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
@@ -2661,6 +2920,13 @@ func (u *StoreUpsertBulk) SetFoodOperationLicenseURL(v string) *StoreUpsertBulk 
 func (u *StoreUpsertBulk) UpdateFoodOperationLicenseURL() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateFoodOperationLicenseURL()
+	})
+}
+
+// ClearFoodOperationLicenseURL clears the value of the "food_operation_license_url" field.
+func (u *StoreUpsertBulk) ClearFoodOperationLicenseURL() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearFoodOperationLicenseURL()
 	})
 }
 
@@ -2818,6 +3084,13 @@ func (u *StoreUpsertBulk) UpdateLng() *StoreUpsertBulk {
 	})
 }
 
+// ClearLng clears the value of the "lng" field.
+func (u *StoreUpsertBulk) ClearLng() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearLng()
+	})
+}
+
 // SetLat sets the "lat" field.
 func (u *StoreUpsertBulk) SetLat(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
@@ -2829,6 +3102,13 @@ func (u *StoreUpsertBulk) SetLat(v string) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateLat() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateLat()
+	})
+}
+
+// ClearLat clears the value of the "lat" field.
+func (u *StoreUpsertBulk) ClearLat() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearLat()
 	})
 }
 

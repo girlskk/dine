@@ -30,7 +30,8 @@ func (h *StallHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PATCH("/:id", h.StallSimpleUpdate())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 // Create 创建出品部门
@@ -277,25 +278,23 @@ func (h *StallHandler) List() gin.HandlerFunc {
 	}
 }
 
-// StallSimpleUpdate 更新出品部门单个字段
+// Enable 启用出品部门
 //
 //	@Tags			后厨管理
 //	@Security		BearerAuth
-//	@Summary		更新出品部门单个字段信息
-//	@Description	快速切换启用状态
-//	@Accept			json
+//	@Summary		启用出品部门
+//	@Description	将出品部门置为启用
 //	@Produce		json
-//	@Param			id		path	string						true	"出品部门ID"
-//	@Param			data	body	types.StallSimpleUpdateReq	true	"更新出品部门单个字段信息请求信息"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
-//	@Router			/restaurant/stall/{id} [patch]
-func (h *StallHandler) StallSimpleUpdate() gin.HandlerFunc {
+//	@Param			id	path	string	true	"出品部门ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/restaurant/stall/{id}/enable [put]
+func (h *StallHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("StallHandler.StallSimpleUpdate")
+		logger := logging.FromContext(ctx).Named("StallHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -305,14 +304,53 @@ func (h *StallHandler) StallSimpleUpdate() gin.HandlerFunc {
 			return
 		}
 
-		var req types.StallSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
+		stall := &domain.Stall{ID: id, Enabled: true}
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateTypeEnabled, stall); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to toggle enabled: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用出品部门
+//
+//	@Tags			后厨管理
+//	@Security		BearerAuth
+//	@Summary		禁用出品部门
+//	@Description	将出品部门置为禁用
+//	@Produce		json
+//	@Param			id	path	string	true	"出品部门ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/restaurant/stall/{id}/disable [put]
+func (h *StallHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("StallHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		stall := &domain.Stall{ID: id, Enabled: req.Enabled}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, req.SimpleUpdateType, stall); err != nil {
+		stall := &domain.Stall{ID: id, Enabled: false}
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateTypeEnabled, stall); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

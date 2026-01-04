@@ -33,6 +33,7 @@ func (repo *StoreUserRepository) Create(ctx context.Context, user *domain.StoreU
 		SetUsername(user.Username).
 		SetHashedPassword(user.HashedPassword).
 		SetNickname(user.Nickname).
+		SetMerchantID(user.MerchantID).
 		SetStoreID(user.StoreID).
 		Save(ctx)
 	if err != nil {
@@ -137,6 +138,7 @@ func convertStoreUser(eu *ent.StoreUser) *domain.StoreUser {
 		Username:       eu.Username,
 		HashedPassword: eu.HashedPassword,
 		Nickname:       eu.Nickname,
+		MerchantID:     eu.MerchantID,
 		StoreID:        eu.StoreID,
 	}
 

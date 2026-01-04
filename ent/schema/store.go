@@ -32,12 +32,12 @@ func (Store) Fields() []ent.Field {
 			MaxLen(30).
 			Comment("门店名称,长度不超过30个字"),
 		field.String("store_short_name").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(30).
 			Comment("门店简称"),
 		field.String("store_code").
-			NotEmpty().
+			Optional().
 			Default("").
 			Comment("门店编码(保留字段)"),
 		field.Enum("status").
@@ -53,47 +53,47 @@ func (Store) Fields() []ent.Field {
 			MaxLen(255).
 			Comment("门店位置编号"),
 		field.String("contact_name").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(20).
 			Comment("联系人"),
 		field.String("contact_phone").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(20).
 			Comment("联系电话"),
 		field.String("unified_social_credit_code").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(50).
 			Comment("统一社会信用代码"),
 		field.String("store_logo").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(500).
 			Comment("logo 图片地址"),
 		field.String("business_license_url").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(500).
 			Comment("营业执照图片"),
 		field.String("storefront_url").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(500).
 			Comment("门店门头照"),
 		field.String("cashier_desk_url").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(500).
 			Comment("门店收银台照片"),
 		field.String("dining_environment_url").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(500).
 			Comment("就餐环境图"),
 		field.String("food_operation_license_url").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(500).
 			Comment("食品经营许可证照片"),
@@ -122,12 +122,12 @@ func (Store) Fields() []ent.Field {
 			MaxLen(255).
 			Comment("详细地址"),
 		field.String("lng").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(50).
 			Comment("经度"),
 		field.String("lat").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(50).
 			Comment("纬度"),
@@ -177,6 +177,8 @@ func (Store) Edges() []ent.Edge {
 		edge.To("tax_fees", TaxFee.Type),
 		edge.To("devices", Device.Type),
 		edge.From("menus", Menu.Type).Ref("stores").Comment("关联的菜单"),
+		edge.To("departments", Department.Type),
+		edge.To("roles", Role.Type),
 	}
 }
 

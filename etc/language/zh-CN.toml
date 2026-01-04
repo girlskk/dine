@@ -107,3 +107,6 @@ other = "设备名称已存在"
 
 [TAX_FEE_NAME_EXISTS]
 other = "税费名称已存在"
+
+[BACKEND_USER_EXISTS]
+other = "后台用户已存在"

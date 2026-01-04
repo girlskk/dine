@@ -95,12 +95,6 @@ definitions:
     x-enum-varnames:
     - AdditionalFeeDiscountScopeBefore
     - AdditionalFeeDiscountScopeAfter
-  domain.AdditionalFeeSimpleUpdateType:
-    enum:
-    - enabled
-    type: string
-    x-enum-varnames:
-    - AdditionalFeeSimpleUpdateTypeEnabled
   domain.AdditionalFeeType:
     enum:
     - merchant
@@ -350,12 +344,6 @@ definitions:
     x-enum-varnames:
     - DeviceLocationFrontHall
     - DeviceLocationBackKitchen
-  domain.DeviceSimpleUpdateType:
-    enum:
-    - enabled
-    type: string
-    x-enum-varnames:
-    - DeviceSimpleUpdateTypeEnabled
   domain.DeviceStallPrintType:
     enum:
     - all
@@ -611,14 +599,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  domain.MerchantSimpleUpdateType:
-    enum:
-    - status
-    type: string
-    x-enum-comments:
-      MerchantSimpleUpdateTypeStatus: 状态
-    x-enum-varnames:
-    - MerchantSimpleUpdateTypeStatus
   domain.MerchantStatus:
     enum:
     - active
@@ -1288,12 +1268,6 @@ definitions:
     - RemarkSceneGift
     - RemarkSceneRebill
     - RemarkSceneRefundReject
-  domain.RemarkSimpleUpdateType:
-    enum:
-    - enabled
-    type: string
-    x-enum-varnames:
-    - RemarkSimpleUpdateTypeEnabled
   domain.RemarkType:
     enum:
     - system
@@ -1461,12 +1435,6 @@ definitions:
     x-enum-varnames:
     - StallPrintTypeReceipt
     - StallPrintTypeLabel
-  domain.StallSimpleUpdateType:
-    enum:
-    - enabled
-    type: string
-    x-enum-varnames:
-    - StallSimpleUpdateTypeEnabled
   domain.StallType:
     enum:
     - system
@@ -1585,14 +1553,6 @@ definitions:
         description: 门店名称
         type: string
     type: object
-  domain.StoreSimpleUpdateType:
-    enum:
-    - status
-    type: string
-    x-enum-comments:
-      StoreSimpleUpdateTypeStatus: 状态更新
-    x-enum-varnames:
-    - StoreSimpleUpdateTypeStatus
   domain.StoreStatus:
     enum:
     - open
@@ -1639,12 +1599,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  domain.TaxFeeSimpleUpdateType:
-    enum:
-    - default_tax
-    type: string
-    x-enum-varnames:
-    - TaxFeeSimpleUpdateTypeDefault
   domain.TaxFeeType:
     enum:
     - merchant
@@ -1780,20 +1734,6 @@ definitions:
       total:
         description: 总数
         type: integer
-    type: object
-  types.AdditionalFeeSimpleUpdateReq:
-    properties:
-      enabled:
-        description: 是否启用
-        type: boolean
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.AdditionalFeeSimpleUpdateType'
-        description: 简单更新类型，目前仅支持 enabled
-        enum:
-        - enabled
-    required:
-    - simple_update_type
     type: object
   types.AdditionalFeeUpdateReq:
     properties:
@@ -2125,10 +2065,12 @@ definitions:
   types.DeviceListResp:
     properties:
       devices:
+        description: 设备列表
         items:
           $ref: '#/definitions/domain.Device'
         type: array
       total:
+        description: 总数
         type: integer
     type: object
   types.DevicePrint:
@@ -2180,19 +2122,6 @@ definitions:
     - order_channels
     - paper_size
     - stall_id
-    type: object
-  types.DeviceSimpleUpdateReq:
-    properties:
-      enabled:
-        type: boolean
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.DeviceSimpleUpdateType'
-        description: 更新字段
-        enum:
-        - enabled
-    required:
-    - simple_update_type
     type: object
   types.DeviceUpdateReq:
     properties:
@@ -2378,21 +2307,6 @@ definitions:
     - merchant_id
     - purchase_duration
     - purchase_duration_unit
-    type: object
-  types.MerchantSimpleUpdateReq:
-    properties:
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.MerchantSimpleUpdateType'
-        description: 简单更新类型
-        enum:
-        - status
-      status:
-        allOf:
-        - $ref: '#/definitions/domain.MerchantStatus'
-        description: '状态: 正常,停用,过期'
-    required:
-    - simple_update_type
     type: object
   types.OssTokenReq:
     properties:
@@ -2958,20 +2872,6 @@ definitions:
         description: 备注总数
         type: integer
     type: object
-  types.RemarkSimpleUpdateReq:
-    properties:
-      enabled:
-        description: 启用状态
-        type: boolean
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.RemarkSimpleUpdateType'
-        description: 简单更新类型
-        enum:
-        - status
-    required:
-    - simple_update_type
-    type: object
   types.RemarkUpdateReq:
     properties:
       enabled:
@@ -3296,20 +3196,6 @@ definitions:
         description: 出品部门总数
         type: integer
     type: object
-  types.StallSimpleUpdateReq:
-    properties:
-      enabled:
-        description: 启用状态
-        type: boolean
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.StallSimpleUpdateType'
-        description: 更新的字段名称
-        enum:
-        - enabled
-    required:
-    - simple_update_type
-    type: object
   types.StallUpdateReq:
     properties:
       enabled:
@@ -3341,22 +3227,6 @@ definitions:
         description: 总数
         type: integer
     type: object
-  types.StoreSimpleUpdateReq:
-    properties:
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.StoreSimpleUpdateType'
-        description: 简单更新类型
-        enum:
-        - status
-      status:
-        allOf:
-        - $ref: '#/definitions/domain.StoreStatus'
-        description: 营业/停业
-    required:
-    - simple_update_type
-    - status
-    type: object
   types.TaxFeeCreateReq:
     properties:
       default_tax:
@@ -3385,23 +3255,13 @@ definitions:
   types.TaxFeeListResp:
     properties:
       tax_fees:
+        description: 税费列表
         items:
           $ref: '#/definitions/domain.TaxFee'
         type: array
       total:
+        description: 总数
         type: integer
-    type: object
-  types.TaxFeeSimpleUpdateReq:
-    properties:
-      default_tax:
-        type: boolean
-      simple_update_type:
-        allOf:
-        - $ref: '#/definitions/domain.TaxFeeSimpleUpdateType'
-        enum:
-        - default_tax
-    required:
-    - simple_update_type
     type: object
   types.TaxFeeUpdateReq:
     properties:
@@ -3760,43 +3620,6 @@ paths:
       summary: 获取附加费详情
       tags:
       - 费用管理-附加费管理
-    patch:
-      consumes:
-      - application/json
-      parameters:
-      - description: 附加费ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 请求信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.AdditionalFeeSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新附加费单个字段
-      tags:
-      - 费用管理-附加费管理
     put:
       consumes:
       - application/json
@@ -3832,6 +3655,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新附加费
+      tags:
+      - 费用管理-附加费管理
+  /additional_fee/{id}/disable:
+    put:
+      description: 将附加费置为禁用
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用附加费
+      tags:
+      - 费用管理-附加费管理
+  /additional_fee/{id}/enable:
+    put:
+      description: 将附加费置为启用
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用附加费
       tags:
       - 费用管理-附加费管理
   /menu:
@@ -3969,39 +3854,6 @@ paths:
       summary: 获取商户信息
       tags:
       - 商户管理-商户
-    patch:
-      consumes:
-      - application/json
-      description: 修改商户状态，
-      parameters:
-      - description: 更新商户单个字段信息请求
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.MerchantSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新商户单个字段信息
-      tags:
-      - 商户管理
   /merchant/brand:
     put:
       consumes:
@@ -4039,6 +3891,56 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新品牌商户
+      tags:
+      - 商户管理
+  /merchant/disable:
+    put:
+      description: 将商户状态置为禁用
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用商户
+      tags:
+      - 商户管理
+  /merchant/enable:
+    put:
+      description: 将商户状态置为激活
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用商户
       tags:
       - 商户管理
   /merchant/renewal:
@@ -4997,44 +4899,6 @@ paths:
       summary: 获取备注详情
       tags:
       - 前厅管理
-    patch:
-      consumes:
-      - application/json
-      description: 快速切换启用状态，
-      parameters:
-      - description: 备注ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 更新备注单个字段信息请求信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.RemarkSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新备注单个字段信息
-      tags:
-      - 前厅管理
     put:
       consumes:
       - application/json
@@ -5071,6 +4935,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新备注
+      tags:
+      - 前厅管理
+  /remark/{id}/disable:
+    put:
+      description: 将备注置为禁用
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用备注
+      tags:
+      - 前厅管理
+  /remark/{id}/enable:
+    put:
+      description: 将备注置为启用
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用备注
       tags:
       - 前厅管理
   /remark_category:
@@ -5367,44 +5293,6 @@ paths:
       summary: 获取设备详情
       tags:
       - 设备管理
-    patch:
-      consumes:
-      - application/json
-      description: 快速切换启用状态
-      parameters:
-      - description: 设备ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 更新设备单个字段信息请求信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.DeviceSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新设备单个字段信息
-      tags:
-      - 设备管理
     put:
       consumes:
       - application/json
@@ -5441,6 +5329,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新设备
+      tags:
+      - 设备管理
+  /restaurant/device/{id}/disable:
+    put:
+      description: 将设备置为禁用
+      parameters:
+      - description: 设备ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用设备
+      tags:
+      - 设备管理
+  /restaurant/device/{id}/enable:
+    put:
+      description: 将设备置为启用
+      parameters:
+      - description: 设备ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用设备
       tags:
       - 设备管理
   /restaurant/stall:
@@ -5598,44 +5548,6 @@ paths:
       summary: 获取出品部门详情
       tags:
       - 后厨管理
-    patch:
-      consumes:
-      - application/json
-      description: 快速切换启用状态
-      parameters:
-      - description: 出品部门ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 更新出品部门单个字段信息请求信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.StallSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新出品部门单个字段信息
-      tags:
-      - 后厨管理
     put:
       consumes:
       - application/json
@@ -5672,6 +5584,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新出品部门
+      tags:
+      - 后厨管理
+  /restaurant/stall/{id}/disable:
+    put:
+      description: 将出品部门置为禁用
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用出品部门
+      tags:
+      - 后厨管理
+  /restaurant/stall/{id}/enable:
+    put:
+      description: 将出品部门置为启用
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用出品部门
       tags:
       - 后厨管理
   /store:
@@ -5778,39 +5752,6 @@ paths:
       summary: 获取门店
       tags:
       - 门店管理
-    patch:
-      consumes:
-      - application/json
-      description: 修改门店状态
-      parameters:
-      - description: 更新门店单个字段信息请求
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.StoreSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新门店单个字段信息
-      tags:
-      - 门店管理
     put:
       consumes:
       - application/json
@@ -5847,6 +5788,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新门店
+      tags:
+      - 门店管理
+  /store/{id}/disable:
+    put:
+      description: 将门店状态置为停业
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用门店
+      tags:
+      - 门店管理
+  /store/{id}/enable:
+    put:
+      description: 将门店状态置为营业
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用门店
       tags:
       - 门店管理
   /store/list:
@@ -6079,43 +6082,6 @@ paths:
       summary: 获取税费详情
       tags:
       - 费用管理-税费管理
-    patch:
-      consumes:
-      - application/json
-      parameters:
-      - description: 税费ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 请求信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.TaxFeeSimpleUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: 更新税费单个字段
-      tags:
-      - 费用管理-税费管理
     put:
       consumes:
       - application/json
@@ -6151,6 +6117,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新税费
+      tags:
+      - 费用管理-税费管理
+  /tax_fee/{id}/disable:
+    put:
+      description: 取消默认税费标记
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用税费
+      tags:
+      - 费用管理-税费管理
+  /tax_fee/{id}/enable:
+    put:
+      description: 将税费标记为默认
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用税费
       tags:
       - 费用管理-税费管理
   /user/info:
