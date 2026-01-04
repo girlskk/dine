@@ -15,6 +15,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 type ProductHandler struct {
@@ -362,23 +363,31 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		page := upagination.New(req.Page, req.Size)
 		user := domain.FromBackendUserContext(ctx)
 
-		startAt, err := time.Parse(time.DateOnly, req.StartAt)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-		endAt, err := time.Parse(time.DateOnly, req.EndAt)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-
 		params := domain.ProductSearchParams{
 			MerchantID:   user.MerchantID,
 			OnlyMerchant: true,
 			Name:         req.Name,
-			StartAt:      &startAt,
-			EndAt:        &endAt,
+			StartAt:      nil,
+			EndAt:        nil,
+		}
+
+		var startAt, endAt time.Time
+		var err error
+		if req.StartAt != "" {
+			startAt, err = time.Parse(time.DateOnly, req.StartAt)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.StartAt = &startAt
+		}
+		if req.EndAt != "" {
+			endAt, err = time.Parse(time.DateOnly, req.EndAt)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.EndAt = &endAt
 		}
 
 		// 转换UUID
@@ -409,6 +418,8 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		if req.Type != "" {
 			params.Type = domain.ProductType(req.Type)
 		}
+
+		util.PrettyJson(params)
 
 		res, err := h.ProductInteractor.PagedListBySearch(ctx, page, params)
 		if err != nil {

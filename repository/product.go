@@ -458,8 +458,12 @@ func (repo *ProductRepository) PagedListBySearch(
 
 	// 预加载关联数据
 	query = query.
-		WithCategory().    // 预加载分类信息
-		WithProductSpecs() // 预加载规格信息
+		WithCategory(). // 预加载分类信息
+		WithProductSpecs(
+			func(query *ent.ProductSpecRelationQuery) {
+				query.WithSpec()
+			},
+		) // 预加载规格信息
 
 	// 分页处理
 	query = query.

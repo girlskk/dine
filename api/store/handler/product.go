@@ -363,23 +363,32 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		page := upagination.New(req.Page, req.Size)
 		user := domain.FromStoreUserContext(ctx)
 
-		startAt, err := time.Parse(time.DateOnly, req.StartAt)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-		endAt, err := time.Parse(time.DateOnly, req.EndAt)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
+		params := domain.ProductSearchParams{
+			MerchantID:   user.MerchantID,
+			StoreID:      user.StoreID,
+			OnlyMerchant: true,
+			Name:         req.Name,
+			StartAt:      nil,
+			EndAt:        nil,
 		}
 
-		params := domain.ProductSearchParams{
-			MerchantID: user.MerchantID,
-			StoreID:    user.StoreID,
-			Name:       req.Name,
-			StartAt:    &startAt,
-			EndAt:      &endAt,
+		var startAt, endAt time.Time
+		var err error
+		if req.StartAt != "" {
+			startAt, err = time.Parse(time.DateOnly, req.StartAt)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.StartAt = &startAt
+		}
+		if req.EndAt != "" {
+			endAt, err = time.Parse(time.DateOnly, req.EndAt)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.EndAt = &endAt
 		}
 
 		// 转换UUID
