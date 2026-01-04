@@ -14,7 +14,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/asynq/asynqfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/db/dbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver/httpserverfx"
-	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing/tracingfx"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
@@ -76,7 +75,6 @@ func main() {
 				fx.As(new(domain.DailySequence)),
 			),
 			oss.New,
-			huifu.New,
 		),
 		dbfx.Module,
 		tracingfx.Module,

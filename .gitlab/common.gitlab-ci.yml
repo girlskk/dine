@@ -39,3 +39,18 @@
     - docker pull harbor.jiguang.dev/library/atlas
     # 执行数据库迁移
     - docker run --rm --net=host -v ./ent/migrate/migrations:/migrations harbor.jiguang.dev/library/atlas migrate apply --url "$DATABASE_URL_PATH"
+
+# 部署服务
+.deploy_compose_common:
+  stage: deploy
+  tags:
+    - apple
+  allow_failure: false
+  before_script:
+    - echo "开始部署"
+  script:
+    - |
+      ssh $SSH_USER@$SSH_HOST << EOF
+        cd $DEPLOY_DIR
+        docker compose up -d --pull always --force-recreate
+      EOF

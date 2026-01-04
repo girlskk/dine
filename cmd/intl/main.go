@@ -13,7 +13,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/alert/alertfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/asynq/asynqfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/db/dbfx"
-	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rpcserver/rpcserverfx"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
@@ -73,7 +72,6 @@ func main() {
 				sequence.NewDailySequence,
 				fx.As(new(domain.DailySequence)),
 			),
-			huifu.New,
 			oss.New,
 		),
 		dbfx.Module,
