@@ -81,7 +81,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -432,38 +432,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.Address:
     properties:
       address:
@@ -509,6 +477,96 @@ definitions:
         items:
           $ref: '#/definitions/domain.Country'
         type: array
+    type: object
+  types.CreateMStoreReq:
+    properties:
+      admin_phone_number:
+        description: 管理员手机号
+        maxLength: 20
+        type: string
+      business_hours:
+        description: 营业时间段
+        items:
+          $ref: '#/definitions/domain.BusinessHours'
+        type: array
+      business_license_url:
+        description: 营业执照图片地址
+        maxLength: 500
+        type: string
+      business_model:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessModel'
+        description: 直营/加盟
+      cashier_desk_url:
+        description: 收银台照片地址
+        maxLength: 500
+        type: string
+      contact_name:
+        description: 联系人
+        maxLength: 255
+        type: string
+      contact_phone:
+        description: 联系电话
+        maxLength: 255
+        type: string
+      dining_environment_url:
+        description: 就餐环境照片地址
+        maxLength: 500
+        type: string
+      dining_periods:
+        description: 就餐时段
+        items:
+          $ref: '#/definitions/domain.DiningPeriod'
+        type: array
+      food_operation_license_url:
+        description: 食品经营许可证照片地址
+        maxLength: 500
+        type: string
+      location_number:
+        description: 门店位置编号
+        maxLength: 255
+        type: string
+      shift_times:
+        description: 班次时间
+        items:
+          $ref: '#/definitions/domain.ShiftTime'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.StoreStatus'
+        description: 营业/停业
+      store_code:
+        description: 门店编码(保留字段)
+        maxLength: 50
+        type: string
+      store_logo:
+        description: logo 图片地址
+        maxLength: 500
+        type: string
+      store_name:
+        description: 门店名称,长度不超过30个字
+        maxLength: 30
+        type: string
+      store_short_name:
+        description: 门店简称
+        maxLength: 30
+        type: string
+      storefront_url:
+        description: 门店门头照片地址
+        maxLength: 500
+        type: string
+      unified_social_credit_code:
+        description: 统一社会信用代码
+        maxLength: 255
+        type: string
+    required:
+    - admin_phone_number
+    - business_hours
+    - business_model
+    - dining_periods
+    - location_number
+    - shift_times
+    - store_name
     type: object
   types.CreateMerchantReq:
     properties:
@@ -583,7 +641,7 @@ definitions:
       merchant:
         $ref: '#/definitions/types.CreateMerchantReq'
       store:
-        $ref: '#/definitions/types.CreateStoreReq'
+        $ref: '#/definitions/types.CreateMStoreReq'
     type: object
   types.CreateStoreReq:
     properties:
@@ -892,6 +950,92 @@ definitions:
         description: 总数
         type: integer
     type: object
+  types.UpdateMStoreReq:
+    properties:
+      admin_phone_number:
+        description: 管理员手机号
+        maxLength: 20
+        type: string
+      business_hours:
+        description: 营业时间段
+        items:
+          $ref: '#/definitions/domain.BusinessHours'
+        type: array
+      business_license_url:
+        description: 营业执照图片地址
+        maxLength: 500
+        type: string
+      cashier_desk_url:
+        description: 收银台照片地址
+        maxLength: 500
+        type: string
+      contact_name:
+        description: 联系人
+        maxLength: 255
+        type: string
+      contact_phone:
+        description: 联系电话
+        maxLength: 255
+        type: string
+      dining_environment_url:
+        description: 就餐环境照片地址
+        maxLength: 500
+        type: string
+      dining_periods:
+        description: 就餐时段
+        items:
+          $ref: '#/definitions/domain.DiningPeriod'
+        type: array
+      food_operation_license_url:
+        description: 食品经营许可证照片地址
+        maxLength: 500
+        type: string
+      location_number:
+        description: 门店位置编号
+        maxLength: 255
+        type: string
+      shift_times:
+        description: 班次时间
+        items:
+          $ref: '#/definitions/domain.ShiftTime'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.StoreStatus'
+        description: 营业/停业
+      store_code:
+        description: 门店编码(保留字段)
+        maxLength: 50
+        type: string
+      store_logo:
+        description: logo 图片地址
+        maxLength: 500
+        type: string
+      store_name:
+        description: 门店名称,长度不超过30个字
+        maxLength: 30
+        type: string
+      store_short_name:
+        description: 门店简称
+        maxLength: 30
+        type: string
+      storefront_url:
+        description: 门店门头照片地址
+        maxLength: 500
+        type: string
+      unified_social_credit_code:
+        description: 统一社会信用代码
+        maxLength: 255
+        type: string
+    required:
+    - admin_phone_number
+    - business_hours
+    - dining_periods
+    - location_number
+    - shift_times
+    - status
+    - store_name
+    type: object
   types.UpdateMerchantReq:
     properties:
       address:
@@ -943,7 +1087,7 @@ definitions:
       merchant:
         $ref: '#/definitions/types.UpdateMerchantReq'
       store:
-        $ref: '#/definitions/types.UpdateStoreReq'
+        $ref: '#/definitions/types.UpdateMStoreReq'
     type: object
   types.UpdateStoreReq:
     properties:

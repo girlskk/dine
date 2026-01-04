@@ -103,17 +103,16 @@ type CreateDepartmentParams struct {
 
 type UpdateDepartmentParams struct {
 	ID             uuid.UUID      `json:"id"`
-	Name           string         `json:"name"`
-	Code           string         `json:"code"`
-	DepartmentType DepartmentType `json:"department_type"`
-	Enable         bool           `json:"enable"`
-	MerchantID     uuid.UUID      `json:"merchant_id"`
-	StoreID        uuid.UUID      `json:"store_id"`
+	Name           string         `json:"name"`            // 模糊搜索
+	Code           string         `json:"code"`            // 模糊搜索
+	DepartmentType DepartmentType `json:"department_type"` // admin/backend/store
+	Enable         bool           `json:"enable"`          // 是否启用
+	MerchantID     uuid.UUID      `json:"merchant_id"`     // 商户 ID
+	StoreID        uuid.UUID      `json:"store_id"`        // 门店 ID
 }
 
 type DepartmentExistsParams struct {
 	Name       string    `json:"name"`
-	Code       string    `json:"code"`
 	ExcludeID  uuid.UUID `json:"exclude_id"`
 	MerchantID uuid.UUID `json:"merchant_id"`
 	StoreID    uuid.UUID `json:"store_id"`

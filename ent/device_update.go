@@ -184,6 +184,12 @@ func (du *DeviceUpdate) SetNillableStatus(ds *domain.DeviceStatus) *DeviceUpdate
 	return du
 }
 
+// ClearStatus clears the value of the "status" field.
+func (du *DeviceUpdate) ClearStatus() *DeviceUpdate {
+	du.mutation.ClearStatus()
+	return du
+}
+
 // SetIP sets the "ip" field.
 func (du *DeviceUpdate) SetIP(s string) *DeviceUpdate {
 	du.mutation.SetIP(s)
@@ -538,6 +544,9 @@ func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := du.mutation.Status(); ok {
 		_spec.SetField(device.FieldStatus, field.TypeEnum, value)
 	}
+	if du.mutation.StatusCleared() {
+		_spec.ClearField(device.FieldStatus, field.TypeEnum)
+	}
 	if value, ok := du.mutation.IP(); ok {
 		_spec.SetField(device.FieldIP, field.TypeString, value)
 	}
@@ -798,6 +807,12 @@ func (duo *DeviceUpdateOne) SetNillableStatus(ds *domain.DeviceStatus) *DeviceUp
 	if ds != nil {
 		duo.SetStatus(*ds)
 	}
+	return duo
+}
+
+// ClearStatus clears the value of the "status" field.
+func (duo *DeviceUpdateOne) ClearStatus() *DeviceUpdateOne {
+	duo.mutation.ClearStatus()
 	return duo
 }
 
@@ -1184,6 +1199,9 @@ func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err err
 	}
 	if value, ok := duo.mutation.Status(); ok {
 		_spec.SetField(device.FieldStatus, field.TypeEnum, value)
+	}
+	if duo.mutation.StatusCleared() {
+		_spec.ClearField(device.FieldStatus, field.TypeEnum)
 	}
 	if value, ok := duo.mutation.IP(); ok {
 		_spec.SetField(device.FieldIP, field.TypeString, value)

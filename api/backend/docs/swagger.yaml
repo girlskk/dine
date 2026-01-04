@@ -1646,22 +1646,8 @@ definitions:
     - 4
     - 5
     - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     type: integer
     x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -3253,9 +3239,6 @@ definitions:
     type: object
   types.TaxFeeCreateReq:
     properties:
-      default_tax:
-        description: 是否默认税率
-        type: boolean
       name:
         description: 税费名称
         maxLength: 50
@@ -3263,18 +3246,9 @@ definitions:
       tax_rate:
         description: 税率 tax_rate 示例：6% -> 0.06
         type: number
-      tax_rate_type:
-        allOf:
-        - $ref: '#/definitions/domain.TaxRateType'
-        description: 税率类型
-        enum:
-        - unified
-        - custom
     required:
-    - default_tax
     - name
     - tax_rate
-    - tax_rate_type
     type: object
   types.TaxFeeListResp:
     properties:
@@ -3289,9 +3263,6 @@ definitions:
     type: object
   types.TaxFeeUpdateReq:
     properties:
-      default_tax:
-        description: 是否默认税率
-        type: boolean
       name:
         description: 税费名称
         maxLength: 50
@@ -3299,18 +3270,9 @@ definitions:
       tax_rate:
         description: 税率 tax_rate 示例：6% -> 0.06
         type: number
-      tax_rate_type:
-        allOf:
-        - $ref: '#/definitions/domain.TaxRateType'
-        description: 税率类型
-        enum:
-        - unified
-        - custom
     required:
-    - default_tax
     - name
     - tax_rate
-    - tax_rate_type
     type: object
   types.UpdateCategoryReq:
     properties:

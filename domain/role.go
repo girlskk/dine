@@ -9,18 +9,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
-type RoleType string
-
-const (
-	RoleTypeAdmin   RoleType = "admin"
-	RoleTypeBackend RoleType = "backend"
-	RoleTypeStore   RoleType = "store"
-)
-
-func (RoleType) Values() []string {
-	return []string{string(RoleTypeAdmin), string(RoleTypeBackend), string(RoleTypeStore)}
-}
-
 var (
 	ErrRoleNotExists  = errors.New("角色不存在")
 	ErrRoleNameExists = errors.New("角色名称已存在")
@@ -48,6 +36,18 @@ type RoleInteractor interface {
 	DeleteRole(ctx context.Context, id uuid.UUID) error
 	GetRole(ctx context.Context, id uuid.UUID) (*Role, error)
 	GetRoles(ctx context.Context, pager *upagination.Pagination, filter *RoleListFilter, orderBys ...RoleListOrderBy) ([]*Role, int, error)
+}
+
+type RoleType string
+
+const (
+	RoleTypeAdmin   RoleType = "admin"
+	RoleTypeBackend RoleType = "backend"
+	RoleTypeStore   RoleType = "store"
+)
+
+func (RoleType) Values() []string {
+	return []string{string(RoleTypeAdmin), string(RoleTypeBackend), string(RoleTypeStore)}
 }
 
 // RoleListOrderByType defines the allowed ordering columns for roles.
@@ -84,7 +84,6 @@ type Role struct {
 
 type RoleListFilter struct {
 	Name     string   `json:"name"`
-	Code     string   `json:"code"`
 	RoleType RoleType `json:"role_type"`
 	Enable   *bool    `json:"enable"`
 }

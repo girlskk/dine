@@ -14,7 +14,7 @@ type RemarkCreateReq struct {
 	Enabled    bool      `json:"enabled"`                              // 是否启用
 	SortOrder  int       `json:"sort_order" binding:"omitempty,gte=0"` // 排序，越小越靠前
 	CategoryID uuid.UUID `json:"category_id" binding:"required"`       // 备注类型
-	StoreID    uuid.UUID `json:"store_id"`                             // 可选，品牌级可为空
+	StoreID    uuid.UUID `json:"store_id" binding:"omitempty"`         // 可选，品牌级可为空
 }
 
 // RemarkUpdateReq 更新备注请求
@@ -27,10 +27,10 @@ type RemarkUpdateReq struct {
 // RemarkListReq 备注列表查询
 type RemarkListReq struct {
 	upagination.RequestPagination
-	Name       string    `form:"name" json:"name"`               // 备注名称
-	CategoryID uuid.UUID `form:"category_id" json:"category_id"` // 备注类型
-	StoreID    uuid.UUID `form:"store_id" json:"store_id"`       // 门店 ID
-	Enabled    *bool     `form:"enabled" json:"enabled"`         // 启用状态
+	Name       string    `form:"name"`        // 备注名称
+	CategoryID uuid.UUID `form:"category_id"` // 备注类型
+	StoreID    uuid.UUID `form:"store_id"`    // 门店 ID
+	Enabled    *bool     `form:"enabled"`     // 启用状态
 }
 
 type RemarkListResp struct {

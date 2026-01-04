@@ -323,7 +323,7 @@ var (
 		{Name: "device_model", Type: field.TypeString, Nullable: true},
 		{Name: "location", Type: field.TypeEnum, Enums: []string{"front_hall", "back_kitchen"}},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"online", "offline"}, Default: "offline"},
+		{Name: "status", Type: field.TypeEnum, Nullable: true, Enums: []string{"online", "offline"}, Default: "offline"},
 		{Name: "ip", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "sort_order", Type: field.TypeInt, Nullable: true, Default: 1000},
 		{Name: "paper_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"58mm", "80mm"}},

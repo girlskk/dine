@@ -156,13 +156,13 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 		}
 
 		address := &domain.Address{
-			CountryID:  req.Store.Address.CountryID,
-			ProvinceID: req.Store.Address.ProvinceID,
-			CityID:     req.Store.Address.CityID,
-			DistrictID: req.Store.Address.DistrictID,
-			Address:    req.Store.Address.Address,
-			Lng:        req.Store.Address.Lng,
-			Lat:        req.Store.Address.Lat,
+			CountryID:  req.Merchant.Address.CountryID,
+			ProvinceID: req.Merchant.Address.ProvinceID,
+			CityID:     req.Merchant.Address.CityID,
+			DistrictID: req.Merchant.Address.DistrictID,
+			Address:    req.Merchant.Address.Address,
+			Lng:        req.Merchant.Address.Lng,
+			Lat:        req.Merchant.Address.Lat,
 		}
 		hashPwd, err := util.HashPassword(req.Merchant.LoginPassword)
 		if err != nil {
@@ -187,14 +187,13 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 		}
 
 		createStore := &domain.CreateStoreParams{
-			MerchantID:              req.Store.MerchantID,
 			AdminPhoneNumber:        req.Store.AdminPhoneNumber,
 			StoreName:               req.Store.StoreName,
 			StoreShortName:          req.Store.StoreShortName,
 			StoreCode:               req.Store.StoreCode,
 			Status:                  req.Store.Status,
 			BusinessModel:           req.Store.BusinessModel,
-			BusinessTypeID:          req.Store.BusinessTypeID,
+			BusinessTypeID:          req.Merchant.BusinessTypeID,
 			LocationNumber:          req.Store.LocationNumber,
 			ContactName:             req.Store.ContactName,
 			ContactPhone:            req.Store.ContactPhone,
@@ -205,8 +204,8 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			CashierDeskURL:          req.Store.CashierDeskURL,
 			DiningEnvironmentURL:    req.Store.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
-			LoginAccount:            req.Store.LoginAccount,
-			LoginPassword:           req.Store.LoginPassword,
+			LoginAccount:            req.Merchant.LoginAccount,
+			LoginPassword:           req.Merchant.LoginPassword,
 			BusinessHours:           req.Store.BusinessHours,
 			DiningPeriods:           req.Store.DiningPeriods,
 			ShiftTimes:              req.Store.ShiftTimes,
@@ -339,13 +338,13 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 		}
 
 		address := &domain.Address{
-			CountryID:  req.Store.Address.CountryID,
-			ProvinceID: req.Store.Address.ProvinceID,
-			CityID:     req.Store.Address.CityID,
-			DistrictID: req.Store.Address.DistrictID,
-			Address:    req.Store.Address.Address,
-			Lng:        req.Store.Address.Lng,
-			Lat:        req.Store.Address.Lat,
+			CountryID:  req.Merchant.Address.CountryID,
+			ProvinceID: req.Merchant.Address.ProvinceID,
+			CityID:     req.Merchant.Address.CityID,
+			DistrictID: req.Merchant.Address.DistrictID,
+			Address:    req.Merchant.Address.Address,
+			Lng:        req.Merchant.Address.Lng,
+			Lat:        req.Merchant.Address.Lat,
 		}
 		updateMerchant := &domain.UpdateMerchantParams{
 			ID:                merchantID,
@@ -377,8 +376,8 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			StoreShortName:          req.Store.StoreShortName,
 			StoreCode:               req.Store.StoreCode,
 			Status:                  req.Store.Status,
-			BusinessModel:           req.Store.BusinessModel,
-			BusinessTypeID:          req.Store.BusinessTypeID,
+			BusinessModel:           domain.BusinessModelDirect,
+			BusinessTypeID:          req.Merchant.BusinessTypeID,
 			LocationNumber:          req.Store.LocationNumber,
 			ContactName:             req.Store.ContactName,
 			ContactPhone:            req.Store.ContactPhone,
@@ -389,7 +388,6 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			CashierDeskURL:          req.Store.CashierDeskURL,
 			DiningEnvironmentURL:    req.Store.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
-			LoginPassword:           req.Store.LoginPassword,
 			BusinessHours:           req.Store.BusinessHours,
 			DiningPeriods:           req.Store.DiningPeriods,
 			ShiftTimes:              req.Store.ShiftTimes,

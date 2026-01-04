@@ -56,6 +56,7 @@ func (Device) Fields() []ent.Field {
 			Default(true).
 			Comment("启用/停用状态"),
 		field.Enum("status").
+			Optional().
 			GoType(domain.DeviceStatus("")).
 			Default(string(domain.DeviceStatusOffline)).
 			Comment("设备状态：在线/离线"),

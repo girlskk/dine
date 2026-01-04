@@ -7882,9 +7882,22 @@ func (m *DeviceMutation) OldStatus(ctx context.Context) (v domain.DeviceStatus, 
 	return oldValue.Status, nil
 }
 
+// ClearStatus clears the value of the "status" field.
+func (m *DeviceMutation) ClearStatus() {
+	m.status = nil
+	m.clearedFields[device.FieldStatus] = struct{}{}
+}
+
+// StatusCleared returns if the "status" field was cleared in this mutation.
+func (m *DeviceMutation) StatusCleared() bool {
+	_, ok := m.clearedFields[device.FieldStatus]
+	return ok
+}
+
 // ResetStatus resets all changes to the "status" field.
 func (m *DeviceMutation) ResetStatus() {
 	m.status = nil
+	delete(m.clearedFields, device.FieldStatus)
 }
 
 // SetIP sets the "ip" field.
@@ -8894,6 +8907,9 @@ func (m *DeviceMutation) ClearedFields() []string {
 	if m.FieldCleared(device.FieldDeviceModel) {
 		fields = append(fields, device.FieldDeviceModel)
 	}
+	if m.FieldCleared(device.FieldStatus) {
+		fields = append(fields, device.FieldStatus)
+	}
 	if m.FieldCleared(device.FieldIP) {
 		fields = append(fields, device.FieldIP)
 	}
@@ -8940,6 +8956,9 @@ func (m *DeviceMutation) ClearField(name string) error {
 		return nil
 	case device.FieldDeviceModel:
 		m.ClearDeviceModel()
+		return nil
+	case device.FieldStatus:
+		m.ClearStatus()
 		return nil
 	case device.FieldIP:
 		m.ClearIP()
