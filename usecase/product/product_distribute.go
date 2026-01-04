@@ -21,7 +21,7 @@ type jobResult struct {
 	err     error
 }
 
-func (i *ProductInteractor) Distribute(ctx context.Context, params domain.ProductDistributeParams) (err error) {
+func (i *ProductInteractor) Distribute(ctx context.Context, params domain.ProductDistributeParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.Distribute")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -39,7 +39,12 @@ func (i *ProductInteractor) Distribute(ctx context.Context, params domain.Produc
 		return domain.ParamsError(domain.ErrProductDistributeStoreInvalid)
 	}
 
-	// 2. 验证门店存在且属于当前品牌商
+	// 2. 验证是否可以操作该商品
+	if err := verifyProductOwnership(user, product); err != nil {
+		return err
+	}
+
+	// 3. 验证门店存在且属于当前品牌商
 	storeIDs := lo.Uniq(params.StoreIDs)
 	stores, err := i.DS.StoreRepo().ListByIDs(ctx, storeIDs)
 	if err != nil {

@@ -52,17 +52,17 @@ func (mr *MockProductSpecInteractorMockRecorder) Create(arg0, arg1 interface{}) 
 }
 
 // Delete mocks base method.
-func (m *MockProductSpecInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockProductSpecInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockProductSpecInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductSpecInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductSpecInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductSpecInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // PagedListBySearch mocks base method.
@@ -81,15 +81,15 @@ func (mr *MockProductSpecInteractorMockRecorder) PagedListBySearch(arg0, arg1, a
 }
 
 // Update mocks base method.
-func (m *MockProductSpecInteractor) Update(arg0 context.Context, arg1 *domain.ProductSpec) error {
+func (m *MockProductSpecInteractor) Update(arg0 context.Context, arg1 *domain.ProductSpec, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockProductSpecInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockProductSpecInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductSpecInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProductSpecInteractor)(nil).Update), arg0, arg1, arg2)
 }

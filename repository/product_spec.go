@@ -52,11 +52,8 @@ func (repo *ProductSpecRepository) Create(ctx context.Context, spec *domain.Prod
 		SetID(spec.ID).
 		SetName(spec.Name).
 		SetMerchantID(spec.MerchantID).
+		SetStoreID(spec.StoreID).
 		SetProductCount(spec.ProductCount)
-
-	if spec.StoreID != uuid.Nil {
-		builder.SetStoreID(spec.StoreID)
-	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -109,10 +106,10 @@ func (repo *ProductSpecRepository) Exists(ctx context.Context, params domain.Pro
 		util.SpanErrFinish(span, err)
 	}()
 
-	query := repo.Client.ProductSpec.Query()
-	if params.MerchantID != uuid.Nil {
-		query.Where(productspec.MerchantID(params.MerchantID))
-	}
+	query := repo.Client.ProductSpec.Query().
+		Where(productspec.MerchantID(params.MerchantID)).
+		Where(productspec.StoreID(params.StoreID))
+
 	if params.Name != "" {
 		query.Where(productspec.Name(params.Name))
 	}
@@ -140,6 +137,12 @@ func (repo *ProductSpecRepository) PagedListBySearch(
 	}
 	if params.Name != "" {
 		query.Where(productspec.NameContains(params.Name))
+	}
+
+	if params.OnlyMerchant {
+		query.Where(productspec.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(productspec.StoreID(params.StoreID))
 	}
 
 	// 获取总数
@@ -227,10 +230,9 @@ func (repo *ProductSpecRepository) CreateBulk(ctx context.Context, specs domain.
 			SetID(spec.ID).
 			SetName(spec.Name).
 			SetMerchantID(spec.MerchantID).
+			SetStoreID(spec.StoreID).
 			SetProductCount(spec.ProductCount)
-		if spec.StoreID != uuid.Nil {
-			builder = builder.SetStoreID(spec.StoreID)
-		}
+
 		builders = append(builders, builder)
 	}
 	_, err = repo.Client.ProductSpec.CreateBulk(builders...).Save(ctx)

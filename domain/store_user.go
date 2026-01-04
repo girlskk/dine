@@ -36,6 +36,17 @@ type StoreUser struct {
 	Store *Store `json:"store,omitempty"` // 所属门店
 }
 
+// 实现 User 接口
+// GetMerchantID 实现 User 接口
+func (u *StoreUser) GetMerchantID() uuid.UUID {
+	return u.MerchantID
+}
+
+// GetStoreID 实现 User 接口（品牌商用户的 StoreID 为 uuid.Nil）
+func (u *StoreUser) GetStoreID() uuid.UUID {
+	return u.StoreID
+}
+
 func (u *StoreUser) SetPassword(password string) error {
 	hashed, err := util.HashPassword(password)
 	if err != nil {

@@ -239,9 +239,6 @@ func (puu *ProductUnitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := puu.mutation.GetType(); ok {
 		_spec.SetField(productunit.FieldType, field.TypeEnum, value)
 	}
-	if puu.mutation.StoreIDCleared() {
-		_spec.ClearField(productunit.FieldStoreID, field.TypeUUID)
-	}
 	if value, ok := puu.mutation.ProductCount(); ok {
 		_spec.SetField(productunit.FieldProductCount, field.TypeInt, value)
 	}
@@ -551,9 +548,6 @@ func (puuo *ProductUnitUpdateOne) sqlSave(ctx context.Context) (_node *ProductUn
 	}
 	if value, ok := puuo.mutation.GetType(); ok {
 		_spec.SetField(productunit.FieldType, field.TypeEnum, value)
-	}
-	if puuo.mutation.StoreIDCleared() {
-		_spec.ClearField(productunit.FieldStoreID, field.TypeUUID)
 	}
 	if value, ok := puuo.mutation.ProductCount(); ok {
 		_spec.SetField(productunit.FieldProductCount, field.TypeInt, value)

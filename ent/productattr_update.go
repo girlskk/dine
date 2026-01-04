@@ -275,9 +275,6 @@ func (pau *ProductAttrUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			sqljson.Append(u, productattr.FieldChannels, value)
 		})
 	}
-	if pau.mutation.StoreIDCleared() {
-		_spec.ClearField(productattr.FieldStoreID, field.TypeUUID)
-	}
 	if value, ok := pau.mutation.ProductCount(); ok {
 		_spec.SetField(productattr.FieldProductCount, field.TypeInt, value)
 	}
@@ -666,9 +663,6 @@ func (pauo *ProductAttrUpdateOne) sqlSave(ctx context.Context) (_node *ProductAt
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, productattr.FieldChannels, value)
 		})
-	}
-	if pauo.mutation.StoreIDCleared() {
-		_spec.ClearField(productattr.FieldStoreID, field.TypeUUID)
 	}
 	if value, ok := pauo.mutation.ProductCount(); ok {
 		_spec.SetField(productattr.FieldProductCount, field.TypeInt, value)

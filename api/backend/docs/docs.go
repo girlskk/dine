@@ -1237,6 +1237,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/product/category/reorder": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "重排序商品分类",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CategoryReorderReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/product/category/{id}": {
             "put": {
                 "security": [
@@ -4961,6 +4990,10 @@ const docTemplate = `{
                     "description": "所属门店 ID",
                     "type": "string"
                 },
+                "store_name": {
+                    "description": "门店名称",
+                    "type": "string"
+                },
                 "updated_at": {
                     "description": "更新时间",
                     "type": "string"
@@ -5137,10 +5170,6 @@ const docTemplate = `{
                     "description": "适用门店数量",
                     "type": "integer"
                 },
-                "store_id": {
-                    "description": "门店ID",
-                    "type": "string"
-                },
                 "stores": {
                     "description": "关联信息",
                     "type": "array",
@@ -5258,6 +5287,10 @@ const docTemplate = `{
         },
         "domain.Merchant": {
             "type": "object",
+            "required": [
+                "purchase_duration",
+                "purchase_duration_unit"
+            ],
             "properties": {
                 "address": {
                     "description": "地址",
@@ -5326,6 +5359,18 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/domain.MerchantType"
+                        }
+                    ]
+                },
+                "purchase_duration": {
+                    "description": "购买时长",
+                    "type": "integer"
+                },
+                "purchase_duration_unit": {
+                    "description": "购买时长单位",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PurchaseDurationUnit"
                         }
                     ]
                 },
@@ -7133,6 +7178,26 @@ const docTemplate = `{
                 },
                 "tax_rate_id": {
                     "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.CategoryReorderReq": {
+            "type": "object",
+            "required": [
+                "category_ids"
+            ],
+            "properties": {
+                "category_ids": {
+                    "description": "按新顺序排列的分类ID列表",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "parent_id": {
+                    "description": "父分类ID，如果是一级分类排序则为null",
                     "type": "string"
                 }
             }
@@ -9172,7 +9237,6 @@ const docTemplate = `{
             "required": [
                 "admin_phone_number",
                 "business_type_id",
-                "login_password",
                 "merchant_name"
             ],
             "properties": {
@@ -9202,10 +9266,6 @@ const docTemplate = `{
                     "description": "商户描述(保留字段)",
                     "type": "string",
                     "maxLength": 255
-                },
-                "login_password": {
-                    "description": "登录密码(加密存储)",
-                    "type": "string"
                 },
                 "merchant_code": {
                     "description": "商户编号(保留字段)",

@@ -28,9 +28,10 @@ func (i *ProductUnitInteractor) Create(ctx context.Context, unit *domain.Product
 	}()
 
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		// 验证名称在当前品牌商下是否唯一
+		// 验证名称在当前品牌商/门店下是否唯一
 		exists, err := ds.ProductUnitRepo().Exists(ctx, domain.ProductUnitExistsParams{
 			MerchantID: unit.MerchantID,
+			StoreID:    unit.StoreID,
 			Name:       unit.Name,
 		})
 		if err != nil {
@@ -61,7 +62,7 @@ func (i *ProductUnitInteractor) PagedListBySearch(ctx context.Context,
 	return i.DS.ProductUnitRepo().PagedListBySearch(ctx, page, params)
 }
 
-func (i *ProductUnitInteractor) Update(ctx context.Context, unit *domain.ProductUnit) (err error) {
+func (i *ProductUnitInteractor) Update(ctx context.Context, unit *domain.ProductUnit, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductUnitInteractor.Update")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -77,10 +78,15 @@ func (i *ProductUnitInteractor) Update(ctx context.Context, unit *domain.Product
 			return err
 		}
 
-		// 验证更新后的名称在当前品牌商下是否唯一（排除自身）
+		if err := verifyProductUnitOwnership(user, existingUnit); err != nil {
+			return err
+		}
+
+		// 验证更新后的名称在当前品牌商/门店下是否唯一（排除自身）
 		if unit.Name != existingUnit.Name {
 			exists, err := ds.ProductUnitRepo().Exists(ctx, domain.ProductUnitExistsParams{
 				MerchantID: existingUnit.MerchantID,
+				StoreID:    existingUnit.StoreID,
 				Name:       unit.Name,
 				ExcludeID:  unit.ID,
 			})
@@ -104,7 +110,7 @@ func (i *ProductUnitInteractor) Update(ctx context.Context, unit *domain.Product
 	})
 }
 
-func (i *ProductUnitInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (i *ProductUnitInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductUnitInteractor.Delete")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -117,6 +123,10 @@ func (i *ProductUnitInteractor) Delete(ctx context.Context, id uuid.UUID) (err e
 			if domain.IsNotFound(err) {
 				return domain.ParamsError(domain.ErrProductUnitNotExists)
 			}
+			return err
+		}
+
+		if err := verifyProductUnitOwnership(user, unit); err != nil {
 			return err
 		}
 
@@ -133,4 +143,11 @@ func (i *ProductUnitInteractor) Delete(ctx context.Context, id uuid.UUID) (err e
 
 		return nil
 	})
+}
+
+func verifyProductUnitOwnership(user domain.User, unit *domain.ProductUnit) error {
+	if user.GetMerchantID() != unit.MerchantID || user.GetStoreID() != unit.StoreID {
+		return domain.ParamsError(domain.ErrProductUnitNotExists)
+	}
+	return nil
 }

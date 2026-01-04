@@ -387,16 +387,6 @@ func StoreIDLTE(v uuid.UUID) predicate.ProductUnit {
 	return predicate.ProductUnit(sql.FieldLTE(FieldStoreID, v))
 }
 
-// StoreIDIsNil applies the IsNil predicate on the "store_id" field.
-func StoreIDIsNil() predicate.ProductUnit {
-	return predicate.ProductUnit(sql.FieldIsNull(FieldStoreID))
-}
-
-// StoreIDNotNil applies the NotNil predicate on the "store_id" field.
-func StoreIDNotNil() predicate.ProductUnit {
-	return predicate.ProductUnit(sql.FieldNotNull(FieldStoreID))
-}
-
 // ProductCountEQ applies the EQ predicate on the "product_count" field.
 func ProductCountEQ(v int) predicate.ProductUnit {
 	return predicate.ProductUnit(sql.FieldEQ(FieldProductCount, v))

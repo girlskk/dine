@@ -113,6 +113,10 @@ var (
 	DefaultDeletedAt int64
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultStoreID holds the default value on creation for the "store_id" field.
+	DefaultStoreID func() uuid.UUID
+	// DefaultParentID holds the default value on creation for the "parent_id" field.
+	DefaultParentID func() uuid.UUID
 	// DefaultInheritTaxRate holds the default value on creation for the "inherit_tax_rate" field.
 	DefaultInheritTaxRate bool
 	// DefaultInheritStall holds the default value on creation for the "inherit_stall" field.

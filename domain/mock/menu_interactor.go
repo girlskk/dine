@@ -52,32 +52,32 @@ func (mr *MockMenuInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock
 }
 
 // Delete mocks base method.
-func (m *MockMenuInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockMenuInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockMenuInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMenuInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockMenuInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockMenuInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // GetDetail mocks base method.
-func (m *MockMenuInteractor) GetDetail(arg0 context.Context, arg1 uuid.UUID) (*domain.Menu, error) {
+func (m *MockMenuInteractor) GetDetail(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.Menu, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDetail", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetDetail", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Menu)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDetail indicates an expected call of GetDetail.
-func (mr *MockMenuInteractorMockRecorder) GetDetail(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMenuInteractorMockRecorder) GetDetail(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockMenuInteractor)(nil).GetDetail), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockMenuInteractor)(nil).GetDetail), arg0, arg1, arg2)
 }
 
 // PagedListBySearch mocks base method.
@@ -96,15 +96,15 @@ func (mr *MockMenuInteractorMockRecorder) PagedListBySearch(arg0, arg1, arg2 int
 }
 
 // Update mocks base method.
-func (m *MockMenuInteractor) Update(arg0 context.Context, arg1 *domain.Menu) error {
+func (m *MockMenuInteractor) Update(arg0 context.Context, arg1 *domain.Menu, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockMenuInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMenuInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockMenuInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockMenuInteractor)(nil).Update), arg0, arg1, arg2)
 }

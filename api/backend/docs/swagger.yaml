@@ -329,6 +329,9 @@ definitions:
       store_id:
         description: 所属门店 ID
         type: string
+      store_name:
+        description: 门店名称
+        type: string
       updated_at:
         description: 更新时间
         type: string
@@ -457,9 +460,6 @@ definitions:
       store_count:
         description: 适用门店数量
         type: integer
-      store_id:
-        description: 门店ID
-        type: string
       stores:
         description: 关联信息
         items:
@@ -589,6 +589,13 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.MerchantType'
         description: '商户类型: 品牌商户,门店商户'
+      purchase_duration:
+        description: 购买时长
+        type: integer
+      purchase_duration_unit:
+        allOf:
+        - $ref: '#/definitions/domain.PurchaseDurationUnit'
+        description: 购买时长单位
       status:
         allOf:
         - $ref: '#/definitions/domain.MerchantStatus'
@@ -598,6 +605,9 @@ definitions:
         type: integer
       updated_at:
         type: string
+    required:
+    - purchase_duration
+    - purchase_duration_unit
     type: object
   domain.MerchantStatus:
     enum:
@@ -1879,6 +1889,20 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  types.CategoryReorderReq:
+    properties:
+      category_ids:
+        description: 按新顺序排列的分类ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      parent_id:
+        description: 父分类ID，如果是一级分类排序则为null
+        type: string
+    required:
+    - category_ids
     type: object
   types.CountryListResp:
     properties:
@@ -3328,9 +3352,6 @@ definitions:
         description: 商户描述(保留字段)
         maxLength: 255
         type: string
-      login_password:
-        description: 登录密码(加密存储)
-        type: string
       merchant_code:
         description: 商户编号(保留字段)
         maxLength: 50
@@ -3354,7 +3375,6 @@ definitions:
     required:
     - admin_phone_number
     - business_type_id
-    - login_password
     - merchant_name
     type: object
   types.UpdateStoreMerchantReq:
@@ -4378,6 +4398,23 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新商品分类
+      tags:
+      - 商品分类
+  /product/category/reorder:
+    put:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.CategoryReorderReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 重排序商品分类
       tags:
       - 商品分类
   /product/distribute:
