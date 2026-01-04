@@ -211,7 +211,6 @@ func (h *PaymentMethodHandler) GetDetail() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
 		user := domain.FromBackendUserContext(ctx)
 		paymentMethod, err := h.PaymentMethodInteractor.GetDetail(ctx, paymentMethodID, user)
 		if err != nil {
@@ -253,12 +252,10 @@ func (h *PaymentMethodHandler) List() gin.HandlerFunc {
 
 		page := upagination.New(req.Page, req.Size)
 		user := domain.FromBackendUserContext(ctx)
-
 		params := domain.PaymentMethodSearchParams{
 			MerchantID: user.MerchantID,
 			Name:       req.Name,
 		}
-
 		res, err := h.PaymentMethodInteractor.PagedListBySearch(ctx, page, params)
 		if err != nil {
 			if domain.IsParamsError(err) {
