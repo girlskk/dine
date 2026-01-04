@@ -48,7 +48,7 @@ type Params struct {
 //	@name						Authorization
 //	@description				Type "Bearer" followed by a space and the JWT token.
 
-// @BasePath	/api/v1
+//	@BasePath	/api/v1
 func New(p Params) (*gin.Engine, error) {
 	e := gin.New()
 

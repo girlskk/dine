@@ -80,12 +80,10 @@ const (
 	FieldLng = "lng"
 	// FieldLat holds the string denoting the lat field in the database.
 	FieldLat = "lat"
-	// FieldAdminUserID holds the string denoting the admin_user_id field in the database.
-	FieldAdminUserID = "admin_user_id"
+	// FieldSuperAccount holds the string denoting the super_account field in the database.
+	FieldSuperAccount = "super_account"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
-	// EdgeAdminUser holds the string denoting the admin_user edge name in mutations.
-	EdgeAdminUser = "admin_user"
 	// EdgeMerchantBusinessType holds the string denoting the merchant_business_type edge name in mutations.
 	EdgeMerchantBusinessType = "merchant_business_type"
 	// EdgeCountry holds the string denoting the country edge name in mutations.
@@ -96,10 +94,24 @@ const (
 	EdgeCity = "city"
 	// EdgeDistrict holds the string denoting the district edge name in mutations.
 	EdgeDistrict = "district"
+	// EdgeStoreUsers holds the string denoting the store_users edge name in mutations.
+	EdgeStoreUsers = "store_users"
 	// EdgeRemarks holds the string denoting the remarks edge name in mutations.
 	EdgeRemarks = "remarks"
+	// EdgeStalls holds the string denoting the stalls edge name in mutations.
+	EdgeStalls = "stalls"
+	// EdgeAdditionalFees holds the string denoting the additional_fees edge name in mutations.
+	EdgeAdditionalFees = "additional_fees"
+	// EdgeTaxFees holds the string denoting the tax_fees edge name in mutations.
+	EdgeTaxFees = "tax_fees"
+	// EdgeDevices holds the string denoting the devices edge name in mutations.
+	EdgeDevices = "devices"
 	// EdgeMenus holds the string denoting the menus edge name in mutations.
 	EdgeMenus = "menus"
+	// EdgeDepartments holds the string denoting the departments edge name in mutations.
+	EdgeDepartments = "departments"
+	// EdgeRoles holds the string denoting the roles edge name in mutations.
+	EdgeRoles = "roles"
 	// Table holds the table name of the store in the database.
 	Table = "stores"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -109,13 +121,6 @@ const (
 	MerchantInverseTable = "merchants"
 	// MerchantColumn is the table column denoting the merchant relation/edge.
 	MerchantColumn = "merchant_id"
-	// AdminUserTable is the table that holds the admin_user relation/edge.
-	AdminUserTable = "stores"
-	// AdminUserInverseTable is the table name for the AdminUser entity.
-	// It exists in this package in order to avoid circular dependency with the "adminuser" package.
-	AdminUserInverseTable = "admin_users"
-	// AdminUserColumn is the table column denoting the admin_user relation/edge.
-	AdminUserColumn = "admin_user_id"
 	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
 	MerchantBusinessTypeTable = "stores"
 	// MerchantBusinessTypeInverseTable is the table name for the MerchantBusinessType entity.
@@ -151,6 +156,13 @@ const (
 	DistrictInverseTable = "districts"
 	// DistrictColumn is the table column denoting the district relation/edge.
 	DistrictColumn = "district_id"
+	// StoreUsersTable is the table that holds the store_users relation/edge.
+	StoreUsersTable = "store_users"
+	// StoreUsersInverseTable is the table name for the StoreUser entity.
+	// It exists in this package in order to avoid circular dependency with the "storeuser" package.
+	StoreUsersInverseTable = "store_users"
+	// StoreUsersColumn is the table column denoting the store_users relation/edge.
+	StoreUsersColumn = "store_id"
 	// RemarksTable is the table that holds the remarks relation/edge.
 	RemarksTable = "remarks"
 	// RemarksInverseTable is the table name for the Remark entity.
@@ -158,11 +170,53 @@ const (
 	RemarksInverseTable = "remarks"
 	// RemarksColumn is the table column denoting the remarks relation/edge.
 	RemarksColumn = "store_id"
+	// StallsTable is the table that holds the stalls relation/edge.
+	StallsTable = "stalls"
+	// StallsInverseTable is the table name for the Stall entity.
+	// It exists in this package in order to avoid circular dependency with the "stall" package.
+	StallsInverseTable = "stalls"
+	// StallsColumn is the table column denoting the stalls relation/edge.
+	StallsColumn = "store_id"
+	// AdditionalFeesTable is the table that holds the additional_fees relation/edge.
+	AdditionalFeesTable = "additional_fees"
+	// AdditionalFeesInverseTable is the table name for the AdditionalFee entity.
+	// It exists in this package in order to avoid circular dependency with the "additionalfee" package.
+	AdditionalFeesInverseTable = "additional_fees"
+	// AdditionalFeesColumn is the table column denoting the additional_fees relation/edge.
+	AdditionalFeesColumn = "store_id"
+	// TaxFeesTable is the table that holds the tax_fees relation/edge.
+	TaxFeesTable = "tax_fees"
+	// TaxFeesInverseTable is the table name for the TaxFee entity.
+	// It exists in this package in order to avoid circular dependency with the "taxfee" package.
+	TaxFeesInverseTable = "tax_fees"
+	// TaxFeesColumn is the table column denoting the tax_fees relation/edge.
+	TaxFeesColumn = "store_id"
+	// DevicesTable is the table that holds the devices relation/edge.
+	DevicesTable = "devices"
+	// DevicesInverseTable is the table name for the Device entity.
+	// It exists in this package in order to avoid circular dependency with the "device" package.
+	DevicesInverseTable = "devices"
+	// DevicesColumn is the table column denoting the devices relation/edge.
+	DevicesColumn = "store_id"
 	// MenusTable is the table that holds the menus relation/edge. The primary key declared below.
 	MenusTable = "menu_store_relations"
 	// MenusInverseTable is the table name for the Menu entity.
 	// It exists in this package in order to avoid circular dependency with the "menu" package.
 	MenusInverseTable = "menus"
+	// DepartmentsTable is the table that holds the departments relation/edge.
+	DepartmentsTable = "departments"
+	// DepartmentsInverseTable is the table name for the Department entity.
+	// It exists in this package in order to avoid circular dependency with the "department" package.
+	DepartmentsInverseTable = "departments"
+	// DepartmentsColumn is the table column denoting the departments relation/edge.
+	DepartmentsColumn = "store_id"
+	// RolesTable is the table that holds the roles relation/edge.
+	RolesTable = "roles"
+	// RolesInverseTable is the table name for the Role entity.
+	// It exists in this package in order to avoid circular dependency with the "role" package.
+	RolesInverseTable = "roles"
+	// RolesColumn is the table column denoting the roles relation/edge.
+	RolesColumn = "store_id"
 )
 
 // Columns holds all SQL columns for store fields.
@@ -199,7 +253,7 @@ var Columns = []string{
 	FieldAddress,
 	FieldLng,
 	FieldLat,
-	FieldAdminUserID,
+	FieldSuperAccount,
 }
 
 var (
@@ -248,8 +302,6 @@ var (
 	StoreShortNameValidator func(string) error
 	// DefaultStoreCode holds the default value on creation for the "store_code" field.
 	DefaultStoreCode string
-	// StoreCodeValidator is a validator for the "store_code" field. It is called by the builders before save.
-	StoreCodeValidator func(string) error
 	// LocationNumberValidator is a validator for the "location_number" field. It is called by the builders before save.
 	LocationNumberValidator func(string) error
 	// DefaultContactName holds the default value on creation for the "contact_name" field.
@@ -288,14 +340,6 @@ var (
 	DefaultFoodOperationLicenseURL string
 	// FoodOperationLicenseURLValidator is a validator for the "food_operation_license_url" field. It is called by the builders before save.
 	FoodOperationLicenseURLValidator func(string) error
-	// DefaultBusinessHours holds the default value on creation for the "business_hours" field.
-	DefaultBusinessHours string
-	// BusinessHoursValidator is a validator for the "business_hours" field. It is called by the builders before save.
-	BusinessHoursValidator func(string) error
-	// DiningPeriodsValidator is a validator for the "dining_periods" field. It is called by the builders before save.
-	DiningPeriodsValidator func(string) error
-	// ShiftTimesValidator is a validator for the "shift_times" field. It is called by the builders before save.
-	ShiftTimesValidator func(string) error
 	// DefaultAddress holds the default value on creation for the "address" field.
 	DefaultAddress string
 	// AddressValidator is a validator for the "address" field. It is called by the builders before save.
@@ -445,21 +489,6 @@ func ByFoodOperationLicenseURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFoodOperationLicenseURL, opts...).ToFunc()
 }
 
-// ByBusinessHours orders the results by the business_hours field.
-func ByBusinessHours(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBusinessHours, opts...).ToFunc()
-}
-
-// ByDiningPeriods orders the results by the dining_periods field.
-func ByDiningPeriods(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDiningPeriods, opts...).ToFunc()
-}
-
-// ByShiftTimes orders the results by the shift_times field.
-func ByShiftTimes(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldShiftTimes, opts...).ToFunc()
-}
-
 // ByCountryID orders the results by the country_id field.
 func ByCountryID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCountryID, opts...).ToFunc()
@@ -495,22 +524,15 @@ func ByLat(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLat, opts...).ToFunc()
 }
 
-// ByAdminUserID orders the results by the admin_user_id field.
-func ByAdminUserID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAdminUserID, opts...).ToFunc()
+// BySuperAccount orders the results by the super_account field.
+func BySuperAccount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuperAccount, opts...).ToFunc()
 }
 
 // ByMerchantField orders the results by merchant field.
 func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByAdminUserField orders the results by admin_user field.
-func ByAdminUserField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAdminUserStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -549,6 +571,20 @@ func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByStoreUsersCount orders the results by store_users count.
+func ByStoreUsersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStoreUsersStep(), opts...)
+	}
+}
+
+// ByStoreUsers orders the results by store_users terms.
+func ByStoreUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStoreUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByRemarksCount orders the results by remarks count.
 func ByRemarksCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -560,6 +596,62 @@ func ByRemarksCount(opts ...sql.OrderTermOption) OrderOption {
 func ByRemarks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newRemarksStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByStallsCount orders the results by stalls count.
+func ByStallsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStallsStep(), opts...)
+	}
+}
+
+// ByStalls orders the results by stalls terms.
+func ByStalls(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStallsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAdditionalFeesCount orders the results by additional_fees count.
+func ByAdditionalFeesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAdditionalFeesStep(), opts...)
+	}
+}
+
+// ByAdditionalFees orders the results by additional_fees terms.
+func ByAdditionalFees(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAdditionalFeesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTaxFeesCount orders the results by tax_fees count.
+func ByTaxFeesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTaxFeesStep(), opts...)
+	}
+}
+
+// ByTaxFees orders the results by tax_fees terms.
+func ByTaxFees(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTaxFeesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByDevicesCount orders the results by devices count.
+func ByDevicesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDevicesStep(), opts...)
+	}
+}
+
+// ByDevices orders the results by devices terms.
+func ByDevices(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDevicesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -576,18 +668,39 @@ func ByMenus(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMenusStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByDepartmentsCount orders the results by departments count.
+func ByDepartmentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDepartmentsStep(), opts...)
+	}
+}
+
+// ByDepartments orders the results by departments terms.
+func ByDepartments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDepartmentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRolesCount orders the results by roles count.
+func ByRolesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRolesStep(), opts...)
+	}
+}
+
+// ByRoles orders the results by roles terms.
+func ByRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRolesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
-	)
-}
-func newAdminUserStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(AdminUserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, AdminUserTable, AdminUserColumn),
 	)
 }
 func newMerchantBusinessTypeStep() *sqlgraph.Step {
@@ -625,6 +738,13 @@ func newDistrictStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
 	)
 }
+func newStoreUsersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StoreUsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
+	)
+}
 func newRemarksStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -632,10 +752,52 @@ func newRemarksStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
 	)
 }
+func newStallsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StallsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StallsTable, StallsColumn),
+	)
+}
+func newAdditionalFeesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AdditionalFeesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AdditionalFeesTable, AdditionalFeesColumn),
+	)
+}
+func newTaxFeesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TaxFeesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TaxFeesTable, TaxFeesColumn),
+	)
+}
+func newDevicesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DevicesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DevicesTable, DevicesColumn),
+	)
+}
 func newMenusStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MenusInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, MenusTable, MenusPrimaryKey...),
+	)
+}
+func newDepartmentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DepartmentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DepartmentsTable, DepartmentsColumn),
+	)
+}
+func newRolesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RolesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RolesTable, RolesColumn),
 	)
 }

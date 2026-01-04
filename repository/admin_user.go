@@ -77,7 +77,6 @@ func (repo *AdminUserRepository) Create(ctx context.Context, user *domain.AdminU
 		SetUsername(user.Username).
 		SetHashedPassword(user.HashedPassword).
 		SetNickname(user.Nickname).
-		SetAccountType(user.AccountType).
 		Save(ctx)
 
 	if err != nil {
@@ -143,6 +142,5 @@ func convertAdminUser(eu *ent.AdminUser) *domain.AdminUser {
 		Username:       eu.Username,
 		HashedPassword: eu.HashedPassword,
 		Nickname:       eu.Nickname,
-		AccountType:    eu.AccountType,
 	}
 }

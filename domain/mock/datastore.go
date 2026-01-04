@@ -341,6 +341,20 @@ func (mr *MockDataStoreMockRecorder) StoreRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreRepo", reflect.TypeOf((*MockDataStore)(nil).StoreRepo))
 }
 
+// OrderRepo mocks base method.
+func (m *MockDataStore) OrderRepo() domain.OrderRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrderRepo")
+	ret0, _ := ret[0].(domain.OrderRepository)
+	return ret0
+}
+
+// OrderRepo indicates an expected call of OrderRepo.
+func (mr *MockDataStoreMockRecorder) OrderRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrderRepo", reflect.TypeOf((*MockDataStore)(nil).OrderRepo))
+}
+
 // StoreUserRepo mocks base method.
 func (m *MockDataStore) StoreUserRepo() domain.StoreUserRepository {
 	m.ctrl.T.Helper()
@@ -354,3 +368,4 @@ func (mr *MockDataStoreMockRecorder) StoreUserRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreUserRepo", reflect.TypeOf((*MockDataStore)(nil).StoreUserRepo))
 }
+

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -32,10 +33,16 @@ func (repo *BackendUserRepository) Create(ctx context.Context, user *domain.Back
 		SetUsername(user.Username).
 		SetNickname(user.Nickname).
 		SetHashedPassword(user.HashedPassword).
+		SetMerchantID(user.MerchantID).
 		Save(ctx)
 
 	if err != nil {
-		return err
+		if ent.IsConstraintError(err) {
+			err = domain.ConflictError(err)
+			return
+		}
+		err = fmt.Errorf("failed to create user: %w", err)
+		return
 	}
 	return nil
 }
