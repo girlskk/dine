@@ -99,6 +99,7 @@ type ProfitDistributionRuleRepository interface {
 	Exists(ctx context.Context, params ProfitDistributionRuleExistsParams) (bool, error)
 	CheckStoreBound(ctx context.Context, storeIDs []uuid.UUID, excludeRuleID uuid.UUID) (bool, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProfitDistributionRuleSearchParams) (*ProfitDistributionRuleSearchRes, error)
+	ListAllEnabled(ctx context.Context) (ProfitDistributionRules, error)
 }
 
 // ProfitDistributionRuleInteractor 分账方案用例接口

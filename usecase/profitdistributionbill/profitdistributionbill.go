@@ -2,7 +2,6 @@ package profitdistributionbill
 
 import (
 	"context"
-	"fmt"
 
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
@@ -32,15 +31,4 @@ func (i *ProfitDistributionBillInteractor) PagedListBySearch(
 	}()
 
 	return nil, nil
-}
-
-func (i *ProfitDistributionBillInteractor) GenerateProfitDistributionBills(ctx context.Context) (err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "ProfitDistributionBillInteractor.GenerateProfitDistributionBills")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
-
-	fmt.Println("开始生成分账账单")
-
-	return nil
 }

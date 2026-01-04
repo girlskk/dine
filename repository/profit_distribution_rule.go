@@ -249,6 +249,29 @@ func (repo *ProfitDistributionRuleRepository) PagedListBySearch(
 	}, nil
 }
 
+// 在 ProfitDistributionRuleRepository 中添加方法
+
+func (repo *ProfitDistributionRuleRepository) ListAllEnabled(ctx context.Context) (res domain.ProfitDistributionRules, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProfitDistributionRuleRepository.ListAllEnabled")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	epdrs, err := repo.Client.ProfitDistributionRule.Query().
+		Where(profitdistributionrule.StatusEQ(domain.ProfitDistributionRuleStatusEnabled)).
+		WithStores().
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.ProfitDistributionRules, 0, len(epdrs))
+	for _, epdr := range epdrs {
+		res = append(res, convertProfitDistributionRuleToDomain(epdr))
+	}
+	return res, nil
+}
+
 // ============================================
 // 转换函数
 // ============================================
@@ -282,6 +305,5 @@ func convertProfitDistributionRuleToDomain(epdr *ent.ProfitDistributionRule) *do
 			}
 		})
 	}
-
 	return r
 }
