@@ -267,9 +267,7 @@ type ProductSearchRes struct {
 
 // ProductDistributeParams 商品下发参数
 type ProductDistributeParams struct {
-	ProductID        uuid.UUID            // 商品ID（必选）
-	MerchantID       uuid.UUID            // 品牌商ID
-	StoreIDs         []uuid.UUID          // 门店ID列表（必选，多选）
-	DistributionRule MenuDistributionRule // 下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
-	SaleRule         MenuItemSaleRule     // 下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
+	ProductID  uuid.UUID   // 商品ID（必选）
+	MerchantID uuid.UUID   // 品牌商ID
+	StoreIDs   []uuid.UUID // 门店ID列表（必选，多选）
 }

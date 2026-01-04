@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -70,20 +69,6 @@ func (mu *MenuUpdate) SetName(s string) *MenuUpdate {
 func (mu *MenuUpdate) SetNillableName(s *string) *MenuUpdate {
 	if s != nil {
 		mu.SetName(*s)
-	}
-	return mu
-}
-
-// SetDistributionRule sets the "distribution_rule" field.
-func (mu *MenuUpdate) SetDistributionRule(ddr domain.MenuDistributionRule) *MenuUpdate {
-	mu.mutation.SetDistributionRule(ddr)
-	return mu
-}
-
-// SetNillableDistributionRule sets the "distribution_rule" field if the given value is not nil.
-func (mu *MenuUpdate) SetNillableDistributionRule(ddr *domain.MenuDistributionRule) *MenuUpdate {
-	if ddr != nil {
-		mu.SetDistributionRule(*ddr)
 	}
 	return mu
 }
@@ -256,11 +241,6 @@ func (mu *MenuUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Menu.name": %w`, err)}
 		}
 	}
-	if v, ok := mu.mutation.DistributionRule(); ok {
-		if err := menu.DistributionRuleValidator(v); err != nil {
-			return &ValidationError{Name: "distribution_rule", err: fmt.Errorf(`ent: validator failed for field "Menu.distribution_rule": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -293,9 +273,6 @@ func (mu *MenuUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := mu.mutation.Name(); ok {
 		_spec.SetField(menu.FieldName, field.TypeString, value)
-	}
-	if value, ok := mu.mutation.DistributionRule(); ok {
-		_spec.SetField(menu.FieldDistributionRule, field.TypeEnum, value)
 	}
 	if value, ok := mu.mutation.StoreCount(); ok {
 		_spec.SetField(menu.FieldStoreCount, field.TypeInt, value)
@@ -458,20 +435,6 @@ func (muo *MenuUpdateOne) SetName(s string) *MenuUpdateOne {
 func (muo *MenuUpdateOne) SetNillableName(s *string) *MenuUpdateOne {
 	if s != nil {
 		muo.SetName(*s)
-	}
-	return muo
-}
-
-// SetDistributionRule sets the "distribution_rule" field.
-func (muo *MenuUpdateOne) SetDistributionRule(ddr domain.MenuDistributionRule) *MenuUpdateOne {
-	muo.mutation.SetDistributionRule(ddr)
-	return muo
-}
-
-// SetNillableDistributionRule sets the "distribution_rule" field if the given value is not nil.
-func (muo *MenuUpdateOne) SetNillableDistributionRule(ddr *domain.MenuDistributionRule) *MenuUpdateOne {
-	if ddr != nil {
-		muo.SetDistributionRule(*ddr)
 	}
 	return muo
 }
@@ -657,11 +620,6 @@ func (muo *MenuUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Menu.name": %w`, err)}
 		}
 	}
-	if v, ok := muo.mutation.DistributionRule(); ok {
-		if err := menu.DistributionRuleValidator(v); err != nil {
-			return &ValidationError{Name: "distribution_rule", err: fmt.Errorf(`ent: validator failed for field "Menu.distribution_rule": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -711,9 +669,6 @@ func (muo *MenuUpdateOne) sqlSave(ctx context.Context) (_node *Menu, err error) 
 	}
 	if value, ok := muo.mutation.Name(); ok {
 		_spec.SetField(menu.FieldName, field.TypeString, value)
-	}
-	if value, ok := muo.mutation.DistributionRule(); ok {
-		_spec.SetField(menu.FieldDistributionRule, field.TypeEnum, value)
 	}
 	if value, ok := muo.mutation.StoreCount(); ok {
 		_spec.SetField(menu.FieldStoreCount, field.TypeInt, value)

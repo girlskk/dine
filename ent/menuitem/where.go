@@ -9,7 +9,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -251,36 +250,6 @@ func ProductIDIn(vs ...uuid.UUID) predicate.MenuItem {
 // ProductIDNotIn applies the NotIn predicate on the "product_id" field.
 func ProductIDNotIn(vs ...uuid.UUID) predicate.MenuItem {
 	return predicate.MenuItem(sql.FieldNotIn(FieldProductID, vs...))
-}
-
-// SaleRuleEQ applies the EQ predicate on the "sale_rule" field.
-func SaleRuleEQ(v domain.MenuItemSaleRule) predicate.MenuItem {
-	vc := v
-	return predicate.MenuItem(sql.FieldEQ(FieldSaleRule, vc))
-}
-
-// SaleRuleNEQ applies the NEQ predicate on the "sale_rule" field.
-func SaleRuleNEQ(v domain.MenuItemSaleRule) predicate.MenuItem {
-	vc := v
-	return predicate.MenuItem(sql.FieldNEQ(FieldSaleRule, vc))
-}
-
-// SaleRuleIn applies the In predicate on the "sale_rule" field.
-func SaleRuleIn(vs ...domain.MenuItemSaleRule) predicate.MenuItem {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MenuItem(sql.FieldIn(FieldSaleRule, v...))
-}
-
-// SaleRuleNotIn applies the NotIn predicate on the "sale_rule" field.
-func SaleRuleNotIn(vs ...domain.MenuItemSaleRule) predicate.MenuItem {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MenuItem(sql.FieldNotIn(FieldSaleRule, v...))
 }
 
 // BasePriceEQ applies the EQ predicate on the "base_price" field.

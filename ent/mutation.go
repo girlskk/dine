@@ -10348,30 +10348,30 @@ func (m *DistrictMutation) ResetEdge(name string) error {
 // MenuMutation represents an operation that mutates the Menu nodes in the graph.
 type MenuMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *uuid.UUID
-	created_at        *time.Time
-	updated_at        *time.Time
-	deleted_at        *int64
-	adddeleted_at     *int64
-	merchant_id       *uuid.UUID
-	name              *string
-	distribution_rule *domain.MenuDistributionRule
-	store_count       *int
-	addstore_count    *int
-	item_count        *int
-	additem_count     *int
-	clearedFields     map[string]struct{}
-	items             map[uuid.UUID]struct{}
-	removeditems      map[uuid.UUID]struct{}
-	cleareditems      bool
-	stores            map[uuid.UUID]struct{}
-	removedstores     map[uuid.UUID]struct{}
-	clearedstores     bool
-	done              bool
-	oldValue          func(context.Context) (*Menu, error)
-	predicates        []predicate.Menu
+	op             Op
+	typ            string
+	id             *uuid.UUID
+	created_at     *time.Time
+	updated_at     *time.Time
+	deleted_at     *int64
+	adddeleted_at  *int64
+	merchant_id    *uuid.UUID
+	store_id       *uuid.UUID
+	name           *string
+	store_count    *int
+	addstore_count *int
+	item_count     *int
+	additem_count  *int
+	clearedFields  map[string]struct{}
+	items          map[uuid.UUID]struct{}
+	removeditems   map[uuid.UUID]struct{}
+	cleareditems   bool
+	stores         map[uuid.UUID]struct{}
+	removedstores  map[uuid.UUID]struct{}
+	clearedstores  bool
+	done           bool
+	oldValue       func(context.Context) (*Menu, error)
+	predicates     []predicate.Menu
 }
 
 var _ ent.Mutation = (*MenuMutation)(nil)
@@ -10642,6 +10642,42 @@ func (m *MenuMutation) ResetMerchantID() {
 	m.merchant_id = nil
 }
 
+// SetStoreID sets the "store_id" field.
+func (m *MenuMutation) SetStoreID(u uuid.UUID) {
+	m.store_id = &u
+}
+
+// StoreID returns the value of the "store_id" field in the mutation.
+func (m *MenuMutation) StoreID() (r uuid.UUID, exists bool) {
+	v := m.store_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStoreID returns the old "store_id" field's value of the Menu entity.
+// If the Menu object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MenuMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStoreID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStoreID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStoreID: %w", err)
+	}
+	return oldValue.StoreID, nil
+}
+
+// ResetStoreID resets all changes to the "store_id" field.
+func (m *MenuMutation) ResetStoreID() {
+	m.store_id = nil
+}
+
 // SetName sets the "name" field.
 func (m *MenuMutation) SetName(s string) {
 	m.name = &s
@@ -10676,42 +10712,6 @@ func (m *MenuMutation) OldName(ctx context.Context) (v string, err error) {
 // ResetName resets all changes to the "name" field.
 func (m *MenuMutation) ResetName() {
 	m.name = nil
-}
-
-// SetDistributionRule sets the "distribution_rule" field.
-func (m *MenuMutation) SetDistributionRule(ddr domain.MenuDistributionRule) {
-	m.distribution_rule = &ddr
-}
-
-// DistributionRule returns the value of the "distribution_rule" field in the mutation.
-func (m *MenuMutation) DistributionRule() (r domain.MenuDistributionRule, exists bool) {
-	v := m.distribution_rule
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDistributionRule returns the old "distribution_rule" field's value of the Menu entity.
-// If the Menu object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MenuMutation) OldDistributionRule(ctx context.Context) (v domain.MenuDistributionRule, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDistributionRule is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDistributionRule requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDistributionRule: %w", err)
-	}
-	return oldValue.DistributionRule, nil
-}
-
-// ResetDistributionRule resets all changes to the "distribution_rule" field.
-func (m *MenuMutation) ResetDistributionRule() {
-	m.distribution_rule = nil
 }
 
 // SetStoreCount sets the "store_count" field.
@@ -10981,11 +10981,11 @@ func (m *MenuMutation) Fields() []string {
 	if m.merchant_id != nil {
 		fields = append(fields, menu.FieldMerchantID)
 	}
+	if m.store_id != nil {
+		fields = append(fields, menu.FieldStoreID)
+	}
 	if m.name != nil {
 		fields = append(fields, menu.FieldName)
-	}
-	if m.distribution_rule != nil {
-		fields = append(fields, menu.FieldDistributionRule)
 	}
 	if m.store_count != nil {
 		fields = append(fields, menu.FieldStoreCount)
@@ -11009,10 +11009,10 @@ func (m *MenuMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case menu.FieldMerchantID:
 		return m.MerchantID()
+	case menu.FieldStoreID:
+		return m.StoreID()
 	case menu.FieldName:
 		return m.Name()
-	case menu.FieldDistributionRule:
-		return m.DistributionRule()
 	case menu.FieldStoreCount:
 		return m.StoreCount()
 	case menu.FieldItemCount:
@@ -11034,10 +11034,10 @@ func (m *MenuMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDeletedAt(ctx)
 	case menu.FieldMerchantID:
 		return m.OldMerchantID(ctx)
+	case menu.FieldStoreID:
+		return m.OldStoreID(ctx)
 	case menu.FieldName:
 		return m.OldName(ctx)
-	case menu.FieldDistributionRule:
-		return m.OldDistributionRule(ctx)
 	case menu.FieldStoreCount:
 		return m.OldStoreCount(ctx)
 	case menu.FieldItemCount:
@@ -11079,19 +11079,19 @@ func (m *MenuMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMerchantID(v)
 		return nil
+	case menu.FieldStoreID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStoreID(v)
+		return nil
 	case menu.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
-		return nil
-	case menu.FieldDistributionRule:
-		v, ok := value.(domain.MenuDistributionRule)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDistributionRule(v)
 		return nil
 	case menu.FieldStoreCount:
 		v, ok := value.(int)
@@ -11207,11 +11207,11 @@ func (m *MenuMutation) ResetField(name string) error {
 	case menu.FieldMerchantID:
 		m.ResetMerchantID()
 		return nil
+	case menu.FieldStoreID:
+		m.ResetStoreID()
+		return nil
 	case menu.FieldName:
 		m.ResetName()
-		return nil
-	case menu.FieldDistributionRule:
-		m.ResetDistributionRule()
 		return nil
 	case menu.FieldStoreCount:
 		m.ResetStoreCount()
@@ -11343,7 +11343,6 @@ type MenuItemMutation struct {
 	updated_at     *time.Time
 	deleted_at     *int64
 	adddeleted_at  *int64
-	sale_rule      *domain.MenuItemSaleRule
 	base_price     *decimal.Decimal
 	member_price   *decimal.Decimal
 	clearedFields  map[string]struct{}
@@ -11660,42 +11659,6 @@ func (m *MenuItemMutation) ResetProductID() {
 	m.product = nil
 }
 
-// SetSaleRule sets the "sale_rule" field.
-func (m *MenuItemMutation) SetSaleRule(disr domain.MenuItemSaleRule) {
-	m.sale_rule = &disr
-}
-
-// SaleRule returns the value of the "sale_rule" field in the mutation.
-func (m *MenuItemMutation) SaleRule() (r domain.MenuItemSaleRule, exists bool) {
-	v := m.sale_rule
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSaleRule returns the old "sale_rule" field's value of the MenuItem entity.
-// If the MenuItem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MenuItemMutation) OldSaleRule(ctx context.Context) (v domain.MenuItemSaleRule, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSaleRule is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSaleRule requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSaleRule: %w", err)
-	}
-	return oldValue.SaleRule, nil
-}
-
-// ResetSaleRule resets all changes to the "sale_rule" field.
-func (m *MenuItemMutation) ResetSaleRule() {
-	m.sale_rule = nil
-}
-
 // SetBasePrice sets the "base_price" field.
 func (m *MenuItemMutation) SetBasePrice(d decimal.Decimal) {
 	m.base_price = &d
@@ -11882,7 +11845,7 @@ func (m *MenuItemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MenuItemMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, menuitem.FieldCreatedAt)
 	}
@@ -11897,9 +11860,6 @@ func (m *MenuItemMutation) Fields() []string {
 	}
 	if m.product != nil {
 		fields = append(fields, menuitem.FieldProductID)
-	}
-	if m.sale_rule != nil {
-		fields = append(fields, menuitem.FieldSaleRule)
 	}
 	if m.base_price != nil {
 		fields = append(fields, menuitem.FieldBasePrice)
@@ -11925,8 +11885,6 @@ func (m *MenuItemMutation) Field(name string) (ent.Value, bool) {
 		return m.MenuID()
 	case menuitem.FieldProductID:
 		return m.ProductID()
-	case menuitem.FieldSaleRule:
-		return m.SaleRule()
 	case menuitem.FieldBasePrice:
 		return m.BasePrice()
 	case menuitem.FieldMemberPrice:
@@ -11950,8 +11908,6 @@ func (m *MenuItemMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldMenuID(ctx)
 	case menuitem.FieldProductID:
 		return m.OldProductID(ctx)
-	case menuitem.FieldSaleRule:
-		return m.OldSaleRule(ctx)
 	case menuitem.FieldBasePrice:
 		return m.OldBasePrice(ctx)
 	case menuitem.FieldMemberPrice:
@@ -11999,13 +11955,6 @@ func (m *MenuItemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProductID(v)
-		return nil
-	case menuitem.FieldSaleRule:
-		v, ok := value.(domain.MenuItemSaleRule)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSaleRule(v)
 		return nil
 	case menuitem.FieldBasePrice:
 		v, ok := value.(decimal.Decimal)
@@ -12114,9 +12063,6 @@ func (m *MenuItemMutation) ResetField(name string) error {
 		return nil
 	case menuitem.FieldProductID:
 		m.ResetProductID()
-		return nil
-	case menuitem.FieldSaleRule:
-		m.ResetSaleRule()
 		return nil
 	case menuitem.FieldBasePrice:
 		m.ResetBasePrice()

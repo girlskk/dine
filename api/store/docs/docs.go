@@ -54,6 +54,33 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "创建菜单",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.MenuCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
         "/menu/{id}": {
@@ -82,6 +109,65 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.Menu"
                         }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "更新菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "菜单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.MenuUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "删除菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "菜单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -2054,7 +2140,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -2476,14 +2562,6 @@ const docTemplate = `{
                     "description": "创建时间",
                     "type": "string"
                 },
-                "distribution_rule": {
-                    "description": "下发规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "id": {
                     "description": "菜单ID",
                     "type": "string"
@@ -2511,6 +2589,10 @@ const docTemplate = `{
                     "description": "适用门店数量",
                     "type": "integer"
                 },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
                 "stores": {
                     "description": "关联信息",
                     "type": "array",
@@ -2523,25 +2605,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuDistributionRule": {
-            "type": "string",
-            "enum": [
-                "override",
-                "keep"
-            ],
-            "x-enum-comments": {
-                "MenuDistributionRuleKeep": "对同名菜品不做修改",
-                "MenuDistributionRuleOverride": "新增并覆盖同名菜品"
-            },
-            "x-enum-descriptions": [
-                "新增并覆盖同名菜品",
-                "对同名菜品不做修改"
-            ],
-            "x-enum-varnames": [
-                "MenuDistributionRuleOverride",
-                "MenuDistributionRuleKeep"
-            ]
         },
         "domain.MenuItem": {
             "type": "object",
@@ -2578,38 +2641,11 @@ const docTemplate = `{
                     "description": "菜品ID",
                     "type": "string"
                 },
-                "sale_rule": {
-                    "description": "下发售卖规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
                 "updated_at": {
                     "description": "更新时间",
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuItemSaleRule": {
-            "type": "string",
-            "enum": [
-                "keep_brand_status",
-                "keep_store_status"
-            ],
-            "x-enum-comments": {
-                "MenuItemSaleRuleKeepBrandStatus": "保留品牌状态",
-                "MenuItemSaleRuleKeepStoreStatus": "保留门店状态"
-            },
-            "x-enum-descriptions": [
-                "保留品牌状态",
-                "保留门店状态"
-            ],
-            "x-enum-varnames": [
-                "MenuItemSaleRuleKeepBrandStatus",
-                "MenuItemSaleRuleKeepStoreStatus"
-            ]
         },
         "domain.MenuSearchRes": {
             "type": "object",
@@ -3957,6 +3993,27 @@ const docTemplate = `{
                 "data": {}
             }
         },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
+        },
         "types.Address": {
             "type": "object",
             "properties": {
@@ -4378,6 +4435,70 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "types.MenuCreateReq": {
+            "type": "object",
+            "required": [
+                "items",
+                "name"
+            ],
+            "properties": {
+                "items": {
+                    "description": "菜品列表（必选，至少一个）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.MenuItemReq"
+                    }
+                },
+                "name": {
+                    "description": "菜单名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.MenuItemReq": {
+            "type": "object",
+            "required": [
+                "product_id"
+            ],
+            "properties": {
+                "base_price": {
+                    "description": "基础价（可选，单位：分）",
+                    "type": "number"
+                },
+                "member_price": {
+                    "description": "会员价（可选，单位：分）",
+                    "type": "number"
+                },
+                "product_id": {
+                    "description": "菜品ID（必选）",
+                    "type": "string"
+                }
+            }
+        },
+        "types.MenuUpdateReq": {
+            "type": "object",
+            "required": [
+                "items",
+                "name"
+            ],
+            "properties": {
+                "items": {
+                    "description": "菜品列表（必选，至少一个）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.MenuItemReq"
+                    }
+                },
+                "name": {
+                    "description": "菜单名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },

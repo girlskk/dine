@@ -37,21 +37,6 @@ func (m *MockMenuRepository) EXPECT() *MockMenuRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CheckStoreBound mocks base method.
-func (m *MockMenuRepository) CheckStoreBound(arg0 context.Context, arg1 []uuid.UUID, arg2 uuid.UUID) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckStoreBound", arg0, arg1, arg2)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckStoreBound indicates an expected call of CheckStoreBound.
-func (mr *MockMenuRepositoryMockRecorder) CheckStoreBound(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckStoreBound", reflect.TypeOf((*MockMenuRepository)(nil).CheckStoreBound), arg0, arg1, arg2)
-}
-
 // Create mocks base method.
 func (m *MockMenuRepository) Create(arg0 context.Context, arg1 *domain.Menu) error {
 	m.ctrl.T.Helper()
@@ -125,19 +110,34 @@ func (mr *MockMenuRepositoryMockRecorder) GetDetail(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockMenuRepository)(nil).GetDetail), arg0, arg1)
 }
 
-// PagedListBySearch mocks base method.
-func (m *MockMenuRepository) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.MenuSearchParams) (*domain.MenuSearchRes, error) {
+// PagedListMerchantMenusBySearch mocks base method.
+func (m *MockMenuRepository) PagedListMerchantMenusBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.MenuSearchParams) (*domain.MenuSearchRes, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PagedListBySearch", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "PagedListMerchantMenusBySearch", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.MenuSearchRes)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// PagedListBySearch indicates an expected call of PagedListBySearch.
-func (mr *MockMenuRepositoryMockRecorder) PagedListBySearch(arg0, arg1, arg2 interface{}) *gomock.Call {
+// PagedListMerchantMenusBySearch indicates an expected call of PagedListMerchantMenusBySearch.
+func (mr *MockMenuRepositoryMockRecorder) PagedListMerchantMenusBySearch(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListBySearch", reflect.TypeOf((*MockMenuRepository)(nil).PagedListBySearch), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListMerchantMenusBySearch", reflect.TypeOf((*MockMenuRepository)(nil).PagedListMerchantMenusBySearch), arg0, arg1, arg2)
+}
+
+// PagedListStoreMenusBySearch mocks base method.
+func (m *MockMenuRepository) PagedListStoreMenusBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.MenuSearchParams) (*domain.MenuSearchRes, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PagedListStoreMenusBySearch", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.MenuSearchRes)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PagedListStoreMenusBySearch indicates an expected call of PagedListStoreMenusBySearch.
+func (mr *MockMenuRepositoryMockRecorder) PagedListStoreMenusBySearch(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListStoreMenusBySearch", reflect.TypeOf((*MockMenuRepository)(nil).PagedListStoreMenusBySearch), arg0, arg1, arg2)
 }
 
 // Update mocks base method.

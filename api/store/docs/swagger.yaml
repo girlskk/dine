@@ -55,7 +55,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          type: integer
+          $ref: '#/definitions/time.Weekday'
         type: array
     type: object
   domain.BusinessModel:
@@ -348,10 +348,6 @@ definitions:
       created_at:
         description: 创建时间
         type: string
-      distribution_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuDistributionRule'
-        description: 下发规则
       id:
         description: 菜单ID
         type: string
@@ -372,6 +368,9 @@ definitions:
       store_count:
         description: 适用门店数量
         type: integer
+      store_id:
+        description: 门店ID
+        type: string
       stores:
         description: 关联信息
         items:
@@ -381,20 +380,6 @@ definitions:
         description: 更新时间
         type: string
     type: object
-  domain.MenuDistributionRule:
-    enum:
-    - override
-    - keep
-    type: string
-    x-enum-comments:
-      MenuDistributionRuleKeep: 对同名菜品不做修改
-      MenuDistributionRuleOverride: 新增并覆盖同名菜品
-    x-enum-descriptions:
-    - 新增并覆盖同名菜品
-    - 对同名菜品不做修改
-    x-enum-varnames:
-    - MenuDistributionRuleOverride
-    - MenuDistributionRuleKeep
   domain.MenuItem:
     properties:
       base_price:
@@ -419,28 +404,10 @@ definitions:
       product_id:
         description: 菜品ID
         type: string
-      sale_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuItemSaleRule'
-        description: 下发售卖规则
       updated_at:
         description: 更新时间
         type: string
     type: object
-  domain.MenuItemSaleRule:
-    enum:
-    - keep_brand_status
-    - keep_store_status
-    type: string
-    x-enum-comments:
-      MenuItemSaleRuleKeepBrandStatus: 保留品牌状态
-      MenuItemSaleRuleKeepStoreStatus: 保留门店状态
-    x-enum-descriptions:
-    - 保留品牌状态
-    - 保留门店状态
-    x-enum-varnames:
-    - MenuItemSaleRuleKeepBrandStatus
-    - MenuItemSaleRuleKeepStoreStatus
   domain.MenuSearchRes:
     properties:
       items:
@@ -1386,6 +1353,24 @@ definitions:
         type: string
       data: {}
     type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   types.Address:
     properties:
       address:
@@ -1675,6 +1660,52 @@ definitions:
         type: integer
       token:
         type: string
+    type: object
+  types.MenuCreateReq:
+    properties:
+      items:
+        description: 菜品列表（必选，至少一个）
+        items:
+          $ref: '#/definitions/types.MenuItemReq'
+        minItems: 1
+        type: array
+      name:
+        description: 菜单名称（必选）
+        maxLength: 255
+        type: string
+    required:
+    - items
+    - name
+    type: object
+  types.MenuItemReq:
+    properties:
+      base_price:
+        description: 基础价（可选，单位：分）
+        type: number
+      member_price:
+        description: 会员价（可选，单位：分）
+        type: number
+      product_id:
+        description: 菜品ID（必选）
+        type: string
+    required:
+    - product_id
+    type: object
+  types.MenuUpdateReq:
+    properties:
+      items:
+        description: 菜品列表（必选，至少一个）
+        items:
+          $ref: '#/definitions/types.MenuItemReq'
+        minItems: 1
+        type: array
+      name:
+        description: 菜单名称（必选）
+        maxLength: 255
+        type: string
+    required:
+    - items
+    - name
     type: object
   types.ProductAttrCreateReq:
     properties:
@@ -2498,7 +2529,38 @@ paths:
       summary: 查询菜单列表
       tags:
       - 菜单管理
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.MenuCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建菜单
+      tags:
+      - 菜单管理
   /menu/{id}:
+    delete:
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除菜单
+      tags:
+      - 菜单管理
     get:
       parameters:
       - description: 菜单ID
@@ -2514,6 +2576,27 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取菜单详情
+      tags:
+      - 菜单管理
+    put:
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.MenuUpdateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新菜单
       tags:
       - 菜单管理
   /product:

@@ -190,7 +190,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -483,10 +483,6 @@ definitions:
       created_at:
         description: 创建时间
         type: string
-      distribution_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuDistributionRule'
-        description: 下发规则
       id:
         description: 菜单ID
         type: string
@@ -507,6 +503,9 @@ definitions:
       store_count:
         description: 适用门店数量
         type: integer
+      store_id:
+        description: 门店ID
+        type: string
       stores:
         description: 关联信息
         items:
@@ -516,20 +515,6 @@ definitions:
         description: 更新时间
         type: string
     type: object
-  domain.MenuDistributionRule:
-    enum:
-    - override
-    - keep
-    type: string
-    x-enum-comments:
-      MenuDistributionRuleKeep: 对同名菜品不做修改
-      MenuDistributionRuleOverride: 新增并覆盖同名菜品
-    x-enum-descriptions:
-    - 新增并覆盖同名菜品
-    - 对同名菜品不做修改
-    x-enum-varnames:
-    - MenuDistributionRuleOverride
-    - MenuDistributionRuleKeep
   domain.MenuItem:
     properties:
       base_price:
@@ -554,28 +539,10 @@ definitions:
       product_id:
         description: 菜品ID
         type: string
-      sale_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuItemSaleRule'
-        description: 下发售卖规则
       updated_at:
         description: 更新时间
         type: string
     type: object
-  domain.MenuItemSaleRule:
-    enum:
-    - keep_brand_status
-    - keep_store_status
-    type: string
-    x-enum-comments:
-      MenuItemSaleRuleKeepBrandStatus: 保留品牌状态
-      MenuItemSaleRuleKeepStoreStatus: 保留门店状态
-    x-enum-descriptions:
-    - 保留品牌状态
-    - 保留门店状态
-    x-enum-varnames:
-    - MenuItemSaleRuleKeepBrandStatus
-    - MenuItemSaleRuleKeepStoreStatus
   domain.MenuSearchRes:
     properties:
       items:
@@ -1865,38 +1832,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.AdditionalFeeCreateReq:
     properties:
       charge_mode:
@@ -2450,13 +2385,6 @@ definitions:
     type: object
   types.MenuCreateReq:
     properties:
-      distribution_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuDistributionRule'
-        description: 下发规则（必选）
-        enum:
-        - override
-        - keep
       items:
         description: 菜品列表（必选，至少一个）
         items:
@@ -2474,7 +2402,6 @@ definitions:
         minItems: 1
         type: array
     required:
-    - distribution_rule
     - items
     - name
     - store_ids
@@ -2490,26 +2417,11 @@ definitions:
       product_id:
         description: 菜品ID（必选）
         type: string
-      sale_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuItemSaleRule'
-        description: 下发售卖规则（必选）
-        enum:
-        - keep_brand_status
-        - keep_store_status
     required:
     - product_id
-    - sale_rule
     type: object
   types.MenuUpdateReq:
     properties:
-      distribution_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuDistributionRule'
-        description: 下发规则（必选）
-        enum:
-        - override
-        - keep
       items:
         description: 菜品列表（必选，至少一个）
         items:
@@ -2527,7 +2439,6 @@ definitions:
         minItems: 1
         type: array
     required:
-    - distribution_rule
     - items
     - name
     - store_ids

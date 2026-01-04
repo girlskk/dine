@@ -4951,7 +4951,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -5373,14 +5373,6 @@ const docTemplate = `{
                     "description": "创建时间",
                     "type": "string"
                 },
-                "distribution_rule": {
-                    "description": "下发规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "id": {
                     "description": "菜单ID",
                     "type": "string"
@@ -5408,6 +5400,10 @@ const docTemplate = `{
                     "description": "适用门店数量",
                     "type": "integer"
                 },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
                 "stores": {
                     "description": "关联信息",
                     "type": "array",
@@ -5420,25 +5416,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuDistributionRule": {
-            "type": "string",
-            "enum": [
-                "override",
-                "keep"
-            ],
-            "x-enum-comments": {
-                "MenuDistributionRuleKeep": "对同名菜品不做修改",
-                "MenuDistributionRuleOverride": "新增并覆盖同名菜品"
-            },
-            "x-enum-descriptions": [
-                "新增并覆盖同名菜品",
-                "对同名菜品不做修改"
-            ],
-            "x-enum-varnames": [
-                "MenuDistributionRuleOverride",
-                "MenuDistributionRuleKeep"
-            ]
         },
         "domain.MenuItem": {
             "type": "object",
@@ -5475,38 +5452,11 @@ const docTemplate = `{
                     "description": "菜品ID",
                     "type": "string"
                 },
-                "sale_rule": {
-                    "description": "下发售卖规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
                 "updated_at": {
                     "description": "更新时间",
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuItemSaleRule": {
-            "type": "string",
-            "enum": [
-                "keep_brand_status",
-                "keep_store_status"
-            ],
-            "x-enum-comments": {
-                "MenuItemSaleRuleKeepBrandStatus": "保留品牌状态",
-                "MenuItemSaleRuleKeepStoreStatus": "保留门店状态"
-            },
-            "x-enum-descriptions": [
-                "保留品牌状态",
-                "保留门店状态"
-            ],
-            "x-enum-varnames": [
-                "MenuItemSaleRuleKeepBrandStatus",
-                "MenuItemSaleRuleKeepStoreStatus"
-            ]
         },
         "domain.MenuSearchRes": {
             "type": "object",
@@ -7322,41 +7272,6 @@ const docTemplate = `{
                 "data": {}
             }
         },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
-        },
         "types.AdditionalFeeCreateReq": {
             "type": "object",
             "required": [
@@ -8147,24 +8062,11 @@ const docTemplate = `{
         "types.MenuCreateReq": {
             "type": "object",
             "required": [
-                "distribution_rule",
                 "items",
                 "name",
                 "store_ids"
             ],
             "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "items": {
                     "description": "菜品列表（必选，至少一个）",
                     "type": "array",
@@ -8191,8 +8093,7 @@ const docTemplate = `{
         "types.MenuItemReq": {
             "type": "object",
             "required": [
-                "product_id",
-                "sale_rule"
+                "product_id"
             ],
             "properties": {
                 "base_price": {
@@ -8206,42 +8107,17 @@ const docTemplate = `{
                 "product_id": {
                     "description": "菜品ID（必选）",
                     "type": "string"
-                },
-                "sale_rule": {
-                    "description": "下发售卖规则（必选）",
-                    "enum": [
-                        "keep_brand_status",
-                        "keep_store_status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
                 }
             }
         },
         "types.MenuUpdateReq": {
             "type": "object",
             "required": [
-                "distribution_rule",
                 "items",
                 "name",
                 "store_ids"
             ],
             "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "items": {
                     "description": "菜品列表（必选，至少一个）",
                     "type": "array",

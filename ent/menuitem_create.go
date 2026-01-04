@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
@@ -79,20 +78,6 @@ func (mic *MenuItemCreate) SetMenuID(u uuid.UUID) *MenuItemCreate {
 // SetProductID sets the "product_id" field.
 func (mic *MenuItemCreate) SetProductID(u uuid.UUID) *MenuItemCreate {
 	mic.mutation.SetProductID(u)
-	return mic
-}
-
-// SetSaleRule sets the "sale_rule" field.
-func (mic *MenuItemCreate) SetSaleRule(disr domain.MenuItemSaleRule) *MenuItemCreate {
-	mic.mutation.SetSaleRule(disr)
-	return mic
-}
-
-// SetNillableSaleRule sets the "sale_rule" field if the given value is not nil.
-func (mic *MenuItemCreate) SetNillableSaleRule(disr *domain.MenuItemSaleRule) *MenuItemCreate {
-	if disr != nil {
-		mic.SetSaleRule(*disr)
-	}
 	return mic
 }
 
@@ -203,10 +188,6 @@ func (mic *MenuItemCreate) defaults() error {
 		v := menuitem.DefaultDeletedAt
 		mic.mutation.SetDeletedAt(v)
 	}
-	if _, ok := mic.mutation.SaleRule(); !ok {
-		v := menuitem.DefaultSaleRule
-		mic.mutation.SetSaleRule(v)
-	}
 	if _, ok := mic.mutation.ID(); !ok {
 		if menuitem.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized menuitem.DefaultID (forgotten import ent/runtime?)")
@@ -233,14 +214,6 @@ func (mic *MenuItemCreate) check() error {
 	}
 	if _, ok := mic.mutation.ProductID(); !ok {
 		return &ValidationError{Name: "product_id", err: errors.New(`ent: missing required field "MenuItem.product_id"`)}
-	}
-	if _, ok := mic.mutation.SaleRule(); !ok {
-		return &ValidationError{Name: "sale_rule", err: errors.New(`ent: missing required field "MenuItem.sale_rule"`)}
-	}
-	if v, ok := mic.mutation.SaleRule(); ok {
-		if err := menuitem.SaleRuleValidator(v); err != nil {
-			return &ValidationError{Name: "sale_rule", err: fmt.Errorf(`ent: validator failed for field "MenuItem.sale_rule": %w`, err)}
-		}
 	}
 	if len(mic.mutation.MenuIDs()) == 0 {
 		return &ValidationError{Name: "menu", err: errors.New(`ent: missing required edge "MenuItem.menu"`)}
@@ -295,10 +268,6 @@ func (mic *MenuItemCreate) createSpec() (*MenuItem, *sqlgraph.CreateSpec) {
 	if value, ok := mic.mutation.DeletedAt(); ok {
 		_spec.SetField(menuitem.FieldDeletedAt, field.TypeInt64, value)
 		_node.DeletedAt = value
-	}
-	if value, ok := mic.mutation.SaleRule(); ok {
-		_spec.SetField(menuitem.FieldSaleRule, field.TypeEnum, value)
-		_node.SaleRule = value
 	}
 	if value, ok := mic.mutation.BasePrice(); ok {
 		_spec.SetField(menuitem.FieldBasePrice, field.TypeOther, value)
@@ -421,18 +390,6 @@ func (u *MenuItemUpsert) UpdateDeletedAt() *MenuItemUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *MenuItemUpsert) AddDeletedAt(v int64) *MenuItemUpsert {
 	u.Add(menuitem.FieldDeletedAt, v)
-	return u
-}
-
-// SetSaleRule sets the "sale_rule" field.
-func (u *MenuItemUpsert) SetSaleRule(v domain.MenuItemSaleRule) *MenuItemUpsert {
-	u.Set(menuitem.FieldSaleRule, v)
-	return u
-}
-
-// UpdateSaleRule sets the "sale_rule" field to the value that was provided on create.
-func (u *MenuItemUpsert) UpdateSaleRule() *MenuItemUpsert {
-	u.SetExcluded(menuitem.FieldSaleRule)
 	return u
 }
 
@@ -561,20 +518,6 @@ func (u *MenuItemUpsertOne) AddDeletedAt(v int64) *MenuItemUpsertOne {
 func (u *MenuItemUpsertOne) UpdateDeletedAt() *MenuItemUpsertOne {
 	return u.Update(func(s *MenuItemUpsert) {
 		s.UpdateDeletedAt()
-	})
-}
-
-// SetSaleRule sets the "sale_rule" field.
-func (u *MenuItemUpsertOne) SetSaleRule(v domain.MenuItemSaleRule) *MenuItemUpsertOne {
-	return u.Update(func(s *MenuItemUpsert) {
-		s.SetSaleRule(v)
-	})
-}
-
-// UpdateSaleRule sets the "sale_rule" field to the value that was provided on create.
-func (u *MenuItemUpsertOne) UpdateSaleRule() *MenuItemUpsertOne {
-	return u.Update(func(s *MenuItemUpsert) {
-		s.UpdateSaleRule()
 	})
 }
 
@@ -876,20 +819,6 @@ func (u *MenuItemUpsertBulk) AddDeletedAt(v int64) *MenuItemUpsertBulk {
 func (u *MenuItemUpsertBulk) UpdateDeletedAt() *MenuItemUpsertBulk {
 	return u.Update(func(s *MenuItemUpsert) {
 		s.UpdateDeletedAt()
-	})
-}
-
-// SetSaleRule sets the "sale_rule" field.
-func (u *MenuItemUpsertBulk) SetSaleRule(v domain.MenuItemSaleRule) *MenuItemUpsertBulk {
-	return u.Update(func(s *MenuItemUpsert) {
-		s.SetSaleRule(v)
-	})
-}
-
-// UpdateSaleRule sets the "sale_rule" field to the value that was provided on create.
-func (u *MenuItemUpsertBulk) UpdateSaleRule() *MenuItemUpsertBulk {
-	return u.Update(func(s *MenuItemUpsert) {
-		s.UpdateSaleRule()
 	})
 }
 

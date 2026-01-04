@@ -472,8 +472,8 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "distribution_rule", Type: field.TypeEnum, Enums: []string{"override", "keep"}, Default: "override"},
 		{Name: "store_count", Type: field.TypeInt, Default: 0},
 		{Name: "item_count", Type: field.TypeInt, Default: 0},
 	}
@@ -493,6 +493,16 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{MenusColumns[4]},
 			},
+			{
+				Name:    "menu_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{MenusColumns[5]},
+			},
+			{
+				Name:    "menu_merchant_id_store_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{MenusColumns[4], MenusColumns[5], MenusColumns[6], MenusColumns[3]},
+			},
 		},
 	}
 	// MenuItemsColumns holds the columns for the "menu_items" table.
@@ -501,7 +511,6 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "sale_rule", Type: field.TypeEnum, Enums: []string{"keep_brand_status", "keep_store_status"}, Default: "keep_brand_status"},
 		{Name: "base_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "member_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "menu_id", Type: field.TypeUUID},
@@ -515,13 +524,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "menu_items_menus_items",
-				Columns:    []*schema.Column{MenuItemsColumns[7]},
+				Columns:    []*schema.Column{MenuItemsColumns[6]},
 				RefColumns: []*schema.Column{MenusColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "menu_items_products_menu_items",
-				Columns:    []*schema.Column{MenuItemsColumns[8]},
+				Columns:    []*schema.Column{MenuItemsColumns[7]},
 				RefColumns: []*schema.Column{ProductsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -535,12 +544,12 @@ var (
 			{
 				Name:    "menuitem_menu_id",
 				Unique:  false,
-				Columns: []*schema.Column{MenuItemsColumns[7]},
+				Columns: []*schema.Column{MenuItemsColumns[6]},
 			},
 			{
 				Name:    "menuitem_product_id",
 				Unique:  false,
-				Columns: []*schema.Column{MenuItemsColumns[8]},
+				Columns: []*schema.Column{MenuItemsColumns[7]},
 			},
 		},
 	}

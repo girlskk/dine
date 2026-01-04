@@ -584,8 +584,12 @@ func init() {
 	menuDescDeletedAt := menuMixinFields2[0].Descriptor()
 	// menu.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	menu.DefaultDeletedAt = menuDescDeletedAt.Default.(int64)
+	// menuDescStoreID is the schema descriptor for store_id field.
+	menuDescStoreID := menuFields[1].Descriptor()
+	// menu.DefaultStoreID holds the default value on creation for the store_id field.
+	menu.DefaultStoreID = menuDescStoreID.Default.(func() uuid.UUID)
 	// menuDescName is the schema descriptor for name field.
-	menuDescName := menuFields[1].Descriptor()
+	menuDescName := menuFields[2].Descriptor()
 	// menu.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	menu.NameValidator = func() func(string) error {
 		validators := menuDescName.Validators
