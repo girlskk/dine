@@ -3,7 +3,6 @@
 package runtime
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -817,22 +816,6 @@ func init() {
 	orderDescOrderNo := orderFields[4].Descriptor()
 	// order.OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
 	order.OrderNoValidator = orderDescOrderNo.Validators[0].(func(string) error)
-	// orderDescStore is the schema descriptor for store field.
-	orderDescStore := orderFields[17].Descriptor()
-	// order.DefaultStore holds the default value on creation for the store field.
-	order.DefaultStore = orderDescStore.Default.(json.RawMessage)
-	// orderDescPos is the schema descriptor for pos field.
-	orderDescPos := orderFields[19].Descriptor()
-	// order.DefaultPos holds the default value on creation for the pos field.
-	order.DefaultPos = orderDescPos.Default.(json.RawMessage)
-	// orderDescCashier is the schema descriptor for cashier field.
-	orderDescCashier := orderFields[20].Descriptor()
-	// order.DefaultCashier holds the default value on creation for the cashier field.
-	order.DefaultCashier = orderDescCashier.Default.(json.RawMessage)
-	// orderDescAmount is the schema descriptor for amount field.
-	orderDescAmount := orderFields[24].Descriptor()
-	// order.DefaultAmount holds the default value on creation for the amount field.
-	order.DefaultAmount = orderDescAmount.Default.(json.RawMessage)
 	// orderDescID is the schema descriptor for id field.
 	orderDescID := orderMixinFields0[0].Descriptor()
 	// order.DefaultID holds the default value on creation for the id field.

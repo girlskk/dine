@@ -40,7 +40,7 @@ type Order struct {
 	// 订单类型：SALE=销售单；REFUND=退单；PARTIAL_REFUND=部分退款单
 	OrderType domain.OrderType `json:"order_type,omitempty"`
 	// 退款单信息（包含原单信息与退款原因）
-	Refund json.RawMessage `json:"refund,omitempty"`
+	Refund domain.OrderRefund `json:"refund,omitempty"`
 	// 下单时间
 	PlacedAt *time.Time `json:"placed_at,omitempty"`
 	// 支付完成时间
@@ -49,7 +49,7 @@ type Order struct {
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 	// 下单操作员ID
 	PlacedBy string `json:"placed_by,omitempty"`
-	// 就餐模式：DINE_IN=堂食；TAKEAWAY=外卖（自取/配送）
+	// 就餐模式：DINE_IN=堂食
 	DiningMode domain.DiningMode `json:"dining_mode,omitempty"`
 	// 订单业务状态：PLACED=已下单；COMPLETED=已完成；CANCELLED=已取消
 	OrderStatus domain.OrderStatus `json:"order_status,omitempty"`
@@ -62,21 +62,21 @@ type Order struct {
 	// 用餐人数（堂食）
 	GuestCount int `json:"guest_count,omitempty"`
 	// 门店信息
-	Store json.RawMessage `json:"store,omitempty"`
+	Store domain.OrderStore `json:"store,omitempty"`
 	// 下单渠道
 	Channel domain.Channel `json:"channel,omitempty"`
 	// POS终端信息
-	Pos json.RawMessage `json:"pos,omitempty"`
+	Pos domain.OrderPOS `json:"pos,omitempty"`
 	// 收银员信息
-	Cashier json.RawMessage `json:"cashier,omitempty"`
+	Cashier domain.OrderCashier `json:"cashier,omitempty"`
 	// 税率明细
-	TaxRates json.RawMessage `json:"tax_rates,omitempty"`
+	TaxRates []domain.OrderTaxRate `json:"tax_rates,omitempty"`
 	// 费用明细
-	Fees json.RawMessage `json:"fees,omitempty"`
+	Fees []domain.OrderFee `json:"fees,omitempty"`
 	// 支付记录
-	Payments json.RawMessage `json:"payments,omitempty"`
+	Payments []domain.OrderPayment `json:"payments,omitempty"`
 	// 金额汇总
-	Amount json.RawMessage `json:"amount,omitempty"`
+	Amount domain.OrderAmount `json:"amount,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrderQuery when eager-loading is set.
 	Edges        OrderEdges `json:"edges"`

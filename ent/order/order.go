@@ -3,7 +3,6 @@
 package order
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -151,14 +150,6 @@ var (
 	BusinessDateValidator func(string) error
 	// OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
 	OrderNoValidator func(string) error
-	// DefaultStore holds the default value on creation for the "store" field.
-	DefaultStore json.RawMessage
-	// DefaultPos holds the default value on creation for the "pos" field.
-	DefaultPos json.RawMessage
-	// DefaultCashier holds the default value on creation for the "cashier" field.
-	DefaultCashier json.RawMessage
-	// DefaultAmount holds the default value on creation for the "amount" field.
-	DefaultAmount json.RawMessage
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -174,6 +165,8 @@ func OrderTypeValidator(ot domain.OrderType) error {
 		return fmt.Errorf("order: invalid enum value for order_type field: %q", ot)
 	}
 }
+
+const DefaultDiningMode domain.DiningMode = "DINE_IN"
 
 // DiningModeValidator is a validator for the "dining_mode" field enum values. It is called by the builders before save.
 func DiningModeValidator(dm domain.DiningMode) error {

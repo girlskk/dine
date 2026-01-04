@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -44,11 +43,7 @@ func (repo *OrderRepository) FindByID(ctx context.Context, id uuid.UUID) (res *d
 		return nil, fmt.Errorf("failed to get order: %w", err)
 	}
 
-	res, err = convertOrderToDomain(eo)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert order: %w", err)
-	}
-	return res, nil
+	return convertOrderToDomain(eo), nil
 }
 
 func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err error) {
@@ -77,11 +72,7 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 
 	// Refund
 	if o.Refund.OriginOrderID != "" || o.Refund.OriginOrderNo != "" || o.Refund.Reason != "" {
-		b, mErr := json.Marshal(o.Refund)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal refund: %w", mErr)
-		}
-		builder = builder.SetRefund(b)
+		builder = builder.SetRefund(o.Refund)
 	}
 
 	// 时间字段
@@ -115,57 +106,27 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetGuestCount(o.GuestCount)
 	}
 
-	// JSON 字段
 	if o.Store.ID != uuid.Nil {
-		b, mErr := json.Marshal(o.Store)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal store: %w", mErr)
-		}
-		builder = builder.SetStore(b)
+		builder = builder.SetStore(o.Store)
 	}
 	if o.Pos.PosID != "" {
-		b, mErr := json.Marshal(o.Pos)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal pos: %w", mErr)
-		}
-		builder = builder.SetPos(b)
+		builder = builder.SetPos(o.Pos)
 	}
 	if o.Cashier.CashierID != "" {
-		b, mErr := json.Marshal(o.Cashier)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal cashier: %w", mErr)
-		}
-		builder = builder.SetCashier(b)
+		builder = builder.SetCashier(o.Cashier)
 	}
-
 	if len(o.TaxRates) > 0 {
-		b, mErr := json.Marshal(o.TaxRates)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal tax_rates: %w", mErr)
-		}
-		builder = builder.SetTaxRates(b)
+		builder = builder.SetTaxRates(o.TaxRates)
 	}
 	if len(o.Fees) > 0 {
-		b, mErr := json.Marshal(o.Fees)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal fees: %w", mErr)
-		}
-		builder = builder.SetFees(b)
+		builder = builder.SetFees(o.Fees)
 	}
 	if len(o.Payments) > 0 {
-		b, mErr := json.Marshal(o.Payments)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal payments: %w", mErr)
-		}
-		builder = builder.SetPayments(b)
+		builder = builder.SetPayments(o.Payments)
 	}
 
 	// Amount
-	b, mErr := json.Marshal(o.Amount)
-	if mErr != nil {
-		return fmt.Errorf("failed to marshal amount: %w", mErr)
-	}
-	builder = builder.SetAmount(b)
+	builder = builder.SetAmount(o.Amount)
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -215,11 +176,7 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 
 	// Refund
 	if o.Refund.OriginOrderID != "" || o.Refund.OriginOrderNo != "" || o.Refund.Reason != "" {
-		b, mErr := json.Marshal(o.Refund)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal refund: %w", mErr)
-		}
-		builder = builder.SetRefund(b)
+		builder = builder.SetRefund(o.Refund)
 	}
 
 	if !o.PlacedAt.IsZero() {
@@ -258,57 +215,27 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetGuestCount(o.GuestCount)
 	}
 
-	// JSON 字段
 	if o.Store.ID != uuid.Nil {
-		b, mErr := json.Marshal(o.Store)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal store: %w", mErr)
-		}
-		builder = builder.SetStore(b)
+		builder = builder.SetStore(o.Store)
 	}
 	if o.Pos.PosID != "" {
-		b, mErr := json.Marshal(o.Pos)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal pos: %w", mErr)
-		}
-		builder = builder.SetPos(b)
+		builder = builder.SetPos(o.Pos)
 	}
 	if o.Cashier.CashierID != "" {
-		b, mErr := json.Marshal(o.Cashier)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal cashier: %w", mErr)
-		}
-		builder = builder.SetCashier(b)
+		builder = builder.SetCashier(o.Cashier)
 	}
-
 	if len(o.TaxRates) > 0 {
-		b, mErr := json.Marshal(o.TaxRates)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal tax_rates: %w", mErr)
-		}
-		builder = builder.SetTaxRates(b)
+		builder = builder.SetTaxRates(o.TaxRates)
 	}
 	if len(o.Fees) > 0 {
-		b, mErr := json.Marshal(o.Fees)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal fees: %w", mErr)
-		}
-		builder = builder.SetFees(b)
+		builder = builder.SetFees(o.Fees)
 	}
 	if len(o.Payments) > 0 {
-		b, mErr := json.Marshal(o.Payments)
-		if mErr != nil {
-			return fmt.Errorf("failed to marshal payments: %w", mErr)
-		}
-		builder = builder.SetPayments(b)
+		builder = builder.SetPayments(o.Payments)
 	}
 
 	// Amount
-	b, mErr := json.Marshal(o.Amount)
-	if mErr != nil {
-		return fmt.Errorf("failed to marshal amount: %w", mErr)
-	}
-	builder = builder.SetAmount(b)
+	builder = builder.SetAmount(o.Amount)
 
 	_, err = builder.Save(ctx)
 	if err != nil {
@@ -411,11 +338,7 @@ func (repo *OrderRepository) List(ctx context.Context, params domain.OrderListPa
 
 	res = make([]*domain.Order, 0, len(items))
 	for _, eo := range items {
-		o, cErr := convertOrderToDomain(eo)
-		if cErr != nil {
-			return nil, 0, fmt.Errorf("failed to convert order: %w", cErr)
-		}
-		res = append(res, o)
+		res = append(res, convertOrderToDomain(eo))
 	}
 	return res, total, nil
 }
@@ -535,65 +458,9 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	return nil
 }
 
-func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
+func convertOrderToDomain(eo *ent.Order) *domain.Order {
 	if eo == nil {
-		return nil, nil
-	}
-
-	var refund domain.OrderRefund
-	if len(eo.Refund) > 0 {
-		if uErr := json.Unmarshal(eo.Refund, &refund); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal refund: %w", uErr)
-		}
-	}
-
-	var store domain.OrderStore
-	if len(eo.Store) > 0 {
-		if uErr := json.Unmarshal(eo.Store, &store); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal store: %w", uErr)
-		}
-	}
-
-	var pos domain.OrderPOS
-	if len(eo.Pos) > 0 {
-		if uErr := json.Unmarshal(eo.Pos, &pos); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal pos: %w", uErr)
-		}
-	}
-
-	var cashier domain.OrderCashier
-	if len(eo.Cashier) > 0 {
-		if uErr := json.Unmarshal(eo.Cashier, &cashier); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal cashier: %w", uErr)
-		}
-	}
-
-	var taxRates []domain.OrderTaxRate
-	if len(eo.TaxRates) > 0 {
-		if uErr := json.Unmarshal(eo.TaxRates, &taxRates); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal tax_rates: %w", uErr)
-		}
-	}
-
-	var fees []domain.OrderFee
-	if len(eo.Fees) > 0 {
-		if uErr := json.Unmarshal(eo.Fees, &fees); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal fees: %w", uErr)
-		}
-	}
-
-	var payments []domain.OrderPayment
-	if len(eo.Payments) > 0 {
-		if uErr := json.Unmarshal(eo.Payments, &payments); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal payments: %w", uErr)
-		}
-	}
-
-	var amount domain.OrderAmount
-	if len(eo.Amount) > 0 {
-		if uErr := json.Unmarshal(eo.Amount, &amount); uErr != nil {
-			return nil, fmt.Errorf("failed to unmarshal amount: %w", uErr)
-		}
+		return nil
 	}
 
 	// 转换时间字段
@@ -631,7 +498,7 @@ func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 		OrderNo:      eo.OrderNo,
 
 		OrderType: eo.OrderType,
-		Refund:    refund,
+		Refund:    eo.Refund,
 
 		PlacedAt:    placedAt,
 		PaidAt:      paidAt,
@@ -647,18 +514,18 @@ func convertOrderToDomain(eo *ent.Order) (*domain.Order, error) {
 		TableName:  eo.TableName,
 		GuestCount: eo.GuestCount,
 
-		Store:   store,
+		Store:   eo.Store,
 		Channel: eo.Channel,
-		Pos:     pos,
-		Cashier: cashier,
+		Pos:     eo.Pos,
+		Cashier: eo.Cashier,
 
-		TaxRates: taxRates,
-		Fees:     fees,
-		Payments: payments,
-		Amount:   amount,
+		TaxRates: eo.TaxRates,
+		Fees:     eo.Fees,
+		Payments: eo.Payments,
+		Amount:   eo.Amount,
 
 		OrderProducts: orderProducts,
-	}, nil
+	}
 }
 
 func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {

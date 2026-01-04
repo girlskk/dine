@@ -11914,8 +11914,7 @@ type OrderMutation struct {
 	shift_no              *string
 	order_no              *string
 	order_type            *domain.OrderType
-	refund                *json.RawMessage
-	appendrefund          json.RawMessage
+	refund                *domain.OrderRefund
 	placed_at             *time.Time
 	paid_at               *time.Time
 	completed_at          *time.Time
@@ -11927,21 +11926,17 @@ type OrderMutation struct {
 	table_name            *string
 	guest_count           *int
 	addguest_count        *int
-	store                 *json.RawMessage
-	appendstore           json.RawMessage
+	store                 *domain.OrderStore
 	channel               *domain.Channel
-	pos                   *json.RawMessage
-	appendpos             json.RawMessage
-	cashier               *json.RawMessage
-	appendcashier         json.RawMessage
-	tax_rates             *json.RawMessage
-	appendtax_rates       json.RawMessage
-	fees                  *json.RawMessage
-	appendfees            json.RawMessage
-	payments              *json.RawMessage
-	appendpayments        json.RawMessage
-	amount                *json.RawMessage
-	appendamount          json.RawMessage
+	pos                   *domain.OrderPOS
+	cashier               *domain.OrderCashier
+	tax_rates             *[]domain.OrderTaxRate
+	appendtax_rates       []domain.OrderTaxRate
+	fees                  *[]domain.OrderFee
+	appendfees            []domain.OrderFee
+	payments              *[]domain.OrderPayment
+	appendpayments        []domain.OrderPayment
+	amount                *domain.OrderAmount
 	clearedFields         map[string]struct{}
 	order_products        map[uuid.UUID]struct{}
 	removedorder_products map[uuid.UUID]struct{}
@@ -12413,13 +12408,12 @@ func (m *OrderMutation) ResetOrderType() {
 }
 
 // SetRefund sets the "refund" field.
-func (m *OrderMutation) SetRefund(jm json.RawMessage) {
-	m.refund = &jm
-	m.appendrefund = nil
+func (m *OrderMutation) SetRefund(dr domain.OrderRefund) {
+	m.refund = &dr
 }
 
 // Refund returns the value of the "refund" field in the mutation.
-func (m *OrderMutation) Refund() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) Refund() (r domain.OrderRefund, exists bool) {
 	v := m.refund
 	if v == nil {
 		return
@@ -12430,7 +12424,7 @@ func (m *OrderMutation) Refund() (r json.RawMessage, exists bool) {
 // OldRefund returns the old "refund" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldRefund(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldRefund(ctx context.Context) (v domain.OrderRefund, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRefund is only allowed on UpdateOne operations")
 	}
@@ -12444,23 +12438,9 @@ func (m *OrderMutation) OldRefund(ctx context.Context) (v json.RawMessage, err e
 	return oldValue.Refund, nil
 }
 
-// AppendRefund adds jm to the "refund" field.
-func (m *OrderMutation) AppendRefund(jm json.RawMessage) {
-	m.appendrefund = append(m.appendrefund, jm...)
-}
-
-// AppendedRefund returns the list of values that were appended to the "refund" field in this mutation.
-func (m *OrderMutation) AppendedRefund() (json.RawMessage, bool) {
-	if len(m.appendrefund) == 0 {
-		return nil, false
-	}
-	return m.appendrefund, true
-}
-
 // ClearRefund clears the value of the "refund" field.
 func (m *OrderMutation) ClearRefund() {
 	m.refund = nil
-	m.appendrefund = nil
 	m.clearedFields[order.FieldRefund] = struct{}{}
 }
 
@@ -12473,7 +12453,6 @@ func (m *OrderMutation) RefundCleared() bool {
 // ResetRefund resets all changes to the "refund" field.
 func (m *OrderMutation) ResetRefund() {
 	m.refund = nil
-	m.appendrefund = nil
 	delete(m.clearedFields, order.FieldRefund)
 }
 
@@ -12950,13 +12929,12 @@ func (m *OrderMutation) ResetGuestCount() {
 }
 
 // SetStore sets the "store" field.
-func (m *OrderMutation) SetStore(jm json.RawMessage) {
-	m.store = &jm
-	m.appendstore = nil
+func (m *OrderMutation) SetStore(ds domain.OrderStore) {
+	m.store = &ds
 }
 
 // Store returns the value of the "store" field in the mutation.
-func (m *OrderMutation) Store() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) Store() (r domain.OrderStore, exists bool) {
 	v := m.store
 	if v == nil {
 		return
@@ -12967,7 +12945,7 @@ func (m *OrderMutation) Store() (r json.RawMessage, exists bool) {
 // OldStore returns the old "store" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldStore(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldStore(ctx context.Context) (v domain.OrderStore, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStore is only allowed on UpdateOne operations")
 	}
@@ -12981,23 +12959,9 @@ func (m *OrderMutation) OldStore(ctx context.Context) (v json.RawMessage, err er
 	return oldValue.Store, nil
 }
 
-// AppendStore adds jm to the "store" field.
-func (m *OrderMutation) AppendStore(jm json.RawMessage) {
-	m.appendstore = append(m.appendstore, jm...)
-}
-
-// AppendedStore returns the list of values that were appended to the "store" field in this mutation.
-func (m *OrderMutation) AppendedStore() (json.RawMessage, bool) {
-	if len(m.appendstore) == 0 {
-		return nil, false
-	}
-	return m.appendstore, true
-}
-
 // ResetStore resets all changes to the "store" field.
 func (m *OrderMutation) ResetStore() {
 	m.store = nil
-	m.appendstore = nil
 }
 
 // SetChannel sets the "channel" field.
@@ -13037,13 +13001,12 @@ func (m *OrderMutation) ResetChannel() {
 }
 
 // SetPos sets the "pos" field.
-func (m *OrderMutation) SetPos(jm json.RawMessage) {
-	m.pos = &jm
-	m.appendpos = nil
+func (m *OrderMutation) SetPos(dp domain.OrderPOS) {
+	m.pos = &dp
 }
 
 // Pos returns the value of the "pos" field in the mutation.
-func (m *OrderMutation) Pos() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) Pos() (r domain.OrderPOS, exists bool) {
 	v := m.pos
 	if v == nil {
 		return
@@ -13054,7 +13017,7 @@ func (m *OrderMutation) Pos() (r json.RawMessage, exists bool) {
 // OldPos returns the old "pos" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldPos(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldPos(ctx context.Context) (v domain.OrderPOS, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPos is only allowed on UpdateOne operations")
 	}
@@ -13068,33 +13031,18 @@ func (m *OrderMutation) OldPos(ctx context.Context) (v json.RawMessage, err erro
 	return oldValue.Pos, nil
 }
 
-// AppendPos adds jm to the "pos" field.
-func (m *OrderMutation) AppendPos(jm json.RawMessage) {
-	m.appendpos = append(m.appendpos, jm...)
-}
-
-// AppendedPos returns the list of values that were appended to the "pos" field in this mutation.
-func (m *OrderMutation) AppendedPos() (json.RawMessage, bool) {
-	if len(m.appendpos) == 0 {
-		return nil, false
-	}
-	return m.appendpos, true
-}
-
 // ResetPos resets all changes to the "pos" field.
 func (m *OrderMutation) ResetPos() {
 	m.pos = nil
-	m.appendpos = nil
 }
 
 // SetCashier sets the "cashier" field.
-func (m *OrderMutation) SetCashier(jm json.RawMessage) {
-	m.cashier = &jm
-	m.appendcashier = nil
+func (m *OrderMutation) SetCashier(dc domain.OrderCashier) {
+	m.cashier = &dc
 }
 
 // Cashier returns the value of the "cashier" field in the mutation.
-func (m *OrderMutation) Cashier() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) Cashier() (r domain.OrderCashier, exists bool) {
 	v := m.cashier
 	if v == nil {
 		return
@@ -13105,7 +13053,7 @@ func (m *OrderMutation) Cashier() (r json.RawMessage, exists bool) {
 // OldCashier returns the old "cashier" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldCashier(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldCashier(ctx context.Context) (v domain.OrderCashier, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCashier is only allowed on UpdateOne operations")
 	}
@@ -13119,33 +13067,19 @@ func (m *OrderMutation) OldCashier(ctx context.Context) (v json.RawMessage, err 
 	return oldValue.Cashier, nil
 }
 
-// AppendCashier adds jm to the "cashier" field.
-func (m *OrderMutation) AppendCashier(jm json.RawMessage) {
-	m.appendcashier = append(m.appendcashier, jm...)
-}
-
-// AppendedCashier returns the list of values that were appended to the "cashier" field in this mutation.
-func (m *OrderMutation) AppendedCashier() (json.RawMessage, bool) {
-	if len(m.appendcashier) == 0 {
-		return nil, false
-	}
-	return m.appendcashier, true
-}
-
 // ResetCashier resets all changes to the "cashier" field.
 func (m *OrderMutation) ResetCashier() {
 	m.cashier = nil
-	m.appendcashier = nil
 }
 
 // SetTaxRates sets the "tax_rates" field.
-func (m *OrderMutation) SetTaxRates(jm json.RawMessage) {
-	m.tax_rates = &jm
+func (m *OrderMutation) SetTaxRates(dtr []domain.OrderTaxRate) {
+	m.tax_rates = &dtr
 	m.appendtax_rates = nil
 }
 
 // TaxRates returns the value of the "tax_rates" field in the mutation.
-func (m *OrderMutation) TaxRates() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) TaxRates() (r []domain.OrderTaxRate, exists bool) {
 	v := m.tax_rates
 	if v == nil {
 		return
@@ -13156,7 +13090,7 @@ func (m *OrderMutation) TaxRates() (r json.RawMessage, exists bool) {
 // OldTaxRates returns the old "tax_rates" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldTaxRates(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldTaxRates(ctx context.Context) (v []domain.OrderTaxRate, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTaxRates is only allowed on UpdateOne operations")
 	}
@@ -13170,13 +13104,13 @@ func (m *OrderMutation) OldTaxRates(ctx context.Context) (v json.RawMessage, err
 	return oldValue.TaxRates, nil
 }
 
-// AppendTaxRates adds jm to the "tax_rates" field.
-func (m *OrderMutation) AppendTaxRates(jm json.RawMessage) {
-	m.appendtax_rates = append(m.appendtax_rates, jm...)
+// AppendTaxRates adds dtr to the "tax_rates" field.
+func (m *OrderMutation) AppendTaxRates(dtr []domain.OrderTaxRate) {
+	m.appendtax_rates = append(m.appendtax_rates, dtr...)
 }
 
 // AppendedTaxRates returns the list of values that were appended to the "tax_rates" field in this mutation.
-func (m *OrderMutation) AppendedTaxRates() (json.RawMessage, bool) {
+func (m *OrderMutation) AppendedTaxRates() ([]domain.OrderTaxRate, bool) {
 	if len(m.appendtax_rates) == 0 {
 		return nil, false
 	}
@@ -13204,13 +13138,13 @@ func (m *OrderMutation) ResetTaxRates() {
 }
 
 // SetFees sets the "fees" field.
-func (m *OrderMutation) SetFees(jm json.RawMessage) {
-	m.fees = &jm
+func (m *OrderMutation) SetFees(df []domain.OrderFee) {
+	m.fees = &df
 	m.appendfees = nil
 }
 
 // Fees returns the value of the "fees" field in the mutation.
-func (m *OrderMutation) Fees() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) Fees() (r []domain.OrderFee, exists bool) {
 	v := m.fees
 	if v == nil {
 		return
@@ -13221,7 +13155,7 @@ func (m *OrderMutation) Fees() (r json.RawMessage, exists bool) {
 // OldFees returns the old "fees" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldFees(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldFees(ctx context.Context) (v []domain.OrderFee, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldFees is only allowed on UpdateOne operations")
 	}
@@ -13235,13 +13169,13 @@ func (m *OrderMutation) OldFees(ctx context.Context) (v json.RawMessage, err err
 	return oldValue.Fees, nil
 }
 
-// AppendFees adds jm to the "fees" field.
-func (m *OrderMutation) AppendFees(jm json.RawMessage) {
-	m.appendfees = append(m.appendfees, jm...)
+// AppendFees adds df to the "fees" field.
+func (m *OrderMutation) AppendFees(df []domain.OrderFee) {
+	m.appendfees = append(m.appendfees, df...)
 }
 
 // AppendedFees returns the list of values that were appended to the "fees" field in this mutation.
-func (m *OrderMutation) AppendedFees() (json.RawMessage, bool) {
+func (m *OrderMutation) AppendedFees() ([]domain.OrderFee, bool) {
 	if len(m.appendfees) == 0 {
 		return nil, false
 	}
@@ -13269,13 +13203,13 @@ func (m *OrderMutation) ResetFees() {
 }
 
 // SetPayments sets the "payments" field.
-func (m *OrderMutation) SetPayments(jm json.RawMessage) {
-	m.payments = &jm
+func (m *OrderMutation) SetPayments(dp []domain.OrderPayment) {
+	m.payments = &dp
 	m.appendpayments = nil
 }
 
 // Payments returns the value of the "payments" field in the mutation.
-func (m *OrderMutation) Payments() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) Payments() (r []domain.OrderPayment, exists bool) {
 	v := m.payments
 	if v == nil {
 		return
@@ -13286,7 +13220,7 @@ func (m *OrderMutation) Payments() (r json.RawMessage, exists bool) {
 // OldPayments returns the old "payments" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldPayments(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldPayments(ctx context.Context) (v []domain.OrderPayment, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPayments is only allowed on UpdateOne operations")
 	}
@@ -13300,13 +13234,13 @@ func (m *OrderMutation) OldPayments(ctx context.Context) (v json.RawMessage, err
 	return oldValue.Payments, nil
 }
 
-// AppendPayments adds jm to the "payments" field.
-func (m *OrderMutation) AppendPayments(jm json.RawMessage) {
-	m.appendpayments = append(m.appendpayments, jm...)
+// AppendPayments adds dp to the "payments" field.
+func (m *OrderMutation) AppendPayments(dp []domain.OrderPayment) {
+	m.appendpayments = append(m.appendpayments, dp...)
 }
 
 // AppendedPayments returns the list of values that were appended to the "payments" field in this mutation.
-func (m *OrderMutation) AppendedPayments() (json.RawMessage, bool) {
+func (m *OrderMutation) AppendedPayments() ([]domain.OrderPayment, bool) {
 	if len(m.appendpayments) == 0 {
 		return nil, false
 	}
@@ -13334,13 +13268,12 @@ func (m *OrderMutation) ResetPayments() {
 }
 
 // SetAmount sets the "amount" field.
-func (m *OrderMutation) SetAmount(jm json.RawMessage) {
-	m.amount = &jm
-	m.appendamount = nil
+func (m *OrderMutation) SetAmount(da domain.OrderAmount) {
+	m.amount = &da
 }
 
 // Amount returns the value of the "amount" field in the mutation.
-func (m *OrderMutation) Amount() (r json.RawMessage, exists bool) {
+func (m *OrderMutation) Amount() (r domain.OrderAmount, exists bool) {
 	v := m.amount
 	if v == nil {
 		return
@@ -13351,7 +13284,7 @@ func (m *OrderMutation) Amount() (r json.RawMessage, exists bool) {
 // OldAmount returns the old "amount" field's value of the Order entity.
 // If the Order object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderMutation) OldAmount(ctx context.Context) (v json.RawMessage, err error) {
+func (m *OrderMutation) OldAmount(ctx context.Context) (v domain.OrderAmount, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAmount is only allowed on UpdateOne operations")
 	}
@@ -13365,23 +13298,9 @@ func (m *OrderMutation) OldAmount(ctx context.Context) (v json.RawMessage, err e
 	return oldValue.Amount, nil
 }
 
-// AppendAmount adds jm to the "amount" field.
-func (m *OrderMutation) AppendAmount(jm json.RawMessage) {
-	m.appendamount = append(m.appendamount, jm...)
-}
-
-// AppendedAmount returns the list of values that were appended to the "amount" field in this mutation.
-func (m *OrderMutation) AppendedAmount() (json.RawMessage, bool) {
-	if len(m.appendamount) == 0 {
-		return nil, false
-	}
-	return m.appendamount, true
-}
-
 // ResetAmount resets all changes to the "amount" field.
 func (m *OrderMutation) ResetAmount() {
 	m.amount = nil
-	m.appendamount = nil
 }
 
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by ids.
@@ -13759,7 +13678,7 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		m.SetOrderType(v)
 		return nil
 	case order.FieldRefund:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.(domain.OrderRefund)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -13836,7 +13755,7 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		m.SetGuestCount(v)
 		return nil
 	case order.FieldStore:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.(domain.OrderStore)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -13850,42 +13769,42 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		m.SetChannel(v)
 		return nil
 	case order.FieldPos:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.(domain.OrderPOS)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPos(v)
 		return nil
 	case order.FieldCashier:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.(domain.OrderCashier)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCashier(v)
 		return nil
 	case order.FieldTaxRates:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.([]domain.OrderTaxRate)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTaxRates(v)
 		return nil
 	case order.FieldFees:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.([]domain.OrderFee)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetFees(v)
 		return nil
 	case order.FieldPayments:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.([]domain.OrderPayment)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPayments(v)
 		return nil
 	case order.FieldAmount:
-		v, ok := value.(json.RawMessage)
+		v, ok := value.(domain.OrderAmount)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

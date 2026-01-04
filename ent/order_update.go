@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -124,14 +123,16 @@ func (ou *OrderUpdate) SetNillableOrderType(dt *domain.OrderType) *OrderUpdate {
 }
 
 // SetRefund sets the "refund" field.
-func (ou *OrderUpdate) SetRefund(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetRefund(jm)
+func (ou *OrderUpdate) SetRefund(dr domain.OrderRefund) *OrderUpdate {
+	ou.mutation.SetRefund(dr)
 	return ou
 }
 
-// AppendRefund appends jm to the "refund" field.
-func (ou *OrderUpdate) AppendRefund(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendRefund(jm)
+// SetNillableRefund sets the "refund" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableRefund(dr *domain.OrderRefund) *OrderUpdate {
+	if dr != nil {
+		ou.SetRefund(*dr)
+	}
 	return ou
 }
 
@@ -331,14 +332,16 @@ func (ou *OrderUpdate) ClearGuestCount() *OrderUpdate {
 }
 
 // SetStore sets the "store" field.
-func (ou *OrderUpdate) SetStore(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetStore(jm)
+func (ou *OrderUpdate) SetStore(ds domain.OrderStore) *OrderUpdate {
+	ou.mutation.SetStore(ds)
 	return ou
 }
 
-// AppendStore appends jm to the "store" field.
-func (ou *OrderUpdate) AppendStore(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendStore(jm)
+// SetNillableStore sets the "store" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableStore(ds *domain.OrderStore) *OrderUpdate {
+	if ds != nil {
+		ou.SetStore(*ds)
+	}
 	return ou
 }
 
@@ -357,38 +360,42 @@ func (ou *OrderUpdate) SetNillableChannel(d *domain.Channel) *OrderUpdate {
 }
 
 // SetPos sets the "pos" field.
-func (ou *OrderUpdate) SetPos(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetPos(jm)
+func (ou *OrderUpdate) SetPos(dp domain.OrderPOS) *OrderUpdate {
+	ou.mutation.SetPos(dp)
 	return ou
 }
 
-// AppendPos appends jm to the "pos" field.
-func (ou *OrderUpdate) AppendPos(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendPos(jm)
+// SetNillablePos sets the "pos" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillablePos(dp *domain.OrderPOS) *OrderUpdate {
+	if dp != nil {
+		ou.SetPos(*dp)
+	}
 	return ou
 }
 
 // SetCashier sets the "cashier" field.
-func (ou *OrderUpdate) SetCashier(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetCashier(jm)
+func (ou *OrderUpdate) SetCashier(dc domain.OrderCashier) *OrderUpdate {
+	ou.mutation.SetCashier(dc)
 	return ou
 }
 
-// AppendCashier appends jm to the "cashier" field.
-func (ou *OrderUpdate) AppendCashier(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendCashier(jm)
+// SetNillableCashier sets the "cashier" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableCashier(dc *domain.OrderCashier) *OrderUpdate {
+	if dc != nil {
+		ou.SetCashier(*dc)
+	}
 	return ou
 }
 
 // SetTaxRates sets the "tax_rates" field.
-func (ou *OrderUpdate) SetTaxRates(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetTaxRates(jm)
+func (ou *OrderUpdate) SetTaxRates(dtr []domain.OrderTaxRate) *OrderUpdate {
+	ou.mutation.SetTaxRates(dtr)
 	return ou
 }
 
-// AppendTaxRates appends jm to the "tax_rates" field.
-func (ou *OrderUpdate) AppendTaxRates(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendTaxRates(jm)
+// AppendTaxRates appends dtr to the "tax_rates" field.
+func (ou *OrderUpdate) AppendTaxRates(dtr []domain.OrderTaxRate) *OrderUpdate {
+	ou.mutation.AppendTaxRates(dtr)
 	return ou
 }
 
@@ -399,14 +406,14 @@ func (ou *OrderUpdate) ClearTaxRates() *OrderUpdate {
 }
 
 // SetFees sets the "fees" field.
-func (ou *OrderUpdate) SetFees(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetFees(jm)
+func (ou *OrderUpdate) SetFees(df []domain.OrderFee) *OrderUpdate {
+	ou.mutation.SetFees(df)
 	return ou
 }
 
-// AppendFees appends jm to the "fees" field.
-func (ou *OrderUpdate) AppendFees(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendFees(jm)
+// AppendFees appends df to the "fees" field.
+func (ou *OrderUpdate) AppendFees(df []domain.OrderFee) *OrderUpdate {
+	ou.mutation.AppendFees(df)
 	return ou
 }
 
@@ -417,14 +424,14 @@ func (ou *OrderUpdate) ClearFees() *OrderUpdate {
 }
 
 // SetPayments sets the "payments" field.
-func (ou *OrderUpdate) SetPayments(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetPayments(jm)
+func (ou *OrderUpdate) SetPayments(dp []domain.OrderPayment) *OrderUpdate {
+	ou.mutation.SetPayments(dp)
 	return ou
 }
 
-// AppendPayments appends jm to the "payments" field.
-func (ou *OrderUpdate) AppendPayments(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendPayments(jm)
+// AppendPayments appends dp to the "payments" field.
+func (ou *OrderUpdate) AppendPayments(dp []domain.OrderPayment) *OrderUpdate {
+	ou.mutation.AppendPayments(dp)
 	return ou
 }
 
@@ -435,14 +442,16 @@ func (ou *OrderUpdate) ClearPayments() *OrderUpdate {
 }
 
 // SetAmount sets the "amount" field.
-func (ou *OrderUpdate) SetAmount(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.SetAmount(jm)
+func (ou *OrderUpdate) SetAmount(da domain.OrderAmount) *OrderUpdate {
+	ou.mutation.SetAmount(da)
 	return ou
 }
 
-// AppendAmount appends jm to the "amount" field.
-func (ou *OrderUpdate) AppendAmount(jm json.RawMessage) *OrderUpdate {
-	ou.mutation.AppendAmount(jm)
+// SetNillableAmount sets the "amount" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableAmount(da *domain.OrderAmount) *OrderUpdate {
+	if da != nil {
+		ou.SetAmount(*da)
+	}
 	return ou
 }
 
@@ -614,11 +623,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.Refund(); ok {
 		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
 	}
-	if value, ok := ou.mutation.AppendedRefund(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldRefund, value)
-		})
-	}
 	if ou.mutation.RefundCleared() {
 		_spec.ClearField(order.FieldRefund, field.TypeJSON)
 	}
@@ -679,29 +683,14 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.Store(); ok {
 		_spec.SetField(order.FieldStore, field.TypeJSON, value)
 	}
-	if value, ok := ou.mutation.AppendedStore(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldStore, value)
-		})
-	}
 	if value, ok := ou.mutation.Channel(); ok {
 		_spec.SetField(order.FieldChannel, field.TypeEnum, value)
 	}
 	if value, ok := ou.mutation.Pos(); ok {
 		_spec.SetField(order.FieldPos, field.TypeJSON, value)
 	}
-	if value, ok := ou.mutation.AppendedPos(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldPos, value)
-		})
-	}
 	if value, ok := ou.mutation.Cashier(); ok {
 		_spec.SetField(order.FieldCashier, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedCashier(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldCashier, value)
-		})
 	}
 	if value, ok := ou.mutation.TaxRates(); ok {
 		_spec.SetField(order.FieldTaxRates, field.TypeJSON, value)
@@ -738,11 +727,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedAmount(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldAmount, value)
-		})
 	}
 	if ou.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -901,14 +885,16 @@ func (ouo *OrderUpdateOne) SetNillableOrderType(dt *domain.OrderType) *OrderUpda
 }
 
 // SetRefund sets the "refund" field.
-func (ouo *OrderUpdateOne) SetRefund(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetRefund(jm)
+func (ouo *OrderUpdateOne) SetRefund(dr domain.OrderRefund) *OrderUpdateOne {
+	ouo.mutation.SetRefund(dr)
 	return ouo
 }
 
-// AppendRefund appends jm to the "refund" field.
-func (ouo *OrderUpdateOne) AppendRefund(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendRefund(jm)
+// SetNillableRefund sets the "refund" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableRefund(dr *domain.OrderRefund) *OrderUpdateOne {
+	if dr != nil {
+		ouo.SetRefund(*dr)
+	}
 	return ouo
 }
 
@@ -1108,14 +1094,16 @@ func (ouo *OrderUpdateOne) ClearGuestCount() *OrderUpdateOne {
 }
 
 // SetStore sets the "store" field.
-func (ouo *OrderUpdateOne) SetStore(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetStore(jm)
+func (ouo *OrderUpdateOne) SetStore(ds domain.OrderStore) *OrderUpdateOne {
+	ouo.mutation.SetStore(ds)
 	return ouo
 }
 
-// AppendStore appends jm to the "store" field.
-func (ouo *OrderUpdateOne) AppendStore(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendStore(jm)
+// SetNillableStore sets the "store" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableStore(ds *domain.OrderStore) *OrderUpdateOne {
+	if ds != nil {
+		ouo.SetStore(*ds)
+	}
 	return ouo
 }
 
@@ -1134,38 +1122,42 @@ func (ouo *OrderUpdateOne) SetNillableChannel(d *domain.Channel) *OrderUpdateOne
 }
 
 // SetPos sets the "pos" field.
-func (ouo *OrderUpdateOne) SetPos(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetPos(jm)
+func (ouo *OrderUpdateOne) SetPos(dp domain.OrderPOS) *OrderUpdateOne {
+	ouo.mutation.SetPos(dp)
 	return ouo
 }
 
-// AppendPos appends jm to the "pos" field.
-func (ouo *OrderUpdateOne) AppendPos(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendPos(jm)
+// SetNillablePos sets the "pos" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillablePos(dp *domain.OrderPOS) *OrderUpdateOne {
+	if dp != nil {
+		ouo.SetPos(*dp)
+	}
 	return ouo
 }
 
 // SetCashier sets the "cashier" field.
-func (ouo *OrderUpdateOne) SetCashier(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetCashier(jm)
+func (ouo *OrderUpdateOne) SetCashier(dc domain.OrderCashier) *OrderUpdateOne {
+	ouo.mutation.SetCashier(dc)
 	return ouo
 }
 
-// AppendCashier appends jm to the "cashier" field.
-func (ouo *OrderUpdateOne) AppendCashier(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendCashier(jm)
+// SetNillableCashier sets the "cashier" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableCashier(dc *domain.OrderCashier) *OrderUpdateOne {
+	if dc != nil {
+		ouo.SetCashier(*dc)
+	}
 	return ouo
 }
 
 // SetTaxRates sets the "tax_rates" field.
-func (ouo *OrderUpdateOne) SetTaxRates(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetTaxRates(jm)
+func (ouo *OrderUpdateOne) SetTaxRates(dtr []domain.OrderTaxRate) *OrderUpdateOne {
+	ouo.mutation.SetTaxRates(dtr)
 	return ouo
 }
 
-// AppendTaxRates appends jm to the "tax_rates" field.
-func (ouo *OrderUpdateOne) AppendTaxRates(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendTaxRates(jm)
+// AppendTaxRates appends dtr to the "tax_rates" field.
+func (ouo *OrderUpdateOne) AppendTaxRates(dtr []domain.OrderTaxRate) *OrderUpdateOne {
+	ouo.mutation.AppendTaxRates(dtr)
 	return ouo
 }
 
@@ -1176,14 +1168,14 @@ func (ouo *OrderUpdateOne) ClearTaxRates() *OrderUpdateOne {
 }
 
 // SetFees sets the "fees" field.
-func (ouo *OrderUpdateOne) SetFees(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetFees(jm)
+func (ouo *OrderUpdateOne) SetFees(df []domain.OrderFee) *OrderUpdateOne {
+	ouo.mutation.SetFees(df)
 	return ouo
 }
 
-// AppendFees appends jm to the "fees" field.
-func (ouo *OrderUpdateOne) AppendFees(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendFees(jm)
+// AppendFees appends df to the "fees" field.
+func (ouo *OrderUpdateOne) AppendFees(df []domain.OrderFee) *OrderUpdateOne {
+	ouo.mutation.AppendFees(df)
 	return ouo
 }
 
@@ -1194,14 +1186,14 @@ func (ouo *OrderUpdateOne) ClearFees() *OrderUpdateOne {
 }
 
 // SetPayments sets the "payments" field.
-func (ouo *OrderUpdateOne) SetPayments(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetPayments(jm)
+func (ouo *OrderUpdateOne) SetPayments(dp []domain.OrderPayment) *OrderUpdateOne {
+	ouo.mutation.SetPayments(dp)
 	return ouo
 }
 
-// AppendPayments appends jm to the "payments" field.
-func (ouo *OrderUpdateOne) AppendPayments(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendPayments(jm)
+// AppendPayments appends dp to the "payments" field.
+func (ouo *OrderUpdateOne) AppendPayments(dp []domain.OrderPayment) *OrderUpdateOne {
+	ouo.mutation.AppendPayments(dp)
 	return ouo
 }
 
@@ -1212,14 +1204,16 @@ func (ouo *OrderUpdateOne) ClearPayments() *OrderUpdateOne {
 }
 
 // SetAmount sets the "amount" field.
-func (ouo *OrderUpdateOne) SetAmount(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.SetAmount(jm)
+func (ouo *OrderUpdateOne) SetAmount(da domain.OrderAmount) *OrderUpdateOne {
+	ouo.mutation.SetAmount(da)
 	return ouo
 }
 
-// AppendAmount appends jm to the "amount" field.
-func (ouo *OrderUpdateOne) AppendAmount(jm json.RawMessage) *OrderUpdateOne {
-	ouo.mutation.AppendAmount(jm)
+// SetNillableAmount sets the "amount" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableAmount(da *domain.OrderAmount) *OrderUpdateOne {
+	if da != nil {
+		ouo.SetAmount(*da)
+	}
 	return ouo
 }
 
@@ -1421,11 +1415,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if value, ok := ouo.mutation.Refund(); ok {
 		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
 	}
-	if value, ok := ouo.mutation.AppendedRefund(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldRefund, value)
-		})
-	}
 	if ouo.mutation.RefundCleared() {
 		_spec.ClearField(order.FieldRefund, field.TypeJSON)
 	}
@@ -1486,29 +1475,14 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if value, ok := ouo.mutation.Store(); ok {
 		_spec.SetField(order.FieldStore, field.TypeJSON, value)
 	}
-	if value, ok := ouo.mutation.AppendedStore(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldStore, value)
-		})
-	}
 	if value, ok := ouo.mutation.Channel(); ok {
 		_spec.SetField(order.FieldChannel, field.TypeEnum, value)
 	}
 	if value, ok := ouo.mutation.Pos(); ok {
 		_spec.SetField(order.FieldPos, field.TypeJSON, value)
 	}
-	if value, ok := ouo.mutation.AppendedPos(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldPos, value)
-		})
-	}
 	if value, ok := ouo.mutation.Cashier(); ok {
 		_spec.SetField(order.FieldCashier, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedCashier(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldCashier, value)
-		})
 	}
 	if value, ok := ouo.mutation.TaxRates(); ok {
 		_spec.SetField(order.FieldTaxRates, field.TypeJSON, value)
@@ -1545,11 +1519,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if value, ok := ouo.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedAmount(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, order.FieldAmount, value)
-		})
 	}
 	if ouo.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{

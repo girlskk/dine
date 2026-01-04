@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -122,8 +121,16 @@ func (oc *OrderCreate) SetNillableOrderType(dt *domain.OrderType) *OrderCreate {
 }
 
 // SetRefund sets the "refund" field.
-func (oc *OrderCreate) SetRefund(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetRefund(jm)
+func (oc *OrderCreate) SetRefund(dr domain.OrderRefund) *OrderCreate {
+	oc.mutation.SetRefund(dr)
+	return oc
+}
+
+// SetNillableRefund sets the "refund" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableRefund(dr *domain.OrderRefund) *OrderCreate {
+	if dr != nil {
+		oc.SetRefund(*dr)
+	}
 	return oc
 }
 
@@ -186,6 +193,14 @@ func (oc *OrderCreate) SetNillablePlacedBy(s *string) *OrderCreate {
 // SetDiningMode sets the "dining_mode" field.
 func (oc *OrderCreate) SetDiningMode(dm domain.DiningMode) *OrderCreate {
 	oc.mutation.SetDiningMode(dm)
+	return oc
+}
+
+// SetNillableDiningMode sets the "dining_mode" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableDiningMode(dm *domain.DiningMode) *OrderCreate {
+	if dm != nil {
+		oc.SetDiningMode(*dm)
+	}
 	return oc
 }
 
@@ -260,8 +275,8 @@ func (oc *OrderCreate) SetNillableGuestCount(i *int) *OrderCreate {
 }
 
 // SetStore sets the "store" field.
-func (oc *OrderCreate) SetStore(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetStore(jm)
+func (oc *OrderCreate) SetStore(ds domain.OrderStore) *OrderCreate {
+	oc.mutation.SetStore(ds)
 	return oc
 }
 
@@ -280,38 +295,38 @@ func (oc *OrderCreate) SetNillableChannel(d *domain.Channel) *OrderCreate {
 }
 
 // SetPos sets the "pos" field.
-func (oc *OrderCreate) SetPos(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetPos(jm)
+func (oc *OrderCreate) SetPos(dp domain.OrderPOS) *OrderCreate {
+	oc.mutation.SetPos(dp)
 	return oc
 }
 
 // SetCashier sets the "cashier" field.
-func (oc *OrderCreate) SetCashier(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetCashier(jm)
+func (oc *OrderCreate) SetCashier(dc domain.OrderCashier) *OrderCreate {
+	oc.mutation.SetCashier(dc)
 	return oc
 }
 
 // SetTaxRates sets the "tax_rates" field.
-func (oc *OrderCreate) SetTaxRates(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetTaxRates(jm)
+func (oc *OrderCreate) SetTaxRates(dtr []domain.OrderTaxRate) *OrderCreate {
+	oc.mutation.SetTaxRates(dtr)
 	return oc
 }
 
 // SetFees sets the "fees" field.
-func (oc *OrderCreate) SetFees(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetFees(jm)
+func (oc *OrderCreate) SetFees(df []domain.OrderFee) *OrderCreate {
+	oc.mutation.SetFees(df)
 	return oc
 }
 
 // SetPayments sets the "payments" field.
-func (oc *OrderCreate) SetPayments(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetPayments(jm)
+func (oc *OrderCreate) SetPayments(dp []domain.OrderPayment) *OrderCreate {
+	oc.mutation.SetPayments(dp)
 	return oc
 }
 
 // SetAmount sets the "amount" field.
-func (oc *OrderCreate) SetAmount(jm json.RawMessage) *OrderCreate {
-	oc.mutation.SetAmount(jm)
+func (oc *OrderCreate) SetAmount(da domain.OrderAmount) *OrderCreate {
+	oc.mutation.SetAmount(da)
 	return oc
 }
 
@@ -403,6 +418,10 @@ func (oc *OrderCreate) defaults() error {
 		v := order.DefaultOrderType
 		oc.mutation.SetOrderType(v)
 	}
+	if _, ok := oc.mutation.DiningMode(); !ok {
+		v := order.DefaultDiningMode
+		oc.mutation.SetDiningMode(v)
+	}
 	if _, ok := oc.mutation.OrderStatus(); !ok {
 		v := order.DefaultOrderStatus
 		oc.mutation.SetOrderStatus(v)
@@ -411,25 +430,9 @@ func (oc *OrderCreate) defaults() error {
 		v := order.DefaultPaymentStatus
 		oc.mutation.SetPaymentStatus(v)
 	}
-	if _, ok := oc.mutation.Store(); !ok {
-		v := order.DefaultStore
-		oc.mutation.SetStore(v)
-	}
 	if _, ok := oc.mutation.Channel(); !ok {
 		v := order.DefaultChannel
 		oc.mutation.SetChannel(v)
-	}
-	if _, ok := oc.mutation.Pos(); !ok {
-		v := order.DefaultPos
-		oc.mutation.SetPos(v)
-	}
-	if _, ok := oc.mutation.Cashier(); !ok {
-		v := order.DefaultCashier
-		oc.mutation.SetCashier(v)
-	}
-	if _, ok := oc.mutation.Amount(); !ok {
-		v := order.DefaultAmount
-		oc.mutation.SetAmount(v)
 	}
 	if _, ok := oc.mutation.ID(); !ok {
 		if order.DefaultID == nil {
@@ -827,7 +830,7 @@ func (u *OrderUpsert) UpdateOrderType() *OrderUpsert {
 }
 
 // SetRefund sets the "refund" field.
-func (u *OrderUpsert) SetRefund(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetRefund(v domain.OrderRefund) *OrderUpsert {
 	u.Set(order.FieldRefund, v)
 	return u
 }
@@ -1013,7 +1016,7 @@ func (u *OrderUpsert) ClearGuestCount() *OrderUpsert {
 }
 
 // SetStore sets the "store" field.
-func (u *OrderUpsert) SetStore(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetStore(v domain.OrderStore) *OrderUpsert {
 	u.Set(order.FieldStore, v)
 	return u
 }
@@ -1037,7 +1040,7 @@ func (u *OrderUpsert) UpdateChannel() *OrderUpsert {
 }
 
 // SetPos sets the "pos" field.
-func (u *OrderUpsert) SetPos(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetPos(v domain.OrderPOS) *OrderUpsert {
 	u.Set(order.FieldPos, v)
 	return u
 }
@@ -1049,7 +1052,7 @@ func (u *OrderUpsert) UpdatePos() *OrderUpsert {
 }
 
 // SetCashier sets the "cashier" field.
-func (u *OrderUpsert) SetCashier(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetCashier(v domain.OrderCashier) *OrderUpsert {
 	u.Set(order.FieldCashier, v)
 	return u
 }
@@ -1061,7 +1064,7 @@ func (u *OrderUpsert) UpdateCashier() *OrderUpsert {
 }
 
 // SetTaxRates sets the "tax_rates" field.
-func (u *OrderUpsert) SetTaxRates(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetTaxRates(v []domain.OrderTaxRate) *OrderUpsert {
 	u.Set(order.FieldTaxRates, v)
 	return u
 }
@@ -1079,7 +1082,7 @@ func (u *OrderUpsert) ClearTaxRates() *OrderUpsert {
 }
 
 // SetFees sets the "fees" field.
-func (u *OrderUpsert) SetFees(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetFees(v []domain.OrderFee) *OrderUpsert {
 	u.Set(order.FieldFees, v)
 	return u
 }
@@ -1097,7 +1100,7 @@ func (u *OrderUpsert) ClearFees() *OrderUpsert {
 }
 
 // SetPayments sets the "payments" field.
-func (u *OrderUpsert) SetPayments(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetPayments(v []domain.OrderPayment) *OrderUpsert {
 	u.Set(order.FieldPayments, v)
 	return u
 }
@@ -1115,7 +1118,7 @@ func (u *OrderUpsert) ClearPayments() *OrderUpsert {
 }
 
 // SetAmount sets the "amount" field.
-func (u *OrderUpsert) SetAmount(v json.RawMessage) *OrderUpsert {
+func (u *OrderUpsert) SetAmount(v domain.OrderAmount) *OrderUpsert {
 	u.Set(order.FieldAmount, v)
 	return u
 }
@@ -1282,7 +1285,7 @@ func (u *OrderUpsertOne) UpdateOrderType() *OrderUpsertOne {
 }
 
 // SetRefund sets the "refund" field.
-func (u *OrderUpsertOne) SetRefund(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetRefund(v domain.OrderRefund) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetRefund(v)
 	})
@@ -1499,7 +1502,7 @@ func (u *OrderUpsertOne) ClearGuestCount() *OrderUpsertOne {
 }
 
 // SetStore sets the "store" field.
-func (u *OrderUpsertOne) SetStore(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetStore(v domain.OrderStore) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetStore(v)
 	})
@@ -1527,7 +1530,7 @@ func (u *OrderUpsertOne) UpdateChannel() *OrderUpsertOne {
 }
 
 // SetPos sets the "pos" field.
-func (u *OrderUpsertOne) SetPos(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetPos(v domain.OrderPOS) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPos(v)
 	})
@@ -1541,7 +1544,7 @@ func (u *OrderUpsertOne) UpdatePos() *OrderUpsertOne {
 }
 
 // SetCashier sets the "cashier" field.
-func (u *OrderUpsertOne) SetCashier(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetCashier(v domain.OrderCashier) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetCashier(v)
 	})
@@ -1555,7 +1558,7 @@ func (u *OrderUpsertOne) UpdateCashier() *OrderUpsertOne {
 }
 
 // SetTaxRates sets the "tax_rates" field.
-func (u *OrderUpsertOne) SetTaxRates(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetTaxRates(v []domain.OrderTaxRate) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetTaxRates(v)
 	})
@@ -1576,7 +1579,7 @@ func (u *OrderUpsertOne) ClearTaxRates() *OrderUpsertOne {
 }
 
 // SetFees sets the "fees" field.
-func (u *OrderUpsertOne) SetFees(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetFees(v []domain.OrderFee) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetFees(v)
 	})
@@ -1597,7 +1600,7 @@ func (u *OrderUpsertOne) ClearFees() *OrderUpsertOne {
 }
 
 // SetPayments sets the "payments" field.
-func (u *OrderUpsertOne) SetPayments(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetPayments(v []domain.OrderPayment) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPayments(v)
 	})
@@ -1618,7 +1621,7 @@ func (u *OrderUpsertOne) ClearPayments() *OrderUpsertOne {
 }
 
 // SetAmount sets the "amount" field.
-func (u *OrderUpsertOne) SetAmount(v json.RawMessage) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetAmount(v domain.OrderAmount) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetAmount(v)
 	})
@@ -1954,7 +1957,7 @@ func (u *OrderUpsertBulk) UpdateOrderType() *OrderUpsertBulk {
 }
 
 // SetRefund sets the "refund" field.
-func (u *OrderUpsertBulk) SetRefund(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetRefund(v domain.OrderRefund) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetRefund(v)
 	})
@@ -2171,7 +2174,7 @@ func (u *OrderUpsertBulk) ClearGuestCount() *OrderUpsertBulk {
 }
 
 // SetStore sets the "store" field.
-func (u *OrderUpsertBulk) SetStore(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetStore(v domain.OrderStore) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetStore(v)
 	})
@@ -2199,7 +2202,7 @@ func (u *OrderUpsertBulk) UpdateChannel() *OrderUpsertBulk {
 }
 
 // SetPos sets the "pos" field.
-func (u *OrderUpsertBulk) SetPos(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetPos(v domain.OrderPOS) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPos(v)
 	})
@@ -2213,7 +2216,7 @@ func (u *OrderUpsertBulk) UpdatePos() *OrderUpsertBulk {
 }
 
 // SetCashier sets the "cashier" field.
-func (u *OrderUpsertBulk) SetCashier(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetCashier(v domain.OrderCashier) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetCashier(v)
 	})
@@ -2227,7 +2230,7 @@ func (u *OrderUpsertBulk) UpdateCashier() *OrderUpsertBulk {
 }
 
 // SetTaxRates sets the "tax_rates" field.
-func (u *OrderUpsertBulk) SetTaxRates(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetTaxRates(v []domain.OrderTaxRate) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetTaxRates(v)
 	})
@@ -2248,7 +2251,7 @@ func (u *OrderUpsertBulk) ClearTaxRates() *OrderUpsertBulk {
 }
 
 // SetFees sets the "fees" field.
-func (u *OrderUpsertBulk) SetFees(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetFees(v []domain.OrderFee) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetFees(v)
 	})
@@ -2269,7 +2272,7 @@ func (u *OrderUpsertBulk) ClearFees() *OrderUpsertBulk {
 }
 
 // SetPayments sets the "payments" field.
-func (u *OrderUpsertBulk) SetPayments(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetPayments(v []domain.OrderPayment) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPayments(v)
 	})
@@ -2290,7 +2293,7 @@ func (u *OrderUpsertBulk) ClearPayments() *OrderUpsertBulk {
 }
 
 // SetAmount sets the "amount" field.
-func (u *OrderUpsertBulk) SetAmount(v json.RawMessage) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetAmount(v domain.OrderAmount) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetAmount(v)
 	})

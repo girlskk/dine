@@ -467,7 +467,7 @@ var (
 		{Name: "paid_at", Type: field.TypeTime, Nullable: true},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "placed_by", Type: field.TypeString, Nullable: true},
-		{Name: "dining_mode", Type: field.TypeEnum, Enums: []string{"DINE_IN"}},
+		{Name: "dining_mode", Type: field.TypeEnum, Enums: []string{"DINE_IN"}, Default: "DINE_IN"},
 		{Name: "order_status", Type: field.TypeEnum, Enums: []string{"PLACED", "COMPLETED", "CANCELLED"}, Default: "PLACED"},
 		{Name: "payment_status", Type: field.TypeEnum, Enums: []string{"UNPAID", "PAYING", "PAID", "REFUNDED"}, Default: "UNPAID"},
 		{Name: "table_id", Type: field.TypeString, Nullable: true},
