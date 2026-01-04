@@ -15,8 +15,472 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/common/department": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询部门列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "部门列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "admin",
+                            "backend",
+                            "store"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "DepartmentTypeAdmin",
+                            "DepartmentBackend",
+                            "DepartmentStore"
+                        ],
+                        "name": "department_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "name": "enable",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "merchant_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentListResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "新建一个部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "创建部门",
+                "parameters": [
+                    {
+                        "description": "创建部门请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/common/department/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询指定部门详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "获取部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Department"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "修改指定部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "更新部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新部门请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "删除部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/common/department/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将部门设置为禁用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "禁用部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/common/department/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将部门设置为启用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "启用部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/business_type/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "业态列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-业态列表"
+                ],
+                "summary": "业态列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.MerchantBusinessTypeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/merchant/merchant/brand": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "创建品牌商户",
                 "consumes": [
                     "application/json"
@@ -25,7 +489,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "创建品牌商户",
                 "parameters": [
@@ -66,6 +530,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/brand/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "更新品牌商户",
                 "consumes": [
                     "application/json"
@@ -74,7 +543,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "更新品牌商户",
                 "parameters": [
@@ -120,14 +589,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/merchant/merchant/count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取商户数量统计",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-商户"
+                ],
+                "summary": "商户数量统计",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.MerchantCount"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/merchant/merchant/list": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "分页查询商户列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "商户列表",
                 "parameters": [
@@ -163,10 +680,6 @@ const docTemplate = `{
                             "MerchantTypeBrand": "品牌商户",
                             "MerchantTypeStore": "门店商户"
                         },
-                        "x-enum-descriptions": [
-                            "品牌商户",
-                            "门店商户"
-                        ],
                         "x-enum-varnames": [
                             "MerchantTypeBrand",
                             "MerchantTypeStore"
@@ -205,11 +718,6 @@ const docTemplate = `{
                             "MerchantStatusDisabled": "已禁用",
                             "MerchantStatusExpired": "已过期"
                         },
-                        "x-enum-descriptions": [
-                            "已激活",
-                            "已过期",
-                            "已禁用"
-                        ],
                         "x-enum-varnames": [
                             "MerchantStatusActive",
                             "MerchantStatusExpired",
@@ -256,6 +764,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/renewal": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "商户续费续期",
                 "consumes": [
                     "application/json"
@@ -264,7 +777,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "商户续期",
                 "parameters": [
@@ -305,6 +818,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/store": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "创建门店商户（商户 + 门店）",
                 "consumes": [
                     "application/json"
@@ -313,7 +831,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "创建门店商户",
                 "parameters": [
@@ -354,6 +872,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/store/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "更新门店商户（商户 + 门店）",
                 "consumes": [
                     "application/json"
@@ -362,7 +885,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "更新门店商户",
                 "parameters": [
@@ -410,6 +933,11 @@ const docTemplate = `{
         },
         "/merchant/merchant/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "根据商户ID获取商户信息",
                 "consumes": [
                     "application/json"
@@ -418,7 +946,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "获取商户信息",
                 "parameters": [
@@ -470,6 +998,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "删除商户",
                 "consumes": [
                     "application/json"
@@ -478,7 +1011,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
                 "summary": "删除商户",
                 "parameters": [
@@ -510,28 +1043,79 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "description": "简单字段更新（目前仅状态）",
-                "consumes": [
-                    "application/json"
+            }
+        },
+        "/merchant/merchant/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
                 ],
+                "description": "将商户状态置为禁用",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Merchant"
+                    "商户管理-商户"
                 ],
-                "summary": "商户简单更新",
+                "summary": "禁用商户",
                 "parameters": [
                     {
-                        "description": "商户简单更新请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                        "type": "string",
+                        "description": "商户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.MerchantSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/merchant/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将商户状态置为激活",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-商户"
+                ],
+                "summary": "启用商户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -561,6 +1145,11 @@ const docTemplate = `{
         },
         "/merchant/store": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "创建单个门店",
                 "consumes": [
                     "application/json"
@@ -569,7 +1158,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "创建门店",
                 "parameters": [
@@ -610,12 +1199,17 @@ const docTemplate = `{
         },
         "/merchant/store/list": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "分页查询门店列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "门店列表",
                 "parameters": [
@@ -635,10 +1229,6 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
-                        "x-enum-descriptions": [
-                            "直营",
-                            "加盟"
-                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -697,10 +1287,6 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
-                        "x-enum-descriptions": [
-                            "营业",
-                            "停业"
-                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -752,6 +1338,11 @@ const docTemplate = `{
         },
         "/merchant/store/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "根据门店ID获取门店信息",
                 "consumes": [
                     "application/json"
@@ -760,7 +1351,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "获取门店",
                 "parameters": [
@@ -812,6 +1403,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "更新单个门店",
                 "consumes": [
                     "application/json"
@@ -820,7 +1416,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "更新门店",
                 "parameters": [
@@ -866,6 +1462,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "删除单个门店",
                 "consumes": [
                     "application/json"
@@ -874,7 +1475,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
                 "summary": "删除门店",
                 "parameters": [
@@ -906,28 +1507,79 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "description": "简单字段更新（目前仅状态）",
-                "consumes": [
-                    "application/json"
+            }
+        },
+        "/merchant/store/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
                 ],
+                "description": "将门店状态置为停业",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Store"
+                    "商户管理-门店"
                 ],
-                "summary": "门店简单更新",
+                "summary": "禁用门店",
                 "parameters": [
                     {
-                        "description": "门店简单更新请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.StoreSimpleUpdateReq"
+                            "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/store/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将门店状态置为营业",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-门店"
+                ],
+                "summary": "启用门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -988,6 +1640,80 @@ const docTemplate = `{
                         "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/types.OssTokenResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/region/countries": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "地区"
+                ],
+                "summary": "获取国家/地区列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.CountryListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/region/provinces": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "地区"
+                ],
+                "summary": "获取省份列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "国家/地区ID",
+                        "name": "country_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.ProvinceListResp"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -1167,16 +1893,12 @@ const docTemplate = `{
                 "AdminUserAccountTypeNormal": "普通管理员",
                 "AdminUserAccountTypeSuperAdmin": "超级管理员"
             },
-            "x-enum-descriptions": [
-                "普通管理员",
-                "超级管理员"
-            ],
             "x-enum-varnames": [
                 "AdminUserAccountTypeNormal",
                 "AdminUserAccountTypeSuperAdmin"
             ]
         },
-        "domain.BusinessHours": {
+        "domain.BusinessHour": {
             "type": "object",
             "properties": {
                 "end_time": {
@@ -1186,6 +1908,18 @@ const docTemplate = `{
                 "start_time": {
                     "description": "开始时间，格式 HH:MM:SS",
                     "type": "string"
+                }
+            }
+        },
+        "domain.BusinessHours": {
+            "type": "object",
+            "properties": {
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHour"
+                    }
                 },
                 "weekdays": {
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
@@ -1206,13 +1940,68 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
-            "x-enum-descriptions": [
-                "直营",
-                "加盟"
-            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
+            ]
+        },
+        "domain.Country": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sort": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.Department": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "department_type": {
+                    "$ref": "#/definitions/domain.DepartmentType"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.DepartmentType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-varnames": [
+                "DepartmentTypeAdmin",
+                "DepartmentBackend",
+                "DepartmentStore"
             ]
         },
         "domain.DiningPeriod": {
@@ -1234,6 +2023,10 @@ const docTemplate = `{
         },
         "domain.Merchant": {
             "type": "object",
+            "required": [
+                "purchase_duration",
+                "purchase_duration_unit"
+            ],
             "properties": {
                 "address": {
                     "description": "地址",
@@ -1245,10 +2038,6 @@ const docTemplate = `{
                 },
                 "admin_phone_number": {
                     "description": "管理员手机号",
-                    "type": "string"
-                },
-                "admin_user_id": {
-                    "description": "登陆账号 ID",
                     "type": "string"
                 },
                 "brand_name": {
@@ -1309,6 +2098,18 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "purchase_duration": {
+                    "description": "购买时长",
+                    "type": "integer"
+                },
+                "purchase_duration_unit": {
+                    "description": "购买时长单位",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PurchaseDurationUnit"
+                        }
+                    ]
+                },
                 "status": {
                     "description": "状态: 正常,停用,过期",
                     "allOf": [
@@ -1326,20 +2127,21 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.MerchantSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "status"
-            ],
-            "x-enum-comments": {
-                "MerchantSimpleUpdateTypeStatus": "状态"
-            },
-            "x-enum-descriptions": [
-                "状态"
-            ],
-            "x-enum-varnames": [
-                "MerchantSimpleUpdateTypeStatus"
-            ]
+        "domain.MerchantBusinessType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type_code": {
+                    "description": "业态类型编码（保留字段）",
+                    "type": "string"
+                },
+                "type_name": {
+                    "description": "业态类型名称",
+                    "type": "string"
+                }
+            }
         },
         "domain.MerchantStatus": {
             "type": "string",
@@ -1353,11 +2155,6 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
-            "x-enum-descriptions": [
-                "已激活",
-                "已过期",
-                "已禁用"
-            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -1374,10 +2171,6 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
-            "x-enum-descriptions": [
-                "品牌商户",
-                "门店商户"
-            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -1403,15 +2196,6 @@ const docTemplate = `{
                 "ObjectStorageSceneReconciliationListExport": "财务对账单导出",
                 "ObjectStorageSceneStore": "门店"
             },
-            "x-enum-descriptions": [
-                "门店",
-                "商品",
-                "订单列表导出",
-                "财务对账单导出",
-                "财务对账单明细导出",
-                "积分结算单导出",
-                "积分结算单明细导出"
-            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneStore",
                 "ObjectStorageSceneProduct",
@@ -1421,6 +2205,23 @@ const docTemplate = `{
                 "ObjectStorageScenePointSettlementListExport",
                 "ObjectStorageScenePointSettlementDetailExport"
             ]
+        },
+        "domain.Province": {
+            "type": "object",
+            "properties": {
+                "country_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sort": {
+                    "type": "integer"
+                }
+            }
         },
         "domain.PurchaseDurationUnit": {
             "type": "string",
@@ -1436,12 +2237,6 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
-            "x-enum-descriptions": [
-                "日",
-                "月",
-                "年",
-                "周"
-            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -1479,10 +2274,6 @@ const docTemplate = `{
                 },
                 "admin_phone_number": {
                     "description": "管理员手机号",
-                    "type": "string"
-                },
-                "admin_user_id": {
-                    "description": "登陆账号 ID",
                     "type": "string"
                 },
                 "business_hours": {
@@ -1609,21 +2400,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.StoreSimpleUpdateType": {
-            "type": "string",
-            "enum": [
-                "status"
-            ],
-            "x-enum-comments": {
-                "StoreSimpleUpdateTypeStatus": "状态更新"
-            },
-            "x-enum-descriptions": [
-                "状态更新"
-            ],
-            "x-enum-varnames": [
-                "StoreSimpleUpdateTypeStatus"
-            ]
-        },
         "domain.StoreStatus": {
             "type": "string",
             "enum": [
@@ -1634,10 +2410,6 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
-            "x-enum-descriptions": [
-                "营业",
-                "停业"
-            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -1736,6 +2508,138 @@ const docTemplate = `{
                 "province_name": {
                     "description": "省份名称",
                     "type": "string"
+                }
+            }
+        },
+        "types.CountryListResp": {
+            "type": "object",
+            "properties": {
+                "countries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Country"
+                    }
+                }
+            }
+        },
+        "types.CreateMStoreReq": {
+            "type": "object",
+            "required": [
+                "admin_phone_number",
+                "business_hours",
+                "business_model",
+                "dining_periods",
+                "location_number",
+                "shift_times",
+                "store_name"
+            ],
+            "properties": {
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "business_model": {
+                    "description": "直营/加盟",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessModel"
+                        }
+                    ]
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
+                },
+                "status": {
+                    "description": "营业/停业",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },
@@ -1844,7 +2748,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/types.CreateMerchantReq"
                 },
                 "store": {
-                    "$ref": "#/definitions/types.CreateStoreReq"
+                    "$ref": "#/definitions/types.CreateMStoreReq"
                 }
             }
         },
@@ -1999,6 +2903,94 @@ const docTemplate = `{
                 }
             }
         },
+        "types.DepartmentCreateReq": {
+            "type": "object",
+            "required": [
+                "code",
+                "department_type",
+                "merchant_id",
+                "name",
+                "store_id"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "department_type": {
+                    "enum": [
+                        "admin",
+                        "backend",
+                        "store"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DepartmentType"
+                        }
+                    ]
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.DepartmentListResp": {
+            "type": "object",
+            "properties": {
+                "departments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Department"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.DepartmentUpdateReq": {
+            "type": "object",
+            "required": [
+                "code",
+                "department_type",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "department_type": {
+                    "enum": [
+                        "admin",
+                        "backend",
+                        "store"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DepartmentType"
+                        }
+                    ]
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                }
+            }
+        },
         "types.LoginReq": {
             "type": "object",
             "required": [
@@ -2022,6 +3014,35 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "types.MerchantBusinessTypeListResp": {
+            "type": "object",
+            "properties": {
+                "business_types": {
+                    "description": "业务类型列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.MerchantBusinessType"
+                    }
+                }
+            }
+        },
+        "types.MerchantCount": {
+            "type": "object",
+            "properties": {
+                "expired": {
+                    "description": "过期商户数量",
+                    "type": "integer"
+                },
+                "merchant_type_brand": {
+                    "description": "品牌商户数量",
+                    "type": "integer"
+                },
+                "merchant_type_store": {
+                    "description": "门店商户数量",
+                    "type": "integer"
                 }
             }
         },
@@ -2083,33 +3104,6 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/domain.PurchaseDurationUnit"
-                        }
-                    ]
-                }
-            }
-        },
-        "types.MerchantSimpleUpdateReq": {
-            "type": "object",
-            "required": [
-                "simple_update_type"
-            ],
-            "properties": {
-                "simple_update_type": {
-                    "description": "简单更新类型",
-                    "enum": [
-                        "status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MerchantSimpleUpdateType"
-                        }
-                    ]
-                },
-                "status": {
-                    "description": "状态: 正常,停用,过期",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MerchantStatus"
                         }
                     ]
                 }
@@ -2179,6 +3173,17 @@ const docTemplate = `{
                 }
             }
         },
+        "types.ProvinceListResp": {
+            "type": "object",
+            "properties": {
+                "provinces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Province"
+                    }
+                }
+            }
+        },
         "types.StoreListResp": {
             "type": "object",
             "properties": {
@@ -2195,23 +3200,78 @@ const docTemplate = `{
                 }
             }
         },
-        "types.StoreSimpleUpdateReq": {
+        "types.UpdateMStoreReq": {
             "type": "object",
             "required": [
-                "simple_update_type",
-                "status"
+                "admin_phone_number",
+                "business_hours",
+                "dining_periods",
+                "location_number",
+                "shift_times",
+                "status",
+                "store_name"
             ],
             "properties": {
-                "simple_update_type": {
-                    "description": "简单更新类型",
-                    "enum": [
-                        "status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StoreSimpleUpdateType"
-                        }
-                    ]
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
                 },
                 "status": {
                     "description": "营业/停业",
@@ -2220,6 +3280,36 @@ const docTemplate = `{
                             "$ref": "#/definitions/domain.StoreStatus"
                         }
                     ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },
@@ -2228,8 +3318,6 @@ const docTemplate = `{
             "required": [
                 "admin_phone_number",
                 "business_type_id",
-                "login_account",
-                "login_password",
                 "merchant_name"
             ],
             "properties": {
@@ -2259,14 +3347,6 @@ const docTemplate = `{
                     "description": "商户描述(保留字段)",
                     "type": "string",
                     "maxLength": 255
-                },
-                "login_account": {
-                    "description": "登录账号",
-                    "type": "string"
-                },
-                "login_password": {
-                    "description": "登录密码(加密存储)",
-                    "type": "string"
                 },
                 "merchant_code": {
                     "description": "商户编号(保留字段)",
@@ -2305,7 +3385,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/types.UpdateMerchantReq"
                 },
                 "store": {
-                    "$ref": "#/definitions/types.UpdateStoreReq"
+                    "$ref": "#/definitions/types.UpdateMStoreReq"
                 }
             }
         },
@@ -2319,7 +3399,6 @@ const docTemplate = `{
                 "business_type_id",
                 "dining_periods",
                 "location_number",
-                "login_account",
                 "login_password",
                 "shift_times",
                 "status",
@@ -2399,10 +3478,6 @@ const docTemplate = `{
                     "description": "门店位置编号",
                     "type": "string",
                     "maxLength": 255
-                },
-                "login_account": {
-                    "description": "登录账号",
-                    "type": "string"
                 },
                 "login_password": {
                     "description": "登录密码(加密存储)",

@@ -53,7 +53,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Create() {
 			Username:       "newuser",
 			HashedPassword: hashedPassword,
 			Nickname:       "新用户",
-			AccountType:    domain.AdminUserAccountTypeNormal,
 		}
 		err = s.repo.Create(s.ctx, user)
 		require.NoError(t, err)
@@ -73,7 +72,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Create() {
 			Username:       "duplicate",
 			HashedPassword: "hashed_password",
 			Nickname:       "用户1",
-			AccountType:    domain.AdminUserAccountTypeNormal,
 		}
 		err := s.repo.Create(s.ctx, user1)
 		require.NoError(t, err)
@@ -84,7 +82,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Create() {
 			Username:       "duplicate",
 			HashedPassword: "hashed_password",
 			Nickname:       "用户2",
-			AccountType:    domain.AdminUserAccountTypeNormal,
 		}
 		err = s.repo.Create(s.ctx, user2)
 		require.Error(t, err)
@@ -191,7 +188,6 @@ func (s *AdminUserTestSuite) TestAdminUser_Integration() {
 			Username:       "integration",
 			HashedPassword: "password",
 			Nickname:       "集成测试用户",
-			AccountType:    domain.AdminUserAccountTypeNormal,
 		}
 		err := s.repo.Create(s.ctx, user)
 		require.NoError(t, err)

@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// AdditionalFee is the predicate function for additionalfee builders.
+type AdditionalFee func(*sql.Selector)
+
 // AdminUser is the predicate function for adminuser builders.
 type AdminUser func(*sql.Selector)
 
@@ -20,6 +23,12 @@ type City func(*sql.Selector)
 
 // Country is the predicate function for country builders.
 type Country func(*sql.Selector)
+
+// Department is the predicate function for department builders.
+type Department func(*sql.Selector)
+
+// Device is the predicate function for device builders.
+type Device func(*sql.Selector)
 
 // District is the predicate function for district builders.
 type District func(*sql.Selector)
@@ -78,11 +87,23 @@ type Remark func(*sql.Selector)
 // RemarkCategory is the predicate function for remarkcategory builders.
 type RemarkCategory func(*sql.Selector)
 
+// Role is the predicate function for role builders.
+type Role func(*sql.Selector)
+
 // SetMealDetail is the predicate function for setmealdetail builders.
 type SetMealDetail func(*sql.Selector)
 
 // SetMealGroup is the predicate function for setmealgroup builders.
 type SetMealGroup func(*sql.Selector)
 
+// Stall is the predicate function for stall builders.
+type Stall func(*sql.Selector)
+
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)
+
+// StoreUser is the predicate function for storeuser builders.
+type StoreUser func(*sql.Selector)
+
+// TaxFee is the predicate function for taxfee builders.
+type TaxFee func(*sql.Selector)

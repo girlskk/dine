@@ -354,3 +354,4 @@ func (mr *MockDataStoreMockRecorder) StoreUserRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreUserRepo", reflect.TypeOf((*MockDataStore)(nil).StoreUserRepo))
 }
+

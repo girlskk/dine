@@ -29,8 +29,8 @@ type StoreUser struct {
 	Username       string    `json:"username"`
 	HashedPassword string    `json:"-"`
 	Nickname       string    `json:"nickname"`
-	MerchantID     uuid.UUID `json:"merchant_id"` // 品牌商ID
-	StoreID        uuid.UUID `json:"store_id"`    // 门店ID
+	MerchantID     uuid.UUID `json:"merchant_id"`
+	StoreID        uuid.UUID `json:"store_id"` // 门店ID
 
 	// 关联数据
 	Store *Store `json:"store,omitempty"` // 所属门店

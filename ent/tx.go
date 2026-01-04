@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// AdditionalFee is the client for interacting with the AdditionalFee builders.
+	AdditionalFee *AdditionalFeeClient
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
 	// BackendUser is the client for interacting with the BackendUser builders.
@@ -22,6 +24,10 @@ type Tx struct {
 	City *CityClient
 	// Country is the client for interacting with the Country builders.
 	Country *CountryClient
+	// Department is the client for interacting with the Department builders.
+	Department *DepartmentClient
+	// Device is the client for interacting with the Device builders.
+	Device *DeviceClient
 	// District is the client for interacting with the District builders.
 	District *DistrictClient
 	// Menu is the client for interacting with the Menu builders.
@@ -60,12 +66,20 @@ type Tx struct {
 	Remark *RemarkClient
 	// RemarkCategory is the client for interacting with the RemarkCategory builders.
 	RemarkCategory *RemarkCategoryClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
 	// SetMealDetail is the client for interacting with the SetMealDetail builders.
 	SetMealDetail *SetMealDetailClient
 	// SetMealGroup is the client for interacting with the SetMealGroup builders.
 	SetMealGroup *SetMealGroupClient
+	// Stall is the client for interacting with the Stall builders.
+	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
+	// StoreUser is the client for interacting with the StoreUser builders.
+	StoreUser *StoreUserClient
+	// TaxFee is the client for interacting with the TaxFee builders.
+	TaxFee *TaxFeeClient
 
 	// lazily loaded.
 	client     *Client
@@ -197,11 +211,14 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.AdditionalFee = NewAdditionalFeeClient(tx.config)
 	tx.AdminUser = NewAdminUserClient(tx.config)
 	tx.BackendUser = NewBackendUserClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
 	tx.City = NewCityClient(tx.config)
 	tx.Country = NewCountryClient(tx.config)
+	tx.Department = NewDepartmentClient(tx.config)
+	tx.Device = NewDeviceClient(tx.config)
 	tx.District = NewDistrictClient(tx.config)
 	tx.Menu = NewMenuClient(tx.config)
 	tx.MenuItem = NewMenuItemClient(tx.config)
@@ -221,9 +238,13 @@ func (tx *Tx) init() {
 	tx.Province = NewProvinceClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
 	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
 	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
+	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
+	tx.StoreUser = NewStoreUserClient(tx.config)
+	tx.TaxFee = NewTaxFeeClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -233,7 +254,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: AdminUser.QueryXXX(), the query will be executed
+// applies a query, for example: AdditionalFee.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

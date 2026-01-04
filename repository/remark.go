@@ -24,19 +24,21 @@ func NewRemarkRepository(client *ent.Client) *RemarkRepository {
 	return &RemarkRepository{Client: client}
 }
 
-func (repo *RemarkRepository) FindByID(ctx context.Context, id uuid.UUID) (res *domain.Remark, err error) {
+func (repo *RemarkRepository) FindByID(ctx context.Context, id uuid.UUID) (domainRemark *domain.Remark, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkRepository.FindByID")
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	er, err := repo.Client.Remark.Get(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, domain.NotFoundError(domain.ErrRemarkNotExists)
+			err = domain.NotFoundError(domain.ErrRemarkNotExists)
+			return
 		}
-		return nil, err
+		err = fmt.Errorf("failed to query Remark: %w", err)
+		return
 	}
-	res = convertRemarkToDomain(er)
-	return res, nil
+	domainRemark = convertRemarkToDomain(er)
+	return domainRemark, nil
 }
 
 func (repo *RemarkRepository) Create(ctx context.Context, remark *domain.Remark) (err error) {
@@ -46,20 +48,30 @@ func (repo *RemarkRepository) Create(ctx context.Context, remark *domain.Remark)
 		return fmt.Errorf("remark is nil")
 	}
 
-	_, err = repo.Client.Remark.Create().
+	builder := repo.Client.Remark.Create().
 		SetID(remark.ID).
 		SetName(remark.Name).
 		SetRemarkType(remark.RemarkType).
 		SetEnabled(remark.Enabled).
 		SetSortOrder(remark.SortOrder).
-		SetCategoryID(remark.CategoryID).
-		SetMerchantID(remark.MerchantID).
-		SetStoreID(remark.StoreID).
-		Save(ctx)
+		SetCategoryID(remark.CategoryID)
+
+	if remark.MerchantID == uuid.Nil && remark.RemarkType == domain.RemarkTypeBrand {
+		return fmt.Errorf("merchant ID is required for brand remark")
+	}
+	if remark.MerchantID != uuid.Nil {
+		builder = builder.SetMerchantID(remark.MerchantID)
+	}
+	if remark.StoreID != uuid.Nil {
+		builder = builder.SetStoreID(remark.StoreID)
+	}
+	created, err := builder.Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create remark: %w", err)
-		return err
+		return
 	}
+	remark.ID = created.ID
+	remark.CreatedAt = created.CreatedAt
 	return
 }
 
@@ -70,23 +82,21 @@ func (repo *RemarkRepository) Update(ctx context.Context, remark *domain.Remark)
 		return fmt.Errorf("remark is nil")
 	}
 
-	_, err = repo.Client.Remark.UpdateOneID(remark.ID).
+	builder := repo.Client.Remark.UpdateOneID(remark.ID).
 		SetName(remark.Name).
-		SetRemarkType(remark.RemarkType).
 		SetEnabled(remark.Enabled).
-		SetSortOrder(remark.SortOrder).
-		SetCategoryID(remark.CategoryID).
-		SetMerchantID(remark.MerchantID).
-		SetStoreID(remark.StoreID).
-		Save(ctx)
+		SetSortOrder(remark.SortOrder)
+	updated, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to update remark: %w", err)
 		return err
 	}
 
+	remark.UpdatedAt = updated.UpdatedAt
 	return nil
 }
 
@@ -98,6 +108,7 @@ func (repo *RemarkRepository) Delete(ctx context.Context, id uuid.UUID) (err err
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to delete remark: %w", err)
 		return
@@ -109,6 +120,18 @@ func (repo *RemarkRepository) GetRemarks(ctx context.Context, pager *upagination
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkRepository.GetRemarks")
 	defer func() { util.SpanErrFinish(span, err) }()
 
+	if pager == nil {
+		err = fmt.Errorf("pager is nil")
+		return
+	}
+	if filter == nil {
+		err = fmt.Errorf("filter is nil")
+		return
+	}
+	if filter.StoreID != uuid.Nil && filter.MerchantID == uuid.Nil {
+		err = fmt.Errorf("merchant ID is required when store ID is provided")
+		return
+	}
 	query := repo.filterBuildQuery(filter)
 
 	total, err = query.Clone().Count(ctx)
@@ -130,11 +153,64 @@ func (repo *RemarkRepository) GetRemarks(ctx context.Context, pager *upagination
 	return
 }
 
+func (repo *RemarkRepository) CountRemarkByCategories(ctx context.Context, params domain.CountRemarkParams) (countRemark map[uuid.UUID]int, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "RemarkRepository.CountRemarkByCategories")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	if params.StoreID != uuid.Nil && params.MerchantID == uuid.Nil {
+		err = fmt.Errorf("merchant ID is required when store ID is provided")
+		return
+	}
+
+	countRemark = make(map[uuid.UUID]int)
+	if len(params.CategoryIDs) == 0 {
+		return countRemark, nil
+	}
+
+	type result struct {
+		CategoryID uuid.UUID `json:"category_id"`
+		Count      int       `json:"count"`
+	}
+	var results []result
+	builder := repo.Client.Remark.Query().
+		Where(remark.CategoryIDIn(params.CategoryIDs...))
+	if params.RemarkType != "" {
+		if params.RemarkType != "" {
+			if params.MerchantID != uuid.Nil && params.StoreID != uuid.Nil {
+			}
+			if params.MerchantID != uuid.Nil && params.StoreID == uuid.Nil {
+			}
+			if params.MerchantID == uuid.Nil && params.StoreID == uuid.Nil {
+				builder = builder.Where(remark.RemarkTypeEQ(params.RemarkType))
+			}
+		}
+	}
+
+	builder = repo.convertMerchantIDFilter(params.RemarkType, params.MerchantID, builder)
+	builder = repo.convertStoreIDFilter(params.RemarkType, params.StoreID, builder)
+
+	err = builder.
+		GroupBy(remark.FieldCategoryID).
+		Aggregate(ent.Count()).
+		Scan(ctx, &results)
+	if err != nil {
+		err = fmt.Errorf("failed to count remarks by categories: %w", err)
+		return
+	}
+	countRemark = lo.SliceToMap(results, func(item result) (uuid.UUID, int) {
+		return item.CategoryID, item.Count
+	})
+	return
+}
+
 func (repo *RemarkRepository) Exists(ctx context.Context, params domain.RemarkExistsParams) (exists bool, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkRepository.Exists")
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	query := repo.Client.Remark.Query()
+	if params.RemarkType != "" {
+		query = query.Where(remark.RemarkTypeEQ(params.RemarkType))
+	}
 	if params.CategoryID != uuid.Nil {
 		query = query.Where(remark.CategoryID(params.CategoryID))
 	}
@@ -179,24 +255,72 @@ func convertRemarkToDomain(er *ent.Remark) *domain.Remark {
 func (repo *RemarkRepository) filterBuildQuery(filter *domain.RemarkListFilter) *ent.RemarkQuery {
 	query := repo.Client.Remark.Query()
 
+	query = repo.convertMerchantIDFilter(filter.RemarkType, filter.MerchantID, query)
+	query = repo.convertStoreIDFilter(filter.RemarkType, filter.StoreID, query)
+
 	if filter.CategoryID != uuid.Nil {
 		query = query.Where(remark.CategoryID(filter.CategoryID))
-	}
-	if filter.MerchantID != uuid.Nil {
-		query = query.Where(remark.MerchantIDIn(filter.MerchantID, uuid.Nil)) // include both brand and system remarks
-	}
-	if filter.StoreID != uuid.Nil {
-		query = query.Where(remark.StoreID(filter.StoreID))
 	}
 	if filter.Enabled != nil {
 		query = query.Where(remark.EnabledEQ(*filter.Enabled))
 	}
 	if filter.RemarkType != "" {
-		query = query.Where(remark.RemarkTypeEQ(filter.RemarkType))
+		if filter.MerchantID != uuid.Nil && filter.StoreID != uuid.Nil {
+		}
+		if filter.MerchantID != uuid.Nil && filter.StoreID == uuid.Nil {
+		}
+		if filter.MerchantID == uuid.Nil && filter.StoreID == uuid.Nil {
+			query = query.Where(remark.RemarkTypeEQ(filter.RemarkType))
+		}
 	}
 	return query
 }
 
+// 根据merchant ID的查询时 可查询出系统的备注
+// 系统备注只查询系统级别的备注
+// 品牌备注查询品牌和系统级别的备注
+// 门店备注查询门店所属品牌和系统级别的备注
+// Remark Type为空时只查询当前商户的备注
+// convertMerchantIDFilter 系统备注只查询系统级别的备注
+func (repo *RemarkRepository) convertMerchantIDFilter(remarkType domain.RemarkType, merchantID uuid.UUID, query *ent.RemarkQuery) *ent.RemarkQuery {
+	if merchantID != uuid.Nil {
+		switch remarkType {
+		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
+			query = query.Where(remark.Or(remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
+			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+		case domain.RemarkTypeStore: // 门店备注查询门店所属品牌和系统级别的备注
+			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+		default:
+			// Remark Type为空时只查询当前商户的备注
+			query = query.Where(remark.MerchantID(merchantID))
+
+		}
+	}
+	return query
+}
+
+// 根据store ID的查询时 可查询出系统和品牌的备注
+// 系统备注只查询系统级别的备注
+// 品牌备注查询品牌和系统级别的备注
+// 门店备注查询门店和系统级别的备注
+// Remark Type为空时只查询当前门店的备注
+// convertStoreIDFilter 系统备注只查询系统级别的备注
+func (repo *RemarkRepository) convertStoreIDFilter(remarkType domain.RemarkType, storeID uuid.UUID, query *ent.RemarkQuery) *ent.RemarkQuery {
+	if storeID != uuid.Nil {
+		switch remarkType {
+		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
+			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
+			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+		case domain.RemarkTypeStore: // 门店备注查询门店和系统级别的备注
+			query = query.Where(remark.Or(remark.StoreID(storeID), remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+		default: // Remark Type为空时只查询当前门店的备注
+			query = query.Where(remark.StoreID(storeID))
+		}
+	}
+	return query
+}
 func (repo *RemarkRepository) orderBy(orderBys ...domain.RemarkOrderBy) []remark.OrderOption {
 	var opts []remark.OrderOption
 	for _, orderBy := range orderBys {

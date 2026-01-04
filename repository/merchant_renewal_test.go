@@ -39,6 +39,24 @@ type renewalLocation struct {
 	districtName string
 }
 
+func (s *MerchantRenewalRepositoryTestSuite) createBackendUser(username string, merchantID uuid.UUID) *ent.BackendUser {
+	return s.client.BackendUser.Create().
+		SetUsername(username).
+		SetHashedPassword("hashed").
+		SetNickname("backend-user").
+		SetMerchantID(merchantID).
+		SaveX(s.ctx)
+}
+
+func (s *MerchantRenewalRepositoryTestSuite) createStoreUser(username string, merchantID, storeID uuid.UUID, storeUserID uuid.UUID) *ent.StoreUser {
+	return s.client.StoreUser.Create().SetID(storeUserID).
+		SetUsername(username).
+		SetHashedPassword("hashed").
+		SetNickname("store-user").
+		SetStoreID(storeID).
+		SaveX(s.ctx)
+}
+
 func (s *MerchantRenewalRepositoryTestSuite) createAdminUser(tag string) *ent.AdminUser {
 	return s.client.AdminUser.Create().
 		SetUsername("admin-" + tag).
@@ -97,15 +115,16 @@ func (s *MerchantRenewalRepositoryTestSuite) createLocation(tag string) renewalL
 	}
 }
 
-func (s *MerchantRenewalRepositoryTestSuite) createMerchant(tag string) (*ent.Merchant, *ent.MerchantBusinessType, *ent.AdminUser) {
+func (s *MerchantRenewalRepositoryTestSuite) createMerchant(tag string) (*ent.Merchant, *ent.MerchantBusinessType, *ent.BackendUser) {
 	loc := s.createLocation(tag)
-	admin := s.createAdminUser(tag)
 	businessType := s.createBusinessType(tag)
 
 	short := tag
 	if len(short) > 8 {
 		short = short[:8]
 	}
+	merchantID := uuid.New()
+	backendUser := s.createBackendUser("backend-user", merchantID)
 
 	merchant := s.client.Merchant.Create().
 		SetMerchantCode("MC-" + short).
@@ -119,7 +138,7 @@ func (s *MerchantRenewalRepositoryTestSuite) createMerchant(tag string) (*ent.Me
 		SetStatus(domain.MerchantStatusActive).
 		SetBusinessTypeID(businessType.ID).
 		SetMerchantBusinessType(businessType).
-		SetAdminUser(admin).
+		SetSuperAccount(backendUser.Username).
 		SetCountryID(loc.countryID).
 		SetProvinceID(loc.provinceID).
 		SetCityID(loc.cityID).
@@ -129,7 +148,7 @@ func (s *MerchantRenewalRepositoryTestSuite) createMerchant(tag string) (*ent.Me
 		SetLat("30.00").
 		SaveX(s.ctx)
 
-	return merchant, businessType, admin
+	return merchant, businessType, backendUser
 }
 
 func (s *MerchantRenewalRepositoryTestSuite) newRenewal(tag string, merchantID uuid.UUID) *domain.MerchantRenewal {

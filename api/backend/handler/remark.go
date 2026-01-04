@@ -31,13 +31,14 @@ func (h *RemarkHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
-	r.GET("", h.GetRemarks())
-	r.PATCH("/:id", h.RemarkSimpleUpdate())
+	r.GET("", h.List())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 // Create 创建备注
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		创建备注
 //	@Description	创建备注
@@ -63,14 +64,13 @@ func (h *RemarkHandler) Create() gin.HandlerFunc {
 		}
 
 		user := domain.FromBackendUserContext(ctx)
-		remark := &domain.Remark{
+		remark := &domain.CreateRemarkParams{
 			Name:       req.Name,
-			RemarkType: req.RemarkType,
+			RemarkType: domain.RemarkTypeBrand,
 			Enabled:    req.Enabled,
 			SortOrder:  req.SortOrder,
 			CategoryID: req.CategoryID,
 			MerchantID: user.MerchantID,
-			StoreID:    req.StoreID,
 		}
 
 		if err := h.RemarkInteractor.Create(ctx, remark); err != nil {
@@ -93,7 +93,7 @@ func (h *RemarkHandler) Create() gin.HandlerFunc {
 
 // Update 更新备注
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		更新备注
 //	@Description	更新备注
@@ -125,16 +125,11 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
-		remark := &domain.Remark{
-			ID:         id,
-			Name:       req.Name,
-			RemarkType: req.RemarkType,
-			Enabled:    req.Enabled,
-			SortOrder:  req.SortOrder,
-			CategoryID: req.CategoryID,
-			MerchantID: user.MerchantID,
-			StoreID:    req.StoreID,
+		remark := &domain.UpdateRemarkParams{
+			ID:        id,
+			Name:      req.Name,
+			Enabled:   req.Enabled,
+			SortOrder: req.SortOrder,
 		}
 
 		if err := h.RemarkInteractor.Update(ctx, remark); err != nil {
@@ -157,7 +152,7 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 
 // Delete 删除备注
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		删除备注
 //	@Description	删除备注
@@ -205,7 +200,7 @@ func (h *RemarkHandler) Delete() gin.HandlerFunc {
 
 // Get 获取备注详情
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		获取备注详情
 //	@Description	根据备注ID获取详情
@@ -243,9 +238,9 @@ func (h *RemarkHandler) Get() gin.HandlerFunc {
 	}
 }
 
-// GetRemarks 获取备注列表
+// List 获取备注列表
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
 //	@Summary		获取备注列表
 //	@Description	分页查询备注列表
@@ -254,10 +249,10 @@ func (h *RemarkHandler) Get() gin.HandlerFunc {
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
 //	@Router			/remark [get]
-func (h *RemarkHandler) GetRemarks() gin.HandlerFunc {
+func (h *RemarkHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("RemarkHandler.GetRemarks")
+		logger := logging.FromContext(ctx).Named("RemarkHandler.List")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -274,7 +269,7 @@ func (h *RemarkHandler) GetRemarks() gin.HandlerFunc {
 			MerchantID: user.MerchantID,
 			StoreID:    req.StoreID,
 			Enabled:    req.Enabled,
-			RemarkType: req.RemarkType,
+			RemarkType: domain.RemarkTypeBrand,
 		}
 
 		remarks, total, err := h.RemarkInteractor.GetRemarks(ctx, pager, filter, domain.NewRemarkOrderByCreatedAt(true))
@@ -291,25 +286,23 @@ func (h *RemarkHandler) GetRemarks() gin.HandlerFunc {
 	}
 }
 
-// RemarkSimpleUpdate 快速切换启用状态
+// Enable 启用备注
 //
-//	@Tags			备注
+//	@Tags			前厅管理
 //	@Security		BearerAuth
-//	@Summary		快速切换启用状态
-//	@Description	快速切换启用状态
-//	@Accept			json
+//	@Summary		启用备注
+//	@Description	将备注置为启用
 //	@Produce		json
-//	@Param			id		path	string						true	"备注ID"
-//	@Param			data	body	types.RemarkSimpleUpdateReq	true	"请求信息"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
-//	@Router			/remark/{id} [patch]
-func (h *RemarkHandler) RemarkSimpleUpdate() gin.HandlerFunc {
+//	@Param			id	path	string	true	"备注ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/remark/{id}/enable [put]
+func (h *RemarkHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("RemarkHandler.RemarkSimpleUpdate")
+		logger := logging.FromContext(ctx).Named("RemarkHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -319,14 +312,53 @@ func (h *RemarkHandler) RemarkSimpleUpdate() gin.HandlerFunc {
 			return
 		}
 
-		var req types.RemarkSimpleUpdateReq
-		if err := c.ShouldBind(&req); err != nil {
+		remark := &domain.Remark{ID: id, Enabled: true}
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateTypeEnabled, remark); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to toggle enabled: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用备注
+//
+//	@Tags			前厅管理
+//	@Security		BearerAuth
+//	@Summary		禁用备注
+//	@Description	将备注置为禁用
+//	@Produce		json
+//	@Param			id	path	string	true	"备注ID"
+//	@Success		200	"No Content"
+//	@Failure		400	{object}	response.Response
+//	@Failure		404	{object}	response.Response
+//	@Failure		500	{object}	response.Response
+//	@Router			/remark/{id}/disable [put]
+func (h *RemarkHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("RemarkHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		remark := &domain.Remark{ID: id, Enabled: req.Enabled}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, req.SimpleUpdateType, remark); err != nil {
+		remark := &domain.Remark{ID: id, Enabled: false}
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateTypeEnabled, remark); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

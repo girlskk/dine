@@ -17,7 +17,7 @@ type RemarkInteractor struct {
 	DataStore domain.DataStore
 }
 
-func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.Remark) (err error) {
+func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.CreateRemarkParams) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.Create")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -25,13 +25,21 @@ func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.R
 		return domain.ParamsError(errors.New("remark is required"))
 	}
 
-	err = interactor.checkExists(ctx, remark)
+	domainRemark := &domain.Remark{
+		Name:       remark.Name,
+		Enabled:    remark.Enabled,
+		SortOrder:  remark.SortOrder,
+		CategoryID: remark.CategoryID,
+		MerchantID: remark.MerchantID,
+		StoreID:    remark.StoreID,
+	}
+
+	err = interactor.checkExists(ctx, domainRemark)
 	if err != nil {
 		return
 	}
-
-	remark.ID = uuid.New()
-	err = interactor.DataStore.RemarkRepo().Create(ctx, remark)
+	domainRemark.ID = uuid.New()
+	err = interactor.DataStore.RemarkRepo().Create(ctx, domainRemark)
 	if err != nil {
 		err = fmt.Errorf("failed to create remark: %w", err)
 		return
@@ -39,7 +47,7 @@ func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.R
 	return
 }
 
-func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.Remark) (err error) {
+func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.UpdateRemarkParams) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.Update")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -47,14 +55,30 @@ func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.R
 		return domain.ParamsError(errors.New("remark is required"))
 	}
 
-	err = interactor.checkExists(ctx, remark)
+	oldRemark, err := interactor.DataStore.RemarkRepo().FindByID(ctx, remark.ID)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrRemarkNotExists)
+		}
+		return fmt.Errorf("failed to fetch remark: %w", err)
+	}
+	domainRemark := &domain.Remark{
+		ID:         remark.ID,
+		Name:       remark.Name,
+		Enabled:    remark.Enabled,
+		SortOrder:  remark.SortOrder,
+		RemarkType: oldRemark.RemarkType,
+		CategoryID: oldRemark.CategoryID,
+		MerchantID: oldRemark.MerchantID,
+		StoreID:    oldRemark.StoreID,
+	}
+	err = interactor.checkExists(ctx, domainRemark)
 	if err != nil {
 		return
 	}
-	err = interactor.DataStore.RemarkRepo().Update(ctx, remark)
+	err = interactor.DataStore.RemarkRepo().Update(ctx, domainRemark)
 	if err != nil {
-		err = fmt.Errorf("failed to update remark: %w", err)
-		return
+		return fmt.Errorf("failed to update remark: %w", err)
 	}
 	return
 }
@@ -72,8 +96,7 @@ func (interactor *RemarkInteractor) Delete(ctx context.Context, id uuid.UUID) (e
 		return
 	}
 	if remark.RemarkType == domain.RemarkTypeSystem {
-		// todo 调整返回的错误类型
-		err = domain.ConflictError(domain.ErrRemarkDeleteSystem)
+		err = domain.ErrRemarkDeleteSystem
 		return
 	}
 	err = interactor.DataStore.RemarkRepo().Delete(ctx, id)
@@ -91,7 +114,8 @@ func (interactor *RemarkInteractor) GetRemark(ctx context.Context, id uuid.UUID)
 	remark, err = interactor.DataStore.RemarkRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-			return nil, domain.ParamsError(domain.ErrRemarkNotExists)
+			err = domain.ParamsError(domain.ErrRemarkNotExists)
+			return
 		}
 		err = fmt.Errorf("failed to get remark: %w", err)
 		return
@@ -102,7 +126,9 @@ func (interactor *RemarkInteractor) GetRemark(ctx context.Context, id uuid.UUID)
 func (interactor *RemarkInteractor) GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *domain.RemarkListFilter, orderBys ...domain.RemarkOrderBy) (remarks domain.Remarks, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.GetRemarks")
 	defer func() { util.SpanErrFinish(span, err) }()
-
+	if filter == nil {
+		err = domain.ParamsError(errors.New("filter is required"))
+	}
 	remarks, total, err = interactor.DataStore.RemarkRepo().GetRemarks(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to list remarks: %w", err)
@@ -161,8 +187,11 @@ func (interactor *RemarkInteractor) checkExists(ctx context.Context, remark *dom
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	filter := domain.RemarkExistsParams{
+		RemarkType: remark.RemarkType,
 		Name:       remark.Name,
+		CategoryID: remark.CategoryID,
 		MerchantID: remark.MerchantID,
+		StoreID:    remark.StoreID,
 		ExcludeID:  remark.ID,
 	}
 	exists, err := interactor.DataStore.RemarkRepo().Exists(ctx, filter)

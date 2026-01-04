@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -41,14 +42,15 @@ func (s *MerchantRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *MerchantRepositoryTestSuite) createAdminUser(username string) *ent.AdminUser {
+func (s *MerchantRepositoryTestSuite) createBackendUser(username string, merchantID uuid.UUID) *ent.BackendUser {
 	hashedPassword, err := util.HashPassword("123456")
 	require.NoError(s.T(), err)
 
-	return s.client.AdminUser.Create().
+	return s.client.BackendUser.Create().
 		SetUsername(username).
 		SetHashedPassword(hashedPassword).
 		SetNickname("测试管理员").
+		SetMerchantID(merchantID).
 		SaveX(s.ctx)
 }
 
@@ -98,13 +100,14 @@ func (s *MerchantRepositoryTestSuite) createLocation(tag string) locationInfo {
 	}
 }
 
-func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.MerchantStatus, merchantType domain.MerchantType, expire *time.Time) (*domain.Merchant, locationInfo, *ent.MerchantBusinessType, *ent.AdminUser) {
+func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.MerchantStatus, merchantType domain.MerchantType, expire *time.Time) (*domain.Merchant, locationInfo, *ent.MerchantBusinessType) {
 	loc := s.createLocation(tag)
-	admin := s.createAdminUser("admin-" + tag)
+	merchantID := uuid.New()
 	businessType := s.createBusinessType("bt-code-"+tag, "业态-"+tag)
+	loginAccount := "account-" + tag
 
 	merchant := &domain.Merchant{
-		ID:                uuid.New(),
+		ID:                merchantID,
 		MerchantCode:      "MC-" + tag,
 		MerchantName:      "商户-" + tag,
 		MerchantShortName: "简称-" + tag,
@@ -116,7 +119,8 @@ func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.Merc
 		MerchantLogo:      "logo-" + tag,
 		Description:       "描述-" + tag,
 		Status:            status,
-		AdminUserID:       admin.ID,
+		LoginAccount:      loginAccount,
+		LoginPassword:     "pwd-" + tag,
 		Address: &domain.Address{
 			CountryID:  loc.countryID,
 			ProvinceID: loc.provinceID,
@@ -128,19 +132,18 @@ func (s *MerchantRepositoryTestSuite) newMerchant(tag string, status domain.Merc
 		},
 	}
 
-	return merchant, loc, businessType, admin
+	return merchant, loc, businessType
 }
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
 		expire := time.Now().UTC().Add(48 * time.Hour)
-		merchant, _, businessType, admin := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeBrand, &expire)
+		merchant, _, businessType := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeBrand, &expire)
 
 		err := s.repo.Create(s.ctx, merchant)
 		require.NoError(t, err)
 
 		saved := s.client.Merchant.Query().
-			WithAdminUser().
 			WithMerchantBusinessType().
 			OnlyX(s.ctx)
 
@@ -148,7 +151,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Create() {
 		require.Equal(t, merchant.MerchantShortName, saved.MerchantShortName)
 		require.Equal(t, merchant.Status, saved.Status)
 		require.Equal(t, businessType.ID, saved.BusinessTypeID)
-		require.Equal(t, admin.ID, saved.AdminUserID)
+		require.Equal(t, merchant.LoginAccount, saved.SuperAccount)
 	})
 
 	s.T().Run("参数为空", func(t *testing.T) {
@@ -159,7 +162,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Create() {
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_Update() {
 	tag := uuid.NewString()
-	merchant, _, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+	merchant, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
 	require.NoError(s.T(), s.repo.Create(s.ctx, merchant))
 
 	newBusinessType := s.createBusinessType("bt-new-"+tag, "新业态-"+tag)
@@ -186,7 +189,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Update() {
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
 		missingTag := uuid.NewString()
-		missingMerchant, _, _, _ := s.newMerchant(missingTag, domain.MerchantStatusActive, domain.MerchantTypeStore, nil)
+		missingMerchant, _, _ := s.newMerchant(missingTag, domain.MerchantStatusActive, domain.MerchantTypeStore, nil)
 		err := s.repo.Update(s.ctx, missingMerchant)
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
@@ -194,7 +197,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Update() {
 
 	s.T().Run("地址为空不应panic", func(t *testing.T) {
 		tag := uuid.NewString()
-		merchantNoAddr, _, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+		merchantNoAddr, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
 		require.NoError(t, s.repo.Create(s.ctx, merchantNoAddr))
 
 		merchantNoAddr.Address = nil
@@ -205,11 +208,16 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Update() {
 		updated := s.client.Merchant.GetX(s.ctx, merchantNoAddr.ID)
 		require.Equal(t, merchantNoAddr.MerchantName, updated.MerchantName)
 	})
+
+	s.T().Run("参数为nil", func(t *testing.T) {
+		err := s.repo.Update(s.ctx, nil)
+		require.Error(t, err)
+	})
 }
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_Delete() {
 	tag := uuid.NewString()
-	merchant, _, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+	merchant, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
 	require.NoError(s.T(), s.repo.Create(s.ctx, merchant))
 
 	s.T().Run("正常删除", func(t *testing.T) {
@@ -230,7 +238,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_Delete() {
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_FindByID() {
 	tag := uuid.NewString()
-	merchant, loc, businessType, admin := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+	merchant, loc, businessType := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
 	require.NoError(s.T(), s.repo.Create(s.ctx, merchant))
 
 	s.T().Run("查询成功", func(t *testing.T) {
@@ -240,8 +248,7 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_FindByID() {
 		require.Equal(t, merchant.ID, found.ID)
 		require.Equal(t, merchant.MerchantName, found.MerchantName)
 		require.Equal(t, businessType.TypeName, found.BusinessTypeName)
-		require.Equal(t, admin.Username, found.LoginAccount)
-		require.Equal(t, admin.HashedPassword, found.LoginPassword)
+		require.Equal(t, merchant.LoginAccount, found.LoginAccount)
 		require.Equal(t, loc.countryName, found.Address.CountryName)
 		require.Equal(t, loc.provinceName, found.Address.ProvinceName)
 		require.Equal(t, loc.cityName, found.Address.CityName)
@@ -257,11 +264,11 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_FindByID() {
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_GetMerchants() {
 	activeTag := uuid.NewString()
-	activeMerchant, _, _, _ := s.newMerchant(activeTag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+	activeMerchant, _, _ := s.newMerchant(activeTag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
 	require.NoError(s.T(), s.repo.Create(s.ctx, activeMerchant))
 
 	disabledTag := uuid.NewString()
-	disabledMerchant, _, _, _ := s.newMerchant(disabledTag, domain.MerchantStatusDisabled, domain.MerchantTypeStore, nil)
+	disabledMerchant, _, _ := s.newMerchant(disabledTag, domain.MerchantStatusDisabled, domain.MerchantTypeStore, nil)
 	require.NoError(s.T(), s.repo.Create(s.ctx, disabledMerchant))
 
 	s.T().Run("正常分页查询", func(t *testing.T) {
@@ -284,14 +291,55 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_GetMerchants() {
 	})
 }
 
+func (s *MerchantRepositoryTestSuite) TestMerchant_GetMerchants_OrderAndFilters() {
+	olderTag := uuid.NewString()
+	older, _, _ := s.newMerchant(olderTag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+	older.AdminPhoneNumber = "13900000001"
+	require.NoError(s.T(), s.repo.Create(s.ctx, older))
+
+	time.Sleep(10 * time.Millisecond)
+
+	newerTag := uuid.NewString()
+	newer, _, _ := s.newMerchant(newerTag, domain.MerchantStatusActive, domain.MerchantTypeStore, nil)
+	newer.AdminPhoneNumber = "13900000002"
+	require.NoError(s.T(), s.repo.Create(s.ctx, newer))
+
+	s.T().Run("默认按创建时间倒序", func(t *testing.T) {
+		pager := upagination.New(1, 10)
+		filter := &domain.MerchantListFilter{}
+
+		merchants, total, err := s.repo.GetMerchants(s.ctx, pager, filter)
+		require.NoError(t, err)
+		require.Equal(t, 2, total)
+		require.Len(t, merchants, 2)
+		require.Equal(t, newer.ID, merchants[0].ID)
+		require.Equal(t, older.ID, merchants[1].ID)
+	})
+
+	s.T().Run("按名称和手机号过滤", func(t *testing.T) {
+		pager := upagination.New(1, 10)
+		filter := &domain.MerchantListFilter{
+			MerchantName:     older.MerchantName,
+			AdminPhoneNumber: older.AdminPhoneNumber,
+			CreatedAtGte:     lo.ToPtr(time.Now().Add(-1 * time.Minute)),
+		}
+
+		merchants, total, err := s.repo.GetMerchants(s.ctx, pager, filter)
+		require.NoError(t, err)
+		require.Equal(t, 1, total)
+		require.Len(t, merchants, 1)
+		require.Equal(t, older.ID, merchants[0].ID)
+	})
+}
+
 func (s *MerchantRepositoryTestSuite) TestMerchant_CountMerchant() {
 	future := time.Now().UTC().Add(24 * time.Hour)
 	past := time.Now().UTC().Add(-24 * time.Hour)
 
-	brandMerchant, _, _, _ := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeBrand, &future)
+	brandMerchant, _, _ := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeBrand, &future)
 	require.NoError(s.T(), s.repo.Create(s.ctx, brandMerchant))
 
-	storeMerchant, _, _, _ := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeStore, &past)
+	storeMerchant, _, _ := s.newMerchant(uuid.NewString(), domain.MerchantStatusActive, domain.MerchantTypeStore, &past)
 	require.NoError(s.T(), s.repo.Create(s.ctx, storeMerchant))
 
 	count, err := s.repo.CountMerchant(s.ctx)
@@ -301,9 +349,17 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_CountMerchant() {
 	require.Equal(s.T(), 1, count.Expired)
 }
 
+func (s *MerchantRepositoryTestSuite) TestMerchant_CountMerchant_Empty() {
+	count, err := s.repo.CountMerchant(s.ctx)
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), 0, count.MerchantTypeBrand)
+	require.Equal(s.T(), 0, count.MerchantTypeStore)
+	require.Equal(s.T(), 0, count.Expired)
+}
+
 func (s *MerchantRepositoryTestSuite) TestMerchant_ExistMerchant() {
 	tag := uuid.NewString()
-	merchant, _, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
+	merchant, _, _ := s.newMerchant(tag, domain.MerchantStatusActive, domain.MerchantTypeBrand, nil)
 	require.NoError(s.T(), s.repo.Create(s.ctx, merchant))
 
 	s.T().Run("已存在", func(t *testing.T) {

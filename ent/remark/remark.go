@@ -123,7 +123,7 @@ var (
 // RemarkTypeValidator is a validator for the "remark_type" field enum values. It is called by the builders before save.
 func RemarkTypeValidator(rt domain.RemarkType) error {
 	switch rt {
-	case "system", "brand":
+	case "system", "brand", "store":
 		return nil
 	default:
 		return fmt.Errorf("remark: invalid enum value for remark_type field: %q", rt)

@@ -56,4 +56,10 @@ const (
 	StoreShiftTimeNameExists      ErrCode = "STORE_SHIFT_TIME_NAME_EXISTS"      // 门店班次名称已存在
 	RemarkNameExists              ErrCode = "REMARK_NAME_EXISTS"                // 备注名称已存在
 	RemarkDeleteSystem            ErrCode = "REMARK_DELETE_SYSTEM"              // 不能删除系统内置备注
+	RemarkCategoryNameExists      ErrCode = "REMARK_CATEGORY_NAME_EXISTS"       // 备注分类名称已存在
+	StallNameExists               ErrCode = "STALL_NAME_EXISTS"                 // 出品部门名称已存在
+	DeviceNameExists              ErrCode = "DEVICE_NAME_EXISTS"                // 设备名称已存在
+	DeviceCodeExists              ErrCode = "DEVICE_CODE_EXISTS"                // 设备编号已存在
+	TaxFeeNameExists              ErrCode = "TAX_FEE_NAME_EXISTS"               // 税费名称已存在
+	BackendUserExists             ErrCode = "BACKEND_USER_EXISTS"               // 后台用户已存在
 )
