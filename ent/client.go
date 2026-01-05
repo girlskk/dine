@@ -638,6 +638,22 @@ func (c *AdditionalFeeClient) QueryStore(af *AdditionalFee) *StoreQuery {
 	return query
 }
 
+// QueryProductSpecs queries the product_specs edge of a AdditionalFee.
+func (c *AdditionalFeeClient) QueryProductSpecs(af *AdditionalFee) *ProductSpecRelationQuery {
+	query := (&ProductSpecRelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := af.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(additionalfee.Table, additionalfee.FieldID, id),
+			sqlgraph.To(productspecrelation.Table, productspecrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, additionalfee.ProductSpecsTable, additionalfee.ProductSpecsColumn),
+		)
+		fromV = sqlgraph.Neighbors(af.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AdditionalFeeClient) Hooks() []Hook {
 	hooks := c.hooks.AdditionalFee
@@ -4602,6 +4618,22 @@ func (c *ProductSpecRelationClient) QuerySpec(psr *ProductSpecRelation) *Product
 			sqlgraph.From(productspecrelation.Table, productspecrelation.FieldID, id),
 			sqlgraph.To(productspec.Table, productspec.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, productspecrelation.SpecTable, productspecrelation.SpecColumn),
+		)
+		fromV = sqlgraph.Neighbors(psr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPackingFee queries the packing_fee edge of a ProductSpecRelation.
+func (c *ProductSpecRelationClient) QueryPackingFee(psr *ProductSpecRelation) *AdditionalFeeQuery {
+	query := (&AdditionalFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := psr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productspecrelation.Table, productspecrelation.FieldID, id),
+			sqlgraph.To(additionalfee.Table, additionalfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productspecrelation.PackingFeeTable, productspecrelation.PackingFeeColumn),
 		)
 		fromV = sqlgraph.Neighbors(psr.driver.Dialect(), step)
 		return fromV, nil

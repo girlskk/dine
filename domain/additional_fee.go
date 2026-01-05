@@ -20,6 +20,7 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/additional_fee_repository.go -package=mock . AdditionalFeeRepository
 type AdditionalFeeRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (fee *AdditionalFee, err error)
+	ListByIDs(ctx context.Context, ids []uuid.UUID) (fees []*AdditionalFee, err error)
 	Create(ctx context.Context, fee *AdditionalFee) (err error)
 	Update(ctx context.Context, fee *AdditionalFee) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)

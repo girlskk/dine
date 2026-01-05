@@ -70,9 +70,11 @@ type AdditionalFeeEdges struct {
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// Store holds the value of the store edge.
 	Store *Store `json:"store,omitempty"`
+	// 商品规格关联
+	ProductSpecs []*ProductSpecRelation `json:"product_specs,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -95,6 +97,15 @@ func (e AdditionalFeeEdges) StoreOrErr() (*Store, error) {
 		return nil, &NotFoundError{label: store.Label}
 	}
 	return nil, &NotLoadedError{edge: "store"}
+}
+
+// ProductSpecsOrErr returns the ProductSpecs value or an error if the edge
+// was not loaded in eager-loading.
+func (e AdditionalFeeEdges) ProductSpecsOrErr() ([]*ProductSpecRelation, error) {
+	if e.loadedTypes[2] {
+		return e.ProductSpecs, nil
+	}
+	return nil, &NotLoadedError{edge: "product_specs"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -264,6 +275,11 @@ func (af *AdditionalFee) QueryMerchant() *MerchantQuery {
 // QueryStore queries the "store" edge of the AdditionalFee entity.
 func (af *AdditionalFee) QueryStore() *StoreQuery {
 	return NewAdditionalFeeClient(af.config).QueryStore(af)
+}
+
+// QueryProductSpecs queries the "product_specs" edge of the AdditionalFee entity.
+func (af *AdditionalFee) QueryProductSpecs() *ProductSpecRelationQuery {
+	return NewAdditionalFeeClient(af.config).QueryProductSpecs(af)
 }
 
 // Update returns a builder for updating this AdditionalFee.

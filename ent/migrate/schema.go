@@ -1117,13 +1117,13 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "base_price", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "member_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
-		{Name: "packing_fee_id", Type: field.TypeUUID},
 		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "other_price1", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "other_price2", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "other_price3", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "barcode", Type: field.TypeString, Size: 255, Default: ""},
 		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "packing_fee_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "product_id", Type: field.TypeUUID},
 		{Name: "spec_id", Type: field.TypeUUID},
 	}
@@ -1133,6 +1133,12 @@ var (
 		Columns:    ProductSpecRelationsColumns,
 		PrimaryKey: []*schema.Column{ProductSpecRelationsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_spec_relations_additional_fees_product_specs",
+				Columns:    []*schema.Column{ProductSpecRelationsColumns[12]},
+				RefColumns: []*schema.Column{AdditionalFeesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
 			{
 				Symbol:     "product_spec_relations_products_product_specs",
 				Columns:    []*schema.Column{ProductSpecRelationsColumns[13]},
@@ -1161,6 +1167,11 @@ var (
 				Name:    "productspecrelation_spec_id",
 				Unique:  false,
 				Columns: []*schema.Column{ProductSpecRelationsColumns[14]},
+			},
+			{
+				Name:    "productspecrelation_product_id_spec_id_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{ProductSpecRelationsColumns[13], ProductSpecRelationsColumns[14], ProductSpecRelationsColumns[3]},
 			},
 		},
 	}
@@ -2003,8 +2014,9 @@ func init() {
 	ProductAttrRelationsTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductAttrRelationsTable.ForeignKeys[1].RefTable = ProductAttrsTable
 	ProductAttrRelationsTable.ForeignKeys[2].RefTable = ProductAttrItemsTable
-	ProductSpecRelationsTable.ForeignKeys[0].RefTable = ProductsTable
-	ProductSpecRelationsTable.ForeignKeys[1].RefTable = ProductSpecsTable
+	ProductSpecRelationsTable.ForeignKeys[0].RefTable = AdditionalFeesTable
+	ProductSpecRelationsTable.ForeignKeys[1].RefTable = ProductsTable
+	ProductSpecRelationsTable.ForeignKeys[2].RefTable = ProductSpecsTable
 	ProvincesTable.ForeignKeys[0].RefTable = CountriesTable
 	RemarksTable.ForeignKeys[0].RefTable = MerchantsTable
 	RemarksTable.ForeignKeys[1].RefTable = RemarkCategoriesTable

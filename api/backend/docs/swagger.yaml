@@ -725,18 +725,6 @@ definitions:
     - OrderChannelMobileOrder
     - OrderChannelScanOrder
     - OrderChannelThirdDelivery
-  domain.PackingFee:
-    properties:
-      id:
-        description: 打包费ID
-        type: string
-      name:
-        description: 打包费名称
-        type: string
-      price:
-        description: 打包费价格
-        type: number
-    type: object
   domain.PaperSize:
     enum:
     - 58mm
@@ -1061,7 +1049,7 @@ definitions:
         type: number
       packing_fee:
         allOf:
-        - $ref: '#/definitions/domain.PackingFee'
+        - $ref: '#/definitions/domain.AdditionalFee'
         description: 打包费
       packing_fee_id:
         description: 打包费ID（引用费用配置）
@@ -1841,22 +1829,8 @@ definitions:
     - 4
     - 5
     - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     type: integer
     x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
     - Sunday
     - Monday
     - Tuesday

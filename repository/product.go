@@ -64,6 +64,7 @@ func (repo *ProductRepository) GetDetail(ctx context.Context, id uuid.UUID) (res
 		WithProductSpecs(
 			func(query *ent.ProductSpecRelationQuery) {
 				query.WithSpec()
+				query.WithPackingFee()
 			},
 		).
 		WithProductAttrs(

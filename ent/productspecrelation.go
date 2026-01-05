@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
@@ -37,7 +38,7 @@ type ProductSpecRelation struct {
 	// 会员价（可选，单位：分）
 	MemberPrice *decimal.Decimal `json:"member_price,omitempty"`
 	// 打包费ID（引用费用配置）
-	PackingFeeID uuid.UUID `json:"packing_fee_id,omitempty"`
+	PackingFeeID *uuid.UUID `json:"packing_fee_id,omitempty"`
 	// 预估成本价（可选，单位：分）
 	EstimatedCostPrice *decimal.Decimal `json:"estimated_cost_price,omitempty"`
 	// 其他价格1（可选，单位：分）
@@ -62,9 +63,11 @@ type ProductSpecRelationEdges struct {
 	Product *Product `json:"product,omitempty"`
 	// 所属规格
 	Spec *ProductSpec `json:"spec,omitempty"`
+	// 所属打包费
+	PackingFee *AdditionalFee `json:"packing_fee,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // ProductOrErr returns the Product value or an error if the edge
@@ -89,6 +92,17 @@ func (e ProductSpecRelationEdges) SpecOrErr() (*ProductSpec, error) {
 	return nil, &NotLoadedError{edge: "spec"}
 }
 
+// PackingFeeOrErr returns the PackingFee value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProductSpecRelationEdges) PackingFeeOrErr() (*AdditionalFee, error) {
+	if e.PackingFee != nil {
+		return e.PackingFee, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: additionalfee.Label}
+	}
+	return nil, &NotLoadedError{edge: "packing_fee"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*ProductSpecRelation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -96,6 +110,8 @@ func (*ProductSpecRelation) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case productspecrelation.FieldMemberPrice, productspecrelation.FieldEstimatedCostPrice, productspecrelation.FieldOtherPrice1, productspecrelation.FieldOtherPrice2, productspecrelation.FieldOtherPrice3:
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
+		case productspecrelation.FieldPackingFeeID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case productspecrelation.FieldBasePrice:
 			values[i] = new(decimal.Decimal)
 		case productspecrelation.FieldIsDefault:
@@ -106,7 +122,7 @@ func (*ProductSpecRelation) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case productspecrelation.FieldCreatedAt, productspecrelation.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case productspecrelation.FieldID, productspecrelation.FieldProductID, productspecrelation.FieldSpecID, productspecrelation.FieldPackingFeeID:
+		case productspecrelation.FieldID, productspecrelation.FieldProductID, productspecrelation.FieldSpecID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -173,10 +189,11 @@ func (psr *ProductSpecRelation) assignValues(columns []string, values []any) err
 				*psr.MemberPrice = *value.S.(*decimal.Decimal)
 			}
 		case productspecrelation.FieldPackingFeeID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field packing_fee_id", values[i])
-			} else if value != nil {
-				psr.PackingFeeID = *value
+			} else if value.Valid {
+				psr.PackingFeeID = new(uuid.UUID)
+				*psr.PackingFeeID = *value.S.(*uuid.UUID)
 			}
 		case productspecrelation.FieldEstimatedCostPrice:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -241,6 +258,11 @@ func (psr *ProductSpecRelation) QuerySpec() *ProductSpecQuery {
 	return NewProductSpecRelationClient(psr.config).QuerySpec(psr)
 }
 
+// QueryPackingFee queries the "packing_fee" edge of the ProductSpecRelation entity.
+func (psr *ProductSpecRelation) QueryPackingFee() *AdditionalFeeQuery {
+	return NewProductSpecRelationClient(psr.config).QueryPackingFee(psr)
+}
+
 // Update returns a builder for updating this ProductSpecRelation.
 // Note that you need to call ProductSpecRelation.Unwrap() before calling this method if this ProductSpecRelation
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -287,8 +309,10 @@ func (psr *ProductSpecRelation) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("packing_fee_id=")
-	builder.WriteString(fmt.Sprintf("%v", psr.PackingFeeID))
+	if v := psr.PackingFeeID; v != nil {
+		builder.WriteString("packing_fee_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	if v := psr.EstimatedCostPrice; v != nil {
 		builder.WriteString("estimated_cost_price=")

@@ -131,6 +131,9 @@ type AdditionalFeeMutation struct {
 	clearedmerchant       bool
 	store                 *uuid.UUID
 	clearedstore          bool
+	product_specs         map[uuid.UUID]struct{}
+	removedproduct_specs  map[uuid.UUID]struct{}
+	clearedproduct_specs  bool
 	done                  bool
 	oldValue              func(context.Context) (*AdditionalFee, error)
 	predicates            []predicate.AdditionalFee
@@ -1002,6 +1005,60 @@ func (m *AdditionalFeeMutation) ResetStore() {
 	m.clearedstore = false
 }
 
+// AddProductSpecIDs adds the "product_specs" edge to the ProductSpecRelation entity by ids.
+func (m *AdditionalFeeMutation) AddProductSpecIDs(ids ...uuid.UUID) {
+	if m.product_specs == nil {
+		m.product_specs = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.product_specs[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProductSpecs clears the "product_specs" edge to the ProductSpecRelation entity.
+func (m *AdditionalFeeMutation) ClearProductSpecs() {
+	m.clearedproduct_specs = true
+}
+
+// ProductSpecsCleared reports if the "product_specs" edge to the ProductSpecRelation entity was cleared.
+func (m *AdditionalFeeMutation) ProductSpecsCleared() bool {
+	return m.clearedproduct_specs
+}
+
+// RemoveProductSpecIDs removes the "product_specs" edge to the ProductSpecRelation entity by IDs.
+func (m *AdditionalFeeMutation) RemoveProductSpecIDs(ids ...uuid.UUID) {
+	if m.removedproduct_specs == nil {
+		m.removedproduct_specs = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.product_specs, ids[i])
+		m.removedproduct_specs[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProductSpecs returns the removed IDs of the "product_specs" edge to the ProductSpecRelation entity.
+func (m *AdditionalFeeMutation) RemovedProductSpecsIDs() (ids []uuid.UUID) {
+	for id := range m.removedproduct_specs {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProductSpecsIDs returns the "product_specs" edge IDs in the mutation.
+func (m *AdditionalFeeMutation) ProductSpecsIDs() (ids []uuid.UUID) {
+	for id := range m.product_specs {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProductSpecs resets all changes to the "product_specs" edge.
+func (m *AdditionalFeeMutation) ResetProductSpecs() {
+	m.product_specs = nil
+	m.clearedproduct_specs = false
+	m.removedproduct_specs = nil
+}
+
 // Where appends a list predicates to the AdditionalFeeMutation builder.
 func (m *AdditionalFeeMutation) Where(ps ...predicate.AdditionalFee) {
 	m.predicates = append(m.predicates, ps...)
@@ -1449,12 +1506,15 @@ func (m *AdditionalFeeMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AdditionalFeeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.merchant != nil {
 		edges = append(edges, additionalfee.EdgeMerchant)
 	}
 	if m.store != nil {
 		edges = append(edges, additionalfee.EdgeStore)
+	}
+	if m.product_specs != nil {
+		edges = append(edges, additionalfee.EdgeProductSpecs)
 	}
 	return edges
 }
@@ -1471,30 +1531,50 @@ func (m *AdditionalFeeMutation) AddedIDs(name string) []ent.Value {
 		if id := m.store; id != nil {
 			return []ent.Value{*id}
 		}
+	case additionalfee.EdgeProductSpecs:
+		ids := make([]ent.Value, 0, len(m.product_specs))
+		for id := range m.product_specs {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AdditionalFeeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
+	if m.removedproduct_specs != nil {
+		edges = append(edges, additionalfee.EdgeProductSpecs)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *AdditionalFeeMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case additionalfee.EdgeProductSpecs:
+		ids := make([]ent.Value, 0, len(m.removedproduct_specs))
+		for id := range m.removedproduct_specs {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AdditionalFeeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedmerchant {
 		edges = append(edges, additionalfee.EdgeMerchant)
 	}
 	if m.clearedstore {
 		edges = append(edges, additionalfee.EdgeStore)
+	}
+	if m.clearedproduct_specs {
+		edges = append(edges, additionalfee.EdgeProductSpecs)
 	}
 	return edges
 }
@@ -1507,6 +1587,8 @@ func (m *AdditionalFeeMutation) EdgeCleared(name string) bool {
 		return m.clearedmerchant
 	case additionalfee.EdgeStore:
 		return m.clearedstore
+	case additionalfee.EdgeProductSpecs:
+		return m.clearedproduct_specs
 	}
 	return false
 }
@@ -1534,6 +1616,9 @@ func (m *AdditionalFeeMutation) ResetEdge(name string) error {
 		return nil
 	case additionalfee.EdgeStore:
 		m.ResetStore()
+		return nil
+	case additionalfee.EdgeProductSpecs:
+		m.ResetProductSpecs()
 		return nil
 	}
 	return fmt.Errorf("unknown AdditionalFee edge %s", name)
@@ -28536,7 +28621,6 @@ type ProductSpecRelationMutation struct {
 	adddeleted_at        *int64
 	base_price           *decimal.Decimal
 	member_price         *decimal.Decimal
-	packing_fee_id       *uuid.UUID
 	estimated_cost_price *decimal.Decimal
 	other_price1         *decimal.Decimal
 	other_price2         *decimal.Decimal
@@ -28548,6 +28632,8 @@ type ProductSpecRelationMutation struct {
 	clearedproduct       bool
 	spec                 *uuid.UUID
 	clearedspec          bool
+	packing_fee          *uuid.UUID
+	clearedpacking_fee   bool
 	done                 bool
 	oldValue             func(context.Context) (*ProductSpecRelation, error)
 	predicates           []predicate.ProductSpecRelation
@@ -28944,12 +29030,12 @@ func (m *ProductSpecRelationMutation) ResetMemberPrice() {
 
 // SetPackingFeeID sets the "packing_fee_id" field.
 func (m *ProductSpecRelationMutation) SetPackingFeeID(u uuid.UUID) {
-	m.packing_fee_id = &u
+	m.packing_fee = &u
 }
 
 // PackingFeeID returns the value of the "packing_fee_id" field in the mutation.
 func (m *ProductSpecRelationMutation) PackingFeeID() (r uuid.UUID, exists bool) {
-	v := m.packing_fee_id
+	v := m.packing_fee
 	if v == nil {
 		return
 	}
@@ -28959,7 +29045,7 @@ func (m *ProductSpecRelationMutation) PackingFeeID() (r uuid.UUID, exists bool) 
 // OldPackingFeeID returns the old "packing_fee_id" field's value of the ProductSpecRelation entity.
 // If the ProductSpecRelation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductSpecRelationMutation) OldPackingFeeID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *ProductSpecRelationMutation) OldPackingFeeID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPackingFeeID is only allowed on UpdateOne operations")
 	}
@@ -28973,9 +29059,22 @@ func (m *ProductSpecRelationMutation) OldPackingFeeID(ctx context.Context) (v uu
 	return oldValue.PackingFeeID, nil
 }
 
+// ClearPackingFeeID clears the value of the "packing_fee_id" field.
+func (m *ProductSpecRelationMutation) ClearPackingFeeID() {
+	m.packing_fee = nil
+	m.clearedFields[productspecrelation.FieldPackingFeeID] = struct{}{}
+}
+
+// PackingFeeIDCleared returns if the "packing_fee_id" field was cleared in this mutation.
+func (m *ProductSpecRelationMutation) PackingFeeIDCleared() bool {
+	_, ok := m.clearedFields[productspecrelation.FieldPackingFeeID]
+	return ok
+}
+
 // ResetPackingFeeID resets all changes to the "packing_fee_id" field.
 func (m *ProductSpecRelationMutation) ResetPackingFeeID() {
-	m.packing_fee_id = nil
+	m.packing_fee = nil
+	delete(m.clearedFields, productspecrelation.FieldPackingFeeID)
 }
 
 // SetEstimatedCostPrice sets the "estimated_cost_price" field.
@@ -29300,6 +29399,33 @@ func (m *ProductSpecRelationMutation) ResetSpec() {
 	m.clearedspec = false
 }
 
+// ClearPackingFee clears the "packing_fee" edge to the AdditionalFee entity.
+func (m *ProductSpecRelationMutation) ClearPackingFee() {
+	m.clearedpacking_fee = true
+	m.clearedFields[productspecrelation.FieldPackingFeeID] = struct{}{}
+}
+
+// PackingFeeCleared reports if the "packing_fee" edge to the AdditionalFee entity was cleared.
+func (m *ProductSpecRelationMutation) PackingFeeCleared() bool {
+	return m.PackingFeeIDCleared() || m.clearedpacking_fee
+}
+
+// PackingFeeIDs returns the "packing_fee" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// PackingFeeID instead. It exists only for internal usage by the builders.
+func (m *ProductSpecRelationMutation) PackingFeeIDs() (ids []uuid.UUID) {
+	if id := m.packing_fee; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetPackingFee resets all changes to the "packing_fee" edge.
+func (m *ProductSpecRelationMutation) ResetPackingFee() {
+	m.packing_fee = nil
+	m.clearedpacking_fee = false
+}
+
 // Where appends a list predicates to the ProductSpecRelationMutation builder.
 func (m *ProductSpecRelationMutation) Where(ps ...predicate.ProductSpecRelation) {
 	m.predicates = append(m.predicates, ps...)
@@ -29356,7 +29482,7 @@ func (m *ProductSpecRelationMutation) Fields() []string {
 	if m.member_price != nil {
 		fields = append(fields, productspecrelation.FieldMemberPrice)
 	}
-	if m.packing_fee_id != nil {
+	if m.packing_fee != nil {
 		fields = append(fields, productspecrelation.FieldPackingFeeID)
 	}
 	if m.estimated_cost_price != nil {
@@ -29605,6 +29731,9 @@ func (m *ProductSpecRelationMutation) ClearedFields() []string {
 	if m.FieldCleared(productspecrelation.FieldMemberPrice) {
 		fields = append(fields, productspecrelation.FieldMemberPrice)
 	}
+	if m.FieldCleared(productspecrelation.FieldPackingFeeID) {
+		fields = append(fields, productspecrelation.FieldPackingFeeID)
+	}
 	if m.FieldCleared(productspecrelation.FieldEstimatedCostPrice) {
 		fields = append(fields, productspecrelation.FieldEstimatedCostPrice)
 	}
@@ -29633,6 +29762,9 @@ func (m *ProductSpecRelationMutation) ClearField(name string) error {
 	switch name {
 	case productspecrelation.FieldMemberPrice:
 		m.ClearMemberPrice()
+		return nil
+	case productspecrelation.FieldPackingFeeID:
+		m.ClearPackingFeeID()
 		return nil
 	case productspecrelation.FieldEstimatedCostPrice:
 		m.ClearEstimatedCostPrice()
@@ -29702,12 +29834,15 @@ func (m *ProductSpecRelationMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProductSpecRelationMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.product != nil {
 		edges = append(edges, productspecrelation.EdgeProduct)
 	}
 	if m.spec != nil {
 		edges = append(edges, productspecrelation.EdgeSpec)
+	}
+	if m.packing_fee != nil {
+		edges = append(edges, productspecrelation.EdgePackingFee)
 	}
 	return edges
 }
@@ -29724,13 +29859,17 @@ func (m *ProductSpecRelationMutation) AddedIDs(name string) []ent.Value {
 		if id := m.spec; id != nil {
 			return []ent.Value{*id}
 		}
+	case productspecrelation.EdgePackingFee:
+		if id := m.packing_fee; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProductSpecRelationMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	return edges
 }
 
@@ -29742,12 +29881,15 @@ func (m *ProductSpecRelationMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProductSpecRelationMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedproduct {
 		edges = append(edges, productspecrelation.EdgeProduct)
 	}
 	if m.clearedspec {
 		edges = append(edges, productspecrelation.EdgeSpec)
+	}
+	if m.clearedpacking_fee {
+		edges = append(edges, productspecrelation.EdgePackingFee)
 	}
 	return edges
 }
@@ -29760,6 +29902,8 @@ func (m *ProductSpecRelationMutation) EdgeCleared(name string) bool {
 		return m.clearedproduct
 	case productspecrelation.EdgeSpec:
 		return m.clearedspec
+	case productspecrelation.EdgePackingFee:
+		return m.clearedpacking_fee
 	}
 	return false
 }
@@ -29774,6 +29918,9 @@ func (m *ProductSpecRelationMutation) ClearEdge(name string) error {
 	case productspecrelation.EdgeSpec:
 		m.ClearSpec()
 		return nil
+	case productspecrelation.EdgePackingFee:
+		m.ClearPackingFee()
+		return nil
 	}
 	return fmt.Errorf("unknown ProductSpecRelation unique edge %s", name)
 }
@@ -29787,6 +29934,9 @@ func (m *ProductSpecRelationMutation) ResetEdge(name string) error {
 		return nil
 	case productspecrelation.EdgeSpec:
 		m.ResetSpec()
+		return nil
+	case productspecrelation.EdgePackingFee:
+		m.ResetPackingFee()
 		return nil
 	}
 	return fmt.Errorf("unknown ProductSpecRelation edge %s", name)

@@ -121,6 +121,10 @@ var Module = fx.Module(
 			fx.As(new(domain.DepartmentInteractor)),
 		),
 		fx.Annotate(
+			profitdistributionrule.NewProfitDistributionRuleInteractor,
+			fx.As(new(domain.ProfitDistributionRuleInteractor)),
+		),
+		fx.Annotate(
 			profitdistributionbill.NewProfitDistributionBillInteractor,
 			fx.As(new(domain.ProfitDistributionBillInteractor)),
 		),

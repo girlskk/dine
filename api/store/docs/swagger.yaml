@@ -1,5 +1,124 @@
 basePath: /api/v1
 definitions:
+  domain.AdditionalCategory:
+    enum:
+    - service_fee
+    - additional_fee
+    - packing_fee
+    type: string
+    x-enum-comments:
+      AdditionalCategoryAdditional: 附加费
+      AdditionalCategoryPacking: 打包费
+      AdditionalCategoryService: 服务费
+    x-enum-descriptions:
+    - 服务费
+    - 附加费
+    - 打包费
+    x-enum-varnames:
+    - AdditionalCategoryService
+    - AdditionalCategoryAdditional
+    - AdditionalCategoryPacking
+  domain.AdditionalFee:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 费用类型 percent 百分比，fixed 固定金额
+      created_at:
+        type: string
+      dining_ways:
+        description: 就餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣场景
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费类别
+      fee_type:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeType'
+        description: 附加费类型
+      fee_value:
+        description: 'fixed: 分; percent: BP'
+        type: number
+      id:
+        type: string
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      merchant_id:
+        description: 品牌商 ID
+        type: string
+      name:
+        description: 附加费名称
+        type: string
+      order_channels:
+        description: 订单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序
+        type: integer
+      store_id:
+        description: 门店 ID
+        type: string
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  domain.AdditionalFeeChargeMode:
+    enum:
+    - percent
+    - fixed
+    type: string
+    x-enum-comments:
+      AdditionalFeeChargeModeFixed: 固定金额
+      AdditionalFeeChargeModePercent: 百分比
+    x-enum-descriptions:
+    - 百分比
+    - 固定金额
+    x-enum-varnames:
+    - AdditionalFeeChargeModePercent
+    - AdditionalFeeChargeModeFixed
+  domain.AdditionalFeeDiscountScope:
+    enum:
+    - before_discount
+    - after_discount
+    type: string
+    x-enum-comments:
+      AdditionalFeeDiscountScopeAfter: 折后
+      AdditionalFeeDiscountScopeBefore: 折前
+    x-enum-descriptions:
+    - 折前
+    - 折后
+    x-enum-varnames:
+    - AdditionalFeeDiscountScopeBefore
+    - AdditionalFeeDiscountScopeAfter
+  domain.AdditionalFeeType:
+    enum:
+    - merchant
+    - store
+    type: string
+    x-enum-comments:
+      AdditionalFeeTypeMerchant: 商户
+      AdditionalFeeTypeStore: 门店
+    x-enum-descriptions:
+    - 商户
+    - 门店
+    x-enum-varnames:
+    - AdditionalFeeTypeMerchant
+    - AdditionalFeeTypeStore
   domain.Address:
     properties:
       address:
@@ -454,18 +573,6 @@ definitions:
     - OrderChannelMobileOrder
     - OrderChannelScanOrder
     - OrderChannelThirdDelivery
-  domain.PackingFee:
-    properties:
-      id:
-        description: 打包费ID
-        type: string
-      name:
-        description: 打包费名称
-        type: string
-      price:
-        description: 打包费价格
-        type: number
-    type: object
   domain.PaperSize:
     enum:
     - 58mm
@@ -790,7 +897,7 @@ definitions:
         type: number
       packing_fee:
         allOf:
-        - $ref: '#/definitions/domain.PackingFee'
+        - $ref: '#/definitions/domain.AdditionalFee'
         description: 打包费
       packing_fee_id:
         description: 打包费ID（引用费用配置）
