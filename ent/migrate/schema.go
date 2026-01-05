@@ -1263,7 +1263,6 @@ var (
 		{Name: "no", Type: field.TypeString, Unique: true, Size: 64},
 		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID},
-		{Name: "revenue_id", Type: field.TypeUUID},
 		{Name: "receivable_amount", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "payment_amount", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"unpaid", "paid"}, Default: "unpaid"},
@@ -1296,7 +1295,7 @@ var (
 			{
 				Name:    "profitdistributionbill_store_id_bill_date_deleted_at",
 				Unique:  true,
-				Columns: []*schema.Column{ProfitDistributionBillsColumns[6], ProfitDistributionBillsColumns[11], ProfitDistributionBillsColumns[3]},
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[6], ProfitDistributionBillsColumns[10], ProfitDistributionBillsColumns[3]},
 			},
 		},
 	}

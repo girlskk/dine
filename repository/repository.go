@@ -45,6 +45,7 @@ type Repository struct {
 	provinceRepo               *ProvinceRepository
 	departmentRepo             *DepartmentRepository
 	profitDistributionRuleRepo *ProfitDistributionRuleRepository
+	profitDistributionBillRepo *ProfitDistributionBillRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -376,4 +377,13 @@ func (repo *Repository) DepartmentRepo() domain.DepartmentRepository {
 		repo.departmentRepo = NewDepartmentRepository(repo.client)
 	}
 	return repo.departmentRepo
+}
+
+func (repo *Repository) ProfitDistributionBillRepo() domain.ProfitDistributionBillRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.profitDistributionBillRepo == nil {
+		repo.profitDistributionBillRepo = NewProfitDistributionBillRepository(repo.client)
+	}
+	return repo.profitDistributionBillRepo
 }

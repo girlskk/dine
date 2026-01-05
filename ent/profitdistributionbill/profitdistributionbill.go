@@ -29,8 +29,6 @@ const (
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
 	FieldStoreID = "store_id"
-	// FieldRevenueID holds the string denoting the revenue_id field in the database.
-	FieldRevenueID = "revenue_id"
 	// FieldReceivableAmount holds the string denoting the receivable_amount field in the database.
 	FieldReceivableAmount = "receivable_amount"
 	// FieldPaymentAmount holds the string denoting the payment_amount field in the database.
@@ -58,7 +56,6 @@ var Columns = []string{
 	FieldNo,
 	FieldMerchantID,
 	FieldStoreID,
-	FieldRevenueID,
 	FieldReceivableAmount,
 	FieldPaymentAmount,
 	FieldStatus,
@@ -148,11 +145,6 @@ func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 // ByStoreID orders the results by the store_id field.
 func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStoreID, opts...).ToFunc()
-}
-
-// ByRevenueID orders the results by the revenue_id field.
-func ByRevenueID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRevenueID, opts...).ToFunc()
 }
 
 // ByReceivableAmount orders the results by the receivable_amount field.

@@ -11,12 +11,14 @@ import (
 var _ domain.ProfitDistributionBillInteractor = (*ProfitDistributionBillInteractor)(nil)
 
 type ProfitDistributionBillInteractor struct {
-	DS domain.DataStore
+	DS  domain.DataStore
+	Seq domain.DailySequence
 }
 
-func NewProfitDistributionBillInteractor(ds domain.DataStore) *ProfitDistributionBillInteractor {
+func NewProfitDistributionBillInteractor(ds domain.DataStore, seq domain.DailySequence) *ProfitDistributionBillInteractor {
 	return &ProfitDistributionBillInteractor{
-		DS: ds,
+		DS:  ds,
+		Seq: seq,
 	}
 }
 

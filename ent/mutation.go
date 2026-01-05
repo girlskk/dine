@@ -31645,7 +31645,6 @@ type ProfitDistributionBillMutation struct {
 	no                *string
 	merchant_id       *uuid.UUID
 	store_id          *uuid.UUID
-	revenue_id        *uuid.UUID
 	receivable_amount *decimal.Decimal
 	payment_amount    *decimal.Decimal
 	status            *domain.ProfitDistributionBillStatus
@@ -31999,42 +31998,6 @@ func (m *ProfitDistributionBillMutation) ResetStoreID() {
 	m.store_id = nil
 }
 
-// SetRevenueID sets the "revenue_id" field.
-func (m *ProfitDistributionBillMutation) SetRevenueID(u uuid.UUID) {
-	m.revenue_id = &u
-}
-
-// RevenueID returns the value of the "revenue_id" field in the mutation.
-func (m *ProfitDistributionBillMutation) RevenueID() (r uuid.UUID, exists bool) {
-	v := m.revenue_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRevenueID returns the old "revenue_id" field's value of the ProfitDistributionBill entity.
-// If the ProfitDistributionBill object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProfitDistributionBillMutation) OldRevenueID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRevenueID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRevenueID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRevenueID: %w", err)
-	}
-	return oldValue.RevenueID, nil
-}
-
-// ResetRevenueID resets all changes to the "revenue_id" field.
-func (m *ProfitDistributionBillMutation) ResetRevenueID() {
-	m.revenue_id = nil
-}
-
 // SetReceivableAmount sets the "receivable_amount" field.
 func (m *ProfitDistributionBillMutation) SetReceivableAmount(d decimal.Decimal) {
 	m.receivable_amount = &d
@@ -32321,7 +32284,7 @@ func (m *ProfitDistributionBillMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProfitDistributionBillMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 13)
 	if m.created_at != nil {
 		fields = append(fields, profitdistributionbill.FieldCreatedAt)
 	}
@@ -32339,9 +32302,6 @@ func (m *ProfitDistributionBillMutation) Fields() []string {
 	}
 	if m.store_id != nil {
 		fields = append(fields, profitdistributionbill.FieldStoreID)
-	}
-	if m.revenue_id != nil {
-		fields = append(fields, profitdistributionbill.FieldRevenueID)
 	}
 	if m.receivable_amount != nil {
 		fields = append(fields, profitdistributionbill.FieldReceivableAmount)
@@ -32384,8 +32344,6 @@ func (m *ProfitDistributionBillMutation) Field(name string) (ent.Value, bool) {
 		return m.MerchantID()
 	case profitdistributionbill.FieldStoreID:
 		return m.StoreID()
-	case profitdistributionbill.FieldRevenueID:
-		return m.RevenueID()
 	case profitdistributionbill.FieldReceivableAmount:
 		return m.ReceivableAmount()
 	case profitdistributionbill.FieldPaymentAmount:
@@ -32421,8 +32379,6 @@ func (m *ProfitDistributionBillMutation) OldField(ctx context.Context, name stri
 		return m.OldMerchantID(ctx)
 	case profitdistributionbill.FieldStoreID:
 		return m.OldStoreID(ctx)
-	case profitdistributionbill.FieldRevenueID:
-		return m.OldRevenueID(ctx)
 	case profitdistributionbill.FieldReceivableAmount:
 		return m.OldReceivableAmount(ctx)
 	case profitdistributionbill.FieldPaymentAmount:
@@ -32487,13 +32443,6 @@ func (m *ProfitDistributionBillMutation) SetField(name string, value ent.Value) 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStoreID(v)
-		return nil
-	case profitdistributionbill.FieldRevenueID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRevenueID(v)
 		return nil
 	case profitdistributionbill.FieldReceivableAmount:
 		v, ok := value.(decimal.Decimal)
@@ -32625,9 +32574,6 @@ func (m *ProfitDistributionBillMutation) ResetField(name string) error {
 		return nil
 	case profitdistributionbill.FieldStoreID:
 		m.ResetStoreID()
-		return nil
-	case profitdistributionbill.FieldRevenueID:
-		m.ResetRevenueID()
 		return nil
 	case profitdistributionbill.FieldReceivableAmount:
 		m.ResetReceivableAmount()

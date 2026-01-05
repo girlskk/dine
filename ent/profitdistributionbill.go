@@ -34,8 +34,6 @@ type ProfitDistributionBill struct {
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 门店ID
 	StoreID uuid.UUID `json:"store_id,omitempty"`
-	// 门店营业额ID
-	RevenueID uuid.UUID `json:"revenue_id,omitempty"`
 	// 应收金额（令吉）
 	ReceivableAmount decimal.Decimal `json:"receivable_amount,omitempty"`
 	// 打款金额（令吉）
@@ -68,7 +66,7 @@ func (*ProfitDistributionBill) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case profitdistributionbill.FieldCreatedAt, profitdistributionbill.FieldUpdatedAt, profitdistributionbill.FieldBillDate, profitdistributionbill.FieldStartDate, profitdistributionbill.FieldEndDate:
 			values[i] = new(sql.NullTime)
-		case profitdistributionbill.FieldID, profitdistributionbill.FieldMerchantID, profitdistributionbill.FieldStoreID, profitdistributionbill.FieldRevenueID:
+		case profitdistributionbill.FieldID, profitdistributionbill.FieldMerchantID, profitdistributionbill.FieldStoreID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -126,12 +124,6 @@ func (pdb *ProfitDistributionBill) assignValues(columns []string, values []any) 
 				return fmt.Errorf("unexpected type %T for field store_id", values[i])
 			} else if value != nil {
 				pdb.StoreID = *value
-			}
-		case profitdistributionbill.FieldRevenueID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field revenue_id", values[i])
-			} else if value != nil {
-				pdb.RevenueID = *value
 			}
 		case profitdistributionbill.FieldReceivableAmount:
 			if value, ok := values[i].(*decimal.Decimal); !ok {
@@ -230,9 +222,6 @@ func (pdb *ProfitDistributionBill) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("store_id=")
 	builder.WriteString(fmt.Sprintf("%v", pdb.StoreID))
-	builder.WriteString(", ")
-	builder.WriteString("revenue_id=")
-	builder.WriteString(fmt.Sprintf("%v", pdb.RevenueID))
 	builder.WriteString(", ")
 	builder.WriteString("receivable_amount=")
 	builder.WriteString(fmt.Sprintf("%v", pdb.ReceivableAmount))

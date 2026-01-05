@@ -86,12 +86,6 @@ func (pdbc *ProfitDistributionBillCreate) SetStoreID(u uuid.UUID) *ProfitDistrib
 	return pdbc
 }
 
-// SetRevenueID sets the "revenue_id" field.
-func (pdbc *ProfitDistributionBillCreate) SetRevenueID(u uuid.UUID) *ProfitDistributionBillCreate {
-	pdbc.mutation.SetRevenueID(u)
-	return pdbc
-}
-
 // SetReceivableAmount sets the "receivable_amount" field.
 func (pdbc *ProfitDistributionBillCreate) SetReceivableAmount(d decimal.Decimal) *ProfitDistributionBillCreate {
 	pdbc.mutation.SetReceivableAmount(d)
@@ -250,9 +244,6 @@ func (pdbc *ProfitDistributionBillCreate) check() error {
 	if _, ok := pdbc.mutation.StoreID(); !ok {
 		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "ProfitDistributionBill.store_id"`)}
 	}
-	if _, ok := pdbc.mutation.RevenueID(); !ok {
-		return &ValidationError{Name: "revenue_id", err: errors.New(`ent: missing required field "ProfitDistributionBill.revenue_id"`)}
-	}
 	if _, ok := pdbc.mutation.ReceivableAmount(); !ok {
 		return &ValidationError{Name: "receivable_amount", err: errors.New(`ent: missing required field "ProfitDistributionBill.receivable_amount"`)}
 	}
@@ -338,10 +329,6 @@ func (pdbc *ProfitDistributionBillCreate) createSpec() (*ProfitDistributionBill,
 	if value, ok := pdbc.mutation.StoreID(); ok {
 		_spec.SetField(profitdistributionbill.FieldStoreID, field.TypeUUID, value)
 		_node.StoreID = value
-	}
-	if value, ok := pdbc.mutation.RevenueID(); ok {
-		_spec.SetField(profitdistributionbill.FieldRevenueID, field.TypeUUID, value)
-		_node.RevenueID = value
 	}
 	if value, ok := pdbc.mutation.ReceivableAmount(); ok {
 		_spec.SetField(profitdistributionbill.FieldReceivableAmount, field.TypeOther, value)
@@ -474,18 +461,6 @@ func (u *ProfitDistributionBillUpsert) SetStoreID(v uuid.UUID) *ProfitDistributi
 // UpdateStoreID sets the "store_id" field to the value that was provided on create.
 func (u *ProfitDistributionBillUpsert) UpdateStoreID() *ProfitDistributionBillUpsert {
 	u.SetExcluded(profitdistributionbill.FieldStoreID)
-	return u
-}
-
-// SetRevenueID sets the "revenue_id" field.
-func (u *ProfitDistributionBillUpsert) SetRevenueID(v uuid.UUID) *ProfitDistributionBillUpsert {
-	u.Set(profitdistributionbill.FieldRevenueID, v)
-	return u
-}
-
-// UpdateRevenueID sets the "revenue_id" field to the value that was provided on create.
-func (u *ProfitDistributionBillUpsert) UpdateRevenueID() *ProfitDistributionBillUpsert {
-	u.SetExcluded(profitdistributionbill.FieldRevenueID)
 	return u
 }
 
@@ -687,20 +662,6 @@ func (u *ProfitDistributionBillUpsertOne) SetStoreID(v uuid.UUID) *ProfitDistrib
 func (u *ProfitDistributionBillUpsertOne) UpdateStoreID() *ProfitDistributionBillUpsertOne {
 	return u.Update(func(s *ProfitDistributionBillUpsert) {
 		s.UpdateStoreID()
-	})
-}
-
-// SetRevenueID sets the "revenue_id" field.
-func (u *ProfitDistributionBillUpsertOne) SetRevenueID(v uuid.UUID) *ProfitDistributionBillUpsertOne {
-	return u.Update(func(s *ProfitDistributionBillUpsert) {
-		s.SetRevenueID(v)
-	})
-}
-
-// UpdateRevenueID sets the "revenue_id" field to the value that was provided on create.
-func (u *ProfitDistributionBillUpsertOne) UpdateRevenueID() *ProfitDistributionBillUpsertOne {
-	return u.Update(func(s *ProfitDistributionBillUpsert) {
-		s.UpdateRevenueID()
 	})
 }
 
@@ -1083,20 +1044,6 @@ func (u *ProfitDistributionBillUpsertBulk) SetStoreID(v uuid.UUID) *ProfitDistri
 func (u *ProfitDistributionBillUpsertBulk) UpdateStoreID() *ProfitDistributionBillUpsertBulk {
 	return u.Update(func(s *ProfitDistributionBillUpsert) {
 		s.UpdateStoreID()
-	})
-}
-
-// SetRevenueID sets the "revenue_id" field.
-func (u *ProfitDistributionBillUpsertBulk) SetRevenueID(v uuid.UUID) *ProfitDistributionBillUpsertBulk {
-	return u.Update(func(s *ProfitDistributionBillUpsert) {
-		s.SetRevenueID(v)
-	})
-}
-
-// UpdateRevenueID sets the "revenue_id" field to the value that was provided on create.
-func (u *ProfitDistributionBillUpsertBulk) UpdateRevenueID() *ProfitDistributionBillUpsertBulk {
-	return u.Update(func(s *ProfitDistributionBillUpsert) {
-		s.UpdateRevenueID()
 	})
 }
 

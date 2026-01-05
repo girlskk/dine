@@ -40,6 +40,13 @@ type ProfitDistributionConfig struct {
 	TaskMinute int // 定时任务执行分钟
 }
 
+// ProfitDistributionBillRepository 分账账单仓库接口
+//
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/profit_distribution_bill_repository.go -package=mock . ProfitDistributionBillRepository
+type ProfitDistributionBillRepository interface {
+	CreateBulk(ctx context.Context, bills []*ProfitDistributionBill) error
+}
+
 // ProfitDistributionBillInteractor 分账账单用例接口
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/profit_distribution_bill_interactor.go -package=mock . ProfitDistributionBillInteractor
@@ -58,7 +65,6 @@ type ProfitDistributionBill struct {
 	No               string                          `json:"no"`                // 分账账单编号
 	MerchantID       uuid.UUID                       `json:"merchant_id"`       // 品牌商ID
 	StoreID          uuid.UUID                       `json:"store_id"`          // 门店ID
-	RevenueID        uuid.UUID                       `json:"revenue_id"`        // 门店营业额ID
 	ReceivableAmount decimal.Decimal                 `json:"receivable_amount"` // 应收金额（令吉）
 	PaymentAmount    decimal.Decimal                 `json:"payment_amount"`    // 打款金额（令吉）
 	Status           ProfitDistributionBillStatus    `json:"status"`            // 分账状态

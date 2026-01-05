@@ -87,11 +87,6 @@ func StoreID(v uuid.UUID) predicate.ProfitDistributionBill {
 	return predicate.ProfitDistributionBill(sql.FieldEQ(FieldStoreID, v))
 }
 
-// RevenueID applies equality check predicate on the "revenue_id" field. It's identical to RevenueIDEQ.
-func RevenueID(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldEQ(FieldRevenueID, v))
-}
-
 // ReceivableAmount applies equality check predicate on the "receivable_amount" field. It's identical to ReceivableAmountEQ.
 func ReceivableAmount(v decimal.Decimal) predicate.ProfitDistributionBill {
 	return predicate.ProfitDistributionBill(sql.FieldEQ(FieldReceivableAmount, v))
@@ -380,46 +375,6 @@ func StoreIDLT(v uuid.UUID) predicate.ProfitDistributionBill {
 // StoreIDLTE applies the LTE predicate on the "store_id" field.
 func StoreIDLTE(v uuid.UUID) predicate.ProfitDistributionBill {
 	return predicate.ProfitDistributionBill(sql.FieldLTE(FieldStoreID, v))
-}
-
-// RevenueIDEQ applies the EQ predicate on the "revenue_id" field.
-func RevenueIDEQ(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldEQ(FieldRevenueID, v))
-}
-
-// RevenueIDNEQ applies the NEQ predicate on the "revenue_id" field.
-func RevenueIDNEQ(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldNEQ(FieldRevenueID, v))
-}
-
-// RevenueIDIn applies the In predicate on the "revenue_id" field.
-func RevenueIDIn(vs ...uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldIn(FieldRevenueID, vs...))
-}
-
-// RevenueIDNotIn applies the NotIn predicate on the "revenue_id" field.
-func RevenueIDNotIn(vs ...uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldNotIn(FieldRevenueID, vs...))
-}
-
-// RevenueIDGT applies the GT predicate on the "revenue_id" field.
-func RevenueIDGT(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldGT(FieldRevenueID, v))
-}
-
-// RevenueIDGTE applies the GTE predicate on the "revenue_id" field.
-func RevenueIDGTE(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldGTE(FieldRevenueID, v))
-}
-
-// RevenueIDLT applies the LT predicate on the "revenue_id" field.
-func RevenueIDLT(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldLT(FieldRevenueID, v))
-}
-
-// RevenueIDLTE applies the LTE predicate on the "revenue_id" field.
-func RevenueIDLTE(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldLTE(FieldRevenueID, v))
 }
 
 // ReceivableAmountEQ applies the EQ predicate on the "receivable_amount" field.

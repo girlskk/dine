@@ -87,20 +87,6 @@ func (pdbu *ProfitDistributionBillUpdate) SetNillableStoreID(u *uuid.UUID) *Prof
 	return pdbu
 }
 
-// SetRevenueID sets the "revenue_id" field.
-func (pdbu *ProfitDistributionBillUpdate) SetRevenueID(u uuid.UUID) *ProfitDistributionBillUpdate {
-	pdbu.mutation.SetRevenueID(u)
-	return pdbu
-}
-
-// SetNillableRevenueID sets the "revenue_id" field if the given value is not nil.
-func (pdbu *ProfitDistributionBillUpdate) SetNillableRevenueID(u *uuid.UUID) *ProfitDistributionBillUpdate {
-	if u != nil {
-		pdbu.SetRevenueID(*u)
-	}
-	return pdbu
-}
-
 // SetReceivableAmount sets the "receivable_amount" field.
 func (pdbu *ProfitDistributionBillUpdate) SetReceivableAmount(d decimal.Decimal) *ProfitDistributionBillUpdate {
 	pdbu.mutation.SetReceivableAmount(d)
@@ -286,9 +272,6 @@ func (pdbu *ProfitDistributionBillUpdate) sqlSave(ctx context.Context) (n int, e
 	if value, ok := pdbu.mutation.StoreID(); ok {
 		_spec.SetField(profitdistributionbill.FieldStoreID, field.TypeUUID, value)
 	}
-	if value, ok := pdbu.mutation.RevenueID(); ok {
-		_spec.SetField(profitdistributionbill.FieldRevenueID, field.TypeUUID, value)
-	}
 	if value, ok := pdbu.mutation.ReceivableAmount(); ok {
 		_spec.SetField(profitdistributionbill.FieldReceivableAmount, field.TypeOther, value)
 	}
@@ -383,20 +366,6 @@ func (pdbuo *ProfitDistributionBillUpdateOne) SetStoreID(u uuid.UUID) *ProfitDis
 func (pdbuo *ProfitDistributionBillUpdateOne) SetNillableStoreID(u *uuid.UUID) *ProfitDistributionBillUpdateOne {
 	if u != nil {
 		pdbuo.SetStoreID(*u)
-	}
-	return pdbuo
-}
-
-// SetRevenueID sets the "revenue_id" field.
-func (pdbuo *ProfitDistributionBillUpdateOne) SetRevenueID(u uuid.UUID) *ProfitDistributionBillUpdateOne {
-	pdbuo.mutation.SetRevenueID(u)
-	return pdbuo
-}
-
-// SetNillableRevenueID sets the "revenue_id" field if the given value is not nil.
-func (pdbuo *ProfitDistributionBillUpdateOne) SetNillableRevenueID(u *uuid.UUID) *ProfitDistributionBillUpdateOne {
-	if u != nil {
-		pdbuo.SetRevenueID(*u)
 	}
 	return pdbuo
 }
@@ -615,9 +584,6 @@ func (pdbuo *ProfitDistributionBillUpdateOne) sqlSave(ctx context.Context) (_nod
 	}
 	if value, ok := pdbuo.mutation.StoreID(); ok {
 		_spec.SetField(profitdistributionbill.FieldStoreID, field.TypeUUID, value)
-	}
-	if value, ok := pdbuo.mutation.RevenueID(); ok {
-		_spec.SetField(profitdistributionbill.FieldRevenueID, field.TypeUUID, value)
 	}
 	if value, ok := pdbuo.mutation.ReceivableAmount(); ok {
 		_spec.SetField(profitdistributionbill.FieldReceivableAmount, field.TypeOther, value)

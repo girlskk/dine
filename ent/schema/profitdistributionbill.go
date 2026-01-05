@@ -29,7 +29,6 @@ func (ProfitDistributionBill) Fields() []ent.Field {
 		field.String("no").MaxLen(64).NotEmpty().Unique().Comment("分账账单编号"),
 		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("品牌商ID"),
 		field.UUID("store_id", uuid.UUID{}).Comment("门店ID"),
-		field.UUID("revenue_id", uuid.UUID{}).Comment("门店营业额ID"),
 		field.Other("receivable_amount", decimal.Decimal{}).
 			SchemaType(map[string]string{
 				dialect.MySQL:  "DECIMAL(19,4)",
@@ -75,16 +74,5 @@ func (ProfitDistributionBill) Indexes() []ent.Index {
 		index.Fields("store_id"),
 		// 唯一索引：同一门店同一账单日期只能有一条账单
 		index.Fields("store_id", "bill_date", "deleted_at").Unique(),
-	}
-}
-
-func (ProfitDistributionBill) Edges() []ent.Edge {
-	return []ent.Edge{
-		// @TODO
-		// 关联营业额记录（如果 StoreDailyRevenue 实体已创建）
-		// edge.To("revenue", StoreDailyRevenue.Type).
-		// 	Unique().
-		// 	Field("revenue_id").
-		// 	Comment("关联的营业额记录"),
 	}
 }

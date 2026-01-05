@@ -126,3 +126,13 @@ func TestRequestDate(t *testing.T) {
 		rqe.True(time.Time(testReq.Date).IsZero())
 	})
 }
+
+func TestLastMonthStart(t *testing.T) {
+	lastMonthStart := LastMonthStart(time.Now())
+	t.Log(lastMonthStart)
+}
+
+func TestLastMonthEnd(t *testing.T) {
+	lastMonthEnd := LastMonthEnd(time.Now())
+	t.Log(lastMonthEnd)
+}

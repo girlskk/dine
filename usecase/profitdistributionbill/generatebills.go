@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bytedance/gopkg/util/logger"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/shopspring/decimal"
@@ -211,13 +212,11 @@ func (i *ProfitDistributionBillInteractor) processMerchantBills(
 		// 批量创建账单
 		allBills := append(dailyBills, monthlyBills...)
 
-		util.PrettyJson(allBills)
-
 		if len(allBills) > 0 {
-			// if err := ds.ProfitDistributionBillRepo().CreateBulk(ctx, allBills); err != nil {
-			// 	return fmt.Errorf("批量创建账单失败: %w", err)
-			// }
-			// logger.Infof("品牌商 %s 成功创建 %d 条账单", merchantID.String(), len(allBills))
+			if err := ds.ProfitDistributionBillRepo().CreateBulk(ctx, allBills); err != nil {
+				return fmt.Errorf("批量创建账单失败: %w", err)
+			}
+			logger.Infof("品牌商 %s 成功创建 %d 条账单", merchantID.String(), len(allBills))
 		}
 		return nil
 	})
@@ -249,18 +248,10 @@ func (i *ProfitDistributionBillInteractor) generateDailyBills(
 	// if err != nil {
 	// 	return nil, err
 	// }
-
-	// mock 一个营业额
-	revenues := make(StoreDailyRevenues, 0)
-	for _, storeID := range storeIDs {
-		revenues = append(revenues, &StoreDailyRevenue{
-			ID:      uuid.New(),
-			StoreID: storeID,
-			Date:    yesterday,
-			Amount:  decimal.NewFromInt(100),
-		})
+	revenues, err := i.mockRevenues(ctx, storeIDs, yesterday)
+	if err != nil {
+		return nil, err
 	}
-
 	// 建立门店ID到营业额的映射
 	revenueMap := lo.SliceToMap(revenues, func(r *StoreDailyRevenue) (uuid.UUID, *StoreDailyRevenue) {
 		return r.StoreID, r
@@ -268,7 +259,10 @@ func (i *ProfitDistributionBillInteractor) generateDailyBills(
 
 	bills := make(domain.ProfitDistributionBills, 0)
 	for _, storeID := range storeIDs {
-		rule := storeIDToRule[storeID]
+		rule, exists := storeIDToRule[storeID]
+		if !exists {
+			return nil, fmt.Errorf("门店 [%s] 没有找到分账方案", storeID.String())
+		}
 		revenue, exists := revenueMap[storeID]
 		// 如果没有营业额记录，跳过
 		if !exists || revenue == nil {
@@ -276,20 +270,17 @@ func (i *ProfitDistributionBillInteractor) generateDailyBills(
 		}
 		// 计算分账金额
 		receivableAmount := revenue.Amount.Mul(rule.SplitRatio)
-
-		// // 生成账单编号
-		// billNo, err := i.generateBillNo(ctx, billDate)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("生成账单编号失败: %w", err)
-		// }
-
+		// 生成账单编号
+		billNo, err := i.generateBillNo(ctx, today)
+		if err != nil {
+			return nil, fmt.Errorf("生成账单编号失败: %w", err)
+		}
 		// 创建账单
 		bill := &domain.ProfitDistributionBill{
 			ID:               uuid.New(),
-			No:               util.RandomString(10),
+			No:               billNo,
 			MerchantID:       merchantID,
 			StoreID:          storeID,
-			RevenueID:        revenue.ID,
 			ReceivableAmount: receivableAmount,
 			PaymentAmount:    decimal.Zero,
 			Status:           domain.ProfitDistributionBillStatusUnpaid,
@@ -318,88 +309,126 @@ func (i *ProfitDistributionBillInteractor) generateMonthlyBills(
 	storeIDToRule map[uuid.UUID]*domain.ProfitDistributionRule,
 	today time.Time,
 ) (domain.ProfitDistributionBills, error) {
-	return nil, nil
-	// // 获取上月营业额（按月账单）
-	// lastMonth := today.AddDate(0, -1, 0)
-	// startDate := time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, lastMonth.Location())
+	startDate := util.LastMonthStart(today)
+	endDate := util.LastMonthEnd(today)
 
-	// // 计算上月的最后一天
-	// nextMonth := startDate.AddDate(0, 1, 0)
-	// endDate := nextMonth.AddDate(0, 0, -1)
+	fmt.Println("startDate", startDate)
+	fmt.Println("endDate", endDate)
 
+	// @TODO 获取营业额
 	// revenues, err := ds.StoreDailyRevenueRepo().FindByStoreIDsAndDateRange(ctx, storeIDs, startDate, endDate)
 	// if err != nil {
 	// 	return nil, err
 	// }
+	revenues, err := i.mockMonthlyRevenues(ctx, storeIDs, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	// 按门店汇总营业额
+	storeRevenueMap := make(map[uuid.UUID]*StoreDailyRevenue)
+	for _, revenue := range revenues {
+		if existing, ok := storeRevenueMap[revenue.StoreID]; ok {
+			existing.Amount = existing.Amount.Add(revenue.Amount)
+		} else {
+			storeRevenueMap[revenue.StoreID] = &StoreDailyRevenue{
+				ID:      revenue.ID, // 使用第一条记录的ID
+				StoreID: revenue.StoreID,
+				Amount:  revenue.Amount,
+				Date:    startDate,
+			}
+		}
+	}
 
-	// // 按门店汇总营业额
-	// storeRevenueMap := make(map[uuid.UUID]*domain.StoreDailyRevenue)
-	// for _, revenue := range revenues {
-	// 	if existing, ok := storeRevenueMap[revenue.StoreID]; ok {
-	// 		existing.Revenue = existing.Revenue.Add(revenue.Revenue)
-	// 	} else {
-	// 		storeRevenueMap[revenue.StoreID] = &domain.StoreDailyRevenue{
-	// 			ID:      revenue.ID, // 使用第一条记录的ID
-	// 			StoreID: revenue.StoreID,
-	// 			Revenue: revenue.Revenue,
-	// 			Date:    startDate,
-	// 		}
-	// 	}
-	// }
+	bills := make(domain.ProfitDistributionBills, 0)
+	for _, storeID := range storeIDs {
+		rule, exists := storeIDToRule[storeID]
+		if !exists {
+			return nil, fmt.Errorf("门店 [%s] 没有找到分账方案", storeID.String())
+		}
+		revenue, exists := storeRevenueMap[storeID]
+		if !exists || revenue == nil {
+			return nil, fmt.Errorf("门店 [%s] 没有营业额记录", storeID.String())
+		}
+		// 计算分账金额
+		receivableAmount := revenue.Amount.Mul(rule.SplitRatio)
+		// 生成账单编号
+		billNo, err := i.generateBillNo(ctx, today)
+		if err != nil {
+			return nil, fmt.Errorf("生成账单编号失败: %w", err)
+		}
+		// 创建账单
+		bill := &domain.ProfitDistributionBill{
+			ID:               uuid.New(),
+			No:               billNo,
+			MerchantID:       merchantID,
+			StoreID:          storeID,
+			ReceivableAmount: receivableAmount,
+			PaymentAmount:    decimal.Zero,
+			Status:           domain.ProfitDistributionBillStatusUnpaid,
+			BillDate:         today,
+			StartDate:        startDate,
+			EndDate:          endDate,
+			RuleSnapshot: &domain.ProfitDistributionRuleSnapshot{
+				RuleID:     rule.ID,
+				RuleName:   rule.Name,
+				SplitRatio: rule.SplitRatio,
+			},
+		}
 
-	// bills := make(domain.ProfitDistributionBills, 0)
-	// for _, storeID := range storeIDs {
-	// 	rule := storeIDToRule[storeID]
-	// 	revenue, exists := storeRevenueMap[storeID]
+		bills = append(bills, bill)
+	}
 
-	// 	// 如果没有营业额记录，跳过
-	// 	if !exists || revenue == nil {
-	// 		continue
-	// 	}
+	return bills, nil
+}
 
-	// 	// 检查是否已存在账单
-	// 	billDate := today
-	// 	billDateOnly := time.Date(billDate.Year(), billDate.Month(), billDate.Day(), 0, 0, 0, 0, billDate.Location())
-	// 	existingBill, err := ds.ProfitDistributionBillRepo().FindByStoreIDAndBillDate(ctx, storeID, billDateOnly)
-	// 	if err != nil && !domain.IsNotFound(err) {
-	// 		return nil, err
-	// 	}
-	// 	if existingBill != nil {
-	// 		continue // 已存在账单，跳过
-	// 	}
+// 生成分账账单号
+func (i *ProfitDistributionBillInteractor) generateBillNo(ctx context.Context, today time.Time) (string, error) {
+	seq, err := i.Seq.Next(ctx, domain.DailySequencePrefixProfitDistributionBillNo)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate profit distribution bill number: %w", err)
+	}
+	// zdYYYYMMDDNNN (NNN是自增的订单号)
+	no := fmt.Sprintf("%s%s%03d", "zd", today.Format("20060102"), seq)
+	return no, nil
+}
 
-	// 	// 计算分账金额
-	// 	receivableAmount := revenue.Revenue.Mul(rule.SplitRatio)
-	// 	paymentAmount := receivableAmount
+func (i *ProfitDistributionBillInteractor) mockRevenues(ctx context.Context,
+	storeIDs []uuid.UUID, yesterday time.Time,
+) (StoreDailyRevenues, error) {
+	revenues := make(StoreDailyRevenues, 0)
+	for _, storeID := range storeIDs {
+		revenues = append(revenues, &StoreDailyRevenue{
+			ID:      uuid.New(),
+			StoreID: storeID,
+			Date:    yesterday,
+			Amount:  decimal.NewFromInt(100),
+		})
+	}
+	return revenues, nil
+}
 
-	// 	// 生成账单编号
-	// 	billNo, err := i.generateBillNo(ctx, billDateOnly)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("生成账单编号失败: %w", err)
-	// 	}
+func (i *ProfitDistributionBillInteractor) mockMonthlyRevenues(ctx context.Context,
+	storeIDs []uuid.UUID, startDate time.Time, endDate time.Time,
+) (StoreDailyRevenues, error) {
+	revenues := make(StoreDailyRevenues, 0)
 
-	// 	// 创建账单
-	// 	bill := &domain.ProfitDistributionBill{
-	// 		ID:               uuid.New(),
-	// 		No:               billNo,
-	// 		MerchantID:       merchantID,
-	// 		StoreID:          storeID,
-	// 		RevenueID:        revenue.ID,
-	// 		ReceivableAmount: receivableAmount,
-	// 		PaymentAmount:    paymentAmount,
-	// 		Status:           domain.ProfitDistributionBillStatusUnpaid,
-	// 		BillDate:         billDateOnly,
-	// 		StartDate:        startDate,
-	// 		EndDate:          endDate,
-	// 		RuleSnapshot: &domain.ProfitDistributionRuleSnapshot{
-	// 			RuleID:     rule.ID,
-	// 			RuleName:   rule.Name,
-	// 			SplitRatio: rule.SplitRatio,
-	// 		},
-	// 	}
+	// 为每个门店生成日期范围内的每日数据
+	for _, storeID := range storeIDs {
+		// 从 startDate 开始，逐日生成数据直到 endDate
+		currentDate := util.DayStart(startDate)
+		endDay := util.DayStart(endDate)
 
-	// 	bills = append(bills, bill)
-	// }
+		for currentDate.Before(endDay) || currentDate.Equal(endDay) {
+			revenues = append(revenues, &StoreDailyRevenue{
+				ID:      uuid.New(),
+				StoreID: storeID,
+				Date:    currentDate,
+				Amount:  decimal.NewFromInt(100), // Mock 数据：每天 100
+			})
+			// 移动到下一天
+			currentDate = currentDate.AddDate(0, 0, 1)
+		}
+	}
 
-	// return bills, nil
+	return revenues, nil
 }
