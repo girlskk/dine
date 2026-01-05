@@ -470,8 +470,22 @@ definitions:
     - 4
     - 5
     - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
     type: integer
     x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
     - Sunday
     - Monday
     - Tuesday

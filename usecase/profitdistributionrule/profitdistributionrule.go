@@ -209,6 +209,24 @@ func (i *ProfitDistributionRuleInteractor) PagedListBySearch(
 	return i.DS.ProfitDistributionRuleRepo().PagedListBySearch(ctx, page, params)
 }
 
+func (i *ProfitDistributionRuleInteractor) GetDetail(ctx context.Context, id uuid.UUID, user domain.User) (res *domain.ProfitDistributionRule, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "ProfitDistributionRuleInteractor.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	rule, err := i.DS.ProfitDistributionRuleRepo().GetDetail(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return nil, domain.ParamsError(domain.ErrProfitDistributionRuleNotExists)
+		}
+		return nil, err
+	}
+	if rule.MerchantID != user.GetMerchantID() {
+		return nil, domain.ParamsError(domain.ErrProfitDistributionRuleNotExists)
+	}
+	return rule, nil
+}
+
 // ============================================
 // 校验函数
 // ============================================

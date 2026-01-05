@@ -93,6 +93,21 @@ func (mr *MockProfitDistributionRuleInteractorMockRecorder) Enable(arg0, arg1, a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Enable", reflect.TypeOf((*MockProfitDistributionRuleInteractor)(nil).Enable), arg0, arg1, arg2)
 }
 
+// GetDetail mocks base method.
+func (m *MockProfitDistributionRuleInteractor) GetDetail(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.ProfitDistributionRule, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDetail", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.ProfitDistributionRule)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDetail indicates an expected call of GetDetail.
+func (mr *MockProfitDistributionRuleInteractorMockRecorder) GetDetail(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockProfitDistributionRuleInteractor)(nil).GetDetail), arg0, arg1, arg2)
+}
+
 // PagedListBySearch mocks base method.
 func (m *MockProfitDistributionRuleInteractor) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.ProfitDistributionRuleSearchParams) (*domain.ProfitDistributionRuleSearchRes, error) {
 	m.ctrl.T.Helper()

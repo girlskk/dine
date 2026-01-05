@@ -34,6 +34,7 @@ func (h *ProfitDistributionRuleHandler) Routes(r gin.IRouter) {
 	r.POST("/:id/enable", h.Enable())
 	r.POST("/:id/disable", h.Disable())
 	r.GET("", h.List())
+	r.GET("/:id", h.GetDetail())
 }
 
 func (h *ProfitDistributionRuleHandler) NoAuths() []string {
@@ -338,5 +339,44 @@ func (h *ProfitDistributionRuleHandler) List() gin.HandlerFunc {
 		}
 
 		response.Ok(c, res)
+	}
+}
+
+// GetDetail
+//
+//	@Tags		分账方案
+//	@Security	BearerAuth
+//	@Summary	获取分账方案详情
+//	@Param		id	path		string							true	"分账方案ID"
+//	@Success	200	{object}	domain.ProfitDistributionRule	"成功"
+//	@Router		/profit/distribution/rule/{id} [get]
+func (h *ProfitDistributionRuleHandler) GetDetail() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("ProfitDistributionRuleHandler.GetDetail")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		// 从路径参数获取商品ID
+		idStr := c.Param("id")
+		ruleID, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := domain.FromBackendUserContext(ctx)
+		rule, err := h.ProfitDistributionRuleInteractor.GetDetail(ctx, ruleID, user)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to get profit distribution rule detail: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, rule)
 	}
 }

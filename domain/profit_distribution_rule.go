@@ -112,6 +112,7 @@ type ProfitDistributionRuleInteractor interface {
 	Enable(ctx context.Context, id uuid.UUID, user User) error
 	Disable(ctx context.Context, id uuid.UUID, user User) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProfitDistributionRuleSearchParams) (*ProfitDistributionRuleSearchRes, error)
+	GetDetail(ctx context.Context, id uuid.UUID, user User) (*ProfitDistributionRule, error)
 }
 
 // ------------------------------------------------------------

@@ -2114,6 +2114,34 @@ const docTemplate = `{
             }
         },
         "/profit/distribution/rule/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "获取分账方案详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionRule"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -7264,9 +7292,23 @@ const docTemplate = `{
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
