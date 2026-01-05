@@ -102,6 +102,7 @@ type OrderRepository interface {
 	Update(ctx context.Context, order *Order) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context, params OrderListParams) ([]*Order, int, error)
+	SalesReport(ctx context.Context, params OrderSalesReportParams) ([]*OrderSalesReportItem, int, error)
 }
 
 type OrderInteractor interface {
@@ -110,6 +111,7 @@ type OrderInteractor interface {
 	Update(ctx context.Context, order *Order) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context, params OrderListParams) ([]*Order, int, error)
+	SalesReport(ctx context.Context, params OrderSalesReportParams) ([]*OrderSalesReportItem, int, error)
 }
 
 // OrderCashier 收银员信息
@@ -247,4 +249,32 @@ type OrderListParams struct {
 
 	Page int
 	Size int
+}
+
+// OrderSalesReportParams 销售报表查询参数
+type OrderSalesReportParams struct {
+	MerchantID        uuid.UUID   // 品牌商ID
+	StoreIDs          []uuid.UUID // 门店ID列表（可多选）
+	BusinessDateStart string      // 营业日开始
+	BusinessDateEnd   string      // 营业日结束
+
+	Page int
+	Size int
+}
+
+// OrderSalesReportItem 销售报表单条记录
+type OrderSalesReportItem struct {
+	BusinessDate       string          `json:"business_date"`         // 营业日
+	StoreID            uuid.UUID       `json:"store_id"`              // 门店ID
+	StoreName          string          `json:"store_name"`            // 门店名称
+	OrderCount         int             `json:"order_count"`           // 单量
+	GuestCount         int             `json:"guest_count"`           // 用餐人数
+	AmountDue          decimal.Decimal `json:"amount_due"`            // 应收金额
+	DiscountTotal      decimal.Decimal `json:"discount_total"`        // 优惠金额
+	FeeTotal           decimal.Decimal `json:"fee_total"`             // 附加费金额
+	AmountPaid         decimal.Decimal `json:"amount_paid"`           // 实收金额
+	CashAmount         decimal.Decimal `json:"cash_amount"`           // 现金金额
+	ThirdPartyAmount   decimal.Decimal `json:"third_party_amount"`    // 三方支付金额
+	ChangeAmount       decimal.Decimal `json:"change_amount"`         // 零钱实收
+	AmountPaidPerGuest decimal.Decimal `json:"amount_paid_per_guest"` // 人均实收
 }

@@ -93,3 +93,16 @@ func (interactor *OrderInteractor) List(ctx context.Context, params domain.Order
 	}
 	return res, total, nil
 }
+
+func (interactor *OrderInteractor) SalesReport(ctx context.Context, params domain.OrderSalesReportParams) (res []*domain.OrderSalesReportItem, total int, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "OrderInteractor.SalesReport")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	res, total, err = interactor.DS.OrderRepo().SalesReport(ctx, params)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get sales report: %w", err)
+	}
+	return res, total, nil
+}

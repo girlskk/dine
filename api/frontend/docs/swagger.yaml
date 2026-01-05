@@ -353,6 +353,48 @@ definitions:
         description: 退款说明
         type: string
     type: object
+  domain.OrderSalesReportItem:
+    properties:
+      amount_due:
+        description: 应收金额
+        type: number
+      amount_paid:
+        description: 实收金额
+        type: number
+      amount_paid_per_guest:
+        description: 人均实收
+        type: number
+      business_date:
+        description: 营业日
+        type: string
+      cash_amount:
+        description: 现金金额
+        type: number
+      change_amount:
+        description: 零钱实收
+        type: number
+      discount_total:
+        description: 优惠金额
+        type: number
+      fee_total:
+        description: 附加费金额
+        type: number
+      guest_count:
+        description: 用餐人数
+        type: integer
+      order_count:
+        description: 单量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      store_name:
+        description: 门店名称
+        type: string
+      third_party_amount:
+        description: 三方支付金额
+        type: number
+    type: object
   domain.OrderStatus:
     enum:
     - PLACED
@@ -616,6 +658,18 @@ definitions:
         - $ref: '#/definitions/upagination.Pagination'
         description: 分页信息
     type: object
+  types.SalesReportResp:
+    properties:
+      items:
+        description: 报表数据
+        items:
+          $ref: '#/definitions/domain.OrderSalesReportItem'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/upagination.Pagination'
+        description: 分页信息
+    type: object
   types.UpdateOrderReq:
     properties:
       amount:
@@ -650,6 +704,11 @@ definitions:
       order_no:
         description: 订单号
         type: string
+      order_products:
+        description: 订单商品明细
+        items:
+          $ref: '#/definitions/domain.OrderProduct'
+        type: array
       order_status:
         description: 订单状态
         enum:
@@ -887,6 +946,50 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新订单
+      tags:
+      - 订单
+  /order/sales-report:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 品牌商ID
+        in: query
+        name: merchant_id
+        required: true
+        type: string
+      - description: 门店ID列表（逗号分隔）
+        in: query
+        name: store_ids
+        type: string
+      - description: 营业日开始
+        in: query
+        name: business_date_start
+        required: true
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.SalesReportResp'
+      security:
+      - BearerAuth: []
+      summary: 销售报表
       tags:
       - 订单
 securityDefinitions:

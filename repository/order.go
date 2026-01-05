@@ -12,6 +12,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	entorder "gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	entorderproduct "gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -617,4 +618,102 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 		SpecRelations:      eop.SpecRelations,
 		AttrRelations:      eop.AttrRelations,
 	}
+}
+
+func (repo *OrderRepository) SalesReport(ctx context.Context, params domain.OrderSalesReportParams) (res []*domain.OrderSalesReportItem, total int, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "OrderRepository.SalesReport")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	// 函数内部结构体，用于接收 SQL 结果（包含分页总数）
+	type salesReportRow struct {
+		domain.OrderSalesReportItem
+		Total int `json:"total"`
+	}
+
+	// 构建基础查询条件
+	predicates := []predicate.Order{
+		entorder.MerchantID(params.MerchantID),
+		entorder.OrderTypeEQ(domain.OrderTypeSale),
+		entorder.PaymentStatusEQ(domain.PaymentStatusPaid),
+	}
+	if len(params.StoreIDs) > 0 {
+		predicates = append(predicates, entorder.StoreIDIn(params.StoreIDs...))
+	}
+	if params.BusinessDateStart != "" {
+		predicates = append(predicates, entorder.BusinessDateGTE(params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		predicates = append(predicates, entorder.BusinessDateLTE(params.BusinessDateEnd))
+	}
+
+	pageInfo := upagination.New(params.Page, params.Size)
+	cashMethod := string(domain.PaymentMethodTypeCash)
+
+	// 现金金额：遍历 payments 数组，累加 payment_method = CASH 的金额
+	cashExpr := fmt.Sprintf(`CEILING(COALESCE(SUM(
+		(SELECT IFNULL(SUM(
+			CASE WHEN JSON_UNQUOTE(JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_method'))) = '%s'
+			THEN JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_amount'))
+			ELSE 0 END
+		), 0)
+		FROM (SELECT 0 AS i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+		      UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) n
+		WHERE n.i < JSON_LENGTH(payments))
+	), 0) * 100) / 100`, cashMethod)
+
+	// 三方支付金额：遍历 payments 数组，累加 payment_method != CASH 的金额
+	thirdPartyExpr := fmt.Sprintf(`CEILING(COALESCE(SUM(
+		(SELECT IFNULL(SUM(
+			CASE WHEN JSON_UNQUOTE(JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_method'))) != '%s'
+			     AND JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_method')) IS NOT NULL
+			THEN JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_amount'))
+			ELSE 0 END
+		), 0)
+		FROM (SELECT 0 AS i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+		      UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) n
+		WHERE n.i < JSON_LENGTH(payments))
+	), 0) * 100) / 100`, cashMethod)
+
+	var rows []salesReportRow
+	err = repo.Client.Order.Query().
+		Where(predicates...).
+		Modify(func(s *entsql.Selector) {
+			s.Select(
+				s.C(entorder.FieldBusinessDate),
+				s.C(entorder.FieldStoreID),
+			).
+				AppendSelectExprAs(entsql.Raw("MAX(JSON_UNQUOTE(JSON_EXTRACT(`store`, '$.store_name')))"), "store_name").
+				AppendSelectExprAs(entsql.Raw("COUNT(*)"), "order_count").
+				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`guest_count`), 0)"), "guest_count").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_due')), 0) * 100) / 100"), "amount_due").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.discount_total')), 0) * 100) / 100"), "discount_total").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.fee_total')), 0) * 100) / 100"), "fee_total").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_paid')), 0) * 100) / 100"), "amount_paid").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.change_amount')), 0) * 100) / 100"), "change_amount").
+				AppendSelectExprAs(entsql.Raw(cashExpr), "cash_amount").
+				AppendSelectExprAs(entsql.Raw(thirdPartyExpr), "third_party_amount").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_paid')), 0) / NULLIF(SUM(`guest_count`), 0) * 100) / 100"), "amount_paid_per_guest").
+				AppendSelectExprAs(entsql.Raw("COUNT(*) OVER()"), "total").
+				GroupBy(s.C(entorder.FieldBusinessDate), s.C(entorder.FieldStoreID)).
+				OrderBy(entsql.Desc(s.C(entorder.FieldBusinessDate))).
+				Limit(pageInfo.Size).
+				Offset(pageInfo.Offset())
+		}).
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query sales report: %w", err)
+	}
+
+	if len(rows) == 0 {
+		return []*domain.OrderSalesReportItem{}, 0, nil
+	}
+
+	total = rows[0].Total
+	res = make([]*domain.OrderSalesReportItem, len(rows))
+	for i := range rows {
+		res[i] = &rows[i].OrderSalesReportItem
+	}
+	return res, total, nil
 }
