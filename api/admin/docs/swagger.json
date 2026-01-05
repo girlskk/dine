@@ -2554,6 +2554,127 @@
                 }
             }
         },
+        "types.CreateMStoreReq": {
+            "type": "object",
+            "required": [
+                "admin_phone_number",
+                "business_hours",
+                "business_model",
+                "dining_periods",
+                "location_number",
+                "shift_times",
+                "store_name"
+            ],
+            "properties": {
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "business_model": {
+                    "description": "直营/加盟",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessModel"
+                        }
+                    ]
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
+                },
+                "status": {
+                    "description": "营业/停业",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
         "types.CreateMerchantReq": {
             "type": "object",
             "required": [
@@ -2659,7 +2780,7 @@
                     "$ref": "#/definitions/types.CreateMerchantReq"
                 },
                 "store": {
-                    "$ref": "#/definitions/types.CreateStoreReq"
+                    "$ref": "#/definitions/types.CreateMStoreReq"
                 }
             }
         },
@@ -3111,6 +3232,119 @@
                 }
             }
         },
+        "types.UpdateMStoreReq": {
+            "type": "object",
+            "required": [
+                "admin_phone_number",
+                "business_hours",
+                "dining_periods",
+                "location_number",
+                "shift_times",
+                "status",
+                "store_name"
+            ],
+            "properties": {
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
+                },
+                "status": {
+                    "description": "营业/停业",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
         "types.UpdateMerchantReq": {
             "type": "object",
             "required": [
@@ -3183,7 +3417,7 @@
                     "$ref": "#/definitions/types.UpdateMerchantReq"
                 },
                 "store": {
-                    "$ref": "#/definitions/types.UpdateStoreReq"
+                    "$ref": "#/definitions/types.UpdateMStoreReq"
                 }
             }
         },

@@ -131,17 +131,6 @@ func (du *DepartmentUpdate) defaults() error {
 	return nil
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (du *DepartmentUpdate) check() error {
-	if du.mutation.MerchantCleared() && len(du.mutation.MerchantIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Department.merchant"`)
-	}
-	if du.mutation.StoreCleared() && len(du.mutation.StoreIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Department.store"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (du *DepartmentUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *DepartmentUpdate {
 	du.modifiers = append(du.modifiers, modifiers...)
@@ -149,9 +138,6 @@ func (du *DepartmentUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *Dep
 }
 
 func (du *DepartmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := du.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(department.Table, department.Columns, sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID))
 	if ps := du.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -312,17 +298,6 @@ func (duo *DepartmentUpdateOne) defaults() error {
 	return nil
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (duo *DepartmentUpdateOne) check() error {
-	if duo.mutation.MerchantCleared() && len(duo.mutation.MerchantIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Department.merchant"`)
-	}
-	if duo.mutation.StoreCleared() && len(duo.mutation.StoreIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Department.store"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (duo *DepartmentUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *DepartmentUpdateOne {
 	duo.modifiers = append(duo.modifiers, modifiers...)
@@ -330,9 +305,6 @@ func (duo *DepartmentUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) 
 }
 
 func (duo *DepartmentUpdateOne) sqlSave(ctx context.Context) (_node *Department, err error) {
-	if err := duo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(department.Table, department.Columns, sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID))
 	id, ok := duo.mutation.ID()
 	if !ok {

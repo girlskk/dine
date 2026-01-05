@@ -30,13 +30,30 @@ func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore
 		return
 	}
 
-	domainStore.ID = uuid.New()
-	err = interactor.DataStore.StoreRepo().Create(ctx, domainStore)
-	if err != nil {
-		err = fmt.Errorf("failed to create store: %w", err)
-		return
-	}
+	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		var err error
 
+		storeID := uuid.New()
+		err = ds.StoreUserRepo().Create(ctx, &domain.StoreUser{
+			ID:             uuid.New(),
+			Username:       domainStore.LoginAccount,
+			HashedPassword: domainStore.LoginPassword,
+			Nickname:       "",
+			MerchantID:     domainStore.MerchantID,
+			StoreID:        storeID,
+		})
+		if err != nil {
+			return err
+		}
+
+		domainStore.ID = storeID
+		err = ds.StoreRepo().Create(ctx, domainStore)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	return
 }
 

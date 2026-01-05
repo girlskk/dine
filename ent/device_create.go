@@ -446,9 +446,6 @@ func (dc *DeviceCreate) check() error {
 	if _, ok := dc.mutation.Enabled(); !ok {
 		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "Device.enabled"`)}
 	}
-	if _, ok := dc.mutation.Status(); !ok {
-		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Device.status"`)}
-	}
 	if v, ok := dc.mutation.Status(); ok {
 		if err := device.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Device.status": %w`, err)}
@@ -830,6 +827,12 @@ func (u *DeviceUpsert) SetStatus(v domain.DeviceStatus) *DeviceUpsert {
 // UpdateStatus sets the "status" field to the value that was provided on create.
 func (u *DeviceUpsert) UpdateStatus() *DeviceUpsert {
 	u.SetExcluded(device.FieldStatus)
+	return u
+}
+
+// ClearStatus clears the value of the "status" field.
+func (u *DeviceUpsert) ClearStatus() *DeviceUpsert {
+	u.SetNull(device.FieldStatus)
 	return u
 }
 
@@ -1216,6 +1219,13 @@ func (u *DeviceUpsertOne) SetStatus(v domain.DeviceStatus) *DeviceUpsertOne {
 func (u *DeviceUpsertOne) UpdateStatus() *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// ClearStatus clears the value of the "status" field.
+func (u *DeviceUpsertOne) ClearStatus() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearStatus()
 	})
 }
 
@@ -1797,6 +1807,13 @@ func (u *DeviceUpsertBulk) SetStatus(v domain.DeviceStatus) *DeviceUpsertBulk {
 func (u *DeviceUpsertBulk) UpdateStatus() *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// ClearStatus clears the value of the "status" field.
+func (u *DeviceUpsertBulk) ClearStatus() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearStatus()
 	})
 }
 

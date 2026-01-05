@@ -131,17 +131,6 @@ func (ru *RoleUpdate) defaults() error {
 	return nil
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (ru *RoleUpdate) check() error {
-	if ru.mutation.MerchantCleared() && len(ru.mutation.MerchantIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Role.merchant"`)
-	}
-	if ru.mutation.StoreCleared() && len(ru.mutation.StoreIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Role.store"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (ru *RoleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleUpdate {
 	ru.modifiers = append(ru.modifiers, modifiers...)
@@ -149,9 +138,6 @@ func (ru *RoleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleUpdat
 }
 
 func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := ru.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	if ps := ru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -312,17 +298,6 @@ func (ruo *RoleUpdateOne) defaults() error {
 	return nil
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (ruo *RoleUpdateOne) check() error {
-	if ruo.mutation.MerchantCleared() && len(ruo.mutation.MerchantIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Role.merchant"`)
-	}
-	if ruo.mutation.StoreCleared() && len(ruo.mutation.StoreIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Role.store"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (ruo *RoleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleUpdateOne {
 	ruo.modifiers = append(ruo.modifiers, modifiers...)
@@ -330,9 +305,6 @@ func (ruo *RoleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleU
 }
 
 func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) {
-	if err := ruo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	id, ok := ruo.mutation.ID()
 	if !ok {

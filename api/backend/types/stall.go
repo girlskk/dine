@@ -24,9 +24,9 @@ type StallUpdateReq struct {
 // StallListReq 出品部门列表查询
 type StallListReq struct {
 	upagination.RequestPagination
-	Name      string                `form:"name" json:"name"`             // 名称模糊查询
-	Enabled   *bool                 `form:"enabled" json:"enabled"`       // 启用状态
-	PrintType domain.StallPrintType `form:"print_type" json:"print_type"` // 打印类型
+	Name      string                `form:"name"`       // 名称模糊查询
+	Enabled   *bool                 `form:"enabled"`    // 启用状态
+	PrintType domain.StallPrintType `form:"print_type"` // 打印类型
 }
 
 type StallListResp struct {

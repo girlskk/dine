@@ -8,18 +8,14 @@ import (
 
 // TaxFeeCreateReq 创建税费
 type TaxFeeCreateReq struct {
-	Name        string             `json:"name" binding:"required,max=50"`                        // 税费名称
-	TaxRateType domain.TaxRateType `json:"tax_rate_type" binding:"required,oneof=unified custom"` // 税率类型
-	TaxRate     decimal.Decimal    `json:"tax_rate" binding:"required"`                           // 税率 tax_rate 示例：6% -> 0.06
-	DefaultTax  bool               `json:"default_tax" binding:"required"`                        // 是否默认税率
+	Name    string          `json:"name" binding:"required,max=50"` // 税费名称
+	TaxRate decimal.Decimal `json:"tax_rate" binding:"required"`    // 税率 tax_rate 示例：6% -> 0.06
 }
 
 // TaxFeeUpdateReq 更新税费（仅可修改部分字段）
 type TaxFeeUpdateReq struct {
-	Name        string             `json:"name" binding:"required,max=50"`                        // 税费名称
-	TaxRateType domain.TaxRateType `json:"tax_rate_type" binding:"required,oneof=unified custom"` // 税率类型
-	TaxRate     decimal.Decimal    `json:"tax_rate" binding:"required"`                           // 税率 tax_rate 示例：6% -> 0.06
-	DefaultTax  bool               `json:"default_tax" binding:"required"`                        // 是否默认税率
+	Name    string          `json:"name" binding:"required,max=50"` // 税费名称
+	TaxRate decimal.Decimal `json:"tax_rate" binding:"required"`    // 税率 tax_rate 示例：6% -> 0.06
 }
 
 // TaxFeeListReq 列表查询

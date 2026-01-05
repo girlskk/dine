@@ -79,11 +79,6 @@ func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context
 		return err
 	}
 
-	err = interactor.checkFields(ctx, domainMerchant)
-	if err != nil {
-		return
-	}
-
 	expireTime := domain.CalculateExpireTime(time.Now().UTC(), domainCMerchant.PurchaseDuration, domainCMerchant.PurchaseDurationUnit)
 	domainMerchant.ExpireUTC = expireTime
 	domainMerchant.Status = domain.MerchantStatusActive
@@ -118,12 +113,25 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 			return err
 		}
 		if domainStore != nil {
+			storeID := uuid.New()
+			err = ds.StoreUserRepo().Create(ctx, &domain.StoreUser{
+				ID:             uuid.New(),
+				Username:       domainMerchant.LoginAccount,
+				HashedPassword: domainMerchant.LoginPassword,
+				Nickname:       "",
+				MerchantID:     merchantID,
+				StoreID:        storeID,
+			})
+			if err != nil {
+				return err
+			}
 			domainStore.MerchantID = merchantID
-			domainStore.ID = uuid.New()
+			domainStore.ID = storeID
 			err = ds.StoreRepo().Create(ctx, domainStore)
 			if err != nil {
 				return err
 			}
+
 		}
 
 		return nil
@@ -369,6 +377,7 @@ func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merch
 				oldExpireTime = *m.ExpireUTC
 			}
 		}
+		m.Status = domain.MerchantStatusActive
 		m.ExpireUTC = domain.CalculateExpireTime(oldExpireTime, merchantRenewal.PurchaseDuration, merchantRenewal.PurchaseDurationUnit)
 		err = ds.MerchantRepo().Update(ctx, m)
 		if err != nil {
@@ -400,7 +409,7 @@ func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Cont
 		Address:           domainCMerchant.Address,
 	}
 
-	err = interactor.checkFields(ctx, domainMerchant)
+	err = interactor.exists(ctx, domainMerchant)
 	if err != nil {
 		return
 	}
@@ -434,14 +443,14 @@ func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Cont
 		LoginAccount:      oldMerchant.LoginAccount,
 	}
 
-	err = interactor.checkFields(ctx, domainMerchant)
+	err = interactor.exists(ctx, domainMerchant)
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (interactor *MerchantInteractor) checkFields(ctx context.Context, domainMerchant *domain.Merchant) (err error) {
+func (interactor *MerchantInteractor) exists(ctx context.Context, domainMerchant *domain.Merchant) (err error) {
 	// 商户名称唯一性校验（update排除自身）
 	exists, err := interactor.DataStore.MerchantRepo().ExistMerchant(ctx, &domain.MerchantExistsParams{
 		MerchantName: domainMerchant.MerchantName,

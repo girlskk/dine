@@ -667,6 +667,16 @@ func StatusNotIn(vs ...domain.DeviceStatus) predicate.Device {
 	return predicate.Device(sql.FieldNotIn(FieldStatus, v...))
 }
 
+// StatusIsNil applies the IsNil predicate on the "status" field.
+func StatusIsNil() predicate.Device {
+	return predicate.Device(sql.FieldIsNull(FieldStatus))
+}
+
+// StatusNotNil applies the NotNil predicate on the "status" field.
+func StatusNotNil() predicate.Device {
+	return predicate.Device(sql.FieldNotNull(FieldStatus))
+}
+
 // IPEQ applies the EQ predicate on the "ip" field.
 func IPEQ(v string) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldIP, v))

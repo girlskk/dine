@@ -68,9 +68,9 @@ func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 			Name:        req.Name,
 			TaxFeeType:  domain.TaxFeeTypeMerchant,
 			TaxCode:     "", // todo 统一规则生成,后续写
-			TaxRateType: req.TaxRateType,
+			TaxRateType: domain.TaxRateTypeUnified,
 			TaxRate:     req.TaxRate,
-			DefaultTax:  req.DefaultTax,
+			DefaultTax:  false,
 			MerchantID:  user.MerchantID,
 		}
 
@@ -128,9 +128,9 @@ func (h *TaxFeeHandler) Update() gin.HandlerFunc {
 		fee := &domain.TaxFee{
 			ID:          id,
 			Name:        req.Name,
-			TaxRateType: req.TaxRateType,
+			TaxRateType: domain.TaxRateTypeUnified,
 			TaxRate:     req.TaxRate,
-			DefaultTax:  req.DefaultTax,
+			DefaultTax:  false,
 		}
 
 		if err := h.TaxFeeInteractor.Update(ctx, fee); err != nil {

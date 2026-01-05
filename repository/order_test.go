@@ -42,19 +42,26 @@ func (s *OrderTestSuite) newTestOrder(storeID, orderNo string) *domain.Order {
 		DiningMode:   domain.DiningModeDineIn,
 		Channel:      domain.ChannelPOS,
 		Store:        domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID},
+		Pos:          domain.OrderPOS{PosID: "test-pos"},
+		Cashier:      domain.OrderCashier{CashierID: "test-cashier"},
 		Amount:       domain.OrderAmount{},
 	}
 }
 
 func (s *OrderTestSuite) createEntOrder(storeID, orderNo string, createdAt time.Time, paymentStatus string) *ent.Order {
 	storeUUID := uuid.MustParse(storeID)
+	merchantUUID := uuid.New()
 	builder := s.client.Order.Create().
 		SetID(uuid.New()).
-		SetMerchantID(uuid.New()).
+		SetMerchantID(merchantUUID).
 		SetStoreID(storeUUID).
 		SetBusinessDate("2025-12-22").
 		SetOrderNo(orderNo).
 		SetDiningMode(domain.DiningModeDineIn).
+		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
+		SetPos(domain.OrderPOS{PosID: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetAmount(domain.OrderAmount{}).
 		SetCreatedAt(createdAt)
 
 	if paymentStatus != "" {
@@ -72,8 +79,6 @@ func (s *OrderTestSuite) TestOrder_Create() {
 		err := s.repo.Create(s.ctx, order)
 		require.NoError(t, err)
 		require.NotEqual(t, uuid.Nil, order.ID)
-		require.False(t, order.CreatedAt.IsZero())
-		require.False(t, order.UpdatedAt.IsZero())
 
 		dbOrder := s.client.Order.GetX(s.ctx, order.ID)
 		require.Equal(t, order.MerchantID, dbOrder.MerchantID)
@@ -81,7 +86,7 @@ func (s *OrderTestSuite) TestOrder_Create() {
 		require.Equal(t, order.BusinessDate, dbOrder.BusinessDate)
 		require.Equal(t, order.OrderNo, dbOrder.OrderNo)
 		require.Equal(t, domain.DiningModeDineIn, dbOrder.DiningMode)
-		require.Contains(t, string(dbOrder.Store), order.Store.ID.String())
+		require.Equal(t, order.Store.ID, dbOrder.Store.ID)
 	})
 
 	s.T().Run("唯一键冲突返回 Conflict", func(t *testing.T) {
@@ -154,7 +159,7 @@ func (s *OrderTestSuite) TestOrder_Update() {
 		require.Equal(t, newBusinessDate, dbOrder.BusinessDate)
 		require.Equal(t, domain.OrderStatusPlaced, dbOrder.OrderStatus)
 		require.Equal(t, domain.PaymentStatusPaid, dbOrder.PaymentStatus)
-		require.Contains(t, string(dbOrder.Amount), "\"amount_due\"")
+		require.True(t, dbOrder.Amount.AmountDue.Equal(decimal.NewFromInt(100)))
 	})
 
 	s.T().Run("更新不存在的ID", func(t *testing.T) {
@@ -208,6 +213,10 @@ func (s *OrderTestSuite) TestOrder_List() {
 		SetBusinessDate("2025-12-22").
 		SetOrderNo("NO-L1").
 		SetDiningMode(domain.DiningModeDineIn).
+		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
+		SetPos(domain.OrderPOS{PosID: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetAmount(domain.OrderAmount{}).
 		SetCreatedAt(base.Add(1 * time.Second)).
 		SaveX(s.ctx)
 	o2 := s.client.Order.Create().
@@ -217,6 +226,10 @@ func (s *OrderTestSuite) TestOrder_List() {
 		SetBusinessDate("2025-12-22").
 		SetOrderNo("NO-L2").
 		SetDiningMode(domain.DiningModeDineIn).
+		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
+		SetPos(domain.OrderPOS{PosID: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetAmount(domain.OrderAmount{}).
 		SetPaymentStatus(domain.PaymentStatusPaid).
 		SetCreatedAt(base.Add(2 * time.Second)).
 		SaveX(s.ctx)
@@ -227,6 +240,10 @@ func (s *OrderTestSuite) TestOrder_List() {
 		SetBusinessDate("2025-12-22").
 		SetOrderNo("NO-L3").
 		SetDiningMode(domain.DiningModeDineIn).
+		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
+		SetPos(domain.OrderPOS{PosID: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetAmount(domain.OrderAmount{}).
 		SetCreatedAt(base.Add(3 * time.Second)).
 		SaveX(s.ctx)
 

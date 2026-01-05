@@ -6855,9 +6855,22 @@ func (m *DepartmentMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, er
 	return oldValue.MerchantID, nil
 }
 
+// ClearMerchantID clears the value of the "merchant_id" field.
+func (m *DepartmentMutation) ClearMerchantID() {
+	m.merchant = nil
+	m.clearedFields[department.FieldMerchantID] = struct{}{}
+}
+
+// MerchantIDCleared returns if the "merchant_id" field was cleared in this mutation.
+func (m *DepartmentMutation) MerchantIDCleared() bool {
+	_, ok := m.clearedFields[department.FieldMerchantID]
+	return ok
+}
+
 // ResetMerchantID resets all changes to the "merchant_id" field.
 func (m *DepartmentMutation) ResetMerchantID() {
 	m.merchant = nil
+	delete(m.clearedFields, department.FieldMerchantID)
 }
 
 // SetStoreID sets the "store_id" field.
@@ -6891,9 +6904,22 @@ func (m *DepartmentMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err e
 	return oldValue.StoreID, nil
 }
 
+// ClearStoreID clears the value of the "store_id" field.
+func (m *DepartmentMutation) ClearStoreID() {
+	m.store = nil
+	m.clearedFields[department.FieldStoreID] = struct{}{}
+}
+
+// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
+func (m *DepartmentMutation) StoreIDCleared() bool {
+	_, ok := m.clearedFields[department.FieldStoreID]
+	return ok
+}
+
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *DepartmentMutation) ResetStoreID() {
 	m.store = nil
+	delete(m.clearedFields, department.FieldStoreID)
 }
 
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
@@ -6904,7 +6930,7 @@ func (m *DepartmentMutation) ClearMerchant() {
 
 // MerchantCleared reports if the "merchant" edge to the Merchant entity was cleared.
 func (m *DepartmentMutation) MerchantCleared() bool {
-	return m.clearedmerchant
+	return m.MerchantIDCleared() || m.clearedmerchant
 }
 
 // MerchantIDs returns the "merchant" edge IDs in the mutation.
@@ -6931,7 +6957,7 @@ func (m *DepartmentMutation) ClearStore() {
 
 // StoreCleared reports if the "store" edge to the Store entity was cleared.
 func (m *DepartmentMutation) StoreCleared() bool {
-	return m.clearedstore
+	return m.StoreIDCleared() || m.clearedstore
 }
 
 // StoreIDs returns the "store" edge IDs in the mutation.
@@ -7181,7 +7207,14 @@ func (m *DepartmentMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *DepartmentMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(department.FieldMerchantID) {
+		fields = append(fields, department.FieldMerchantID)
+	}
+	if m.FieldCleared(department.FieldStoreID) {
+		fields = append(fields, department.FieldStoreID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -7194,6 +7227,14 @@ func (m *DepartmentMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *DepartmentMutation) ClearField(name string) error {
+	switch name {
+	case department.FieldMerchantID:
+		m.ClearMerchantID()
+		return nil
+	case department.FieldStoreID:
+		m.ClearStoreID()
+		return nil
+	}
 	return fmt.Errorf("unknown Department nullable field %s", name)
 }
 
@@ -7978,9 +8019,22 @@ func (m *DeviceMutation) OldStatus(ctx context.Context) (v domain.DeviceStatus, 
 	return oldValue.Status, nil
 }
 
+// ClearStatus clears the value of the "status" field.
+func (m *DeviceMutation) ClearStatus() {
+	m.status = nil
+	m.clearedFields[device.FieldStatus] = struct{}{}
+}
+
+// StatusCleared returns if the "status" field was cleared in this mutation.
+func (m *DeviceMutation) StatusCleared() bool {
+	_, ok := m.clearedFields[device.FieldStatus]
+	return ok
+}
+
 // ResetStatus resets all changes to the "status" field.
 func (m *DeviceMutation) ResetStatus() {
 	m.status = nil
+	delete(m.clearedFields, device.FieldStatus)
 }
 
 // SetIP sets the "ip" field.
@@ -8990,6 +9044,9 @@ func (m *DeviceMutation) ClearedFields() []string {
 	if m.FieldCleared(device.FieldDeviceModel) {
 		fields = append(fields, device.FieldDeviceModel)
 	}
+	if m.FieldCleared(device.FieldStatus) {
+		fields = append(fields, device.FieldStatus)
+	}
 	if m.FieldCleared(device.FieldIP) {
 		fields = append(fields, device.FieldIP)
 	}
@@ -9036,6 +9093,9 @@ func (m *DeviceMutation) ClearField(name string) error {
 		return nil
 	case device.FieldDeviceModel:
 		m.ClearDeviceModel()
+		return nil
+	case device.FieldStatus:
+		m.ClearStatus()
 		return nil
 	case device.FieldIP:
 		m.ClearIP()
@@ -37130,9 +37190,22 @@ func (m *RoleMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err erro
 	return oldValue.MerchantID, nil
 }
 
+// ClearMerchantID clears the value of the "merchant_id" field.
+func (m *RoleMutation) ClearMerchantID() {
+	m.merchant = nil
+	m.clearedFields[role.FieldMerchantID] = struct{}{}
+}
+
+// MerchantIDCleared returns if the "merchant_id" field was cleared in this mutation.
+func (m *RoleMutation) MerchantIDCleared() bool {
+	_, ok := m.clearedFields[role.FieldMerchantID]
+	return ok
+}
+
 // ResetMerchantID resets all changes to the "merchant_id" field.
 func (m *RoleMutation) ResetMerchantID() {
 	m.merchant = nil
+	delete(m.clearedFields, role.FieldMerchantID)
 }
 
 // SetStoreID sets the "store_id" field.
@@ -37166,9 +37239,22 @@ func (m *RoleMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) 
 	return oldValue.StoreID, nil
 }
 
+// ClearStoreID clears the value of the "store_id" field.
+func (m *RoleMutation) ClearStoreID() {
+	m.store = nil
+	m.clearedFields[role.FieldStoreID] = struct{}{}
+}
+
+// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
+func (m *RoleMutation) StoreIDCleared() bool {
+	_, ok := m.clearedFields[role.FieldStoreID]
+	return ok
+}
+
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *RoleMutation) ResetStoreID() {
 	m.store = nil
+	delete(m.clearedFields, role.FieldStoreID)
 }
 
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
@@ -37179,7 +37265,7 @@ func (m *RoleMutation) ClearMerchant() {
 
 // MerchantCleared reports if the "merchant" edge to the Merchant entity was cleared.
 func (m *RoleMutation) MerchantCleared() bool {
-	return m.clearedmerchant
+	return m.MerchantIDCleared() || m.clearedmerchant
 }
 
 // MerchantIDs returns the "merchant" edge IDs in the mutation.
@@ -37206,7 +37292,7 @@ func (m *RoleMutation) ClearStore() {
 
 // StoreCleared reports if the "store" edge to the Store entity was cleared.
 func (m *RoleMutation) StoreCleared() bool {
-	return m.clearedstore
+	return m.StoreIDCleared() || m.clearedstore
 }
 
 // StoreIDs returns the "store" edge IDs in the mutation.
@@ -37456,7 +37542,14 @@ func (m *RoleMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *RoleMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(role.FieldMerchantID) {
+		fields = append(fields, role.FieldMerchantID)
+	}
+	if m.FieldCleared(role.FieldStoreID) {
+		fields = append(fields, role.FieldStoreID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -37469,6 +37562,14 @@ func (m *RoleMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *RoleMutation) ClearField(name string) error {
+	switch name {
+	case role.FieldMerchantID:
+		m.ClearMerchantID()
+		return nil
+	case role.FieldStoreID:
+		m.ClearStoreID()
+		return nil
+	}
 	return fmt.Errorf("unknown Role nullable field %s", name)
 }
 

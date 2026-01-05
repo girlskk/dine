@@ -9542,16 +9542,10 @@ const docTemplate = `{
         "types.TaxFeeCreateReq": {
             "type": "object",
             "required": [
-                "default_tax",
                 "name",
-                "tax_rate",
-                "tax_rate_type"
+                "tax_rate"
             ],
             "properties": {
-                "default_tax": {
-                    "description": "是否默认税率",
-                    "type": "boolean"
-                },
                 "name": {
                     "description": "税费名称",
                     "type": "string",
@@ -9560,18 +9554,6 @@ const docTemplate = `{
                 "tax_rate": {
                     "description": "税率 tax_rate 示例：6% -\u003e 0.06",
                     "type": "number"
-                },
-                "tax_rate_type": {
-                    "description": "税率类型",
-                    "enum": [
-                        "unified",
-                        "custom"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.TaxRateType"
-                        }
-                    ]
                 }
             }
         },
@@ -9594,16 +9576,10 @@ const docTemplate = `{
         "types.TaxFeeUpdateReq": {
             "type": "object",
             "required": [
-                "default_tax",
                 "name",
-                "tax_rate",
-                "tax_rate_type"
+                "tax_rate"
             ],
             "properties": {
-                "default_tax": {
-                    "description": "是否默认税率",
-                    "type": "boolean"
-                },
                 "name": {
                     "description": "税费名称",
                     "type": "string",
@@ -9612,18 +9588,6 @@ const docTemplate = `{
                 "tax_rate": {
                     "description": "税率 tax_rate 示例：6% -\u003e 0.06",
                     "type": "number"
-                },
-                "tax_rate_type": {
-                    "description": "税率类型",
-                    "enum": [
-                        "unified",
-                        "custom"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.TaxRateType"
-                        }
-                    ]
                 }
             }
         },
