@@ -152,74 +152,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/sales-report": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "订单"
-                ],
-                "summary": "销售报表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "品牌商ID",
-                        "name": "merchant_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "门店ID列表（逗号分隔）",
-                        "name": "store_ids",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "营业日开始",
-                        "name": "business_date_start",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "营业日结束",
-                        "name": "business_date_end",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/types.SalesReportResp"
-                        }
-                    }
-                }
-            }
-        },
         "/order/{id}": {
             "get": {
                 "security": [
@@ -856,63 +788,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.OrderSalesReportItem": {
-            "type": "object",
-            "properties": {
-                "amount_due": {
-                    "description": "应收金额",
-                    "type": "number"
-                },
-                "amount_paid": {
-                    "description": "实收金额",
-                    "type": "number"
-                },
-                "amount_paid_per_guest": {
-                    "description": "人均实收",
-                    "type": "number"
-                },
-                "business_date": {
-                    "description": "营业日",
-                    "type": "string"
-                },
-                "cash_amount": {
-                    "description": "现金金额",
-                    "type": "number"
-                },
-                "change_amount": {
-                    "description": "零钱实收",
-                    "type": "number"
-                },
-                "discount_total": {
-                    "description": "优惠金额",
-                    "type": "number"
-                },
-                "fee_total": {
-                    "description": "附加费金额",
-                    "type": "number"
-                },
-                "guest_count": {
-                    "description": "用餐人数",
-                    "type": "integer"
-                },
-                "order_count": {
-                    "description": "单量",
-                    "type": "integer"
-                },
-                "store_id": {
-                    "description": "门店ID",
-                    "type": "string"
-                },
-                "store_name": {
-                    "description": "门店名称",
-                    "type": "string"
-                },
-                "third_party_amount": {
-                    "description": "三方支付金额",
-                    "type": "number"
-                }
-            }
-        },
         "domain.OrderStatus": {
             "type": "string",
             "enum": [
@@ -1267,26 +1142,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Order"
-                    }
-                },
-                "pagination": {
-                    "description": "分页信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/upagination.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "types.SalesReportResp": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "description": "报表数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.OrderSalesReportItem"
                     }
                 },
                 "pagination": {
