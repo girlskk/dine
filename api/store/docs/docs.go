@@ -15,11 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-<<<<<<< HEAD
-        "/region/countries": {
-=======
         "/menu": {
->>>>>>> test
             "get": {
                 "security": [
                     {
@@ -27,108 +23,6 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-<<<<<<< HEAD
-                    "地区"
-                ],
-                "summary": "获取国家/地区列表",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/types.CountryListResp"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/region/provinces": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "地区"
-                ],
-                "summary": "获取省份列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "国家/地区ID",
-                        "name": "country_id",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/types.ProvinceListResp"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/restaurant/device": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "分页查询设备列表",
-                "tags": [
-                    "设备管理"
-                ],
-                "summary": "获取设备列表",
-                "parameters": [
-                    {
-                        "enum": [
-                            "cashier",
-                            "printer"
-                        ],
-                        "type": "string",
-                        "x-enum-comments": {
-                            "DeviceTypeCashier": "收银机",
-                            "DeviceTypePrinter": "打印机"
-                        },
-                        "x-enum-varnames": [
-                            "DeviceTypeCashier",
-                            "DeviceTypePrinter"
-                        ],
-                        "description": "设备类型",
-                        "name": "device_type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "设备名称模糊查询",
-=======
                     "菜单管理"
                 ],
                 "summary": "查询菜单列表",
@@ -136,7 +30,6 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "菜单名称（模糊匹配）",
->>>>>>> test
                         "name": "name",
                         "in": "query"
                     },
@@ -151,25 +44,6 @@ const docTemplate = `{
                         "description": "每页数量",
                         "name": "size",
                         "in": "query"
-<<<<<<< HEAD
-                    },
-                    {
-                        "enum": [
-                            "online",
-                            "offline"
-                        ],
-                        "type": "string",
-                        "x-enum-comments": {
-                            "DeviceStatusOffline": "离线",
-                            "DeviceStatusOnline": "在线"
-                        },
-                        "x-enum-varnames": [
-                            "DeviceStatusOnline",
-                            "DeviceStatusOffline"
-                        ],
-                        "description": "设备状态",
-                        "name": "status",
-=======
                     }
                 ],
                 "responses": {
@@ -207,6 +81,70 @@ const docTemplate = `{
                         "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/domain.Menu"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/sales-report": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "数据分析"
+                ],
+                "summary": "销售汇总表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "品牌商ID",
+                        "name": "merchant_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/types.SalesReportResp"
                         }
                     }
                 }
@@ -287,45 +225,14 @@ const docTemplate = `{
                         "type": "string",
                         "description": "商品类型（可选：normal-普通商品、set_meal-套餐商品，空字符串表示全部）",
                         "name": "type",
->>>>>>> test
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/types.DeviceListResp"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-=======
                         "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/domain.ProductSearchRes"
->>>>>>> test
                         }
                     }
                 }
@@ -336,24 +243,10 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
-                "description": "创建设备",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备管理"
-                ],
-                "summary": "创建设备",
-=======
                 "tags": [
                     "商品管理"
                 ],
                 "summary": "创建普通商品",
->>>>>>> test
                 "parameters": [
                     {
                         "description": "请求信息",
@@ -361,65 +254,24 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-<<<<<<< HEAD
-                            "$ref": "#/definitions/types.DeviceCreateReq"
-=======
                             "$ref": "#/definitions/types.ProductCreateReq"
->>>>>>> test
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-=======
                         "description": "OK"
->>>>>>> test
                     }
                 }
             }
         },
-<<<<<<< HEAD
-        "/restaurant/device/{id}": {
-=======
         "/product/attr": {
->>>>>>> test
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
-                "description": "根据设备ID获取详情",
-                "tags": [
-                    "设备管理"
-                ],
-                "summary": "获取设备详情",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备ID",
-=======
                 "tags": [
                     "商品口味做法"
                 ],
@@ -479,7 +331,6 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "口味做法项ID",
->>>>>>> test
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -487,75 +338,18 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.Device"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-=======
                         "description": "No Content"
                     }
                 }
             }
         },
         "/product/attr/{id}": {
->>>>>>> test
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
-                "description": "更新设备",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备管理"
-                ],
-                "summary": "更新设备",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备ID",
-=======
                 "tags": [
                     "商品口味做法"
                 ],
@@ -564,7 +358,6 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "口味做法ID",
->>>>>>> test
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -575,39 +368,13 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-<<<<<<< HEAD
-                            "$ref": "#/definitions/types.DeviceUpdateReq"
-=======
                             "$ref": "#/definitions/types.ProductAttrUpdateReq"
->>>>>>> test
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-=======
                         "description": "OK"
->>>>>>> test
                     }
                 }
             },
@@ -617,17 +384,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
-                "description": "删除设备",
-                "tags": [
-                    "设备管理"
-                ],
-                "summary": "删除设备",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备ID",
-=======
                 "tags": [
                     "商品口味做法"
                 ],
@@ -636,7 +392,6 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "口味做法ID",
->>>>>>> test
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -645,146 +400,17 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-<<<<<<< HEAD
-                    },
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-=======
->>>>>>> test
                     }
                 }
             }
         },
-<<<<<<< HEAD
-        "/restaurant/device/{id}/disable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "将设备置为禁用",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备管理"
-                ],
-                "summary": "禁用设备",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/restaurant/device/{id}/enable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "将设备置为启用",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备管理"
-                ],
-                "summary": "启用设备",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/store": {
-=======
         "/product/category": {
->>>>>>> test
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
-                "description": "根据门店ID获取门店信息",
-=======
                 "tags": [
                     "商品分类"
                 ],
@@ -868,7 +494,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
->>>>>>> test
                 "consumes": [
                     "application/json"
                 ],
@@ -876,15 +501,6 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-<<<<<<< HEAD
-                    "门店管理"
-                ],
-                "summary": "获取门店",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "门店ID",
-=======
                     "商品分类"
                 ],
                 "summary": "更新商品分类",
@@ -966,7 +582,6 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "分类ID",
->>>>>>> test
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -974,41 +589,6 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.Store"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-=======
                         "description": "No Content"
                     }
                 }
@@ -1546,7 +1126,6 @@ const docTemplate = `{
                         "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/domain.Product"
->>>>>>> test
                         }
                     }
                 }
@@ -1557,23 +1136,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
-                "description": "更新单个门店",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "更新门店",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "门店ID",
-=======
                 "tags": [
                     "商品管理"
                 ],
@@ -1582,52 +1144,22 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "商品ID",
->>>>>>> test
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-<<<<<<< HEAD
-                        "description": "更新门店请求",
-=======
                         "description": "请求信息",
->>>>>>> test
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-<<<<<<< HEAD
-                            "$ref": "#/definitions/types.UpdateStoreReq"
-=======
                             "$ref": "#/definitions/types.ProductUpdateReq"
->>>>>>> test
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-=======
                         "description": "OK"
                     }
                 }
@@ -1654,23 +1186,690 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
->>>>>>> test
                     }
                 }
             }
         },
-<<<<<<< HEAD
-        "/store/disable": {
-=======
         "/product/{id}/off-sale": {
->>>>>>> test
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
+                "tags": [
+                    "商品管理"
+                ],
+                "summary": "停售商品",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商品ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/product/{id}/on-sale": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "商品管理"
+                ],
+                "summary": "启售商品",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商品ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/region/countries": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "地区"
+                ],
+                "summary": "获取国家/地区列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.CountryListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/region/provinces": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "地区"
+                ],
+                "summary": "获取省份列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "国家/地区ID",
+                        "name": "country_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.ProvinceListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/device": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询设备列表",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "获取设备列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "cashier",
+                            "printer"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "DeviceTypeCashier": "收银机",
+                            "DeviceTypePrinter": "打印机"
+                        },
+                        "x-enum-varnames": [
+                            "DeviceTypeCashier",
+                            "DeviceTypePrinter"
+                        ],
+                        "description": "设备类型",
+                        "name": "device_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "设备名称模糊查询",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "online",
+                            "offline"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "DeviceStatusOffline": "离线",
+                            "DeviceStatusOnline": "在线"
+                        },
+                        "x-enum-varnames": [
+                            "DeviceStatusOnline",
+                            "DeviceStatusOffline"
+                        ],
+                        "description": "设备状态",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.DeviceListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "创建设备",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DeviceCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/device/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据设备ID获取详情",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "获取设备详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Device"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "更新设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DeviceUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除设备",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "删除设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/device/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将设备置为禁用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "禁用设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/device/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将设备置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "启用设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/store": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据门店ID获取门店信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "获取门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Store"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新单个门店",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "更新门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新门店请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateStoreReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/store/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "将门店状态置为停业",
                 "produces": [
                     "application/json"
@@ -1700,40 +1899,17 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
-=======
-                "tags": [
-                    "商品管理"
-                ],
-                "summary": "停售商品",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "商品ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
->>>>>>> test
                     }
                 }
             }
         },
-<<<<<<< HEAD
         "/store/enable": {
-=======
-        "/product/{id}/on-sale": {
->>>>>>> test
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-<<<<<<< HEAD
                 "description": "将门店状态置为营业",
                 "produces": [
                     "application/json"
@@ -1763,24 +1939,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
-=======
-                "tags": [
-                    "商品管理"
-                ],
-                "summary": "启售商品",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "商品ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
->>>>>>> test
                     }
                 }
             }
@@ -1972,7 +2130,78 @@ const docTemplate = `{
                 "BusinessModelFranchisee"
             ]
         },
-<<<<<<< HEAD
+        "domain.Category": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "description": "@TODO 关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Category"
+                    }
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分类ID",
+                    "type": "string"
+                },
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string"
+                },
+                "parent": {
+                    "description": "父分类",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
+                },
+                "parent_id": {
+                    "description": "父分类ID",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "description": "排序，值越小越靠前",
+                    "type": "integer"
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
         "domain.Country": {
             "type": "object",
             "properties": {
@@ -1990,23 +2219,10 @@ const docTemplate = `{
         "domain.Device": {
             "type": "object",
             "properties": {
-=======
-        "domain.Category": {
-            "type": "object",
-            "properties": {
-                "children": {
-                    "description": "@TODO 关联信息",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.Category"
-                    }
-                },
->>>>>>> test
                 "created_at": {
                     "description": "创建时间",
                     "type": "string"
                 },
-<<<<<<< HEAD
                 "device_brand": {
                     "description": "设备品牌",
                     "type": "string"
@@ -2123,58 +2339,6 @@ const docTemplate = `{
                 },
                 "store_name": {
                     "description": "门店名称",
-=======
-                "id": {
-                    "description": "分类ID",
-                    "type": "string"
-                },
-                "inherit_stall": {
-                    "description": "是否继承父分类的出品部门ID",
-                    "type": "boolean"
-                },
-                "inherit_tax_rate": {
-                    "description": "是否继承父分类的税率ID",
-                    "type": "boolean"
-                },
-                "merchant_id": {
-                    "description": "品牌商ID",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "分类名称",
-                    "type": "string"
-                },
-                "parent": {
-                    "description": "父分类",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.Category"
-                        }
-                    ]
-                },
-                "parent_id": {
-                    "description": "父分类ID",
-                    "type": "string"
-                },
-                "product_count": {
-                    "description": "关联的商品数量",
-                    "type": "integer"
-                },
-                "sort_order": {
-                    "description": "排序，值越小越靠前",
-                    "type": "integer"
-                },
-                "stall_id": {
-                    "description": "出品部门ID",
-                    "type": "string"
-                },
-                "store_id": {
-                    "description": "门店ID",
-                    "type": "string"
-                },
-                "tax_rate_id": {
-                    "description": "税率ID",
->>>>>>> test
                     "type": "string"
                 },
                 "updated_at": {
@@ -2183,7 +2347,6 @@ const docTemplate = `{
                 }
             }
         },
-<<<<<<< HEAD
         "domain.DeviceLocation": {
             "type": "string",
             "enum": [
@@ -2262,8 +2425,6 @@ const docTemplate = `{
                 "DeviceTypePrinter"
             ]
         },
-=======
->>>>>>> test
         "domain.DiningPeriod": {
             "type": "object",
             "properties": {
@@ -2281,7 +2442,6 @@ const docTemplate = `{
                 }
             }
         },
-<<<<<<< HEAD
         "domain.DiningWay": {
             "type": "string",
             "enum": [
@@ -2300,58 +2460,6 @@ const docTemplate = `{
                 "DiningWayDelivery"
             ]
         },
-        "domain.OrderChannel": {
-            "type": "string",
-            "enum": [
-                "pos",
-                "self_order",
-                "mini_program",
-                "mobile_order",
-                "scan_order",
-                "third_delivery"
-            ],
-            "x-enum-comments": {
-                "OrderChannelMiniProgram": "小程序",
-                "OrderChannelMobileOrder": "手机点餐",
-                "OrderChannelPOS": "POS 端",
-                "OrderChannelScanOrder": "扫码点餐",
-                "OrderChannelSelfOrder": "自助点餐",
-                "OrderChannelThirdDelivery": "三方外卖"
-            },
-            "x-enum-varnames": [
-                "OrderChannelPOS",
-                "OrderChannelSelfOrder",
-                "OrderChannelMiniProgram",
-                "OrderChannelMobileOrder",
-                "OrderChannelScanOrder",
-                "OrderChannelThirdDelivery"
-            ]
-        },
-        "domain.PaperSize": {
-            "type": "string",
-            "enum": [
-                "58mm",
-                "80mm"
-            ],
-            "x-enum-varnames": [
-                "PaperSize58mm",
-                "PaperSize80mm"
-            ]
-        },
-        "domain.Province": {
-            "type": "object",
-            "properties": {
-                "country_id": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "sort": {
-=======
         "domain.EffectiveDateType": {
             "type": "string",
             "enum": [
@@ -2362,10 +2470,6 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
-            "x-enum-descriptions": [
-                "按天",
-                "自定义"
-            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -2436,10 +2540,6 @@ const docTemplate = `{
                 "MenuDistributionRuleKeep": "对同名菜品不做修改",
                 "MenuDistributionRuleOverride": "新增并覆盖同名菜品"
             },
-            "x-enum-descriptions": [
-                "新增并覆盖同名菜品",
-                "对同名菜品不做修改"
-            ],
             "x-enum-varnames": [
                 "MenuDistributionRuleOverride",
                 "MenuDistributionRuleKeep"
@@ -2504,10 +2604,6 @@ const docTemplate = `{
                 "MenuItemSaleRuleKeepBrandStatus": "保留品牌状态",
                 "MenuItemSaleRuleKeepStoreStatus": "保留门店状态"
             },
-            "x-enum-descriptions": [
-                "保留品牌状态",
-                "保留门店状态"
-            ],
             "x-enum-varnames": [
                 "MenuItemSaleRuleKeepBrandStatus",
                 "MenuItemSaleRuleKeepStoreStatus"
@@ -2532,13 +2628,94 @@ const docTemplate = `{
                 },
                 "total": {
                     "description": "总页数",
->>>>>>> test
                     "type": "integer"
                 }
             }
         },
-<<<<<<< HEAD
-=======
+        "domain.OrderChannel": {
+            "type": "string",
+            "enum": [
+                "pos",
+                "self_order",
+                "mini_program",
+                "mobile_order",
+                "scan_order",
+                "third_delivery"
+            ],
+            "x-enum-comments": {
+                "OrderChannelMiniProgram": "小程序",
+                "OrderChannelMobileOrder": "手机点餐",
+                "OrderChannelPOS": "POS 端",
+                "OrderChannelScanOrder": "扫码点餐",
+                "OrderChannelSelfOrder": "自助点餐",
+                "OrderChannelThirdDelivery": "三方外卖"
+            },
+            "x-enum-varnames": [
+                "OrderChannelPOS",
+                "OrderChannelSelfOrder",
+                "OrderChannelMiniProgram",
+                "OrderChannelMobileOrder",
+                "OrderChannelScanOrder",
+                "OrderChannelThirdDelivery"
+            ]
+        },
+        "domain.OrderSalesReportItem": {
+            "type": "object",
+            "properties": {
+                "amount_due": {
+                    "description": "应收金额",
+                    "type": "number"
+                },
+                "amount_paid": {
+                    "description": "实收金额",
+                    "type": "number"
+                },
+                "amount_paid_per_guest": {
+                    "description": "人均实收",
+                    "type": "number"
+                },
+                "business_date": {
+                    "description": "营业日",
+                    "type": "string"
+                },
+                "cash_amount": {
+                    "description": "现金金额",
+                    "type": "number"
+                },
+                "change_amount": {
+                    "description": "零钱实收",
+                    "type": "number"
+                },
+                "discount_total": {
+                    "description": "优惠金额",
+                    "type": "number"
+                },
+                "fee_total": {
+                    "description": "附加费金额",
+                    "type": "number"
+                },
+                "guest_count": {
+                    "description": "用餐人数",
+                    "type": "integer"
+                },
+                "order_count": {
+                    "description": "单量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "store_name": {
+                    "description": "门店名称",
+                    "type": "string"
+                },
+                "third_party_amount": {
+                    "description": "三方支付金额",
+                    "type": "number"
+                }
+            }
+        },
         "domain.PackingFee": {
             "type": "object",
             "properties": {
@@ -2555,6 +2732,17 @@ const docTemplate = `{
                     "type": "number"
                 }
             }
+        },
+        "domain.PaperSize": {
+            "type": "string",
+            "enum": [
+                "58mm",
+                "80mm"
+            ],
+            "x-enum-varnames": [
+                "PaperSize58mm",
+                "PaperSize80mm"
+            ]
         },
         "domain.Product": {
             "type": "object",
@@ -2885,10 +3073,6 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
-            "x-enum-descriptions": [
-                "在售",
-                "停售"
-            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -3058,11 +3242,6 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
-            "x-enum-descriptions": [
-                "堂食",
-                "外带",
-                "外卖"
-            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -3135,10 +3314,6 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
-            "x-enum-descriptions": [
-                "普通商品",
-                "套餐商品"
-            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -3218,14 +3393,27 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
-            "x-enum-descriptions": [
-                "数量单位",
-                "重量单位"
-            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
             ]
+        },
+        "domain.Province": {
+            "type": "object",
+            "properties": {
+                "country_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sort": {
+                    "type": "integer"
+                }
+            }
         },
         "domain.SaleChannel": {
             "type": "string",
@@ -3243,13 +3431,6 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
-            "x-enum-descriptions": [
-                "POS",
-                "移动点餐",
-                "扫码点餐",
-                "自助点餐",
-                "三方外卖"
-            ],
             "x-enum-varnames": [
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
@@ -3363,16 +3544,11 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
-            "x-enum-descriptions": [
-                "固定分组",
-                "可选套餐"
-            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
             ]
         },
->>>>>>> test
         "domain.ShiftTime": {
             "type": "object",
             "properties": {
@@ -3563,10 +3739,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "merchant_id": {
-<<<<<<< HEAD
-=======
-                    "description": "品牌商ID",
->>>>>>> test
                     "type": "string"
                 },
                 "nickname": {
@@ -3633,7 +3805,6 @@ const docTemplate = `{
                 "Saturday"
             ]
         },
-<<<<<<< HEAD
         "types.Address": {
             "type": "object",
             "properties": {
@@ -3682,6 +3853,83 @@ const docTemplate = `{
                 },
                 "province_name": {
                     "description": "省份名称",
+                    "type": "string"
+                }
+            }
+        },
+        "types.CategoryCreateChildReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.CategoryCreateRootReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "children_names": {
+                    "description": "子分类名称列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.CategoryReorderReq": {
+            "type": "object",
+            "required": [
+                "category_ids"
+            ],
+            "properties": {
+                "category_ids": {
+                    "description": "按新顺序排列的分类ID列表",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "parent_id": {
+                    "description": "父分类ID，如果是一级分类排序则为null",
                     "type": "string"
                 }
             }
@@ -3872,38 +4120,10 @@ const docTemplate = `{
                 },
                 "stall_id": {
                     "description": "出品部门 ID",
-=======
-        "types.CategoryCreateChildReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "inherit_stall": {
-                    "description": "是否继承父分类的出品部门ID",
-                    "type": "boolean"
-                },
-                "inherit_tax_rate": {
-                    "description": "是否继承父分类的税率ID",
-                    "type": "boolean"
-                },
-                "name": {
-                    "description": "分类名称",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "stall_id": {
-                    "description": "出品部门ID",
-                    "type": "string"
-                },
-                "tax_rate_id": {
-                    "description": "税率ID",
->>>>>>> test
                     "type": "string"
                 }
             }
         },
-<<<<<<< HEAD
         "types.DeviceUpdateReq": {
             "type": "object",
             "required": [
@@ -3980,53 +4200,6 @@ const docTemplate = `{
                     "description": "排序值，越小越靠前",
                     "type": "integer",
                     "minimum": 0
-=======
-        "types.CategoryCreateRootReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "children_names": {
-                    "description": "子分类名称列表",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "name": {
-                    "description": "分类名称",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "stall_id": {
-                    "description": "出品部门ID",
-                    "type": "string"
-                },
-                "tax_rate_id": {
-                    "description": "税率ID",
-                    "type": "string"
-                }
-            }
-        },
-        "types.CategoryReorderReq": {
-            "type": "object",
-            "required": [
-                "category_ids"
-            ],
-            "properties": {
-                "category_ids": {
-                    "description": "按新顺序排列的分类ID列表",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "parent_id": {
-                    "description": "父分类ID，如果是一级分类排序则为null",
-                    "type": "string"
->>>>>>> test
                 }
             }
         },
@@ -4056,155 +4229,6 @@ const docTemplate = `{
                 }
             }
         },
-<<<<<<< HEAD
-        "types.ProvinceListResp": {
-            "type": "object",
-            "properties": {
-                "provinces": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.Province"
-                    }
-                }
-            }
-        },
-        "types.UpdateStoreReq": {
-            "type": "object",
-            "required": [
-                "address",
-                "admin_phone_number",
-                "business_hours",
-                "business_model",
-                "business_type_id",
-                "dining_periods",
-                "location_number",
-                "login_password",
-                "shift_times",
-                "status",
-                "store_name"
-            ],
-            "properties": {
-                "address": {
-                    "description": "地址",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/types.Address"
-                        }
-                    ]
-                },
-                "admin_phone_number": {
-                    "description": "管理员手机号",
-                    "type": "string",
-                    "maxLength": 20
-                },
-                "business_hours": {
-                    "description": "营业时间段",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.BusinessHours"
-                    }
-                },
-                "business_license_url": {
-                    "description": "营业执照图片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "business_model": {
-                    "description": "直营/加盟",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.BusinessModel"
-                        }
-                    ]
-                },
-                "business_type_id": {
-                    "description": "业态类型",
-                    "type": "string"
-                },
-                "cashier_desk_url": {
-                    "description": "收银台照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "contact_name": {
-                    "description": "联系人",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "contact_phone": {
-                    "description": "联系电话",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "dining_environment_url": {
-                    "description": "就餐环境照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "dining_periods": {
-                    "description": "就餐时段",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.DiningPeriod"
-                    }
-                },
-                "food_operation_license_url": {
-                    "description": "食品经营许可证照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "location_number": {
-                    "description": "门店位置编号",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "login_password": {
-                    "description": "登录密码(加密存储)",
-                    "type": "string"
-                },
-                "shift_times": {
-                    "description": "班次时间",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ShiftTime"
-                    }
-                },
-                "status": {
-                    "description": "营业/停业",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StoreStatus"
-                        }
-                    ]
-                },
-                "store_code": {
-                    "description": "门店编码(保留字段)",
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "store_logo": {
-                    "description": "logo 图片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "store_name": {
-                    "description": "门店名称,长度不超过30个字",
-                    "type": "string",
-                    "maxLength": 30
-                },
-                "store_short_name": {
-                    "description": "门店简称",
-                    "type": "string",
-                    "maxLength": 30
-                },
-                "storefront_url": {
-                    "description": "门店门头照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "unified_social_credit_code": {
-                    "description": "统一社会信用代码",
-=======
         "types.ProductAttrCreateReq": {
             "type": "object",
             "required": [
@@ -4229,13 +4253,10 @@ const docTemplate = `{
                 },
                 "name": {
                     "description": "口味做法名称",
->>>>>>> test
                     "type": "string",
                     "maxLength": 255
                 }
             }
-<<<<<<< HEAD
-=======
         },
         "types.ProductAttrItemReq": {
             "type": "object",
@@ -4746,6 +4767,37 @@ const docTemplate = `{
                 }
             }
         },
+        "types.ProvinceListResp": {
+            "type": "object",
+            "properties": {
+                "provinces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Province"
+                    }
+                }
+            }
+        },
+        "types.SalesReportResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "报表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderSalesReportItem"
+                    }
+                },
+                "pagination": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/upagination.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
         "types.SetMealCreateReq": {
             "type": "object",
             "required": [
@@ -5148,7 +5200,164 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
->>>>>>> test
+        },
+        "types.UpdateStoreReq": {
+            "type": "object",
+            "required": [
+                "address",
+                "admin_phone_number",
+                "business_hours",
+                "business_model",
+                "business_type_id",
+                "dining_periods",
+                "location_number",
+                "login_password",
+                "shift_times",
+                "status",
+                "store_name"
+            ],
+            "properties": {
+                "address": {
+                    "description": "地址",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.Address"
+                        }
+                    ]
+                },
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "business_model": {
+                    "description": "直营/加盟",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessModel"
+                        }
+                    ]
+                },
+                "business_type_id": {
+                    "description": "业态类型",
+                    "type": "string"
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "login_password": {
+                    "description": "登录密码(加密存储)",
+                    "type": "string"
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
+                },
+                "status": {
+                    "description": "营业/停业",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "upagination.Pagination": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
         }
     },
     "securityDefinitions": {
