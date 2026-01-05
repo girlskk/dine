@@ -7,7 +7,6 @@ import (
 
 // SalesReportReq 销售报表请求
 type SalesReportReq struct {
-	MerchantID        string `form:"merchant_id" binding:"required"`         // 品牌商ID
 	StoreIDs          string `form:"store_ids"`                              // 门店ID列表（逗号分隔）
 	BusinessDateStart string `form:"business_date_start" binding:"required"` // 营业日开始
 	BusinessDateEnd   string `form:"business_date_end" binding:"required"`   // 营业日结束

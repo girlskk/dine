@@ -63,12 +63,7 @@ func (h *OrderHandler) SalesReport() gin.HandlerFunc {
 			return
 		}
 
-		merchantID, err := uuid.Parse(req.MerchantID)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams,
-				fmt.Errorf("invalid merchant_id: %w", err)))
-			return
-		}
+		user := domain.FromStoreUserContext(ctx)
 
 		var storeIDs []uuid.UUID
 		if req.StoreIDs != "" {
@@ -88,7 +83,7 @@ func (h *OrderHandler) SalesReport() gin.HandlerFunc {
 		}
 
 		params := domain.OrderSalesReportParams{
-			MerchantID:        merchantID,
+			MerchantID:        user.MerchantID,
 			StoreIDs:          storeIDs,
 			BusinessDateStart: req.BusinessDateStart,
 			BusinessDateEnd:   req.BusinessDateEnd,
