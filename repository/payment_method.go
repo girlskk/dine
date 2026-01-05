@@ -32,7 +32,7 @@ func (repo *PaymentMethodRepository) FindByID(ctx context.Context, id uuid.UUID)
 	pm, err := repo.Client.PaymentMethod.Get(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, domain.NotFoundError(domain.ErrMenuNotExists)
+			return nil, domain.NotFoundError(err)
 		}
 		return nil, err
 	}

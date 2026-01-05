@@ -111,6 +111,7 @@ type PaymentMethod struct {
 
 type PaymentMethods []*PaymentMethod
 
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/payment_method_repository.go -package=mock . PaymentMethodRepository
 type PaymentMethodRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*PaymentMethod, error)
 	GetDetail(ctx context.Context, id uuid.UUID) (*PaymentMethod, error)
@@ -120,6 +121,7 @@ type PaymentMethodRepository interface {
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params PaymentMethodSearchParams) (*PaymentMethodSearchRes, error)
 }
 
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/payment_method_interactor.go -package=mock . PaymentMethodInteractor
 type PaymentMethodInteractor interface {
 	Create(ctx context.Context, menu *PaymentMethod) error
 	Update(ctx context.Context, menu *PaymentMethod, user User) error
