@@ -808,13 +808,15 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "accounting_rule", Type: field.TypeEnum, Enums: []string{"income", "discount"}, Default: "income"},
 		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"other", "cash", "offline_card", "custom_coupon", "partner_coupon"}, Default: "other"},
 		{Name: "fee_rate", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
-		{Name: "invoice_rule", Type: field.TypeEnum, Enums: []string{"no_invoice", "actual_amount"}, Default: "actual_amount"},
+		{Name: "invoice_rule", Type: field.TypeEnum, Nullable: true, Enums: []string{"no_invoice", "actual_amount"}},
 		{Name: "cash_drawer_status", Type: field.TypeBool, Default: false},
 		{Name: "display_channels", Type: field.TypeJSON},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"brand", "store", "system"}, Default: "brand"},
 		{Name: "status", Type: field.TypeBool, Default: false},
 	}
 	// PaymentMethodsTable holds the schema information for the "payment_methods" table.
@@ -831,7 +833,7 @@ var (
 			{
 				Name:    "paymentmethod_name_deleted_at",
 				Unique:  true,
-				Columns: []*schema.Column{PaymentMethodsColumns[5], PaymentMethodsColumns[3]},
+				Columns: []*schema.Column{PaymentMethodsColumns[6], PaymentMethodsColumns[3]},
 			},
 		},
 	}

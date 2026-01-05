@@ -135,6 +135,12 @@ func (pmu *PaymentMethodUpdate) SetNillableInvoiceRule(dmir *domain.PaymentMetho
 	return pmu
 }
 
+// ClearInvoiceRule clears the value of the "invoice_rule" field.
+func (pmu *PaymentMethodUpdate) ClearInvoiceRule() *PaymentMethodUpdate {
+	pmu.mutation.ClearInvoiceRule()
+	return pmu
+}
+
 // SetCashDrawerStatus sets the "cash_drawer_status" field.
 func (pmu *PaymentMethodUpdate) SetCashDrawerStatus(b bool) *PaymentMethodUpdate {
 	pmu.mutation.SetCashDrawerStatus(b)
@@ -158,6 +164,20 @@ func (pmu *PaymentMethodUpdate) SetDisplayChannels(dmdc []domain.PaymentMethodDi
 // AppendDisplayChannels appends dmdc to the "display_channels" field.
 func (pmu *PaymentMethodUpdate) AppendDisplayChannels(dmdc []domain.PaymentMethodDisplayChannel) *PaymentMethodUpdate {
 	pmu.mutation.AppendDisplayChannels(dmdc)
+	return pmu
+}
+
+// SetSource sets the "source" field.
+func (pmu *PaymentMethodUpdate) SetSource(dms domain.PaymentMethodSource) *PaymentMethodUpdate {
+	pmu.mutation.SetSource(dms)
+	return pmu
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (pmu *PaymentMethodUpdate) SetNillableSource(dms *domain.PaymentMethodSource) *PaymentMethodUpdate {
+	if dms != nil {
+		pmu.SetSource(*dms)
+	}
 	return pmu
 }
 
@@ -244,6 +264,11 @@ func (pmu *PaymentMethodUpdate) check() error {
 			return &ValidationError{Name: "invoice_rule", err: fmt.Errorf(`ent: validator failed for field "PaymentMethod.invoice_rule": %w`, err)}
 		}
 	}
+	if v, ok := pmu.mutation.Source(); ok {
+		if err := paymentmethod.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "PaymentMethod.source": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -292,6 +317,9 @@ func (pmu *PaymentMethodUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	if value, ok := pmu.mutation.InvoiceRule(); ok {
 		_spec.SetField(paymentmethod.FieldInvoiceRule, field.TypeEnum, value)
 	}
+	if pmu.mutation.InvoiceRuleCleared() {
+		_spec.ClearField(paymentmethod.FieldInvoiceRule, field.TypeEnum)
+	}
 	if value, ok := pmu.mutation.CashDrawerStatus(); ok {
 		_spec.SetField(paymentmethod.FieldCashDrawerStatus, field.TypeBool, value)
 	}
@@ -302,6 +330,9 @@ func (pmu *PaymentMethodUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, paymentmethod.FieldDisplayChannels, value)
 		})
+	}
+	if value, ok := pmu.mutation.Source(); ok {
+		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
 	}
 	if value, ok := pmu.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)
@@ -431,6 +462,12 @@ func (pmuo *PaymentMethodUpdateOne) SetNillableInvoiceRule(dmir *domain.PaymentM
 	return pmuo
 }
 
+// ClearInvoiceRule clears the value of the "invoice_rule" field.
+func (pmuo *PaymentMethodUpdateOne) ClearInvoiceRule() *PaymentMethodUpdateOne {
+	pmuo.mutation.ClearInvoiceRule()
+	return pmuo
+}
+
 // SetCashDrawerStatus sets the "cash_drawer_status" field.
 func (pmuo *PaymentMethodUpdateOne) SetCashDrawerStatus(b bool) *PaymentMethodUpdateOne {
 	pmuo.mutation.SetCashDrawerStatus(b)
@@ -454,6 +491,20 @@ func (pmuo *PaymentMethodUpdateOne) SetDisplayChannels(dmdc []domain.PaymentMeth
 // AppendDisplayChannels appends dmdc to the "display_channels" field.
 func (pmuo *PaymentMethodUpdateOne) AppendDisplayChannels(dmdc []domain.PaymentMethodDisplayChannel) *PaymentMethodUpdateOne {
 	pmuo.mutation.AppendDisplayChannels(dmdc)
+	return pmuo
+}
+
+// SetSource sets the "source" field.
+func (pmuo *PaymentMethodUpdateOne) SetSource(dms domain.PaymentMethodSource) *PaymentMethodUpdateOne {
+	pmuo.mutation.SetSource(dms)
+	return pmuo
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (pmuo *PaymentMethodUpdateOne) SetNillableSource(dms *domain.PaymentMethodSource) *PaymentMethodUpdateOne {
+	if dms != nil {
+		pmuo.SetSource(*dms)
+	}
 	return pmuo
 }
 
@@ -553,6 +604,11 @@ func (pmuo *PaymentMethodUpdateOne) check() error {
 			return &ValidationError{Name: "invoice_rule", err: fmt.Errorf(`ent: validator failed for field "PaymentMethod.invoice_rule": %w`, err)}
 		}
 	}
+	if v, ok := pmuo.mutation.Source(); ok {
+		if err := paymentmethod.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "PaymentMethod.source": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -618,6 +674,9 @@ func (pmuo *PaymentMethodUpdateOne) sqlSave(ctx context.Context) (_node *Payment
 	if value, ok := pmuo.mutation.InvoiceRule(); ok {
 		_spec.SetField(paymentmethod.FieldInvoiceRule, field.TypeEnum, value)
 	}
+	if pmuo.mutation.InvoiceRuleCleared() {
+		_spec.ClearField(paymentmethod.FieldInvoiceRule, field.TypeEnum)
+	}
 	if value, ok := pmuo.mutation.CashDrawerStatus(); ok {
 		_spec.SetField(paymentmethod.FieldCashDrawerStatus, field.TypeBool, value)
 	}
@@ -628,6 +687,9 @@ func (pmuo *PaymentMethodUpdateOne) sqlSave(ctx context.Context) (_node *Payment
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, paymentmethod.FieldDisplayChannels, value)
 		})
+	}
+	if value, ok := pmuo.mutation.Source(); ok {
+		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
 	}
 	if value, ok := pmuo.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)

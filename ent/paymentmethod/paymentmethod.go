@@ -25,6 +25,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
+	// FieldStoreID holds the string denoting the store_id field in the database.
+	FieldStoreID = "store_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldAccountingRule holds the string denoting the accounting_rule field in the database.
@@ -39,6 +41,8 @@ const (
 	FieldCashDrawerStatus = "cash_drawer_status"
 	// FieldDisplayChannels holds the string denoting the display_channels field in the database.
 	FieldDisplayChannels = "display_channels"
+	// FieldSource holds the string denoting the source field in the database.
+	FieldSource = "source"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// Table holds the table name of the paymentmethod in the database.
@@ -52,6 +56,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldMerchantID,
+	FieldStoreID,
 	FieldName,
 	FieldAccountingRule,
 	FieldPaymentType,
@@ -59,6 +64,7 @@ var Columns = []string{
 	FieldInvoiceRule,
 	FieldCashDrawerStatus,
 	FieldDisplayChannels,
+	FieldSource,
 	FieldStatus,
 }
 
@@ -88,6 +94,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt int64
+	// DefaultStoreID holds the default value on creation for the "store_id" field.
+	DefaultStoreID func() uuid.UUID
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// DefaultCashDrawerStatus holds the default value on creation for the "cash_drawer_status" field.
@@ -122,8 +130,6 @@ func PaymentTypeValidator(pt domain.PaymentMethodPayType) error {
 	}
 }
 
-const DefaultInvoiceRule domain.PaymentMethodInvoiceRule = "actual_amount"
-
 // InvoiceRuleValidator is a validator for the "invoice_rule" field enum values. It is called by the builders before save.
 func InvoiceRuleValidator(ir domain.PaymentMethodInvoiceRule) error {
 	switch ir {
@@ -131,6 +137,18 @@ func InvoiceRuleValidator(ir domain.PaymentMethodInvoiceRule) error {
 		return nil
 	default:
 		return fmt.Errorf("paymentmethod: invalid enum value for invoice_rule field: %q", ir)
+	}
+}
+
+const DefaultSource domain.PaymentMethodSource = "brand"
+
+// SourceValidator is a validator for the "source" field enum values. It is called by the builders before save.
+func SourceValidator(s domain.PaymentMethodSource) error {
+	switch s {
+	case "brand", "store", "system":
+		return nil
+	default:
+		return fmt.Errorf("paymentmethod: invalid enum value for source field: %q", s)
 	}
 }
 
@@ -162,6 +180,11 @@ func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
 }
 
+// ByStoreID orders the results by the store_id field.
+func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStoreID, opts...).ToFunc()
+}
+
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
@@ -190,6 +213,11 @@ func ByInvoiceRule(opts ...sql.OrderTermOption) OrderOption {
 // ByCashDrawerStatus orders the results by the cash_drawer_status field.
 func ByCashDrawerStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCashDrawerStatus, opts...).ToFunc()
+}
+
+// BySource orders the results by the source field.
+func BySource(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSource, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

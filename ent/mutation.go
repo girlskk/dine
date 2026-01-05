@@ -22016,6 +22016,7 @@ type PaymentMethodMutation struct {
 	deleted_at             *int64
 	adddeleted_at          *int64
 	merchant_id            *uuid.UUID
+	store_id               *uuid.UUID
 	name                   *string
 	accounting_rule        *domain.PaymentMethodAccountingRule
 	payment_type           *domain.PaymentMethodPayType
@@ -22024,6 +22025,7 @@ type PaymentMethodMutation struct {
 	cash_drawer_status     *bool
 	display_channels       *[]domain.PaymentMethodDisplayChannel
 	appenddisplay_channels []domain.PaymentMethodDisplayChannel
+	source                 *domain.PaymentMethodSource
 	status                 *bool
 	clearedFields          map[string]struct{}
 	done                   bool
@@ -22299,6 +22301,42 @@ func (m *PaymentMethodMutation) ResetMerchantID() {
 	m.merchant_id = nil
 }
 
+// SetStoreID sets the "store_id" field.
+func (m *PaymentMethodMutation) SetStoreID(u uuid.UUID) {
+	m.store_id = &u
+}
+
+// StoreID returns the value of the "store_id" field in the mutation.
+func (m *PaymentMethodMutation) StoreID() (r uuid.UUID, exists bool) {
+	v := m.store_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStoreID returns the old "store_id" field's value of the PaymentMethod entity.
+// If the PaymentMethod object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentMethodMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStoreID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStoreID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStoreID: %w", err)
+	}
+	return oldValue.StoreID, nil
+}
+
+// ResetStoreID resets all changes to the "store_id" field.
+func (m *PaymentMethodMutation) ResetStoreID() {
+	m.store_id = nil
+}
+
 // SetName sets the "name" field.
 func (m *PaymentMethodMutation) SetName(s string) {
 	m.name = &s
@@ -22487,9 +22525,22 @@ func (m *PaymentMethodMutation) OldInvoiceRule(ctx context.Context) (v domain.Pa
 	return oldValue.InvoiceRule, nil
 }
 
+// ClearInvoiceRule clears the value of the "invoice_rule" field.
+func (m *PaymentMethodMutation) ClearInvoiceRule() {
+	m.invoice_rule = nil
+	m.clearedFields[paymentmethod.FieldInvoiceRule] = struct{}{}
+}
+
+// InvoiceRuleCleared returns if the "invoice_rule" field was cleared in this mutation.
+func (m *PaymentMethodMutation) InvoiceRuleCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldInvoiceRule]
+	return ok
+}
+
 // ResetInvoiceRule resets all changes to the "invoice_rule" field.
 func (m *PaymentMethodMutation) ResetInvoiceRule() {
 	m.invoice_rule = nil
+	delete(m.clearedFields, paymentmethod.FieldInvoiceRule)
 }
 
 // SetCashDrawerStatus sets the "cash_drawer_status" field.
@@ -22579,6 +22630,42 @@ func (m *PaymentMethodMutation) ResetDisplayChannels() {
 	m.appenddisplay_channels = nil
 }
 
+// SetSource sets the "source" field.
+func (m *PaymentMethodMutation) SetSource(dms domain.PaymentMethodSource) {
+	m.source = &dms
+}
+
+// Source returns the value of the "source" field in the mutation.
+func (m *PaymentMethodMutation) Source() (r domain.PaymentMethodSource, exists bool) {
+	v := m.source
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSource returns the old "source" field's value of the PaymentMethod entity.
+// If the PaymentMethod object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentMethodMutation) OldSource(ctx context.Context) (v domain.PaymentMethodSource, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSource is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSource requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSource: %w", err)
+	}
+	return oldValue.Source, nil
+}
+
+// ResetSource resets all changes to the "source" field.
+func (m *PaymentMethodMutation) ResetSource() {
+	m.source = nil
+}
+
 // SetStatus sets the "status" field.
 func (m *PaymentMethodMutation) SetStatus(b bool) {
 	m.status = &b
@@ -22649,7 +22736,7 @@ func (m *PaymentMethodMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentMethodMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, paymentmethod.FieldCreatedAt)
 	}
@@ -22661,6 +22748,9 @@ func (m *PaymentMethodMutation) Fields() []string {
 	}
 	if m.merchant_id != nil {
 		fields = append(fields, paymentmethod.FieldMerchantID)
+	}
+	if m.store_id != nil {
+		fields = append(fields, paymentmethod.FieldStoreID)
 	}
 	if m.name != nil {
 		fields = append(fields, paymentmethod.FieldName)
@@ -22683,6 +22773,9 @@ func (m *PaymentMethodMutation) Fields() []string {
 	if m.display_channels != nil {
 		fields = append(fields, paymentmethod.FieldDisplayChannels)
 	}
+	if m.source != nil {
+		fields = append(fields, paymentmethod.FieldSource)
+	}
 	if m.status != nil {
 		fields = append(fields, paymentmethod.FieldStatus)
 	}
@@ -22702,6 +22795,8 @@ func (m *PaymentMethodMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case paymentmethod.FieldMerchantID:
 		return m.MerchantID()
+	case paymentmethod.FieldStoreID:
+		return m.StoreID()
 	case paymentmethod.FieldName:
 		return m.Name()
 	case paymentmethod.FieldAccountingRule:
@@ -22716,6 +22811,8 @@ func (m *PaymentMethodMutation) Field(name string) (ent.Value, bool) {
 		return m.CashDrawerStatus()
 	case paymentmethod.FieldDisplayChannels:
 		return m.DisplayChannels()
+	case paymentmethod.FieldSource:
+		return m.Source()
 	case paymentmethod.FieldStatus:
 		return m.Status()
 	}
@@ -22735,6 +22832,8 @@ func (m *PaymentMethodMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldDeletedAt(ctx)
 	case paymentmethod.FieldMerchantID:
 		return m.OldMerchantID(ctx)
+	case paymentmethod.FieldStoreID:
+		return m.OldStoreID(ctx)
 	case paymentmethod.FieldName:
 		return m.OldName(ctx)
 	case paymentmethod.FieldAccountingRule:
@@ -22749,6 +22848,8 @@ func (m *PaymentMethodMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldCashDrawerStatus(ctx)
 	case paymentmethod.FieldDisplayChannels:
 		return m.OldDisplayChannels(ctx)
+	case paymentmethod.FieldSource:
+		return m.OldSource(ctx)
 	case paymentmethod.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -22787,6 +22888,13 @@ func (m *PaymentMethodMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMerchantID(v)
+		return nil
+	case paymentmethod.FieldStoreID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStoreID(v)
 		return nil
 	case paymentmethod.FieldName:
 		v, ok := value.(string)
@@ -22836,6 +22944,13 @@ func (m *PaymentMethodMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDisplayChannels(v)
+		return nil
+	case paymentmethod.FieldSource:
+		v, ok := value.(domain.PaymentMethodSource)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSource(v)
 		return nil
 	case paymentmethod.FieldStatus:
 		v, ok := value.(bool)
@@ -22892,6 +23007,9 @@ func (m *PaymentMethodMutation) ClearedFields() []string {
 	if m.FieldCleared(paymentmethod.FieldFeeRate) {
 		fields = append(fields, paymentmethod.FieldFeeRate)
 	}
+	if m.FieldCleared(paymentmethod.FieldInvoiceRule) {
+		fields = append(fields, paymentmethod.FieldInvoiceRule)
+	}
 	return fields
 }
 
@@ -22908,6 +23026,9 @@ func (m *PaymentMethodMutation) ClearField(name string) error {
 	switch name {
 	case paymentmethod.FieldFeeRate:
 		m.ClearFeeRate()
+		return nil
+	case paymentmethod.FieldInvoiceRule:
+		m.ClearInvoiceRule()
 		return nil
 	}
 	return fmt.Errorf("unknown PaymentMethod nullable field %s", name)
@@ -22929,6 +23050,9 @@ func (m *PaymentMethodMutation) ResetField(name string) error {
 	case paymentmethod.FieldMerchantID:
 		m.ResetMerchantID()
 		return nil
+	case paymentmethod.FieldStoreID:
+		m.ResetStoreID()
+		return nil
 	case paymentmethod.FieldName:
 		m.ResetName()
 		return nil
@@ -22949,6 +23073,9 @@ func (m *PaymentMethodMutation) ResetField(name string) error {
 		return nil
 	case paymentmethod.FieldDisplayChannels:
 		m.ResetDisplayChannels()
+		return nil
+	case paymentmethod.FieldSource:
+		m.ResetSource()
 		return nil
 	case paymentmethod.FieldStatus:
 		m.ResetStatus()

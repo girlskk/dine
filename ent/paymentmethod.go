@@ -30,6 +30,8 @@ type PaymentMethod struct {
 	DeletedAt int64 `json:"deleted_at,omitempty"`
 	// 品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
+	// 门店ID
+	StoreID uuid.UUID `json:"store_id,omitempty"`
 	// 结算方式名称
 	Name string `json:"name,omitempty"`
 	// 计入规则:income-计入实收,discount-计入优惠
@@ -44,6 +46,8 @@ type PaymentMethod struct {
 	CashDrawerStatus bool `json:"cash_drawer_status,omitempty"`
 	// 收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖
 	DisplayChannels []domain.PaymentMethodDisplayChannel `json:"display_channels,omitempty"`
+	// 来源:brand-品牌,store-门店,system-系统
+	Source domain.PaymentMethodSource `json:"source,omitempty"`
 	// 启用/停用状态: true-启用, false-停用（必选）
 	Status       bool `json:"status,omitempty"`
 	selectValues sql.SelectValues
@@ -62,11 +66,11 @@ func (*PaymentMethod) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case paymentmethod.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case paymentmethod.FieldName, paymentmethod.FieldAccountingRule, paymentmethod.FieldPaymentType, paymentmethod.FieldInvoiceRule:
+		case paymentmethod.FieldName, paymentmethod.FieldAccountingRule, paymentmethod.FieldPaymentType, paymentmethod.FieldInvoiceRule, paymentmethod.FieldSource:
 			values[i] = new(sql.NullString)
 		case paymentmethod.FieldCreatedAt, paymentmethod.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case paymentmethod.FieldID, paymentmethod.FieldMerchantID:
+		case paymentmethod.FieldID, paymentmethod.FieldMerchantID, paymentmethod.FieldStoreID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -113,6 +117,12 @@ func (pm *PaymentMethod) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				pm.MerchantID = *value
 			}
+		case paymentmethod.FieldStoreID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field store_id", values[i])
+			} else if value != nil {
+				pm.StoreID = *value
+			}
 		case paymentmethod.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -157,6 +167,12 @@ func (pm *PaymentMethod) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &pm.DisplayChannels); err != nil {
 					return fmt.Errorf("unmarshal field display_channels: %w", err)
 				}
+			}
+		case paymentmethod.FieldSource:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field source", values[i])
+			} else if value.Valid {
+				pm.Source = domain.PaymentMethodSource(value.String)
 			}
 		case paymentmethod.FieldStatus:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -212,6 +228,9 @@ func (pm *PaymentMethod) String() string {
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", pm.MerchantID))
 	builder.WriteString(", ")
+	builder.WriteString("store_id=")
+	builder.WriteString(fmt.Sprintf("%v", pm.StoreID))
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(pm.Name)
 	builder.WriteString(", ")
@@ -234,6 +253,9 @@ func (pm *PaymentMethod) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("display_channels=")
 	builder.WriteString(fmt.Sprintf("%v", pm.DisplayChannels))
+	builder.WriteString(", ")
+	builder.WriteString("source=")
+	builder.WriteString(fmt.Sprintf("%v", pm.Source))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", pm.Status))

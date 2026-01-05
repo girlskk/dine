@@ -74,6 +74,20 @@ func (pmc *PaymentMethodCreate) SetMerchantID(u uuid.UUID) *PaymentMethodCreate 
 	return pmc
 }
 
+// SetStoreID sets the "store_id" field.
+func (pmc *PaymentMethodCreate) SetStoreID(u uuid.UUID) *PaymentMethodCreate {
+	pmc.mutation.SetStoreID(u)
+	return pmc
+}
+
+// SetNillableStoreID sets the "store_id" field if the given value is not nil.
+func (pmc *PaymentMethodCreate) SetNillableStoreID(u *uuid.UUID) *PaymentMethodCreate {
+	if u != nil {
+		pmc.SetStoreID(*u)
+	}
+	return pmc
+}
+
 // SetName sets the "name" field.
 func (pmc *PaymentMethodCreate) SetName(s string) *PaymentMethodCreate {
 	pmc.mutation.SetName(s)
@@ -153,6 +167,20 @@ func (pmc *PaymentMethodCreate) SetNillableCashDrawerStatus(b *bool) *PaymentMet
 // SetDisplayChannels sets the "display_channels" field.
 func (pmc *PaymentMethodCreate) SetDisplayChannels(dmdc []domain.PaymentMethodDisplayChannel) *PaymentMethodCreate {
 	pmc.mutation.SetDisplayChannels(dmdc)
+	return pmc
+}
+
+// SetSource sets the "source" field.
+func (pmc *PaymentMethodCreate) SetSource(dms domain.PaymentMethodSource) *PaymentMethodCreate {
+	pmc.mutation.SetSource(dms)
+	return pmc
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (pmc *PaymentMethodCreate) SetNillableSource(dms *domain.PaymentMethodSource) *PaymentMethodCreate {
+	if dms != nil {
+		pmc.SetSource(*dms)
+	}
 	return pmc
 }
 
@@ -239,6 +267,13 @@ func (pmc *PaymentMethodCreate) defaults() error {
 		v := paymentmethod.DefaultDeletedAt
 		pmc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := pmc.mutation.StoreID(); !ok {
+		if paymentmethod.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized paymentmethod.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := paymentmethod.DefaultStoreID()
+		pmc.mutation.SetStoreID(v)
+	}
 	if _, ok := pmc.mutation.AccountingRule(); !ok {
 		v := paymentmethod.DefaultAccountingRule
 		pmc.mutation.SetAccountingRule(v)
@@ -247,13 +282,13 @@ func (pmc *PaymentMethodCreate) defaults() error {
 		v := paymentmethod.DefaultPaymentType
 		pmc.mutation.SetPaymentType(v)
 	}
-	if _, ok := pmc.mutation.InvoiceRule(); !ok {
-		v := paymentmethod.DefaultInvoiceRule
-		pmc.mutation.SetInvoiceRule(v)
-	}
 	if _, ok := pmc.mutation.CashDrawerStatus(); !ok {
 		v := paymentmethod.DefaultCashDrawerStatus
 		pmc.mutation.SetCashDrawerStatus(v)
+	}
+	if _, ok := pmc.mutation.Source(); !ok {
+		v := paymentmethod.DefaultSource
+		pmc.mutation.SetSource(v)
 	}
 	if _, ok := pmc.mutation.Status(); !ok {
 		v := paymentmethod.DefaultStatus
@@ -283,6 +318,9 @@ func (pmc *PaymentMethodCreate) check() error {
 	if _, ok := pmc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "PaymentMethod.merchant_id"`)}
 	}
+	if _, ok := pmc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "PaymentMethod.store_id"`)}
+	}
 	if _, ok := pmc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "PaymentMethod.name"`)}
 	}
@@ -307,9 +345,6 @@ func (pmc *PaymentMethodCreate) check() error {
 			return &ValidationError{Name: "payment_type", err: fmt.Errorf(`ent: validator failed for field "PaymentMethod.payment_type": %w`, err)}
 		}
 	}
-	if _, ok := pmc.mutation.InvoiceRule(); !ok {
-		return &ValidationError{Name: "invoice_rule", err: errors.New(`ent: missing required field "PaymentMethod.invoice_rule"`)}
-	}
 	if v, ok := pmc.mutation.InvoiceRule(); ok {
 		if err := paymentmethod.InvoiceRuleValidator(v); err != nil {
 			return &ValidationError{Name: "invoice_rule", err: fmt.Errorf(`ent: validator failed for field "PaymentMethod.invoice_rule": %w`, err)}
@@ -320,6 +355,14 @@ func (pmc *PaymentMethodCreate) check() error {
 	}
 	if _, ok := pmc.mutation.DisplayChannels(); !ok {
 		return &ValidationError{Name: "display_channels", err: errors.New(`ent: missing required field "PaymentMethod.display_channels"`)}
+	}
+	if _, ok := pmc.mutation.Source(); !ok {
+		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "PaymentMethod.source"`)}
+	}
+	if v, ok := pmc.mutation.Source(); ok {
+		if err := paymentmethod.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "PaymentMethod.source": %w`, err)}
+		}
 	}
 	if _, ok := pmc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "PaymentMethod.status"`)}
@@ -376,6 +419,10 @@ func (pmc *PaymentMethodCreate) createSpec() (*PaymentMethod, *sqlgraph.CreateSp
 		_spec.SetField(paymentmethod.FieldMerchantID, field.TypeUUID, value)
 		_node.MerchantID = value
 	}
+	if value, ok := pmc.mutation.StoreID(); ok {
+		_spec.SetField(paymentmethod.FieldStoreID, field.TypeUUID, value)
+		_node.StoreID = value
+	}
 	if value, ok := pmc.mutation.Name(); ok {
 		_spec.SetField(paymentmethod.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -403,6 +450,10 @@ func (pmc *PaymentMethodCreate) createSpec() (*PaymentMethod, *sqlgraph.CreateSp
 	if value, ok := pmc.mutation.DisplayChannels(); ok {
 		_spec.SetField(paymentmethod.FieldDisplayChannels, field.TypeJSON, value)
 		_node.DisplayChannels = value
+	}
+	if value, ok := pmc.mutation.Source(); ok {
+		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
+		_node.Source = value
 	}
 	if value, ok := pmc.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)
@@ -556,6 +607,12 @@ func (u *PaymentMethodUpsert) UpdateInvoiceRule() *PaymentMethodUpsert {
 	return u
 }
 
+// ClearInvoiceRule clears the value of the "invoice_rule" field.
+func (u *PaymentMethodUpsert) ClearInvoiceRule() *PaymentMethodUpsert {
+	u.SetNull(paymentmethod.FieldInvoiceRule)
+	return u
+}
+
 // SetCashDrawerStatus sets the "cash_drawer_status" field.
 func (u *PaymentMethodUpsert) SetCashDrawerStatus(v bool) *PaymentMethodUpsert {
 	u.Set(paymentmethod.FieldCashDrawerStatus, v)
@@ -577,6 +634,18 @@ func (u *PaymentMethodUpsert) SetDisplayChannels(v []domain.PaymentMethodDisplay
 // UpdateDisplayChannels sets the "display_channels" field to the value that was provided on create.
 func (u *PaymentMethodUpsert) UpdateDisplayChannels() *PaymentMethodUpsert {
 	u.SetExcluded(paymentmethod.FieldDisplayChannels)
+	return u
+}
+
+// SetSource sets the "source" field.
+func (u *PaymentMethodUpsert) SetSource(v domain.PaymentMethodSource) *PaymentMethodUpsert {
+	u.Set(paymentmethod.FieldSource, v)
+	return u
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *PaymentMethodUpsert) UpdateSource() *PaymentMethodUpsert {
+	u.SetExcluded(paymentmethod.FieldSource)
 	return u
 }
 
@@ -614,6 +683,9 @@ func (u *PaymentMethodUpsertOne) UpdateNewValues() *PaymentMethodUpsertOne {
 		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(paymentmethod.FieldMerchantID)
+		}
+		if _, exists := u.create.mutation.StoreID(); exists {
+			s.SetIgnore(paymentmethod.FieldStoreID)
 		}
 	}))
 	return u
@@ -758,6 +830,13 @@ func (u *PaymentMethodUpsertOne) UpdateInvoiceRule() *PaymentMethodUpsertOne {
 	})
 }
 
+// ClearInvoiceRule clears the value of the "invoice_rule" field.
+func (u *PaymentMethodUpsertOne) ClearInvoiceRule() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearInvoiceRule()
+	})
+}
+
 // SetCashDrawerStatus sets the "cash_drawer_status" field.
 func (u *PaymentMethodUpsertOne) SetCashDrawerStatus(v bool) *PaymentMethodUpsertOne {
 	return u.Update(func(s *PaymentMethodUpsert) {
@@ -783,6 +862,20 @@ func (u *PaymentMethodUpsertOne) SetDisplayChannels(v []domain.PaymentMethodDisp
 func (u *PaymentMethodUpsertOne) UpdateDisplayChannels() *PaymentMethodUpsertOne {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateDisplayChannels()
+	})
+}
+
+// SetSource sets the "source" field.
+func (u *PaymentMethodUpsertOne) SetSource(v domain.PaymentMethodSource) *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetSource(v)
+	})
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *PaymentMethodUpsertOne) UpdateSource() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateSource()
 	})
 }
 
@@ -989,6 +1082,9 @@ func (u *PaymentMethodUpsertBulk) UpdateNewValues() *PaymentMethodUpsertBulk {
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(paymentmethod.FieldMerchantID)
 			}
+			if _, exists := b.mutation.StoreID(); exists {
+				s.SetIgnore(paymentmethod.FieldStoreID)
+			}
 		}
 	}))
 	return u
@@ -1133,6 +1229,13 @@ func (u *PaymentMethodUpsertBulk) UpdateInvoiceRule() *PaymentMethodUpsertBulk {
 	})
 }
 
+// ClearInvoiceRule clears the value of the "invoice_rule" field.
+func (u *PaymentMethodUpsertBulk) ClearInvoiceRule() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearInvoiceRule()
+	})
+}
+
 // SetCashDrawerStatus sets the "cash_drawer_status" field.
 func (u *PaymentMethodUpsertBulk) SetCashDrawerStatus(v bool) *PaymentMethodUpsertBulk {
 	return u.Update(func(s *PaymentMethodUpsert) {
@@ -1158,6 +1261,20 @@ func (u *PaymentMethodUpsertBulk) SetDisplayChannels(v []domain.PaymentMethodDis
 func (u *PaymentMethodUpsertBulk) UpdateDisplayChannels() *PaymentMethodUpsertBulk {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateDisplayChannels()
+	})
+}
+
+// SetSource sets the "source" field.
+func (u *PaymentMethodUpsertBulk) SetSource(v domain.PaymentMethodSource) *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetSource(v)
+	})
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *PaymentMethodUpsertBulk) UpdateSource() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateSource()
 	})
 }
 

@@ -77,6 +77,11 @@ func MerchantID(v uuid.UUID) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldMerchantID, v))
 }
 
+// StoreID applies equality check predicate on the "store_id" field. It's identical to StoreIDEQ.
+func StoreID(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldEQ(FieldStoreID, v))
+}
+
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldName, v))
@@ -255,6 +260,46 @@ func MerchantIDLT(v uuid.UUID) predicate.PaymentMethod {
 // MerchantIDLTE applies the LTE predicate on the "merchant_id" field.
 func MerchantIDLTE(v uuid.UUID) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldLTE(FieldMerchantID, v))
+}
+
+// StoreIDEQ applies the EQ predicate on the "store_id" field.
+func StoreIDEQ(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldEQ(FieldStoreID, v))
+}
+
+// StoreIDNEQ applies the NEQ predicate on the "store_id" field.
+func StoreIDNEQ(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNEQ(FieldStoreID, v))
+}
+
+// StoreIDIn applies the In predicate on the "store_id" field.
+func StoreIDIn(vs ...uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldIn(FieldStoreID, vs...))
+}
+
+// StoreIDNotIn applies the NotIn predicate on the "store_id" field.
+func StoreIDNotIn(vs ...uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNotIn(FieldStoreID, vs...))
+}
+
+// StoreIDGT applies the GT predicate on the "store_id" field.
+func StoreIDGT(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldGT(FieldStoreID, v))
+}
+
+// StoreIDGTE applies the GTE predicate on the "store_id" field.
+func StoreIDGTE(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldGTE(FieldStoreID, v))
+}
+
+// StoreIDLT applies the LT predicate on the "store_id" field.
+func StoreIDLT(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldLT(FieldStoreID, v))
+}
+
+// StoreIDLTE applies the LTE predicate on the "store_id" field.
+func StoreIDLTE(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldLTE(FieldStoreID, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -462,6 +507,16 @@ func InvoiceRuleNotIn(vs ...domain.PaymentMethodInvoiceRule) predicate.PaymentMe
 	return predicate.PaymentMethod(sql.FieldNotIn(FieldInvoiceRule, v...))
 }
 
+// InvoiceRuleIsNil applies the IsNil predicate on the "invoice_rule" field.
+func InvoiceRuleIsNil() predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldIsNull(FieldInvoiceRule))
+}
+
+// InvoiceRuleNotNil applies the NotNil predicate on the "invoice_rule" field.
+func InvoiceRuleNotNil() predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNotNull(FieldInvoiceRule))
+}
+
 // CashDrawerStatusEQ applies the EQ predicate on the "cash_drawer_status" field.
 func CashDrawerStatusEQ(v bool) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldCashDrawerStatus, v))
@@ -470,6 +525,36 @@ func CashDrawerStatusEQ(v bool) predicate.PaymentMethod {
 // CashDrawerStatusNEQ applies the NEQ predicate on the "cash_drawer_status" field.
 func CashDrawerStatusNEQ(v bool) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldNEQ(FieldCashDrawerStatus, v))
+}
+
+// SourceEQ applies the EQ predicate on the "source" field.
+func SourceEQ(v domain.PaymentMethodSource) predicate.PaymentMethod {
+	vc := v
+	return predicate.PaymentMethod(sql.FieldEQ(FieldSource, vc))
+}
+
+// SourceNEQ applies the NEQ predicate on the "source" field.
+func SourceNEQ(v domain.PaymentMethodSource) predicate.PaymentMethod {
+	vc := v
+	return predicate.PaymentMethod(sql.FieldNEQ(FieldSource, vc))
+}
+
+// SourceIn applies the In predicate on the "source" field.
+func SourceIn(vs ...domain.PaymentMethodSource) predicate.PaymentMethod {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.PaymentMethod(sql.FieldIn(FieldSource, v...))
+}
+
+// SourceNotIn applies the NotIn predicate on the "source" field.
+func SourceNotIn(vs ...domain.PaymentMethodSource) predicate.PaymentMethod {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.PaymentMethod(sql.FieldNotIn(FieldSource, v...))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

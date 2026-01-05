@@ -94,6 +94,22 @@ func (PaymentMethodDisplayChannel) Values() []string {
 	}
 }
 
+type PaymentMethodSource string
+
+const (
+	PaymentMethodSourceBrand  PaymentMethodSource = "brand"  // 品牌
+	PaymentMethodSourceStore  PaymentMethodSource = "store"  // 门店
+	PaymentMethodSourceSystem PaymentMethodSource = "system" // 系统
+)
+
+func (PaymentMethodSource) Values() []string {
+	return []string{
+		string(PaymentMethodSourceBrand),
+		string(PaymentMethodSourceStore),
+		string(PaymentMethodSourceSystem),
+	}
+}
+
 type PaymentMethod struct {
 	ID               uuid.UUID                     `json:"id"`
 	MerchantID       uuid.UUID                     `json:"merchant_id"`        // 品牌商ID
