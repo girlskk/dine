@@ -111,29 +111,6 @@ func (FeeType) Values() []string {
 	}
 }
 
-// PaymentMethod 支付方式/结算分类
-type PaymentMethod string
-
-const (
-	PaymentMethodCash          PaymentMethod = "CASH"           // 现金
-	PaymentMethodOnlinePayment PaymentMethod = "ONLINE_PAYMENT" // 在线支付
-	PaymentMethodMemberCard    PaymentMethod = "MEMBER_CARD"    // 会员卡
-	PaymentMethodCustomCoupon  PaymentMethod = "CUSTOM_COUPON"  // 自定义券
-	PaymentMethodPartnerCoupon PaymentMethod = "PARTNER_COUPON" // 三方合作券
-	PaymentMethodBankCard      PaymentMethod = "BANK_CARD"      // 银行卡
-)
-
-func (PaymentMethod) Values() []string {
-	return []string{
-		string(PaymentMethodCash),
-		string(PaymentMethodOnlinePayment),
-		string(PaymentMethodMemberCard),
-		string(PaymentMethodCustomCoupon),
-		string(PaymentMethodPartnerCoupon),
-		string(PaymentMethodBankCard),
-	}
-}
-
 type OrderRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*Order, error)
 	Create(ctx context.Context, order *Order) error
@@ -212,11 +189,11 @@ type OrderAmount struct {
 
 // OrderPayment 支付记录
 type OrderPayment struct {
-	PaymentNo     string          `json:"payment_no"`     // 支付号（第三方/外部交易号）
-	PaymentMethod PaymentMethod   `json:"payment_method"` // 支付方式
-	PaymentStatus PaymentStatus   `json:"payment_status"` // 支付状态
-	PaymentAmount decimal.Decimal `json:"payment_amount"` // 支付金额
-	RefundAmount  decimal.Decimal `json:"refund_amount"`  // 退款金额
+	PaymentNo     string               `json:"payment_no"`     // 支付号（第三方/外部交易号）
+	PaymentMethod PaymentMethodPayType `json:"payment_method"` // 支付方式
+	PaymentStatus PaymentStatus        `json:"payment_status"` // 支付状态
+	PaymentAmount decimal.Decimal      `json:"payment_amount"` // 支付金额
+	RefundAmount  decimal.Decimal      `json:"refund_amount"`  // 退款金额
 
 	POS     OrderPOS     `json:"pos"`     // POS 终端信息
 	Cashier OrderCashier `json:"cashier"` // 收银员信息
