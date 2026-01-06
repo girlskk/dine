@@ -557,6 +557,16 @@ func SourceNotIn(vs ...domain.PaymentMethodSource) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldNotIn(FieldSource, v...))
 }
 
+// StoreIdsIsNil applies the IsNil predicate on the "store_ids" field.
+func StoreIdsIsNil() predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldIsNull(FieldStoreIds))
+}
+
+// StoreIdsNotNil applies the NotNil predicate on the "store_ids" field.
+func StoreIdsNotNil() predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNotNull(FieldStoreIds))
+}
+
 // StatusEQ applies the EQ predicate on the "status" field.
 func StatusEQ(v bool) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldStatus, v))

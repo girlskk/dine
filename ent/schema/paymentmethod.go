@@ -56,13 +56,14 @@ func (PaymentMethod) Fields() []ent.Field {
 			GoType(domain.PaymentMethodSource("")).
 			Default(string(domain.PaymentMethodSourceBrand)).
 			Comment("来源:brand-品牌,store-门店,system-系统"),
+		field.JSON("store_ids", []uuid.UUID{}).Optional().Comment("下发门店ID集合"),
 		field.Bool("status").Default(false).Comment("启用/停用状态: true-启用, false-停用（必选）"),
 	}
 }
 
 func (PaymentMethod) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("name", "deleted_at").Unique(),
+		index.Fields("merchant_id", "store_id"),
 	}
 }
 

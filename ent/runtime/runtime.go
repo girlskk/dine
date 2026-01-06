@@ -1057,7 +1057,7 @@ func init() {
 	// paymentmethod.DefaultCashDrawerStatus holds the default value on creation for the cash_drawer_status field.
 	paymentmethod.DefaultCashDrawerStatus = paymentmethodDescCashDrawerStatus.Default.(bool)
 	// paymentmethodDescStatus is the schema descriptor for status field.
-	paymentmethodDescStatus := paymentmethodFields[10].Descriptor()
+	paymentmethodDescStatus := paymentmethodFields[11].Descriptor()
 	// paymentmethod.DefaultStatus holds the default value on creation for the status field.
 	paymentmethod.DefaultStatus = paymentmethodDescStatus.Default.(bool)
 	// paymentmethodDescID is the schema descriptor for id field.

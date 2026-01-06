@@ -184,6 +184,12 @@ func (pmc *PaymentMethodCreate) SetNillableSource(dms *domain.PaymentMethodSourc
 	return pmc
 }
 
+// SetStoreIds sets the "store_ids" field.
+func (pmc *PaymentMethodCreate) SetStoreIds(u []uuid.UUID) *PaymentMethodCreate {
+	pmc.mutation.SetStoreIds(u)
+	return pmc
+}
+
 // SetStatus sets the "status" field.
 func (pmc *PaymentMethodCreate) SetStatus(b bool) *PaymentMethodCreate {
 	pmc.mutation.SetStatus(b)
@@ -455,6 +461,10 @@ func (pmc *PaymentMethodCreate) createSpec() (*PaymentMethod, *sqlgraph.CreateSp
 		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
 		_node.Source = value
 	}
+	if value, ok := pmc.mutation.StoreIds(); ok {
+		_spec.SetField(paymentmethod.FieldStoreIds, field.TypeJSON, value)
+		_node.StoreIds = value
+	}
 	if value, ok := pmc.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)
 		_node.Status = value
@@ -646,6 +656,24 @@ func (u *PaymentMethodUpsert) SetSource(v domain.PaymentMethodSource) *PaymentMe
 // UpdateSource sets the "source" field to the value that was provided on create.
 func (u *PaymentMethodUpsert) UpdateSource() *PaymentMethodUpsert {
 	u.SetExcluded(paymentmethod.FieldSource)
+	return u
+}
+
+// SetStoreIds sets the "store_ids" field.
+func (u *PaymentMethodUpsert) SetStoreIds(v []uuid.UUID) *PaymentMethodUpsert {
+	u.Set(paymentmethod.FieldStoreIds, v)
+	return u
+}
+
+// UpdateStoreIds sets the "store_ids" field to the value that was provided on create.
+func (u *PaymentMethodUpsert) UpdateStoreIds() *PaymentMethodUpsert {
+	u.SetExcluded(paymentmethod.FieldStoreIds)
+	return u
+}
+
+// ClearStoreIds clears the value of the "store_ids" field.
+func (u *PaymentMethodUpsert) ClearStoreIds() *PaymentMethodUpsert {
+	u.SetNull(paymentmethod.FieldStoreIds)
 	return u
 }
 
@@ -876,6 +904,27 @@ func (u *PaymentMethodUpsertOne) SetSource(v domain.PaymentMethodSource) *Paymen
 func (u *PaymentMethodUpsertOne) UpdateSource() *PaymentMethodUpsertOne {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateSource()
+	})
+}
+
+// SetStoreIds sets the "store_ids" field.
+func (u *PaymentMethodUpsertOne) SetStoreIds(v []uuid.UUID) *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetStoreIds(v)
+	})
+}
+
+// UpdateStoreIds sets the "store_ids" field to the value that was provided on create.
+func (u *PaymentMethodUpsertOne) UpdateStoreIds() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateStoreIds()
+	})
+}
+
+// ClearStoreIds clears the value of the "store_ids" field.
+func (u *PaymentMethodUpsertOne) ClearStoreIds() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearStoreIds()
 	})
 }
 
@@ -1275,6 +1324,27 @@ func (u *PaymentMethodUpsertBulk) SetSource(v domain.PaymentMethodSource) *Payme
 func (u *PaymentMethodUpsertBulk) UpdateSource() *PaymentMethodUpsertBulk {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateSource()
+	})
+}
+
+// SetStoreIds sets the "store_ids" field.
+func (u *PaymentMethodUpsertBulk) SetStoreIds(v []uuid.UUID) *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetStoreIds(v)
+	})
+}
+
+// UpdateStoreIds sets the "store_ids" field to the value that was provided on create.
+func (u *PaymentMethodUpsertBulk) UpdateStoreIds() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateStoreIds()
+	})
+}
+
+// ClearStoreIds clears the value of the "store_ids" field.
+func (u *PaymentMethodUpsertBulk) ClearStoreIds() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearStoreIds()
 	})
 }
 

@@ -817,6 +817,7 @@ var (
 		{Name: "cash_drawer_status", Type: field.TypeBool, Default: false},
 		{Name: "display_channels", Type: field.TypeJSON},
 		{Name: "source", Type: field.TypeEnum, Enums: []string{"brand", "store", "system"}, Default: "brand"},
+		{Name: "store_ids", Type: field.TypeJSON, Nullable: true},
 		{Name: "status", Type: field.TypeBool, Default: false},
 	}
 	// PaymentMethodsTable holds the schema information for the "payment_methods" table.
@@ -831,9 +832,9 @@ var (
 				Columns: []*schema.Column{PaymentMethodsColumns[3]},
 			},
 			{
-				Name:    "paymentmethod_name_deleted_at",
-				Unique:  true,
-				Columns: []*schema.Column{PaymentMethodsColumns[6], PaymentMethodsColumns[3]},
+				Name:    "paymentmethod_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentMethodsColumns[4], PaymentMethodsColumns[5]},
 			},
 		},
 	}

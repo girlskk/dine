@@ -43,6 +43,8 @@ const (
 	FieldDisplayChannels = "display_channels"
 	// FieldSource holds the string denoting the source field in the database.
 	FieldSource = "source"
+	// FieldStoreIds holds the string denoting the store_ids field in the database.
+	FieldStoreIds = "store_ids"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// Table holds the table name of the paymentmethod in the database.
@@ -65,6 +67,7 @@ var Columns = []string{
 	FieldCashDrawerStatus,
 	FieldDisplayChannels,
 	FieldSource,
+	FieldStoreIds,
 	FieldStatus,
 }
 

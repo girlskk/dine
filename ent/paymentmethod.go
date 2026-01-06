@@ -48,6 +48,8 @@ type PaymentMethod struct {
 	DisplayChannels []domain.PaymentMethodDisplayChannel `json:"display_channels,omitempty"`
 	// 来源:brand-品牌,store-门店,system-系统
 	Source domain.PaymentMethodSource `json:"source,omitempty"`
+	// 下发门店ID集合
+	StoreIds []uuid.UUID `json:"store_ids,omitempty"`
 	// 启用/停用状态: true-启用, false-停用（必选）
 	Status       bool `json:"status,omitempty"`
 	selectValues sql.SelectValues
@@ -60,7 +62,7 @@ func (*PaymentMethod) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case paymentmethod.FieldFeeRate:
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
-		case paymentmethod.FieldDisplayChannels:
+		case paymentmethod.FieldDisplayChannels, paymentmethod.FieldStoreIds:
 			values[i] = new([]byte)
 		case paymentmethod.FieldCashDrawerStatus, paymentmethod.FieldStatus:
 			values[i] = new(sql.NullBool)
@@ -174,6 +176,14 @@ func (pm *PaymentMethod) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pm.Source = domain.PaymentMethodSource(value.String)
 			}
+		case paymentmethod.FieldStoreIds:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field store_ids", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pm.StoreIds); err != nil {
+					return fmt.Errorf("unmarshal field store_ids: %w", err)
+				}
+			}
 		case paymentmethod.FieldStatus:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -256,6 +266,9 @@ func (pm *PaymentMethod) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("source=")
 	builder.WriteString(fmt.Sprintf("%v", pm.Source))
+	builder.WriteString(", ")
+	builder.WriteString("store_ids=")
+	builder.WriteString(fmt.Sprintf("%v", pm.StoreIds))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", pm.Status))
