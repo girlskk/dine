@@ -1030,12 +1030,16 @@ func init() {
 	paymentmethodDescDeletedAt := paymentmethodMixinFields2[0].Descriptor()
 	// paymentmethod.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	paymentmethod.DefaultDeletedAt = paymentmethodDescDeletedAt.Default.(int64)
+	// paymentmethodDescSourcePaymentMethodID is the schema descriptor for source_payment_method_id field.
+	paymentmethodDescSourcePaymentMethodID := paymentmethodFields[0].Descriptor()
+	// paymentmethod.DefaultSourcePaymentMethodID holds the default value on creation for the source_payment_method_id field.
+	paymentmethod.DefaultSourcePaymentMethodID = paymentmethodDescSourcePaymentMethodID.Default.(func() uuid.UUID)
 	// paymentmethodDescStoreID is the schema descriptor for store_id field.
-	paymentmethodDescStoreID := paymentmethodFields[1].Descriptor()
+	paymentmethodDescStoreID := paymentmethodFields[2].Descriptor()
 	// paymentmethod.DefaultStoreID holds the default value on creation for the store_id field.
 	paymentmethod.DefaultStoreID = paymentmethodDescStoreID.Default.(func() uuid.UUID)
 	// paymentmethodDescName is the schema descriptor for name field.
-	paymentmethodDescName := paymentmethodFields[2].Descriptor()
+	paymentmethodDescName := paymentmethodFields[3].Descriptor()
 	// paymentmethod.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	paymentmethod.NameValidator = func() func(string) error {
 		validators := paymentmethodDescName.Validators
@@ -1053,7 +1057,7 @@ func init() {
 		}
 	}()
 	// paymentmethodDescCashDrawerStatus is the schema descriptor for cash_drawer_status field.
-	paymentmethodDescCashDrawerStatus := paymentmethodFields[7].Descriptor()
+	paymentmethodDescCashDrawerStatus := paymentmethodFields[8].Descriptor()
 	// paymentmethod.DefaultCashDrawerStatus holds the default value on creation for the cash_drawer_status field.
 	paymentmethod.DefaultCashDrawerStatus = paymentmethodDescCashDrawerStatus.Default.(bool)
 	// paymentmethodDescStatus is the schema descriptor for status field.

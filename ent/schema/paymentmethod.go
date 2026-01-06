@@ -27,6 +27,7 @@ func (PaymentMethod) Mixin() []ent.Mixin {
 // Fields of the PaymentMethod.
 func (PaymentMethod) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("source_payment_method_id", uuid.UUID{}).Default(schematype.NilUUID()).Immutable().Comment("结算方式来源ID"),
 		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("品牌商ID"),
 		field.UUID("store_id", uuid.UUID{}).Default(schematype.NilUUID()).Immutable().Comment("门店ID"),
 		field.String("name").MaxLen(255).NotEmpty().Comment("结算方式名称"),
@@ -37,7 +38,7 @@ func (PaymentMethod) Fields() []ent.Field {
 		field.Enum("payment_type").
 			GoType(domain.PaymentMethodPayType("")).
 			Default(string(domain.PaymentMethodPayTypeOther)).
-			Comment("结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券"),
+			Comment("结算分类:cash-现金,online_payment-在线支付,member_card-会员卡,custom_coupon-自定义券,partner_coupon-三方合作券,bank_card-银行卡"),
 		field.Other("fee_rate", decimal.Decimal{}).
 			SchemaType(map[string]string{
 				dialect.MySQL:  "DECIMAL(10,2)",
@@ -51,12 +52,11 @@ func (PaymentMethod) Fields() []ent.Field {
 			Optional().
 			Comment("实收部分开票规则:no_invoice-不开发票,actual_amount-按实收金额"),
 		field.Bool("cash_drawer_status").Default(false).Comment("开钱箱状态:false-不开钱箱, true-开钱箱（必选）"),
-		field.JSON("display_channels", []domain.PaymentMethodDisplayChannel{}).Comment("收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖"),
+		field.JSON("display_channels", []domain.PaymentMethodDisplayChannel{}).Comment("收银终端显示渠道（可选，可多选）：POS-POS、Mobile-移动点餐、Scan-扫码点餐、SelfService-自助点餐、ThirdParty-三方外卖"),
 		field.Enum("source").
 			GoType(domain.PaymentMethodSource("")).
 			Default(string(domain.PaymentMethodSourceBrand)).
 			Comment("来源:brand-品牌,store-门店,system-系统"),
-		field.JSON("store_ids", []uuid.UUID{}).Optional().Comment("下发门店ID集合"),
 		field.Bool("status").Default(false).Comment("启用/停用状态: true-启用, false-停用（必选）"),
 	}
 }

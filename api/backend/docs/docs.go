@@ -948,6 +948,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "来源:brand-品牌,store-门店,system-系统",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "页码",
                         "name": "page",
@@ -5723,9 +5729,25 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "source": {
+                    "description": "来源:brand-品牌,store-门店,system-系统",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodSource"
+                        }
+                    ]
+                },
+                "source_payment_method_id": {
+                    "description": "结算方式来源ID",
+                    "type": "string"
+                },
                 "status": {
                     "description": "启用/停用状态: true-启用, false-停用（必选）",
                     "type": "boolean"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
                 },
                 "updated_at": {
                     "description": "更新时间",
@@ -5809,6 +5831,24 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "domain.PaymentMethodSource": {
+            "type": "string",
+            "enum": [
+                "brand",
+                "store",
+                "system"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodSourceBrand": "品牌",
+                "PaymentMethodSourceStore": "门店",
+                "PaymentMethodSourceSystem": "系统"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodSourceBrand",
+                "PaymentMethodSourceStore",
+                "PaymentMethodSourceSystem"
+            ]
         },
         "domain.Product": {
             "type": "object",
@@ -7161,23 +7201,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -8213,7 +8239,8 @@ const docTemplate = `{
                 "display_channels",
                 "invoice_rule",
                 "name",
-                "payment_type"
+                "payment_type",
+                "source"
             ],
             "properties": {
                 "accounting_rule": {
@@ -8230,11 +8257,7 @@ const docTemplate = `{
                 },
                 "cash_drawer_status": {
                     "description": "开钱箱状态",
-                    "type": "boolean",
-                    "enum": [
-                        true,
-                        false
-                    ]
+                    "type": "boolean"
                 },
                 "display_channels": {
                     "description": "收银终端显示渠道（可选，可多选）",
@@ -8280,13 +8303,22 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "source": {
+                    "description": "来源:brand-品牌,store-门店,system-系统",
+                    "enum": [
+                        "brand",
+                        "store",
+                        "system"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodSource"
+                        }
+                    ]
+                },
                 "status": {
                     "description": "启用/停用状态",
-                    "type": "boolean",
-                    "enum": [
-                        true,
-                        false
-                    ]
+                    "type": "boolean"
                 }
             }
         },

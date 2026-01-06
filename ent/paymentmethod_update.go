@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
@@ -182,24 +181,6 @@ func (pmu *PaymentMethodUpdate) SetNillableSource(dms *domain.PaymentMethodSourc
 	return pmu
 }
 
-// SetStoreIds sets the "store_ids" field.
-func (pmu *PaymentMethodUpdate) SetStoreIds(u []uuid.UUID) *PaymentMethodUpdate {
-	pmu.mutation.SetStoreIds(u)
-	return pmu
-}
-
-// AppendStoreIds appends u to the "store_ids" field.
-func (pmu *PaymentMethodUpdate) AppendStoreIds(u []uuid.UUID) *PaymentMethodUpdate {
-	pmu.mutation.AppendStoreIds(u)
-	return pmu
-}
-
-// ClearStoreIds clears the value of the "store_ids" field.
-func (pmu *PaymentMethodUpdate) ClearStoreIds() *PaymentMethodUpdate {
-	pmu.mutation.ClearStoreIds()
-	return pmu
-}
-
 // SetStatus sets the "status" field.
 func (pmu *PaymentMethodUpdate) SetStatus(b bool) *PaymentMethodUpdate {
 	pmu.mutation.SetStatus(b)
@@ -352,17 +333,6 @@ func (pmu *PaymentMethodUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	}
 	if value, ok := pmu.mutation.Source(); ok {
 		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
-	}
-	if value, ok := pmu.mutation.StoreIds(); ok {
-		_spec.SetField(paymentmethod.FieldStoreIds, field.TypeJSON, value)
-	}
-	if value, ok := pmu.mutation.AppendedStoreIds(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, paymentmethod.FieldStoreIds, value)
-		})
-	}
-	if pmu.mutation.StoreIdsCleared() {
-		_spec.ClearField(paymentmethod.FieldStoreIds, field.TypeJSON)
 	}
 	if value, ok := pmu.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)
@@ -535,24 +505,6 @@ func (pmuo *PaymentMethodUpdateOne) SetNillableSource(dms *domain.PaymentMethodS
 	if dms != nil {
 		pmuo.SetSource(*dms)
 	}
-	return pmuo
-}
-
-// SetStoreIds sets the "store_ids" field.
-func (pmuo *PaymentMethodUpdateOne) SetStoreIds(u []uuid.UUID) *PaymentMethodUpdateOne {
-	pmuo.mutation.SetStoreIds(u)
-	return pmuo
-}
-
-// AppendStoreIds appends u to the "store_ids" field.
-func (pmuo *PaymentMethodUpdateOne) AppendStoreIds(u []uuid.UUID) *PaymentMethodUpdateOne {
-	pmuo.mutation.AppendStoreIds(u)
-	return pmuo
-}
-
-// ClearStoreIds clears the value of the "store_ids" field.
-func (pmuo *PaymentMethodUpdateOne) ClearStoreIds() *PaymentMethodUpdateOne {
-	pmuo.mutation.ClearStoreIds()
 	return pmuo
 }
 
@@ -738,17 +690,6 @@ func (pmuo *PaymentMethodUpdateOne) sqlSave(ctx context.Context) (_node *Payment
 	}
 	if value, ok := pmuo.mutation.Source(); ok {
 		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
-	}
-	if value, ok := pmuo.mutation.StoreIds(); ok {
-		_spec.SetField(paymentmethod.FieldStoreIds, field.TypeJSON, value)
-	}
-	if value, ok := pmuo.mutation.AppendedStoreIds(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, paymentmethod.FieldStoreIds, value)
-		})
-	}
-	if pmuo.mutation.StoreIdsCleared() {
-		_spec.ClearField(paymentmethod.FieldStoreIds, field.TypeJSON)
 	}
 	if value, ok := pmuo.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)

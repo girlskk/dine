@@ -807,6 +807,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "source_payment_method_id", Type: field.TypeUUID},
 		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString, Size: 255},
@@ -817,7 +818,6 @@ var (
 		{Name: "cash_drawer_status", Type: field.TypeBool, Default: false},
 		{Name: "display_channels", Type: field.TypeJSON},
 		{Name: "source", Type: field.TypeEnum, Enums: []string{"brand", "store", "system"}, Default: "brand"},
-		{Name: "store_ids", Type: field.TypeJSON, Nullable: true},
 		{Name: "status", Type: field.TypeBool, Default: false},
 	}
 	// PaymentMethodsTable holds the schema information for the "payment_methods" table.
@@ -834,7 +834,7 @@ var (
 			{
 				Name:    "paymentmethod_merchant_id_store_id",
 				Unique:  false,
-				Columns: []*schema.Column{PaymentMethodsColumns[4], PaymentMethodsColumns[5]},
+				Columns: []*schema.Column{PaymentMethodsColumns[5], PaymentMethodsColumns[6]},
 			},
 		},
 	}

@@ -67,6 +67,15 @@ func (repo *PaymentMethodRepository) Create(ctx context.Context, p *domain.Payme
 	if p.FeeRate != nil {
 		builder = builder.SetFeeRate(*p.FeeRate)
 	}
+	if p.SourcePaymentMethodID != uuid.Nil {
+		builder = builder.SetSourcePaymentMethodID(p.SourcePaymentMethodID)
+	}
+	if p.StoreID != uuid.Nil {
+		builder = builder.SetStoreID(p.StoreID)
+	}
+	if p.Source != "" {
+		builder = builder.SetSource(p.Source)
+	}
 	created, err := builder.Save(ctx)
 	if err != nil {
 		return err
@@ -130,10 +139,15 @@ func (repo *PaymentMethodRepository) PagedListBySearch(
 	if params.MerchantID != uuid.Nil {
 		query.Where(paymentmethod.MerchantID(params.MerchantID))
 	}
+	if params.StoreID != uuid.Nil {
+		query.Where(paymentmethod.StoreID(params.StoreID))
+	}
 	if params.Name != "" {
 		query.Where(paymentmethod.NameContains(params.Name))
 	}
-
+	if params.Source != "" {
+		query.Where(paymentmethod.SourceEQ(params.Source))
+	}
 	// 获取总数
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
@@ -173,16 +187,19 @@ func convertPaymentMethodToDomain(pm *ent.PaymentMethod) *domain.PaymentMethod {
 		return nil
 	}
 	m := &domain.PaymentMethod{
-		ID:               pm.ID,
-		MerchantID:       pm.MerchantID,
-		Name:             pm.Name,
-		AccountingRule:   pm.AccountingRule,
-		PaymentType:      pm.PaymentType,
-		InvoiceRule:      pm.InvoiceRule,
-		CashDrawerStatus: pm.CashDrawerStatus,
-		DisplayChannels:  pm.DisplayChannels,
-		Status:           pm.Status,
-		CreatedAt:        pm.CreatedAt,
+		ID:                    pm.ID,
+		SourcePaymentMethodID: pm.SourcePaymentMethodID,
+		MerchantID:            pm.MerchantID,
+		StoreID:               pm.StoreID,
+		Name:                  pm.Name,
+		AccountingRule:        pm.AccountingRule,
+		PaymentType:           pm.PaymentType,
+		InvoiceRule:           pm.InvoiceRule,
+		CashDrawerStatus:      pm.CashDrawerStatus,
+		DisplayChannels:       pm.DisplayChannels,
+		Source:                pm.Source,
+		Status:                pm.Status,
+		CreatedAt:             pm.CreatedAt,
 	}
 	return m
 }

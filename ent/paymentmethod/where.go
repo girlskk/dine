@@ -72,6 +72,11 @@ func DeletedAt(v int64) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// SourcePaymentMethodID applies equality check predicate on the "source_payment_method_id" field. It's identical to SourcePaymentMethodIDEQ.
+func SourcePaymentMethodID(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldEQ(FieldSourcePaymentMethodID, v))
+}
+
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
 func MerchantID(v uuid.UUID) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldEQ(FieldMerchantID, v))
@@ -220,6 +225,46 @@ func DeletedAtLT(v int64) predicate.PaymentMethod {
 // DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
 func DeletedAtLTE(v int64) predicate.PaymentMethod {
 	return predicate.PaymentMethod(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// SourcePaymentMethodIDEQ applies the EQ predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDEQ(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldEQ(FieldSourcePaymentMethodID, v))
+}
+
+// SourcePaymentMethodIDNEQ applies the NEQ predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDNEQ(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNEQ(FieldSourcePaymentMethodID, v))
+}
+
+// SourcePaymentMethodIDIn applies the In predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDIn(vs ...uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldIn(FieldSourcePaymentMethodID, vs...))
+}
+
+// SourcePaymentMethodIDNotIn applies the NotIn predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDNotIn(vs ...uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldNotIn(FieldSourcePaymentMethodID, vs...))
+}
+
+// SourcePaymentMethodIDGT applies the GT predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDGT(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldGT(FieldSourcePaymentMethodID, v))
+}
+
+// SourcePaymentMethodIDGTE applies the GTE predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDGTE(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldGTE(FieldSourcePaymentMethodID, v))
+}
+
+// SourcePaymentMethodIDLT applies the LT predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDLT(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldLT(FieldSourcePaymentMethodID, v))
+}
+
+// SourcePaymentMethodIDLTE applies the LTE predicate on the "source_payment_method_id" field.
+func SourcePaymentMethodIDLTE(v uuid.UUID) predicate.PaymentMethod {
+	return predicate.PaymentMethod(sql.FieldLTE(FieldSourcePaymentMethodID, v))
 }
 
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
@@ -555,16 +600,6 @@ func SourceNotIn(vs ...domain.PaymentMethodSource) predicate.PaymentMethod {
 		v[i] = vs[i]
 	}
 	return predicate.PaymentMethod(sql.FieldNotIn(FieldSource, v...))
-}
-
-// StoreIdsIsNil applies the IsNil predicate on the "store_ids" field.
-func StoreIdsIsNil() predicate.PaymentMethod {
-	return predicate.PaymentMethod(sql.FieldIsNull(FieldStoreIds))
-}
-
-// StoreIdsNotNil applies the NotNil predicate on the "store_ids" field.
-func StoreIdsNotNil() predicate.PaymentMethod {
-	return predicate.PaymentMethod(sql.FieldNotNull(FieldStoreIds))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

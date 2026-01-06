@@ -22008,31 +22008,30 @@ func (m *OrderProductMutation) ResetEdge(name string) error {
 // PaymentMethodMutation represents an operation that mutates the PaymentMethod nodes in the graph.
 type PaymentMethodMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *uuid.UUID
-	created_at             *time.Time
-	updated_at             *time.Time
-	deleted_at             *int64
-	adddeleted_at          *int64
-	merchant_id            *uuid.UUID
-	store_id               *uuid.UUID
-	name                   *string
-	accounting_rule        *domain.PaymentMethodAccountingRule
-	payment_type           *domain.PaymentMethodPayType
-	fee_rate               *decimal.Decimal
-	invoice_rule           *domain.PaymentMethodInvoiceRule
-	cash_drawer_status     *bool
-	display_channels       *[]domain.PaymentMethodDisplayChannel
-	appenddisplay_channels []domain.PaymentMethodDisplayChannel
-	source                 *domain.PaymentMethodSource
-	store_ids              *[]uuid.UUID
-	appendstore_ids        []uuid.UUID
-	status                 *bool
-	clearedFields          map[string]struct{}
-	done                   bool
-	oldValue               func(context.Context) (*PaymentMethod, error)
-	predicates             []predicate.PaymentMethod
+	op                       Op
+	typ                      string
+	id                       *uuid.UUID
+	created_at               *time.Time
+	updated_at               *time.Time
+	deleted_at               *int64
+	adddeleted_at            *int64
+	source_payment_method_id *uuid.UUID
+	merchant_id              *uuid.UUID
+	store_id                 *uuid.UUID
+	name                     *string
+	accounting_rule          *domain.PaymentMethodAccountingRule
+	payment_type             *domain.PaymentMethodPayType
+	fee_rate                 *decimal.Decimal
+	invoice_rule             *domain.PaymentMethodInvoiceRule
+	cash_drawer_status       *bool
+	display_channels         *[]domain.PaymentMethodDisplayChannel
+	appenddisplay_channels   []domain.PaymentMethodDisplayChannel
+	source                   *domain.PaymentMethodSource
+	status                   *bool
+	clearedFields            map[string]struct{}
+	done                     bool
+	oldValue                 func(context.Context) (*PaymentMethod, error)
+	predicates               []predicate.PaymentMethod
 }
 
 var _ ent.Mutation = (*PaymentMethodMutation)(nil)
@@ -22265,6 +22264,42 @@ func (m *PaymentMethodMutation) AddedDeletedAt() (r int64, exists bool) {
 func (m *PaymentMethodMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	m.adddeleted_at = nil
+}
+
+// SetSourcePaymentMethodID sets the "source_payment_method_id" field.
+func (m *PaymentMethodMutation) SetSourcePaymentMethodID(u uuid.UUID) {
+	m.source_payment_method_id = &u
+}
+
+// SourcePaymentMethodID returns the value of the "source_payment_method_id" field in the mutation.
+func (m *PaymentMethodMutation) SourcePaymentMethodID() (r uuid.UUID, exists bool) {
+	v := m.source_payment_method_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSourcePaymentMethodID returns the old "source_payment_method_id" field's value of the PaymentMethod entity.
+// If the PaymentMethod object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentMethodMutation) OldSourcePaymentMethodID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSourcePaymentMethodID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSourcePaymentMethodID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSourcePaymentMethodID: %w", err)
+	}
+	return oldValue.SourcePaymentMethodID, nil
+}
+
+// ResetSourcePaymentMethodID resets all changes to the "source_payment_method_id" field.
+func (m *PaymentMethodMutation) ResetSourcePaymentMethodID() {
+	m.source_payment_method_id = nil
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -22668,71 +22703,6 @@ func (m *PaymentMethodMutation) ResetSource() {
 	m.source = nil
 }
 
-// SetStoreIds sets the "store_ids" field.
-func (m *PaymentMethodMutation) SetStoreIds(u []uuid.UUID) {
-	m.store_ids = &u
-	m.appendstore_ids = nil
-}
-
-// StoreIds returns the value of the "store_ids" field in the mutation.
-func (m *PaymentMethodMutation) StoreIds() (r []uuid.UUID, exists bool) {
-	v := m.store_ids
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStoreIds returns the old "store_ids" field's value of the PaymentMethod entity.
-// If the PaymentMethod object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PaymentMethodMutation) OldStoreIds(ctx context.Context) (v []uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStoreIds is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStoreIds requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStoreIds: %w", err)
-	}
-	return oldValue.StoreIds, nil
-}
-
-// AppendStoreIds adds u to the "store_ids" field.
-func (m *PaymentMethodMutation) AppendStoreIds(u []uuid.UUID) {
-	m.appendstore_ids = append(m.appendstore_ids, u...)
-}
-
-// AppendedStoreIds returns the list of values that were appended to the "store_ids" field in this mutation.
-func (m *PaymentMethodMutation) AppendedStoreIds() ([]uuid.UUID, bool) {
-	if len(m.appendstore_ids) == 0 {
-		return nil, false
-	}
-	return m.appendstore_ids, true
-}
-
-// ClearStoreIds clears the value of the "store_ids" field.
-func (m *PaymentMethodMutation) ClearStoreIds() {
-	m.store_ids = nil
-	m.appendstore_ids = nil
-	m.clearedFields[paymentmethod.FieldStoreIds] = struct{}{}
-}
-
-// StoreIdsCleared returns if the "store_ids" field was cleared in this mutation.
-func (m *PaymentMethodMutation) StoreIdsCleared() bool {
-	_, ok := m.clearedFields[paymentmethod.FieldStoreIds]
-	return ok
-}
-
-// ResetStoreIds resets all changes to the "store_ids" field.
-func (m *PaymentMethodMutation) ResetStoreIds() {
-	m.store_ids = nil
-	m.appendstore_ids = nil
-	delete(m.clearedFields, paymentmethod.FieldStoreIds)
-}
-
 // SetStatus sets the "status" field.
 func (m *PaymentMethodMutation) SetStatus(b bool) {
 	m.status = &b
@@ -22813,6 +22783,9 @@ func (m *PaymentMethodMutation) Fields() []string {
 	if m.deleted_at != nil {
 		fields = append(fields, paymentmethod.FieldDeletedAt)
 	}
+	if m.source_payment_method_id != nil {
+		fields = append(fields, paymentmethod.FieldSourcePaymentMethodID)
+	}
 	if m.merchant_id != nil {
 		fields = append(fields, paymentmethod.FieldMerchantID)
 	}
@@ -22843,9 +22816,6 @@ func (m *PaymentMethodMutation) Fields() []string {
 	if m.source != nil {
 		fields = append(fields, paymentmethod.FieldSource)
 	}
-	if m.store_ids != nil {
-		fields = append(fields, paymentmethod.FieldStoreIds)
-	}
 	if m.status != nil {
 		fields = append(fields, paymentmethod.FieldStatus)
 	}
@@ -22863,6 +22833,8 @@ func (m *PaymentMethodMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case paymentmethod.FieldDeletedAt:
 		return m.DeletedAt()
+	case paymentmethod.FieldSourcePaymentMethodID:
+		return m.SourcePaymentMethodID()
 	case paymentmethod.FieldMerchantID:
 		return m.MerchantID()
 	case paymentmethod.FieldStoreID:
@@ -22883,8 +22855,6 @@ func (m *PaymentMethodMutation) Field(name string) (ent.Value, bool) {
 		return m.DisplayChannels()
 	case paymentmethod.FieldSource:
 		return m.Source()
-	case paymentmethod.FieldStoreIds:
-		return m.StoreIds()
 	case paymentmethod.FieldStatus:
 		return m.Status()
 	}
@@ -22902,6 +22872,8 @@ func (m *PaymentMethodMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case paymentmethod.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case paymentmethod.FieldSourcePaymentMethodID:
+		return m.OldSourcePaymentMethodID(ctx)
 	case paymentmethod.FieldMerchantID:
 		return m.OldMerchantID(ctx)
 	case paymentmethod.FieldStoreID:
@@ -22922,8 +22894,6 @@ func (m *PaymentMethodMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldDisplayChannels(ctx)
 	case paymentmethod.FieldSource:
 		return m.OldSource(ctx)
-	case paymentmethod.FieldStoreIds:
-		return m.OldStoreIds(ctx)
 	case paymentmethod.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -22955,6 +22925,13 @@ func (m *PaymentMethodMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case paymentmethod.FieldSourcePaymentMethodID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSourcePaymentMethodID(v)
 		return nil
 	case paymentmethod.FieldMerchantID:
 		v, ok := value.(uuid.UUID)
@@ -23026,13 +23003,6 @@ func (m *PaymentMethodMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSource(v)
 		return nil
-	case paymentmethod.FieldStoreIds:
-		v, ok := value.([]uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetStoreIds(v)
-		return nil
 	case paymentmethod.FieldStatus:
 		v, ok := value.(bool)
 		if !ok {
@@ -23091,9 +23061,6 @@ func (m *PaymentMethodMutation) ClearedFields() []string {
 	if m.FieldCleared(paymentmethod.FieldInvoiceRule) {
 		fields = append(fields, paymentmethod.FieldInvoiceRule)
 	}
-	if m.FieldCleared(paymentmethod.FieldStoreIds) {
-		fields = append(fields, paymentmethod.FieldStoreIds)
-	}
 	return fields
 }
 
@@ -23114,9 +23081,6 @@ func (m *PaymentMethodMutation) ClearField(name string) error {
 	case paymentmethod.FieldInvoiceRule:
 		m.ClearInvoiceRule()
 		return nil
-	case paymentmethod.FieldStoreIds:
-		m.ClearStoreIds()
-		return nil
 	}
 	return fmt.Errorf("unknown PaymentMethod nullable field %s", name)
 }
@@ -23133,6 +23097,9 @@ func (m *PaymentMethodMutation) ResetField(name string) error {
 		return nil
 	case paymentmethod.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case paymentmethod.FieldSourcePaymentMethodID:
+		m.ResetSourcePaymentMethodID()
 		return nil
 	case paymentmethod.FieldMerchantID:
 		m.ResetMerchantID()
@@ -23163,9 +23130,6 @@ func (m *PaymentMethodMutation) ResetField(name string) error {
 		return nil
 	case paymentmethod.FieldSource:
 		m.ResetSource()
-		return nil
-	case paymentmethod.FieldStoreIds:
-		m.ResetStoreIds()
 		return nil
 	case paymentmethod.FieldStatus:
 		m.ResetStatus()

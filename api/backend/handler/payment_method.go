@@ -71,6 +71,7 @@ func (h *PaymentMethodHandler) Create() gin.HandlerFunc {
 			InvoiceRule:      req.InvoiceRule,
 			CashDrawerStatus: req.CashDrawerStatus,
 			DisplayChannels:  req.DisplayChannels,
+			Source:           req.Source,
 			Status:           req.Status,
 		}
 		err := h.PaymentMethodInteractor.Create(ctx, paymentMethod)
@@ -233,6 +234,7 @@ func (h *PaymentMethodHandler) GetDetail() gin.HandlerFunc {
 //	@Security	BearerAuth
 //	@Summary	查询结算方式列表
 //	@Param		name	query		string							false	"结算方式名称（模糊匹配）"
+//	@Param		source	query		string							false	"来源:brand-品牌,store-门店,system-系统"
 //	@Param		page	query		int								false	"页码"
 //	@Param		size	query		int								false	"每页数量"
 //	@Success	200		{object}	domain.PaymentMethodSearchRes	"成功"

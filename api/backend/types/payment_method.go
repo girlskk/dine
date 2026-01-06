@@ -6,7 +6,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
-// PaymentMethodCreateReq 创建菜单请求
+// PaymentMethodCreateReq 创建结算方式请求
 type PaymentMethodCreateReq struct {
 	Name             string                               `json:"name" binding:"required,max=255"`                                                             // 结算方式名称（必选）
 	AccountingRule   domain.PaymentMethodAccountingRule   `json:"accounting_rule" binding:"required,oneof=income discount"`                                    // 计入规则（必选）
@@ -16,9 +16,10 @@ type PaymentMethodCreateReq struct {
 	CashDrawerStatus bool                                 `json:"cash_drawer_status"`                                                                          // 开钱箱状态
 	Status           bool                                 `json:"status"`                                                                                      // 启用/停用状态
 	DisplayChannels  []domain.PaymentMethodDisplayChannel `json:"display_channels" binding:"required,min=1,dive,oneof=POS Mobile Scan SelfService ThirdParty"` // 收银终端显示渠道（可选，可多选）
+	Source           domain.PaymentMethodSource           `json:"source" binding:"required,oneof=brand store system"`                                          // 来源:brand-品牌,store-门店,system-系统
 }
 
-// PaymentMethodUpdateReq 更新菜单请求
+// PaymentMethodUpdateReq 更新结算方式请求
 type PaymentMethodUpdateReq struct {
 	Name             string                               `json:"name" binding:"required,max=255"`                                                             // 结算方式名称（必选）
 	AccountingRule   domain.PaymentMethodAccountingRule   `json:"accounting_rule" binding:"required,oneof=income discount"`                                    // 计入规则（必选）
@@ -30,8 +31,9 @@ type PaymentMethodUpdateReq struct {
 	DisplayChannels  []domain.PaymentMethodDisplayChannel `json:"display_channels" binding:"required,min=1,dive,oneof=POS Mobile Scan SelfService ThirdParty"` // 收银终端显示渠道（可选，可多选）
 }
 
-// PaymentMethodListReq 菜单列表请求
+// PaymentMethodListReq 结算方式列表请求
 type PaymentMethodListReq struct {
 	upagination.RequestPagination
-	Name string `json:"name" form:"name"` // 结算方式名称（模糊匹配）
+	Name   string                     `json:"name" form:"name"`     // 结算方式名称（模糊匹配）
+	Source domain.PaymentMethodSource `json:"source" form:"source"` // 来源:brand-品牌,store-门店,system-系统
 }

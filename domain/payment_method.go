@@ -111,18 +111,21 @@ func (PaymentMethodSource) Values() []string {
 }
 
 type PaymentMethod struct {
-	ID               uuid.UUID                     `json:"id"`
-	MerchantID       uuid.UUID                     `json:"merchant_id"`        // 品牌商ID
-	Name             string                        `json:"name"`               // 结算方式名称
-	AccountingRule   PaymentMethodAccountingRule   `json:"accounting_rule"`    // 计入规则:income-计入实收,discount-计入优惠
-	PaymentType      PaymentMethodPayType          `json:"payment_type"`       // 结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券
-	FeeRate          *decimal.Decimal              `json:"fee_rate"`           // 手续费率,百分比
-	InvoiceRule      PaymentMethodInvoiceRule      `json:"invoice_rule"`       // 实收部分开票规则:no_invoice-不开发票,actual_amount-按实收金额
-	CashDrawerStatus bool                          `json:"cash_drawer_status"` // 开钱箱状态:false-不开钱箱, true-开钱箱（必选）
-	DisplayChannels  []PaymentMethodDisplayChannel `json:"display_channels"`   // 收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖
-	Status           bool                          `json:"status"`             // 启用/停用状态: true-启用, false-停用（必选）
-	CreatedAt        time.Time                     `json:"created_at"`         // 创建时间
-	UpdatedAt        time.Time                     `json:"updated_at"`         // 更新时间
+	ID                    uuid.UUID                     `json:"id"`
+	SourcePaymentMethodID uuid.UUID                     `json:"source_payment_method_id"` // 结算方式来源ID
+	MerchantID            uuid.UUID                     `json:"merchant_id"`              // 品牌商ID
+	StoreID               uuid.UUID                     `json:"store_id"`                 // 门店ID
+	Name                  string                        `json:"name"`                     // 结算方式名称
+	AccountingRule        PaymentMethodAccountingRule   `json:"accounting_rule"`          // 计入规则:income-计入实收,discount-计入优惠
+	PaymentType           PaymentMethodPayType          `json:"payment_type"`             // 结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券
+	FeeRate               *decimal.Decimal              `json:"fee_rate"`                 // 手续费率,百分比
+	InvoiceRule           PaymentMethodInvoiceRule      `json:"invoice_rule"`             // 实收部分开票规则:no_invoice-不开发票,actual_amount-按实收金额
+	CashDrawerStatus      bool                          `json:"cash_drawer_status"`       // 开钱箱状态:false-不开钱箱, true-开钱箱（必选）
+	DisplayChannels       []PaymentMethodDisplayChannel `json:"display_channels"`         // 收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖
+	Source                PaymentMethodSource           `json:"source,omitempty"`         // 来源:brand-品牌,store-门店,system-系统
+	Status                bool                          `json:"status"`                   // 启用/停用状态: true-启用, false-停用（必选）
+	CreatedAt             time.Time                     `json:"created_at"`               // 创建时间
+	UpdatedAt             time.Time                     `json:"updated_at"`               // 更新时间
 }
 
 type PaymentMethods []*PaymentMethod
@@ -147,7 +150,9 @@ type PaymentMethodInteractor interface {
 }
 type PaymentMethodSearchParams struct {
 	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 	Name       string // 菜单名称（模糊匹配）
+	Source     PaymentMethodSource
 }
 
 // PaymentMethodSearchRes 查询结果

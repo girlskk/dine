@@ -739,9 +739,19 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.PaymentMethodPayType'
         description: 结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券
+      source:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentMethodSource'
+        description: 来源:brand-品牌,store-门店,system-系统
+      source_payment_method_id:
+        description: 结算方式来源ID
+        type: string
       status:
         description: '启用/停用状态: true-启用, false-停用（必选）'
         type: boolean
+      store_id:
+        description: 门店ID
+        type: string
       updated_at:
         description: 更新时间
         type: string
@@ -804,6 +814,20 @@ definitions:
         description: 总页数
         type: integer
     type: object
+  domain.PaymentMethodSource:
+    enum:
+    - brand
+    - store
+    - system
+    type: string
+    x-enum-comments:
+      PaymentMethodSourceBrand: 品牌
+      PaymentMethodSourceStore: 门店
+      PaymentMethodSourceSystem: 系统
+    x-enum-varnames:
+    - PaymentMethodSourceBrand
+    - PaymentMethodSourceStore
+    - PaymentMethodSourceSystem
   domain.Product:
     properties:
       add_sale_quantity:
@@ -1762,22 +1786,8 @@ definitions:
     - 4
     - 5
     - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     type: integer
     x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -2501,9 +2511,6 @@ definitions:
         - discount
       cash_drawer_status:
         description: 开钱箱状态
-        enum:
-        - true
-        - false
         type: boolean
       display_channels:
         description: 收银终端显示渠道（可选，可多选）
@@ -2535,11 +2542,16 @@ definitions:
         - offline_card
         - custom_coupon
         - partner_coupon
+      source:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentMethodSource'
+        description: 来源:brand-品牌,store-门店,system-系统
+        enum:
+        - brand
+        - store
+        - system
       status:
         description: 启用/停用状态
-        enum:
-        - true
-        - false
         type: boolean
     required:
     - accounting_rule
@@ -2547,6 +2559,7 @@ definitions:
     - invoice_rule
     - name
     - payment_type
+    - source
     type: object
   types.PaymentMethodUpdateReq:
     properties:
@@ -4273,6 +4286,10 @@ paths:
       - description: 结算方式名称（模糊匹配）
         in: query
         name: name
+        type: string
+      - description: 来源:brand-品牌,store-门店,system-系统
+        in: query
+        name: source
         type: string
       - description: 页码
         in: query
