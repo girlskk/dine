@@ -6,3 +6,4 @@ h1:/9ChejmIgPLk7PamqWnu0O0g4ozvzRfZfbSLTq26iqI=
 20260104061607_order.sql h1:pNglcNAXNbw3C6/JYZS0oZFbXa2me3DO19qCWSLbyeE=
 20260106033838_update_merchant_table.sql h1:Lqcf5JOAv8QguIjKFSeTN9HM+4Ew2+JP7qvVFap1BEM=
 20260106080414_orderProduct.sql h1:d6LGgDZcCXOQeW0rO5MfCI/P/oldtpR6TOF1E60M8VY=
+20260106035604_add_payment_methods.sql h1:NP4TH0fzFqi3fiARNm5Gv/8LFhLzp8LS4+QYbS3/u9c=

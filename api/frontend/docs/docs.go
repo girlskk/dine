@@ -1572,9 +1572,19 @@ const docTemplate = `{
                 "Mobile",
                 "Scan",
                 "SelfService",
+                "ThirdParty",
+                "POS",
+                "Mobile",
+                "Scan",
+                "SelfService",
                 "ThirdParty"
             ],
             "x-enum-comments": {
+                "PaymentMethodDisplayChannelMobileOrdering": "移动点餐",
+                "PaymentMethodDisplayChannelPOS": "POS",
+                "PaymentMethodDisplayChannelScanOrdering": "扫码点餐",
+                "PaymentMethodDisplayChannelSelfService": "自助点餐",
+                "PaymentMethodDisplayChannelThirdPartyDelivery": "三方外卖",
                 "SaleChannelMobileOrdering": "移动点餐",
                 "SaleChannelPOS": "POS",
                 "SaleChannelScanOrdering": "扫码点餐",
@@ -1582,6 +1592,11 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",

@@ -798,6 +798,43 @@ var (
 			},
 		},
 	}
+	// PaymentMethodsColumns holds the columns for the "payment_methods" table.
+	PaymentMethodsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "accounting_rule", Type: field.TypeEnum, Enums: []string{"income", "discount"}, Default: "income"},
+		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"other", "cash", "offline_card", "custom_coupon", "partner_coupon"}, Default: "other"},
+		{Name: "fee_rate", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "invoice_rule", Type: field.TypeEnum, Nullable: true, Enums: []string{"no_invoice", "actual_amount"}},
+		{Name: "cash_drawer_status", Type: field.TypeBool, Default: false},
+		{Name: "display_channels", Type: field.TypeJSON},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"brand", "store", "system"}, Default: "brand"},
+		{Name: "store_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "status", Type: field.TypeBool, Default: false},
+	}
+	// PaymentMethodsTable holds the schema information for the "payment_methods" table.
+	PaymentMethodsTable = &schema.Table{
+		Name:       "payment_methods",
+		Columns:    PaymentMethodsColumns,
+		PrimaryKey: []*schema.Column{PaymentMethodsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "paymentmethod_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentMethodsColumns[3]},
+			},
+			{
+				Name:    "paymentmethod_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentMethodsColumns[4], PaymentMethodsColumns[5]},
+			},
+		},
+	}
 	// ProductsColumns holds the columns for the "products" table.
 	ProductsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1781,6 +1818,7 @@ var (
 		MerchantRenewalsTable,
 		OrdersTable,
 		OrderProductsTable,
+		PaymentMethodsTable,
 		ProductsTable,
 		ProductAttrsTable,
 		ProductAttrItemsTable,
