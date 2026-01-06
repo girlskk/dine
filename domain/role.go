@@ -38,6 +38,29 @@ type RoleInteractor interface {
 	GetRoles(ctx context.Context, pager *upagination.Pagination, filter *RoleListFilter, orderBys ...RoleListOrderBy) ([]*Role, int, error)
 }
 
+type RoleDataScopeType string
+
+const (
+	RoleDataScopeAll        RoleDataScopeType = "all"        // 全部数据权限
+	RoleDataScopeMerchant   RoleDataScopeType = "merchant"   // 品牌商数据权限
+	RoleDataScopeStore      RoleDataScopeType = "store"      // 门店数据权限
+	RoleDataScopeDepartment RoleDataScopeType = "department" // 部门数据权限
+	RoleDataScopeSelf       RoleDataScopeType = "self"       // 仅本人数据权限
+	RoleDataScopeCustom     RoleDataScopeType = "custom"     // 自定义数据权限
+)
+
+func (RoleDataScopeType) Values() []string {
+	return []string{
+		string(RoleDataScopeAll),
+		string(RoleDataScopeMerchant),
+		string(RoleDataScopeStore),
+		string(RoleDataScopeDepartment),
+		string(RoleDataScopeSelf),
+		string(RoleDataScopeCustom),
+	}
+}
+
+// RoleType 角色类型
 type RoleType string
 
 const (
@@ -73,38 +96,51 @@ func NewRoleListOrderByCreatedAt(desc bool) RoleListOrderBy {
 }
 
 type Role struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Code      string    `json:"code"`
-	RoleType  RoleType  `json:"role_type"`
-	Enable    bool      `json:"enable"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         uuid.UUID         `json:"id"`
+	Name       string            `json:"name"`
+	Code       string            `json:"code"`
+	RoleType   RoleType          `json:"role_type"`
+	DataScope  RoleDataScopeType `json:"data_scope"`
+	Enable     bool              `json:"enable"`
+	MerchantID uuid.UUID         `json:"merchant_id"`
+	StoreID    uuid.UUID         `json:"store_id"`
+	CreatedAt  time.Time         `json:"created_at"`
+	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
 type RoleListFilter struct {
-	Name     string   `json:"name"`
-	RoleType RoleType `json:"role_type"`
-	Enable   *bool    `json:"enable"`
+	Name       string    `json:"name"`
+	RoleType   RoleType  `json:"role_type"`
+	Enable     *bool     `json:"enable"`
+	MerchantID uuid.UUID `json:"merchant_id"`
+	StoreID    uuid.UUID `json:"store_id"`
 }
 
 type CreateRoleParams struct {
-	Name     string   `json:"name"`
-	Code     string   `json:"code"`
-	RoleType RoleType `json:"role_type"`
-	Enable   bool     `json:"enable"`
+	Name       string            `json:"name"`
+	Code       string            `json:"code"`
+	RoleType   RoleType          `json:"role_type"`
+	DataScope  RoleDataScopeType `json:"data_scope"`
+	Enable     bool              `json:"enable"`
+	MerchantID uuid.UUID         `json:"merchant_id"`
+	StoreID    uuid.UUID         `json:"store_id"`
 }
 
 type UpdateRoleParams struct {
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-	Code     string    `json:"code"`
-	RoleType RoleType  `json:"role_type"`
-	Enable   bool      `json:"enable"`
+	ID         uuid.UUID         `json:"id"`
+	Name       string            `json:"name"`
+	Code       string            `json:"code"`
+	RoleType   RoleType          `json:"role_type"`
+	DataScope  RoleDataScopeType `json:"data_scope"`
+	Enable     bool              `json:"enable"`
+	MerchantID uuid.UUID         `json:"merchant_id"`
+	StoreID    uuid.UUID         `json:"store_id"`
 }
 
 type RoleExistsParams struct {
-	Name      string    `json:"name"`
-	Code      string    `json:"code"`
-	ExcludeID uuid.UUID `json:"exclude_id"`
+	Name       string    `json:"name"`
+	Code       string    `json:"code"`
+	ExcludeID  uuid.UUID `json:"exclude_id"`
+	MerchantID uuid.UUID `json:"merchant_id"`
+	StoreID    uuid.UUID `json:"store_id"`
 }

@@ -122,7 +122,11 @@ func (interactor *DepartmentInteractor) GetDepartment(ctx context.Context, id uu
 	return
 }
 
-func (interactor *DepartmentInteractor) GetDepartments(ctx context.Context, pager *upagination.Pagination, filter *domain.DepartmentListFilter, orderBys ...domain.DepartmentListOrderBy) (departments []*domain.Department, total int, err error) {
+func (interactor *DepartmentInteractor) GetDepartments(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.DepartmentListFilter,
+	orderBys ...domain.DepartmentListOrderBy,
+) (departments []*domain.Department, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.GetDepartments")
 	defer func() { util.SpanErrFinish(span, err) }()
 

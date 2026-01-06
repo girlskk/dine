@@ -44,10 +44,10 @@ func (h *DeviceHandler) Routes(r gin.IRouter) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.DeviceCreateReq	true	"请求信息"
-//	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
+//	@Success		200
+//	@Failure		400	{object}	response.Response
+//	@Failure		409	{object}	response.Response
+//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/device [post]
 func (h *DeviceHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -75,6 +75,7 @@ func (h *DeviceHandler) Create() gin.HandlerFunc {
 			Location:    req.Location,
 			Enabled:     req.Enabled,
 			SortOrder:   req.SortOrder,
+			Status:      domain.DeviceStatusOffline,
 		}
 		switch req.DeviceType {
 		case domain.DeviceTypeCashier:
@@ -158,6 +159,7 @@ func (h *DeviceHandler) Update() gin.HandlerFunc {
 			Location:    req.Location,
 			Enabled:     req.Enabled,
 			SortOrder:   req.SortOrder,
+			Status:      domain.DeviceStatusOffline, // 状态暂时都是离线，等待后续确认
 		}
 		switch req.DeviceType {
 		case domain.DeviceTypeCashier:

@@ -32,19 +32,32 @@ type StoreUser struct {
 	MerchantID     uuid.UUID `json:"merchant_id"`
 	StoreID        uuid.UUID `json:"store_id"` // 门店ID
 
+	RealName     string    `json:"real_name"`     // 真实姓名
+	Gender       Gender    `json:"gender"`        // 性别
+	Email        string    `json:"email"`         // 电子邮箱
+	PhoneNumber  string    `json:"phone_number"`  // 手机号
+	Enabled      bool      `json:"enabled"`       // 是否启用
+	IsSuperAdmin bool      `json:"is_superadmin"` // 是否为超级管理员
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+
 	// 关联数据
 	Store *Store `json:"store,omitempty"` // 所属门店
 }
 
-// 实现 User 接口
 // GetMerchantID 实现 User 接口
 func (u *StoreUser) GetMerchantID() uuid.UUID {
 	return u.MerchantID
 }
 
-// GetStoreID 实现 User 接口（品牌商用户的 StoreID 为 uuid.Nil）
+// GetStoreID 实现 User 接口（门店用户的 StoreID 为 uuid.Nil）
 func (u *StoreUser) GetStoreID() uuid.UUID {
 	return u.StoreID
+}
+
+// GetUserType 实现 User 接口 (门店用户的UserType为UserTypeStore)
+func (u *StoreUser) GetUserType() UserType {
+	return UserTypeStore
 }
 
 func (u *StoreUser) SetPassword(password string) error {

@@ -77,7 +77,9 @@ func (interactor *RemarkCategoryInteractor) Delete(ctx context.Context, id uuid.
 	return
 }
 
-func (interactor *RemarkCategoryInteractor) GetRemarkCategories(ctx context.Context, filter *domain.RemarkCategoryListFilter) (remarkCategories domain.RemarkCategories, err error) {
+func (interactor *RemarkCategoryInteractor) GetRemarkCategories(ctx context.Context,
+	filter *domain.RemarkCategoryListFilter,
+) (remarkCategories domain.RemarkCategories, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkCategoryInteractor.GetRemarkCategories")
 	defer func() { util.SpanErrFinish(span, err) }()
 	if filter == nil {

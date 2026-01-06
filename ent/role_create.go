@@ -129,6 +129,20 @@ func (rc *RoleCreate) SetNillableStoreID(u *uuid.UUID) *RoleCreate {
 	return rc
 }
 
+// SetDataScope sets the "data_scope" field.
+func (rc *RoleCreate) SetDataScope(ddst domain.RoleDataScopeType) *RoleCreate {
+	rc.mutation.SetDataScope(ddst)
+	return rc
+}
+
+// SetNillableDataScope sets the "data_scope" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableDataScope(ddst *domain.RoleDataScopeType) *RoleCreate {
+	if ddst != nil {
+		rc.SetDataScope(*ddst)
+	}
+	return rc
+}
+
 // SetID sets the "id" field.
 func (rc *RoleCreate) SetID(u uuid.UUID) *RoleCreate {
 	rc.mutation.SetID(u)
@@ -212,6 +226,10 @@ func (rc *RoleCreate) defaults() error {
 		v := role.DefaultEnable
 		rc.mutation.SetEnable(v)
 	}
+	if _, ok := rc.mutation.DataScope(); !ok {
+		v := role.DefaultDataScope
+		rc.mutation.SetDataScope(v)
+	}
 	if _, ok := rc.mutation.ID(); !ok {
 		if role.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized role.DefaultID (forgotten import ent/runtime?)")
@@ -249,6 +267,11 @@ func (rc *RoleCreate) check() error {
 	}
 	if _, ok := rc.mutation.Enable(); !ok {
 		return &ValidationError{Name: "enable", err: errors.New(`ent: missing required field "Role.enable"`)}
+	}
+	if v, ok := rc.mutation.DataScope(); ok {
+		if err := role.DataScopeValidator(v); err != nil {
+			return &ValidationError{Name: "data_scope", err: fmt.Errorf(`ent: validator failed for field "Role.data_scope": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -313,6 +336,10 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	if value, ok := rc.mutation.Enable(); ok {
 		_spec.SetField(role.FieldEnable, field.TypeBool, value)
 		_node.Enable = value
+	}
+	if value, ok := rc.mutation.DataScope(); ok {
+		_spec.SetField(role.FieldDataScope, field.TypeEnum, value)
+		_node.DataScope = value
 	}
 	if nodes := rc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -454,6 +481,24 @@ func (u *RoleUpsert) UpdateEnable() *RoleUpsert {
 	return u
 }
 
+// SetDataScope sets the "data_scope" field.
+func (u *RoleUpsert) SetDataScope(v domain.RoleDataScopeType) *RoleUpsert {
+	u.Set(role.FieldDataScope, v)
+	return u
+}
+
+// UpdateDataScope sets the "data_scope" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateDataScope() *RoleUpsert {
+	u.SetExcluded(role.FieldDataScope)
+	return u
+}
+
+// ClearDataScope clears the value of the "data_scope" field.
+func (u *RoleUpsert) ClearDataScope() *RoleUpsert {
+	u.SetNull(role.FieldDataScope)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -577,6 +622,27 @@ func (u *RoleUpsertOne) SetEnable(v bool) *RoleUpsertOne {
 func (u *RoleUpsertOne) UpdateEnable() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
 		s.UpdateEnable()
+	})
+}
+
+// SetDataScope sets the "data_scope" field.
+func (u *RoleUpsertOne) SetDataScope(v domain.RoleDataScopeType) *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.SetDataScope(v)
+	})
+}
+
+// UpdateDataScope sets the "data_scope" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateDataScope() *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.UpdateDataScope()
+	})
+}
+
+// ClearDataScope clears the value of the "data_scope" field.
+func (u *RoleUpsertOne) ClearDataScope() *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.ClearDataScope()
 	})
 }
 
@@ -870,6 +936,27 @@ func (u *RoleUpsertBulk) SetEnable(v bool) *RoleUpsertBulk {
 func (u *RoleUpsertBulk) UpdateEnable() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
 		s.UpdateEnable()
+	})
+}
+
+// SetDataScope sets the "data_scope" field.
+func (u *RoleUpsertBulk) SetDataScope(v domain.RoleDataScopeType) *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.SetDataScope(v)
+	})
+}
+
+// UpdateDataScope sets the "data_scope" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateDataScope() *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.UpdateDataScope()
+	})
+}
+
+// ClearDataScope clears the value of the "data_scope" field.
+func (u *RoleUpsertBulk) ClearDataScope() *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.ClearDataScope()
 	})
 }
 

@@ -127,7 +127,11 @@ func (interactor *StoreInteractor) GetStoreByMerchantID(ctx context.Context, mer
 	return
 }
 
-func (interactor *StoreInteractor) GetStores(ctx context.Context, pager *upagination.Pagination, filter *domain.StoreListFilter, orderBys ...domain.StoreListOrderBy) (domainStores []*domain.Store, total int, err error) {
+func (interactor *StoreInteractor) GetStores(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.StoreListFilter,
+	orderBys ...domain.StoreListOrderBy,
+) (domainStores []*domain.Store, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.GetStores")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -140,7 +144,10 @@ func (interactor *StoreInteractor) GetStores(ctx context.Context, pager *upagina
 	return
 }
 
-func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context, updateField domain.StoreSimpleUpdateType, domainUStoreParams *domain.UpdateStoreParams) (err error) {
+func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,
+	updateField domain.StoreSimpleUpdateType,
+	domainUStoreParams *domain.UpdateStoreParams,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.StoreSimpleUpdate")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -178,7 +185,9 @@ func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context, update
 	return
 }
 
-func (interactor *StoreInteractor) CheckCreateStoreFields(ctx context.Context, domainCStore *domain.CreateStoreParams) (domainStore *domain.Store, err error) {
+func (interactor *StoreInteractor) CheckCreateStoreFields(ctx context.Context,
+	domainCStore *domain.CreateStoreParams,
+) (domainStore *domain.Store, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.CheckCreateStoreFields")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -223,7 +232,9 @@ func (interactor *StoreInteractor) CheckCreateStoreFields(ctx context.Context, d
 	return
 }
 
-func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context, domainUStore *domain.UpdateStoreParams) (domainStore *domain.Store, err error) {
+func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context,
+	domainUStore *domain.UpdateStoreParams,
+) (domainStore *domain.Store, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.CheckUpdateStoreFields")
 	defer func() {
 		util.SpanErrFinish(span, err)

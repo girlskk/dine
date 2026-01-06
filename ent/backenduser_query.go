@@ -14,18 +14,19 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
 // BackendUserQuery is the builder for querying BackendUser entities.
 type BackendUserQuery struct {
 	config
-	ctx        *QueryContext
-	order      []backenduser.OrderOption
-	inters     []Interceptor
-	predicates []predicate.BackendUser
-	withFKs    bool
-	modifiers  []func(*sql.Selector)
+	ctx          *QueryContext
+	order        []backenduser.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.BackendUser
+	withMerchant *MerchantQuery
+	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,6 +61,28 @@ func (buq *BackendUserQuery) Unique(unique bool) *BackendUserQuery {
 func (buq *BackendUserQuery) Order(o ...backenduser.OrderOption) *BackendUserQuery {
 	buq.order = append(buq.order, o...)
 	return buq
+}
+
+// QueryMerchant chains the current query on the "merchant" edge.
+func (buq *BackendUserQuery) QueryMerchant() *MerchantQuery {
+	query := (&MerchantClient{config: buq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := buq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := buq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(backenduser.Table, backenduser.FieldID, selector),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, backenduser.MerchantTable, backenduser.MerchantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(buq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first BackendUser entity from the query.
@@ -249,16 +272,28 @@ func (buq *BackendUserQuery) Clone() *BackendUserQuery {
 		return nil
 	}
 	return &BackendUserQuery{
-		config:     buq.config,
-		ctx:        buq.ctx.Clone(),
-		order:      append([]backenduser.OrderOption{}, buq.order...),
-		inters:     append([]Interceptor{}, buq.inters...),
-		predicates: append([]predicate.BackendUser{}, buq.predicates...),
+		config:       buq.config,
+		ctx:          buq.ctx.Clone(),
+		order:        append([]backenduser.OrderOption{}, buq.order...),
+		inters:       append([]Interceptor{}, buq.inters...),
+		predicates:   append([]predicate.BackendUser{}, buq.predicates...),
+		withMerchant: buq.withMerchant.Clone(),
 		// clone intermediate query.
 		sql:       buq.sql.Clone(),
 		path:      buq.path,
 		modifiers: append([]func(*sql.Selector){}, buq.modifiers...),
 	}
+}
+
+// WithMerchant tells the query-builder to eager-load the nodes that are connected to
+// the "merchant" edge. The optional arguments are used to configure the query builder of the edge.
+func (buq *BackendUserQuery) WithMerchant(opts ...func(*MerchantQuery)) *BackendUserQuery {
+	query := (&MerchantClient{config: buq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	buq.withMerchant = query
+	return buq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -337,19 +372,19 @@ func (buq *BackendUserQuery) prepareQuery(ctx context.Context) error {
 
 func (buq *BackendUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*BackendUser, error) {
 	var (
-		nodes   = []*BackendUser{}
-		withFKs = buq.withFKs
-		_spec   = buq.querySpec()
+		nodes       = []*BackendUser{}
+		_spec       = buq.querySpec()
+		loadedTypes = [1]bool{
+			buq.withMerchant != nil,
+		}
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, backenduser.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*BackendUser).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &BackendUser{config: buq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(buq.modifiers) > 0 {
@@ -364,7 +399,43 @@ func (buq *BackendUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := buq.withMerchant; query != nil {
+		if err := buq.loadMerchant(ctx, query, nodes, nil,
+			func(n *BackendUser, e *Merchant) { n.Edges.Merchant = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (buq *BackendUserQuery) loadMerchant(ctx context.Context, query *MerchantQuery, nodes []*BackendUser, init func(*BackendUser), assign func(*BackendUser, *Merchant)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*BackendUser)
+	for i := range nodes {
+		fk := nodes[i].MerchantID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(merchant.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "merchant_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (buq *BackendUserQuery) sqlCount(ctx context.Context) (int, error) {
@@ -394,6 +465,9 @@ func (buq *BackendUserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != backenduser.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if buq.withMerchant != nil {
+			_spec.Node.AddColumnOnce(backenduser.FieldMerchantID)
 		}
 	}
 	if ps := buq.predicates; len(ps) > 0 {

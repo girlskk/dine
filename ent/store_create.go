@@ -846,9 +846,6 @@ func (sc *StoreCreate) check() error {
 	if _, ok := sc.mutation.ShiftTimes(); !ok {
 		return &ValidationError{Name: "shift_times", err: errors.New(`ent: missing required field "Store.shift_times"`)}
 	}
-	if _, ok := sc.mutation.Address(); !ok {
-		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Store.address"`)}
-	}
 	if v, ok := sc.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -1731,6 +1728,12 @@ func (u *StoreUpsert) UpdateAddress() *StoreUpsert {
 	return u
 }
 
+// ClearAddress clears the value of the "address" field.
+func (u *StoreUpsert) ClearAddress() *StoreUpsert {
+	u.SetNull(store.FieldAddress)
+	return u
+}
+
 // SetLng sets the "lng" field.
 func (u *StoreUpsert) SetLng(v string) *StoreUpsert {
 	u.Set(store.FieldLng, v)
@@ -2311,6 +2314,13 @@ func (u *StoreUpsertOne) SetAddress(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateAddress() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateAddress()
+	})
+}
+
+// ClearAddress clears the value of the "address" field.
+func (u *StoreUpsertOne) ClearAddress() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearAddress()
 	})
 }
 
@@ -3067,6 +3077,13 @@ func (u *StoreUpsertBulk) SetAddress(v string) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateAddress() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateAddress()
+	})
+}
+
+// ClearAddress clears the value of the "address" field.
+func (u *StoreUpsertBulk) ClearAddress() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearAddress()
 	})
 }
 

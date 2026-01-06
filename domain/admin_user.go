@@ -30,11 +30,34 @@ type AdminUserInteractor interface {
 }
 
 type AdminUser struct {
-	ID             uuid.UUID            `json:"id"`
-	Username       string               `json:"username"`     // 用户名
-	HashedPassword string               `json:"-"`            // 密码哈希
-	Nickname       string               `json:"nickname"`     // 昵称
-	AccountType    AdminUserAccountType `json:"account_type"` // 账户类型 // normal: 普通管理员, super_admin: 超级管理员
+	ID             uuid.UUID `json:"id"`
+	Username       string    `json:"username"` // 用户名
+	HashedPassword string    `json:"-"`        // 密码哈希
+	Nickname       string    `json:"nickname"` // 昵称
+
+	RealName     string    `json:"real_name"`     // 真实姓名
+	Gender       Gender    `json:"gender"`        // 性别
+	Email        string    `json:"email"`         // 电子邮箱
+	PhoneNumber  string    `json:"phone_number"`  // 手机号
+	Enabled      bool      `json:"enabled"`       // 是否启用
+	IsSuperAdmin bool      `json:"is_superadmin"` // 是否为超级管理员
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// GetMerchantID 实现 User 接口 (管理员用户的 MerchantID 为 uuid.Nil)
+func (u *AdminUser) GetMerchantID() uuid.UUID {
+	return uuid.Nil
+}
+
+// GetStoreID 实现 User 接口 (管理员用户的 StoreID 为 uuid.Nil)
+func (u *AdminUser) GetStoreID() uuid.UUID {
+	return uuid.Nil
+}
+
+// GetUserType 实现 User 接口 (管理员用户的UserType为UserTypeAdmin)
+func (u *AdminUser) GetUserType() UserType {
+	return UserTypeAdmin
 }
 
 func (u *AdminUser) SetPassword(password string) error {

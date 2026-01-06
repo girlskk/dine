@@ -31,11 +31,19 @@ type BackendUser struct {
 	Nickname       string    `json:"nickname"`
 	MerchantID     uuid.UUID `json:"merchant_id"` // 品牌商ID
 
+	RealName     string    `json:"real_name"`     // 真实姓名
+	Gender       Gender    `json:"gender"`        // 性别
+	Email        string    `json:"email"`         // 电子邮箱
+	PhoneNumber  string    `json:"phone_number"`  // 手机号
+	Enabled      bool      `json:"enabled"`       // 是否启用
+	IsSuperAdmin bool      `json:"is_superadmin"` // 是否为超级管理员
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+
 	// 关联数据
 	Merchant *Merchant `json:"merchant,omitempty"` // 所属品牌商
 }
 
-// 实现 User 接口
 // GetMerchantID 实现 User 接口
 func (u *BackendUser) GetMerchantID() uuid.UUID {
 	return u.MerchantID
@@ -44,6 +52,11 @@ func (u *BackendUser) GetMerchantID() uuid.UUID {
 // GetStoreID 实现 User 接口（品牌商用户的 StoreID 为 uuid.Nil）
 func (u *BackendUser) GetStoreID() uuid.UUID {
 	return uuid.Nil
+}
+
+// GetUserType 实现 User 接口 (品牌商用户的UserType为UserTypeBackend)
+func (u *BackendUser) GetUserType() UserType {
+	return UserTypeBackend
 }
 
 func (u *BackendUser) SetPassword(password string) error {

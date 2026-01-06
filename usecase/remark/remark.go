@@ -27,6 +27,7 @@ func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.C
 
 	domainRemark := &domain.Remark{
 		Name:       remark.Name,
+		RemarkType: remark.RemarkType,
 		Enabled:    remark.Enabled,
 		SortOrder:  remark.SortOrder,
 		CategoryID: remark.CategoryID,
@@ -123,7 +124,11 @@ func (interactor *RemarkInteractor) GetRemark(ctx context.Context, id uuid.UUID)
 	return
 }
 
-func (interactor *RemarkInteractor) GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *domain.RemarkListFilter, orderBys ...domain.RemarkOrderBy) (remarks domain.Remarks, total int, err error) {
+func (interactor *RemarkInteractor) GetRemarks(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.RemarkListFilter,
+	orderBys ...domain.RemarkOrderBy,
+) (remarks domain.Remarks, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.GetRemarks")
 	defer func() { util.SpanErrFinish(span, err) }()
 	if filter == nil {
@@ -148,7 +153,10 @@ func (interactor *RemarkInteractor) Exists(ctx context.Context, filter domain.Re
 	return
 }
 
-func (interactor *RemarkInteractor) RemarkSimpleUpdate(ctx context.Context, updateField domain.RemarkSimpleUpdateType, remark *domain.Remark) (err error) {
+func (interactor *RemarkInteractor) RemarkSimpleUpdate(ctx context.Context,
+	updateField domain.RemarkSimpleUpdateType,
+	remark *domain.Remark,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.RemarkSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
 

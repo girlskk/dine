@@ -55,7 +55,10 @@ func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domain
 func (interactor *MerchantInteractor) loginUserExists(ctx context.Context, loginUser string) (exists bool, err error) {
 	return interactor.DataStore.BackendUserRepo().Exists(ctx, loginUser)
 }
-func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context, domainCMerchant *domain.CreateMerchantParams, domainCStore *domain.CreateStoreParams) (err error) {
+func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context,
+	domainCMerchant *domain.CreateMerchantParams,
+	domainCStore *domain.CreateStoreParams,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.CreateMerchantAndStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -163,7 +166,10 @@ func (interactor *MerchantInteractor) UpdateMerchant(ctx context.Context, domain
 	return
 }
 
-func (interactor *MerchantInteractor) UpdateMerchantAndStore(ctx context.Context, domainUMerchant *domain.UpdateMerchantParams, domainUStore *domain.UpdateStoreParams) (err error) {
+func (interactor *MerchantInteractor) UpdateMerchantAndStore(ctx context.Context,
+	domainUMerchant *domain.UpdateMerchantParams,
+	domainUStore *domain.UpdateStoreParams,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.UpdateMerchantAndStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -195,7 +201,10 @@ func (interactor *MerchantInteractor) UpdateMerchantAndStore(ctx context.Context
 	return
 }
 
-func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context, updateField domain.MerchantSimpleUpdateType, domainMerchant *domain.Merchant) (err error) {
+func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context,
+	updateField domain.MerchantSimpleUpdateType,
+	domainMerchant *domain.Merchant,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.MerchantSimpleUpdate")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -304,7 +313,11 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 	return
 }
 
-func (interactor *MerchantInteractor) GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *domain.MerchantListFilter, orderBys ...domain.MerchantListOrderBy) (domainMerchants []*domain.Merchant, total int, err error) {
+func (interactor *MerchantInteractor) GetMerchants(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.MerchantListFilter,
+	orderBys ...domain.MerchantListOrderBy,
+) (domainMerchants []*domain.Merchant, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.GetMerchants")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -393,7 +406,9 @@ func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merch
 	return
 }
 
-func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Context, domainCMerchant *domain.CreateMerchantParams) (domainMerchant *domain.Merchant, err error) {
+func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Context,
+	domainCMerchant *domain.CreateMerchantParams,
+) (domainMerchant *domain.Merchant, err error) {
 	domainMerchant = &domain.Merchant{
 		MerchantCode:      domainCMerchant.MerchantCode,
 		MerchantName:      domainCMerchant.MerchantName,
@@ -417,7 +432,9 @@ func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Cont
 	return
 }
 
-func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Context, domainUMerchant *domain.UpdateMerchantParams) (domainMerchant *domain.Merchant, err error) {
+func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Context,
+	domainUMerchant *domain.UpdateMerchantParams,
+) (domainMerchant *domain.Merchant, err error) {
 	oldMerchant, err := interactor.DataStore.MerchantRepo().FindByID(ctx, domainUMerchant.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {

@@ -122,7 +122,11 @@ func (interactor *AdditionalFeeInteractor) GetAdditionalFee(ctx context.Context,
 	return
 }
 
-func (interactor *AdditionalFeeInteractor) GetAdditionalFees(ctx context.Context, pager *upagination.Pagination, filter *domain.AdditionalFeeListFilter, orderBys ...domain.AdditionalFeeOrderBy) (fees []*domain.AdditionalFee, total int, err error) {
+func (interactor *AdditionalFeeInteractor) GetAdditionalFees(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.AdditionalFeeListFilter,
+	orderBys ...domain.AdditionalFeeOrderBy,
+) (fees []*domain.AdditionalFee, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.GetAdditionalFees")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -144,7 +148,10 @@ func (interactor *AdditionalFeeInteractor) GetAdditionalFees(ctx context.Context
 	return
 }
 
-func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context.Context, updateField domain.AdditionalFeeSimpleUpdateType, fee *domain.AdditionalFee) (err error) {
+func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context.Context,
+	updateField domain.AdditionalFeeSimpleUpdateType,
+	fee *domain.AdditionalFee,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.AdditionalFeeSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -169,7 +176,7 @@ func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context
 	default:
 		return domain.ParamsError(errors.New("unsupported update field"))
 	}
-	
+
 	err = interactor.ds.AdditionalFeeRepo().Update(ctx, oldFee)
 	if err != nil {
 		if domain.IsNotFound(err) {

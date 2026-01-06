@@ -74,6 +74,10 @@ func main() {
 				sequence.NewDailySequence,
 				fx.As(new(domain.DailySequence)),
 			),
+			fx.Annotate(
+				sequence.NewTaxSequence,
+				fx.As(new(domain.TaxSequence)),
+			),
 			oss.New,
 		),
 		dbfx.Module,

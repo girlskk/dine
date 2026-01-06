@@ -139,7 +139,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "backenduser" package.
 	BackendUsersInverseTable = "backend_users"
 	// BackendUsersColumn is the table column denoting the backend_users relation/edge.
-	BackendUsersColumn = "merchant_backend_users"
+	BackendUsersColumn = "merchant_id"
 	// StoresTable is the table that holds the stores relation/edge.
 	StoresTable = "stores"
 	// StoresInverseTable is the table name for the Store entity.
@@ -274,6 +274,8 @@ var (
 	DefaultDeletedAt int64
 	// DefaultMerchantCode holds the default value on creation for the "merchant_code" field.
 	DefaultMerchantCode string
+	// MerchantCodeValidator is a validator for the "merchant_code" field. It is called by the builders before save.
+	MerchantCodeValidator func(string) error
 	// DefaultMerchantName holds the default value on creation for the "merchant_name" field.
 	DefaultMerchantName string
 	// MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
@@ -284,6 +286,8 @@ var (
 	MerchantShortNameValidator func(string) error
 	// DefaultBrandName holds the default value on creation for the "brand_name" field.
 	DefaultBrandName string
+	// BrandNameValidator is a validator for the "brand_name" field. It is called by the builders before save.
+	BrandNameValidator func(string) error
 	// DefaultAdminPhoneNumber holds the default value on creation for the "admin_phone_number" field.
 	DefaultAdminPhoneNumber string
 	// AdminPhoneNumberValidator is a validator for the "admin_phone_number" field. It is called by the builders before save.

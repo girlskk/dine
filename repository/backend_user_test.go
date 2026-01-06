@@ -38,7 +38,7 @@ func (s *BackendUserTestSuite) createTestBackendUser() *ent.BackendUser {
 	return s.client.BackendUser.Create().
 		SetID(userID).
 		SetMerchantID(merchantID).
-		SetUsername("admin").
+		SetUsername("backend").
 		SetHashedPassword(hashedPassword).
 		SetNickname("测试用户").
 		SaveX(s.ctx)
@@ -48,6 +48,6 @@ func (s *BackendUserTestSuite) TestBackendUser_Create() {
 	user := s.createTestBackendUser()
 	require.NotNil(s.T(), user)
 	require.NotEqual(s.T(), uuid.Nil, user.ID)
-	require.Equal(s.T(), "admin", user.Username)
+	require.Equal(s.T(), "backend", user.Username)
 	require.Equal(s.T(), "测试用户", user.Nickname)
 }

@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 )
 
@@ -30,7 +31,19 @@ type AdminUser struct {
 	// 密码哈希
 	HashedPassword string `json:"hashed_password,omitempty"`
 	// 昵称
-	Nickname     string `json:"nickname,omitempty"`
+	Nickname string `json:"nickname,omitempty"`
+	// 真实姓名
+	RealName string `json:"real_name,omitempty"`
+	// 性别
+	Gender domain.Gender `json:"gender,omitempty"`
+	// 电子邮箱
+	Email string `json:"email,omitempty"`
+	// 手机号
+	PhoneNumber string `json:"phone_number,omitempty"`
+	// 是否启用
+	Enabled bool `json:"enabled,omitempty"`
+	// 是否为超级管理员
+	IsSuperadmin bool `json:"is_superadmin,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -39,9 +52,11 @@ func (*AdminUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case adminuser.FieldEnabled, adminuser.FieldIsSuperadmin:
+			values[i] = new(sql.NullBool)
 		case adminuser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname:
+		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname, adminuser.FieldRealName, adminuser.FieldGender, adminuser.FieldEmail, adminuser.FieldPhoneNumber:
 			values[i] = new(sql.NullString)
 		case adminuser.FieldCreatedAt, adminuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -104,6 +119,42 @@ func (au *AdminUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				au.Nickname = value.String
 			}
+		case adminuser.FieldRealName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field real_name", values[i])
+			} else if value.Valid {
+				au.RealName = value.String
+			}
+		case adminuser.FieldGender:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gender", values[i])
+			} else if value.Valid {
+				au.Gender = domain.Gender(value.String)
+			}
+		case adminuser.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				au.Email = value.String
+			}
+		case adminuser.FieldPhoneNumber:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field phone_number", values[i])
+			} else if value.Valid {
+				au.PhoneNumber = value.String
+			}
+		case adminuser.FieldEnabled:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field enabled", values[i])
+			} else if value.Valid {
+				au.Enabled = value.Bool
+			}
+		case adminuser.FieldIsSuperadmin:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_superadmin", values[i])
+			} else if value.Valid {
+				au.IsSuperadmin = value.Bool
+			}
 		default:
 			au.selectValues.Set(columns[i], values[i])
 		}
@@ -157,6 +208,24 @@ func (au *AdminUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(au.Nickname)
+	builder.WriteString(", ")
+	builder.WriteString("real_name=")
+	builder.WriteString(au.RealName)
+	builder.WriteString(", ")
+	builder.WriteString("gender=")
+	builder.WriteString(fmt.Sprintf("%v", au.Gender))
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(au.Email)
+	builder.WriteString(", ")
+	builder.WriteString("phone_number=")
+	builder.WriteString(au.PhoneNumber)
+	builder.WriteString(", ")
+	builder.WriteString("enabled=")
+	builder.WriteString(fmt.Sprintf("%v", au.Enabled))
+	builder.WriteString(", ")
+	builder.WriteString("is_superadmin=")
+	builder.WriteString(fmt.Sprintf("%v", au.IsSuperadmin))
 	builder.WriteByte(')')
 	return builder.String()
 }

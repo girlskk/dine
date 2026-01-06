@@ -29,12 +29,12 @@ func (Store) Fields() []ent.Field {
 		field.String("store_name").
 			NotEmpty().
 			Default("").
-			MaxLen(30).
+			MaxLen(100).
 			Comment("门店名称,长度不超过30个字"),
 		field.String("store_short_name").
 			Optional().
 			Default("").
-			MaxLen(30).
+			MaxLen(100).
 			Comment("门店简称"),
 		field.String("store_code").
 			Optional().
@@ -55,7 +55,7 @@ func (Store) Fields() []ent.Field {
 		field.String("contact_name").
 			Optional().
 			Default("").
-			MaxLen(20).
+			MaxLen(100).
 			Comment("联系人"),
 		field.String("contact_phone").
 			Optional().
@@ -117,7 +117,7 @@ func (Store) Fields() []ent.Field {
 			Optional().
 			Comment("区县 id"),
 		field.String("address").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(255).
 			Comment("详细地址"),

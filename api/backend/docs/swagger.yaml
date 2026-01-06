@@ -144,8 +144,23 @@ definitions:
     type: object
   domain.BackendUser:
     properties:
+      created_at:
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
       id:
         type: string
+      is_superadmin:
+        description: 是否为超级管理员
+        type: boolean
       merchant:
         allOf:
         - $ref: '#/definitions/domain.Merchant'
@@ -154,6 +169,14 @@ definitions:
         description: 品牌商ID
         type: string
       nickname:
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 真实姓名
+        type: string
+      updated_at:
         type: string
       username:
         type: string
@@ -431,6 +454,23 @@ definitions:
     x-enum-varnames:
     - EffectiveDateTypeDaily
     - EffectiveDateTypeCustom
+  domain.Gender:
+    enum:
+    - male
+    - female
+    - other
+    - unknown
+    type: string
+    x-enum-comments:
+      GenderFemale: 女性
+      GenderMale: 男性
+      GenderOther: 其他
+      GenderUnknown: 未知
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+    - GenderOther
+    - GenderUnknown
   domain.Menu:
     properties:
       created_at:
@@ -1292,6 +1332,62 @@ definitions:
     - RemarkTypeSystem
     - RemarkTypeBrand
     - RemarkTypeStore
+  domain.Role:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      data_scope:
+        $ref: '#/definitions/domain.RoleDataScopeType'
+      enable:
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        type: string
+      name:
+        type: string
+      role_type:
+        $ref: '#/definitions/domain.RoleType'
+      store_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.RoleDataScopeType:
+    enum:
+    - all
+    - merchant
+    - store
+    - department
+    - self
+    - custom
+    type: string
+    x-enum-comments:
+      RoleDataScopeAll: 全部数据权限
+      RoleDataScopeCustom: 自定义数据权限
+      RoleDataScopeDepartment: 部门数据权限
+      RoleDataScopeMerchant: 品牌商数据权限
+      RoleDataScopeSelf: 仅本人数据权限
+      RoleDataScopeStore: 门店数据权限
+    x-enum-varnames:
+    - RoleDataScopeAll
+    - RoleDataScopeMerchant
+    - RoleDataScopeStore
+    - RoleDataScopeDepartment
+    - RoleDataScopeSelf
+    - RoleDataScopeCustom
+  domain.RoleType:
+    enum:
+    - admin
+    - backend
+    - store
+    type: string
+    x-enum-varnames:
+    - RoleTypeAdmin
+    - RoleTypeBackend
+    - RoleTypeStore
   domain.SaleChannel:
     enum:
     - POS
@@ -1686,21 +1782,21 @@ definitions:
       discount_scope:
         allOf:
         - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
-        description: 折扣作用范围 (all/items)
+        description: 折扣作用范围 (before_discount/after_discount)
         enum:
-        - all
-        - items
+        - before_discount
+        - after_discount
       enabled:
         description: 是否启用
         type: boolean
       fee_category:
         allOf:
         - $ref: '#/definitions/domain.AdditionalCategory'
-        description: 附加费分类 (service/table/package)
+        description: 附加费分类 (service_fee/additional_fee/packing_fee)
         enum:
-        - service
-        - table
-        - package
+        - service_fee
+        - additional_fee
+        - packing_fee
       fee_value:
         description: 费用值，percent 模式示例 0.06 表示 6%
         type: number
@@ -1729,10 +1825,8 @@ definitions:
     - discount_scope
     - fee_category
     - fee_value
-    - include_in_receivable
     - name
     - order_channels
-    - taxable
     type: object
   types.AdditionalFeeListResp:
     properties:
@@ -1762,21 +1856,21 @@ definitions:
       discount_scope:
         allOf:
         - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
-        description: 折扣作用范围 (all/items)
+        description: 折扣作用范围 (before_discount/after_discount)
         enum:
-        - all
-        - items
+        - before_discount
+        - after_discount
       enabled:
         description: 是否启用
         type: boolean
       fee_category:
         allOf:
         - $ref: '#/definitions/domain.AdditionalCategory'
-        description: 附加费分类 (service/table/package)
+        description: 附加费分类 (service_fee/additional_fee/packing_fee)
         enum:
-        - service
-        - table
-        - package
+        - service_fee
+        - additional_fee
+        - packing_fee
       fee_value:
         description: 费用值，percent 模式示例 0.06 表示 6%
         type: number
@@ -1805,10 +1899,8 @@ definitions:
     - discount_scope
     - fee_category
     - fee_value
-    - include_in_receivable
     - name
     - order_channels
-    - taxable
     type: object
   types.Address:
     properties:
@@ -2912,6 +3004,35 @@ definitions:
     required:
     - name
     type: object
+  types.RoleCreateReq:
+    properties:
+      enable:
+        type: boolean
+      name:
+        maxLength: 50
+        type: string
+    required:
+    - name
+    type: object
+  types.RoleListResp:
+    properties:
+      roles:
+        items:
+          $ref: '#/definitions/domain.Role'
+        type: array
+      total:
+        type: integer
+    type: object
+  types.RoleUpdateReq:
+    properties:
+      enable:
+        type: boolean
+      name:
+        maxLength: 50
+        type: string
+    required:
+    - name
+    type: object
   types.SetMealCreateReq:
     properties:
       add_sale_quantity:
@@ -3715,6 +3836,244 @@ paths:
       summary: 启用附加费
       tags:
       - 费用管理-附加费管理
+  /common/role:
+    get:
+      description: 分页查询角色
+      parameters:
+      - in: query
+        name: enable
+        type: boolean
+      - in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.RoleListResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 角色列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 新建一个角色
+      parameters:
+      - description: 创建角色请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RoleCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建角色
+      tags:
+      - 角色管理
+  /common/role/{id}:
+    delete:
+      description: 删除指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除角色
+      tags:
+      - 角色管理
+    get:
+      description: 查询指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Role'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取角色详情
+      tags:
+      - 角色管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新角色请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RoleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新角色
+      tags:
+      - 角色管理
+  /common/role/{id}/disable:
+    put:
+      description: 禁用指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用角色
+      tags:
+      - 角色管理
+  /common/role/{id}/enable:
+    put:
+      description: 启用指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用角色
+      tags:
+      - 角色管理
   /menu:
     get:
       parameters:
@@ -5222,7 +5581,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: No Content
+          description: OK
         "400":
           description: Bad Request
           schema:

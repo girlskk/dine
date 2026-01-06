@@ -36,6 +36,8 @@ const (
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
 	FieldStoreID = "store_id"
+	// FieldDataScope holds the string denoting the data_scope field in the database.
+	FieldDataScope = "data_scope"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
 	// EdgeStore holds the string denoting the store edge name in mutations.
@@ -70,6 +72,7 @@ var Columns = []string{
 	FieldEnable,
 	FieldMerchantID,
 	FieldStoreID,
+	FieldDataScope,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -111,6 +114,18 @@ func RoleTypeValidator(rt domain.RoleType) error {
 		return nil
 	default:
 		return fmt.Errorf("role: invalid enum value for role_type field: %q", rt)
+	}
+}
+
+const DefaultDataScope domain.RoleDataScopeType = "all"
+
+// DataScopeValidator is a validator for the "data_scope" field enum values. It is called by the builders before save.
+func DataScopeValidator(ds domain.RoleDataScopeType) error {
+	switch ds {
+	case "all", "merchant", "store", "department", "self", "custom":
+		return nil
+	default:
+		return fmt.Errorf("role: invalid enum value for data_scope field: %q", ds)
 	}
 }
 
@@ -165,6 +180,11 @@ func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 // ByStoreID orders the results by the store_id field.
 func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStoreID, opts...).ToFunc()
+}
+
+// ByDataScope orders the results by the data_scope field.
+func ByDataScope(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDataScope, opts...).ToFunc()
 }
 
 // ByMerchantField orders the results by merchant field.

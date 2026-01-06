@@ -80,6 +80,12 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
+		{Name: "real_name", Type: field.TypeString, Size: 100},
+		{Name: "gender", Type: field.TypeEnum, Enums: []string{"male", "female", "other", "unknown"}},
+		{Name: "email", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "phone_number", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "enabled", Type: field.TypeBool, Default: false},
+		{Name: "is_superadmin", Type: field.TypeBool, Default: false},
 	}
 	// AdminUsersTable holds the schema information for the "admin_users" table.
 	AdminUsersTable = &schema.Table{
@@ -108,8 +114,13 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
+		{Name: "real_name", Type: field.TypeString, Size: 100},
+		{Name: "gender", Type: field.TypeEnum, Enums: []string{"male", "female", "other", "unknown"}},
+		{Name: "email", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "phone_number", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "enabled", Type: field.TypeBool, Default: false},
+		{Name: "is_superadmin", Type: field.TypeBool, Default: false},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "merchant_backend_users", Type: field.TypeUUID, Nullable: true},
 	}
 	// BackendUsersTable holds the schema information for the "backend_users" table.
 	BackendUsersTable = &schema.Table{
@@ -119,9 +130,9 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "backend_users_merchants_backend_users",
-				Columns:    []*schema.Column{BackendUsersColumns[8]},
+				Columns:    []*schema.Column{BackendUsersColumns[13]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -524,11 +535,11 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "merchant_code", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "merchant_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "merchant_short_name", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
+		{Name: "merchant_code", Type: field.TypeString, Nullable: true, Size: 100, Default: ""},
+		{Name: "merchant_name", Type: field.TypeString, Size: 100, Default: ""},
+		{Name: "merchant_short_name", Type: field.TypeString, Nullable: true, Size: 100, Default: ""},
 		{Name: "merchant_type", Type: field.TypeEnum, Enums: []string{"brand", "store"}},
-		{Name: "brand_name", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "brand_name", Type: field.TypeString, Nullable: true, Size: 100, Default: ""},
 		{Name: "admin_phone_number", Type: field.TypeString, Size: 20, Default: ""},
 		{Name: "expire_utc", Type: field.TypeTime, Nullable: true},
 		{Name: "merchant_logo", Type: field.TypeString, Size: 500, Default: ""},
@@ -798,6 +809,55 @@ var (
 				Name:    "orderproduct_order_id_order_item_id",
 				Unique:  true,
 				Columns: []*schema.Column{OrderProductsColumns[37], OrderProductsColumns[4]},
+			},
+		},
+	}
+	// PermissionsColumns holds the columns for the "permissions" table.
+	PermissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "perm_code", Type: field.TypeString, Size: 150},
+		{Name: "name", Type: field.TypeString, Size: 150},
+		{Name: "method", Type: field.TypeString, Size: 10},
+		{Name: "path", Type: field.TypeString, Size: 255},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "menu_id", Type: field.TypeUUID},
+	}
+	// PermissionsTable holds the schema information for the "permissions" table.
+	PermissionsTable = &schema.Table{
+		Name:       "permissions",
+		Columns:    PermissionsColumns,
+		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "permissions_router_menus_permissions",
+				Columns:    []*schema.Column{PermissionsColumns[9]},
+				RefColumns: []*schema.Column{RouterMenusColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "permission_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{PermissionsColumns[3]},
+			},
+			{
+				Name:    "permission_menu_id",
+				Unique:  false,
+				Columns: []*schema.Column{PermissionsColumns[9]},
+			},
+			{
+				Name:    "permission_perm_code_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{PermissionsColumns[4], PermissionsColumns[3]},
+			},
+			{
+				Name:    "permission_method_path_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{PermissionsColumns[6], PermissionsColumns[7], PermissionsColumns[3]},
 			},
 		},
 	}
@@ -1337,6 +1397,7 @@ var (
 		{Name: "code", Type: field.TypeString},
 		{Name: "role_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
 		{Name: "enable", Type: field.TypeBool, Default: true},
+		{Name: "data_scope", Type: field.TypeEnum, Nullable: true, Enums: []string{"all", "merchant", "store", "department", "self", "custom"}, Default: "all"},
 		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 	}
@@ -1348,13 +1409,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "roles_merchants_roles",
-				Columns:    []*schema.Column{RolesColumns[8]},
+				Columns:    []*schema.Column{RolesColumns[9]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "roles_stores_roles",
-				Columns:    []*schema.Column{RolesColumns[9]},
+				Columns:    []*schema.Column{RolesColumns[10]},
 				RefColumns: []*schema.Column{StoresColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -1373,12 +1434,125 @@ var (
 			{
 				Name:    "role_merchant_id_store_id",
 				Unique:  false,
-				Columns: []*schema.Column{RolesColumns[8], RolesColumns[9]},
+				Columns: []*schema.Column{RolesColumns[9], RolesColumns[10]},
 			},
 			{
 				Name:    "role_code_deleted_at",
 				Unique:  true,
 				Columns: []*schema.Column{RolesColumns[5], RolesColumns[3]},
+			},
+		},
+	}
+	// RoleMenusColumns holds the columns for the "role_menus" table.
+	RoleMenusColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "role_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
+		{Name: "role_id", Type: field.TypeUUID},
+		{Name: "menu_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// RoleMenusTable holds the schema information for the "role_menus" table.
+	RoleMenusTable = &schema.Table{
+		Name:       "role_menus",
+		Columns:    RoleMenusColumns,
+		PrimaryKey: []*schema.Column{RoleMenusColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rolemenu_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RoleMenusColumns[3]},
+			},
+			{
+				Name:    "role_menu_unique_idx",
+				Unique:  true,
+				Columns: []*schema.Column{RoleMenusColumns[5], RoleMenusColumns[7], RoleMenusColumns[8], RoleMenusColumns[6], RoleMenusColumns[4], RoleMenusColumns[3]},
+			},
+			{
+				Name:    "rolemenu_menu_id",
+				Unique:  false,
+				Columns: []*schema.Column{RoleMenusColumns[6]},
+			},
+			{
+				Name:    "rolemenu_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{RoleMenusColumns[7], RoleMenusColumns[8]},
+			},
+		},
+	}
+	// RolePermissionsColumns holds the columns for the "role_permissions" table.
+	RolePermissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "role_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
+		{Name: "role_id", Type: field.TypeUUID},
+		{Name: "permission_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// RolePermissionsTable holds the schema information for the "role_permissions" table.
+	RolePermissionsTable = &schema.Table{
+		Name:       "role_permissions",
+		Columns:    RolePermissionsColumns,
+		PrimaryKey: []*schema.Column{RolePermissionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rolepermission_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[3]},
+			},
+			{
+				Name:    "rolepermission_role_id_merchant_id_store_id_permission_id_role_type_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{RolePermissionsColumns[5], RolePermissionsColumns[7], RolePermissionsColumns[8], RolePermissionsColumns[6], RolePermissionsColumns[4], RolePermissionsColumns[3]},
+			},
+			{
+				Name:    "rolepermission_permission_id",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[6]},
+			},
+			{
+				Name:    "rolepermission_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[7], RolePermissionsColumns[8]},
+			},
+		},
+	}
+	// RouterMenusColumns holds the columns for the "router_menus" table.
+	RouterMenusColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "user_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
+		{Name: "parent_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "path", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "component", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "icon", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+	}
+	// RouterMenusTable holds the schema information for the "router_menus" table.
+	RouterMenusTable = &schema.Table{
+		Name:       "router_menus",
+		Columns:    RouterMenusColumns,
+		PrimaryKey: []*schema.Column{RouterMenusColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "routermenu_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RouterMenusColumns[3]},
+			},
+			{
+				Name:    "routermenu_parent_id_name_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{RouterMenusColumns[5], RouterMenusColumns[6], RouterMenusColumns[3]},
 			},
 		},
 	}
@@ -1530,13 +1704,13 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "admin_phone_number", Type: field.TypeString, Size: 20, Default: ""},
-		{Name: "store_name", Type: field.TypeString, Size: 30, Default: ""},
-		{Name: "store_short_name", Type: field.TypeString, Nullable: true, Size: 30, Default: ""},
+		{Name: "store_name", Type: field.TypeString, Size: 100, Default: ""},
+		{Name: "store_short_name", Type: field.TypeString, Nullable: true, Size: 100, Default: ""},
 		{Name: "store_code", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"open", "closed"}},
 		{Name: "business_model", Type: field.TypeEnum, Enums: []string{"direct", "franchisee"}},
 		{Name: "location_number", Type: field.TypeString, Size: 255},
-		{Name: "contact_name", Type: field.TypeString, Nullable: true, Size: 20, Default: ""},
+		{Name: "contact_name", Type: field.TypeString, Nullable: true, Size: 100, Default: ""},
 		{Name: "contact_phone", Type: field.TypeString, Nullable: true, Size: 20, Default: ""},
 		{Name: "unified_social_credit_code", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "store_logo", Type: field.TypeString, Nullable: true, Size: 500, Default: ""},
@@ -1548,7 +1722,7 @@ var (
 		{Name: "business_hours", Type: field.TypeJSON},
 		{Name: "dining_periods", Type: field.TypeJSON},
 		{Name: "shift_times", Type: field.TypeJSON},
-		{Name: "address", Type: field.TypeString, Size: 255, Default: ""},
+		{Name: "address", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "lat", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "super_account", Type: field.TypeString},
@@ -1624,6 +1798,12 @@ var (
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
+		{Name: "real_name", Type: field.TypeString, Size: 100},
+		{Name: "gender", Type: field.TypeEnum, Enums: []string{"male", "female", "other", "unknown"}},
+		{Name: "email", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "phone_number", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "enabled", Type: field.TypeBool, Default: false},
+		{Name: "is_superadmin", Type: field.TypeBool, Default: false},
 		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID},
 	}
@@ -1635,13 +1815,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "store_users_merchants_store_users",
-				Columns:    []*schema.Column{StoreUsersColumns[7]},
+				Columns:    []*schema.Column{StoreUsersColumns[13]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "store_users_stores_store_users",
-				Columns:    []*schema.Column{StoreUsersColumns[8]},
+				Columns:    []*schema.Column{StoreUsersColumns[14]},
 				RefColumns: []*schema.Column{StoresColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1716,6 +1896,46 @@ var (
 			},
 		},
 	}
+	// UserRolesColumns holds the columns for the "user_roles" table.
+	UserRolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "user_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "role_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// UserRolesTable holds the schema information for the "user_roles" table.
+	UserRolesTable = &schema.Table{
+		Name:       "user_roles",
+		Columns:    UserRolesColumns,
+		PrimaryKey: []*schema.Column{UserRolesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userrole_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{UserRolesColumns[3]},
+			},
+			{
+				Name:    "role_user_unique_idx",
+				Unique:  true,
+				Columns: []*schema.Column{UserRolesColumns[6], UserRolesColumns[4], UserRolesColumns[5], UserRolesColumns[7], UserRolesColumns[8], UserRolesColumns[3]},
+			},
+			{
+				Name:    "userrole_user_type_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRolesColumns[4], UserRolesColumns[5]},
+			},
+			{
+				Name:    "userrole_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRolesColumns[7], UserRolesColumns[8]},
+			},
+		},
+	}
 	// MenuStoreRelationsColumns holds the columns for the "menu_store_relations" table.
 	MenuStoreRelationsColumns = []*schema.Column{
 		{Name: "menu_id", Type: field.TypeUUID},
@@ -1784,6 +2004,7 @@ var (
 		MerchantRenewalsTable,
 		OrdersTable,
 		OrderProductsTable,
+		PermissionsTable,
 		ProductsTable,
 		ProductAttrsTable,
 		ProductAttrItemsTable,
@@ -1796,12 +2017,16 @@ var (
 		RemarksTable,
 		RemarkCategoriesTable,
 		RolesTable,
+		RoleMenusTable,
+		RolePermissionsTable,
+		RouterMenusTable,
 		SetMealDetailsTable,
 		SetMealGroupsTable,
 		StallsTable,
 		StoresTable,
 		StoreUsersTable,
 		TaxFeesTable,
+		UserRolesTable,
 		MenuStoreRelationsTable,
 		ProductTagRelationsTable,
 	}
@@ -1831,6 +2056,7 @@ func init() {
 	MerchantsTable.ForeignKeys[4].RefTable = ProvincesTable
 	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
 	OrderProductsTable.ForeignKeys[0].RefTable = OrdersTable
+	PermissionsTable.ForeignKeys[0].RefTable = RouterMenusTable
 	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
 	ProductsTable.ForeignKeys[1].RefTable = ProductUnitsTable
 	ProductAttrItemsTable.ForeignKeys[0].RefTable = ProductAttrsTable

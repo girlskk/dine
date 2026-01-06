@@ -44,6 +44,9 @@ type Repository struct {
 	countryRepo              *CountryRepository
 	provinceRepo             *ProvinceRepository
 	departmentRepo           *DepartmentRepository
+	roleRepo                 *RoleRepository
+	permissionRepo           *PermissionRepository
+	routerMenuRepo           *RouterMenuRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -366,4 +369,34 @@ func (repo *Repository) DepartmentRepo() domain.DepartmentRepository {
 		repo.departmentRepo = NewDepartmentRepository(repo.client)
 	}
 	return repo.departmentRepo
+}
+
+func (repo *Repository) RoleRepo() domain.RoleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.roleRepo == nil {
+		repo.roleRepo = NewRoleRepository(repo.client)
+	}
+	return repo.roleRepo
+}
+
+func (repo *Repository) PermissionRepo() domain.PermissionRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.permissionRepo == nil {
+		repo.permissionRepo = NewPermissionRepository(repo.client)
+	}
+	return repo.permissionRepo
+}
+
+func (repo *Repository) RouterMenuRepo() domain.RouterMenuRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.routerMenuRepo == nil {
+		repo.routerMenuRepo = NewRouterMenuRepository(repo.client)
+	}
+	return repo.routerMenuRepo
 }

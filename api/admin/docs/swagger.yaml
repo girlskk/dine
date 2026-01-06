@@ -38,30 +38,38 @@ definitions:
     type: object
   domain.AdminUser:
     properties:
-      account_type:
+      created_at:
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
         allOf:
-        - $ref: '#/definitions/domain.AdminUserAccountType'
-        description: '账户类型 // normal: 普通管理员, super_admin: 超级管理员'
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
       id:
         type: string
+      is_superadmin:
+        description: 是否为超级管理员
+        type: boolean
       nickname:
         description: 昵称
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 真实姓名
+        type: string
+      updated_at:
         type: string
       username:
         description: 用户名
         type: string
     type: object
-  domain.AdminUserAccountType:
-    enum:
-    - normal
-    - super_admin
-    type: string
-    x-enum-comments:
-      AdminUserAccountTypeNormal: 普通管理员
-      AdminUserAccountTypeSuperAdmin: 超级管理员
-    x-enum-varnames:
-    - AdminUserAccountTypeNormal
-    - AdminUserAccountTypeSuperAdmin
   domain.BusinessHour:
     properties:
       end_time:
@@ -147,6 +155,23 @@ definitions:
         description: 开始时间，格式 HH:MM:SS
         type: string
     type: object
+  domain.Gender:
+    enum:
+    - male
+    - female
+    - other
+    - unknown
+    type: string
+    x-enum-comments:
+      GenderFemale: 女性
+      GenderMale: 男性
+      GenderOther: 其他
+      GenderUnknown: 未知
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+    - GenderOther
+    - GenderUnknown
   domain.Merchant:
     properties:
       address:
@@ -307,6 +332,87 @@ definitions:
     - PurchaseDurationUnitMonth
     - PurchaseDurationUnitYear
     - PurchaseDurationUnitWeek
+  domain.Role:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      data_scope:
+        $ref: '#/definitions/domain.RoleDataScopeType'
+      enable:
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        type: string
+      name:
+        type: string
+      role_type:
+        $ref: '#/definitions/domain.RoleType'
+      store_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.RoleDataScopeType:
+    enum:
+    - all
+    - merchant
+    - store
+    - department
+    - self
+    - custom
+    type: string
+    x-enum-comments:
+      RoleDataScopeAll: 全部数据权限
+      RoleDataScopeCustom: 自定义数据权限
+      RoleDataScopeDepartment: 部门数据权限
+      RoleDataScopeMerchant: 品牌商数据权限
+      RoleDataScopeSelf: 仅本人数据权限
+      RoleDataScopeStore: 门店数据权限
+    x-enum-varnames:
+    - RoleDataScopeAll
+    - RoleDataScopeMerchant
+    - RoleDataScopeStore
+    - RoleDataScopeDepartment
+    - RoleDataScopeSelf
+    - RoleDataScopeCustom
+  domain.RoleType:
+    enum:
+    - admin
+    - backend
+    - store
+    type: string
+    x-enum-varnames:
+    - RoleTypeAdmin
+    - RoleTypeBackend
+    - RoleTypeStore
+  domain.RouterMenu:
+    properties:
+      component:
+        type: string
+      created_at:
+        type: string
+      enabled:
+        type: boolean
+      icon:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: string
+      path:
+        type: string
+      sort:
+        type: integer
+      updated_at:
+        type: string
+      user_type:
+        $ref: '#/definitions/domain.UserType'
+    type: object
   domain.ShiftTime:
     properties:
       end_time:
@@ -426,6 +532,20 @@ definitions:
     x-enum-varnames:
     - StoreStatusOpen
     - StoreStatusClosed
+  domain.UserType:
+    enum:
+    - admin
+    - backend
+    - store
+    type: string
+    x-enum-comments:
+      UserTypeAdmin: admin表用户
+      UserTypeBackend: backend用户
+      UserTypeStore: store用户
+    x-enum-varnames:
+    - UserTypeAdmin
+    - UserTypeBackend
+    - UserTypeStore
   response.Response:
     properties:
       code:
@@ -773,7 +893,6 @@ definitions:
         maxLength: 255
         type: string
     required:
-    - address
     - admin_phone_number
     - business_hours
     - business_model
@@ -970,6 +1089,104 @@ definitions:
         items:
           $ref: '#/definitions/domain.Province'
         type: array
+    type: object
+  types.RoleCreateReq:
+    properties:
+      enable:
+        type: boolean
+      name:
+        maxLength: 50
+        type: string
+    required:
+    - name
+    type: object
+  types.RoleListResp:
+    properties:
+      roles:
+        items:
+          $ref: '#/definitions/domain.Role'
+        type: array
+      total:
+        type: integer
+    type: object
+  types.RoleUpdateReq:
+    properties:
+      enable:
+        type: boolean
+      name:
+        maxLength: 50
+        type: string
+    required:
+    - name
+    type: object
+  types.RouterMenuCreateReq:
+    properties:
+      component:
+        description: 组件路径
+        maxLength: 255
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      icon:
+        description: 菜单图标
+        maxLength: 500
+        type: string
+      name:
+        description: 菜单名称
+        maxLength: 100
+        type: string
+      parent_id:
+        description: 父级菜单ID
+        type: string
+      path:
+        description: 路由路径
+        maxLength: 255
+        type: string
+      sort:
+        description: 排序
+        type: integer
+    required:
+    - name
+    type: object
+  types.RouterMenuListResp:
+    properties:
+      menus:
+        items:
+          $ref: '#/definitions/domain.RouterMenu'
+        type: array
+      total:
+        type: integer
+    type: object
+  types.RouterMenuUpdateReq:
+    properties:
+      component:
+        description: 组件路径
+        maxLength: 255
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      icon:
+        description: 菜单图标
+        maxLength: 500
+        type: string
+      name:
+        description: 菜单名称
+        maxLength: 100
+        type: string
+      parent_id:
+        description: 父级菜单ID
+        type: string
+      path:
+        description: 路由路径
+        maxLength: 255
+        type: string
+      sort:
+        description: 排序
+        type: integer
+    required:
+    - name
     type: object
   types.StoreListResp:
     properties:
@@ -1176,9 +1393,6 @@ definitions:
         description: 门店位置编号
         maxLength: 255
         type: string
-      login_password:
-        description: 登录密码(加密存储)
-        type: string
       shift_times:
         description: 班次时间
         items:
@@ -1213,14 +1427,12 @@ definitions:
         maxLength: 255
         type: string
     required:
-    - address
     - admin_phone_number
     - business_hours
     - business_model
     - business_type_id
     - dining_periods
     - location_number
-    - login_password
     - shift_times
     - status
     - store_name
@@ -1501,6 +1713,488 @@ paths:
       summary: 启用部门
       tags:
       - 部门管理
+  /common/role:
+    get:
+      description: 分页查询角色
+      parameters:
+      - in: query
+        name: enable
+        type: boolean
+      - in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.RoleListResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 角色列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 新建一个角色
+      parameters:
+      - description: 创建角色请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RoleCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建角色
+      tags:
+      - 角色管理
+  /common/role/{id}:
+    delete:
+      description: 删除指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除角色
+      tags:
+      - 角色管理
+    get:
+      description: 查询指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Role'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取角色详情
+      tags:
+      - 角色管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新角色请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RoleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新角色
+      tags:
+      - 角色管理
+  /common/role/{id}/disable:
+    put:
+      description: 禁用指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用角色
+      tags:
+      - 角色管理
+  /common/role/{id}/enable:
+    put:
+      description: 启用指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用角色
+      tags:
+      - 角色管理
+  /common/router_menu:
+    get:
+      description: 分页查询菜单
+      parameters:
+      - description: 是否启用
+        in: query
+        name: enabled
+        type: boolean
+      - description: 菜单名称
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 父级菜单ID
+        in: query
+        name: parent_id
+        type: string
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.RouterMenuListResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 菜单列表
+      tags:
+      - 菜单管理
+    post:
+      consumes:
+      - application/json
+      description: 新建一个菜单
+      parameters:
+      - description: 创建菜单请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RouterMenuCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建菜单
+      tags:
+      - 菜单管理
+  /common/router_menu/{id}:
+    delete:
+      description: 删除指定菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除菜单
+      tags:
+      - 菜单管理
+    get:
+      description: 查询指定菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.RouterMenu'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取菜单详情
+      tags:
+      - 菜单管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新菜单请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RouterMenuUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新菜单
+      tags:
+      - 菜单管理
+  /common/router_menu/{id}/disable:
+    put:
+      description: 禁用指定菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 禁用菜单
+      tags:
+      - 菜单管理
+  /common/router_menu/{id}/enable:
+    put:
+      description: 启用指定菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 启用菜单
+      tags:
+      - 菜单管理
   /merchant/business_type/list:
     get:
       description: 业态列表

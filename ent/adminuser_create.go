@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 )
 
@@ -81,6 +82,74 @@ func (auc *AdminUserCreate) SetHashedPassword(s string) *AdminUserCreate {
 // SetNickname sets the "nickname" field.
 func (auc *AdminUserCreate) SetNickname(s string) *AdminUserCreate {
 	auc.mutation.SetNickname(s)
+	return auc
+}
+
+// SetRealName sets the "real_name" field.
+func (auc *AdminUserCreate) SetRealName(s string) *AdminUserCreate {
+	auc.mutation.SetRealName(s)
+	return auc
+}
+
+// SetGender sets the "gender" field.
+func (auc *AdminUserCreate) SetGender(d domain.Gender) *AdminUserCreate {
+	auc.mutation.SetGender(d)
+	return auc
+}
+
+// SetEmail sets the "email" field.
+func (auc *AdminUserCreate) SetEmail(s string) *AdminUserCreate {
+	auc.mutation.SetEmail(s)
+	return auc
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (auc *AdminUserCreate) SetNillableEmail(s *string) *AdminUserCreate {
+	if s != nil {
+		auc.SetEmail(*s)
+	}
+	return auc
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (auc *AdminUserCreate) SetPhoneNumber(s string) *AdminUserCreate {
+	auc.mutation.SetPhoneNumber(s)
+	return auc
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (auc *AdminUserCreate) SetNillablePhoneNumber(s *string) *AdminUserCreate {
+	if s != nil {
+		auc.SetPhoneNumber(*s)
+	}
+	return auc
+}
+
+// SetEnabled sets the "enabled" field.
+func (auc *AdminUserCreate) SetEnabled(b bool) *AdminUserCreate {
+	auc.mutation.SetEnabled(b)
+	return auc
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (auc *AdminUserCreate) SetNillableEnabled(b *bool) *AdminUserCreate {
+	if b != nil {
+		auc.SetEnabled(*b)
+	}
+	return auc
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (auc *AdminUserCreate) SetIsSuperadmin(b bool) *AdminUserCreate {
+	auc.mutation.SetIsSuperadmin(b)
+	return auc
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (auc *AdminUserCreate) SetNillableIsSuperadmin(b *bool) *AdminUserCreate {
+	if b != nil {
+		auc.SetIsSuperadmin(*b)
+	}
 	return auc
 }
 
@@ -153,6 +222,14 @@ func (auc *AdminUserCreate) defaults() error {
 		v := adminuser.DefaultDeletedAt
 		auc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := auc.mutation.Enabled(); !ok {
+		v := adminuser.DefaultEnabled
+		auc.mutation.SetEnabled(v)
+	}
+	if _, ok := auc.mutation.IsSuperadmin(); !ok {
+		v := adminuser.DefaultIsSuperadmin
+		auc.mutation.SetIsSuperadmin(v)
+	}
 	if _, ok := auc.mutation.ID(); !ok {
 		if adminuser.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized adminuser.DefaultID (forgotten import ent/runtime?)")
@@ -192,6 +269,38 @@ func (auc *AdminUserCreate) check() error {
 	}
 	if _, ok := auc.mutation.Nickname(); !ok {
 		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "AdminUser.nickname"`)}
+	}
+	if _, ok := auc.mutation.RealName(); !ok {
+		return &ValidationError{Name: "real_name", err: errors.New(`ent: missing required field "AdminUser.real_name"`)}
+	}
+	if v, ok := auc.mutation.RealName(); ok {
+		if err := adminuser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "AdminUser.real_name": %w`, err)}
+		}
+	}
+	if _, ok := auc.mutation.Gender(); !ok {
+		return &ValidationError{Name: "gender", err: errors.New(`ent: missing required field "AdminUser.gender"`)}
+	}
+	if v, ok := auc.mutation.Gender(); ok {
+		if err := adminuser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "AdminUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := auc.mutation.Email(); ok {
+		if err := adminuser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "AdminUser.email": %w`, err)}
+		}
+	}
+	if v, ok := auc.mutation.PhoneNumber(); ok {
+		if err := adminuser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "AdminUser.phone_number": %w`, err)}
+		}
+	}
+	if _, ok := auc.mutation.Enabled(); !ok {
+		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "AdminUser.enabled"`)}
+	}
+	if _, ok := auc.mutation.IsSuperadmin(); !ok {
+		return &ValidationError{Name: "is_superadmin", err: errors.New(`ent: missing required field "AdminUser.is_superadmin"`)}
 	}
 	return nil
 }
@@ -252,6 +361,30 @@ func (auc *AdminUserCreate) createSpec() (*AdminUser, *sqlgraph.CreateSpec) {
 	if value, ok := auc.mutation.Nickname(); ok {
 		_spec.SetField(adminuser.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
+	}
+	if value, ok := auc.mutation.RealName(); ok {
+		_spec.SetField(adminuser.FieldRealName, field.TypeString, value)
+		_node.RealName = value
+	}
+	if value, ok := auc.mutation.Gender(); ok {
+		_spec.SetField(adminuser.FieldGender, field.TypeEnum, value)
+		_node.Gender = value
+	}
+	if value, ok := auc.mutation.Email(); ok {
+		_spec.SetField(adminuser.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := auc.mutation.PhoneNumber(); ok {
+		_spec.SetField(adminuser.FieldPhoneNumber, field.TypeString, value)
+		_node.PhoneNumber = value
+	}
+	if value, ok := auc.mutation.Enabled(); ok {
+		_spec.SetField(adminuser.FieldEnabled, field.TypeBool, value)
+		_node.Enabled = value
+	}
+	if value, ok := auc.mutation.IsSuperadmin(); ok {
+		_spec.SetField(adminuser.FieldIsSuperadmin, field.TypeBool, value)
+		_node.IsSuperadmin = value
 	}
 	return _node, _spec
 }
@@ -368,6 +501,90 @@ func (u *AdminUserUpsert) SetNickname(v string) *AdminUserUpsert {
 // UpdateNickname sets the "nickname" field to the value that was provided on create.
 func (u *AdminUserUpsert) UpdateNickname() *AdminUserUpsert {
 	u.SetExcluded(adminuser.FieldNickname)
+	return u
+}
+
+// SetRealName sets the "real_name" field.
+func (u *AdminUserUpsert) SetRealName(v string) *AdminUserUpsert {
+	u.Set(adminuser.FieldRealName, v)
+	return u
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *AdminUserUpsert) UpdateRealName() *AdminUserUpsert {
+	u.SetExcluded(adminuser.FieldRealName)
+	return u
+}
+
+// SetGender sets the "gender" field.
+func (u *AdminUserUpsert) SetGender(v domain.Gender) *AdminUserUpsert {
+	u.Set(adminuser.FieldGender, v)
+	return u
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *AdminUserUpsert) UpdateGender() *AdminUserUpsert {
+	u.SetExcluded(adminuser.FieldGender)
+	return u
+}
+
+// SetEmail sets the "email" field.
+func (u *AdminUserUpsert) SetEmail(v string) *AdminUserUpsert {
+	u.Set(adminuser.FieldEmail, v)
+	return u
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *AdminUserUpsert) UpdateEmail() *AdminUserUpsert {
+	u.SetExcluded(adminuser.FieldEmail)
+	return u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *AdminUserUpsert) ClearEmail() *AdminUserUpsert {
+	u.SetNull(adminuser.FieldEmail)
+	return u
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *AdminUserUpsert) SetPhoneNumber(v string) *AdminUserUpsert {
+	u.Set(adminuser.FieldPhoneNumber, v)
+	return u
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *AdminUserUpsert) UpdatePhoneNumber() *AdminUserUpsert {
+	u.SetExcluded(adminuser.FieldPhoneNumber)
+	return u
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *AdminUserUpsert) ClearPhoneNumber() *AdminUserUpsert {
+	u.SetNull(adminuser.FieldPhoneNumber)
+	return u
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *AdminUserUpsert) SetEnabled(v bool) *AdminUserUpsert {
+	u.Set(adminuser.FieldEnabled, v)
+	return u
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *AdminUserUpsert) UpdateEnabled() *AdminUserUpsert {
+	u.SetExcluded(adminuser.FieldEnabled)
+	return u
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *AdminUserUpsert) SetIsSuperadmin(v bool) *AdminUserUpsert {
+	u.Set(adminuser.FieldIsSuperadmin, v)
+	return u
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *AdminUserUpsert) UpdateIsSuperadmin() *AdminUserUpsert {
+	u.SetExcluded(adminuser.FieldIsSuperadmin)
 	return u
 }
 
@@ -496,6 +713,104 @@ func (u *AdminUserUpsertOne) SetNickname(v string) *AdminUserUpsertOne {
 func (u *AdminUserUpsertOne) UpdateNickname() *AdminUserUpsertOne {
 	return u.Update(func(s *AdminUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetRealName sets the "real_name" field.
+func (u *AdminUserUpsertOne) SetRealName(v string) *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetRealName(v)
+	})
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *AdminUserUpsertOne) UpdateRealName() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateRealName()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *AdminUserUpsertOne) SetGender(v domain.Gender) *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *AdminUserUpsertOne) UpdateGender() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *AdminUserUpsertOne) SetEmail(v string) *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *AdminUserUpsertOne) UpdateEmail() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *AdminUserUpsertOne) ClearEmail() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *AdminUserUpsertOne) SetPhoneNumber(v string) *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetPhoneNumber(v)
+	})
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *AdminUserUpsertOne) UpdatePhoneNumber() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdatePhoneNumber()
+	})
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *AdminUserUpsertOne) ClearPhoneNumber() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.ClearPhoneNumber()
+	})
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *AdminUserUpsertOne) SetEnabled(v bool) *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetEnabled(v)
+	})
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *AdminUserUpsertOne) UpdateEnabled() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateEnabled()
+	})
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *AdminUserUpsertOne) SetIsSuperadmin(v bool) *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetIsSuperadmin(v)
+	})
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *AdminUserUpsertOne) UpdateIsSuperadmin() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateIsSuperadmin()
 	})
 }
 
@@ -791,6 +1106,104 @@ func (u *AdminUserUpsertBulk) SetNickname(v string) *AdminUserUpsertBulk {
 func (u *AdminUserUpsertBulk) UpdateNickname() *AdminUserUpsertBulk {
 	return u.Update(func(s *AdminUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetRealName sets the "real_name" field.
+func (u *AdminUserUpsertBulk) SetRealName(v string) *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetRealName(v)
+	})
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *AdminUserUpsertBulk) UpdateRealName() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateRealName()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *AdminUserUpsertBulk) SetGender(v domain.Gender) *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *AdminUserUpsertBulk) UpdateGender() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *AdminUserUpsertBulk) SetEmail(v string) *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *AdminUserUpsertBulk) UpdateEmail() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *AdminUserUpsertBulk) ClearEmail() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *AdminUserUpsertBulk) SetPhoneNumber(v string) *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetPhoneNumber(v)
+	})
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *AdminUserUpsertBulk) UpdatePhoneNumber() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdatePhoneNumber()
+	})
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *AdminUserUpsertBulk) ClearPhoneNumber() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.ClearPhoneNumber()
+	})
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *AdminUserUpsertBulk) SetEnabled(v bool) *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetEnabled(v)
+	})
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *AdminUserUpsertBulk) UpdateEnabled() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateEnabled()
+	})
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *AdminUserUpsertBulk) SetIsSuperadmin(v bool) *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetIsSuperadmin(v)
+	})
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *AdminUserUpsertBulk) UpdateIsSuperadmin() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateIsSuperadmin()
 	})
 }
 

@@ -447,6 +447,46 @@ func StoreIDNotNil() predicate.Role {
 	return predicate.Role(sql.FieldNotNull(FieldStoreID))
 }
 
+// DataScopeEQ applies the EQ predicate on the "data_scope" field.
+func DataScopeEQ(v domain.RoleDataScopeType) predicate.Role {
+	vc := v
+	return predicate.Role(sql.FieldEQ(FieldDataScope, vc))
+}
+
+// DataScopeNEQ applies the NEQ predicate on the "data_scope" field.
+func DataScopeNEQ(v domain.RoleDataScopeType) predicate.Role {
+	vc := v
+	return predicate.Role(sql.FieldNEQ(FieldDataScope, vc))
+}
+
+// DataScopeIn applies the In predicate on the "data_scope" field.
+func DataScopeIn(vs ...domain.RoleDataScopeType) predicate.Role {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Role(sql.FieldIn(FieldDataScope, v...))
+}
+
+// DataScopeNotIn applies the NotIn predicate on the "data_scope" field.
+func DataScopeNotIn(vs ...domain.RoleDataScopeType) predicate.Role {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Role(sql.FieldNotIn(FieldDataScope, v...))
+}
+
+// DataScopeIsNil applies the IsNil predicate on the "data_scope" field.
+func DataScopeIsNil() predicate.Role {
+	return predicate.Role(sql.FieldIsNull(FieldDataScope))
+}
+
+// DataScopeNotNil applies the NotNil predicate on the "data_scope" field.
+func DataScopeNotNil() predicate.Role {
+	return predicate.Role(sql.FieldNotNull(FieldDataScope))
+}
+
 // HasMerchant applies the HasEdge predicate on the "merchant" edge.
 func HasMerchant() predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {

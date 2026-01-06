@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -20,10 +21,14 @@ import (
 
 type TaxFeeHandler struct {
 	TaxFeeInteractor domain.TaxFeeInteractor
+	taxSeq           domain.TaxSequence
 }
 
-func NewTaxFeeHandler(interactor domain.TaxFeeInteractor) *TaxFeeHandler {
-	return &TaxFeeHandler{TaxFeeInteractor: interactor}
+func NewTaxFeeHandler(interactor domain.TaxFeeInteractor, seq domain.TaxSequence) *TaxFeeHandler {
+	return &TaxFeeHandler{
+		TaxFeeInteractor: interactor,
+		taxSeq:           seq,
+	}
 }
 
 func (h *TaxFeeHandler) Routes(r gin.IRouter) {
@@ -62,12 +67,17 @@ func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		taxCode, err := h.generateTaxCode(ctx)
+		if err != nil {
+			err = fmt.Errorf("failed to generate tax code: %w", err)
+			c.Error(err)
+			return
+		}
 		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.TaxFee{
 			Name:        req.Name,
 			TaxFeeType:  domain.TaxFeeTypeMerchant,
-			TaxCode:     "", // todo 统一规则生成,后续写
+			TaxCode:     taxCode,
 			TaxRateType: domain.TaxRateTypeUnified,
 			TaxRate:     req.TaxRate,
 			DefaultTax:  false,
@@ -372,4 +382,12 @@ func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
+}
+
+func (h *TaxFeeHandler) generateTaxCode(ctx context.Context) (string, error) {
+	seq, err := h.taxSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }

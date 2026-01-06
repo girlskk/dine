@@ -35,7 +35,6 @@ func (interactor *TaxFeeInteractor) Create(ctx context.Context, fee *domain.TaxF
 	}
 
 	fee.ID = uuid.New()
-	fee.TaxCode = ""
 	if err = interactor.ds.TaxFeeRepo().Create(ctx, fee); err != nil {
 		return fmt.Errorf("failed to create tax fee: %w", err)
 	}
@@ -113,7 +112,11 @@ func (interactor *TaxFeeInteractor) GetTaxFee(ctx context.Context, id uuid.UUID)
 	return
 }
 
-func (interactor *TaxFeeInteractor) GetTaxFees(ctx context.Context, pager *upagination.Pagination, filter *domain.TaxFeeListFilter, orderBys ...domain.TaxFeeOrderBy) (fees []*domain.TaxFee, total int, err error) {
+func (interactor *TaxFeeInteractor) GetTaxFees(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.TaxFeeListFilter,
+	orderBys ...domain.TaxFeeOrderBy,
+) (fees []*domain.TaxFee, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.GetTaxFees")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -134,7 +137,10 @@ func (interactor *TaxFeeInteractor) GetTaxFees(ctx context.Context, pager *upagi
 	return
 }
 
-func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context, updateField domain.TaxFeeSimpleUpdateType, fee *domain.TaxFee) (err error) {
+func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
+	updateField domain.TaxFeeSimpleUpdateType,
+	fee *domain.TaxFee,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.TaxFeeSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
 

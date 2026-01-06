@@ -28,7 +28,7 @@ type CreateStoreReq struct {
 	CashierDeskURL          string                 `json:"cashier_desk_url" binding:"omitempty,max=500"`           // 收银台照片地址
 	DiningEnvironmentURL    string                 `json:"dining_environment_url" binding:"omitempty,max=500"`     // 就餐环境照片地址
 	FoodOperationLicenseURL string                 `json:"food_operation_license_url" binding:"omitempty,max=500"` // 食品经营许可证照片地址
-	Address                 Address                `json:"address" binding:"required"`                             // 地址  创建门店时地址校验必填，创建商户时可选
+	Address                 Address                `json:"address" binding:"omitempty"`                            // 地址  创建门店时地址校验必填，创建商户时可选
 	LoginAccount            string                 `json:"login_account" binding:"required"`                       // 登录账号
 	LoginPassword           string                 `json:"login_password" binding:"required"`                      // 登录密码(加密存储)
 	BusinessHours           []domain.BusinessHours `json:"business_hours" binding:"required"`                      // 营业时间段
@@ -55,8 +55,7 @@ type UpdateStoreReq struct {
 	CashierDeskURL          string                 `json:"cashier_desk_url" binding:"omitempty,max=500"`           // 收银台照片地址
 	DiningEnvironmentURL    string                 `json:"dining_environment_url" binding:"omitempty,max=500"`     // 就餐环境照片地址
 	FoodOperationLicenseURL string                 `json:"food_operation_license_url" binding:"omitempty,max=500"` // 食品经营许可证照片地址
-	Address                 Address                `json:"address" binding:"required"`                             // 地址
-	LoginPassword           string                 `json:"login_password" binding:"required"`                      // 登录密码(加密存储)
+	Address                 Address                `json:"address" binding:"omitempty"`                            // 地址
 	BusinessHours           []domain.BusinessHours `json:"business_hours" binding:"required"`                      // 营业时间段
 	DiningPeriods           []domain.DiningPeriod  `json:"dining_periods" binding:"required"`                      // 就餐时段
 	ShiftTimes              []domain.ShiftTime     `json:"shift_times" binding:"required"`                         // 班次时间

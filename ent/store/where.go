@@ -1607,6 +1607,16 @@ func AddressHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldAddress, v))
 }
 
+// AddressIsNil applies the IsNil predicate on the "address" field.
+func AddressIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldAddress))
+}
+
+// AddressNotNil applies the NotNil predicate on the "address" field.
+func AddressNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldAddress))
+}
+
 // AddressEqualFold applies the EqualFold predicate on the "address" field.
 func AddressEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldAddress, v))

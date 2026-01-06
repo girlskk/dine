@@ -1264,7 +1264,9 @@ func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUse
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(backenduser.FieldMerchantID)
+	}
 	query.Where(predicate.BackendUser(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.BackendUsersColumn), fks...))
 	}))
@@ -1273,13 +1275,10 @@ func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUse
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.merchant_backend_users
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "merchant_backend_users" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "merchant_backend_users" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

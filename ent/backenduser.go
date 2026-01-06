@@ -10,7 +10,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 )
 
 // BackendUser is the model entity for the BackendUser schema.
@@ -32,9 +34,43 @@ type BackendUser struct {
 	// 昵称
 	Nickname string `json:"nickname,omitempty"`
 	// 所属品牌商ID
-	MerchantID             uuid.UUID `json:"merchant_id,omitempty"`
-	merchant_backend_users *uuid.UUID
-	selectValues           sql.SelectValues
+	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
+	// 真实姓名
+	RealName string `json:"real_name,omitempty"`
+	// 性别
+	Gender domain.Gender `json:"gender,omitempty"`
+	// 电子邮箱
+	Email string `json:"email,omitempty"`
+	// 手机号
+	PhoneNumber string `json:"phone_number,omitempty"`
+	// 是否启用
+	Enabled bool `json:"enabled,omitempty"`
+	// 是否为超级管理员
+	IsSuperadmin bool `json:"is_superadmin,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the BackendUserQuery when eager-loading is set.
+	Edges        BackendUserEdges `json:"edges"`
+	selectValues sql.SelectValues
+}
+
+// BackendUserEdges holds the relations/edges for other nodes in the graph.
+type BackendUserEdges struct {
+	// Merchant holds the value of the merchant edge.
+	Merchant *Merchant `json:"merchant,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// MerchantOrErr returns the Merchant value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BackendUserEdges) MerchantOrErr() (*Merchant, error) {
+	if e.Merchant != nil {
+		return e.Merchant, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: merchant.Label}
+	}
+	return nil, &NotLoadedError{edge: "merchant"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -42,16 +78,16 @@ func (*BackendUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case backenduser.FieldEnabled, backenduser.FieldIsSuperadmin:
+			values[i] = new(sql.NullBool)
 		case backenduser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case backenduser.FieldUsername, backenduser.FieldHashedPassword, backenduser.FieldNickname:
+		case backenduser.FieldUsername, backenduser.FieldHashedPassword, backenduser.FieldNickname, backenduser.FieldRealName, backenduser.FieldGender, backenduser.FieldEmail, backenduser.FieldPhoneNumber:
 			values[i] = new(sql.NullString)
 		case backenduser.FieldCreatedAt, backenduser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case backenduser.FieldID, backenduser.FieldMerchantID:
 			values[i] = new(uuid.UUID)
-		case backenduser.ForeignKeys[0]: // merchant_backend_users
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -115,12 +151,41 @@ func (bu *BackendUser) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				bu.MerchantID = *value
 			}
-		case backenduser.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field merchant_backend_users", values[i])
+		case backenduser.FieldRealName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field real_name", values[i])
 			} else if value.Valid {
-				bu.merchant_backend_users = new(uuid.UUID)
-				*bu.merchant_backend_users = *value.S.(*uuid.UUID)
+				bu.RealName = value.String
+			}
+		case backenduser.FieldGender:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gender", values[i])
+			} else if value.Valid {
+				bu.Gender = domain.Gender(value.String)
+			}
+		case backenduser.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				bu.Email = value.String
+			}
+		case backenduser.FieldPhoneNumber:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field phone_number", values[i])
+			} else if value.Valid {
+				bu.PhoneNumber = value.String
+			}
+		case backenduser.FieldEnabled:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field enabled", values[i])
+			} else if value.Valid {
+				bu.Enabled = value.Bool
+			}
+		case backenduser.FieldIsSuperadmin:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_superadmin", values[i])
+			} else if value.Valid {
+				bu.IsSuperadmin = value.Bool
 			}
 		default:
 			bu.selectValues.Set(columns[i], values[i])
@@ -133,6 +198,11 @@ func (bu *BackendUser) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (bu *BackendUser) Value(name string) (ent.Value, error) {
 	return bu.selectValues.Get(name)
+}
+
+// QueryMerchant queries the "merchant" edge of the BackendUser entity.
+func (bu *BackendUser) QueryMerchant() *MerchantQuery {
+	return NewBackendUserClient(bu.config).QueryMerchant(bu)
 }
 
 // Update returns a builder for updating this BackendUser.
@@ -178,6 +248,24 @@ func (bu *BackendUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", bu.MerchantID))
+	builder.WriteString(", ")
+	builder.WriteString("real_name=")
+	builder.WriteString(bu.RealName)
+	builder.WriteString(", ")
+	builder.WriteString("gender=")
+	builder.WriteString(fmt.Sprintf("%v", bu.Gender))
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(bu.Email)
+	builder.WriteString(", ")
+	builder.WriteString("phone_number=")
+	builder.WriteString(bu.PhoneNumber)
+	builder.WriteString(", ")
+	builder.WriteString("enabled=")
+	builder.WriteString(fmt.Sprintf("%v", bu.Enabled))
+	builder.WriteString(", ")
+	builder.WriteString("is_superadmin=")
+	builder.WriteString(fmt.Sprintf("%v", bu.IsSuperadmin))
 	builder.WriteByte(')')
 	return builder.String()
 }

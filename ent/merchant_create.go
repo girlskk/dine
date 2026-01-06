@@ -659,6 +659,11 @@ func (mc *MerchantCreate) check() error {
 	if _, ok := mc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Merchant.deleted_at"`)}
 	}
+	if v, ok := mc.mutation.MerchantCode(); ok {
+		if err := merchant.MerchantCodeValidator(v); err != nil {
+			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
+		}
+	}
 	if _, ok := mc.mutation.MerchantName(); !ok {
 		return &ValidationError{Name: "merchant_name", err: errors.New(`ent: missing required field "Merchant.merchant_name"`)}
 	}
@@ -678,6 +683,11 @@ func (mc *MerchantCreate) check() error {
 	if v, ok := mc.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
+		}
+	}
+	if v, ok := mc.mutation.BrandName(); ok {
+		if err := merchant.BrandNameValidator(v); err != nil {
+			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if _, ok := mc.mutation.AdminPhoneNumber(); !ok {

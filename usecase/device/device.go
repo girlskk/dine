@@ -22,7 +22,10 @@ func NewDeviceInteractor(ds domain.DataStore) *DeviceInteractor {
 	return &DeviceInteractor{ds: ds}
 }
 
-func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context, updateField domain.DeviceSimpleUpdateType, device *domain.Device) (err error) {
+func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context,
+	updateField domain.DeviceSimpleUpdateType,
+	device *domain.Device,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.DeviceSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -116,7 +119,11 @@ func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID)
 	return
 }
 
-func (interactor *DeviceInteractor) GetDevices(ctx context.Context, pager *upagination.Pagination, filter *domain.DeviceListFilter, orderBys ...domain.DeviceOrderBy) (domainDevices []*domain.Device, total int, err error) {
+func (interactor *DeviceInteractor) GetDevices(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.DeviceListFilter,
+	orderBys ...domain.DeviceOrderBy,
+) (domainDevices []*domain.Device, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.GetDevices")
 	defer func() { util.SpanErrFinish(span, err) }()
 	if filter == nil {

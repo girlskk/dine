@@ -507,6 +507,12 @@ func (su *StoreUpdate) SetNillableAddress(s *string) *StoreUpdate {
 	return su
 }
 
+// ClearAddress clears the value of the "address" field.
+func (su *StoreUpdate) ClearAddress() *StoreUpdate {
+	su.mutation.ClearAddress()
+	return su
+}
+
 // SetLng sets the "lng" field.
 func (su *StoreUpdate) SetLng(s string) *StoreUpdate {
 	su.mutation.SetLng(s)
@@ -1214,6 +1220,9 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
+	}
+	if su.mutation.AddressCleared() {
+		_spec.ClearField(store.FieldAddress, field.TypeString)
 	}
 	if value, ok := su.mutation.Lng(); ok {
 		_spec.SetField(store.FieldLng, field.TypeString, value)
@@ -2260,6 +2269,12 @@ func (suo *StoreUpdateOne) SetNillableAddress(s *string) *StoreUpdateOne {
 	return suo
 }
 
+// ClearAddress clears the value of the "address" field.
+func (suo *StoreUpdateOne) ClearAddress() *StoreUpdateOne {
+	suo.mutation.ClearAddress()
+	return suo
+}
+
 // SetLng sets the "lng" field.
 func (suo *StoreUpdateOne) SetLng(s string) *StoreUpdateOne {
 	suo.mutation.SetLng(s)
@@ -2997,6 +3012,9 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	}
 	if value, ok := suo.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
+	}
+	if suo.mutation.AddressCleared() {
+		_spec.ClearField(store.FieldAddress, field.TypeString)
 	}
 	if value, ok := suo.mutation.Lng(); ok {
 		_spec.SetField(store.FieldLng, field.TypeString, value)

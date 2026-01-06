@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
@@ -98,6 +99,74 @@ func (suc *StoreUserCreate) SetStoreID(u uuid.UUID) *StoreUserCreate {
 	return suc
 }
 
+// SetRealName sets the "real_name" field.
+func (suc *StoreUserCreate) SetRealName(s string) *StoreUserCreate {
+	suc.mutation.SetRealName(s)
+	return suc
+}
+
+// SetGender sets the "gender" field.
+func (suc *StoreUserCreate) SetGender(d domain.Gender) *StoreUserCreate {
+	suc.mutation.SetGender(d)
+	return suc
+}
+
+// SetEmail sets the "email" field.
+func (suc *StoreUserCreate) SetEmail(s string) *StoreUserCreate {
+	suc.mutation.SetEmail(s)
+	return suc
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (suc *StoreUserCreate) SetNillableEmail(s *string) *StoreUserCreate {
+	if s != nil {
+		suc.SetEmail(*s)
+	}
+	return suc
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (suc *StoreUserCreate) SetPhoneNumber(s string) *StoreUserCreate {
+	suc.mutation.SetPhoneNumber(s)
+	return suc
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (suc *StoreUserCreate) SetNillablePhoneNumber(s *string) *StoreUserCreate {
+	if s != nil {
+		suc.SetPhoneNumber(*s)
+	}
+	return suc
+}
+
+// SetEnabled sets the "enabled" field.
+func (suc *StoreUserCreate) SetEnabled(b bool) *StoreUserCreate {
+	suc.mutation.SetEnabled(b)
+	return suc
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (suc *StoreUserCreate) SetNillableEnabled(b *bool) *StoreUserCreate {
+	if b != nil {
+		suc.SetEnabled(*b)
+	}
+	return suc
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (suc *StoreUserCreate) SetIsSuperadmin(b bool) *StoreUserCreate {
+	suc.mutation.SetIsSuperadmin(b)
+	return suc
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (suc *StoreUserCreate) SetNillableIsSuperadmin(b *bool) *StoreUserCreate {
+	if b != nil {
+		suc.SetIsSuperadmin(*b)
+	}
+	return suc
+}
+
 // SetID sets the "id" field.
 func (suc *StoreUserCreate) SetID(u uuid.UUID) *StoreUserCreate {
 	suc.mutation.SetID(u)
@@ -177,6 +246,14 @@ func (suc *StoreUserCreate) defaults() error {
 		v := storeuser.DefaultDeletedAt
 		suc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := suc.mutation.Enabled(); !ok {
+		v := storeuser.DefaultEnabled
+		suc.mutation.SetEnabled(v)
+	}
+	if _, ok := suc.mutation.IsSuperadmin(); !ok {
+		v := storeuser.DefaultIsSuperadmin
+		suc.mutation.SetIsSuperadmin(v)
+	}
 	if _, ok := suc.mutation.ID(); !ok {
 		if storeuser.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized storeuser.DefaultID (forgotten import ent/runtime?)")
@@ -222,6 +299,38 @@ func (suc *StoreUserCreate) check() error {
 	}
 	if _, ok := suc.mutation.StoreID(); !ok {
 		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "StoreUser.store_id"`)}
+	}
+	if _, ok := suc.mutation.RealName(); !ok {
+		return &ValidationError{Name: "real_name", err: errors.New(`ent: missing required field "StoreUser.real_name"`)}
+	}
+	if v, ok := suc.mutation.RealName(); ok {
+		if err := storeuser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "StoreUser.real_name": %w`, err)}
+		}
+	}
+	if _, ok := suc.mutation.Gender(); !ok {
+		return &ValidationError{Name: "gender", err: errors.New(`ent: missing required field "StoreUser.gender"`)}
+	}
+	if v, ok := suc.mutation.Gender(); ok {
+		if err := storeuser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "StoreUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := suc.mutation.Email(); ok {
+		if err := storeuser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "StoreUser.email": %w`, err)}
+		}
+	}
+	if v, ok := suc.mutation.PhoneNumber(); ok {
+		if err := storeuser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "StoreUser.phone_number": %w`, err)}
+		}
+	}
+	if _, ok := suc.mutation.Enabled(); !ok {
+		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "StoreUser.enabled"`)}
+	}
+	if _, ok := suc.mutation.IsSuperadmin(); !ok {
+		return &ValidationError{Name: "is_superadmin", err: errors.New(`ent: missing required field "StoreUser.is_superadmin"`)}
 	}
 	if len(suc.mutation.MerchantIDs()) == 0 {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "StoreUser.merchant"`)}
@@ -288,6 +397,30 @@ func (suc *StoreUserCreate) createSpec() (*StoreUser, *sqlgraph.CreateSpec) {
 	if value, ok := suc.mutation.Nickname(); ok {
 		_spec.SetField(storeuser.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
+	}
+	if value, ok := suc.mutation.RealName(); ok {
+		_spec.SetField(storeuser.FieldRealName, field.TypeString, value)
+		_node.RealName = value
+	}
+	if value, ok := suc.mutation.Gender(); ok {
+		_spec.SetField(storeuser.FieldGender, field.TypeEnum, value)
+		_node.Gender = value
+	}
+	if value, ok := suc.mutation.Email(); ok {
+		_spec.SetField(storeuser.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := suc.mutation.PhoneNumber(); ok {
+		_spec.SetField(storeuser.FieldPhoneNumber, field.TypeString, value)
+		_node.PhoneNumber = value
+	}
+	if value, ok := suc.mutation.Enabled(); ok {
+		_spec.SetField(storeuser.FieldEnabled, field.TypeBool, value)
+		_node.Enabled = value
+	}
+	if value, ok := suc.mutation.IsSuperadmin(); ok {
+		_spec.SetField(storeuser.FieldIsSuperadmin, field.TypeBool, value)
+		_node.IsSuperadmin = value
 	}
 	if nodes := suc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -441,6 +574,90 @@ func (u *StoreUserUpsert) UpdateNickname() *StoreUserUpsert {
 	return u
 }
 
+// SetRealName sets the "real_name" field.
+func (u *StoreUserUpsert) SetRealName(v string) *StoreUserUpsert {
+	u.Set(storeuser.FieldRealName, v)
+	return u
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *StoreUserUpsert) UpdateRealName() *StoreUserUpsert {
+	u.SetExcluded(storeuser.FieldRealName)
+	return u
+}
+
+// SetGender sets the "gender" field.
+func (u *StoreUserUpsert) SetGender(v domain.Gender) *StoreUserUpsert {
+	u.Set(storeuser.FieldGender, v)
+	return u
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *StoreUserUpsert) UpdateGender() *StoreUserUpsert {
+	u.SetExcluded(storeuser.FieldGender)
+	return u
+}
+
+// SetEmail sets the "email" field.
+func (u *StoreUserUpsert) SetEmail(v string) *StoreUserUpsert {
+	u.Set(storeuser.FieldEmail, v)
+	return u
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *StoreUserUpsert) UpdateEmail() *StoreUserUpsert {
+	u.SetExcluded(storeuser.FieldEmail)
+	return u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *StoreUserUpsert) ClearEmail() *StoreUserUpsert {
+	u.SetNull(storeuser.FieldEmail)
+	return u
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *StoreUserUpsert) SetPhoneNumber(v string) *StoreUserUpsert {
+	u.Set(storeuser.FieldPhoneNumber, v)
+	return u
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *StoreUserUpsert) UpdatePhoneNumber() *StoreUserUpsert {
+	u.SetExcluded(storeuser.FieldPhoneNumber)
+	return u
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *StoreUserUpsert) ClearPhoneNumber() *StoreUserUpsert {
+	u.SetNull(storeuser.FieldPhoneNumber)
+	return u
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *StoreUserUpsert) SetEnabled(v bool) *StoreUserUpsert {
+	u.Set(storeuser.FieldEnabled, v)
+	return u
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *StoreUserUpsert) UpdateEnabled() *StoreUserUpsert {
+	u.SetExcluded(storeuser.FieldEnabled)
+	return u
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *StoreUserUpsert) SetIsSuperadmin(v bool) *StoreUserUpsert {
+	u.Set(storeuser.FieldIsSuperadmin, v)
+	return u
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *StoreUserUpsert) UpdateIsSuperadmin() *StoreUserUpsert {
+	u.SetExcluded(storeuser.FieldIsSuperadmin)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -572,6 +789,104 @@ func (u *StoreUserUpsertOne) SetNickname(v string) *StoreUserUpsertOne {
 func (u *StoreUserUpsertOne) UpdateNickname() *StoreUserUpsertOne {
 	return u.Update(func(s *StoreUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetRealName sets the "real_name" field.
+func (u *StoreUserUpsertOne) SetRealName(v string) *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetRealName(v)
+	})
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *StoreUserUpsertOne) UpdateRealName() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateRealName()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *StoreUserUpsertOne) SetGender(v domain.Gender) *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *StoreUserUpsertOne) UpdateGender() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *StoreUserUpsertOne) SetEmail(v string) *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *StoreUserUpsertOne) UpdateEmail() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *StoreUserUpsertOne) ClearEmail() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *StoreUserUpsertOne) SetPhoneNumber(v string) *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetPhoneNumber(v)
+	})
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *StoreUserUpsertOne) UpdatePhoneNumber() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdatePhoneNumber()
+	})
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *StoreUserUpsertOne) ClearPhoneNumber() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearPhoneNumber()
+	})
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *StoreUserUpsertOne) SetEnabled(v bool) *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetEnabled(v)
+	})
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *StoreUserUpsertOne) UpdateEnabled() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateEnabled()
+	})
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *StoreUserUpsertOne) SetIsSuperadmin(v bool) *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetIsSuperadmin(v)
+	})
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *StoreUserUpsertOne) UpdateIsSuperadmin() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateIsSuperadmin()
 	})
 }
 
@@ -873,6 +1188,104 @@ func (u *StoreUserUpsertBulk) SetNickname(v string) *StoreUserUpsertBulk {
 func (u *StoreUserUpsertBulk) UpdateNickname() *StoreUserUpsertBulk {
 	return u.Update(func(s *StoreUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetRealName sets the "real_name" field.
+func (u *StoreUserUpsertBulk) SetRealName(v string) *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetRealName(v)
+	})
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *StoreUserUpsertBulk) UpdateRealName() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateRealName()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *StoreUserUpsertBulk) SetGender(v domain.Gender) *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *StoreUserUpsertBulk) UpdateGender() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *StoreUserUpsertBulk) SetEmail(v string) *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *StoreUserUpsertBulk) UpdateEmail() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *StoreUserUpsertBulk) ClearEmail() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *StoreUserUpsertBulk) SetPhoneNumber(v string) *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetPhoneNumber(v)
+	})
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *StoreUserUpsertBulk) UpdatePhoneNumber() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdatePhoneNumber()
+	})
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *StoreUserUpsertBulk) ClearPhoneNumber() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearPhoneNumber()
+	})
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *StoreUserUpsertBulk) SetEnabled(v bool) *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetEnabled(v)
+	})
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *StoreUserUpsertBulk) UpdateEnabled() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateEnabled()
+	})
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *StoreUserUpsertBulk) SetIsSuperadmin(v bool) *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.SetIsSuperadmin(v)
+	})
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *StoreUserUpsertBulk) UpdateIsSuperadmin() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.UpdateIsSuperadmin()
 	})
 }
 

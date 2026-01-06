@@ -80,7 +80,11 @@ func (interactor *StallInteractor) GetStall(ctx context.Context, id uuid.UUID) (
 	return
 }
 
-func (interactor *StallInteractor) GetStalls(ctx context.Context, pager *upagination.Pagination, filter *domain.StallListFilter, orderBys ...domain.StallOrderBy) (domainStalls []*domain.Stall, total int, err error) {
+func (interactor *StallInteractor) GetStalls(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.StallListFilter,
+	orderBys ...domain.StallOrderBy,
+) (domainStalls []*domain.Stall, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "StallInteractor.GetStalls")
 	defer func() { util.SpanErrFinish(span, err) }()
 	if filter == nil {
@@ -94,7 +98,10 @@ func (interactor *StallInteractor) GetStalls(ctx context.Context, pager *upagina
 	return
 }
 
-func (interactor *StallInteractor) StallSimpleUpdate(ctx context.Context, updateField domain.StallSimpleUpdateType, stall *domain.Stall) (err error) {
+func (interactor *StallInteractor) StallSimpleUpdate(ctx context.Context,
+	updateField domain.StallSimpleUpdateType,
+	stall *domain.Stall,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "StallInteractor.StallSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
 

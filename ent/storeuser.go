@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
@@ -37,6 +38,18 @@ type StoreUser struct {
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 所属门店 ID
 	StoreID uuid.UUID `json:"store_id,omitempty"`
+	// 真实姓名
+	RealName string `json:"real_name,omitempty"`
+	// 性别
+	Gender domain.Gender `json:"gender,omitempty"`
+	// 电子邮箱
+	Email string `json:"email,omitempty"`
+	// 手机号
+	PhoneNumber string `json:"phone_number,omitempty"`
+	// 是否启用
+	Enabled bool `json:"enabled,omitempty"`
+	// 是否为超级管理员
+	IsSuperadmin bool `json:"is_superadmin,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the StoreUserQuery when eager-loading is set.
 	Edges        StoreUserEdges `json:"edges"`
@@ -81,9 +94,11 @@ func (*StoreUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case storeuser.FieldEnabled, storeuser.FieldIsSuperadmin:
+			values[i] = new(sql.NullBool)
 		case storeuser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case storeuser.FieldUsername, storeuser.FieldHashedPassword, storeuser.FieldNickname:
+		case storeuser.FieldUsername, storeuser.FieldHashedPassword, storeuser.FieldNickname, storeuser.FieldRealName, storeuser.FieldGender, storeuser.FieldEmail, storeuser.FieldPhoneNumber:
 			values[i] = new(sql.NullString)
 		case storeuser.FieldCreatedAt, storeuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -158,6 +173,42 @@ func (su *StoreUser) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				su.StoreID = *value
 			}
+		case storeuser.FieldRealName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field real_name", values[i])
+			} else if value.Valid {
+				su.RealName = value.String
+			}
+		case storeuser.FieldGender:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gender", values[i])
+			} else if value.Valid {
+				su.Gender = domain.Gender(value.String)
+			}
+		case storeuser.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				su.Email = value.String
+			}
+		case storeuser.FieldPhoneNumber:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field phone_number", values[i])
+			} else if value.Valid {
+				su.PhoneNumber = value.String
+			}
+		case storeuser.FieldEnabled:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field enabled", values[i])
+			} else if value.Valid {
+				su.Enabled = value.Bool
+			}
+		case storeuser.FieldIsSuperadmin:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_superadmin", values[i])
+			} else if value.Valid {
+				su.IsSuperadmin = value.Bool
+			}
 		default:
 			su.selectValues.Set(columns[i], values[i])
 		}
@@ -227,6 +278,24 @@ func (su *StoreUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("store_id=")
 	builder.WriteString(fmt.Sprintf("%v", su.StoreID))
+	builder.WriteString(", ")
+	builder.WriteString("real_name=")
+	builder.WriteString(su.RealName)
+	builder.WriteString(", ")
+	builder.WriteString("gender=")
+	builder.WriteString(fmt.Sprintf("%v", su.Gender))
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(su.Email)
+	builder.WriteString(", ")
+	builder.WriteString("phone_number=")
+	builder.WriteString(su.PhoneNumber)
+	builder.WriteString(", ")
+	builder.WriteString("enabled=")
+	builder.WriteString(fmt.Sprintf("%v", su.Enabled))
+	builder.WriteString(", ")
+	builder.WriteString("is_superadmin=")
+	builder.WriteString(fmt.Sprintf("%v", su.IsSuperadmin))
 	builder.WriteByte(')')
 	return builder.String()
 }

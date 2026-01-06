@@ -941,6 +941,11 @@ func (mu *MerchantUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (mu *MerchantUpdate) check() error {
+	if v, ok := mu.mutation.MerchantCode(); ok {
+		if err := merchant.MerchantCodeValidator(v); err != nil {
+			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
+		}
+	}
 	if v, ok := mu.mutation.MerchantName(); ok {
 		if err := merchant.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_name": %w`, err)}
@@ -954,6 +959,11 @@ func (mu *MerchantUpdate) check() error {
 	if v, ok := mu.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
+		}
+	}
+	if v, ok := mu.mutation.BrandName(); ok {
+		if err := merchant.BrandNameValidator(v); err != nil {
+			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if v, ok := mu.mutation.AdminPhoneNumber(); ok {
@@ -2690,6 +2700,11 @@ func (muo *MerchantUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (muo *MerchantUpdateOne) check() error {
+	if v, ok := muo.mutation.MerchantCode(); ok {
+		if err := merchant.MerchantCodeValidator(v); err != nil {
+			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
+		}
+	}
 	if v, ok := muo.mutation.MerchantName(); ok {
 		if err := merchant.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_name": %w`, err)}
@@ -2703,6 +2718,11 @@ func (muo *MerchantUpdateOne) check() error {
 	if v, ok := muo.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
+		}
+	}
+	if v, ok := muo.mutation.BrandName(); ok {
+		if err := merchant.BrandNameValidator(v); err != nil {
+			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if v, ok := muo.mutation.AdminPhoneNumber(); ok {

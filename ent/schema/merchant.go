@@ -21,16 +21,17 @@ func (Merchant) Fields() []ent.Field {
 		field.String("merchant_code").
 			Optional().
 			Default("").
+			MaxLen(100).
 			Comment("商户编号(保留字段)"),
 		field.String("merchant_name").
 			NotEmpty().
 			Default("").
-			MaxLen(50).
+			MaxLen(100).
 			Comment("商户名称,最长不得超过50个字"),
 		field.String("merchant_short_name").
 			Optional().
 			Default("").
-			MaxLen(50).
+			MaxLen(100).
 			Comment("商户简称"),
 		field.Enum("merchant_type").
 			GoType(domain.MerchantType("")).
@@ -38,6 +39,7 @@ func (Merchant) Fields() []ent.Field {
 		field.String("brand_name").
 			Optional().
 			Default("").
+			MaxLen(100).
 			Comment("品牌名称"),
 		field.String("admin_phone_number").
 			NotEmpty().

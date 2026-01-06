@@ -38,6 +38,11 @@ func (Role) Fields() []ent.Field {
 			Optional().
 			Immutable().
 			Comment("所属门店 ID，若为空则表示为商户级部门"),
+		field.Enum("data_scope").
+			Optional().
+			GoType(domain.RoleDataScopeType("")).
+			Default(string(domain.RoleDataScopeAll)).
+			Comment("数据权限范围(保留字段)"),
 	}
 }
 

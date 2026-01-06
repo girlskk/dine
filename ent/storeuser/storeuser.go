@@ -3,12 +3,14 @@
 package storeuser
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 const (
@@ -32,6 +34,18 @@ const (
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
 	FieldStoreID = "store_id"
+	// FieldRealName holds the string denoting the real_name field in the database.
+	FieldRealName = "real_name"
+	// FieldGender holds the string denoting the gender field in the database.
+	FieldGender = "gender"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldPhoneNumber holds the string denoting the phone_number field in the database.
+	FieldPhoneNumber = "phone_number"
+	// FieldEnabled holds the string denoting the enabled field in the database.
+	FieldEnabled = "enabled"
+	// FieldIsSuperadmin holds the string denoting the is_superadmin field in the database.
+	FieldIsSuperadmin = "is_superadmin"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
 	// EdgeStore holds the string denoting the store edge name in mutations.
@@ -65,6 +79,12 @@ var Columns = []string{
 	FieldNickname,
 	FieldMerchantID,
 	FieldStoreID,
+	FieldRealName,
+	FieldGender,
+	FieldEmail,
+	FieldPhoneNumber,
+	FieldEnabled,
+	FieldIsSuperadmin,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -97,9 +117,29 @@ var (
 	UsernameValidator func(string) error
 	// HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	HashedPasswordValidator func(string) error
+	// RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
+	RealNameValidator func(string) error
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
+	// PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
+	PhoneNumberValidator func(string) error
+	// DefaultEnabled holds the default value on creation for the "enabled" field.
+	DefaultEnabled bool
+	// DefaultIsSuperadmin holds the default value on creation for the "is_superadmin" field.
+	DefaultIsSuperadmin bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// GenderValidator is a validator for the "gender" field enum values. It is called by the builders before save.
+func GenderValidator(ge domain.Gender) error {
+	switch ge {
+	case "male", "female", "other", "unknown":
+		return nil
+	default:
+		return fmt.Errorf("storeuser: invalid enum value for gender field: %q", ge)
+	}
+}
 
 // OrderOption defines the ordering options for the StoreUser queries.
 type OrderOption func(*sql.Selector)
@@ -147,6 +187,36 @@ func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 // ByStoreID orders the results by the store_id field.
 func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStoreID, opts...).ToFunc()
+}
+
+// ByRealName orders the results by the real_name field.
+func ByRealName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRealName, opts...).ToFunc()
+}
+
+// ByGender orders the results by the gender field.
+func ByGender(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGender, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByPhoneNumber orders the results by the phone_number field.
+func ByPhoneNumber(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPhoneNumber, opts...).ToFunc()
+}
+
+// ByEnabled orders the results by the enabled field.
+func ByEnabled(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEnabled, opts...).ToFunc()
+}
+
+// ByIsSuperadmin orders the results by the is_superadmin field.
+func ByIsSuperadmin(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsSuperadmin, opts...).ToFunc()
 }
 
 // ByMerchantField orders the results by merchant field.

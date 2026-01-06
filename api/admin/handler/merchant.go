@@ -93,16 +93,14 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 			LoginAccount:         req.LoginAccount,
 			LoginPassword:        hashPwd,
 		}
-		if req.Address.CountryID != uuid.Nil {
-			createBrandMerchant.Address = &domain.Address{
-				CountryID:  req.Address.CountryID,
-				ProvinceID: req.Address.ProvinceID,
-				CityID:     req.Address.CityID,
-				DistrictID: req.Address.DistrictID,
-				Address:    req.Address.Address,
-				Lng:        req.Address.Lng,
-				Lat:        req.Address.Lat,
-			}
+		createBrandMerchant.Address = &domain.Address{
+			CountryID:  req.Address.CountryID,
+			ProvinceID: req.Address.ProvinceID,
+			CityID:     req.Address.CityID,
+			DistrictID: req.Address.DistrictID,
+			Address:    req.Address.Address,
+			Lng:        req.Address.Lng,
+			Lat:        req.Address.Lat,
 		}
 		err = h.MerchantInteractor.CreateMerchant(ctx, createBrandMerchant)
 		if err != nil {
@@ -274,16 +272,14 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			MerchantLogo:      req.MerchantLogo,
 			Description:       req.Description,
 		}
-		if req.Address.CountryID != uuid.Nil {
-			updateBrandMerchant.Address = &domain.Address{
-				CountryID:  req.Address.CountryID,
-				ProvinceID: req.Address.ProvinceID,
-				CityID:     req.Address.CityID,
-				DistrictID: req.Address.DistrictID,
-				Address:    req.Address.Address,
-				Lng:        req.Address.Lng,
-				Lat:        req.Address.Lat,
-			}
+		updateBrandMerchant.Address = &domain.Address{
+			CountryID:  req.Address.CountryID,
+			ProvinceID: req.Address.ProvinceID,
+			CityID:     req.Address.CityID,
+			DistrictID: req.Address.DistrictID,
+			Address:    req.Address.Address,
+			Lng:        req.Address.Lng,
+			Lat:        req.Address.Lat,
 		}
 
 		err = h.MerchantInteractor.UpdateMerchant(ctx, updateBrandMerchant)

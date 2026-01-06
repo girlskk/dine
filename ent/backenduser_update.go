@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -98,6 +99,102 @@ func (buu *BackendUserUpdate) SetNillableNickname(s *string) *BackendUserUpdate 
 	return buu
 }
 
+// SetRealName sets the "real_name" field.
+func (buu *BackendUserUpdate) SetRealName(s string) *BackendUserUpdate {
+	buu.mutation.SetRealName(s)
+	return buu
+}
+
+// SetNillableRealName sets the "real_name" field if the given value is not nil.
+func (buu *BackendUserUpdate) SetNillableRealName(s *string) *BackendUserUpdate {
+	if s != nil {
+		buu.SetRealName(*s)
+	}
+	return buu
+}
+
+// SetGender sets the "gender" field.
+func (buu *BackendUserUpdate) SetGender(d domain.Gender) *BackendUserUpdate {
+	buu.mutation.SetGender(d)
+	return buu
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (buu *BackendUserUpdate) SetNillableGender(d *domain.Gender) *BackendUserUpdate {
+	if d != nil {
+		buu.SetGender(*d)
+	}
+	return buu
+}
+
+// SetEmail sets the "email" field.
+func (buu *BackendUserUpdate) SetEmail(s string) *BackendUserUpdate {
+	buu.mutation.SetEmail(s)
+	return buu
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (buu *BackendUserUpdate) SetNillableEmail(s *string) *BackendUserUpdate {
+	if s != nil {
+		buu.SetEmail(*s)
+	}
+	return buu
+}
+
+// ClearEmail clears the value of the "email" field.
+func (buu *BackendUserUpdate) ClearEmail() *BackendUserUpdate {
+	buu.mutation.ClearEmail()
+	return buu
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (buu *BackendUserUpdate) SetPhoneNumber(s string) *BackendUserUpdate {
+	buu.mutation.SetPhoneNumber(s)
+	return buu
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (buu *BackendUserUpdate) SetNillablePhoneNumber(s *string) *BackendUserUpdate {
+	if s != nil {
+		buu.SetPhoneNumber(*s)
+	}
+	return buu
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (buu *BackendUserUpdate) ClearPhoneNumber() *BackendUserUpdate {
+	buu.mutation.ClearPhoneNumber()
+	return buu
+}
+
+// SetEnabled sets the "enabled" field.
+func (buu *BackendUserUpdate) SetEnabled(b bool) *BackendUserUpdate {
+	buu.mutation.SetEnabled(b)
+	return buu
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (buu *BackendUserUpdate) SetNillableEnabled(b *bool) *BackendUserUpdate {
+	if b != nil {
+		buu.SetEnabled(*b)
+	}
+	return buu
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (buu *BackendUserUpdate) SetIsSuperadmin(b bool) *BackendUserUpdate {
+	buu.mutation.SetIsSuperadmin(b)
+	return buu
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (buu *BackendUserUpdate) SetNillableIsSuperadmin(b *bool) *BackendUserUpdate {
+	if b != nil {
+		buu.SetIsSuperadmin(*b)
+	}
+	return buu
+}
+
 // Mutation returns the BackendUserMutation object of the builder.
 func (buu *BackendUserUpdate) Mutation() *BackendUserMutation {
 	return buu.mutation
@@ -157,6 +254,29 @@ func (buu *BackendUserUpdate) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "BackendUser.hashed_password": %w`, err)}
 		}
 	}
+	if v, ok := buu.mutation.RealName(); ok {
+		if err := backenduser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "BackendUser.real_name": %w`, err)}
+		}
+	}
+	if v, ok := buu.mutation.Gender(); ok {
+		if err := backenduser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "BackendUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := buu.mutation.Email(); ok {
+		if err := backenduser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "BackendUser.email": %w`, err)}
+		}
+	}
+	if v, ok := buu.mutation.PhoneNumber(); ok {
+		if err := backenduser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "BackendUser.phone_number": %w`, err)}
+		}
+	}
+	if buu.mutation.MerchantCleared() && len(buu.mutation.MerchantIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "BackendUser.merchant"`)
+	}
 	return nil
 }
 
@@ -195,6 +315,30 @@ func (buu *BackendUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := buu.mutation.Nickname(); ok {
 		_spec.SetField(backenduser.FieldNickname, field.TypeString, value)
+	}
+	if value, ok := buu.mutation.RealName(); ok {
+		_spec.SetField(backenduser.FieldRealName, field.TypeString, value)
+	}
+	if value, ok := buu.mutation.Gender(); ok {
+		_spec.SetField(backenduser.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := buu.mutation.Email(); ok {
+		_spec.SetField(backenduser.FieldEmail, field.TypeString, value)
+	}
+	if buu.mutation.EmailCleared() {
+		_spec.ClearField(backenduser.FieldEmail, field.TypeString)
+	}
+	if value, ok := buu.mutation.PhoneNumber(); ok {
+		_spec.SetField(backenduser.FieldPhoneNumber, field.TypeString, value)
+	}
+	if buu.mutation.PhoneNumberCleared() {
+		_spec.ClearField(backenduser.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := buu.mutation.Enabled(); ok {
+		_spec.SetField(backenduser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := buu.mutation.IsSuperadmin(); ok {
+		_spec.SetField(backenduser.FieldIsSuperadmin, field.TypeBool, value)
 	}
 	_spec.AddModifiers(buu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, buu.driver, _spec); err != nil {
@@ -287,6 +431,102 @@ func (buuo *BackendUserUpdateOne) SetNillableNickname(s *string) *BackendUserUpd
 	return buuo
 }
 
+// SetRealName sets the "real_name" field.
+func (buuo *BackendUserUpdateOne) SetRealName(s string) *BackendUserUpdateOne {
+	buuo.mutation.SetRealName(s)
+	return buuo
+}
+
+// SetNillableRealName sets the "real_name" field if the given value is not nil.
+func (buuo *BackendUserUpdateOne) SetNillableRealName(s *string) *BackendUserUpdateOne {
+	if s != nil {
+		buuo.SetRealName(*s)
+	}
+	return buuo
+}
+
+// SetGender sets the "gender" field.
+func (buuo *BackendUserUpdateOne) SetGender(d domain.Gender) *BackendUserUpdateOne {
+	buuo.mutation.SetGender(d)
+	return buuo
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (buuo *BackendUserUpdateOne) SetNillableGender(d *domain.Gender) *BackendUserUpdateOne {
+	if d != nil {
+		buuo.SetGender(*d)
+	}
+	return buuo
+}
+
+// SetEmail sets the "email" field.
+func (buuo *BackendUserUpdateOne) SetEmail(s string) *BackendUserUpdateOne {
+	buuo.mutation.SetEmail(s)
+	return buuo
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (buuo *BackendUserUpdateOne) SetNillableEmail(s *string) *BackendUserUpdateOne {
+	if s != nil {
+		buuo.SetEmail(*s)
+	}
+	return buuo
+}
+
+// ClearEmail clears the value of the "email" field.
+func (buuo *BackendUserUpdateOne) ClearEmail() *BackendUserUpdateOne {
+	buuo.mutation.ClearEmail()
+	return buuo
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (buuo *BackendUserUpdateOne) SetPhoneNumber(s string) *BackendUserUpdateOne {
+	buuo.mutation.SetPhoneNumber(s)
+	return buuo
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (buuo *BackendUserUpdateOne) SetNillablePhoneNumber(s *string) *BackendUserUpdateOne {
+	if s != nil {
+		buuo.SetPhoneNumber(*s)
+	}
+	return buuo
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (buuo *BackendUserUpdateOne) ClearPhoneNumber() *BackendUserUpdateOne {
+	buuo.mutation.ClearPhoneNumber()
+	return buuo
+}
+
+// SetEnabled sets the "enabled" field.
+func (buuo *BackendUserUpdateOne) SetEnabled(b bool) *BackendUserUpdateOne {
+	buuo.mutation.SetEnabled(b)
+	return buuo
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (buuo *BackendUserUpdateOne) SetNillableEnabled(b *bool) *BackendUserUpdateOne {
+	if b != nil {
+		buuo.SetEnabled(*b)
+	}
+	return buuo
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (buuo *BackendUserUpdateOne) SetIsSuperadmin(b bool) *BackendUserUpdateOne {
+	buuo.mutation.SetIsSuperadmin(b)
+	return buuo
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (buuo *BackendUserUpdateOne) SetNillableIsSuperadmin(b *bool) *BackendUserUpdateOne {
+	if b != nil {
+		buuo.SetIsSuperadmin(*b)
+	}
+	return buuo
+}
+
 // Mutation returns the BackendUserMutation object of the builder.
 func (buuo *BackendUserUpdateOne) Mutation() *BackendUserMutation {
 	return buuo.mutation
@@ -359,6 +599,29 @@ func (buuo *BackendUserUpdateOne) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "BackendUser.hashed_password": %w`, err)}
 		}
 	}
+	if v, ok := buuo.mutation.RealName(); ok {
+		if err := backenduser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "BackendUser.real_name": %w`, err)}
+		}
+	}
+	if v, ok := buuo.mutation.Gender(); ok {
+		if err := backenduser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "BackendUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := buuo.mutation.Email(); ok {
+		if err := backenduser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "BackendUser.email": %w`, err)}
+		}
+	}
+	if v, ok := buuo.mutation.PhoneNumber(); ok {
+		if err := backenduser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "BackendUser.phone_number": %w`, err)}
+		}
+	}
+	if buuo.mutation.MerchantCleared() && len(buuo.mutation.MerchantIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "BackendUser.merchant"`)
+	}
 	return nil
 }
 
@@ -414,6 +677,30 @@ func (buuo *BackendUserUpdateOne) sqlSave(ctx context.Context) (_node *BackendUs
 	}
 	if value, ok := buuo.mutation.Nickname(); ok {
 		_spec.SetField(backenduser.FieldNickname, field.TypeString, value)
+	}
+	if value, ok := buuo.mutation.RealName(); ok {
+		_spec.SetField(backenduser.FieldRealName, field.TypeString, value)
+	}
+	if value, ok := buuo.mutation.Gender(); ok {
+		_spec.SetField(backenduser.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := buuo.mutation.Email(); ok {
+		_spec.SetField(backenduser.FieldEmail, field.TypeString, value)
+	}
+	if buuo.mutation.EmailCleared() {
+		_spec.ClearField(backenduser.FieldEmail, field.TypeString)
+	}
+	if value, ok := buuo.mutation.PhoneNumber(); ok {
+		_spec.SetField(backenduser.FieldPhoneNumber, field.TypeString, value)
+	}
+	if buuo.mutation.PhoneNumberCleared() {
+		_spec.ClearField(backenduser.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := buuo.mutation.Enabled(); ok {
+		_spec.SetField(backenduser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := buuo.mutation.IsSuperadmin(); ok {
+		_spec.SetField(backenduser.FieldIsSuperadmin, field.TypeBool, value)
 	}
 	_spec.AddModifiers(buuo.modifiers...)
 	_node = &BackendUser{config: buuo.config}

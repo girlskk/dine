@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
@@ -98,6 +99,102 @@ func (suu *StoreUserUpdate) SetNillableNickname(s *string) *StoreUserUpdate {
 	return suu
 }
 
+// SetRealName sets the "real_name" field.
+func (suu *StoreUserUpdate) SetRealName(s string) *StoreUserUpdate {
+	suu.mutation.SetRealName(s)
+	return suu
+}
+
+// SetNillableRealName sets the "real_name" field if the given value is not nil.
+func (suu *StoreUserUpdate) SetNillableRealName(s *string) *StoreUserUpdate {
+	if s != nil {
+		suu.SetRealName(*s)
+	}
+	return suu
+}
+
+// SetGender sets the "gender" field.
+func (suu *StoreUserUpdate) SetGender(d domain.Gender) *StoreUserUpdate {
+	suu.mutation.SetGender(d)
+	return suu
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (suu *StoreUserUpdate) SetNillableGender(d *domain.Gender) *StoreUserUpdate {
+	if d != nil {
+		suu.SetGender(*d)
+	}
+	return suu
+}
+
+// SetEmail sets the "email" field.
+func (suu *StoreUserUpdate) SetEmail(s string) *StoreUserUpdate {
+	suu.mutation.SetEmail(s)
+	return suu
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (suu *StoreUserUpdate) SetNillableEmail(s *string) *StoreUserUpdate {
+	if s != nil {
+		suu.SetEmail(*s)
+	}
+	return suu
+}
+
+// ClearEmail clears the value of the "email" field.
+func (suu *StoreUserUpdate) ClearEmail() *StoreUserUpdate {
+	suu.mutation.ClearEmail()
+	return suu
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (suu *StoreUserUpdate) SetPhoneNumber(s string) *StoreUserUpdate {
+	suu.mutation.SetPhoneNumber(s)
+	return suu
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (suu *StoreUserUpdate) SetNillablePhoneNumber(s *string) *StoreUserUpdate {
+	if s != nil {
+		suu.SetPhoneNumber(*s)
+	}
+	return suu
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (suu *StoreUserUpdate) ClearPhoneNumber() *StoreUserUpdate {
+	suu.mutation.ClearPhoneNumber()
+	return suu
+}
+
+// SetEnabled sets the "enabled" field.
+func (suu *StoreUserUpdate) SetEnabled(b bool) *StoreUserUpdate {
+	suu.mutation.SetEnabled(b)
+	return suu
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (suu *StoreUserUpdate) SetNillableEnabled(b *bool) *StoreUserUpdate {
+	if b != nil {
+		suu.SetEnabled(*b)
+	}
+	return suu
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (suu *StoreUserUpdate) SetIsSuperadmin(b bool) *StoreUserUpdate {
+	suu.mutation.SetIsSuperadmin(b)
+	return suu
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (suu *StoreUserUpdate) SetNillableIsSuperadmin(b *bool) *StoreUserUpdate {
+	if b != nil {
+		suu.SetIsSuperadmin(*b)
+	}
+	return suu
+}
+
 // Mutation returns the StoreUserMutation object of the builder.
 func (suu *StoreUserUpdate) Mutation() *StoreUserMutation {
 	return suu.mutation
@@ -157,6 +254,26 @@ func (suu *StoreUserUpdate) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "StoreUser.hashed_password": %w`, err)}
 		}
 	}
+	if v, ok := suu.mutation.RealName(); ok {
+		if err := storeuser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "StoreUser.real_name": %w`, err)}
+		}
+	}
+	if v, ok := suu.mutation.Gender(); ok {
+		if err := storeuser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "StoreUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := suu.mutation.Email(); ok {
+		if err := storeuser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "StoreUser.email": %w`, err)}
+		}
+	}
+	if v, ok := suu.mutation.PhoneNumber(); ok {
+		if err := storeuser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "StoreUser.phone_number": %w`, err)}
+		}
+	}
 	if suu.mutation.MerchantCleared() && len(suu.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.merchant"`)
 	}
@@ -201,6 +318,30 @@ func (suu *StoreUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := suu.mutation.Nickname(); ok {
 		_spec.SetField(storeuser.FieldNickname, field.TypeString, value)
+	}
+	if value, ok := suu.mutation.RealName(); ok {
+		_spec.SetField(storeuser.FieldRealName, field.TypeString, value)
+	}
+	if value, ok := suu.mutation.Gender(); ok {
+		_spec.SetField(storeuser.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := suu.mutation.Email(); ok {
+		_spec.SetField(storeuser.FieldEmail, field.TypeString, value)
+	}
+	if suu.mutation.EmailCleared() {
+		_spec.ClearField(storeuser.FieldEmail, field.TypeString)
+	}
+	if value, ok := suu.mutation.PhoneNumber(); ok {
+		_spec.SetField(storeuser.FieldPhoneNumber, field.TypeString, value)
+	}
+	if suu.mutation.PhoneNumberCleared() {
+		_spec.ClearField(storeuser.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := suu.mutation.Enabled(); ok {
+		_spec.SetField(storeuser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := suu.mutation.IsSuperadmin(); ok {
+		_spec.SetField(storeuser.FieldIsSuperadmin, field.TypeBool, value)
 	}
 	_spec.AddModifiers(suu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, suu.driver, _spec); err != nil {
@@ -293,6 +434,102 @@ func (suuo *StoreUserUpdateOne) SetNillableNickname(s *string) *StoreUserUpdateO
 	return suuo
 }
 
+// SetRealName sets the "real_name" field.
+func (suuo *StoreUserUpdateOne) SetRealName(s string) *StoreUserUpdateOne {
+	suuo.mutation.SetRealName(s)
+	return suuo
+}
+
+// SetNillableRealName sets the "real_name" field if the given value is not nil.
+func (suuo *StoreUserUpdateOne) SetNillableRealName(s *string) *StoreUserUpdateOne {
+	if s != nil {
+		suuo.SetRealName(*s)
+	}
+	return suuo
+}
+
+// SetGender sets the "gender" field.
+func (suuo *StoreUserUpdateOne) SetGender(d domain.Gender) *StoreUserUpdateOne {
+	suuo.mutation.SetGender(d)
+	return suuo
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (suuo *StoreUserUpdateOne) SetNillableGender(d *domain.Gender) *StoreUserUpdateOne {
+	if d != nil {
+		suuo.SetGender(*d)
+	}
+	return suuo
+}
+
+// SetEmail sets the "email" field.
+func (suuo *StoreUserUpdateOne) SetEmail(s string) *StoreUserUpdateOne {
+	suuo.mutation.SetEmail(s)
+	return suuo
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (suuo *StoreUserUpdateOne) SetNillableEmail(s *string) *StoreUserUpdateOne {
+	if s != nil {
+		suuo.SetEmail(*s)
+	}
+	return suuo
+}
+
+// ClearEmail clears the value of the "email" field.
+func (suuo *StoreUserUpdateOne) ClearEmail() *StoreUserUpdateOne {
+	suuo.mutation.ClearEmail()
+	return suuo
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (suuo *StoreUserUpdateOne) SetPhoneNumber(s string) *StoreUserUpdateOne {
+	suuo.mutation.SetPhoneNumber(s)
+	return suuo
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (suuo *StoreUserUpdateOne) SetNillablePhoneNumber(s *string) *StoreUserUpdateOne {
+	if s != nil {
+		suuo.SetPhoneNumber(*s)
+	}
+	return suuo
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (suuo *StoreUserUpdateOne) ClearPhoneNumber() *StoreUserUpdateOne {
+	suuo.mutation.ClearPhoneNumber()
+	return suuo
+}
+
+// SetEnabled sets the "enabled" field.
+func (suuo *StoreUserUpdateOne) SetEnabled(b bool) *StoreUserUpdateOne {
+	suuo.mutation.SetEnabled(b)
+	return suuo
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (suuo *StoreUserUpdateOne) SetNillableEnabled(b *bool) *StoreUserUpdateOne {
+	if b != nil {
+		suuo.SetEnabled(*b)
+	}
+	return suuo
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (suuo *StoreUserUpdateOne) SetIsSuperadmin(b bool) *StoreUserUpdateOne {
+	suuo.mutation.SetIsSuperadmin(b)
+	return suuo
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (suuo *StoreUserUpdateOne) SetNillableIsSuperadmin(b *bool) *StoreUserUpdateOne {
+	if b != nil {
+		suuo.SetIsSuperadmin(*b)
+	}
+	return suuo
+}
+
 // Mutation returns the StoreUserMutation object of the builder.
 func (suuo *StoreUserUpdateOne) Mutation() *StoreUserMutation {
 	return suuo.mutation
@@ -365,6 +602,26 @@ func (suuo *StoreUserUpdateOne) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "StoreUser.hashed_password": %w`, err)}
 		}
 	}
+	if v, ok := suuo.mutation.RealName(); ok {
+		if err := storeuser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "StoreUser.real_name": %w`, err)}
+		}
+	}
+	if v, ok := suuo.mutation.Gender(); ok {
+		if err := storeuser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "StoreUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := suuo.mutation.Email(); ok {
+		if err := storeuser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "StoreUser.email": %w`, err)}
+		}
+	}
+	if v, ok := suuo.mutation.PhoneNumber(); ok {
+		if err := storeuser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "StoreUser.phone_number": %w`, err)}
+		}
+	}
 	if suuo.mutation.MerchantCleared() && len(suuo.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.merchant"`)
 	}
@@ -426,6 +683,30 @@ func (suuo *StoreUserUpdateOne) sqlSave(ctx context.Context) (_node *StoreUser, 
 	}
 	if value, ok := suuo.mutation.Nickname(); ok {
 		_spec.SetField(storeuser.FieldNickname, field.TypeString, value)
+	}
+	if value, ok := suuo.mutation.RealName(); ok {
+		_spec.SetField(storeuser.FieldRealName, field.TypeString, value)
+	}
+	if value, ok := suuo.mutation.Gender(); ok {
+		_spec.SetField(storeuser.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := suuo.mutation.Email(); ok {
+		_spec.SetField(storeuser.FieldEmail, field.TypeString, value)
+	}
+	if suuo.mutation.EmailCleared() {
+		_spec.ClearField(storeuser.FieldEmail, field.TypeString)
+	}
+	if value, ok := suuo.mutation.PhoneNumber(); ok {
+		_spec.SetField(storeuser.FieldPhoneNumber, field.TypeString, value)
+	}
+	if suuo.mutation.PhoneNumberCleared() {
+		_spec.ClearField(storeuser.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := suuo.mutation.Enabled(); ok {
+		_spec.SetField(storeuser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := suuo.mutation.IsSuperadmin(); ok {
+		_spec.SetField(storeuser.FieldIsSuperadmin, field.TypeBool, value)
 	}
 	_spec.AddModifiers(suuo.modifiers...)
 	_node = &StoreUser{config: suuo.config}
