@@ -1030,14 +1030,6 @@ func init() {
 	paymentmethodDescDeletedAt := paymentmethodMixinFields2[0].Descriptor()
 	// paymentmethod.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	paymentmethod.DefaultDeletedAt = paymentmethodDescDeletedAt.Default.(int64)
-	// paymentmethodDescSourcePaymentMethodID is the schema descriptor for source_payment_method_id field.
-	paymentmethodDescSourcePaymentMethodID := paymentmethodFields[0].Descriptor()
-	// paymentmethod.DefaultSourcePaymentMethodID holds the default value on creation for the source_payment_method_id field.
-	paymentmethod.DefaultSourcePaymentMethodID = paymentmethodDescSourcePaymentMethodID.Default.(func() uuid.UUID)
-	// paymentmethodDescStoreID is the schema descriptor for store_id field.
-	paymentmethodDescStoreID := paymentmethodFields[2].Descriptor()
-	// paymentmethod.DefaultStoreID holds the default value on creation for the store_id field.
-	paymentmethod.DefaultStoreID = paymentmethodDescStoreID.Default.(func() uuid.UUID)
 	// paymentmethodDescName is the schema descriptor for name field.
 	paymentmethodDescName := paymentmethodFields[3].Descriptor()
 	// paymentmethod.NameValidator is a validator for the "name" field. It is called by the builders before save.

@@ -22297,9 +22297,22 @@ func (m *PaymentMethodMutation) OldSourcePaymentMethodID(ctx context.Context) (v
 	return oldValue.SourcePaymentMethodID, nil
 }
 
+// ClearSourcePaymentMethodID clears the value of the "source_payment_method_id" field.
+func (m *PaymentMethodMutation) ClearSourcePaymentMethodID() {
+	m.source_payment_method_id = nil
+	m.clearedFields[paymentmethod.FieldSourcePaymentMethodID] = struct{}{}
+}
+
+// SourcePaymentMethodIDCleared returns if the "source_payment_method_id" field was cleared in this mutation.
+func (m *PaymentMethodMutation) SourcePaymentMethodIDCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldSourcePaymentMethodID]
+	return ok
+}
+
 // ResetSourcePaymentMethodID resets all changes to the "source_payment_method_id" field.
 func (m *PaymentMethodMutation) ResetSourcePaymentMethodID() {
 	m.source_payment_method_id = nil
+	delete(m.clearedFields, paymentmethod.FieldSourcePaymentMethodID)
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -22369,9 +22382,22 @@ func (m *PaymentMethodMutation) OldStoreID(ctx context.Context) (v uuid.UUID, er
 	return oldValue.StoreID, nil
 }
 
+// ClearStoreID clears the value of the "store_id" field.
+func (m *PaymentMethodMutation) ClearStoreID() {
+	m.store_id = nil
+	m.clearedFields[paymentmethod.FieldStoreID] = struct{}{}
+}
+
+// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
+func (m *PaymentMethodMutation) StoreIDCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldStoreID]
+	return ok
+}
+
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *PaymentMethodMutation) ResetStoreID() {
 	m.store_id = nil
+	delete(m.clearedFields, paymentmethod.FieldStoreID)
 }
 
 // SetName sets the "name" field.
@@ -22661,10 +22687,24 @@ func (m *PaymentMethodMutation) AppendedDisplayChannels() ([]domain.PaymentMetho
 	return m.appenddisplay_channels, true
 }
 
+// ClearDisplayChannels clears the value of the "display_channels" field.
+func (m *PaymentMethodMutation) ClearDisplayChannels() {
+	m.display_channels = nil
+	m.appenddisplay_channels = nil
+	m.clearedFields[paymentmethod.FieldDisplayChannels] = struct{}{}
+}
+
+// DisplayChannelsCleared returns if the "display_channels" field was cleared in this mutation.
+func (m *PaymentMethodMutation) DisplayChannelsCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldDisplayChannels]
+	return ok
+}
+
 // ResetDisplayChannels resets all changes to the "display_channels" field.
 func (m *PaymentMethodMutation) ResetDisplayChannels() {
 	m.display_channels = nil
 	m.appenddisplay_channels = nil
+	delete(m.clearedFields, paymentmethod.FieldDisplayChannels)
 }
 
 // SetSource sets the "source" field.
@@ -22698,9 +22738,22 @@ func (m *PaymentMethodMutation) OldSource(ctx context.Context) (v domain.Payment
 	return oldValue.Source, nil
 }
 
+// ClearSource clears the value of the "source" field.
+func (m *PaymentMethodMutation) ClearSource() {
+	m.source = nil
+	m.clearedFields[paymentmethod.FieldSource] = struct{}{}
+}
+
+// SourceCleared returns if the "source" field was cleared in this mutation.
+func (m *PaymentMethodMutation) SourceCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldSource]
+	return ok
+}
+
 // ResetSource resets all changes to the "source" field.
 func (m *PaymentMethodMutation) ResetSource() {
 	m.source = nil
+	delete(m.clearedFields, paymentmethod.FieldSource)
 }
 
 // SetStatus sets the "status" field.
@@ -23055,11 +23108,23 @@ func (m *PaymentMethodMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *PaymentMethodMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(paymentmethod.FieldSourcePaymentMethodID) {
+		fields = append(fields, paymentmethod.FieldSourcePaymentMethodID)
+	}
+	if m.FieldCleared(paymentmethod.FieldStoreID) {
+		fields = append(fields, paymentmethod.FieldStoreID)
+	}
 	if m.FieldCleared(paymentmethod.FieldFeeRate) {
 		fields = append(fields, paymentmethod.FieldFeeRate)
 	}
 	if m.FieldCleared(paymentmethod.FieldInvoiceRule) {
 		fields = append(fields, paymentmethod.FieldInvoiceRule)
+	}
+	if m.FieldCleared(paymentmethod.FieldDisplayChannels) {
+		fields = append(fields, paymentmethod.FieldDisplayChannels)
+	}
+	if m.FieldCleared(paymentmethod.FieldSource) {
+		fields = append(fields, paymentmethod.FieldSource)
 	}
 	return fields
 }
@@ -23075,11 +23140,23 @@ func (m *PaymentMethodMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *PaymentMethodMutation) ClearField(name string) error {
 	switch name {
+	case paymentmethod.FieldSourcePaymentMethodID:
+		m.ClearSourcePaymentMethodID()
+		return nil
+	case paymentmethod.FieldStoreID:
+		m.ClearStoreID()
+		return nil
 	case paymentmethod.FieldFeeRate:
 		m.ClearFeeRate()
 		return nil
 	case paymentmethod.FieldInvoiceRule:
 		m.ClearInvoiceRule()
+		return nil
+	case paymentmethod.FieldDisplayChannels:
+		m.ClearDisplayChannels()
+		return nil
+	case paymentmethod.FieldSource:
+		m.ClearSource()
 		return nil
 	}
 	return fmt.Errorf("unknown PaymentMethod nullable field %s", name)

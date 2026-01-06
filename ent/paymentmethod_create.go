@@ -281,20 +281,6 @@ func (pmc *PaymentMethodCreate) defaults() error {
 		v := paymentmethod.DefaultDeletedAt
 		pmc.mutation.SetDeletedAt(v)
 	}
-	if _, ok := pmc.mutation.SourcePaymentMethodID(); !ok {
-		if paymentmethod.DefaultSourcePaymentMethodID == nil {
-			return fmt.Errorf("ent: uninitialized paymentmethod.DefaultSourcePaymentMethodID (forgotten import ent/runtime?)")
-		}
-		v := paymentmethod.DefaultSourcePaymentMethodID()
-		pmc.mutation.SetSourcePaymentMethodID(v)
-	}
-	if _, ok := pmc.mutation.StoreID(); !ok {
-		if paymentmethod.DefaultStoreID == nil {
-			return fmt.Errorf("ent: uninitialized paymentmethod.DefaultStoreID (forgotten import ent/runtime?)")
-		}
-		v := paymentmethod.DefaultStoreID()
-		pmc.mutation.SetStoreID(v)
-	}
 	if _, ok := pmc.mutation.AccountingRule(); !ok {
 		v := paymentmethod.DefaultAccountingRule
 		pmc.mutation.SetAccountingRule(v)
@@ -306,10 +292,6 @@ func (pmc *PaymentMethodCreate) defaults() error {
 	if _, ok := pmc.mutation.CashDrawerStatus(); !ok {
 		v := paymentmethod.DefaultCashDrawerStatus
 		pmc.mutation.SetCashDrawerStatus(v)
-	}
-	if _, ok := pmc.mutation.Source(); !ok {
-		v := paymentmethod.DefaultSource
-		pmc.mutation.SetSource(v)
 	}
 	if _, ok := pmc.mutation.Status(); !ok {
 		v := paymentmethod.DefaultStatus
@@ -336,14 +318,8 @@ func (pmc *PaymentMethodCreate) check() error {
 	if _, ok := pmc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "PaymentMethod.deleted_at"`)}
 	}
-	if _, ok := pmc.mutation.SourcePaymentMethodID(); !ok {
-		return &ValidationError{Name: "source_payment_method_id", err: errors.New(`ent: missing required field "PaymentMethod.source_payment_method_id"`)}
-	}
 	if _, ok := pmc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "PaymentMethod.merchant_id"`)}
-	}
-	if _, ok := pmc.mutation.StoreID(); !ok {
-		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "PaymentMethod.store_id"`)}
 	}
 	if _, ok := pmc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "PaymentMethod.name"`)}
@@ -376,12 +352,6 @@ func (pmc *PaymentMethodCreate) check() error {
 	}
 	if _, ok := pmc.mutation.CashDrawerStatus(); !ok {
 		return &ValidationError{Name: "cash_drawer_status", err: errors.New(`ent: missing required field "PaymentMethod.cash_drawer_status"`)}
-	}
-	if _, ok := pmc.mutation.DisplayChannels(); !ok {
-		return &ValidationError{Name: "display_channels", err: errors.New(`ent: missing required field "PaymentMethod.display_channels"`)}
-	}
-	if _, ok := pmc.mutation.Source(); !ok {
-		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "PaymentMethod.source"`)}
 	}
 	if v, ok := pmc.mutation.Source(); ok {
 		if err := paymentmethod.SourceValidator(v); err != nil {
@@ -569,6 +539,42 @@ func (u *PaymentMethodUpsert) AddDeletedAt(v int64) *PaymentMethodUpsert {
 	return u
 }
 
+// SetSourcePaymentMethodID sets the "source_payment_method_id" field.
+func (u *PaymentMethodUpsert) SetSourcePaymentMethodID(v uuid.UUID) *PaymentMethodUpsert {
+	u.Set(paymentmethod.FieldSourcePaymentMethodID, v)
+	return u
+}
+
+// UpdateSourcePaymentMethodID sets the "source_payment_method_id" field to the value that was provided on create.
+func (u *PaymentMethodUpsert) UpdateSourcePaymentMethodID() *PaymentMethodUpsert {
+	u.SetExcluded(paymentmethod.FieldSourcePaymentMethodID)
+	return u
+}
+
+// ClearSourcePaymentMethodID clears the value of the "source_payment_method_id" field.
+func (u *PaymentMethodUpsert) ClearSourcePaymentMethodID() *PaymentMethodUpsert {
+	u.SetNull(paymentmethod.FieldSourcePaymentMethodID)
+	return u
+}
+
+// SetStoreID sets the "store_id" field.
+func (u *PaymentMethodUpsert) SetStoreID(v uuid.UUID) *PaymentMethodUpsert {
+	u.Set(paymentmethod.FieldStoreID, v)
+	return u
+}
+
+// UpdateStoreID sets the "store_id" field to the value that was provided on create.
+func (u *PaymentMethodUpsert) UpdateStoreID() *PaymentMethodUpsert {
+	u.SetExcluded(paymentmethod.FieldStoreID)
+	return u
+}
+
+// ClearStoreID clears the value of the "store_id" field.
+func (u *PaymentMethodUpsert) ClearStoreID() *PaymentMethodUpsert {
+	u.SetNull(paymentmethod.FieldStoreID)
+	return u
+}
+
 // SetName sets the "name" field.
 func (u *PaymentMethodUpsert) SetName(v string) *PaymentMethodUpsert {
 	u.Set(paymentmethod.FieldName, v)
@@ -665,6 +671,12 @@ func (u *PaymentMethodUpsert) UpdateDisplayChannels() *PaymentMethodUpsert {
 	return u
 }
 
+// ClearDisplayChannels clears the value of the "display_channels" field.
+func (u *PaymentMethodUpsert) ClearDisplayChannels() *PaymentMethodUpsert {
+	u.SetNull(paymentmethod.FieldDisplayChannels)
+	return u
+}
+
 // SetSource sets the "source" field.
 func (u *PaymentMethodUpsert) SetSource(v domain.PaymentMethodSource) *PaymentMethodUpsert {
 	u.Set(paymentmethod.FieldSource, v)
@@ -674,6 +686,12 @@ func (u *PaymentMethodUpsert) SetSource(v domain.PaymentMethodSource) *PaymentMe
 // UpdateSource sets the "source" field to the value that was provided on create.
 func (u *PaymentMethodUpsert) UpdateSource() *PaymentMethodUpsert {
 	u.SetExcluded(paymentmethod.FieldSource)
+	return u
+}
+
+// ClearSource clears the value of the "source" field.
+func (u *PaymentMethodUpsert) ClearSource() *PaymentMethodUpsert {
+	u.SetNull(paymentmethod.FieldSource)
 	return u
 }
 
@@ -709,14 +727,8 @@ func (u *PaymentMethodUpsertOne) UpdateNewValues() *PaymentMethodUpsertOne {
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(paymentmethod.FieldCreatedAt)
 		}
-		if _, exists := u.create.mutation.SourcePaymentMethodID(); exists {
-			s.SetIgnore(paymentmethod.FieldSourcePaymentMethodID)
-		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(paymentmethod.FieldMerchantID)
-		}
-		if _, exists := u.create.mutation.StoreID(); exists {
-			s.SetIgnore(paymentmethod.FieldStoreID)
 		}
 	}))
 	return u
@@ -781,6 +793,48 @@ func (u *PaymentMethodUpsertOne) AddDeletedAt(v int64) *PaymentMethodUpsertOne {
 func (u *PaymentMethodUpsertOne) UpdateDeletedAt() *PaymentMethodUpsertOne {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetSourcePaymentMethodID sets the "source_payment_method_id" field.
+func (u *PaymentMethodUpsertOne) SetSourcePaymentMethodID(v uuid.UUID) *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetSourcePaymentMethodID(v)
+	})
+}
+
+// UpdateSourcePaymentMethodID sets the "source_payment_method_id" field to the value that was provided on create.
+func (u *PaymentMethodUpsertOne) UpdateSourcePaymentMethodID() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateSourcePaymentMethodID()
+	})
+}
+
+// ClearSourcePaymentMethodID clears the value of the "source_payment_method_id" field.
+func (u *PaymentMethodUpsertOne) ClearSourcePaymentMethodID() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearSourcePaymentMethodID()
+	})
+}
+
+// SetStoreID sets the "store_id" field.
+func (u *PaymentMethodUpsertOne) SetStoreID(v uuid.UUID) *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetStoreID(v)
+	})
+}
+
+// UpdateStoreID sets the "store_id" field to the value that was provided on create.
+func (u *PaymentMethodUpsertOne) UpdateStoreID() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateStoreID()
+	})
+}
+
+// ClearStoreID clears the value of the "store_id" field.
+func (u *PaymentMethodUpsertOne) ClearStoreID() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearStoreID()
 	})
 }
 
@@ -896,6 +950,13 @@ func (u *PaymentMethodUpsertOne) UpdateDisplayChannels() *PaymentMethodUpsertOne
 	})
 }
 
+// ClearDisplayChannels clears the value of the "display_channels" field.
+func (u *PaymentMethodUpsertOne) ClearDisplayChannels() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearDisplayChannels()
+	})
+}
+
 // SetSource sets the "source" field.
 func (u *PaymentMethodUpsertOne) SetSource(v domain.PaymentMethodSource) *PaymentMethodUpsertOne {
 	return u.Update(func(s *PaymentMethodUpsert) {
@@ -907,6 +968,13 @@ func (u *PaymentMethodUpsertOne) SetSource(v domain.PaymentMethodSource) *Paymen
 func (u *PaymentMethodUpsertOne) UpdateSource() *PaymentMethodUpsertOne {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateSource()
+	})
+}
+
+// ClearSource clears the value of the "source" field.
+func (u *PaymentMethodUpsertOne) ClearSource() *PaymentMethodUpsertOne {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearSource()
 	})
 }
 
@@ -1110,14 +1178,8 @@ func (u *PaymentMethodUpsertBulk) UpdateNewValues() *PaymentMethodUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(paymentmethod.FieldCreatedAt)
 			}
-			if _, exists := b.mutation.SourcePaymentMethodID(); exists {
-				s.SetIgnore(paymentmethod.FieldSourcePaymentMethodID)
-			}
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(paymentmethod.FieldMerchantID)
-			}
-			if _, exists := b.mutation.StoreID(); exists {
-				s.SetIgnore(paymentmethod.FieldStoreID)
 			}
 		}
 	}))
@@ -1183,6 +1245,48 @@ func (u *PaymentMethodUpsertBulk) AddDeletedAt(v int64) *PaymentMethodUpsertBulk
 func (u *PaymentMethodUpsertBulk) UpdateDeletedAt() *PaymentMethodUpsertBulk {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetSourcePaymentMethodID sets the "source_payment_method_id" field.
+func (u *PaymentMethodUpsertBulk) SetSourcePaymentMethodID(v uuid.UUID) *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetSourcePaymentMethodID(v)
+	})
+}
+
+// UpdateSourcePaymentMethodID sets the "source_payment_method_id" field to the value that was provided on create.
+func (u *PaymentMethodUpsertBulk) UpdateSourcePaymentMethodID() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateSourcePaymentMethodID()
+	})
+}
+
+// ClearSourcePaymentMethodID clears the value of the "source_payment_method_id" field.
+func (u *PaymentMethodUpsertBulk) ClearSourcePaymentMethodID() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearSourcePaymentMethodID()
+	})
+}
+
+// SetStoreID sets the "store_id" field.
+func (u *PaymentMethodUpsertBulk) SetStoreID(v uuid.UUID) *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.SetStoreID(v)
+	})
+}
+
+// UpdateStoreID sets the "store_id" field to the value that was provided on create.
+func (u *PaymentMethodUpsertBulk) UpdateStoreID() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.UpdateStoreID()
+	})
+}
+
+// ClearStoreID clears the value of the "store_id" field.
+func (u *PaymentMethodUpsertBulk) ClearStoreID() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearStoreID()
 	})
 }
 
@@ -1298,6 +1402,13 @@ func (u *PaymentMethodUpsertBulk) UpdateDisplayChannels() *PaymentMethodUpsertBu
 	})
 }
 
+// ClearDisplayChannels clears the value of the "display_channels" field.
+func (u *PaymentMethodUpsertBulk) ClearDisplayChannels() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearDisplayChannels()
+	})
+}
+
 // SetSource sets the "source" field.
 func (u *PaymentMethodUpsertBulk) SetSource(v domain.PaymentMethodSource) *PaymentMethodUpsertBulk {
 	return u.Update(func(s *PaymentMethodUpsert) {
@@ -1309,6 +1420,13 @@ func (u *PaymentMethodUpsertBulk) SetSource(v domain.PaymentMethodSource) *Payme
 func (u *PaymentMethodUpsertBulk) UpdateSource() *PaymentMethodUpsertBulk {
 	return u.Update(func(s *PaymentMethodUpsert) {
 		s.UpdateSource()
+	})
+}
+
+// ClearSource clears the value of the "source" field.
+func (u *PaymentMethodUpsertBulk) ClearSource() *PaymentMethodUpsertBulk {
+	return u.Update(func(s *PaymentMethodUpsert) {
+		s.ClearSource()
 	})
 }
 

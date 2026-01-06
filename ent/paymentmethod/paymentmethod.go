@@ -97,10 +97,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt int64
-	// DefaultSourcePaymentMethodID holds the default value on creation for the "source_payment_method_id" field.
-	DefaultSourcePaymentMethodID func() uuid.UUID
-	// DefaultStoreID holds the default value on creation for the "store_id" field.
-	DefaultStoreID func() uuid.UUID
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// DefaultCashDrawerStatus holds the default value on creation for the "cash_drawer_status" field.
@@ -144,8 +140,6 @@ func InvoiceRuleValidator(ir domain.PaymentMethodInvoiceRule) error {
 		return fmt.Errorf("paymentmethod: invalid enum value for invoice_rule field: %q", ir)
 	}
 }
-
-const DefaultSource domain.PaymentMethodSource = "brand"
 
 // SourceValidator is a validator for the "source" field enum values. It is called by the builders before save.
 func SourceValidator(s domain.PaymentMethodSource) error {
