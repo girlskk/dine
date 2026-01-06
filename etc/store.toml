@@ -18,6 +18,12 @@ MaxLifetime = 3600
 MaxOpenConns = 150
 MaxIdleConns = 50
 
+[Redis]
+Addr = "127.0.0.1:6379"
+Username = ""
+Password = ""
+DB = 0
+
 [Alert]
 AppName = "store"
 AccessToken = "access_token"

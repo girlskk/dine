@@ -20,7 +20,7 @@ Ats = ["123456", "7891011"]
 [Redis]
 Addr = "127.0.0.1:6379"
 Username = ""
-Password = "123456"
+Password = ""
 DB = 0
 
 [Huifu]
@@ -41,5 +41,4 @@ Expiration = 3600
 
 # 分账账单生成时间：每天凌晨2点
 [ProfitDistribution]
-Cron = "@every 10s"
-# Cron = "5 0 * * *"
+Cron = "0 2 * * *"
