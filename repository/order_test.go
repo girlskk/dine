@@ -42,8 +42,8 @@ func (s *OrderTestSuite) newTestOrder(storeID, orderNo string) *domain.Order {
 		DiningMode:   domain.DiningModeDineIn,
 		Channel:      domain.ChannelPOS,
 		Store:        domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID},
-		Pos:          domain.OrderPOS{PosID: "test-pos"},
-		Cashier:      domain.OrderCashier{CashierID: "test-cashier"},
+		Pos:          domain.OrderPOS{ID: uuid.New(), Name: "test-pos"},
+		Cashier:      domain.OrderCashier{CashierID: uuid.New(), CashierName: "test-cashier"},
 		Amount:       domain.OrderAmount{},
 	}
 }
@@ -59,8 +59,8 @@ func (s *OrderTestSuite) createEntOrder(storeID, orderNo string, createdAt time.
 		SetOrderNo(orderNo).
 		SetDiningMode(domain.DiningModeDineIn).
 		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
-		SetPos(domain.OrderPOS{PosID: "test-pos"}).
-		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetPos(domain.OrderPOS{ID: uuid.New(), Name: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: uuid.New(), CashierName: "test-cashier"}).
 		SetAmount(domain.OrderAmount{}).
 		SetCreatedAt(createdAt)
 
@@ -214,8 +214,8 @@ func (s *OrderTestSuite) TestOrder_List() {
 		SetOrderNo("NO-L1").
 		SetDiningMode(domain.DiningModeDineIn).
 		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
-		SetPos(domain.OrderPOS{PosID: "test-pos"}).
-		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetPos(domain.OrderPOS{ID: uuid.New(), Name: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: uuid.New(), CashierName: "test-cashier"}).
 		SetAmount(domain.OrderAmount{}).
 		SetCreatedAt(base.Add(1 * time.Second)).
 		SaveX(s.ctx)
@@ -227,8 +227,8 @@ func (s *OrderTestSuite) TestOrder_List() {
 		SetOrderNo("NO-L2").
 		SetDiningMode(domain.DiningModeDineIn).
 		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
-		SetPos(domain.OrderPOS{PosID: "test-pos"}).
-		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetPos(domain.OrderPOS{ID: uuid.New(), Name: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: uuid.New(), CashierName: "test-cashier"}).
 		SetAmount(domain.OrderAmount{}).
 		SetPaymentStatus(domain.PaymentStatusPaid).
 		SetCreatedAt(base.Add(2 * time.Second)).
@@ -241,8 +241,8 @@ func (s *OrderTestSuite) TestOrder_List() {
 		SetOrderNo("NO-L3").
 		SetDiningMode(domain.DiningModeDineIn).
 		SetStore(domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID}).
-		SetPos(domain.OrderPOS{PosID: "test-pos"}).
-		SetCashier(domain.OrderCashier{CashierID: "test-cashier"}).
+		SetPos(domain.OrderPOS{ID: uuid.New(), Name: "test-pos"}).
+		SetCashier(domain.OrderCashier{CashierID: uuid.New(), CashierName: "test-cashier"}).
 		SetAmount(domain.OrderAmount{}).
 		SetCreatedAt(base.Add(3 * time.Second)).
 		SaveX(s.ctx)
