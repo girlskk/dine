@@ -36,8 +36,6 @@ const (
 	FieldOrderNo = "order_no"
 	// FieldOrderType holds the string denoting the order_type field in the database.
 	FieldOrderType = "order_type"
-	// FieldRefund holds the string denoting the refund field in the database.
-	FieldRefund = "refund"
 	// FieldPlacedAt holds the string denoting the placed_at field in the database.
 	FieldPlacedAt = "placed_at"
 	// FieldPaidAt holds the string denoting the paid_at field in the database.
@@ -46,6 +44,8 @@ const (
 	FieldCompletedAt = "completed_at"
 	// FieldPlacedBy holds the string denoting the placed_by field in the database.
 	FieldPlacedBy = "placed_by"
+	// FieldPlacedByName holds the string denoting the placed_by_name field in the database.
+	FieldPlacedByName = "placed_by_name"
 	// FieldDiningMode holds the string denoting the dining_mode field in the database.
 	FieldDiningMode = "dining_mode"
 	// FieldOrderStatus holds the string denoting the order_status field in the database.
@@ -99,11 +99,11 @@ var Columns = []string{
 	FieldShiftNo,
 	FieldOrderNo,
 	FieldOrderType,
-	FieldRefund,
 	FieldPlacedAt,
 	FieldPaidAt,
 	FieldCompletedAt,
 	FieldPlacedBy,
+	FieldPlacedByName,
 	FieldDiningMode,
 	FieldOrderStatus,
 	FieldPaymentStatus,
@@ -285,6 +285,11 @@ func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByPlacedBy orders the results by the placed_by field.
 func ByPlacedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPlacedBy, opts...).ToFunc()
+}
+
+// ByPlacedByName orders the results by the placed_by_name field.
+func ByPlacedByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPlacedByName, opts...).ToFunc()
 }
 
 // ByDiningMode orders the results by the dining_mode field.

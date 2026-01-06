@@ -39,16 +39,16 @@ type Order struct {
 	OrderNo string `json:"order_no,omitempty"`
 	// 订单类型：SALE=销售单；REFUND=退单；PARTIAL_REFUND=部分退款单
 	OrderType domain.OrderType `json:"order_type,omitempty"`
-	// 退款单信息（包含原单信息与退款原因）
-	Refund domain.OrderRefund `json:"refund,omitempty"`
 	// 下单时间
 	PlacedAt *time.Time `json:"placed_at,omitempty"`
 	// 支付完成时间
 	PaidAt *time.Time `json:"paid_at,omitempty"`
 	// 完成时间
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	// 下单操作员ID
-	PlacedBy string `json:"placed_by,omitempty"`
+	// 下单人ID
+	PlacedBy uuid.UUID `json:"placed_by,omitempty"`
+	// 下单人名称
+	PlacedByName string `json:"placed_by_name,omitempty"`
 	// 就餐模式：DINE_IN=堂食
 	DiningMode domain.DiningMode `json:"dining_mode,omitempty"`
 	// 订单业务状态：PLACED=已下单；COMPLETED=已完成；CANCELLED=已取消
@@ -56,7 +56,7 @@ type Order struct {
 	// 支付状态：UNPAID=未支付；PAYING=支付中；PAID=已支付；REFUNDED=全额退款
 	PaymentStatus domain.PaymentStatus `json:"payment_status,omitempty"`
 	// 桌位ID（堂食）
-	TableID string `json:"table_id,omitempty"`
+	TableID uuid.UUID `json:"table_id,omitempty"`
 	// 桌位名称（堂食，如A01/1号桌）
 	TableName string `json:"table_name,omitempty"`
 	// 用餐人数（堂食）
@@ -106,15 +106,15 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldRefund, order.FieldStore, order.FieldPos, order.FieldCashier, order.FieldTaxRates, order.FieldFees, order.FieldPayments, order.FieldAmount:
+		case order.FieldStore, order.FieldPos, order.FieldCashier, order.FieldTaxRates, order.FieldFees, order.FieldPayments, order.FieldAmount:
 			values[i] = new([]byte)
 		case order.FieldDeletedAt, order.FieldGuestCount:
 			values[i] = new(sql.NullInt64)
-		case order.FieldBusinessDate, order.FieldShiftNo, order.FieldOrderNo, order.FieldOrderType, order.FieldPlacedBy, order.FieldDiningMode, order.FieldOrderStatus, order.FieldPaymentStatus, order.FieldTableID, order.FieldTableName, order.FieldChannel:
+		case order.FieldBusinessDate, order.FieldShiftNo, order.FieldOrderNo, order.FieldOrderType, order.FieldPlacedByName, order.FieldDiningMode, order.FieldOrderStatus, order.FieldPaymentStatus, order.FieldTableName, order.FieldChannel:
 			values[i] = new(sql.NullString)
 		case order.FieldCreatedAt, order.FieldUpdatedAt, order.FieldPlacedAt, order.FieldPaidAt, order.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case order.FieldID, order.FieldMerchantID, order.FieldStoreID:
+		case order.FieldID, order.FieldMerchantID, order.FieldStoreID, order.FieldPlacedBy, order.FieldTableID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -191,14 +191,6 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.OrderType = domain.OrderType(value.String)
 			}
-		case order.FieldRefund:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field refund", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Refund); err != nil {
-					return fmt.Errorf("unmarshal field refund: %w", err)
-				}
-			}
 		case order.FieldPlacedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field placed_at", values[i])
@@ -221,10 +213,16 @@ func (o *Order) assignValues(columns []string, values []any) error {
 				*o.CompletedAt = value.Time
 			}
 		case order.FieldPlacedBy:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field placed_by", values[i])
+			} else if value != nil {
+				o.PlacedBy = *value
+			}
+		case order.FieldPlacedByName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field placed_by_name", values[i])
 			} else if value.Valid {
-				o.PlacedBy = value.String
+				o.PlacedByName = value.String
 			}
 		case order.FieldDiningMode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -245,10 +243,10 @@ func (o *Order) assignValues(columns []string, values []any) error {
 				o.PaymentStatus = domain.PaymentStatus(value.String)
 			}
 		case order.FieldTableID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field table_id", values[i])
-			} else if value.Valid {
-				o.TableID = value.String
+			} else if value != nil {
+				o.TableID = *value
 			}
 		case order.FieldTableName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -392,9 +390,6 @@ func (o *Order) String() string {
 	builder.WriteString("order_type=")
 	builder.WriteString(fmt.Sprintf("%v", o.OrderType))
 	builder.WriteString(", ")
-	builder.WriteString("refund=")
-	builder.WriteString(fmt.Sprintf("%v", o.Refund))
-	builder.WriteString(", ")
 	if v := o.PlacedAt; v != nil {
 		builder.WriteString("placed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
@@ -411,7 +406,10 @@ func (o *Order) String() string {
 	}
 	builder.WriteString(", ")
 	builder.WriteString("placed_by=")
-	builder.WriteString(o.PlacedBy)
+	builder.WriteString(fmt.Sprintf("%v", o.PlacedBy))
+	builder.WriteString(", ")
+	builder.WriteString("placed_by_name=")
+	builder.WriteString(o.PlacedByName)
 	builder.WriteString(", ")
 	builder.WriteString("dining_mode=")
 	builder.WriteString(fmt.Sprintf("%v", o.DiningMode))
@@ -423,7 +421,7 @@ func (o *Order) String() string {
 	builder.WriteString(fmt.Sprintf("%v", o.PaymentStatus))
 	builder.WriteString(", ")
 	builder.WriteString("table_id=")
-	builder.WriteString(o.TableID)
+	builder.WriteString(fmt.Sprintf("%v", o.TableID))
 	builder.WriteString(", ")
 	builder.WriteString("table_name=")
 	builder.WriteString(o.TableName)

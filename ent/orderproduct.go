@@ -43,22 +43,18 @@ type OrderProduct struct {
 	ProductType domain.ProductType `json:"product_type,omitempty"`
 	// 分类ID
 	CategoryID uuid.UUID `json:"category_id,omitempty"`
-	// 菜单ID
-	MenuID uuid.UUID `json:"menu_id,omitempty"`
 	// 单位ID
 	UnitID uuid.UUID `json:"unit_id,omitempty"`
-	// 支持类型（堂食、外带、外卖）
-	SupportTypes []domain.ProductSupportType `json:"support_types,omitempty"`
-	// 售卖状态：on_sale（在售）、off_sale（停售）
-	SaleStatus domain.ProductSaleStatus `json:"sale_status,omitempty"`
-	// 售卖渠道
-	SaleChannels []domain.SaleChannel `json:"sale_channels,omitempty"`
 	// 商品主图
 	MainImage string `json:"main_image,omitempty"`
 	// 菜品描述
 	Description string `json:"description,omitempty"`
+	// 是否赠送
+	IsGift bool `json:"is_gift,omitempty"`
 	// 数量
 	Qty int `json:"qty,omitempty"`
+	// 赠送数量
+	GiftQty int `json:"gift_qty,omitempty"`
 	// 小计
 	Subtotal *decimal.Decimal `json:"subtotal,omitempty"`
 	// 优惠金额
@@ -82,21 +78,19 @@ type OrderProduct struct {
 	// 退菜原因
 	RefundReason string `json:"refund_reason,omitempty"`
 	// 退菜操作人
-	RefundedBy string `json:"refunded_by,omitempty"`
+	RefundedBy uuid.UUID `json:"refunded_by,omitempty"`
 	// 退菜时间
 	RefundedAt *time.Time `json:"refunded_at,omitempty"`
 	// 备注
 	Note string `json:"note,omitempty"`
-	// 预估成本价（仅套餐商品使用）
-	EstimatedCostPrice *decimal.Decimal `json:"estimated_cost_price,omitempty"`
-	// 外卖成本价（仅套餐商品使用）
-	DeliveryCostPrice *decimal.Decimal `json:"delivery_cost_price,omitempty"`
+	// 商品价格
+	Price *decimal.Decimal `json:"price,omitempty"`
 	// 套餐组信息（包含套餐组名称、选择类型、详情列表等）
-	SetMealGroups json.RawMessage `json:"set_meal_groups,omitempty"`
+	Groups domain.SetMealGroups `json:"groups,omitempty"`
 	// 商品规格关联信息（规格名称、价格、库存等）
-	SpecRelations json.RawMessage `json:"spec_relations,omitempty"`
+	SpecRelations domain.ProductSpecRelations `json:"spec_relations,omitempty"`
 	// 商品口味做法关联信息（口味名称、加价等）
-	AttrRelations json.RawMessage `json:"attr_relations,omitempty"`
+	AttrRelations domain.ProductAttrRelations `json:"attr_relations,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrderProductQuery when eager-loading is set.
 	Edges        OrderProductEdges `json:"edges"`
@@ -128,17 +122,19 @@ func (*OrderProduct) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case orderproduct.FieldSubtotal, orderproduct.FieldDiscountAmount, orderproduct.FieldAmountBeforeTax, orderproduct.FieldTaxRate, orderproduct.FieldTax, orderproduct.FieldAmountAfterTax, orderproduct.FieldTotal, orderproduct.FieldPromotionDiscount, orderproduct.FieldVoidAmount, orderproduct.FieldEstimatedCostPrice, orderproduct.FieldDeliveryCostPrice:
+		case orderproduct.FieldSubtotal, orderproduct.FieldDiscountAmount, orderproduct.FieldAmountBeforeTax, orderproduct.FieldTaxRate, orderproduct.FieldTax, orderproduct.FieldAmountAfterTax, orderproduct.FieldTotal, orderproduct.FieldPromotionDiscount, orderproduct.FieldVoidAmount, orderproduct.FieldPrice:
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
-		case orderproduct.FieldSupportTypes, orderproduct.FieldSaleChannels, orderproduct.FieldSetMealGroups, orderproduct.FieldSpecRelations, orderproduct.FieldAttrRelations:
+		case orderproduct.FieldGroups, orderproduct.FieldSpecRelations, orderproduct.FieldAttrRelations:
 			values[i] = new([]byte)
-		case orderproduct.FieldDeletedAt, orderproduct.FieldIndex, orderproduct.FieldQty, orderproduct.FieldVoidQty:
+		case orderproduct.FieldIsGift:
+			values[i] = new(sql.NullBool)
+		case orderproduct.FieldDeletedAt, orderproduct.FieldIndex, orderproduct.FieldQty, orderproduct.FieldGiftQty, orderproduct.FieldVoidQty:
 			values[i] = new(sql.NullInt64)
-		case orderproduct.FieldOrderItemID, orderproduct.FieldProductName, orderproduct.FieldProductType, orderproduct.FieldSaleStatus, orderproduct.FieldMainImage, orderproduct.FieldDescription, orderproduct.FieldRefundReason, orderproduct.FieldRefundedBy, orderproduct.FieldNote:
+		case orderproduct.FieldOrderItemID, orderproduct.FieldProductName, orderproduct.FieldProductType, orderproduct.FieldMainImage, orderproduct.FieldDescription, orderproduct.FieldRefundReason, orderproduct.FieldNote:
 			values[i] = new(sql.NullString)
 		case orderproduct.FieldCreatedAt, orderproduct.FieldUpdatedAt, orderproduct.FieldRefundedAt:
 			values[i] = new(sql.NullTime)
-		case orderproduct.FieldID, orderproduct.FieldOrderID, orderproduct.FieldProductID, orderproduct.FieldCategoryID, orderproduct.FieldMenuID, orderproduct.FieldUnitID:
+		case orderproduct.FieldID, orderproduct.FieldOrderID, orderproduct.FieldProductID, orderproduct.FieldCategoryID, orderproduct.FieldUnitID, orderproduct.FieldRefundedBy:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -221,39 +217,11 @@ func (op *OrderProduct) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				op.CategoryID = *value
 			}
-		case orderproduct.FieldMenuID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field menu_id", values[i])
-			} else if value != nil {
-				op.MenuID = *value
-			}
 		case orderproduct.FieldUnitID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field unit_id", values[i])
 			} else if value != nil {
 				op.UnitID = *value
-			}
-		case orderproduct.FieldSupportTypes:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field support_types", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &op.SupportTypes); err != nil {
-					return fmt.Errorf("unmarshal field support_types: %w", err)
-				}
-			}
-		case orderproduct.FieldSaleStatus:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field sale_status", values[i])
-			} else if value.Valid {
-				op.SaleStatus = domain.ProductSaleStatus(value.String)
-			}
-		case orderproduct.FieldSaleChannels:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field sale_channels", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &op.SaleChannels); err != nil {
-					return fmt.Errorf("unmarshal field sale_channels: %w", err)
-				}
 			}
 		case orderproduct.FieldMainImage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -267,11 +235,23 @@ func (op *OrderProduct) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				op.Description = value.String
 			}
+		case orderproduct.FieldIsGift:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_gift", values[i])
+			} else if value.Valid {
+				op.IsGift = value.Bool
+			}
 		case orderproduct.FieldQty:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field qty", values[i])
 			} else if value.Valid {
 				op.Qty = int(value.Int64)
+			}
+		case orderproduct.FieldGiftQty:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field gift_qty", values[i])
+			} else if value.Valid {
+				op.GiftQty = int(value.Int64)
 			}
 		case orderproduct.FieldSubtotal:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -349,10 +329,10 @@ func (op *OrderProduct) assignValues(columns []string, values []any) error {
 				op.RefundReason = value.String
 			}
 		case orderproduct.FieldRefundedBy:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field refunded_by", values[i])
-			} else if value.Valid {
-				op.RefundedBy = value.String
+			} else if value != nil {
+				op.RefundedBy = *value
 			}
 		case orderproduct.FieldRefundedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -367,26 +347,19 @@ func (op *OrderProduct) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				op.Note = value.String
 			}
-		case orderproduct.FieldEstimatedCostPrice:
+		case orderproduct.FieldPrice:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field estimated_cost_price", values[i])
+				return fmt.Errorf("unexpected type %T for field price", values[i])
 			} else if value.Valid {
-				op.EstimatedCostPrice = new(decimal.Decimal)
-				*op.EstimatedCostPrice = *value.S.(*decimal.Decimal)
+				op.Price = new(decimal.Decimal)
+				*op.Price = *value.S.(*decimal.Decimal)
 			}
-		case orderproduct.FieldDeliveryCostPrice:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field delivery_cost_price", values[i])
-			} else if value.Valid {
-				op.DeliveryCostPrice = new(decimal.Decimal)
-				*op.DeliveryCostPrice = *value.S.(*decimal.Decimal)
-			}
-		case orderproduct.FieldSetMealGroups:
+		case orderproduct.FieldGroups:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field set_meal_groups", values[i])
+				return fmt.Errorf("unexpected type %T for field groups", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &op.SetMealGroups); err != nil {
-					return fmt.Errorf("unmarshal field set_meal_groups: %w", err)
+				if err := json.Unmarshal(*value, &op.Groups); err != nil {
+					return fmt.Errorf("unmarshal field groups: %w", err)
 				}
 			}
 		case orderproduct.FieldSpecRelations:
@@ -476,20 +449,8 @@ func (op *OrderProduct) String() string {
 	builder.WriteString("category_id=")
 	builder.WriteString(fmt.Sprintf("%v", op.CategoryID))
 	builder.WriteString(", ")
-	builder.WriteString("menu_id=")
-	builder.WriteString(fmt.Sprintf("%v", op.MenuID))
-	builder.WriteString(", ")
 	builder.WriteString("unit_id=")
 	builder.WriteString(fmt.Sprintf("%v", op.UnitID))
-	builder.WriteString(", ")
-	builder.WriteString("support_types=")
-	builder.WriteString(fmt.Sprintf("%v", op.SupportTypes))
-	builder.WriteString(", ")
-	builder.WriteString("sale_status=")
-	builder.WriteString(fmt.Sprintf("%v", op.SaleStatus))
-	builder.WriteString(", ")
-	builder.WriteString("sale_channels=")
-	builder.WriteString(fmt.Sprintf("%v", op.SaleChannels))
 	builder.WriteString(", ")
 	builder.WriteString("main_image=")
 	builder.WriteString(op.MainImage)
@@ -497,8 +458,14 @@ func (op *OrderProduct) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(op.Description)
 	builder.WriteString(", ")
+	builder.WriteString("is_gift=")
+	builder.WriteString(fmt.Sprintf("%v", op.IsGift))
+	builder.WriteString(", ")
 	builder.WriteString("qty=")
 	builder.WriteString(fmt.Sprintf("%v", op.Qty))
+	builder.WriteString(", ")
+	builder.WriteString("gift_qty=")
+	builder.WriteString(fmt.Sprintf("%v", op.GiftQty))
 	builder.WriteString(", ")
 	if v := op.Subtotal; v != nil {
 		builder.WriteString("subtotal=")
@@ -552,7 +519,7 @@ func (op *OrderProduct) String() string {
 	builder.WriteString(op.RefundReason)
 	builder.WriteString(", ")
 	builder.WriteString("refunded_by=")
-	builder.WriteString(op.RefundedBy)
+	builder.WriteString(fmt.Sprintf("%v", op.RefundedBy))
 	builder.WriteString(", ")
 	if v := op.RefundedAt; v != nil {
 		builder.WriteString("refunded_at=")
@@ -562,18 +529,13 @@ func (op *OrderProduct) String() string {
 	builder.WriteString("note=")
 	builder.WriteString(op.Note)
 	builder.WriteString(", ")
-	if v := op.EstimatedCostPrice; v != nil {
-		builder.WriteString("estimated_cost_price=")
+	if v := op.Price; v != nil {
+		builder.WriteString("price=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := op.DeliveryCostPrice; v != nil {
-		builder.WriteString("delivery_cost_price=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("set_meal_groups=")
-	builder.WriteString(fmt.Sprintf("%v", op.SetMealGroups))
+	builder.WriteString("groups=")
+	builder.WriteString(fmt.Sprintf("%v", op.Groups))
 	builder.WriteString(", ")
 	builder.WriteString("spec_relations=")
 	builder.WriteString(fmt.Sprintf("%v", op.SpecRelations))

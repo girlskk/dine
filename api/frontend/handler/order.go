@@ -63,11 +63,11 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		user := domain.FromBackendUserContext(ctx)
 		o := &domain.Order{
 			ID:            uuid.New(),
-			MerchantID:    req.MerchantID,
-			StoreID:       req.StoreID,
+			MerchantID:    user.MerchantID,
+			StoreID:       user.GetStoreID(),
 			BusinessDate:  req.BusinessDate,
 			ShiftNo:       req.ShiftNo,
 			OrderNo:       req.OrderNo,
@@ -77,7 +77,6 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			GuestCount:    req.GuestCount,
 			PlacedAt:      req.PlacedAt,
 			PlacedBy:      req.PlacedBy,
-			Refund:        req.Refund,
 			Store:         req.Store,
 			Pos:           req.Pos,
 			Cashier:       req.Cashier,
@@ -201,7 +200,6 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 			BusinessDate:  req.BusinessDate,
 			ShiftNo:       req.ShiftNo,
 			OrderNo:       req.OrderNo,
-			Refund:        req.Refund,
 			TableID:       req.TableID,
 			TableName:     req.TableName,
 			GuestCount:    req.GuestCount,
@@ -295,8 +293,6 @@ func (h *OrderHandler) Delete() gin.HandlerFunc {
 //	@Summary	获取订单列表
 //	@Accept		json
 //	@Produce	json
-//	@Param		merchant_id		query		string				true	"品牌商ID"
-//	@Param		store_id		query		string				true	"门店ID"
 //	@Param		business_date	query		string				false	"营业日"
 //	@Param		order_no		query		string				false	"订单号"
 //	@Param		order_type		query		string				false	"订单类型"	Enums(SALE,REFUND,PARTIAL_REFUND)
@@ -319,23 +315,11 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 			return
 		}
 
-		merchantID, err := uuid.Parse(req.MerchantID)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams,
-				fmt.Errorf("invalid merchant_id: %w", err)))
-			return
-		}
-
-		storeID, err := uuid.Parse(req.StoreID)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams,
-				fmt.Errorf("invalid store_id: %w", err)))
-			return
-		}
+		user := domain.FromBackendUserContext(ctx)
 
 		params := domain.OrderListParams{
-			MerchantID:    merchantID,
-			StoreID:       storeID,
+			MerchantID:    user.MerchantID,
+			StoreID:       user.GetStoreID(),
 			BusinessDate:  req.BusinessDate,
 			OrderNo:       req.OrderNo,
 			OrderType:     domain.OrderType(req.OrderType),

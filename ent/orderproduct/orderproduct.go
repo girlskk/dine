@@ -38,22 +38,18 @@ const (
 	FieldProductType = "product_type"
 	// FieldCategoryID holds the string denoting the category_id field in the database.
 	FieldCategoryID = "category_id"
-	// FieldMenuID holds the string denoting the menu_id field in the database.
-	FieldMenuID = "menu_id"
 	// FieldUnitID holds the string denoting the unit_id field in the database.
 	FieldUnitID = "unit_id"
-	// FieldSupportTypes holds the string denoting the support_types field in the database.
-	FieldSupportTypes = "support_types"
-	// FieldSaleStatus holds the string denoting the sale_status field in the database.
-	FieldSaleStatus = "sale_status"
-	// FieldSaleChannels holds the string denoting the sale_channels field in the database.
-	FieldSaleChannels = "sale_channels"
 	// FieldMainImage holds the string denoting the main_image field in the database.
 	FieldMainImage = "main_image"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldIsGift holds the string denoting the is_gift field in the database.
+	FieldIsGift = "is_gift"
 	// FieldQty holds the string denoting the qty field in the database.
 	FieldQty = "qty"
+	// FieldGiftQty holds the string denoting the gift_qty field in the database.
+	FieldGiftQty = "gift_qty"
 	// FieldSubtotal holds the string denoting the subtotal field in the database.
 	FieldSubtotal = "subtotal"
 	// FieldDiscountAmount holds the string denoting the discount_amount field in the database.
@@ -82,12 +78,10 @@ const (
 	FieldRefundedAt = "refunded_at"
 	// FieldNote holds the string denoting the note field in the database.
 	FieldNote = "note"
-	// FieldEstimatedCostPrice holds the string denoting the estimated_cost_price field in the database.
-	FieldEstimatedCostPrice = "estimated_cost_price"
-	// FieldDeliveryCostPrice holds the string denoting the delivery_cost_price field in the database.
-	FieldDeliveryCostPrice = "delivery_cost_price"
-	// FieldSetMealGroups holds the string denoting the set_meal_groups field in the database.
-	FieldSetMealGroups = "set_meal_groups"
+	// FieldPrice holds the string denoting the price field in the database.
+	FieldPrice = "price"
+	// FieldGroups holds the string denoting the groups field in the database.
+	FieldGroups = "groups"
 	// FieldSpecRelations holds the string denoting the spec_relations field in the database.
 	FieldSpecRelations = "spec_relations"
 	// FieldAttrRelations holds the string denoting the attr_relations field in the database.
@@ -118,14 +112,12 @@ var Columns = []string{
 	FieldProductName,
 	FieldProductType,
 	FieldCategoryID,
-	FieldMenuID,
 	FieldUnitID,
-	FieldSupportTypes,
-	FieldSaleStatus,
-	FieldSaleChannels,
 	FieldMainImage,
 	FieldDescription,
+	FieldIsGift,
 	FieldQty,
+	FieldGiftQty,
 	FieldSubtotal,
 	FieldDiscountAmount,
 	FieldAmountBeforeTax,
@@ -140,9 +132,8 @@ var Columns = []string{
 	FieldRefundedBy,
 	FieldRefundedAt,
 	FieldNote,
-	FieldEstimatedCostPrice,
-	FieldDeliveryCostPrice,
-	FieldSetMealGroups,
+	FieldPrice,
+	FieldGroups,
 	FieldSpecRelations,
 	FieldAttrRelations,
 }
@@ -187,8 +178,12 @@ var (
 	DefaultDescription string
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultIsGift holds the default value on creation for the "is_gift" field.
+	DefaultIsGift bool
 	// DefaultQty holds the default value on creation for the "qty" field.
 	DefaultQty int
+	// DefaultGiftQty holds the default value on creation for the "gift_qty" field.
+	DefaultGiftQty int
 	// DefaultVoidQty holds the default value on creation for the "void_qty" field.
 	DefaultVoidQty int
 	// DefaultID holds the default value on creation for the "id" field.
@@ -204,16 +199,6 @@ func ProductTypeValidator(pt domain.ProductType) error {
 		return nil
 	default:
 		return fmt.Errorf("orderproduct: invalid enum value for product_type field: %q", pt)
-	}
-}
-
-// SaleStatusValidator is a validator for the "sale_status" field enum values. It is called by the builders before save.
-func SaleStatusValidator(ss domain.ProductSaleStatus) error {
-	switch ss {
-	case "on_sale", "off_sale":
-		return nil
-	default:
-		return fmt.Errorf("orderproduct: invalid enum value for sale_status field: %q", ss)
 	}
 }
 
@@ -275,19 +260,9 @@ func ByCategoryID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCategoryID, opts...).ToFunc()
 }
 
-// ByMenuID orders the results by the menu_id field.
-func ByMenuID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMenuID, opts...).ToFunc()
-}
-
 // ByUnitID orders the results by the unit_id field.
 func ByUnitID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUnitID, opts...).ToFunc()
-}
-
-// BySaleStatus orders the results by the sale_status field.
-func BySaleStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSaleStatus, opts...).ToFunc()
 }
 
 // ByMainImage orders the results by the main_image field.
@@ -300,9 +275,19 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
+// ByIsGift orders the results by the is_gift field.
+func ByIsGift(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsGift, opts...).ToFunc()
+}
+
 // ByQty orders the results by the qty field.
 func ByQty(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldQty, opts...).ToFunc()
+}
+
+// ByGiftQty orders the results by the gift_qty field.
+func ByGiftQty(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGiftQty, opts...).ToFunc()
 }
 
 // BySubtotal orders the results by the subtotal field.
@@ -375,14 +360,9 @@ func ByNote(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNote, opts...).ToFunc()
 }
 
-// ByEstimatedCostPrice orders the results by the estimated_cost_price field.
-func ByEstimatedCostPrice(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEstimatedCostPrice, opts...).ToFunc()
-}
-
-// ByDeliveryCostPrice orders the results by the delivery_cost_price field.
-func ByDeliveryCostPrice(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeliveryCostPrice, opts...).ToFunc()
+// ByPrice orders the results by the price field.
+func ByPrice(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrice, opts...).ToFunc()
 }
 
 // ByOrderField orders the results by order field.
