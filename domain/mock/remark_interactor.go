@@ -38,7 +38,7 @@ func (m *MockRemarkInteractor) EXPECT() *MockRemarkInteractorMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRemarkInteractor) Create(arg0 context.Context, arg1 *domain.Remark) error {
+func (m *MockRemarkInteractor) Create(arg0 context.Context, arg1 *domain.CreateRemarkParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -131,7 +131,7 @@ func (mr *MockRemarkInteractorMockRecorder) RemarkSimpleUpdate(arg0, arg1, arg2 
 }
 
 // Update mocks base method.
-func (m *MockRemarkInteractor) Update(arg0 context.Context, arg1 *domain.Remark) error {
+func (m *MockRemarkInteractor) Update(arg0 context.Context, arg1 *domain.UpdateRemarkParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0, arg1)
 	ret0, _ := ret[0].(error)
