@@ -114,6 +114,8 @@ const (
 	EdgeRoles = "roles"
 	// EdgeProfitDistributionRules holds the string denoting the profit_distribution_rules edge name in mutations.
 	EdgeProfitDistributionRules = "profit_distribution_rules"
+	// EdgeProfitDistributionBills holds the string denoting the profit_distribution_bills edge name in mutations.
+	EdgeProfitDistributionBills = "profit_distribution_bills"
 	// Table holds the table name of the store in the database.
 	Table = "stores"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -224,6 +226,13 @@ const (
 	// ProfitDistributionRulesInverseTable is the table name for the ProfitDistributionRule entity.
 	// It exists in this package in order to avoid circular dependency with the "profitdistributionrule" package.
 	ProfitDistributionRulesInverseTable = "profit_distribution_rules"
+	// ProfitDistributionBillsTable is the table that holds the profit_distribution_bills relation/edge.
+	ProfitDistributionBillsTable = "profit_distribution_bills"
+	// ProfitDistributionBillsInverseTable is the table name for the ProfitDistributionBill entity.
+	// It exists in this package in order to avoid circular dependency with the "profitdistributionbill" package.
+	ProfitDistributionBillsInverseTable = "profit_distribution_bills"
+	// ProfitDistributionBillsColumn is the table column denoting the profit_distribution_bills relation/edge.
+	ProfitDistributionBillsColumn = "store_id"
 )
 
 // Columns holds all SQL columns for store fields.
@@ -720,6 +729,20 @@ func ByProfitDistributionRules(term sql.OrderTerm, terms ...sql.OrderTerm) Order
 		sqlgraph.OrderByNeighborTerms(s, newProfitDistributionRulesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByProfitDistributionBillsCount orders the results by profit_distribution_bills count.
+func ByProfitDistributionBillsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProfitDistributionBillsStep(), opts...)
+	}
+}
+
+// ByProfitDistributionBills orders the results by profit_distribution_bills terms.
+func ByProfitDistributionBills(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProfitDistributionBillsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -830,5 +853,12 @@ func newProfitDistributionRulesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProfitDistributionRulesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, ProfitDistributionRulesTable, ProfitDistributionRulesPrimaryKey...),
+	)
+}
+func newProfitDistributionBillsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProfitDistributionBillsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProfitDistributionBillsTable, ProfitDistributionBillsColumn),
 	)
 }

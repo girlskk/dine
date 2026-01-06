@@ -1261,8 +1261,6 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "no", Type: field.TypeString, Unique: true, Size: 64},
-		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID},
 		{Name: "receivable_amount", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "payment_amount", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"unpaid", "paid"}, Default: "unpaid"},
@@ -1270,12 +1268,28 @@ var (
 		{Name: "start_date", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "DATE", "sqlite3": "DATE"}},
 		{Name: "end_date", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "DATE", "sqlite3": "DATE"}},
 		{Name: "rule_snapshot", Type: field.TypeJSON},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
 	}
 	// ProfitDistributionBillsTable holds the schema information for the "profit_distribution_bills" table.
 	ProfitDistributionBillsTable = &schema.Table{
 		Name:       "profit_distribution_bills",
 		Columns:    ProfitDistributionBillsColumns,
 		PrimaryKey: []*schema.Column{ProfitDistributionBillsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "profit_distribution_bills_merchants_profit_distribution_bills",
+				Columns:    []*schema.Column{ProfitDistributionBillsColumns[12]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "profit_distribution_bills_stores_profit_distribution_bills",
+				Columns:    []*schema.Column{ProfitDistributionBillsColumns[13]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "profitdistributionbill_deleted_at",
@@ -1285,17 +1299,17 @@ var (
 			{
 				Name:    "profitdistributionbill_merchant_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProfitDistributionBillsColumns[5]},
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[12]},
 			},
 			{
 				Name:    "profitdistributionbill_store_id",
 				Unique:  false,
-				Columns: []*schema.Column{ProfitDistributionBillsColumns[6]},
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[13]},
 			},
 			{
 				Name:    "profitdistributionbill_store_id_bill_date_deleted_at",
 				Unique:  true,
-				Columns: []*schema.Column{ProfitDistributionBillsColumns[6], ProfitDistributionBillsColumns[10], ProfitDistributionBillsColumns[3]},
+				Columns: []*schema.Column{ProfitDistributionBillsColumns[13], ProfitDistributionBillsColumns[8], ProfitDistributionBillsColumns[3]},
 			},
 		},
 	}
@@ -2016,6 +2030,8 @@ func init() {
 	ProductSpecRelationsTable.ForeignKeys[0].RefTable = AdditionalFeesTable
 	ProductSpecRelationsTable.ForeignKeys[1].RefTable = ProductsTable
 	ProductSpecRelationsTable.ForeignKeys[2].RefTable = ProductSpecsTable
+	ProfitDistributionBillsTable.ForeignKeys[0].RefTable = MerchantsTable
+	ProfitDistributionBillsTable.ForeignKeys[1].RefTable = StoresTable
 	ProvincesTable.ForeignKeys[0].RefTable = CountriesTable
 	RemarksTable.ForeignKeys[0].RefTable = MerchantsTable
 	RemarksTable.ForeignKeys[1].RefTable = RemarkCategoriesTable

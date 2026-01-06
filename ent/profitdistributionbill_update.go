@@ -16,6 +16,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // ProfitDistributionBillUpdate is the builder for updating ProfitDistributionBill entities.
@@ -177,9 +178,20 @@ func (pdbu *ProfitDistributionBillUpdate) SetRuleSnapshot(ddrs *domain.ProfitDis
 	return pdbu
 }
 
+// SetStore sets the "store" edge to the Store entity.
+func (pdbu *ProfitDistributionBillUpdate) SetStore(s *Store) *ProfitDistributionBillUpdate {
+	return pdbu.SetStoreID(s.ID)
+}
+
 // Mutation returns the ProfitDistributionBillMutation object of the builder.
 func (pdbu *ProfitDistributionBillUpdate) Mutation() *ProfitDistributionBillMutation {
 	return pdbu.mutation
+}
+
+// ClearStore clears the "store" edge to the Store entity.
+func (pdbu *ProfitDistributionBillUpdate) ClearStore() *ProfitDistributionBillUpdate {
+	pdbu.mutation.ClearStore()
+	return pdbu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -236,6 +248,12 @@ func (pdbu *ProfitDistributionBillUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ProfitDistributionBill.status": %w`, err)}
 		}
 	}
+	if pdbu.mutation.MerchantCleared() && len(pdbu.mutation.MerchantIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "ProfitDistributionBill.merchant"`)
+	}
+	if pdbu.mutation.StoreCleared() && len(pdbu.mutation.StoreIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "ProfitDistributionBill.store"`)
+	}
 	return nil
 }
 
@@ -269,9 +287,6 @@ func (pdbu *ProfitDistributionBillUpdate) sqlSave(ctx context.Context) (n int, e
 	if value, ok := pdbu.mutation.No(); ok {
 		_spec.SetField(profitdistributionbill.FieldNo, field.TypeString, value)
 	}
-	if value, ok := pdbu.mutation.StoreID(); ok {
-		_spec.SetField(profitdistributionbill.FieldStoreID, field.TypeUUID, value)
-	}
 	if value, ok := pdbu.mutation.ReceivableAmount(); ok {
 		_spec.SetField(profitdistributionbill.FieldReceivableAmount, field.TypeOther, value)
 	}
@@ -292,6 +307,35 @@ func (pdbu *ProfitDistributionBillUpdate) sqlSave(ctx context.Context) (n int, e
 	}
 	if value, ok := pdbu.mutation.RuleSnapshot(); ok {
 		_spec.SetField(profitdistributionbill.FieldRuleSnapshot, field.TypeJSON, value)
+	}
+	if pdbu.mutation.StoreCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   profitdistributionbill.StoreTable,
+			Columns: []string{profitdistributionbill.StoreColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pdbu.mutation.StoreIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   profitdistributionbill.StoreTable,
+			Columns: []string{profitdistributionbill.StoreColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(pdbu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, pdbu.driver, _spec); err != nil {
@@ -460,9 +504,20 @@ func (pdbuo *ProfitDistributionBillUpdateOne) SetRuleSnapshot(ddrs *domain.Profi
 	return pdbuo
 }
 
+// SetStore sets the "store" edge to the Store entity.
+func (pdbuo *ProfitDistributionBillUpdateOne) SetStore(s *Store) *ProfitDistributionBillUpdateOne {
+	return pdbuo.SetStoreID(s.ID)
+}
+
 // Mutation returns the ProfitDistributionBillMutation object of the builder.
 func (pdbuo *ProfitDistributionBillUpdateOne) Mutation() *ProfitDistributionBillMutation {
 	return pdbuo.mutation
+}
+
+// ClearStore clears the "store" edge to the Store entity.
+func (pdbuo *ProfitDistributionBillUpdateOne) ClearStore() *ProfitDistributionBillUpdateOne {
+	pdbuo.mutation.ClearStore()
+	return pdbuo
 }
 
 // Where appends a list predicates to the ProfitDistributionBillUpdate builder.
@@ -532,6 +587,12 @@ func (pdbuo *ProfitDistributionBillUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ProfitDistributionBill.status": %w`, err)}
 		}
 	}
+	if pdbuo.mutation.MerchantCleared() && len(pdbuo.mutation.MerchantIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "ProfitDistributionBill.merchant"`)
+	}
+	if pdbuo.mutation.StoreCleared() && len(pdbuo.mutation.StoreIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "ProfitDistributionBill.store"`)
+	}
 	return nil
 }
 
@@ -582,9 +643,6 @@ func (pdbuo *ProfitDistributionBillUpdateOne) sqlSave(ctx context.Context) (_nod
 	if value, ok := pdbuo.mutation.No(); ok {
 		_spec.SetField(profitdistributionbill.FieldNo, field.TypeString, value)
 	}
-	if value, ok := pdbuo.mutation.StoreID(); ok {
-		_spec.SetField(profitdistributionbill.FieldStoreID, field.TypeUUID, value)
-	}
 	if value, ok := pdbuo.mutation.ReceivableAmount(); ok {
 		_spec.SetField(profitdistributionbill.FieldReceivableAmount, field.TypeOther, value)
 	}
@@ -605,6 +663,35 @@ func (pdbuo *ProfitDistributionBillUpdateOne) sqlSave(ctx context.Context) (_nod
 	}
 	if value, ok := pdbuo.mutation.RuleSnapshot(); ok {
 		_spec.SetField(profitdistributionbill.FieldRuleSnapshot, field.TypeJSON, value)
+	}
+	if pdbuo.mutation.StoreCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   profitdistributionbill.StoreTable,
+			Columns: []string{profitdistributionbill.StoreColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pdbuo.mutation.StoreIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   profitdistributionbill.StoreTable,
+			Columns: []string{profitdistributionbill.StoreColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(pdbuo.modifiers...)
 	_node = &ProfitDistributionBill{config: pdbuo.config}

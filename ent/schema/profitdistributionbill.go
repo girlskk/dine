@@ -3,6 +3,7 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -74,5 +75,24 @@ func (ProfitDistributionBill) Indexes() []ent.Index {
 		index.Fields("store_id"),
 		// 唯一索引：同一门店同一账单日期只能有一条账单
 		index.Fields("store_id", "bill_date", "deleted_at").Unique(),
+	}
+}
+
+// Edges of the ProfitDistributionBill.
+func (ProfitDistributionBill) Edges() []ent.Edge {
+	return []ent.Edge{
+		// 所属商户
+		edge.From("merchant", Merchant.Type).
+			Ref("profit_distribution_bills").
+			Field("merchant_id").
+			Unique().
+			Immutable().
+			Required(),
+		// 所属门店
+		edge.From("store", Store.Type).
+			Ref("profit_distribution_bills").
+			Field("store_id").
+			Unique().
+			Required(),
 	}
 }

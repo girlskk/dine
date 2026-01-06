@@ -15,7 +15,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // ProfitDistributionBillCreate is the builder for creating a ProfitDistributionBill entity.
@@ -150,6 +152,16 @@ func (pdbc *ProfitDistributionBillCreate) SetNillableID(u *uuid.UUID) *ProfitDis
 	return pdbc
 }
 
+// SetMerchant sets the "merchant" edge to the Merchant entity.
+func (pdbc *ProfitDistributionBillCreate) SetMerchant(m *Merchant) *ProfitDistributionBillCreate {
+	return pdbc.SetMerchantID(m.ID)
+}
+
+// SetStore sets the "store" edge to the Store entity.
+func (pdbc *ProfitDistributionBillCreate) SetStore(s *Store) *ProfitDistributionBillCreate {
+	return pdbc.SetStoreID(s.ID)
+}
+
 // Mutation returns the ProfitDistributionBillMutation object of the builder.
 func (pdbc *ProfitDistributionBillCreate) Mutation() *ProfitDistributionBillMutation {
 	return pdbc.mutation
@@ -270,6 +282,12 @@ func (pdbc *ProfitDistributionBillCreate) check() error {
 	if _, ok := pdbc.mutation.RuleSnapshot(); !ok {
 		return &ValidationError{Name: "rule_snapshot", err: errors.New(`ent: missing required field "ProfitDistributionBill.rule_snapshot"`)}
 	}
+	if len(pdbc.mutation.MerchantIDs()) == 0 {
+		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "ProfitDistributionBill.merchant"`)}
+	}
+	if len(pdbc.mutation.StoreIDs()) == 0 {
+		return &ValidationError{Name: "store", err: errors.New(`ent: missing required edge "ProfitDistributionBill.store"`)}
+	}
 	return nil
 }
 
@@ -322,14 +340,6 @@ func (pdbc *ProfitDistributionBillCreate) createSpec() (*ProfitDistributionBill,
 		_spec.SetField(profitdistributionbill.FieldNo, field.TypeString, value)
 		_node.No = value
 	}
-	if value, ok := pdbc.mutation.MerchantID(); ok {
-		_spec.SetField(profitdistributionbill.FieldMerchantID, field.TypeUUID, value)
-		_node.MerchantID = value
-	}
-	if value, ok := pdbc.mutation.StoreID(); ok {
-		_spec.SetField(profitdistributionbill.FieldStoreID, field.TypeUUID, value)
-		_node.StoreID = value
-	}
 	if value, ok := pdbc.mutation.ReceivableAmount(); ok {
 		_spec.SetField(profitdistributionbill.FieldReceivableAmount, field.TypeOther, value)
 		_node.ReceivableAmount = value
@@ -357,6 +367,40 @@ func (pdbc *ProfitDistributionBillCreate) createSpec() (*ProfitDistributionBill,
 	if value, ok := pdbc.mutation.RuleSnapshot(); ok {
 		_spec.SetField(profitdistributionbill.FieldRuleSnapshot, field.TypeJSON, value)
 		_node.RuleSnapshot = value
+	}
+	if nodes := pdbc.mutation.MerchantIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   profitdistributionbill.MerchantTable,
+			Columns: []string{profitdistributionbill.MerchantColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.MerchantID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pdbc.mutation.StoreIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   profitdistributionbill.StoreTable,
+			Columns: []string{profitdistributionbill.StoreColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.StoreID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

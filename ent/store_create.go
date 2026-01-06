@@ -23,6 +23,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
@@ -615,6 +616,21 @@ func (sc *StoreCreate) AddProfitDistributionRules(p ...*ProfitDistributionRule) 
 		ids[i] = p[i].ID
 	}
 	return sc.AddProfitDistributionRuleIDs(ids...)
+}
+
+// AddProfitDistributionBillIDs adds the "profit_distribution_bills" edge to the ProfitDistributionBill entity by IDs.
+func (sc *StoreCreate) AddProfitDistributionBillIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddProfitDistributionBillIDs(ids...)
+	return sc
+}
+
+// AddProfitDistributionBills adds the "profit_distribution_bills" edges to the ProfitDistributionBill entity.
+func (sc *StoreCreate) AddProfitDistributionBills(p ...*ProfitDistributionBill) *StoreCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return sc.AddProfitDistributionBillIDs(ids...)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -1284,6 +1300,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.ProfitDistributionBillsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

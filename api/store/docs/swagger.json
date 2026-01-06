@@ -1259,6 +1259,65 @@
                 }
             }
         },
+        "/profit/distribution/bill": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "查询分账账单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账单结束日期",
+                        "name": "bill_end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "账单开始日期",
+                        "name": "bill_start_date",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "pending",
+                            "paid"
+                        ],
+                        "type": "string",
+                        "description": "分账状态（可选）",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillSearchRes"
+                        }
+                    }
+                }
+            }
+        },
         "/region/countries": {
             "get": {
                 "security": [
@@ -2305,7 +2364,7 @@
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -2832,6 +2891,18 @@
                 "total": {
                     "description": "总页数",
                     "type": "integer"
+                }
+            }
+        },
+        "domain.MerchantSimple": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "商户名称",
+                    "type": "string"
                 }
             }
         },
@@ -3568,6 +3639,146 @@
                 "ProductUnitTypeWeight"
             ]
         },
+        "domain.ProfitDistributionBill": {
+            "type": "object",
+            "properties": {
+                "bill_date": {
+                    "description": "账单日期",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "end_date": {
+                    "description": "账单周期：结束日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账账单ID",
+                    "type": "string"
+                },
+                "merchant": {
+                    "description": "关联数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.MerchantSimple"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "no": {
+                    "description": "分账账单编号",
+                    "type": "string"
+                },
+                "payment_amount": {
+                    "description": "打款金额（令吉）",
+                    "type": "number"
+                },
+                "receivable_amount": {
+                    "description": "应收金额（令吉）",
+                    "type": "number"
+                },
+                "rule_snapshot": {
+                    "description": "分账方案快照",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSnapshot"
+                        }
+                    ]
+                },
+                "start_date": {
+                    "description": "账单周期：开始日期",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "分账状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillStatus"
+                        }
+                    ]
+                },
+                "store": {
+                    "description": "门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionBill"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillStatus": {
+            "type": "string",
+            "enum": [
+                "unpaid",
+                "paid"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionBillStatusPaid": "已打款",
+                "ProfitDistributionBillStatusUnpaid": "未打款"
+            },
+            "x-enum-descriptions": [
+                "未打款",
+                "已打款"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionBillStatusUnpaid",
+                "ProfitDistributionBillStatusPaid"
+            ]
+        },
+        "domain.ProfitDistributionRuleSnapshot": {
+            "type": "object",
+            "properties": {
+                "rule_id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "rule_name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例",
+                    "type": "number"
+                }
+            }
+        },
         "domain.Province": {
             "type": "object",
             "properties": {
@@ -4140,6 +4351,41 @@
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.Address": {
             "type": "object",

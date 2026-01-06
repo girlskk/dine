@@ -96,6 +96,8 @@ const (
 	EdgeRoles = "roles"
 	// EdgeStoreUsers holds the string denoting the store_users edge name in mutations.
 	EdgeStoreUsers = "store_users"
+	// EdgeProfitDistributionBills holds the string denoting the profit_distribution_bills edge name in mutations.
+	EdgeProfitDistributionBills = "profit_distribution_bills"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
 	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
@@ -217,6 +219,13 @@ const (
 	StoreUsersInverseTable = "store_users"
 	// StoreUsersColumn is the table column denoting the store_users relation/edge.
 	StoreUsersColumn = "merchant_id"
+	// ProfitDistributionBillsTable is the table that holds the profit_distribution_bills relation/edge.
+	ProfitDistributionBillsTable = "profit_distribution_bills"
+	// ProfitDistributionBillsInverseTable is the table name for the ProfitDistributionBill entity.
+	// It exists in this package in order to avoid circular dependency with the "profitdistributionbill" package.
+	ProfitDistributionBillsInverseTable = "profit_distribution_bills"
+	// ProfitDistributionBillsColumn is the table column denoting the profit_distribution_bills relation/edge.
+	ProfitDistributionBillsColumn = "merchant_id"
 )
 
 // Columns holds all SQL columns for merchant fields.
@@ -648,6 +657,20 @@ func ByStoreUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newStoreUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByProfitDistributionBillsCount orders the results by profit_distribution_bills count.
+func ByProfitDistributionBillsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProfitDistributionBillsStep(), opts...)
+	}
+}
+
+// ByProfitDistributionBills orders the results by profit_distribution_bills terms.
+func ByProfitDistributionBills(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProfitDistributionBillsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantBusinessTypeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -765,5 +788,12 @@ func newStoreUsersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(StoreUsersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
+	)
+}
+func newProfitDistributionBillsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProfitDistributionBillsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProfitDistributionBillsTable, ProfitDistributionBillsColumn),
 	)
 }

@@ -111,9 +111,11 @@ type MerchantEdges struct {
 	Roles []*Role `json:"roles,omitempty"`
 	// StoreUsers holds the value of the store_users edge.
 	StoreUsers []*StoreUser `json:"store_users,omitempty"`
+	// 关联的分账账单
+	ProfitDistributionBills []*ProfitDistributionBill `json:"profit_distribution_bills,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [17]bool
+	loadedTypes [18]bool
 }
 
 // MerchantBusinessTypeOrErr returns the MerchantBusinessType value or an error if the edge
@@ -277,6 +279,15 @@ func (e MerchantEdges) StoreUsersOrErr() ([]*StoreUser, error) {
 		return e.StoreUsers, nil
 	}
 	return nil, &NotLoadedError{edge: "store_users"}
+}
+
+// ProfitDistributionBillsOrErr returns the ProfitDistributionBills value or an error if the edge
+// was not loaded in eager-loading.
+func (e MerchantEdges) ProfitDistributionBillsOrErr() ([]*ProfitDistributionBill, error) {
+	if e.loadedTypes[17] {
+		return e.ProfitDistributionBills, nil
+	}
+	return nil, &NotLoadedError{edge: "profit_distribution_bills"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -542,6 +553,11 @@ func (m *Merchant) QueryRoles() *RoleQuery {
 // QueryStoreUsers queries the "store_users" edge of the Merchant entity.
 func (m *Merchant) QueryStoreUsers() *StoreUserQuery {
 	return NewMerchantClient(m.config).QueryStoreUsers(m)
+}
+
+// QueryProfitDistributionBills queries the "profit_distribution_bills" edge of the Merchant entity.
+func (m *Merchant) QueryProfitDistributionBills() *ProfitDistributionBillQuery {
+	return NewMerchantClient(m.config).QueryProfitDistributionBills(m)
 }
 
 // Update returns a builder for updating this Merchant.

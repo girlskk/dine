@@ -2875,6 +2875,22 @@ func (c *MerchantClient) QueryStoreUsers(m *Merchant) *StoreUserQuery {
 	return query
 }
 
+// QueryProfitDistributionBills queries the profit_distribution_bills edge of a Merchant.
+func (c *MerchantClient) QueryProfitDistributionBills(m *Merchant) *ProfitDistributionBillQuery {
+	query := (&ProfitDistributionBillClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(profitdistributionbill.Table, profitdistributionbill.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.ProfitDistributionBillsTable, merchant.ProfitDistributionBillsColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *MerchantClient) Hooks() []Hook {
 	hooks := c.hooks.Merchant
@@ -5078,6 +5094,38 @@ func (c *ProfitDistributionBillClient) GetX(ctx context.Context, id uuid.UUID) *
 	return obj
 }
 
+// QueryMerchant queries the merchant edge of a ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) QueryMerchant(pdb *ProfitDistributionBill) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pdb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionbill.Table, profitdistributionbill.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, profitdistributionbill.MerchantTable, profitdistributionbill.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(pdb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) QueryStore(pdb *ProfitDistributionBill) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pdb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionbill.Table, profitdistributionbill.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, profitdistributionbill.StoreTable, profitdistributionbill.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(pdb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ProfitDistributionBillClient) Hooks() []Hook {
 	hooks := c.hooks.ProfitDistributionBill
@@ -6894,6 +6942,22 @@ func (c *StoreClient) QueryProfitDistributionRules(s *Store) *ProfitDistribution
 			sqlgraph.From(store.Table, store.FieldID, id),
 			sqlgraph.To(profitdistributionrule.Table, profitdistributionrule.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, store.ProfitDistributionRulesTable, store.ProfitDistributionRulesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProfitDistributionBills queries the profit_distribution_bills edge of a Store.
+func (c *StoreClient) QueryProfitDistributionBills(s *Store) *ProfitDistributionBillQuery {
+	query := (&ProfitDistributionBillClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(profitdistributionbill.Table, profitdistributionbill.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.ProfitDistributionBillsTable, store.ProfitDistributionBillsColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

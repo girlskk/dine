@@ -133,6 +133,7 @@ func (Merchant) Edges() []ent.Edge {
 		edge.To("departments", Department.Type),
 		edge.To("roles", Role.Type),
 		edge.To("store_users", StoreUser.Type),
+		edge.To("profit_distribution_bills", ProfitDistributionBill.Type).Comment("关联的分账账单"),
 	}
 }
 

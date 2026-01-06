@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -317,26 +318,6 @@ func MerchantIDNotIn(vs ...uuid.UUID) predicate.ProfitDistributionBill {
 	return predicate.ProfitDistributionBill(sql.FieldNotIn(FieldMerchantID, vs...))
 }
 
-// MerchantIDGT applies the GT predicate on the "merchant_id" field.
-func MerchantIDGT(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldGT(FieldMerchantID, v))
-}
-
-// MerchantIDGTE applies the GTE predicate on the "merchant_id" field.
-func MerchantIDGTE(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldGTE(FieldMerchantID, v))
-}
-
-// MerchantIDLT applies the LT predicate on the "merchant_id" field.
-func MerchantIDLT(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldLT(FieldMerchantID, v))
-}
-
-// MerchantIDLTE applies the LTE predicate on the "merchant_id" field.
-func MerchantIDLTE(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldLTE(FieldMerchantID, v))
-}
-
 // StoreIDEQ applies the EQ predicate on the "store_id" field.
 func StoreIDEQ(v uuid.UUID) predicate.ProfitDistributionBill {
 	return predicate.ProfitDistributionBill(sql.FieldEQ(FieldStoreID, v))
@@ -355,26 +336,6 @@ func StoreIDIn(vs ...uuid.UUID) predicate.ProfitDistributionBill {
 // StoreIDNotIn applies the NotIn predicate on the "store_id" field.
 func StoreIDNotIn(vs ...uuid.UUID) predicate.ProfitDistributionBill {
 	return predicate.ProfitDistributionBill(sql.FieldNotIn(FieldStoreID, vs...))
-}
-
-// StoreIDGT applies the GT predicate on the "store_id" field.
-func StoreIDGT(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldGT(FieldStoreID, v))
-}
-
-// StoreIDGTE applies the GTE predicate on the "store_id" field.
-func StoreIDGTE(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldGTE(FieldStoreID, v))
-}
-
-// StoreIDLT applies the LT predicate on the "store_id" field.
-func StoreIDLT(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldLT(FieldStoreID, v))
-}
-
-// StoreIDLTE applies the LTE predicate on the "store_id" field.
-func StoreIDLTE(v uuid.UUID) predicate.ProfitDistributionBill {
-	return predicate.ProfitDistributionBill(sql.FieldLTE(FieldStoreID, v))
 }
 
 // ReceivableAmountEQ applies the EQ predicate on the "receivable_amount" field.
@@ -605,6 +566,52 @@ func EndDateLT(v time.Time) predicate.ProfitDistributionBill {
 // EndDateLTE applies the LTE predicate on the "end_date" field.
 func EndDateLTE(v time.Time) predicate.ProfitDistributionBill {
 	return predicate.ProfitDistributionBill(sql.FieldLTE(FieldEndDate, v))
+}
+
+// HasMerchant applies the HasEdge predicate on the "merchant" edge.
+func HasMerchant() predicate.ProfitDistributionBill {
+	return predicate.ProfitDistributionBill(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMerchantWith applies the HasEdge predicate on the "merchant" edge with a given conditions (other predicates).
+func HasMerchantWith(preds ...predicate.Merchant) predicate.ProfitDistributionBill {
+	return predicate.ProfitDistributionBill(func(s *sql.Selector) {
+		step := newMerchantStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasStore applies the HasEdge predicate on the "store" edge.
+func HasStore() predicate.ProfitDistributionBill {
+	return predicate.ProfitDistributionBill(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, StoreTable, StoreColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStoreWith applies the HasEdge predicate on the "store" edge with a given conditions (other predicates).
+func HasStoreWith(preds ...predicate.Store) predicate.ProfitDistributionBill {
+	return predicate.ProfitDistributionBill(func(s *sql.Selector) {
+		step := newStoreStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

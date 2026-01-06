@@ -12314,77 +12314,80 @@ func (m *MenuItemMutation) ResetEdge(name string) error {
 // MerchantMutation represents an operation that mutates the Merchant nodes in the graph.
 type MerchantMutation struct {
 	config
-	op                            Op
-	typ                           string
-	id                            *uuid.UUID
-	created_at                    *time.Time
-	updated_at                    *time.Time
-	deleted_at                    *int64
-	adddeleted_at                 *int64
-	merchant_code                 *string
-	merchant_name                 *string
-	merchant_short_name           *string
-	merchant_type                 *domain.MerchantType
-	brand_name                    *string
-	admin_phone_number            *string
-	expire_utc                    *time.Time
-	merchant_logo                 *string
-	description                   *string
-	status                        *domain.MerchantStatus
-	address                       *string
-	lng                           *string
-	lat                           *string
-	super_account                 *string
-	clearedFields                 map[string]struct{}
-	merchant_business_type        *uuid.UUID
-	clearedmerchant_business_type bool
-	country                       *uuid.UUID
-	clearedcountry                bool
-	province                      *uuid.UUID
-	clearedprovince               bool
-	city                          *uuid.UUID
-	clearedcity                   bool
-	district                      *uuid.UUID
-	cleareddistrict               bool
-	backend_users                 map[uuid.UUID]struct{}
-	removedbackend_users          map[uuid.UUID]struct{}
-	clearedbackend_users          bool
-	stores                        map[uuid.UUID]struct{}
-	removedstores                 map[uuid.UUID]struct{}
-	clearedstores                 bool
-	merchant_renewals             map[uuid.UUID]struct{}
-	removedmerchant_renewals      map[uuid.UUID]struct{}
-	clearedmerchant_renewals      bool
-	remark_categories             map[uuid.UUID]struct{}
-	removedremark_categories      map[uuid.UUID]struct{}
-	clearedremark_categories      bool
-	remarks                       map[uuid.UUID]struct{}
-	removedremarks                map[uuid.UUID]struct{}
-	clearedremarks                bool
-	stalls                        map[uuid.UUID]struct{}
-	removedstalls                 map[uuid.UUID]struct{}
-	clearedstalls                 bool
-	additional_fees               map[uuid.UUID]struct{}
-	removedadditional_fees        map[uuid.UUID]struct{}
-	clearedadditional_fees        bool
-	tax_fees                      map[uuid.UUID]struct{}
-	removedtax_fees               map[uuid.UUID]struct{}
-	clearedtax_fees               bool
-	devices                       map[uuid.UUID]struct{}
-	removeddevices                map[uuid.UUID]struct{}
-	cleareddevices                bool
-	departments                   map[uuid.UUID]struct{}
-	removeddepartments            map[uuid.UUID]struct{}
-	cleareddepartments            bool
-	roles                         map[uuid.UUID]struct{}
-	removedroles                  map[uuid.UUID]struct{}
-	clearedroles                  bool
-	store_users                   map[uuid.UUID]struct{}
-	removedstore_users            map[uuid.UUID]struct{}
-	clearedstore_users            bool
-	done                          bool
-	oldValue                      func(context.Context) (*Merchant, error)
-	predicates                    []predicate.Merchant
+	op                               Op
+	typ                              string
+	id                               *uuid.UUID
+	created_at                       *time.Time
+	updated_at                       *time.Time
+	deleted_at                       *int64
+	adddeleted_at                    *int64
+	merchant_code                    *string
+	merchant_name                    *string
+	merchant_short_name              *string
+	merchant_type                    *domain.MerchantType
+	brand_name                       *string
+	admin_phone_number               *string
+	expire_utc                       *time.Time
+	merchant_logo                    *string
+	description                      *string
+	status                           *domain.MerchantStatus
+	address                          *string
+	lng                              *string
+	lat                              *string
+	super_account                    *string
+	clearedFields                    map[string]struct{}
+	merchant_business_type           *uuid.UUID
+	clearedmerchant_business_type    bool
+	country                          *uuid.UUID
+	clearedcountry                   bool
+	province                         *uuid.UUID
+	clearedprovince                  bool
+	city                             *uuid.UUID
+	clearedcity                      bool
+	district                         *uuid.UUID
+	cleareddistrict                  bool
+	backend_users                    map[uuid.UUID]struct{}
+	removedbackend_users             map[uuid.UUID]struct{}
+	clearedbackend_users             bool
+	stores                           map[uuid.UUID]struct{}
+	removedstores                    map[uuid.UUID]struct{}
+	clearedstores                    bool
+	merchant_renewals                map[uuid.UUID]struct{}
+	removedmerchant_renewals         map[uuid.UUID]struct{}
+	clearedmerchant_renewals         bool
+	remark_categories                map[uuid.UUID]struct{}
+	removedremark_categories         map[uuid.UUID]struct{}
+	clearedremark_categories         bool
+	remarks                          map[uuid.UUID]struct{}
+	removedremarks                   map[uuid.UUID]struct{}
+	clearedremarks                   bool
+	stalls                           map[uuid.UUID]struct{}
+	removedstalls                    map[uuid.UUID]struct{}
+	clearedstalls                    bool
+	additional_fees                  map[uuid.UUID]struct{}
+	removedadditional_fees           map[uuid.UUID]struct{}
+	clearedadditional_fees           bool
+	tax_fees                         map[uuid.UUID]struct{}
+	removedtax_fees                  map[uuid.UUID]struct{}
+	clearedtax_fees                  bool
+	devices                          map[uuid.UUID]struct{}
+	removeddevices                   map[uuid.UUID]struct{}
+	cleareddevices                   bool
+	departments                      map[uuid.UUID]struct{}
+	removeddepartments               map[uuid.UUID]struct{}
+	cleareddepartments               bool
+	roles                            map[uuid.UUID]struct{}
+	removedroles                     map[uuid.UUID]struct{}
+	clearedroles                     bool
+	store_users                      map[uuid.UUID]struct{}
+	removedstore_users               map[uuid.UUID]struct{}
+	clearedstore_users               bool
+	profit_distribution_bills        map[uuid.UUID]struct{}
+	removedprofit_distribution_bills map[uuid.UUID]struct{}
+	clearedprofit_distribution_bills bool
+	done                             bool
+	oldValue                         func(context.Context) (*Merchant, error)
+	predicates                       []predicate.Merchant
 }
 
 var _ ent.Mutation = (*MerchantMutation)(nil)
@@ -14255,6 +14258,60 @@ func (m *MerchantMutation) ResetStoreUsers() {
 	m.removedstore_users = nil
 }
 
+// AddProfitDistributionBillIDs adds the "profit_distribution_bills" edge to the ProfitDistributionBill entity by ids.
+func (m *MerchantMutation) AddProfitDistributionBillIDs(ids ...uuid.UUID) {
+	if m.profit_distribution_bills == nil {
+		m.profit_distribution_bills = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.profit_distribution_bills[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProfitDistributionBills clears the "profit_distribution_bills" edge to the ProfitDistributionBill entity.
+func (m *MerchantMutation) ClearProfitDistributionBills() {
+	m.clearedprofit_distribution_bills = true
+}
+
+// ProfitDistributionBillsCleared reports if the "profit_distribution_bills" edge to the ProfitDistributionBill entity was cleared.
+func (m *MerchantMutation) ProfitDistributionBillsCleared() bool {
+	return m.clearedprofit_distribution_bills
+}
+
+// RemoveProfitDistributionBillIDs removes the "profit_distribution_bills" edge to the ProfitDistributionBill entity by IDs.
+func (m *MerchantMutation) RemoveProfitDistributionBillIDs(ids ...uuid.UUID) {
+	if m.removedprofit_distribution_bills == nil {
+		m.removedprofit_distribution_bills = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.profit_distribution_bills, ids[i])
+		m.removedprofit_distribution_bills[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProfitDistributionBills returns the removed IDs of the "profit_distribution_bills" edge to the ProfitDistributionBill entity.
+func (m *MerchantMutation) RemovedProfitDistributionBillsIDs() (ids []uuid.UUID) {
+	for id := range m.removedprofit_distribution_bills {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProfitDistributionBillsIDs returns the "profit_distribution_bills" edge IDs in the mutation.
+func (m *MerchantMutation) ProfitDistributionBillsIDs() (ids []uuid.UUID) {
+	for id := range m.profit_distribution_bills {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProfitDistributionBills resets all changes to the "profit_distribution_bills" edge.
+func (m *MerchantMutation) ResetProfitDistributionBills() {
+	m.profit_distribution_bills = nil
+	m.clearedprofit_distribution_bills = false
+	m.removedprofit_distribution_bills = nil
+}
+
 // Where appends a list predicates to the MerchantMutation builder.
 func (m *MerchantMutation) Where(ps ...predicate.Merchant) {
 	m.predicates = append(m.predicates, ps...)
@@ -14835,7 +14892,7 @@ func (m *MerchantMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MerchantMutation) AddedEdges() []string {
-	edges := make([]string, 0, 17)
+	edges := make([]string, 0, 18)
 	if m.merchant_business_type != nil {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
 	}
@@ -14886,6 +14943,9 @@ func (m *MerchantMutation) AddedEdges() []string {
 	}
 	if m.store_users != nil {
 		edges = append(edges, merchant.EdgeStoreUsers)
+	}
+	if m.profit_distribution_bills != nil {
+		edges = append(edges, merchant.EdgeProfitDistributionBills)
 	}
 	return edges
 }
@@ -14986,13 +15046,19 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case merchant.EdgeProfitDistributionBills:
+		ids := make([]ent.Value, 0, len(m.profit_distribution_bills))
+		for id := range m.profit_distribution_bills {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MerchantMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 17)
+	edges := make([]string, 0, 18)
 	if m.removedbackend_users != nil {
 		edges = append(edges, merchant.EdgeBackendUsers)
 	}
@@ -15028,6 +15094,9 @@ func (m *MerchantMutation) RemovedEdges() []string {
 	}
 	if m.removedstore_users != nil {
 		edges = append(edges, merchant.EdgeStoreUsers)
+	}
+	if m.removedprofit_distribution_bills != nil {
+		edges = append(edges, merchant.EdgeProfitDistributionBills)
 	}
 	return edges
 }
@@ -15108,13 +15177,19 @@ func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case merchant.EdgeProfitDistributionBills:
+		ids := make([]ent.Value, 0, len(m.removedprofit_distribution_bills))
+		for id := range m.removedprofit_distribution_bills {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MerchantMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 17)
+	edges := make([]string, 0, 18)
 	if m.clearedmerchant_business_type {
 		edges = append(edges, merchant.EdgeMerchantBusinessType)
 	}
@@ -15166,6 +15241,9 @@ func (m *MerchantMutation) ClearedEdges() []string {
 	if m.clearedstore_users {
 		edges = append(edges, merchant.EdgeStoreUsers)
 	}
+	if m.clearedprofit_distribution_bills {
+		edges = append(edges, merchant.EdgeProfitDistributionBills)
+	}
 	return edges
 }
 
@@ -15207,6 +15285,8 @@ func (m *MerchantMutation) EdgeCleared(name string) bool {
 		return m.clearedroles
 	case merchant.EdgeStoreUsers:
 		return m.clearedstore_users
+	case merchant.EdgeProfitDistributionBills:
+		return m.clearedprofit_distribution_bills
 	}
 	return false
 }
@@ -15288,6 +15368,9 @@ func (m *MerchantMutation) ResetEdge(name string) error {
 		return nil
 	case merchant.EdgeStoreUsers:
 		m.ResetStoreUsers()
+		return nil
+	case merchant.EdgeProfitDistributionBills:
+		m.ResetProfitDistributionBills()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant edge %s", name)
@@ -31643,8 +31726,6 @@ type ProfitDistributionBillMutation struct {
 	deleted_at        *int64
 	adddeleted_at     *int64
 	no                *string
-	merchant_id       *uuid.UUID
-	store_id          *uuid.UUID
 	receivable_amount *decimal.Decimal
 	payment_amount    *decimal.Decimal
 	status            *domain.ProfitDistributionBillStatus
@@ -31653,6 +31734,10 @@ type ProfitDistributionBillMutation struct {
 	end_date          *time.Time
 	rule_snapshot     **domain.ProfitDistributionRuleSnapshot
 	clearedFields     map[string]struct{}
+	merchant          *uuid.UUID
+	clearedmerchant   bool
+	store             *uuid.UUID
+	clearedstore      bool
 	done              bool
 	oldValue          func(context.Context) (*ProfitDistributionBill, error)
 	predicates        []predicate.ProfitDistributionBill
@@ -31928,12 +32013,12 @@ func (m *ProfitDistributionBillMutation) ResetNo() {
 
 // SetMerchantID sets the "merchant_id" field.
 func (m *ProfitDistributionBillMutation) SetMerchantID(u uuid.UUID) {
-	m.merchant_id = &u
+	m.merchant = &u
 }
 
 // MerchantID returns the value of the "merchant_id" field in the mutation.
 func (m *ProfitDistributionBillMutation) MerchantID() (r uuid.UUID, exists bool) {
-	v := m.merchant_id
+	v := m.merchant
 	if v == nil {
 		return
 	}
@@ -31959,17 +32044,17 @@ func (m *ProfitDistributionBillMutation) OldMerchantID(ctx context.Context) (v u
 
 // ResetMerchantID resets all changes to the "merchant_id" field.
 func (m *ProfitDistributionBillMutation) ResetMerchantID() {
-	m.merchant_id = nil
+	m.merchant = nil
 }
 
 // SetStoreID sets the "store_id" field.
 func (m *ProfitDistributionBillMutation) SetStoreID(u uuid.UUID) {
-	m.store_id = &u
+	m.store = &u
 }
 
 // StoreID returns the value of the "store_id" field in the mutation.
 func (m *ProfitDistributionBillMutation) StoreID() (r uuid.UUID, exists bool) {
-	v := m.store_id
+	v := m.store
 	if v == nil {
 		return
 	}
@@ -31995,7 +32080,7 @@ func (m *ProfitDistributionBillMutation) OldStoreID(ctx context.Context) (v uuid
 
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *ProfitDistributionBillMutation) ResetStoreID() {
-	m.store_id = nil
+	m.store = nil
 }
 
 // SetReceivableAmount sets the "receivable_amount" field.
@@ -32250,6 +32335,60 @@ func (m *ProfitDistributionBillMutation) ResetRuleSnapshot() {
 	m.rule_snapshot = nil
 }
 
+// ClearMerchant clears the "merchant" edge to the Merchant entity.
+func (m *ProfitDistributionBillMutation) ClearMerchant() {
+	m.clearedmerchant = true
+	m.clearedFields[profitdistributionbill.FieldMerchantID] = struct{}{}
+}
+
+// MerchantCleared reports if the "merchant" edge to the Merchant entity was cleared.
+func (m *ProfitDistributionBillMutation) MerchantCleared() bool {
+	return m.clearedmerchant
+}
+
+// MerchantIDs returns the "merchant" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MerchantID instead. It exists only for internal usage by the builders.
+func (m *ProfitDistributionBillMutation) MerchantIDs() (ids []uuid.UUID) {
+	if id := m.merchant; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMerchant resets all changes to the "merchant" edge.
+func (m *ProfitDistributionBillMutation) ResetMerchant() {
+	m.merchant = nil
+	m.clearedmerchant = false
+}
+
+// ClearStore clears the "store" edge to the Store entity.
+func (m *ProfitDistributionBillMutation) ClearStore() {
+	m.clearedstore = true
+	m.clearedFields[profitdistributionbill.FieldStoreID] = struct{}{}
+}
+
+// StoreCleared reports if the "store" edge to the Store entity was cleared.
+func (m *ProfitDistributionBillMutation) StoreCleared() bool {
+	return m.clearedstore
+}
+
+// StoreIDs returns the "store" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// StoreID instead. It exists only for internal usage by the builders.
+func (m *ProfitDistributionBillMutation) StoreIDs() (ids []uuid.UUID) {
+	if id := m.store; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetStore resets all changes to the "store" edge.
+func (m *ProfitDistributionBillMutation) ResetStore() {
+	m.store = nil
+	m.clearedstore = false
+}
+
 // Where appends a list predicates to the ProfitDistributionBillMutation builder.
 func (m *ProfitDistributionBillMutation) Where(ps ...predicate.ProfitDistributionBill) {
 	m.predicates = append(m.predicates, ps...)
@@ -32297,10 +32436,10 @@ func (m *ProfitDistributionBillMutation) Fields() []string {
 	if m.no != nil {
 		fields = append(fields, profitdistributionbill.FieldNo)
 	}
-	if m.merchant_id != nil {
+	if m.merchant != nil {
 		fields = append(fields, profitdistributionbill.FieldMerchantID)
 	}
-	if m.store_id != nil {
+	if m.store != nil {
 		fields = append(fields, profitdistributionbill.FieldStoreID)
 	}
 	if m.receivable_amount != nil {
@@ -32602,19 +32741,35 @@ func (m *ProfitDistributionBillMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProfitDistributionBillMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.merchant != nil {
+		edges = append(edges, profitdistributionbill.EdgeMerchant)
+	}
+	if m.store != nil {
+		edges = append(edges, profitdistributionbill.EdgeStore)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *ProfitDistributionBillMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case profitdistributionbill.EdgeMerchant:
+		if id := m.merchant; id != nil {
+			return []ent.Value{*id}
+		}
+	case profitdistributionbill.EdgeStore:
+		if id := m.store; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProfitDistributionBillMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -32626,25 +32781,53 @@ func (m *ProfitDistributionBillMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProfitDistributionBillMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.clearedmerchant {
+		edges = append(edges, profitdistributionbill.EdgeMerchant)
+	}
+	if m.clearedstore {
+		edges = append(edges, profitdistributionbill.EdgeStore)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *ProfitDistributionBillMutation) EdgeCleared(name string) bool {
+	switch name {
+	case profitdistributionbill.EdgeMerchant:
+		return m.clearedmerchant
+	case profitdistributionbill.EdgeStore:
+		return m.clearedstore
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *ProfitDistributionBillMutation) ClearEdge(name string) error {
+	switch name {
+	case profitdistributionbill.EdgeMerchant:
+		m.ClearMerchant()
+		return nil
+	case profitdistributionbill.EdgeStore:
+		m.ClearStore()
+		return nil
+	}
 	return fmt.Errorf("unknown ProfitDistributionBill unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *ProfitDistributionBillMutation) ResetEdge(name string) error {
+	switch name {
+	case profitdistributionbill.EdgeMerchant:
+		m.ResetMerchant()
+		return nil
+	case profitdistributionbill.EdgeStore:
+		m.ResetStore()
+		return nil
+	}
 	return fmt.Errorf("unknown ProfitDistributionBill edge %s", name)
 }
 
@@ -40849,6 +41032,9 @@ type StoreMutation struct {
 	profit_distribution_rules        map[uuid.UUID]struct{}
 	removedprofit_distribution_rules map[uuid.UUID]struct{}
 	clearedprofit_distribution_rules bool
+	profit_distribution_bills        map[uuid.UUID]struct{}
+	removedprofit_distribution_bills map[uuid.UUID]struct{}
+	clearedprofit_distribution_bills bool
 	done                             bool
 	oldValue                         func(context.Context) (*Store, error)
 	predicates                       []predicate.Store
@@ -43111,6 +43297,60 @@ func (m *StoreMutation) ResetProfitDistributionRules() {
 	m.removedprofit_distribution_rules = nil
 }
 
+// AddProfitDistributionBillIDs adds the "profit_distribution_bills" edge to the ProfitDistributionBill entity by ids.
+func (m *StoreMutation) AddProfitDistributionBillIDs(ids ...uuid.UUID) {
+	if m.profit_distribution_bills == nil {
+		m.profit_distribution_bills = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.profit_distribution_bills[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProfitDistributionBills clears the "profit_distribution_bills" edge to the ProfitDistributionBill entity.
+func (m *StoreMutation) ClearProfitDistributionBills() {
+	m.clearedprofit_distribution_bills = true
+}
+
+// ProfitDistributionBillsCleared reports if the "profit_distribution_bills" edge to the ProfitDistributionBill entity was cleared.
+func (m *StoreMutation) ProfitDistributionBillsCleared() bool {
+	return m.clearedprofit_distribution_bills
+}
+
+// RemoveProfitDistributionBillIDs removes the "profit_distribution_bills" edge to the ProfitDistributionBill entity by IDs.
+func (m *StoreMutation) RemoveProfitDistributionBillIDs(ids ...uuid.UUID) {
+	if m.removedprofit_distribution_bills == nil {
+		m.removedprofit_distribution_bills = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.profit_distribution_bills, ids[i])
+		m.removedprofit_distribution_bills[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProfitDistributionBills returns the removed IDs of the "profit_distribution_bills" edge to the ProfitDistributionBill entity.
+func (m *StoreMutation) RemovedProfitDistributionBillsIDs() (ids []uuid.UUID) {
+	for id := range m.removedprofit_distribution_bills {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProfitDistributionBillsIDs returns the "profit_distribution_bills" edge IDs in the mutation.
+func (m *StoreMutation) ProfitDistributionBillsIDs() (ids []uuid.UUID) {
+	for id := range m.profit_distribution_bills {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProfitDistributionBills resets all changes to the "profit_distribution_bills" edge.
+func (m *StoreMutation) ResetProfitDistributionBills() {
+	m.profit_distribution_bills = nil
+	m.clearedprofit_distribution_bills = false
+	m.removedprofit_distribution_bills = nil
+}
+
 // Where appends a list predicates to the StoreMutation builder.
 func (m *StoreMutation) Where(ps ...predicate.Store) {
 	m.predicates = append(m.predicates, ps...)
@@ -43891,7 +44131,7 @@ func (m *StoreMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StoreMutation) AddedEdges() []string {
-	edges := make([]string, 0, 16)
+	edges := make([]string, 0, 17)
 	if m.merchant != nil {
 		edges = append(edges, store.EdgeMerchant)
 	}
@@ -43939,6 +44179,9 @@ func (m *StoreMutation) AddedEdges() []string {
 	}
 	if m.profit_distribution_rules != nil {
 		edges = append(edges, store.EdgeProfitDistributionRules)
+	}
+	if m.profit_distribution_bills != nil {
+		edges = append(edges, store.EdgeProfitDistributionBills)
 	}
 	return edges
 }
@@ -44031,13 +44274,19 @@ func (m *StoreMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case store.EdgeProfitDistributionBills:
+		ids := make([]ent.Value, 0, len(m.profit_distribution_bills))
+		for id := range m.profit_distribution_bills {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StoreMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 16)
+	edges := make([]string, 0, 17)
 	if m.removedstore_users != nil {
 		edges = append(edges, store.EdgeStoreUsers)
 	}
@@ -44067,6 +44316,9 @@ func (m *StoreMutation) RemovedEdges() []string {
 	}
 	if m.removedprofit_distribution_rules != nil {
 		edges = append(edges, store.EdgeProfitDistributionRules)
+	}
+	if m.removedprofit_distribution_bills != nil {
+		edges = append(edges, store.EdgeProfitDistributionBills)
 	}
 	return edges
 }
@@ -44135,13 +44387,19 @@ func (m *StoreMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case store.EdgeProfitDistributionBills:
+		ids := make([]ent.Value, 0, len(m.removedprofit_distribution_bills))
+		for id := range m.removedprofit_distribution_bills {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StoreMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 16)
+	edges := make([]string, 0, 17)
 	if m.clearedmerchant {
 		edges = append(edges, store.EdgeMerchant)
 	}
@@ -44190,6 +44448,9 @@ func (m *StoreMutation) ClearedEdges() []string {
 	if m.clearedprofit_distribution_rules {
 		edges = append(edges, store.EdgeProfitDistributionRules)
 	}
+	if m.clearedprofit_distribution_bills {
+		edges = append(edges, store.EdgeProfitDistributionBills)
+	}
 	return edges
 }
 
@@ -44229,6 +44490,8 @@ func (m *StoreMutation) EdgeCleared(name string) bool {
 		return m.clearedroles
 	case store.EdgeProfitDistributionRules:
 		return m.clearedprofit_distribution_rules
+	case store.EdgeProfitDistributionBills:
+		return m.clearedprofit_distribution_bills
 	}
 	return false
 }
@@ -44310,6 +44573,9 @@ func (m *StoreMutation) ResetEdge(name string) error {
 		return nil
 	case store.EdgeProfitDistributionRules:
 		m.ResetProfitDistributionRules()
+		return nil
+	case store.EdgeProfitDistributionBills:
+		m.ResetProfitDistributionBills()
 		return nil
 	}
 	return fmt.Errorf("unknown Store edge %s", name)

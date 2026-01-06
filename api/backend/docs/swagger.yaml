@@ -629,6 +629,14 @@ definitions:
     - purchase_duration
     - purchase_duration_unit
     type: object
+  domain.MerchantSimple:
+    properties:
+      id:
+        type: string
+      merchant_name:
+        description: 商户名称
+        type: string
+    type: object
   domain.MerchantStatus:
     enum:
     - active
@@ -1213,6 +1221,88 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.ProfitDistributionBill:
+    properties:
+      bill_date:
+        description: 账单日期
+        type: string
+      created_at:
+        description: 创建时间
+        type: string
+      end_date:
+        description: 账单周期：结束日期
+        type: string
+      id:
+        description: 分账账单ID
+        type: string
+      merchant:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantSimple'
+        description: 关联数据
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      "no":
+        description: 分账账单编号
+        type: string
+      payment_amount:
+        description: 打款金额（令吉）
+        type: number
+      receivable_amount:
+        description: 应收金额（令吉）
+        type: number
+      rule_snapshot:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionRuleSnapshot'
+        description: 分账方案快照
+      start_date:
+        description: 账单周期：开始日期
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionBillStatus'
+        description: 分账状态
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.StoreSimple'
+        description: 门店
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProfitDistributionBillSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProfitDistributionBill'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
+  domain.ProfitDistributionBillStatus:
+    enum:
+    - unpaid
+    - paid
+    type: string
+    x-enum-comments:
+      ProfitDistributionBillStatusPaid: 已打款
+      ProfitDistributionBillStatusUnpaid: 未打款
+    x-enum-descriptions:
+    - 未打款
+    - 已打款
+    x-enum-varnames:
+    - ProfitDistributionBillStatusUnpaid
+    - ProfitDistributionBillStatusPaid
   domain.ProfitDistributionRule:
     properties:
       bill_generation_day:
@@ -1288,6 +1378,18 @@ definitions:
       total:
         description: 总页数
         type: integer
+    type: object
+  domain.ProfitDistributionRuleSnapshot:
+    properties:
+      rule_id:
+        description: 分账方案ID
+        type: string
+      rule_name:
+        description: 分账方案名称
+        type: string
+      split_ratio:
+        description: 分账比例
+        type: number
     type: object
   domain.ProfitDistributionRuleStatus:
     enum:
@@ -2906,6 +3008,14 @@ definitions:
     - sale_status
     - spec_relations
     - unit_id
+    type: object
+  types.ProfitDistributionBillPayReq:
+    properties:
+      payment_amount:
+        description: 打款金额（必选，单位：令吉）
+        type: number
+    required:
+    - payment_amount
     type: object
   types.ProfitDistributionRuleCreateReq:
     properties:
@@ -4898,6 +5008,73 @@ paths:
       summary: 更新商品单位
       tags:
       - 商品单位
+  /profit/distribution/bill:
+    get:
+      parameters:
+      - description: 账单结束日期
+        in: query
+        name: bill_end_date
+        type: string
+      - description: 账单开始日期
+        in: query
+        name: bill_start_date
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      - description: 分账状态（可选）
+        enum:
+        - unpaid
+        - paid
+        in: query
+        name: status
+        type: string
+      - collectionFormat: csv
+        description: 门店ID列表（可选，多选）
+        in: query
+        items:
+          type: string
+        name: store_ids
+        type: array
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProfitDistributionBillSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询分账账单列表
+      tags:
+      - 分账账单
+  /profit/distribution/bill/{id}/pay:
+    post:
+      parameters:
+      - description: 分账账单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 打款信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ProfitDistributionBillPayReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 打款分账账单
+      tags:
+      - 分账账单
   /profit/distribution/rule:
     get:
       parameters:

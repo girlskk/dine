@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
@@ -43,8 +44,26 @@ const (
 	FieldEndDate = "end_date"
 	// FieldRuleSnapshot holds the string denoting the rule_snapshot field in the database.
 	FieldRuleSnapshot = "rule_snapshot"
+	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
+	EdgeMerchant = "merchant"
+	// EdgeStore holds the string denoting the store edge name in mutations.
+	EdgeStore = "store"
 	// Table holds the table name of the profitdistributionbill in the database.
 	Table = "profit_distribution_bills"
+	// MerchantTable is the table that holds the merchant relation/edge.
+	MerchantTable = "profit_distribution_bills"
+	// MerchantInverseTable is the table name for the Merchant entity.
+	// It exists in this package in order to avoid circular dependency with the "merchant" package.
+	MerchantInverseTable = "merchants"
+	// MerchantColumn is the table column denoting the merchant relation/edge.
+	MerchantColumn = "merchant_id"
+	// StoreTable is the table that holds the store relation/edge.
+	StoreTable = "profit_distribution_bills"
+	// StoreInverseTable is the table name for the Store entity.
+	// It exists in this package in order to avoid circular dependency with the "store" package.
+	StoreInverseTable = "stores"
+	// StoreColumn is the table column denoting the store relation/edge.
+	StoreColumn = "store_id"
 )
 
 // Columns holds all SQL columns for profitdistributionbill fields.
@@ -175,4 +194,32 @@ func ByStartDate(opts ...sql.OrderTermOption) OrderOption {
 // ByEndDate orders the results by the end_date field.
 func ByEndDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEndDate, opts...).ToFunc()
+}
+
+// ByMerchantField orders the results by merchant field.
+func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByStoreField orders the results by store field.
+func ByStoreField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStoreStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newMerchantStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MerchantInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
+	)
+}
+func newStoreStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StoreInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, StoreTable, StoreColumn),
+	)
 }

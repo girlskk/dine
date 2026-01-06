@@ -13,7 +13,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // ProfitDistributionBill is the model entity for the ProfitDistributionBill schema.
@@ -48,7 +50,43 @@ type ProfitDistributionBill struct {
 	EndDate time.Time `json:"end_date,omitempty"`
 	// 分账方案快照
 	RuleSnapshot *domain.ProfitDistributionRuleSnapshot `json:"rule_snapshot,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ProfitDistributionBillQuery when eager-loading is set.
+	Edges        ProfitDistributionBillEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ProfitDistributionBillEdges holds the relations/edges for other nodes in the graph.
+type ProfitDistributionBillEdges struct {
+	// Merchant holds the value of the merchant edge.
+	Merchant *Merchant `json:"merchant,omitempty"`
+	// Store holds the value of the store edge.
+	Store *Store `json:"store,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// MerchantOrErr returns the Merchant value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProfitDistributionBillEdges) MerchantOrErr() (*Merchant, error) {
+	if e.Merchant != nil {
+		return e.Merchant, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: merchant.Label}
+	}
+	return nil, &NotLoadedError{edge: "merchant"}
+}
+
+// StoreOrErr returns the Store value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProfitDistributionBillEdges) StoreOrErr() (*Store, error) {
+	if e.Store != nil {
+		return e.Store, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: store.Label}
+	}
+	return nil, &NotLoadedError{edge: "store"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -180,6 +218,16 @@ func (pdb *ProfitDistributionBill) assignValues(columns []string, values []any) 
 // This includes values selected through modifiers, order, etc.
 func (pdb *ProfitDistributionBill) Value(name string) (ent.Value, error) {
 	return pdb.selectValues.Get(name)
+}
+
+// QueryMerchant queries the "merchant" edge of the ProfitDistributionBill entity.
+func (pdb *ProfitDistributionBill) QueryMerchant() *MerchantQuery {
+	return NewProfitDistributionBillClient(pdb.config).QueryMerchant(pdb)
+}
+
+// QueryStore queries the "store" edge of the ProfitDistributionBill entity.
+func (pdb *ProfitDistributionBill) QueryStore() *StoreQuery {
+	return NewProfitDistributionBillClient(pdb.config).QueryStore(pdb)
 }
 
 // Update returns a builder for updating this ProfitDistributionBill.

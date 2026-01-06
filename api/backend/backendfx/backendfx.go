@@ -55,6 +55,7 @@ var Module = fx.Module(
 		asHandler(handler.NewRemarkHandler),
 		asHandler(handler.NewMenuHandler),
 		asHandler(handler.NewProfitDistributionRuleHandler),
+		asHandler(handler.NewProfitDistributionBillHandler),
 		asHandler(handler.NewRegionHandler),
 		asHandler(handler.NewStoreHandler),
 		asHandler(handler.NewMerchantHandler),

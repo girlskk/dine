@@ -180,6 +180,7 @@ func (Store) Edges() []ent.Edge {
 		edge.To("departments", Department.Type),
 		edge.To("roles", Role.Type),
 		edge.From("profit_distribution_rules", ProfitDistributionRule.Type).Ref("stores").Comment("关联的分账方案"),
+		edge.To("profit_distribution_bills", ProfitDistributionBill.Type).Comment("关联的分账账单"),
 	}
 }
 

@@ -13,18 +13,22 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // ProfitDistributionBillQuery is the builder for querying ProfitDistributionBill entities.
 type ProfitDistributionBillQuery struct {
 	config
-	ctx        *QueryContext
-	order      []profitdistributionbill.OrderOption
-	inters     []Interceptor
-	predicates []predicate.ProfitDistributionBill
-	modifiers  []func(*sql.Selector)
+	ctx          *QueryContext
+	order        []profitdistributionbill.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.ProfitDistributionBill
+	withMerchant *MerchantQuery
+	withStore    *StoreQuery
+	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +63,50 @@ func (pdbq *ProfitDistributionBillQuery) Unique(unique bool) *ProfitDistribution
 func (pdbq *ProfitDistributionBillQuery) Order(o ...profitdistributionbill.OrderOption) *ProfitDistributionBillQuery {
 	pdbq.order = append(pdbq.order, o...)
 	return pdbq
+}
+
+// QueryMerchant chains the current query on the "merchant" edge.
+func (pdbq *ProfitDistributionBillQuery) QueryMerchant() *MerchantQuery {
+	query := (&MerchantClient{config: pdbq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pdbq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pdbq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionbill.Table, profitdistributionbill.FieldID, selector),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, profitdistributionbill.MerchantTable, profitdistributionbill.MerchantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pdbq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStore chains the current query on the "store" edge.
+func (pdbq *ProfitDistributionBillQuery) QueryStore() *StoreQuery {
+	query := (&StoreClient{config: pdbq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pdbq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pdbq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionbill.Table, profitdistributionbill.FieldID, selector),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, profitdistributionbill.StoreTable, profitdistributionbill.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pdbq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first ProfitDistributionBill entity from the query.
@@ -248,16 +296,40 @@ func (pdbq *ProfitDistributionBillQuery) Clone() *ProfitDistributionBillQuery {
 		return nil
 	}
 	return &ProfitDistributionBillQuery{
-		config:     pdbq.config,
-		ctx:        pdbq.ctx.Clone(),
-		order:      append([]profitdistributionbill.OrderOption{}, pdbq.order...),
-		inters:     append([]Interceptor{}, pdbq.inters...),
-		predicates: append([]predicate.ProfitDistributionBill{}, pdbq.predicates...),
+		config:       pdbq.config,
+		ctx:          pdbq.ctx.Clone(),
+		order:        append([]profitdistributionbill.OrderOption{}, pdbq.order...),
+		inters:       append([]Interceptor{}, pdbq.inters...),
+		predicates:   append([]predicate.ProfitDistributionBill{}, pdbq.predicates...),
+		withMerchant: pdbq.withMerchant.Clone(),
+		withStore:    pdbq.withStore.Clone(),
 		// clone intermediate query.
 		sql:       pdbq.sql.Clone(),
 		path:      pdbq.path,
 		modifiers: append([]func(*sql.Selector){}, pdbq.modifiers...),
 	}
+}
+
+// WithMerchant tells the query-builder to eager-load the nodes that are connected to
+// the "merchant" edge. The optional arguments are used to configure the query builder of the edge.
+func (pdbq *ProfitDistributionBillQuery) WithMerchant(opts ...func(*MerchantQuery)) *ProfitDistributionBillQuery {
+	query := (&MerchantClient{config: pdbq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pdbq.withMerchant = query
+	return pdbq
+}
+
+// WithStore tells the query-builder to eager-load the nodes that are connected to
+// the "store" edge. The optional arguments are used to configure the query builder of the edge.
+func (pdbq *ProfitDistributionBillQuery) WithStore(opts ...func(*StoreQuery)) *ProfitDistributionBillQuery {
+	query := (&StoreClient{config: pdbq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pdbq.withStore = query
+	return pdbq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +408,12 @@ func (pdbq *ProfitDistributionBillQuery) prepareQuery(ctx context.Context) error
 
 func (pdbq *ProfitDistributionBillQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ProfitDistributionBill, error) {
 	var (
-		nodes = []*ProfitDistributionBill{}
-		_spec = pdbq.querySpec()
+		nodes       = []*ProfitDistributionBill{}
+		_spec       = pdbq.querySpec()
+		loadedTypes = [2]bool{
+			pdbq.withMerchant != nil,
+			pdbq.withStore != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ProfitDistributionBill).scanValues(nil, columns)
@@ -345,6 +421,7 @@ func (pdbq *ProfitDistributionBillQuery) sqlAll(ctx context.Context, hooks ...qu
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &ProfitDistributionBill{config: pdbq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(pdbq.modifiers) > 0 {
@@ -359,7 +436,78 @@ func (pdbq *ProfitDistributionBillQuery) sqlAll(ctx context.Context, hooks ...qu
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := pdbq.withMerchant; query != nil {
+		if err := pdbq.loadMerchant(ctx, query, nodes, nil,
+			func(n *ProfitDistributionBill, e *Merchant) { n.Edges.Merchant = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pdbq.withStore; query != nil {
+		if err := pdbq.loadStore(ctx, query, nodes, nil,
+			func(n *ProfitDistributionBill, e *Store) { n.Edges.Store = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (pdbq *ProfitDistributionBillQuery) loadMerchant(ctx context.Context, query *MerchantQuery, nodes []*ProfitDistributionBill, init func(*ProfitDistributionBill), assign func(*ProfitDistributionBill, *Merchant)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*ProfitDistributionBill)
+	for i := range nodes {
+		fk := nodes[i].MerchantID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(merchant.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "merchant_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (pdbq *ProfitDistributionBillQuery) loadStore(ctx context.Context, query *StoreQuery, nodes []*ProfitDistributionBill, init func(*ProfitDistributionBill), assign func(*ProfitDistributionBill, *Store)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*ProfitDistributionBill)
+	for i := range nodes {
+		fk := nodes[i].StoreID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(store.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "store_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (pdbq *ProfitDistributionBillQuery) sqlCount(ctx context.Context) (int, error) {
@@ -389,6 +537,12 @@ func (pdbq *ProfitDistributionBillQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != profitdistributionbill.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if pdbq.withMerchant != nil {
+			_spec.Node.AddColumnOnce(profitdistributionbill.FieldMerchantID)
+		}
+		if pdbq.withStore != nil {
+			_spec.Node.AddColumnOnce(profitdistributionbill.FieldStoreID)
 		}
 	}
 	if ps := pdbq.predicates; len(ps) > 0 {

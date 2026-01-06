@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,7 +14,10 @@ import (
 // 错误定义
 // ------------------------------------------------------------
 
-var ()
+var (
+	ErrProfitDistributionBillNotExists     = errors.New("分账账单不存在")
+	ErrProfitDistributionBillStatusInvalid = errors.New("分账账单状态无效，只有未打款状态的账单才能打款")
+)
 
 // ------------------------------------------------------------
 // 枚举定义
@@ -45,6 +49,9 @@ type ProfitDistributionConfig struct {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/profit_distribution_bill_repository.go -package=mock . ProfitDistributionBillRepository
 type ProfitDistributionBillRepository interface {
 	CreateBulk(ctx context.Context, bills []*ProfitDistributionBill) error
+	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProfitDistributionBillSearchParams) (*ProfitDistributionBillSearchRes, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*ProfitDistributionBill, error)
+	Update(ctx context.Context, bill *ProfitDistributionBill) error
 }
 
 // ProfitDistributionBillInteractor 分账账单用例接口
@@ -53,6 +60,7 @@ type ProfitDistributionBillRepository interface {
 type ProfitDistributionBillInteractor interface {
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProfitDistributionBillSearchParams) (*ProfitDistributionBillSearchRes, error)
 	GenerateProfitDistributionBills(ctx context.Context) error
+	Pay(ctx context.Context, id uuid.UUID, paymentAmount decimal.Decimal, user User) error
 }
 
 // ------------------------------------------------------------
@@ -74,6 +82,9 @@ type ProfitDistributionBill struct {
 	RuleSnapshot     *ProfitDistributionRuleSnapshot `json:"rule_snapshot"`     // 分账方案快照
 	CreatedAt        time.Time                       `json:"created_at"`        // 创建时间
 	UpdatedAt        time.Time                       `json:"updated_at"`        // 更新时间
+	// 关联数据
+	Merchant *MerchantSimple `json:"merchant"` // 品牌商
+	Store    *StoreSimple    `json:"store"`    // 门店
 }
 
 // ProfitDistributionRuleSnapshot 分账方案快照（用于账单历史追溯）
@@ -92,11 +103,11 @@ type ProfitDistributionBills []*ProfitDistributionBill
 
 // ProfitDistributionBillSearchParams 查询参数
 type ProfitDistributionBillSearchParams struct {
-	MerchantID    uuid.UUID
-	StoreIDs      []uuid.UUID
-	BillStartDate *time.Time
-	BillEndDate   *time.Time
-	Status        ProfitDistributionBillStatus
+	MerchantID    uuid.UUID                    // 品牌商ID（必填）
+	StoreIDs      []uuid.UUID                  // 门店ID列表（可选）
+	BillStartDate *time.Time                   // 账单开始日期（可选）
+	BillEndDate   *time.Time                   // 账单结束日期（可选）
+	Status        ProfitDistributionBillStatus // 分账状态（可选，空字符串表示全部）
 }
 
 // ProfitDistributionBillSearchRes 查询结果

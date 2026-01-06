@@ -9,6 +9,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
+	decimal "github.com/shopspring/decimal"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
@@ -63,4 +65,18 @@ func (m *MockProfitDistributionBillInteractor) PagedListBySearch(arg0 context.Co
 func (mr *MockProfitDistributionBillInteractorMockRecorder) PagedListBySearch(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListBySearch", reflect.TypeOf((*MockProfitDistributionBillInteractor)(nil).PagedListBySearch), arg0, arg1, arg2)
+}
+
+// Pay mocks base method.
+func (m *MockProfitDistributionBillInteractor) Pay(arg0 context.Context, arg1 uuid.UUID, arg2 decimal.Decimal, arg3 domain.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Pay", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Pay indicates an expected call of Pay.
+func (mr *MockProfitDistributionBillInteractorMockRecorder) Pay(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Pay", reflect.TypeOf((*MockProfitDistributionBillInteractor)(nil).Pay), arg0, arg1, arg2, arg3)
 }

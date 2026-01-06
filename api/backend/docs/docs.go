@@ -2023,6 +2023,111 @@ const docTemplate = `{
                 }
             }
         },
+        "/profit/distribution/bill": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "查询分账账单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账单结束日期",
+                        "name": "bill_end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "账单开始日期",
+                        "name": "bill_start_date",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "unpaid",
+                            "paid"
+                        ],
+                        "type": "string",
+                        "description": "分账状态（可选）",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "门店ID列表（可选，多选）",
+                        "name": "store_ids",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillSearchRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/profit/distribution/bill/{id}/pay": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "打款分账账单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账账单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "打款信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionBillPayReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/profit/distribution/rule": {
             "get": {
                 "security": [
@@ -5615,6 +5720,18 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.MerchantSimple": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "商户名称",
+                    "type": "string"
+                }
+            }
+        },
         "domain.MerchantStatus": {
             "type": "string",
             "enum": [
@@ -6429,6 +6546,129 @@ const docTemplate = `{
                 "ProductUnitTypeWeight"
             ]
         },
+        "domain.ProfitDistributionBill": {
+            "type": "object",
+            "properties": {
+                "bill_date": {
+                    "description": "账单日期",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "end_date": {
+                    "description": "账单周期：结束日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账账单ID",
+                    "type": "string"
+                },
+                "merchant": {
+                    "description": "关联数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.MerchantSimple"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "no": {
+                    "description": "分账账单编号",
+                    "type": "string"
+                },
+                "payment_amount": {
+                    "description": "打款金额（令吉）",
+                    "type": "number"
+                },
+                "receivable_amount": {
+                    "description": "应收金额（令吉）",
+                    "type": "number"
+                },
+                "rule_snapshot": {
+                    "description": "分账方案快照",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSnapshot"
+                        }
+                    ]
+                },
+                "start_date": {
+                    "description": "账单周期：开始日期",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "分账状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillStatus"
+                        }
+                    ]
+                },
+                "store": {
+                    "description": "门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionBill"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillStatus": {
+            "type": "string",
+            "enum": [
+                "unpaid",
+                "paid"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionBillStatusPaid": "已打款",
+                "ProfitDistributionBillStatusUnpaid": "未打款"
+            },
+            "x-enum-descriptions": [
+                "未打款",
+                "已打款"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionBillStatusUnpaid",
+                "ProfitDistributionBillStatusPaid"
+            ]
+        },
         "domain.ProfitDistributionRule": {
             "type": "object",
             "properties": {
@@ -6536,6 +6776,23 @@ const docTemplate = `{
                 "total": {
                     "description": "总页数",
                     "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleSnapshot": {
+            "type": "object",
+            "properties": {
+                "rule_id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "rule_name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例",
+                    "type": "number"
                 }
             }
         },
@@ -8819,6 +9076,18 @@ const docTemplate = `{
                 "unit_id": {
                     "description": "属性关联",
                     "type": "string"
+                }
+            }
+        },
+        "types.ProfitDistributionBillPayReq": {
+            "type": "object",
+            "required": [
+                "payment_amount"
+            ],
+            "properties": {
+                "payment_amount": {
+                    "description": "打款金额（必选，单位：令吉）",
+                    "type": "number"
                 }
             }
         },
