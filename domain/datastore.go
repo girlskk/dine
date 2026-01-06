@@ -35,6 +35,7 @@ type DataStore interface {
 	CountryRepo() CountryRepository
 	ProvinceRepo() ProvinceRepository
 	DepartmentRepo() DepartmentRepository
+	PaymentMethodRepo() PaymentMethodRepository
 	ProfitDistributionBillRepo() ProfitDistributionBillRepository
 }
 

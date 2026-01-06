@@ -54,6 +54,9 @@ type Order func(*sql.Selector)
 // OrderProduct is the predicate function for orderproduct builders.
 type OrderProduct func(*sql.Selector)
 
+// PaymentMethod is the predicate function for paymentmethod builders.
+type PaymentMethod func(*sql.Selector)
+
 // Product is the predicate function for product builders.
 type Product func(*sql.Selector)
 

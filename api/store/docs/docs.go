@@ -3810,9 +3810,19 @@ const docTemplate = `{
                 "Mobile",
                 "Scan",
                 "SelfService",
+                "ThirdParty",
+                "POS",
+                "Mobile",
+                "Scan",
+                "SelfService",
                 "ThirdParty"
             ],
             "x-enum-comments": {
+                "PaymentMethodDisplayChannelMobileOrdering": "移动点餐",
+                "PaymentMethodDisplayChannelPOS": "POS",
+                "PaymentMethodDisplayChannelScanOrdering": "扫码点餐",
+                "PaymentMethodDisplayChannelSelfService": "自助点餐",
+                "PaymentMethodDisplayChannelThirdPartyDelivery": "三方外卖",
                 "SaleChannelMobileOrdering": "移动点餐",
                 "SaleChannelPOS": "POS",
                 "SaleChannelScanOrdering": "扫码点餐",
@@ -3824,6 +3834,11 @@ const docTemplate = `{
                 "移动点餐",
                 "扫码点餐",
                 "自助点餐",
+                "三方外卖",
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
                 "三方外卖"
             ],
             "x-enum-varnames": [
@@ -3831,7 +3846,12 @@ const docTemplate = `{
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",
                 "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery"
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -4368,23 +4388,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
