@@ -15,11 +15,22 @@ type DailySequence interface {
 }
 
 const (
-	TaxSequenceKey = "tax:sequence"
+	AdminTaxSequenceKey          = "tax:admin:sequence"          // 运营后台税率序列号
+	BackendTaxSequenceKey        = "tax:backend:sequence"        // 品牌后台税率序列号
+	StoreTaxSequenceKey          = "tax:store:sequence"          // 门店后台税率序列号
+	AdminDepartmentSequenceKey   = "department:admin:sequence"   // 运营后台部门序列号
+	BackendDepartmentSequenceKey = "department:backend:sequence" // 品牌后台部门序列号
+	StoreDepartmentSequenceKey   = "department:store:sequence"   // 门店后台部门序列号
+	AdminUserSequenceKey         = "user:admin:sequence"         // 运营后台用户序列号
+	BackendUserSequenceKey       = "user:backend:sequence"       // 品牌后台用户序列号
+	StoreUserSequenceKey         = "user:store:sequence"         // 门店后台用户序列号
+	AdminRoleSequenceKey         = "role:admin:sequence"         // 运营后台角色序列号
+	BackendRoleSequenceKey       = "role:backend:sequence"       // 品牌后台角色序列号
+	StoreRoleSequenceKey         = "role:store:sequence"         // 门店后台角色序列号
 )
 
-//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/tax_sequence.go -package=mock . TaxSequence
-type TaxSequence interface {
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/incr_sequence.go -package=mock . IncrSequence
+type IncrSequence interface {
 	Next(ctx context.Context) (string, error)
 	Current(ctx context.Context) (string, error)
 }

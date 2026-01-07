@@ -25,6 +25,7 @@ type RoleRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params RoleExistsParams) (bool, error)
 	GetRoles(ctx context.Context, pager *upagination.Pagination, filter *RoleListFilter, orderBys ...RoleListOrderBy) ([]*Role, int, error)
+	ListByIDs(ctx context.Context, ids ...uuid.UUID) ([]*Role, error)
 }
 
 // RoleInteractor 角色用例接口
@@ -59,6 +60,14 @@ func (RoleDataScopeType) Values() []string {
 		string(RoleDataScopeCustom),
 	}
 }
+
+type LoginChannel string
+
+const (
+	LoginChannelPos    LoginChannel = "pos"    // pos
+	LoginChannelMobile LoginChannel = "mobile" // 移动点餐
+	LoginChannelStore  LoginChannel = "store"  // 门店管理后台
+)
 
 // RoleType 角色类型
 type RoleType string
@@ -96,16 +105,17 @@ func NewRoleListOrderByCreatedAt(desc bool) RoleListOrderBy {
 }
 
 type Role struct {
-	ID         uuid.UUID         `json:"id"`
-	Name       string            `json:"name"`
-	Code       string            `json:"code"`
-	RoleType   RoleType          `json:"role_type"`
-	DataScope  RoleDataScopeType `json:"data_scope"`
-	Enable     bool              `json:"enable"`
-	MerchantID uuid.UUID         `json:"merchant_id"`
-	StoreID    uuid.UUID         `json:"store_id"`
-	CreatedAt  time.Time         `json:"created_at"`
-	UpdatedAt  time.Time         `json:"updated_at"`
+	ID            uuid.UUID         `json:"id"`
+	Name          string            `json:"name"`           // 角色名称
+	Code          string            `json:"code"`           // 角色编码
+	RoleType      RoleType          `json:"role_type"`      // 角色类型
+	DataScope     RoleDataScopeType `json:"data_scope"`     // 数据权限范围
+	Enable        bool              `json:"enable"`         // 是否启用
+	MerchantID    uuid.UUID         `json:"merchant_id"`    // 所属商户 ID
+	StoreID       uuid.UUID         `json:"store_id"`       // 所属门店 ID
+	LoginChannels []LoginChannel    `json:"login_channels"` // 允许登录渠道，取自 login_channel，多选
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
 type RoleListFilter struct {
@@ -117,24 +127,25 @@ type RoleListFilter struct {
 }
 
 type CreateRoleParams struct {
-	Name       string            `json:"name"`
-	Code       string            `json:"code"`
-	RoleType   RoleType          `json:"role_type"`
-	DataScope  RoleDataScopeType `json:"data_scope"`
-	Enable     bool              `json:"enable"`
-	MerchantID uuid.UUID         `json:"merchant_id"`
-	StoreID    uuid.UUID         `json:"store_id"`
+	Name          string            `json:"name"`
+	Code          string            `json:"code"`
+	RoleType      RoleType          `json:"role_type"`
+	DataScope     RoleDataScopeType `json:"data_scope"`
+	Enable        bool              `json:"enable"`
+	LoginChannels []LoginChannel    `json:"login_channels"` // 允许登录渠道，取自 login_channel，多选
+	MerchantID    uuid.UUID         `json:"merchant_id"`
+	StoreID       uuid.UUID         `json:"store_id"`
 }
 
 type UpdateRoleParams struct {
-	ID         uuid.UUID         `json:"id"`
-	Name       string            `json:"name"`
-	Code       string            `json:"code"`
-	RoleType   RoleType          `json:"role_type"`
-	DataScope  RoleDataScopeType `json:"data_scope"`
-	Enable     bool              `json:"enable"`
-	MerchantID uuid.UUID         `json:"merchant_id"`
-	StoreID    uuid.UUID         `json:"store_id"`
+	ID            uuid.UUID         `json:"id"`
+	Name          string            `json:"name"`
+	RoleType      RoleType          `json:"role_type"`
+	DataScope     RoleDataScopeType `json:"data_scope"`
+	Enable        bool              `json:"enable"`
+	LoginChannels []LoginChannel    `json:"login_channels"` // 允许登录渠道，取自 login_channel，多选
+	MerchantID    uuid.UUID         `json:"merchant_id"`
+	StoreID       uuid.UUID         `json:"store_id"`
 }
 
 type RoleExistsParams struct {

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -13,14 +14,25 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"go.uber.org/fx"
 )
 
 type DepartmentHandler struct {
 	Interactor domain.DepartmentInteractor
+	DeptSeq    domain.IncrSequence
 }
 
-func NewDepartmentHandler(interactor domain.DepartmentInteractor) *DepartmentHandler {
-	return &DepartmentHandler{Interactor: interactor}
+type DepartmentHandlerParams struct {
+	fx.In
+	Interactor domain.DepartmentInteractor
+	DeptSeq    domain.IncrSequence `name:"admin_department_seq"`
+}
+
+func NewDepartmentHandler(p DepartmentHandlerParams) *DepartmentHandler {
+	return &DepartmentHandler{
+		Interactor: p.Interactor,
+		DeptSeq:    p.DeptSeq,
+	}
 }
 
 func (h *DepartmentHandler) Routes(r gin.IRouter) {
@@ -44,9 +56,6 @@ func (h *DepartmentHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.DepartmentCreateReq	true	"创建部门请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/department [post]
 func (h *DepartmentHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -61,12 +70,17 @@ func (h *DepartmentHandler) Create() gin.HandlerFunc {
 			return
 		}
 
+		deptCode, err := h.generateDepartmentCode(ctx)
+		if err != nil {
+			err = fmt.Errorf("failed to generate department code: %w", err)
+			c.Error(err)
+			return
+		}
+
 		dept := &domain.CreateDepartmentParams{
-			MerchantID:     req.MerchantID,
-			StoreID:        req.StoreID,
 			Name:           req.Name,
-			Code:           req.Code,
-			DepartmentType: req.DepartmentType,
+			Code:           deptCode,
+			DepartmentType: domain.DepartmentAdmin,
 			Enable:         req.Enable,
 		}
 
@@ -103,10 +117,6 @@ func (h *DepartmentHandler) Create() gin.HandlerFunc {
 //	@Param			id		path	string						true	"部门ID"
 //	@Param			data	body	types.DepartmentUpdateReq	true	"更新部门请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/department/{id} [put]
 func (h *DepartmentHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -128,11 +138,9 @@ func (h *DepartmentHandler) Update() gin.HandlerFunc {
 		}
 
 		dept := &domain.UpdateDepartmentParams{
-			ID:             id,
-			Name:           req.Name,
-			Code:           req.Code,
-			DepartmentType: req.DepartmentType,
-			Enable:         req.Enable,
+			ID:     id,
+			Name:   req.Name,
+			Enable: req.Enable,
 		}
 
 		if err := h.Interactor.UpdateDepartment(ctx, dept); err != nil {
@@ -171,9 +179,6 @@ func (h *DepartmentHandler) Update() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"部门ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/department/{id} [delete]
 func (h *DepartmentHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -216,9 +221,6 @@ func (h *DepartmentHandler) Delete() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"部门ID"
 //	@Success		200	{object}	domain.Department
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/department/{id} [get]
 func (h *DepartmentHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -258,8 +260,6 @@ func (h *DepartmentHandler) Get() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			data	query		types.DepartmentListReq	true	"部门列表请求"
 //	@Success		200		{object}	types.DepartmentListResp
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/department [get]
 func (h *DepartmentHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -276,11 +276,9 @@ func (h *DepartmentHandler) List() gin.HandlerFunc {
 
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.DepartmentListFilter{
-			MerchantID:     req.MerchantID,
-			StoreID:        req.StoreID,
 			Name:           req.Name,
 			Code:           req.Code,
-			DepartmentType: req.DepartmentType,
+			DepartmentType: domain.DepartmentAdmin,
 			Enable:         req.Enable,
 		}
 
@@ -305,9 +303,6 @@ func (h *DepartmentHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"部门ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/department/{id}/enable [put]
 func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -351,9 +346,6 @@ func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"部门ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/department/{id}/disable [put]
 func (h *DepartmentHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -385,4 +377,15 @@ func (h *DepartmentHandler) Disable() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
+}
+
+func (h *DepartmentHandler) generateDepartmentCode(ctx context.Context) (string, error) {
+	if h.DeptSeq == nil {
+		return "", fmt.Errorf("department sequence not initialized")
+	}
+	seq, err := h.DeptSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }

@@ -45,9 +45,6 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.CreateStoreReq	true	"创建门店请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/merchant/store [post]
 func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -70,7 +67,7 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			StoreCode:               req.StoreCode,
 			Status:                  req.Status,
 			BusinessModel:           req.BusinessModel,
-			BusinessTypeID:          req.BusinessTypeID,
+			BusinessTypeCode:        req.BusinessTypeCode,
 			LocationNumber:          req.LocationNumber,
 			ContactName:             req.ContactName,
 			ContactPhone:            req.ContactPhone,
@@ -117,9 +114,6 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 //	@Param			id		path	string					true	"门店ID"
 //	@Param			data	body	types.UpdateStoreReq	true	"更新门店请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/merchant/store/{id} [put]
 func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -148,7 +142,7 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			StoreCode:               req.StoreCode,
 			Status:                  req.Status,
 			BusinessModel:           req.BusinessModel,
-			BusinessTypeID:          req.BusinessTypeID,
+			BusinessTypeCode:        req.BusinessTypeCode,
 			LocationNumber:          req.LocationNumber,
 			ContactName:             req.ContactName,
 			ContactPhone:            req.ContactPhone,
@@ -197,8 +191,6 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
 //	@Success		204	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/merchant/store/{id} [delete]
 func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -236,9 +228,6 @@ func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"门店ID"
 //	@Success		200	{object}	response.Response{data=domain.Store}
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/merchant/store/{id} [get]
 func (h *StoreHandler) GetStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -276,8 +265,6 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			data	query		types.StoreListReq	true	"门店列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.StoreListResp}
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/merchant/store/list [get]
 func (h *StoreHandler) GetStores() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -296,7 +283,7 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 		filter := &domain.StoreListFilter{
 			StoreName:        req.StoreName,
 			MerchantID:       req.MerchantID,
-			BusinessTypeID:   req.BusinessTypeID,
+			BusinessTypeCode: req.BusinessTypeCode,
 			AdminPhoneNumber: req.AdminPhoneNumber,
 			Status:           req.Status,
 			BusinessModel:    req.BusinessModel,
@@ -331,9 +318,6 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/merchant/store/{id}/enable [put]
 func (h *StoreHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -371,9 +355,6 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/merchant/store/{id}/disable [put]
 func (h *StoreHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {

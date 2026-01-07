@@ -44,9 +44,6 @@ func (h *RouterMenuHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.RouterMenuCreateReq	true	"创建菜单请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/router_menu [post]
 func (h *RouterMenuHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -105,10 +102,6 @@ func (h *RouterMenuHandler) Create() gin.HandlerFunc {
 //	@Param			id		path	string						true	"菜单ID"
 //	@Param			data	body	types.RouterMenuUpdateReq	true	"更新菜单请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/router_menu/{id} [put]
 func (h *RouterMenuHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -175,9 +168,6 @@ func (h *RouterMenuHandler) Update() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"菜单ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/router_menu/{id} [delete]
 func (h *RouterMenuHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -219,9 +209,6 @@ func (h *RouterMenuHandler) Delete() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"菜单ID"
 //	@Success		200	{object}	domain.RouterMenu
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/router_menu/{id} [get]
 func (h *RouterMenuHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -260,8 +247,6 @@ func (h *RouterMenuHandler) Get() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			data	query		types.RouterMenuListReq	true	"菜单列表请求"
 //	@Success		200		{object}	types.RouterMenuListResp
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/router_menu [get]
 func (h *RouterMenuHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -304,9 +289,6 @@ func (h *RouterMenuHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"菜单ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/router_menu/{id}/enable [put]
 func (h *RouterMenuHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -349,9 +331,6 @@ func (h *RouterMenuHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"菜单ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/router_menu/{id}/disable [put]
 func (h *RouterMenuHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {

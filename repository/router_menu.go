@@ -54,6 +54,7 @@ func (repo *RouterMenuRepository) Create(ctx context.Context, m *domain.RouterMe
 		SetParentID(m.ParentID).
 		SetName(m.Name).
 		SetPath(m.Path).
+		SetLayer(m.Layer).
 		SetComponent(m.Component).
 		SetIcon(m.Icon).
 		SetSort(m.Sort).
@@ -82,6 +83,7 @@ func (repo *RouterMenuRepository) Update(ctx context.Context, m *domain.RouterMe
 		SetParentID(m.ParentID).
 		SetName(m.Name).
 		SetPath(m.Path).
+		SetLayer(m.Layer).
 		SetComponent(m.Component).
 		SetIcon(m.Icon).
 		SetSort(m.Sort).
@@ -190,6 +192,9 @@ func (repo *RouterMenuRepository) buildFilterQuery(filter *domain.RouterMenuList
 	if filter.UserType != "" {
 		query = query.Where(routermenu.UserTypeEQ(filter.UserType))
 	}
+	if filter.Layer > 0 {
+		query = query.Where(routermenu.LayerEQ(filter.Layer))
+	}
 
 	return query
 }
@@ -223,6 +228,7 @@ func convertRouterMenuToDomain(em *ent.RouterMenu) *domain.RouterMenu {
 		ParentID:  em.ParentID,
 		Name:      em.Name,
 		Path:      em.Path,
+		Layer:     em.Layer,
 		Component: em.Component,
 		Icon:      em.Icon,
 		Sort:      em.Sort,

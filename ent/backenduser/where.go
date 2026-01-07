@@ -92,6 +92,16 @@ func MerchantID(v uuid.UUID) predicate.BackendUser {
 	return predicate.BackendUser(sql.FieldEQ(FieldMerchantID, v))
 }
 
+// DepartmentID applies equality check predicate on the "department_id" field. It's identical to DepartmentIDEQ.
+func DepartmentID(v uuid.UUID) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldEQ(FieldDepartmentID, v))
+}
+
+// Code applies equality check predicate on the "code" field. It's identical to CodeEQ.
+func Code(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldEQ(FieldCode, v))
+}
+
 // RealName applies equality check predicate on the "real_name" field. It's identical to RealNameEQ.
 func RealName(v string) predicate.BackendUser {
 	return predicate.BackendUser(sql.FieldEQ(FieldRealName, v))
@@ -452,6 +462,91 @@ func MerchantIDNotIn(vs ...uuid.UUID) predicate.BackendUser {
 	return predicate.BackendUser(sql.FieldNotIn(FieldMerchantID, vs...))
 }
 
+// DepartmentIDEQ applies the EQ predicate on the "department_id" field.
+func DepartmentIDEQ(v uuid.UUID) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldEQ(FieldDepartmentID, v))
+}
+
+// DepartmentIDNEQ applies the NEQ predicate on the "department_id" field.
+func DepartmentIDNEQ(v uuid.UUID) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldNEQ(FieldDepartmentID, v))
+}
+
+// DepartmentIDIn applies the In predicate on the "department_id" field.
+func DepartmentIDIn(vs ...uuid.UUID) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldIn(FieldDepartmentID, vs...))
+}
+
+// DepartmentIDNotIn applies the NotIn predicate on the "department_id" field.
+func DepartmentIDNotIn(vs ...uuid.UUID) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldNotIn(FieldDepartmentID, vs...))
+}
+
+// CodeEQ applies the EQ predicate on the "code" field.
+func CodeEQ(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldEQ(FieldCode, v))
+}
+
+// CodeNEQ applies the NEQ predicate on the "code" field.
+func CodeNEQ(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldNEQ(FieldCode, v))
+}
+
+// CodeIn applies the In predicate on the "code" field.
+func CodeIn(vs ...string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldIn(FieldCode, vs...))
+}
+
+// CodeNotIn applies the NotIn predicate on the "code" field.
+func CodeNotIn(vs ...string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldNotIn(FieldCode, vs...))
+}
+
+// CodeGT applies the GT predicate on the "code" field.
+func CodeGT(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldGT(FieldCode, v))
+}
+
+// CodeGTE applies the GTE predicate on the "code" field.
+func CodeGTE(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldGTE(FieldCode, v))
+}
+
+// CodeLT applies the LT predicate on the "code" field.
+func CodeLT(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldLT(FieldCode, v))
+}
+
+// CodeLTE applies the LTE predicate on the "code" field.
+func CodeLTE(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldLTE(FieldCode, v))
+}
+
+// CodeContains applies the Contains predicate on the "code" field.
+func CodeContains(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldContains(FieldCode, v))
+}
+
+// CodeHasPrefix applies the HasPrefix predicate on the "code" field.
+func CodeHasPrefix(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldHasPrefix(FieldCode, v))
+}
+
+// CodeHasSuffix applies the HasSuffix predicate on the "code" field.
+func CodeHasSuffix(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldHasSuffix(FieldCode, v))
+}
+
+// CodeEqualFold applies the EqualFold predicate on the "code" field.
+func CodeEqualFold(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldEqualFold(FieldCode, v))
+}
+
+// CodeContainsFold applies the ContainsFold predicate on the "code" field.
+func CodeContainsFold(v string) predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldContainsFold(FieldCode, v))
+}
+
 // RealNameEQ applies the EQ predicate on the "real_name" field.
 func RealNameEQ(v string) predicate.BackendUser {
 	return predicate.BackendUser(sql.FieldEQ(FieldRealName, v))
@@ -732,6 +827,29 @@ func HasMerchant() predicate.BackendUser {
 func HasMerchantWith(preds ...predicate.Merchant) predicate.BackendUser {
 	return predicate.BackendUser(func(s *sql.Selector) {
 		step := newMerchantStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDepartment applies the HasEdge predicate on the "department" edge.
+func HasDepartment() predicate.BackendUser {
+	return predicate.BackendUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, DepartmentTable, DepartmentColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDepartmentWith applies the HasEdge predicate on the "department" edge with a given conditions (other predicates).
+func HasDepartmentWith(preds ...predicate.Department) predicate.BackendUser {
+	return predicate.BackendUser(func(s *sql.Selector) {
+		step := newDepartmentStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

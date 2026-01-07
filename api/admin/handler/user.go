@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
@@ -13,16 +15,22 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"go.uber.org/fx"
 )
 
 type UserHandler struct {
 	UserInteractor domain.AdminUserInteractor
+	UserSeq        domain.IncrSequence
 }
 
-func NewUserHandler(userInteractor domain.AdminUserInteractor) *UserHandler {
-	return &UserHandler{
-		UserInteractor: userInteractor,
-	}
+type UserHandlerParams struct {
+	fx.In
+	UserInteractor domain.AdminUserInteractor
+	UserSeq        domain.IncrSequence `name:"admin_user_seq"`
+}
+
+func NewUserHandler(p UserHandlerParams) *UserHandler {
+	return &UserHandler{UserInteractor: p.UserInteractor, UserSeq: p.UserSeq}
 }
 
 func (h *UserHandler) Routes(r gin.IRouter) {
@@ -30,6 +38,13 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.POST("/login", h.Login())
 	r.POST("/logout", h.Logout())
 	r.POST("/info", h.Info())
+
+	// Admin user CRUD/list
+	r.POST("", h.Create())
+	r.PUT("/:id", h.Update())
+	r.DELETE("/:id", h.Delete())
+	r.GET("/:id", h.Get())
+	r.GET("", h.List())
 }
 
 func (h *UserHandler) NoAuths() []string {
@@ -134,4 +149,269 @@ func (h *UserHandler) Info() gin.HandlerFunc {
 		user := domain.FromAdminUserContext(ctx)
 		response.Ok(c, user)
 	}
+}
+
+// Create 创建管理员用户
+//
+//	@Tags			用户管理
+//	@Summary		创建管理员用户
+//	@Description	新建一个管理员用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body	types.AdminUserCreateReq	true	"创建管理员用户请求"
+//	@Success		200		"No Content"
+//	@Router			/user [post]
+func (h *UserHandler) Create() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Create")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.AdminUserCreateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		userCode, err := h.generateUserCode(ctx)
+		if err != nil {
+			err = fmt.Errorf("failed to generate admin user code: %w", err)
+			c.Error(err)
+			return
+		}
+		createUser := &domain.AdminUser{
+			Username:     req.Username,
+			Nickname:     req.Nickname,
+			DepartmentID: req.DepartmentID,
+			Code:         userCode,
+			RealName:     req.RealName,
+			Gender:       req.Gender,
+			Email:        req.Email,
+			PhoneNumber:  req.PhoneNumber,
+			Enabled:      req.Enabled,
+			RoleIDs:      req.RoleIDs,
+		}
+		if err := createUser.SetPassword(req.Password); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		if err := h.UserInteractor.Create(ctx, createUser); err != nil {
+			if errors.Is(err, domain.ErrAdminUserUsernameExist) {
+				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
+				return
+			}
+			if errors.Is(err, domain.ErrBackendUserRoleRequired) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to create admin user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Update 更新管理员用户
+//
+//	@Tags			用户管理
+//	@Summary		更新管理员用户
+//	@Description	修改指定管理员用户信息
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string						true	"管理员用户ID"
+//	@Param			data	body	types.AdminUserUpdateReq	true	"更新管理员用户请求"
+//	@Success		200		"No Content"
+//	@Router			/user/{id} [put]
+func (h *UserHandler) Update() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Update")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		var req types.AdminUserUpdateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := &domain.AdminUser{
+			ID:           id,
+			Username:     req.Username,
+			Nickname:     req.Nickname,
+			DepartmentID: req.DepartmentID,
+			RealName:     req.RealName,
+			Gender:       req.Gender,
+			Email:        req.Email,
+			PhoneNumber:  req.PhoneNumber,
+			Enabled:      req.Enabled,
+			RoleIDs:      req.RoleIDs,
+		}
+		if req.Password != "" {
+			if err := user.SetPassword(req.Password); err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+		}
+
+		if err := h.UserInteractor.Update(ctx, user); err != nil {
+			if errors.Is(err, domain.ErrAdminUserUsernameExist) {
+				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
+				return
+			}
+			if errors.Is(err, domain.ErrBackendUserRoleRequired) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to update admin user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Delete 删除管理员用户
+//
+//	@Tags			用户管理
+//	@Summary		删除管理员用户
+//	@Description	删除指定管理员用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"管理员用户ID"
+//	@Success		200	"No Content"
+//	@Router			/user/{id} [delete]
+func (h *UserHandler) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Delete")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		if err := h.UserInteractor.Delete(ctx, id); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to delete admin user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Get 获取管理员用户详情
+//
+//	@Tags			用户管理
+//	@Summary		获取管理员用户
+//	@Description	查询指定管理员用户详情
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"管理员用户ID"
+//	@Success		200	{object}	domain.AdminUser
+//	@Router			/user/{id} [get]
+func (h *UserHandler) Get() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Get")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user, err := h.UserInteractor.GetUser(ctx, id)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to get admin user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, user)
+	}
+}
+
+// List 管理员用户列表
+//
+//	@Tags			用户管理
+//	@Summary		管理员用户列表
+//	@Description	查询管理员用户列表
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	query		types.AdminUserListReq	true	"管理员用户列表请求"
+//	@Success		200		{object}	types.AdminUserListResp
+//	@Router			/user [get]
+func (h *UserHandler) List() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.List")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.AdminUserListReq
+		if err := c.ShouldBindQuery(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		pager := req.RequestPagination.ToPagination()
+		filter := &domain.AdminUserListFilter{
+			Code:        req.Code,
+			RealName:    req.RealName,
+			Gender:      req.Gender,
+			Email:       req.Email,
+			PhoneNumber: req.PhoneNumber,
+			Enabled:     req.Enabled,
+		}
+
+		users, total, err := h.UserInteractor.GetUsers(ctx, pager, filter, domain.NewAdminUserOrderByCreatedAt(true))
+		if err != nil {
+			err = fmt.Errorf("failed to get admin users: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, types.AdminUserListResp{Users: users, Total: total})
+	}
+}
+
+func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
+	seq, err := h.UserSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }

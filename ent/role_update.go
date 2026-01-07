@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -82,6 +83,24 @@ func (ru *RoleUpdate) SetNillableEnable(b *bool) *RoleUpdate {
 	if b != nil {
 		ru.SetEnable(*b)
 	}
+	return ru
+}
+
+// SetLoginChannels sets the "login_channels" field.
+func (ru *RoleUpdate) SetLoginChannels(dc []domain.LoginChannel) *RoleUpdate {
+	ru.mutation.SetLoginChannels(dc)
+	return ru
+}
+
+// AppendLoginChannels appends dc to the "login_channels" field.
+func (ru *RoleUpdate) AppendLoginChannels(dc []domain.LoginChannel) *RoleUpdate {
+	ru.mutation.AppendLoginChannels(dc)
+	return ru
+}
+
+// ClearLoginChannels clears the value of the "login_channels" field.
+func (ru *RoleUpdate) ClearLoginChannels() *RoleUpdate {
+	ru.mutation.ClearLoginChannels()
 	return ru
 }
 
@@ -195,6 +214,17 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.Enable(); ok {
 		_spec.SetField(role.FieldEnable, field.TypeBool, value)
 	}
+	if value, ok := ru.mutation.LoginChannels(); ok {
+		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
+	}
+	if value, ok := ru.mutation.AppendedLoginChannels(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, role.FieldLoginChannels, value)
+		})
+	}
+	if ru.mutation.LoginChannelsCleared() {
+		_spec.ClearField(role.FieldLoginChannels, field.TypeJSON)
+	}
 	if value, ok := ru.mutation.DataScope(); ok {
 		_spec.SetField(role.FieldDataScope, field.TypeEnum, value)
 	}
@@ -275,6 +305,24 @@ func (ruo *RoleUpdateOne) SetNillableEnable(b *bool) *RoleUpdateOne {
 	if b != nil {
 		ruo.SetEnable(*b)
 	}
+	return ruo
+}
+
+// SetLoginChannels sets the "login_channels" field.
+func (ruo *RoleUpdateOne) SetLoginChannels(dc []domain.LoginChannel) *RoleUpdateOne {
+	ruo.mutation.SetLoginChannels(dc)
+	return ruo
+}
+
+// AppendLoginChannels appends dc to the "login_channels" field.
+func (ruo *RoleUpdateOne) AppendLoginChannels(dc []domain.LoginChannel) *RoleUpdateOne {
+	ruo.mutation.AppendLoginChannels(dc)
+	return ruo
+}
+
+// ClearLoginChannels clears the value of the "login_channels" field.
+func (ruo *RoleUpdateOne) ClearLoginChannels() *RoleUpdateOne {
+	ruo.mutation.ClearLoginChannels()
 	return ruo
 }
 
@@ -417,6 +465,17 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 	}
 	if value, ok := ruo.mutation.Enable(); ok {
 		_spec.SetField(role.FieldEnable, field.TypeBool, value)
+	}
+	if value, ok := ruo.mutation.LoginChannels(); ok {
+		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
+	}
+	if value, ok := ruo.mutation.AppendedLoginChannels(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, role.FieldLoginChannels, value)
+		})
+	}
+	if ruo.mutation.LoginChannelsCleared() {
+		_spec.ClearField(role.FieldLoginChannels, field.TypeJSON)
 	}
 	if value, ok := ruo.mutation.DataScope(); ok {
 		_spec.SetField(role.FieldDataScope, field.TypeEnum, value)

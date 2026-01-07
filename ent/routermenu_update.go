@@ -106,9 +106,24 @@ func (rmu *RouterMenuUpdate) SetNillablePath(s *string) *RouterMenuUpdate {
 	return rmu
 }
 
-// ClearPath clears the value of the "path" field.
-func (rmu *RouterMenuUpdate) ClearPath() *RouterMenuUpdate {
-	rmu.mutation.ClearPath()
+// SetLayer sets the "layer" field.
+func (rmu *RouterMenuUpdate) SetLayer(i int) *RouterMenuUpdate {
+	rmu.mutation.ResetLayer()
+	rmu.mutation.SetLayer(i)
+	return rmu
+}
+
+// SetNillableLayer sets the "layer" field if the given value is not nil.
+func (rmu *RouterMenuUpdate) SetNillableLayer(i *int) *RouterMenuUpdate {
+	if i != nil {
+		rmu.SetLayer(*i)
+	}
+	return rmu
+}
+
+// AddLayer adds i to the "layer" field.
+func (rmu *RouterMenuUpdate) AddLayer(i int) *RouterMenuUpdate {
+	rmu.mutation.AddLayer(i)
 	return rmu
 }
 
@@ -334,8 +349,11 @@ func (rmu *RouterMenuUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := rmu.mutation.Path(); ok {
 		_spec.SetField(routermenu.FieldPath, field.TypeString, value)
 	}
-	if rmu.mutation.PathCleared() {
-		_spec.ClearField(routermenu.FieldPath, field.TypeString)
+	if value, ok := rmu.mutation.Layer(); ok {
+		_spec.SetField(routermenu.FieldLayer, field.TypeInt, value)
+	}
+	if value, ok := rmu.mutation.AddedLayer(); ok {
+		_spec.AddField(routermenu.FieldLayer, field.TypeInt, value)
 	}
 	if value, ok := rmu.mutation.Component(); ok {
 		_spec.SetField(routermenu.FieldComponent, field.TypeString, value)
@@ -500,9 +518,24 @@ func (rmuo *RouterMenuUpdateOne) SetNillablePath(s *string) *RouterMenuUpdateOne
 	return rmuo
 }
 
-// ClearPath clears the value of the "path" field.
-func (rmuo *RouterMenuUpdateOne) ClearPath() *RouterMenuUpdateOne {
-	rmuo.mutation.ClearPath()
+// SetLayer sets the "layer" field.
+func (rmuo *RouterMenuUpdateOne) SetLayer(i int) *RouterMenuUpdateOne {
+	rmuo.mutation.ResetLayer()
+	rmuo.mutation.SetLayer(i)
+	return rmuo
+}
+
+// SetNillableLayer sets the "layer" field if the given value is not nil.
+func (rmuo *RouterMenuUpdateOne) SetNillableLayer(i *int) *RouterMenuUpdateOne {
+	if i != nil {
+		rmuo.SetLayer(*i)
+	}
+	return rmuo
+}
+
+// AddLayer adds i to the "layer" field.
+func (rmuo *RouterMenuUpdateOne) AddLayer(i int) *RouterMenuUpdateOne {
+	rmuo.mutation.AddLayer(i)
 	return rmuo
 }
 
@@ -758,8 +791,11 @@ func (rmuo *RouterMenuUpdateOne) sqlSave(ctx context.Context) (_node *RouterMenu
 	if value, ok := rmuo.mutation.Path(); ok {
 		_spec.SetField(routermenu.FieldPath, field.TypeString, value)
 	}
-	if rmuo.mutation.PathCleared() {
-		_spec.ClearField(routermenu.FieldPath, field.TypeString)
+	if value, ok := rmuo.mutation.Layer(); ok {
+		_spec.SetField(routermenu.FieldLayer, field.TypeInt, value)
+	}
+	if value, ok := rmuo.mutation.AddedLayer(); ok {
+		_spec.AddField(routermenu.FieldLayer, field.TypeInt, value)
 	}
 	if value, ok := rmuo.mutation.Component(); ok {
 		_spec.SetField(routermenu.FieldComponent, field.TypeString, value)

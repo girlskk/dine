@@ -73,6 +73,10 @@ func (Device) Fields() []ent.Field {
 			GoType(domain.PaperSize("")).
 			Optional().
 			Comment("打印纸张尺寸"),
+		field.Enum("connect_type").
+			GoType(domain.DeviceConnectType("")).
+			Optional().
+			Comment("设备连接类型"),
 		field.UUID("stall_id", uuid.UUID{}).
 			Optional().
 			Comment("出品部门ID，可为空"),

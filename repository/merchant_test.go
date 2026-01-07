@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
@@ -28,12 +29,16 @@ func (s *MerchantRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
+func (s *MerchantRepositoryTestSuite) createBusinessType(tag string) *ent.MerchantBusinessType {
+	return s.client.MerchantBusinessType.Create().SetTypeCode("bt-" + tag).SetTypeName("业态-" + tag).SaveX(s.ctx)
+}
+
 func (s *MerchantRepositoryTestSuite) newMerchant(tag string) *domain.Merchant {
 	suffix := tag
 	if len(tag) > 4 {
 		suffix = tag[len(tag)-4:]
 	}
-
+	bt := s.createBusinessType(tag)
 	return &domain.Merchant{
 		ID:                uuid.New(),
 		MerchantCode:      "MC-" + tag,
@@ -42,7 +47,7 @@ func (s *MerchantRepositoryTestSuite) newMerchant(tag string) *domain.Merchant {
 		MerchantType:      domain.MerchantTypeBrand,
 		BrandName:         "品牌-" + tag,
 		AdminPhoneNumber:  "1380000" + suffix,
-		BusinessTypeID:    uuid.New(),
+		BusinessTypeCode:  bt.TypeCode,
 		MerchantLogo:      "logo-" + tag,
 		Description:       "描述-" + tag,
 		Status:            domain.MerchantStatusActive,

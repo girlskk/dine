@@ -100,10 +100,16 @@ func (rmc *RouterMenuCreate) SetPath(s string) *RouterMenuCreate {
 	return rmc
 }
 
-// SetNillablePath sets the "path" field if the given value is not nil.
-func (rmc *RouterMenuCreate) SetNillablePath(s *string) *RouterMenuCreate {
-	if s != nil {
-		rmc.SetPath(*s)
+// SetLayer sets the "layer" field.
+func (rmc *RouterMenuCreate) SetLayer(i int) *RouterMenuCreate {
+	rmc.mutation.SetLayer(i)
+	return rmc
+}
+
+// SetNillableLayer sets the "layer" field if the given value is not nil.
+func (rmc *RouterMenuCreate) SetNillableLayer(i *int) *RouterMenuCreate {
+	if i != nil {
+		rmc.SetLayer(*i)
 	}
 	return rmc
 }
@@ -248,6 +254,10 @@ func (rmc *RouterMenuCreate) defaults() error {
 		v := routermenu.DefaultDeletedAt
 		rmc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := rmc.mutation.Layer(); !ok {
+		v := routermenu.DefaultLayer
+		rmc.mutation.SetLayer(v)
+	}
 	if _, ok := rmc.mutation.Sort(); !ok {
 		v := routermenu.DefaultSort
 		rmc.mutation.SetSort(v)
@@ -293,10 +303,16 @@ func (rmc *RouterMenuCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "RouterMenu.name": %w`, err)}
 		}
 	}
+	if _, ok := rmc.mutation.Path(); !ok {
+		return &ValidationError{Name: "path", err: errors.New(`ent: missing required field "RouterMenu.path"`)}
+	}
 	if v, ok := rmc.mutation.Path(); ok {
 		if err := routermenu.PathValidator(v); err != nil {
 			return &ValidationError{Name: "path", err: fmt.Errorf(`ent: validator failed for field "RouterMenu.path": %w`, err)}
 		}
+	}
+	if _, ok := rmc.mutation.Layer(); !ok {
+		return &ValidationError{Name: "layer", err: errors.New(`ent: missing required field "RouterMenu.layer"`)}
 	}
 	if v, ok := rmc.mutation.Component(); ok {
 		if err := routermenu.ComponentValidator(v); err != nil {
@@ -377,6 +393,10 @@ func (rmc *RouterMenuCreate) createSpec() (*RouterMenu, *sqlgraph.CreateSpec) {
 	if value, ok := rmc.mutation.Path(); ok {
 		_spec.SetField(routermenu.FieldPath, field.TypeString, value)
 		_node.Path = value
+	}
+	if value, ok := rmc.mutation.Layer(); ok {
+		_spec.SetField(routermenu.FieldLayer, field.TypeInt, value)
+		_node.Layer = value
 	}
 	if value, ok := rmc.mutation.Component(); ok {
 		_spec.SetField(routermenu.FieldComponent, field.TypeString, value)
@@ -534,9 +554,21 @@ func (u *RouterMenuUpsert) UpdatePath() *RouterMenuUpsert {
 	return u
 }
 
-// ClearPath clears the value of the "path" field.
-func (u *RouterMenuUpsert) ClearPath() *RouterMenuUpsert {
-	u.SetNull(routermenu.FieldPath)
+// SetLayer sets the "layer" field.
+func (u *RouterMenuUpsert) SetLayer(v int) *RouterMenuUpsert {
+	u.Set(routermenu.FieldLayer, v)
+	return u
+}
+
+// UpdateLayer sets the "layer" field to the value that was provided on create.
+func (u *RouterMenuUpsert) UpdateLayer() *RouterMenuUpsert {
+	u.SetExcluded(routermenu.FieldLayer)
+	return u
+}
+
+// AddLayer adds v to the "layer" field.
+func (u *RouterMenuUpsert) AddLayer(v int) *RouterMenuUpsert {
+	u.Add(routermenu.FieldLayer, v)
 	return u
 }
 
@@ -744,10 +776,24 @@ func (u *RouterMenuUpsertOne) UpdatePath() *RouterMenuUpsertOne {
 	})
 }
 
-// ClearPath clears the value of the "path" field.
-func (u *RouterMenuUpsertOne) ClearPath() *RouterMenuUpsertOne {
+// SetLayer sets the "layer" field.
+func (u *RouterMenuUpsertOne) SetLayer(v int) *RouterMenuUpsertOne {
 	return u.Update(func(s *RouterMenuUpsert) {
-		s.ClearPath()
+		s.SetLayer(v)
+	})
+}
+
+// AddLayer adds v to the "layer" field.
+func (u *RouterMenuUpsertOne) AddLayer(v int) *RouterMenuUpsertOne {
+	return u.Update(func(s *RouterMenuUpsert) {
+		s.AddLayer(v)
+	})
+}
+
+// UpdateLayer sets the "layer" field to the value that was provided on create.
+func (u *RouterMenuUpsertOne) UpdateLayer() *RouterMenuUpsertOne {
+	return u.Update(func(s *RouterMenuUpsert) {
+		s.UpdateLayer()
 	})
 }
 
@@ -1133,10 +1179,24 @@ func (u *RouterMenuUpsertBulk) UpdatePath() *RouterMenuUpsertBulk {
 	})
 }
 
-// ClearPath clears the value of the "path" field.
-func (u *RouterMenuUpsertBulk) ClearPath() *RouterMenuUpsertBulk {
+// SetLayer sets the "layer" field.
+func (u *RouterMenuUpsertBulk) SetLayer(v int) *RouterMenuUpsertBulk {
 	return u.Update(func(s *RouterMenuUpsert) {
-		s.ClearPath()
+		s.SetLayer(v)
+	})
+}
+
+// AddLayer adds v to the "layer" field.
+func (u *RouterMenuUpsertBulk) AddLayer(v int) *RouterMenuUpsertBulk {
+	return u.Update(func(s *RouterMenuUpsert) {
+		s.AddLayer(v)
+	})
+}
+
+// UpdateLayer sets the "layer" field to the value that was provided on create.
+func (u *RouterMenuUpsertBulk) UpdateLayer() *RouterMenuUpsertBulk {
+	return u.Update(func(s *RouterMenuUpsert) {
+		s.UpdateLayer()
 	})
 }
 

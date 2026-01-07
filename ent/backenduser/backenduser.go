@@ -32,6 +32,10 @@ const (
 	FieldNickname = "nickname"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
+	// FieldDepartmentID holds the string denoting the department_id field in the database.
+	FieldDepartmentID = "department_id"
+	// FieldCode holds the string denoting the code field in the database.
+	FieldCode = "code"
 	// FieldRealName holds the string denoting the real_name field in the database.
 	FieldRealName = "real_name"
 	// FieldGender holds the string denoting the gender field in the database.
@@ -46,6 +50,8 @@ const (
 	FieldIsSuperadmin = "is_superadmin"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
+	// EdgeDepartment holds the string denoting the department edge name in mutations.
+	EdgeDepartment = "department"
 	// Table holds the table name of the backenduser in the database.
 	Table = "backend_users"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -55,6 +61,13 @@ const (
 	MerchantInverseTable = "merchants"
 	// MerchantColumn is the table column denoting the merchant relation/edge.
 	MerchantColumn = "merchant_id"
+	// DepartmentTable is the table that holds the department relation/edge.
+	DepartmentTable = "backend_users"
+	// DepartmentInverseTable is the table name for the Department entity.
+	// It exists in this package in order to avoid circular dependency with the "department" package.
+	DepartmentInverseTable = "departments"
+	// DepartmentColumn is the table column denoting the department relation/edge.
+	DepartmentColumn = "department_id"
 )
 
 // Columns holds all SQL columns for backenduser fields.
@@ -67,6 +80,8 @@ var Columns = []string{
 	FieldHashedPassword,
 	FieldNickname,
 	FieldMerchantID,
+	FieldDepartmentID,
+	FieldCode,
 	FieldRealName,
 	FieldGender,
 	FieldEmail,
@@ -105,6 +120,8 @@ var (
 	UsernameValidator func(string) error
 	// HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	HashedPasswordValidator func(string) error
+	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	CodeValidator func(string) error
 	// RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
 	RealNameValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
@@ -172,6 +189,16 @@ func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
 }
 
+// ByDepartmentID orders the results by the department_id field.
+func ByDepartmentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDepartmentID, opts...).ToFunc()
+}
+
+// ByCode orders the results by the code field.
+func ByCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCode, opts...).ToFunc()
+}
+
 // ByRealName orders the results by the real_name field.
 func ByRealName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRealName, opts...).ToFunc()
@@ -208,10 +235,24 @@ func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByDepartmentField orders the results by department field.
+func ByDepartmentField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDepartmentStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
+	)
+}
+func newDepartmentStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DepartmentInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DepartmentTable, DepartmentColumn),
 	)
 }

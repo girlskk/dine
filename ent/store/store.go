@@ -38,8 +38,8 @@ const (
 	FieldStatus = "status"
 	// FieldBusinessModel holds the string denoting the business_model field in the database.
 	FieldBusinessModel = "business_model"
-	// FieldBusinessTypeID holds the string denoting the business_type_id field in the database.
-	FieldBusinessTypeID = "business_type_id"
+	// FieldBusinessTypeCode holds the string denoting the business_type_code field in the database.
+	FieldBusinessTypeCode = "business_type_code"
 	// FieldLocationNumber holds the string denoting the location_number field in the database.
 	FieldLocationNumber = "location_number"
 	// FieldContactName holds the string denoting the contact_name field in the database.
@@ -84,8 +84,6 @@ const (
 	FieldSuperAccount = "super_account"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
-	// EdgeMerchantBusinessType holds the string denoting the merchant_business_type edge name in mutations.
-	EdgeMerchantBusinessType = "merchant_business_type"
 	// EdgeCountry holds the string denoting the country edge name in mutations.
 	EdgeCountry = "country"
 	// EdgeProvince holds the string denoting the province edge name in mutations.
@@ -121,13 +119,6 @@ const (
 	MerchantInverseTable = "merchants"
 	// MerchantColumn is the table column denoting the merchant relation/edge.
 	MerchantColumn = "merchant_id"
-	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
-	MerchantBusinessTypeTable = "stores"
-	// MerchantBusinessTypeInverseTable is the table name for the MerchantBusinessType entity.
-	// It exists in this package in order to avoid circular dependency with the "merchantbusinesstype" package.
-	MerchantBusinessTypeInverseTable = "merchant_business_types"
-	// MerchantBusinessTypeColumn is the table column denoting the merchant_business_type relation/edge.
-	MerchantBusinessTypeColumn = "business_type_id"
 	// CountryTable is the table that holds the country relation/edge.
 	CountryTable = "stores"
 	// CountryInverseTable is the table name for the Country entity.
@@ -232,7 +223,7 @@ var Columns = []string{
 	FieldStoreCode,
 	FieldStatus,
 	FieldBusinessModel,
-	FieldBusinessTypeID,
+	FieldBusinessTypeCode,
 	FieldLocationNumber,
 	FieldContactName,
 	FieldContactPhone,
@@ -434,9 +425,9 @@ func ByBusinessModel(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBusinessModel, opts...).ToFunc()
 }
 
-// ByBusinessTypeID orders the results by the business_type_id field.
-func ByBusinessTypeID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBusinessTypeID, opts...).ToFunc()
+// ByBusinessTypeCode orders the results by the business_type_code field.
+func ByBusinessTypeCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBusinessTypeCode, opts...).ToFunc()
 }
 
 // ByLocationNumber orders the results by the location_number field.
@@ -533,13 +524,6 @@ func BySuperAccount(opts ...sql.OrderTermOption) OrderOption {
 func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByMerchantBusinessTypeField orders the results by merchant_business_type field.
-func ByMerchantBusinessTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMerchantBusinessTypeStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -701,13 +685,6 @@ func newMerchantStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
-	)
-}
-func newMerchantBusinessTypeStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MerchantBusinessTypeInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, MerchantBusinessTypeTable, MerchantBusinessTypeColumn),
 	)
 }
 func newCountryStep() *sqlgraph.Step {

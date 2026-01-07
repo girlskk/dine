@@ -2,8 +2,10 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
@@ -25,6 +27,12 @@ func (AdminUser) Fields() []ent.Field {
 			Comment("密码哈希"),
 		field.String("nickname").
 			Comment("昵称"),
+		field.UUID("department_id", uuid.UUID{}).
+			Comment("部门ID"),
+		field.String("code").
+			NotEmpty().
+			Immutable().
+			Comment("编码"),
 		field.String("real_name").
 			MaxLen(100).
 			Comment("真实姓名"),
@@ -50,7 +58,13 @@ func (AdminUser) Fields() []ent.Field {
 
 // Edges of the AdminUser.
 func (AdminUser) Edges() []ent.Edge {
-	return []ent.Edge{}
+	return []ent.Edge{
+		edge.From("department", Department.Type).
+			Ref("admin_users").
+			Field("department_id").
+			Unique().
+			Required(),
+	}
 }
 
 func (AdminUser) Mixin() []ent.Mixin {

@@ -38,7 +38,17 @@ definitions:
     type: object
   domain.AdminUser:
     properties:
+      code:
+        description: 编号
+        type: string
       created_at:
+        type: string
+      department:
+        allOf:
+        - $ref: '#/definitions/domain.Department'
+        description: 所属部门
+      department_id:
+        description: 所属部门ID
         type: string
       email:
         description: 电子邮箱
@@ -64,6 +74,16 @@ definitions:
       real_name:
         description: 真实姓名
         type: string
+      role_ids:
+        description: 角色ID列表
+        items:
+          type: string
+        type: array
+      role_list:
+        description: 角色列表
+        items:
+          $ref: '#/definitions/domain.Role'
+        type: array
       updated_at:
         type: string
       username:
@@ -140,7 +160,7 @@ definitions:
     - store
     type: string
     x-enum-varnames:
-    - DepartmentTypeAdmin
+    - DepartmentAdmin
     - DepartmentBackend
     - DepartmentStore
   domain.DiningPeriod:
@@ -172,6 +192,20 @@ definitions:
     - GenderFemale
     - GenderOther
     - GenderUnknown
+  domain.LoginChannel:
+    enum:
+    - pos
+    - mobile
+    - store
+    type: string
+    x-enum-comments:
+      LoginChannelMobile: 移动点餐
+      LoginChannelPos: pos
+      LoginChannelStore: 门店管理后台
+    x-enum-varnames:
+    - LoginChannelPos
+    - LoginChannelMobile
+    - LoginChannelStore
   domain.Merchant:
     properties:
       address:
@@ -184,8 +218,8 @@ definitions:
       brand_name:
         description: 品牌名称
         type: string
-      business_type_id:
-        description: 业务类型
+      business_type_code:
+        description: 业态类型
         type: string
       business_type_name:
         description: 业务类型名称
@@ -335,22 +369,36 @@ definitions:
   domain.Role:
     properties:
       code:
+        description: 角色编码
         type: string
       created_at:
         type: string
       data_scope:
-        $ref: '#/definitions/domain.RoleDataScopeType'
+        allOf:
+        - $ref: '#/definitions/domain.RoleDataScopeType'
+        description: 数据权限范围
       enable:
+        description: 是否启用
         type: boolean
       id:
         type: string
+      login_channels:
+        description: 允许登录渠道，取自 login_channel，多选
+        items:
+          $ref: '#/definitions/domain.LoginChannel'
+        type: array
       merchant_id:
+        description: 所属商户 ID
         type: string
       name:
+        description: 角色名称
         type: string
       role_type:
-        $ref: '#/definitions/domain.RoleType'
+        allOf:
+        - $ref: '#/definitions/domain.RoleType'
+        description: 角色类型
       store_id:
+        description: 所属门店 ID
         type: string
       updated_at:
         type: string
@@ -391,27 +439,39 @@ definitions:
   domain.RouterMenu:
     properties:
       component:
+        description: 前端组件路径
         type: string
       created_at:
         type: string
       enabled:
+        description: 是否启用
         type: boolean
       icon:
+        description: 菜单图标
         type: string
       id:
         type: string
+      layer:
+        description: 菜单层级
+        type: integer
       name:
+        description: 菜单名称
         type: string
       parent_id:
+        description: 父级菜单ID，根菜单为 uuid.Nil
         type: string
       path:
+        description: 菜单路径
         type: string
       sort:
+        description: 菜单排序
         type: integer
       updated_at:
         type: string
       user_type:
-        $ref: '#/definitions/domain.UserType'
+        allOf:
+        - $ref: '#/definitions/domain.UserType'
+        description: 类型
     type: object
   domain.ShiftTime:
     properties:
@@ -446,7 +506,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.BusinessModel'
         description: 经营模式：直营 加盟
-      business_type_id:
+      business_type_code:
         description: 业态类型
         type: string
       business_type_name:
@@ -623,6 +683,101 @@ definitions:
         description: 省份名称
         type: string
     type: object
+  types.AdminUserCreateReq:
+    properties:
+      department_id:
+        description: 所属部门ID
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 用户登陆密码
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 用户姓名
+        type: string
+      role_ids:
+        description: 角色ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      username:
+        description: 用户登陆账号
+        type: string
+    required:
+    - department_id
+    - password
+    - real_name
+    - role_ids
+    - username
+    type: object
+  types.AdminUserListResp:
+    properties:
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/domain.AdminUser'
+        type: array
+    type: object
+  types.AdminUserUpdateReq:
+    properties:
+      department_id:
+        description: 所属部门ID
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 用户登陆密码
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 用户姓名
+        type: string
+      role_ids:
+        description: 角色ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      username:
+        description: 用户登陆账号
+        type: string
+    required:
+    - department_id
+    - password
+    - real_name
+    - role_ids
+    - username
+    type: object
   types.CountryListResp:
     properties:
       countries:
@@ -734,7 +889,7 @@ definitions:
         description: 品牌名称
         maxLength: 50
         type: string
-      business_type_id:
+      business_type_code:
         description: 业务类型
         type: string
       description:
@@ -780,7 +935,7 @@ definitions:
         description: '状态: 正常,停用,过期'
     required:
     - admin_phone_number
-    - business_type_id
+    - business_type_code
     - login_account
     - login_password
     - merchant_name
@@ -818,7 +973,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.BusinessModel'
         description: 直营/加盟
-      business_type_id:
+      business_type_code:
         description: 业态类型
         type: string
       cashier_desk_url:
@@ -896,7 +1051,7 @@ definitions:
     - admin_phone_number
     - business_hours
     - business_model
-    - business_type_id
+    - business_type_code
     - dining_periods
     - location_number
     - login_account
@@ -908,31 +1063,13 @@ definitions:
     type: object
   types.DepartmentCreateReq:
     properties:
-      code:
-        maxLength: 50
-        type: string
-      department_type:
-        allOf:
-        - $ref: '#/definitions/domain.DepartmentType'
-        enum:
-        - admin
-        - backend
-        - store
       enable:
         type: boolean
-      merchant_id:
-        type: string
       name:
         maxLength: 50
         type: string
-      store_id:
-        type: string
     required:
-    - code
-    - department_type
-    - merchant_id
     - name
-    - store_id
     type: object
   types.DepartmentListResp:
     properties:
@@ -945,24 +1082,12 @@ definitions:
     type: object
   types.DepartmentUpdateReq:
     properties:
-      code:
-        maxLength: 50
-        type: string
-      department_type:
-        allOf:
-        - $ref: '#/definitions/domain.DepartmentType'
-        enum:
-        - admin
-        - backend
-        - store
       enable:
         type: boolean
       name:
         maxLength: 50
         type: string
     required:
-    - code
-    - department_type
     - name
     type: object
   types.LoginReq:
@@ -1299,7 +1424,7 @@ definitions:
         description: 品牌名称
         maxLength: 50
         type: string
-      business_type_id:
+      business_type_code:
         description: 业务类型
         type: string
       description:
@@ -1328,7 +1453,7 @@ definitions:
         description: '状态: 正常,停用,过期'
     required:
     - admin_phone_number
-    - business_type_id
+    - business_type_code
     - merchant_name
     type: object
   types.UpdateStoreMerchantReq:
@@ -1361,7 +1486,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.BusinessModel'
         description: 直营/加盟
-      business_type_id:
+      business_type_code:
         description: 业态类型
         type: string
       cashier_desk_url:
@@ -1430,7 +1555,7 @@ definitions:
     - admin_phone_number
     - business_hours
     - business_model
-    - business_type_id
+    - business_type_code
     - dining_periods
     - location_number
     - shift_times
@@ -1452,24 +1577,9 @@ paths:
       - in: query
         name: code
         type: string
-      - enum:
-        - admin
-        - backend
-        - store
-        in: query
-        name: department_type
-        type: string
-        x-enum-varnames:
-        - DepartmentTypeAdmin
-        - DepartmentBackend
-        - DepartmentStore
       - in: query
         name: enable
         type: boolean
-      - in: query
-        name: merchant_id
-        required: true
-        type: string
       - in: query
         name: name
         type: string
@@ -1481,10 +1591,6 @@ paths:
         in: query
         name: size
         type: integer
-      - in: query
-        name: store_id
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -1492,14 +1598,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.DepartmentListResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 部门列表
@@ -1521,18 +1619,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 创建部门
@@ -1554,18 +1640,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 删除部门
@@ -1588,18 +1662,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Department'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取部门
@@ -1626,22 +1688,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新部门
@@ -1663,18 +1709,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 禁用部门
@@ -1696,18 +1730,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 启用部门
@@ -1715,6 +1737,8 @@ paths:
       - 部门管理
   /common/role:
     get:
+      consumes:
+      - application/json
       description: 分页查询角色
       parameters:
       - in: query
@@ -1738,14 +1762,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.RoleListResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 角色列表
@@ -1767,18 +1783,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 创建角色
@@ -1786,6 +1790,8 @@ paths:
       - 角色管理
   /common/role/{id}:
     delete:
+      consumes:
+      - application/json
       description: 删除指定角色
       parameters:
       - description: 角色ID
@@ -1798,24 +1804,14 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 删除角色
       tags:
       - 角色管理
     get:
+      consumes:
+      - application/json
       description: 查询指定角色
       parameters:
       - description: 角色ID
@@ -1830,18 +1826,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Role'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取角色详情
@@ -1868,22 +1852,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新角色
@@ -1891,6 +1859,8 @@ paths:
       - 角色管理
   /common/role/{id}/disable:
     put:
+      consumes:
+      - application/json
       description: 禁用指定角色
       parameters:
       - description: 角色ID
@@ -1903,18 +1873,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 禁用角色
@@ -1922,6 +1880,8 @@ paths:
       - 角色管理
   /common/role/{id}/enable:
     put:
+      consumes:
+      - application/json
       description: 启用指定角色
       parameters:
       - description: 角色ID
@@ -1934,18 +1894,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 启用角色
@@ -1982,14 +1930,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.RouterMenuListResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 菜单列表
@@ -2011,18 +1951,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 创建菜单
@@ -2042,18 +1970,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 删除菜单
@@ -2074,18 +1990,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.RouterMenu'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取菜单详情
@@ -2112,22 +2016,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新菜单
@@ -2147,18 +2035,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 禁用菜单
@@ -2178,18 +2054,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 启用菜单
@@ -2233,14 +2097,6 @@ paths:
           description: No Content
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 删除商户
@@ -2268,18 +2124,6 @@ paths:
                 data:
                   $ref: '#/definitions/types.MerchantInfoResp'
               type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取商户信息
@@ -2299,18 +2143,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 禁用商户
@@ -2330,18 +2162,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 启用商户
@@ -2364,18 +2184,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 创建品牌商户
@@ -2403,18 +2211,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新品牌商户
@@ -2435,10 +2231,6 @@ paths:
                 data:
                   $ref: '#/definitions/types.MerchantCount'
               type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 商户数量统计
@@ -2515,14 +2307,6 @@ paths:
                 data:
                   $ref: '#/definitions/types.MerchantListResp'
               type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 商户列表
@@ -2545,18 +2329,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 商户续期
@@ -2579,18 +2351,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 创建门店商户
@@ -2618,18 +2378,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新门店商户
@@ -2652,18 +2400,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 创建门店
@@ -2687,14 +2423,6 @@ paths:
           description: No Content
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 删除门店
@@ -2722,18 +2450,6 @@ paths:
                 data:
                   $ref: '#/definitions/domain.Store'
               type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取门店
@@ -2760,18 +2476,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新门店
@@ -2791,18 +2495,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 禁用门店
@@ -2822,18 +2514,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 启用门店
@@ -2862,7 +2542,7 @@ paths:
         - BusinessModelFranchisee
       - description: 业态类型
         in: query
-        name: business_type_id
+        name: business_type_code
         type: string
       - in: query
         name: created_at_gte
@@ -2915,14 +2595,6 @@ paths:
                 data:
                   $ref: '#/definitions/types.StoreListResp'
               type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 门店列表
@@ -2990,6 +2662,158 @@ paths:
       summary: 获取省份列表
       tags:
       - 地区
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: 查询管理员用户列表
+      parameters:
+      - in: query
+        name: code
+        type: string
+      - in: query
+        name: email
+        type: string
+      - in: query
+        name: enabled
+        type: boolean
+      - enum:
+        - male
+        - female
+        - other
+        - unknown
+        in: query
+        name: gender
+        type: string
+        x-enum-comments:
+          GenderFemale: 女性
+          GenderMale: 男性
+          GenderOther: 其他
+          GenderUnknown: 未知
+        x-enum-varnames:
+        - GenderMale
+        - GenderFemale
+        - GenderOther
+        - GenderUnknown
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: phone_number
+        type: string
+      - in: query
+        name: real_name
+        type: string
+      - in: query
+        name: role_id
+        type: string
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.AdminUserListResp'
+      security:
+      - BearerAuth: []
+      summary: 管理员用户列表
+      tags:
+      - 用户管理
+    post:
+      consumes:
+      - application/json
+      description: 新建一个管理员用户
+      parameters:
+      - description: 创建管理员用户请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.AdminUserCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建管理员用户
+      tags:
+      - 用户管理
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定管理员用户
+      parameters:
+      - description: 管理员用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除管理员用户
+      tags:
+      - 用户管理
+    get:
+      consumes:
+      - application/json
+      description: 查询指定管理员用户详情
+      parameters:
+      - description: 管理员用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.AdminUser'
+      security:
+      - BearerAuth: []
+      summary: 获取管理员用户
+      tags:
+      - 用户管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定管理员用户信息
+      parameters:
+      - description: 管理员用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新管理员用户请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.AdminUserUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新管理员用户
+      tags:
+      - 用户管理
   /user/info:
     post:
       consumes:

@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 )
 
@@ -89,6 +90,18 @@ func (buc *BackendUserCreate) SetNickname(s string) *BackendUserCreate {
 // SetMerchantID sets the "merchant_id" field.
 func (buc *BackendUserCreate) SetMerchantID(u uuid.UUID) *BackendUserCreate {
 	buc.mutation.SetMerchantID(u)
+	return buc
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (buc *BackendUserCreate) SetDepartmentID(u uuid.UUID) *BackendUserCreate {
+	buc.mutation.SetDepartmentID(u)
+	return buc
+}
+
+// SetCode sets the "code" field.
+func (buc *BackendUserCreate) SetCode(s string) *BackendUserCreate {
+	buc.mutation.SetCode(s)
 	return buc
 }
 
@@ -177,6 +190,11 @@ func (buc *BackendUserCreate) SetNillableID(u *uuid.UUID) *BackendUserCreate {
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (buc *BackendUserCreate) SetMerchant(m *Merchant) *BackendUserCreate {
 	return buc.SetMerchantID(m.ID)
+}
+
+// SetDepartment sets the "department" edge to the Department entity.
+func (buc *BackendUserCreate) SetDepartment(d *Department) *BackendUserCreate {
+	return buc.SetDepartmentID(d.ID)
 }
 
 // Mutation returns the BackendUserMutation object of the builder.
@@ -285,6 +303,17 @@ func (buc *BackendUserCreate) check() error {
 	if _, ok := buc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "BackendUser.merchant_id"`)}
 	}
+	if _, ok := buc.mutation.DepartmentID(); !ok {
+		return &ValidationError{Name: "department_id", err: errors.New(`ent: missing required field "BackendUser.department_id"`)}
+	}
+	if _, ok := buc.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "BackendUser.code"`)}
+	}
+	if v, ok := buc.mutation.Code(); ok {
+		if err := backenduser.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "BackendUser.code": %w`, err)}
+		}
+	}
 	if _, ok := buc.mutation.RealName(); !ok {
 		return &ValidationError{Name: "real_name", err: errors.New(`ent: missing required field "BackendUser.real_name"`)}
 	}
@@ -319,6 +348,9 @@ func (buc *BackendUserCreate) check() error {
 	}
 	if len(buc.mutation.MerchantIDs()) == 0 {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "BackendUser.merchant"`)}
+	}
+	if len(buc.mutation.DepartmentIDs()) == 0 {
+		return &ValidationError{Name: "department", err: errors.New(`ent: missing required edge "BackendUser.department"`)}
 	}
 	return nil
 }
@@ -380,6 +412,10 @@ func (buc *BackendUserCreate) createSpec() (*BackendUser, *sqlgraph.CreateSpec) 
 		_spec.SetField(backenduser.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
 	}
+	if value, ok := buc.mutation.Code(); ok {
+		_spec.SetField(backenduser.FieldCode, field.TypeString, value)
+		_node.Code = value
+	}
 	if value, ok := buc.mutation.RealName(); ok {
 		_spec.SetField(backenduser.FieldRealName, field.TypeString, value)
 		_node.RealName = value
@@ -419,6 +455,23 @@ func (buc *BackendUserCreate) createSpec() (*BackendUser, *sqlgraph.CreateSpec) 
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.MerchantID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := buc.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   backenduser.DepartmentTable,
+			Columns: []string{backenduser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DepartmentID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -539,6 +592,18 @@ func (u *BackendUserUpsert) UpdateNickname() *BackendUserUpsert {
 	return u
 }
 
+// SetDepartmentID sets the "department_id" field.
+func (u *BackendUserUpsert) SetDepartmentID(v uuid.UUID) *BackendUserUpsert {
+	u.Set(backenduser.FieldDepartmentID, v)
+	return u
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdateDepartmentID() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldDepartmentID)
+	return u
+}
+
 // SetRealName sets the "real_name" field.
 func (u *BackendUserUpsert) SetRealName(v string) *BackendUserUpsert {
 	u.Set(backenduser.FieldRealName, v)
@@ -646,6 +711,9 @@ func (u *BackendUserUpsertOne) UpdateNewValues() *BackendUserUpsertOne {
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(backenduser.FieldMerchantID)
 		}
+		if _, exists := u.create.mutation.Code(); exists {
+			s.SetIgnore(backenduser.FieldCode)
+		}
 	}))
 	return u
 }
@@ -751,6 +819,20 @@ func (u *BackendUserUpsertOne) SetNickname(v string) *BackendUserUpsertOne {
 func (u *BackendUserUpsertOne) UpdateNickname() *BackendUserUpsertOne {
 	return u.Update(func(s *BackendUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (u *BackendUserUpsertOne) SetDepartmentID(v uuid.UUID) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetDepartmentID(v)
+	})
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdateDepartmentID() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateDepartmentID()
 	})
 }
 
@@ -1041,6 +1123,9 @@ func (u *BackendUserUpsertBulk) UpdateNewValues() *BackendUserUpsertBulk {
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(backenduser.FieldMerchantID)
 			}
+			if _, exists := b.mutation.Code(); exists {
+				s.SetIgnore(backenduser.FieldCode)
+			}
 		}
 	}))
 	return u
@@ -1147,6 +1232,20 @@ func (u *BackendUserUpsertBulk) SetNickname(v string) *BackendUserUpsertBulk {
 func (u *BackendUserUpsertBulk) UpdateNickname() *BackendUserUpsertBulk {
 	return u.Update(func(s *BackendUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (u *BackendUserUpsertBulk) SetDepartmentID(v uuid.UUID) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetDepartmentID(v)
+	})
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdateDepartmentID() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateDepartmentID()
 	})
 }
 

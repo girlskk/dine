@@ -29,7 +29,12 @@ func (s *DeviceRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
+func (s *DeviceRepositoryTestSuite) createBusinessType(tag string) *ent.MerchantBusinessType {
+	return s.client.MerchantBusinessType.Create().SetTypeCode("bt-" + tag).SetTypeName("业态-" + tag).SaveX(s.ctx)
+}
+
 func (s *DeviceRepositoryTestSuite) createStore(tag string) *ent.Store {
+	bt := s.createBusinessType(tag)
 	merchant := s.client.Merchant.Create().
 		SetID(uuid.New()).
 		SetMerchantCode("MC-" + tag).
@@ -38,7 +43,7 @@ func (s *DeviceRepositoryTestSuite) createStore(tag string) *ent.Store {
 		SetMerchantType(domain.MerchantTypeBrand).
 		SetBrandName("品牌-" + tag).
 		SetAdminPhoneNumber("13800000000").
-		SetBusinessTypeID(uuid.New()).
+		SetBusinessTypeCode(bt.TypeCode).
 		SetMerchantLogo("logo-" + tag).
 		SetDescription("描述-" + tag).
 		SetStatus(domain.MerchantStatusActive).
@@ -54,7 +59,7 @@ func (s *DeviceRepositoryTestSuite) createStore(tag string) *ent.Store {
 		SetStoreCode("SC-" + tag).
 		SetStatus(domain.StoreStatusOpen).
 		SetBusinessModel(domain.BusinessModelDirect).
-		SetBusinessTypeID(uuid.New()).
+		SetBusinessTypeCode(bt.TypeCode).
 		SetLocationNumber("L-" + tag).
 		SetContactName("联系人-" + tag).
 		SetContactPhone("137" + tag[:3]).

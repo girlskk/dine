@@ -80,7 +80,7 @@ func (s *StoreRepositoryTestSuite) createMerchant(tag string, loc storeLocation,
 		SetMerchantType(domain.MerchantTypeBrand).
 		SetBrandName("品牌-" + tag).
 		SetAdminPhoneNumber("13800000000").
-		SetBusinessTypeID(bt.ID).
+		SetBusinessTypeCode(bt.TypeCode).
 		SetMerchantLogo("logo-" + tag).
 		SetDescription("描述-" + tag).
 		SetStatus(domain.MerchantStatusActive).
@@ -105,7 +105,7 @@ func (s *StoreRepositoryTestSuite) newDomainStore(tag string, merchant *ent.Merc
 		StoreCode:               "SC-" + tag,
 		Status:                  domain.StoreStatusOpen,
 		BusinessModel:           domain.BusinessModelDirect,
-		BusinessTypeID:          bt.ID,
+		BusinessTypeCode:        bt.TypeCode,
 		LocationNumber:          "L-" + tag,
 		ContactName:             "联系人-" + tag,
 		ContactPhone:            "1370000" + tag[len(tag)-4:],
@@ -146,7 +146,7 @@ func (s *StoreRepositoryTestSuite) TestStore_Create() {
 		saved := s.client.Store.GetX(s.ctx, store.ID)
 		require.Equal(t, store.StoreName, saved.StoreName)
 		require.Equal(t, store.Address.Address, saved.Address)
-		require.Equal(t, store.BusinessTypeID, saved.BusinessTypeID)
+		require.Equal(t, store.BusinessTypeCode, saved.BusinessTypeCode)
 		require.Equal(t, store.LoginAccount, saved.SuperAccount)
 		require.False(t, saved.CreatedAt.IsZero())
 	})
@@ -179,7 +179,7 @@ func (s *StoreRepositoryTestSuite) TestStore_Update() {
 
 	newBT := s.createBusinessType("new-" + tag)
 	store.StoreName = "更新-" + store.StoreName
-	store.BusinessTypeID = newBT.ID
+	store.BusinessTypeCode = newBT.TypeCode
 	store.Address.Address = "新地址-" + tag
 	store.Address.Lng = "122.00"
 	store.Address.Lat = "32.00"
@@ -190,7 +190,7 @@ func (s *StoreRepositoryTestSuite) TestStore_Update() {
 	updated := s.client.Store.GetX(s.ctx, store.ID)
 	require.Equal(s.T(), store.StoreName, updated.StoreName)
 	require.Equal(s.T(), store.Address.Address, updated.Address)
-	require.Equal(s.T(), newBT.ID, updated.BusinessTypeID)
+	require.Equal(s.T(), newBT.TypeCode, updated.BusinessTypeCode)
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
 		missing := s.newDomainStore("missing"+tag, merchant, loc, bt)
@@ -287,7 +287,7 @@ func (s *StoreRepositoryTestSuite) TestStore_GetStores() {
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), 2, total)
 	require.Len(s.T(), list, 2)
-	
+
 	orderByIDAsc := domain.NewStoreListOrderByCreatedAt(false)
 	list, total, err = s.repo.GetStores(s.ctx, pager, filter, orderByIDAsc)
 	require.NoError(s.T(), err)

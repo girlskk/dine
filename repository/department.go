@@ -53,10 +53,13 @@ func (repo *DepartmentRepository) Create(ctx context.Context, dept *domain.Depar
 		SetName(dept.Name).
 		SetCode(dept.Code).
 		SetDepartmentType(dept.DepartmentType).
-		SetEnable(dept.Enable).
-		SetMerchantID(dept.MerchantID).
-		SetStoreID(dept.StoreID)
-
+		SetEnable(dept.Enable)
+	if dept.MerchantID != uuid.Nil {
+		builder = builder.SetMerchantID(dept.MerchantID)
+	}
+	if dept.StoreID != uuid.Nil {
+		builder = builder.SetStoreID(dept.StoreID)
+	}
 	created, err := builder.Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create department: %w", err)

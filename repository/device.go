@@ -65,13 +65,14 @@ func (repo *DeviceRepository) Create(ctx context.Context, domainDevice *domain.D
 		SetDeviceModel(domainDevice.DeviceModel)
 	switch domainDevice.DeviceType {
 	case domain.DeviceTypePrinter:
-		builder = builder.SetIP(domainDevice.IP)
-		builder = builder.SetPaperSize(domainDevice.PaperSize)
-		builder = builder.SetStallID(domainDevice.StallID)
-		builder = builder.SetOrderChannels(domainDevice.OrderChannels)
-		builder = builder.SetDiningWays(domainDevice.DiningWays)
-		builder = builder.SetDeviceStallPrintType(domainDevice.DeviceStallPrintType)
-		builder = builder.SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType)
+		builder = builder.SetIP(domainDevice.IP).
+			SetPaperSize(domainDevice.PaperSize).
+			SetConnectType(domainDevice.ConnectType).
+			SetStallID(domainDevice.StallID).
+			SetOrderChannels(domainDevice.OrderChannels).
+			SetDiningWays(domainDevice.DiningWays).
+			SetDeviceStallPrintType(domainDevice.DeviceStallPrintType).
+			SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType)
 	case domain.DeviceTypeCashier:
 		builder = builder.SetOpenCashDrawer(domainDevice.OpenCashDrawer)
 	}
@@ -105,13 +106,14 @@ func (repo *DeviceRepository) Update(ctx context.Context, domainDevice *domain.D
 		SetDeviceModel(domainDevice.DeviceModel)
 	switch domainDevice.DeviceType {
 	case domain.DeviceTypePrinter:
-		builder = builder.SetIP(domainDevice.IP)
-		builder = builder.SetPaperSize(domainDevice.PaperSize)
-		builder = builder.SetStallID(domainDevice.StallID)
-		builder = builder.SetOrderChannels(domainDevice.OrderChannels)
-		builder = builder.SetDiningWays(domainDevice.DiningWays)
-		builder = builder.SetDeviceStallPrintType(domainDevice.DeviceStallPrintType)
-		builder = builder.SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType)
+		builder = builder.SetIP(domainDevice.IP).
+			SetPaperSize(domainDevice.PaperSize).
+			SetConnectType(domainDevice.ConnectType).
+			SetStallID(domainDevice.StallID).
+			SetOrderChannels(domainDevice.OrderChannels).
+			SetDiningWays(domainDevice.DiningWays).
+			SetDeviceStallPrintType(domainDevice.DeviceStallPrintType).
+			SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType)
 	case domain.DeviceTypeCashier:
 		builder = builder.SetOpenCashDrawer(domainDevice.OpenCashDrawer)
 	}
@@ -260,6 +262,7 @@ func convertDeviceToDomain(es *ent.Device) (d *domain.Device) {
 		IP:                     es.IP,
 		Status:                 es.Status,
 		PaperSize:              es.PaperSize,
+		ConnectType:            es.ConnectType,
 		StallID:                es.StallID,
 		OrderChannels:          es.OrderChannels,
 		DiningWays:             es.DiningWays,

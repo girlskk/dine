@@ -7,14 +7,16 @@ import (
 
 // RoleCreateReq 创建角色请求
 type RoleCreateReq struct {
-	Name   string `json:"name" binding:"required,max=50"`
-	Enable bool   `json:"enable"`
+	Name          string                `json:"name" binding:"required,max=50"`
+	Enable        bool                  `json:"enable"`
+	LoginChannels []domain.LoginChannel `json:"login_channels" binding:"omitempty,dive,oneof=pos mobile store"` // 角色登录渠道pos/mobile/store
 }
 
 // RoleUpdateReq 更新角色请求
 type RoleUpdateReq struct {
-	Name   string `json:"name" binding:"required,max=50"`
-	Enable bool   `json:"enable"`
+	Name          string                `json:"name" binding:"required,max=50"`
+	Enable        bool                  `json:"enable"`
+	LoginChannels []domain.LoginChannel `json:"login_channels" binding:"omitempty,dive,oneof=pos mobile store"` // 角色登录渠道pos/mobile/store
 }
 
 // RoleListReq 角色列表查询请求

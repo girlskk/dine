@@ -32,7 +32,6 @@ func (UserRole) Fields() []ent.Field {
 			Immutable().
 			Comment("用户ID，不同 user_type 指向不同用户表"),
 		field.UUID("role_id", uuid.UUID{}).
-			Immutable().
 			Comment("角色ID"),
 		field.UUID("merchant_id", uuid.UUID{}).
 			Optional().

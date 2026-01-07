@@ -14,6 +14,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"go.uber.org/fx"
 )
 
 // TaxFeeHandler 费用管理-税费管理
@@ -21,14 +22,17 @@ import (
 
 type TaxFeeHandler struct {
 	TaxFeeInteractor domain.TaxFeeInteractor
-	taxSeq           domain.TaxSequence
+	taxSeq           domain.IncrSequence
 }
 
-func NewTaxFeeHandler(interactor domain.TaxFeeInteractor, seq domain.TaxSequence) *TaxFeeHandler {
-	return &TaxFeeHandler{
-		TaxFeeInteractor: interactor,
-		taxSeq:           seq,
-	}
+type TaxFeeHandlerParams struct {
+	fx.In
+	TaxFeeInteractor domain.TaxFeeInteractor
+	TaxSeq           domain.IncrSequence `name:"backend_tax_seq"`
+}
+
+func NewTaxFeeHandler(p TaxFeeHandlerParams) *TaxFeeHandler {
+	return &TaxFeeHandler{TaxFeeInteractor: p.TaxFeeInteractor, taxSeq: p.TaxSeq}
 }
 
 func (h *TaxFeeHandler) Routes(r gin.IRouter) {
@@ -51,9 +55,6 @@ func (h *TaxFeeHandler) Routes(r gin.IRouter) {
 //	@Produce	json
 //	@Param		data	body	types.TaxFeeCreateReq	true	"请求信息"
 //	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	409		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/tax_fee [post]
 func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -112,9 +113,6 @@ func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 //	@Param		id		path	string					true	"税费ID"
 //	@Param		data	body	types.TaxFeeUpdateReq	true	"请求信息"
 //	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	409		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/tax_fee/{id} [put]
 func (h *TaxFeeHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -171,8 +169,6 @@ func (h *TaxFeeHandler) Update() gin.HandlerFunc {
 //	@Param		id	path	string	true	"税费ID"
 //	@Success	200	"No Content"
 //	@Success	204	"No Content"
-//	@Failure	400	{object}	response.Response
-//	@Failure	500	{object}	response.Response
 //	@Router		/tax_fee/{id} [delete]
 func (h *TaxFeeHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -210,9 +206,6 @@ func (h *TaxFeeHandler) Delete() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		id	path		string	true	"税费ID"
 //	@Success	200	{object}	response.Response{data=domain.TaxFee}
-//	@Failure	400	{object}	response.Response
-//	@Failure	404	{object}	response.Response
-//	@Failure	500	{object}	response.Response
 //	@Router		/tax_fee/{id} [get]
 func (h *TaxFeeHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -255,8 +248,6 @@ func (h *TaxFeeHandler) Get() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		data	query		types.TaxFeeListReq	true	"出品部门列表查询参数"
 //	@Success	200		{object}	response.Response{data=types.TaxFeeListResp}
-//	@Failure	400		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/tax_fee [get]
 func (h *TaxFeeHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -303,9 +294,6 @@ func (h *TaxFeeHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"税费ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/tax_fee/{id}/enable [put]
 func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -348,9 +336,6 @@ func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"税费ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/tax_fee/{id}/disable [put]
 func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -385,6 +370,9 @@ func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 }
 
 func (h *TaxFeeHandler) generateTaxCode(ctx context.Context) (string, error) {
+	if h.taxSeq == nil {
+		return "", fmt.Errorf("tax fee sequence not initialized")
+	}
 	seq, err := h.taxSeq.Next(ctx)
 	if err != nil {
 		return "", err

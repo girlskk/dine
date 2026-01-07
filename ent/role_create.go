@@ -129,6 +129,12 @@ func (rc *RoleCreate) SetNillableStoreID(u *uuid.UUID) *RoleCreate {
 	return rc
 }
 
+// SetLoginChannels sets the "login_channels" field.
+func (rc *RoleCreate) SetLoginChannels(dc []domain.LoginChannel) *RoleCreate {
+	rc.mutation.SetLoginChannels(dc)
+	return rc
+}
+
 // SetDataScope sets the "data_scope" field.
 func (rc *RoleCreate) SetDataScope(ddst domain.RoleDataScopeType) *RoleCreate {
 	rc.mutation.SetDataScope(ddst)
@@ -257,6 +263,11 @@ func (rc *RoleCreate) check() error {
 	if _, ok := rc.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Role.code"`)}
 	}
+	if v, ok := rc.mutation.Code(); ok {
+		if err := role.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Role.code": %w`, err)}
+		}
+	}
 	if _, ok := rc.mutation.RoleType(); !ok {
 		return &ValidationError{Name: "role_type", err: errors.New(`ent: missing required field "Role.role_type"`)}
 	}
@@ -336,6 +347,10 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	if value, ok := rc.mutation.Enable(); ok {
 		_spec.SetField(role.FieldEnable, field.TypeBool, value)
 		_node.Enable = value
+	}
+	if value, ok := rc.mutation.LoginChannels(); ok {
+		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
+		_node.LoginChannels = value
 	}
 	if value, ok := rc.mutation.DataScope(); ok {
 		_spec.SetField(role.FieldDataScope, field.TypeEnum, value)
@@ -481,6 +496,24 @@ func (u *RoleUpsert) UpdateEnable() *RoleUpsert {
 	return u
 }
 
+// SetLoginChannels sets the "login_channels" field.
+func (u *RoleUpsert) SetLoginChannels(v []domain.LoginChannel) *RoleUpsert {
+	u.Set(role.FieldLoginChannels, v)
+	return u
+}
+
+// UpdateLoginChannels sets the "login_channels" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateLoginChannels() *RoleUpsert {
+	u.SetExcluded(role.FieldLoginChannels)
+	return u
+}
+
+// ClearLoginChannels clears the value of the "login_channels" field.
+func (u *RoleUpsert) ClearLoginChannels() *RoleUpsert {
+	u.SetNull(role.FieldLoginChannels)
+	return u
+}
+
 // SetDataScope sets the "data_scope" field.
 func (u *RoleUpsert) SetDataScope(v domain.RoleDataScopeType) *RoleUpsert {
 	u.Set(role.FieldDataScope, v)
@@ -622,6 +655,27 @@ func (u *RoleUpsertOne) SetEnable(v bool) *RoleUpsertOne {
 func (u *RoleUpsertOne) UpdateEnable() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
 		s.UpdateEnable()
+	})
+}
+
+// SetLoginChannels sets the "login_channels" field.
+func (u *RoleUpsertOne) SetLoginChannels(v []domain.LoginChannel) *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.SetLoginChannels(v)
+	})
+}
+
+// UpdateLoginChannels sets the "login_channels" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateLoginChannels() *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.UpdateLoginChannels()
+	})
+}
+
+// ClearLoginChannels clears the value of the "login_channels" field.
+func (u *RoleUpsertOne) ClearLoginChannels() *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.ClearLoginChannels()
 	})
 }
 
@@ -936,6 +990,27 @@ func (u *RoleUpsertBulk) SetEnable(v bool) *RoleUpsertBulk {
 func (u *RoleUpsertBulk) UpdateEnable() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
 		s.UpdateEnable()
+	})
+}
+
+// SetLoginChannels sets the "login_channels" field.
+func (u *RoleUpsertBulk) SetLoginChannels(v []domain.LoginChannel) *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.SetLoginChannels(v)
+	})
+}
+
+// UpdateLoginChannels sets the "login_channels" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateLoginChannels() *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.UpdateLoginChannels()
+	})
+}
+
+// ClearLoginChannels clears the value of the "login_channels" field.
+func (u *RoleUpsertBulk) ClearLoginChannels() *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.ClearLoginChannels()
 	})
 }
 

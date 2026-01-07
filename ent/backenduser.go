@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 )
 
@@ -35,6 +36,10 @@ type BackendUser struct {
 	Nickname string `json:"nickname,omitempty"`
 	// 所属品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
+	// 部门ID
+	DepartmentID uuid.UUID `json:"department_id,omitempty"`
+	// 编码
+	Code string `json:"code,omitempty"`
 	// 真实姓名
 	RealName string `json:"real_name,omitempty"`
 	// 性别
@@ -57,9 +62,11 @@ type BackendUser struct {
 type BackendUserEdges struct {
 	// Merchant holds the value of the merchant edge.
 	Merchant *Merchant `json:"merchant,omitempty"`
+	// Department holds the value of the department edge.
+	Department *Department `json:"department,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -73,6 +80,17 @@ func (e BackendUserEdges) MerchantOrErr() (*Merchant, error) {
 	return nil, &NotLoadedError{edge: "merchant"}
 }
 
+// DepartmentOrErr returns the Department value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BackendUserEdges) DepartmentOrErr() (*Department, error) {
+	if e.Department != nil {
+		return e.Department, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: department.Label}
+	}
+	return nil, &NotLoadedError{edge: "department"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*BackendUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -82,11 +100,11 @@ func (*BackendUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case backenduser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case backenduser.FieldUsername, backenduser.FieldHashedPassword, backenduser.FieldNickname, backenduser.FieldRealName, backenduser.FieldGender, backenduser.FieldEmail, backenduser.FieldPhoneNumber:
+		case backenduser.FieldUsername, backenduser.FieldHashedPassword, backenduser.FieldNickname, backenduser.FieldCode, backenduser.FieldRealName, backenduser.FieldGender, backenduser.FieldEmail, backenduser.FieldPhoneNumber:
 			values[i] = new(sql.NullString)
 		case backenduser.FieldCreatedAt, backenduser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case backenduser.FieldID, backenduser.FieldMerchantID:
+		case backenduser.FieldID, backenduser.FieldMerchantID, backenduser.FieldDepartmentID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -151,6 +169,18 @@ func (bu *BackendUser) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				bu.MerchantID = *value
 			}
+		case backenduser.FieldDepartmentID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field department_id", values[i])
+			} else if value != nil {
+				bu.DepartmentID = *value
+			}
+		case backenduser.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				bu.Code = value.String
+			}
 		case backenduser.FieldRealName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field real_name", values[i])
@@ -205,6 +235,11 @@ func (bu *BackendUser) QueryMerchant() *MerchantQuery {
 	return NewBackendUserClient(bu.config).QueryMerchant(bu)
 }
 
+// QueryDepartment queries the "department" edge of the BackendUser entity.
+func (bu *BackendUser) QueryDepartment() *DepartmentQuery {
+	return NewBackendUserClient(bu.config).QueryDepartment(bu)
+}
+
 // Update returns a builder for updating this BackendUser.
 // Note that you need to call BackendUser.Unwrap() before calling this method if this BackendUser
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -248,6 +283,12 @@ func (bu *BackendUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", bu.MerchantID))
+	builder.WriteString(", ")
+	builder.WriteString("department_id=")
+	builder.WriteString(fmt.Sprintf("%v", bu.DepartmentID))
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(bu.Code)
 	builder.WriteString(", ")
 	builder.WriteString("real_name=")
 	builder.WriteString(bu.RealName)

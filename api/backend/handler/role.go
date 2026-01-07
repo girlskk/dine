@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -13,14 +14,22 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"go.uber.org/fx"
 )
 
 type RoleHandler struct {
-	Interactor domain.RoleInteractor
+	Interactor   domain.RoleInteractor
+	RoleSequence domain.IncrSequence
 }
 
-func NewRoleHandler(interactor domain.RoleInteractor) *RoleHandler {
-	return &RoleHandler{Interactor: interactor}
+type RoleHandlerParams struct {
+	fx.In
+	Interactor   domain.RoleInteractor
+	RoleSequence domain.IncrSequence `name:"backend_role_seq"`
+}
+
+func NewRoleHandler(p RoleHandlerParams) *RoleHandler {
+	return &RoleHandler{Interactor: p.Interactor, RoleSequence: p.RoleSequence}
 }
 
 func (h *RoleHandler) Routes(r gin.IRouter) {
@@ -38,15 +47,12 @@ func (h *RoleHandler) Routes(r gin.IRouter) {
 //
 //	@Tags			角色管理
 //	@Summary		创建角色
-//	@Description	新建一个角色
+//	@Description	在品牌后台创建角色
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body	types.RoleCreateReq	true	"创建角色请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/role [post]
 func (h *RoleHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -61,9 +67,17 @@ func (h *RoleHandler) Create() gin.HandlerFunc {
 			return
 		}
 		user := domain.FromBackendUserContext(ctx)
+
+		roleCode, err := h.generateRoleCode(ctx)
+		if err != nil {
+			err = fmt.Errorf("failed to generate role code: %w", err)
+			c.Error(err)
+			return
+		}
+
 		params := &domain.CreateRoleParams{
 			Name:       req.Name,
-			Code:       "", // todo
+			Code:       roleCode,
 			RoleType:   domain.RoleTypeAdmin,
 			DataScope:  domain.RoleDataScopeAll,
 			Enable:     req.Enable,
@@ -92,17 +106,13 @@ func (h *RoleHandler) Create() gin.HandlerFunc {
 //
 //	@Tags			角色管理
 //	@Summary		更新角色
-//	@Description	修改指定角色
+//	@Description	修改指定品牌后台角色
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string				true	"角色ID"
 //	@Param			data	body	types.RoleUpdateReq	true	"更新角色请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/role/{id} [put]
 func (h *RoleHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -126,7 +136,6 @@ func (h *RoleHandler) Update() gin.HandlerFunc {
 		params := &domain.UpdateRoleParams{
 			ID:        id,
 			Name:      req.Name,
-			Code:      "", // todo
 			RoleType:  domain.RoleTypeAdmin,
 			DataScope: domain.RoleDataScopeAll,
 			Enable:    req.Enable,
@@ -163,9 +172,6 @@ func (h *RoleHandler) Update() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"角色ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/role/{id} [delete]
 func (h *RoleHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -202,14 +208,12 @@ func (h *RoleHandler) Delete() gin.HandlerFunc {
 //
 //	@Tags			角色管理
 //	@Summary		获取角色详情
-//	@Description	查询指定角色
+//	@Description	查询指定品牌角色
 //	@Security		BearerAuth
+//	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"角色ID"
 //	@Success		200	{object}	domain.Role
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/role/{id} [get]
 func (h *RoleHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -243,13 +247,12 @@ func (h *RoleHandler) Get() gin.HandlerFunc {
 //
 //	@Tags			角色管理
 //	@Summary		角色列表
-//	@Description	分页查询角色
+//	@Description	分页查询品牌角色
 //	@Security		BearerAuth
+//	@Accept			json
 //	@Produce		json
 //	@Param			data	query		types.RoleListReq	true	"角色列表请求"
 //	@Success		200		{object}	types.RoleListResp
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/common/role [get]
 func (h *RoleHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -289,14 +292,12 @@ func (h *RoleHandler) List() gin.HandlerFunc {
 //
 //	@Tags			角色管理
 //	@Summary		启用角色
-//	@Description	启用指定角色
+//	@Description	启用指定品牌角色
 //	@Security		BearerAuth
+//	@Accept			json
 //	@Produce		json
 //	@Param			id	path	string	true	"角色ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/role/{id}/enable [put]
 func (h *RoleHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -334,14 +335,12 @@ func (h *RoleHandler) Enable() gin.HandlerFunc {
 //
 //	@Tags			角色管理
 //	@Summary		禁用角色
-//	@Description	禁用指定角色
+//	@Description	禁用指定品牌角色
 //	@Security		BearerAuth
+//	@Accept			json
 //	@Produce		json
 //	@Param			id	path	string	true	"角色ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/common/role/{id}/disable [put]
 func (h *RoleHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -373,4 +372,15 @@ func (h *RoleHandler) Disable() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
+}
+
+func (h *RoleHandler) generateRoleCode(ctx context.Context) (string, error) {
+	if h.RoleSequence == nil {
+		return "", fmt.Errorf("role sequence not initialized")
+	}
+	seq, err := h.RoleSequence.Next(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate role code: %w", err)
+	}
+	return seq, nil
 }

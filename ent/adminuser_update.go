@@ -11,8 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -95,6 +97,20 @@ func (auu *AdminUserUpdate) SetNickname(s string) *AdminUserUpdate {
 func (auu *AdminUserUpdate) SetNillableNickname(s *string) *AdminUserUpdate {
 	if s != nil {
 		auu.SetNickname(*s)
+	}
+	return auu
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (auu *AdminUserUpdate) SetDepartmentID(u uuid.UUID) *AdminUserUpdate {
+	auu.mutation.SetDepartmentID(u)
+	return auu
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillableDepartmentID(u *uuid.UUID) *AdminUserUpdate {
+	if u != nil {
+		auu.SetDepartmentID(*u)
 	}
 	return auu
 }
@@ -195,9 +211,20 @@ func (auu *AdminUserUpdate) SetNillableIsSuperadmin(b *bool) *AdminUserUpdate {
 	return auu
 }
 
+// SetDepartment sets the "department" edge to the Department entity.
+func (auu *AdminUserUpdate) SetDepartment(d *Department) *AdminUserUpdate {
+	return auu.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the AdminUserMutation object of the builder.
 func (auu *AdminUserUpdate) Mutation() *AdminUserMutation {
 	return auu.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (auu *AdminUserUpdate) ClearDepartment() *AdminUserUpdate {
+	auu.mutation.ClearDepartment()
+	return auu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -274,6 +301,9 @@ func (auu *AdminUserUpdate) check() error {
 			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "AdminUser.phone_number": %w`, err)}
 		}
 	}
+	if auu.mutation.DepartmentCleared() && len(auu.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "AdminUser.department"`)
+	}
 	return nil
 }
 
@@ -336,6 +366,35 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := auu.mutation.IsSuperadmin(); ok {
 		_spec.SetField(adminuser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if auu.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auu.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(auu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, auu.driver, _spec); err != nil {
@@ -424,6 +483,20 @@ func (auuo *AdminUserUpdateOne) SetNickname(s string) *AdminUserUpdateOne {
 func (auuo *AdminUserUpdateOne) SetNillableNickname(s *string) *AdminUserUpdateOne {
 	if s != nil {
 		auuo.SetNickname(*s)
+	}
+	return auuo
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (auuo *AdminUserUpdateOne) SetDepartmentID(u uuid.UUID) *AdminUserUpdateOne {
+	auuo.mutation.SetDepartmentID(u)
+	return auuo
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillableDepartmentID(u *uuid.UUID) *AdminUserUpdateOne {
+	if u != nil {
+		auuo.SetDepartmentID(*u)
 	}
 	return auuo
 }
@@ -524,9 +597,20 @@ func (auuo *AdminUserUpdateOne) SetNillableIsSuperadmin(b *bool) *AdminUserUpdat
 	return auuo
 }
 
+// SetDepartment sets the "department" edge to the Department entity.
+func (auuo *AdminUserUpdateOne) SetDepartment(d *Department) *AdminUserUpdateOne {
+	return auuo.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the AdminUserMutation object of the builder.
 func (auuo *AdminUserUpdateOne) Mutation() *AdminUserMutation {
 	return auuo.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (auuo *AdminUserUpdateOne) ClearDepartment() *AdminUserUpdateOne {
+	auuo.mutation.ClearDepartment()
+	return auuo
 }
 
 // Where appends a list predicates to the AdminUserUpdate builder.
@@ -616,6 +700,9 @@ func (auuo *AdminUserUpdateOne) check() error {
 			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "AdminUser.phone_number": %w`, err)}
 		}
 	}
+	if auuo.mutation.DepartmentCleared() && len(auuo.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "AdminUser.department"`)
+	}
 	return nil
 }
 
@@ -695,6 +782,35 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 	}
 	if value, ok := auuo.mutation.IsSuperadmin(); ok {
 		_spec.SetField(adminuser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if auuo.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auuo.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(auuo.modifiers...)
 	_node = &AdminUser{config: auuo.config}

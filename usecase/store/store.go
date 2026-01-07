@@ -124,7 +124,11 @@ func (interactor *StoreInteractor) GetStoreByMerchantID(ctx context.Context, mer
 		err = fmt.Errorf("failed to get store by merchant id: %w", err)
 		return
 	}
-	return
+
+	if bt, err := interactor.DataStore.MerchantBusinessTypeRepo().FindByCode(ctx, domainStore.BusinessTypeCode); err == nil {
+		domainStore.BusinessTypeName = bt.TypeName
+	}
+	return domainStore, nil
 }
 
 func (interactor *StoreInteractor) GetStores(ctx context.Context,
@@ -201,7 +205,7 @@ func (interactor *StoreInteractor) CheckCreateStoreFields(ctx context.Context,
 		StoreCode:               domainCStore.StoreCode,
 		Status:                  domainCStore.Status,
 		BusinessModel:           domainCStore.BusinessModel,
-		BusinessTypeID:          domainCStore.BusinessTypeID,
+		BusinessTypeCode:        domainCStore.BusinessTypeCode,
 		LocationNumber:          domainCStore.LocationNumber,
 		ContactName:             domainCStore.ContactName,
 		ContactPhone:            domainCStore.ContactPhone,
@@ -258,7 +262,7 @@ func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context,
 		StoreCode:               domainUStore.StoreCode,
 		Status:                  domainUStore.Status,
 		BusinessModel:           domainUStore.BusinessModel,
-		BusinessTypeID:          domainUStore.BusinessTypeID,
+		BusinessTypeCode:        domainUStore.BusinessTypeCode,
 		LocationNumber:          domainUStore.LocationNumber,
 		ContactName:             domainUStore.ContactName,
 		ContactPhone:            domainUStore.ContactPhone,
@@ -274,7 +278,6 @@ func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context,
 		ShiftTimes:              domainUStore.ShiftTimes,
 		Address:                 domainUStore.Address,
 		LoginAccount:            oldStore.LoginAccount,
-		LoginPassword:           domainUStore.LoginPassword,
 	}
 
 	if err = interactor.validateTimeConfigs(domainStore); err != nil {

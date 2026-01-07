@@ -33,6 +33,12 @@ func (StoreUser) Fields() []ent.Field {
 		field.UUID("store_id", uuid.UUID{}).
 			Immutable().
 			Comment("所属门店 ID"),
+		field.UUID("department_id", uuid.UUID{}).
+			Comment("部门ID"),
+		field.String("code").
+			NotEmpty().
+			Immutable().
+			Comment("编码"),
 		field.String("real_name").
 			MaxLen(100).
 			Comment("真实姓名"),
@@ -69,6 +75,11 @@ func (StoreUser) Edges() []ent.Edge {
 			Ref("store_users").
 			Field("store_id").
 			Immutable().
+			Unique().
+			Required(),
+		edge.From("department", Department.Type).
+			Ref("store_users").
+			Field("department_id").
 			Unique().
 			Required(),
 	}

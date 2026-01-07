@@ -45,9 +45,6 @@ func (h *DeviceHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.DeviceCreateReq	true	"请求信息"
 //	@Success		200
-//	@Failure		400	{object}	response.Response
-//	@Failure		409	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/device [post]
 func (h *DeviceHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -83,6 +80,7 @@ func (h *DeviceHandler) Create() gin.HandlerFunc {
 		case domain.DeviceTypePrinter:
 			device.IP = req.DevicePrint.IP
 			device.PaperSize = req.DevicePrint.PaperSize
+			device.ConnectType = req.DevicePrint.ConnectType
 			device.StallID = req.DevicePrint.StallID
 			device.OrderChannels = req.DevicePrint.OrderChannels
 			device.DiningWays = req.DevicePrint.DiningWays
@@ -126,9 +124,6 @@ func (h *DeviceHandler) Create() gin.HandlerFunc {
 //	@Param			id		path	string					true	"设备ID"
 //	@Param			data	body	types.DeviceUpdateReq	true	"请求信息"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/restaurant/device/{id} [put]
 func (h *DeviceHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -167,6 +162,7 @@ func (h *DeviceHandler) Update() gin.HandlerFunc {
 		case domain.DeviceTypePrinter:
 			device.IP = req.DevicePrint.IP
 			device.PaperSize = req.DevicePrint.PaperSize
+			device.ConnectType = req.DevicePrint.ConnectType
 			device.StallID = req.DevicePrint.StallID
 			device.OrderChannels = req.DevicePrint.OrderChannels
 			device.DiningWays = req.DevicePrint.DiningWays
@@ -207,9 +203,6 @@ func (h *DeviceHandler) Update() gin.HandlerFunc {
 //	@Param			id	path	string	true	"设备ID"
 //	@Success		200	"No Content"
 //	@Success		204	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/device/{id} [delete]
 func (h *DeviceHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -250,9 +243,6 @@ func (h *DeviceHandler) Delete() gin.HandlerFunc {
 //	@Description	根据设备ID获取详情
 //	@Param			id	path		string	true	"设备ID"
 //	@Success		200	{object}	response.Response{data=domain.Device}
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/device/{id} [get]
 func (h *DeviceHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -290,8 +280,6 @@ func (h *DeviceHandler) Get() gin.HandlerFunc {
 //	@Description	分页查询设备列表
 //	@Param			data	query		types.DeviceListReq	true	"设备列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.DeviceListResp}
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/restaurant/device [get]
 func (h *DeviceHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -340,9 +328,6 @@ func (h *DeviceHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"设备ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/device/{id}/enable [put]
 func (h *DeviceHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -385,9 +370,6 @@ func (h *DeviceHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"设备ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/device/{id}/disable [put]
 func (h *DeviceHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {

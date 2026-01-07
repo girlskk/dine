@@ -47,6 +47,8 @@ type Repository struct {
 	roleRepo                 *RoleRepository
 	permissionRepo           *PermissionRepository
 	routerMenuRepo           *RouterMenuRepository
+	roleMenuRepo             *RoleMenuRepository
+	userRoleRepo             *UserRoleRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -399,4 +401,24 @@ func (repo *Repository) RouterMenuRepo() domain.RouterMenuRepository {
 		repo.routerMenuRepo = NewRouterMenuRepository(repo.client)
 	}
 	return repo.routerMenuRepo
+}
+
+func (repo *Repository) RoleMenuRepo() domain.RoleMenuRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.roleMenuRepo == nil {
+		repo.roleMenuRepo = NewRoleMenuRepository(repo.client)
+	}
+	return repo.roleMenuRepo
+}
+
+func (repo *Repository) UserRoleRepo() domain.UserRoleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.userRoleRepo == nil {
+		repo.userRoleRepo = NewUserRoleRepository(repo.client)
+	}
+	return repo.userRoleRepo
 }

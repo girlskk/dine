@@ -38,6 +38,23 @@ func (repo MerchantBusinessTypeRepository) FindById(ctx context.Context, id uuid
 	return convertMerchantBusinessType(em), nil
 }
 
+func (repo MerchantBusinessTypeRepository) FindByCode(ctx context.Context, typeCode string) (businessType *domain.MerchantBusinessType, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.FindByCode")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	em, err := repo.Client.MerchantBusinessType.Query().
+		Where(merchantbusinesstype.TypeCode(typeCode)).
+		Where(merchantbusinesstype.DeletedAtEQ(0)).
+		Only(ctx)
+	if err != nil {
+		return
+	}
+	businessType = convertMerchantBusinessType(em)
+	return
+}
+
 func (repo MerchantBusinessTypeRepository) GetAll(ctx context.Context) (ts []*domain.MerchantBusinessType, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.GetAll")
 	defer func() {

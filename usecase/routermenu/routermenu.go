@@ -39,14 +39,19 @@ func (interactor *RouterMenuInteractor) CreateRouterMenu(ctx context.Context, pa
 		Icon:      params.Icon,
 		Sort:      params.Sort,
 		Enabled:   params.Enabled,
+		Layer:     1,
 	}
 
 	if err = interactor.checkExists(ctx, menu); err != nil {
 		return err
 	}
-	// 验证是否可添加子菜单
-	if _, err = interactor.canAddChild(ctx, menu.ParentID, menu.UserType); err != nil {
-		return err
+
+	if params.ParentID != uuid.Nil {
+		parent, err := interactor.ds.RouterMenuRepo().FindByID(ctx, params.ParentID)
+		if err != nil {
+			return fmt.Errorf("failed to fetch parent router menu: %w", err)
+		}
+		menu.Layer = parent.Layer + 1
 	}
 	if err = interactor.ds.RouterMenuRepo().Create(ctx, menu); err != nil {
 		return fmt.Errorf("failed to create router menu: %w", err)
@@ -81,15 +86,21 @@ func (interactor *RouterMenuInteractor) UpdateRouterMenu(ctx context.Context, pa
 		Icon:      params.Icon,
 		Sort:      params.Sort,
 		Enabled:   params.Enabled,
+		Layer:     old.Layer,
 	}
 
 	if err = interactor.checkExists(ctx, menu); err != nil {
 		return err
 	}
-	// 验证是否可添加子菜单
-	if _, err = interactor.canAddChild(ctx, menu.ParentID, menu.UserType); err != nil {
-		return err
+
+	if params.ParentID != uuid.Nil {
+		parent, err := interactor.ds.RouterMenuRepo().FindByID(ctx, params.ParentID)
+		if err != nil {
+			return fmt.Errorf("failed to fetch parent router menu: %w", err)
+		}
+		menu.Layer = parent.Layer + 1
 	}
+
 	if err = interactor.ds.RouterMenuRepo().Update(ctx, menu); err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRouterMenuNotExists)
@@ -176,19 +187,4 @@ func (interactor *RouterMenuInteractor) checkExists(ctx context.Context, menu *d
 	}
 
 	return nil
-}
-func (interactor *RouterMenuInteractor) canAddChild(ctx context.Context, parentID uuid.UUID, userType domain.UserType) (bool, error) {
-	if parentID != uuid.Nil {
-		parent, err := interactor.ds.RouterMenuRepo().FindByID(ctx, parentID)
-		if err != nil {
-			return false, err
-		}
-		if parent.UserType != userType {
-			return false, domain.ParamsError(fmt.Errorf("parent user type mismatch"))
-		}
-		if parent.ParentID != uuid.Nil {
-			return false, domain.ErrRouterMenuForbidenAddChild
-		}
-	}
-	return true, nil
 }

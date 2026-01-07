@@ -45,9 +45,6 @@ func (h *AdditionalFeeHandler) Routes(r gin.IRouter) {
 //	@Produce	json
 //	@Param		data	body	types.AdditionalFeeCreateReq	true	"请求信息"
 //	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	409		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/additional_fee [post]
 func (h *AdditionalFeeHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -107,9 +104,6 @@ func (h *AdditionalFeeHandler) Create() gin.HandlerFunc {
 //	@Param		id		path	string							true	"附加费ID"
 //	@Param		data	body	types.AdditionalFeeUpdateReq	true	"请求信息"
 //	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	409		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/additional_fee/{id} [put]
 func (h *AdditionalFeeHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -174,8 +168,6 @@ func (h *AdditionalFeeHandler) Update() gin.HandlerFunc {
 //	@Param		id	path	string	true	"附加费ID"
 //	@Success	200	"No Content"
 //	@Success	204	"No Content"
-//	@Failure	400	{object}	response.Response
-//	@Failure	500	{object}	response.Response
 //	@Router		/additional_fee/{id} [delete]
 func (h *AdditionalFeeHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -213,9 +205,6 @@ func (h *AdditionalFeeHandler) Delete() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		id	path		string	true	"附加费ID"
 //	@Success	200	{object}	response.Response{data=domain.AdditionalFee}
-//	@Failure	400	{object}	response.Response
-//	@Failure	404	{object}	response.Response
-//	@Failure	500	{object}	response.Response
 //	@Router		/additional_fee/{id} [get]
 func (h *AdditionalFeeHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -258,8 +247,6 @@ func (h *AdditionalFeeHandler) Get() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		data	query		types.AdditionalFeeListReq	true	"附加费列表查询参数"
 //	@Success	200		{object}	response.Response{data=types.AdditionalFeeListResp}
-//	@Failure	400		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/additional_fee [get]
 func (h *AdditionalFeeHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -307,9 +294,6 @@ func (h *AdditionalFeeHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"附加费ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/additional_fee/{id}/enable [put]
 func (h *AdditionalFeeHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -352,9 +336,6 @@ func (h *AdditionalFeeHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"附加费ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/additional_fee/{id}/disable [put]
 func (h *AdditionalFeeHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {

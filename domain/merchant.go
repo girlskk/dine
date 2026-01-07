@@ -138,7 +138,7 @@ type Merchant struct {
 	BrandName            string               `json:"brand_name"`                                // 品牌名称
 	AdminPhoneNumber     string               `json:"admin_phone_number"`                        // 管理员手机号
 	ExpireUTC            *time.Time           `json:"expire_utc"`                                // UTC 时区的过期时间
-	BusinessTypeID       uuid.UUID            `json:"business_type_id"`                          // 业务类型
+	BusinessTypeCode     string               `json:"business_type_code"`                        // 业态类型
 	BusinessTypeName     string               `json:"business_type_name"`                        // 业务类型名称
 	MerchantLogo         string               `json:"merchant_logo"`                             // logo 图片地址
 	Description          string               `json:"description"`                               // 商户描述(保留字段)
@@ -197,7 +197,7 @@ type CreateMerchantParams struct {
 	AdminPhoneNumber     string               `json:"admin_phone_number"`     // 管理员手机号
 	PurchaseDuration     int                  `json:"purchase_duration"`      // 购买时长
 	PurchaseDurationUnit PurchaseDurationUnit `json:"purchase_duration_unit"` // 购买时长单位
-	BusinessTypeID       uuid.UUID            `json:"business_type_id"`       // 业务类型
+	BusinessTypeCode     string               `json:"business_type_code"`     // 业务类型
 	MerchantLogo         string               `json:"merchant_logo"`          // logo 图片地址
 	Description          string               `json:"description"`            // 商户描述(保留字段)
 	LoginAccount         string               `json:"login_account"`          // 登录账号
@@ -212,7 +212,7 @@ type UpdateMerchantParams struct {
 	MerchantShortName string    `json:"merchant_short_name"` // 商户简称
 	BrandName         string    `json:"brand_name"`          // 品牌名称
 	AdminPhoneNumber  string    `json:"admin_phone_number"`  // 管理员手机号
-	BusinessTypeID    uuid.UUID `json:"business_type_id"`    // 业务类型
+	BusinessTypeCode  string    `json:"business_type_code"`  // 业务类型
 	MerchantLogo      string    `json:"merchant_logo"`       // logo 图片地址
 	Description       string    `json:"description"`         // 商户描述(保留字段)
 	Address           *Address  `json:"address"`             // 地址

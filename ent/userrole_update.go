@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
@@ -67,6 +68,20 @@ func (uru *UserRoleUpdate) SetUserType(dt domain.UserType) *UserRoleUpdate {
 func (uru *UserRoleUpdate) SetNillableUserType(dt *domain.UserType) *UserRoleUpdate {
 	if dt != nil {
 		uru.SetUserType(*dt)
+	}
+	return uru
+}
+
+// SetRoleID sets the "role_id" field.
+func (uru *UserRoleUpdate) SetRoleID(u uuid.UUID) *UserRoleUpdate {
+	uru.mutation.SetRoleID(u)
+	return uru
+}
+
+// SetNillableRoleID sets the "role_id" field if the given value is not nil.
+func (uru *UserRoleUpdate) SetNillableRoleID(u *uuid.UUID) *UserRoleUpdate {
+	if u != nil {
+		uru.SetRoleID(*u)
 	}
 	return uru
 }
@@ -158,6 +173,9 @@ func (uru *UserRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uru.mutation.UserType(); ok {
 		_spec.SetField(userrole.FieldUserType, field.TypeEnum, value)
 	}
+	if value, ok := uru.mutation.RoleID(); ok {
+		_spec.SetField(userrole.FieldRoleID, field.TypeUUID, value)
+	}
 	if uru.mutation.MerchantIDCleared() {
 		_spec.ClearField(userrole.FieldMerchantID, field.TypeUUID)
 	}
@@ -223,6 +241,20 @@ func (uruo *UserRoleUpdateOne) SetUserType(dt domain.UserType) *UserRoleUpdateOn
 func (uruo *UserRoleUpdateOne) SetNillableUserType(dt *domain.UserType) *UserRoleUpdateOne {
 	if dt != nil {
 		uruo.SetUserType(*dt)
+	}
+	return uruo
+}
+
+// SetRoleID sets the "role_id" field.
+func (uruo *UserRoleUpdateOne) SetRoleID(u uuid.UUID) *UserRoleUpdateOne {
+	uruo.mutation.SetRoleID(u)
+	return uruo
+}
+
+// SetNillableRoleID sets the "role_id" field if the given value is not nil.
+func (uruo *UserRoleUpdateOne) SetNillableRoleID(u *uuid.UUID) *UserRoleUpdateOne {
+	if u != nil {
+		uruo.SetRoleID(*u)
 	}
 	return uruo
 }
@@ -343,6 +375,9 @@ func (uruo *UserRoleUpdateOne) sqlSave(ctx context.Context) (_node *UserRole, er
 	}
 	if value, ok := uruo.mutation.UserType(); ok {
 		_spec.SetField(userrole.FieldUserType, field.TypeEnum, value)
+	}
+	if value, ok := uruo.mutation.RoleID(); ok {
+		_spec.SetField(userrole.FieldRoleID, field.TypeUUID, value)
 	}
 	if uruo.mutation.MerchantIDCleared() {
 		_spec.ClearField(userrole.FieldMerchantID, field.TypeUUID)

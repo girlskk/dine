@@ -167,24 +167,28 @@ func init() {
 	adminuserDescHashedPassword := adminuserFields[1].Descriptor()
 	// adminuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	adminuser.HashedPasswordValidator = adminuserDescHashedPassword.Validators[0].(func(string) error)
+	// adminuserDescCode is the schema descriptor for code field.
+	adminuserDescCode := adminuserFields[4].Descriptor()
+	// adminuser.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	adminuser.CodeValidator = adminuserDescCode.Validators[0].(func(string) error)
 	// adminuserDescRealName is the schema descriptor for real_name field.
-	adminuserDescRealName := adminuserFields[3].Descriptor()
+	adminuserDescRealName := adminuserFields[5].Descriptor()
 	// adminuser.RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
 	adminuser.RealNameValidator = adminuserDescRealName.Validators[0].(func(string) error)
 	// adminuserDescEmail is the schema descriptor for email field.
-	adminuserDescEmail := adminuserFields[5].Descriptor()
+	adminuserDescEmail := adminuserFields[7].Descriptor()
 	// adminuser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	adminuser.EmailValidator = adminuserDescEmail.Validators[0].(func(string) error)
 	// adminuserDescPhoneNumber is the schema descriptor for phone_number field.
-	adminuserDescPhoneNumber := adminuserFields[6].Descriptor()
+	adminuserDescPhoneNumber := adminuserFields[8].Descriptor()
 	// adminuser.PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
 	adminuser.PhoneNumberValidator = adminuserDescPhoneNumber.Validators[0].(func(string) error)
 	// adminuserDescEnabled is the schema descriptor for enabled field.
-	adminuserDescEnabled := adminuserFields[7].Descriptor()
+	adminuserDescEnabled := adminuserFields[9].Descriptor()
 	// adminuser.DefaultEnabled holds the default value on creation for the enabled field.
 	adminuser.DefaultEnabled = adminuserDescEnabled.Default.(bool)
 	// adminuserDescIsSuperadmin is the schema descriptor for is_superadmin field.
-	adminuserDescIsSuperadmin := adminuserFields[8].Descriptor()
+	adminuserDescIsSuperadmin := adminuserFields[10].Descriptor()
 	// adminuser.DefaultIsSuperadmin holds the default value on creation for the is_superadmin field.
 	adminuser.DefaultIsSuperadmin = adminuserDescIsSuperadmin.Default.(bool)
 	// adminuserDescID is the schema descriptor for id field.
@@ -240,24 +244,28 @@ func init() {
 	backenduserDescHashedPassword := backenduserFields[1].Descriptor()
 	// backenduser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	backenduser.HashedPasswordValidator = backenduserDescHashedPassword.Validators[0].(func(string) error)
+	// backenduserDescCode is the schema descriptor for code field.
+	backenduserDescCode := backenduserFields[5].Descriptor()
+	// backenduser.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	backenduser.CodeValidator = backenduserDescCode.Validators[0].(func(string) error)
 	// backenduserDescRealName is the schema descriptor for real_name field.
-	backenduserDescRealName := backenduserFields[4].Descriptor()
+	backenduserDescRealName := backenduserFields[6].Descriptor()
 	// backenduser.RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
 	backenduser.RealNameValidator = backenduserDescRealName.Validators[0].(func(string) error)
 	// backenduserDescEmail is the schema descriptor for email field.
-	backenduserDescEmail := backenduserFields[6].Descriptor()
+	backenduserDescEmail := backenduserFields[8].Descriptor()
 	// backenduser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	backenduser.EmailValidator = backenduserDescEmail.Validators[0].(func(string) error)
 	// backenduserDescPhoneNumber is the schema descriptor for phone_number field.
-	backenduserDescPhoneNumber := backenduserFields[7].Descriptor()
+	backenduserDescPhoneNumber := backenduserFields[9].Descriptor()
 	// backenduser.PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
 	backenduser.PhoneNumberValidator = backenduserDescPhoneNumber.Validators[0].(func(string) error)
 	// backenduserDescEnabled is the schema descriptor for enabled field.
-	backenduserDescEnabled := backenduserFields[8].Descriptor()
+	backenduserDescEnabled := backenduserFields[10].Descriptor()
 	// backenduser.DefaultEnabled holds the default value on creation for the enabled field.
 	backenduser.DefaultEnabled = backenduserDescEnabled.Default.(bool)
 	// backenduserDescIsSuperadmin is the schema descriptor for is_superadmin field.
-	backenduserDescIsSuperadmin := backenduserFields[9].Descriptor()
+	backenduserDescIsSuperadmin := backenduserFields[11].Descriptor()
 	// backenduser.DefaultIsSuperadmin holds the default value on creation for the is_superadmin field.
 	backenduser.DefaultIsSuperadmin = backenduserDescIsSuperadmin.Default.(bool)
 	// backenduserDescID is the schema descriptor for id field.
@@ -470,6 +478,10 @@ func init() {
 	departmentDescDeletedAt := departmentMixinFields2[0].Descriptor()
 	// department.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	department.DefaultDeletedAt = departmentDescDeletedAt.Default.(int64)
+	// departmentDescCode is the schema descriptor for code field.
+	departmentDescCode := departmentFields[1].Descriptor()
+	// department.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	department.CodeValidator = departmentDescCode.Validators[0].(func(string) error)
 	// departmentDescEnable is the schema descriptor for enable field.
 	departmentDescEnable := departmentFields[3].Descriptor()
 	// department.DefaultEnable holds the default value on creation for the enable field.
@@ -831,7 +843,7 @@ func init() {
 	// merchantbusinesstype.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	merchantbusinesstype.DefaultDeletedAt = merchantbusinesstypeDescDeletedAt.Default.(int64)
 	// merchantbusinesstypeDescTypeCode is the schema descriptor for type_code field.
-	merchantbusinesstypeDescTypeCode := merchantbusinesstypeFields[0].Descriptor()
+	merchantbusinesstypeDescTypeCode := merchantbusinesstypeFields[1].Descriptor()
 	// merchantbusinesstype.DefaultTypeCode holds the default value on creation for the type_code field.
 	merchantbusinesstype.DefaultTypeCode = merchantbusinesstypeDescTypeCode.Default.(string)
 	// merchantbusinesstype.TypeCodeValidator is a validator for the "type_code" field. It is called by the builders before save.
@@ -851,7 +863,7 @@ func init() {
 		}
 	}()
 	// merchantbusinesstypeDescTypeName is the schema descriptor for type_name field.
-	merchantbusinesstypeDescTypeName := merchantbusinesstypeFields[1].Descriptor()
+	merchantbusinesstypeDescTypeName := merchantbusinesstypeFields[2].Descriptor()
 	// merchantbusinesstype.DefaultTypeName holds the default value on creation for the type_name field.
 	merchantbusinesstype.DefaultTypeName = merchantbusinesstypeDescTypeName.Default.(string)
 	// merchantbusinesstype.TypeNameValidator is a validator for the "type_name" field. It is called by the builders before save.
@@ -1808,6 +1820,10 @@ func init() {
 	roleDescDeletedAt := roleMixinFields2[0].Descriptor()
 	// role.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	role.DefaultDeletedAt = roleDescDeletedAt.Default.(int64)
+	// roleDescCode is the schema descriptor for code field.
+	roleDescCode := roleFields[1].Descriptor()
+	// role.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	role.CodeValidator = roleDescCode.Validators[0].(func(string) error)
 	// roleDescEnable is the schema descriptor for enable field.
 	roleDescEnable := roleFields[3].Descriptor()
 	// role.DefaultEnable holds the default value on creation for the enable field.
@@ -1927,20 +1943,24 @@ func init() {
 	routermenuDescPath := routermenuFields[3].Descriptor()
 	// routermenu.PathValidator is a validator for the "path" field. It is called by the builders before save.
 	routermenu.PathValidator = routermenuDescPath.Validators[0].(func(string) error)
+	// routermenuDescLayer is the schema descriptor for layer field.
+	routermenuDescLayer := routermenuFields[4].Descriptor()
+	// routermenu.DefaultLayer holds the default value on creation for the layer field.
+	routermenu.DefaultLayer = routermenuDescLayer.Default.(int)
 	// routermenuDescComponent is the schema descriptor for component field.
-	routermenuDescComponent := routermenuFields[4].Descriptor()
+	routermenuDescComponent := routermenuFields[5].Descriptor()
 	// routermenu.ComponentValidator is a validator for the "component" field. It is called by the builders before save.
 	routermenu.ComponentValidator = routermenuDescComponent.Validators[0].(func(string) error)
 	// routermenuDescIcon is the schema descriptor for icon field.
-	routermenuDescIcon := routermenuFields[5].Descriptor()
+	routermenuDescIcon := routermenuFields[6].Descriptor()
 	// routermenu.IconValidator is a validator for the "icon" field. It is called by the builders before save.
 	routermenu.IconValidator = routermenuDescIcon.Validators[0].(func(string) error)
 	// routermenuDescSort is the schema descriptor for sort field.
-	routermenuDescSort := routermenuFields[6].Descriptor()
+	routermenuDescSort := routermenuFields[7].Descriptor()
 	// routermenu.DefaultSort holds the default value on creation for the sort field.
 	routermenu.DefaultSort = routermenuDescSort.Default.(int)
 	// routermenuDescEnabled is the schema descriptor for enabled field.
-	routermenuDescEnabled := routermenuFields[7].Descriptor()
+	routermenuDescEnabled := routermenuFields[8].Descriptor()
 	// routermenu.DefaultEnabled holds the default value on creation for the enabled field.
 	routermenu.DefaultEnabled = routermenuDescEnabled.Default.(bool)
 	// routermenuDescID is the schema descriptor for id field.
@@ -2312,24 +2332,28 @@ func init() {
 	storeuserDescHashedPassword := storeuserFields[1].Descriptor()
 	// storeuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	storeuser.HashedPasswordValidator = storeuserDescHashedPassword.Validators[0].(func(string) error)
+	// storeuserDescCode is the schema descriptor for code field.
+	storeuserDescCode := storeuserFields[6].Descriptor()
+	// storeuser.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	storeuser.CodeValidator = storeuserDescCode.Validators[0].(func(string) error)
 	// storeuserDescRealName is the schema descriptor for real_name field.
-	storeuserDescRealName := storeuserFields[5].Descriptor()
+	storeuserDescRealName := storeuserFields[7].Descriptor()
 	// storeuser.RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
 	storeuser.RealNameValidator = storeuserDescRealName.Validators[0].(func(string) error)
 	// storeuserDescEmail is the schema descriptor for email field.
-	storeuserDescEmail := storeuserFields[7].Descriptor()
+	storeuserDescEmail := storeuserFields[9].Descriptor()
 	// storeuser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	storeuser.EmailValidator = storeuserDescEmail.Validators[0].(func(string) error)
 	// storeuserDescPhoneNumber is the schema descriptor for phone_number field.
-	storeuserDescPhoneNumber := storeuserFields[8].Descriptor()
+	storeuserDescPhoneNumber := storeuserFields[10].Descriptor()
 	// storeuser.PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
 	storeuser.PhoneNumberValidator = storeuserDescPhoneNumber.Validators[0].(func(string) error)
 	// storeuserDescEnabled is the schema descriptor for enabled field.
-	storeuserDescEnabled := storeuserFields[9].Descriptor()
+	storeuserDescEnabled := storeuserFields[11].Descriptor()
 	// storeuser.DefaultEnabled holds the default value on creation for the enabled field.
 	storeuser.DefaultEnabled = storeuserDescEnabled.Default.(bool)
 	// storeuserDescIsSuperadmin is the schema descriptor for is_superadmin field.
-	storeuserDescIsSuperadmin := storeuserFields[10].Descriptor()
+	storeuserDescIsSuperadmin := storeuserFields[12].Descriptor()
 	// storeuser.DefaultIsSuperadmin holds the default value on creation for the is_superadmin field.
 	storeuser.DefaultIsSuperadmin = storeuserDescIsSuperadmin.Default.(bool)
 	// storeuserDescID is the schema descriptor for id field.

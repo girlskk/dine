@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -21,12 +22,13 @@ import (
 // BackendUserQuery is the builder for querying BackendUser entities.
 type BackendUserQuery struct {
 	config
-	ctx          *QueryContext
-	order        []backenduser.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.BackendUser
-	withMerchant *MerchantQuery
-	modifiers    []func(*sql.Selector)
+	ctx            *QueryContext
+	order          []backenduser.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.BackendUser
+	withMerchant   *MerchantQuery
+	withDepartment *DepartmentQuery
+	modifiers      []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,6 +80,28 @@ func (buq *BackendUserQuery) QueryMerchant() *MerchantQuery {
 			sqlgraph.From(backenduser.Table, backenduser.FieldID, selector),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, backenduser.MerchantTable, backenduser.MerchantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(buq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDepartment chains the current query on the "department" edge.
+func (buq *BackendUserQuery) QueryDepartment() *DepartmentQuery {
+	query := (&DepartmentClient{config: buq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := buq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := buq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(backenduser.Table, backenduser.FieldID, selector),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, backenduser.DepartmentTable, backenduser.DepartmentColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(buq.driver.Dialect(), step)
 		return fromU, nil
@@ -272,12 +296,13 @@ func (buq *BackendUserQuery) Clone() *BackendUserQuery {
 		return nil
 	}
 	return &BackendUserQuery{
-		config:       buq.config,
-		ctx:          buq.ctx.Clone(),
-		order:        append([]backenduser.OrderOption{}, buq.order...),
-		inters:       append([]Interceptor{}, buq.inters...),
-		predicates:   append([]predicate.BackendUser{}, buq.predicates...),
-		withMerchant: buq.withMerchant.Clone(),
+		config:         buq.config,
+		ctx:            buq.ctx.Clone(),
+		order:          append([]backenduser.OrderOption{}, buq.order...),
+		inters:         append([]Interceptor{}, buq.inters...),
+		predicates:     append([]predicate.BackendUser{}, buq.predicates...),
+		withMerchant:   buq.withMerchant.Clone(),
+		withDepartment: buq.withDepartment.Clone(),
 		// clone intermediate query.
 		sql:       buq.sql.Clone(),
 		path:      buq.path,
@@ -293,6 +318,17 @@ func (buq *BackendUserQuery) WithMerchant(opts ...func(*MerchantQuery)) *Backend
 		opt(query)
 	}
 	buq.withMerchant = query
+	return buq
+}
+
+// WithDepartment tells the query-builder to eager-load the nodes that are connected to
+// the "department" edge. The optional arguments are used to configure the query builder of the edge.
+func (buq *BackendUserQuery) WithDepartment(opts ...func(*DepartmentQuery)) *BackendUserQuery {
+	query := (&DepartmentClient{config: buq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	buq.withDepartment = query
 	return buq
 }
 
@@ -374,8 +410,9 @@ func (buq *BackendUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*BackendUser{}
 		_spec       = buq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			buq.withMerchant != nil,
+			buq.withDepartment != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -405,6 +442,12 @@ func (buq *BackendUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := buq.withDepartment; query != nil {
+		if err := buq.loadDepartment(ctx, query, nodes, nil,
+			func(n *BackendUser, e *Department) { n.Edges.Department = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -430,6 +473,35 @@ func (buq *BackendUserQuery) loadMerchant(ctx context.Context, query *MerchantQu
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "merchant_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (buq *BackendUserQuery) loadDepartment(ctx context.Context, query *DepartmentQuery, nodes []*BackendUser, init func(*BackendUser), assign func(*BackendUser, *Department)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*BackendUser)
+	for i := range nodes {
+		fk := nodes[i].DepartmentID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(department.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "department_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -468,6 +540,9 @@ func (buq *BackendUserQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if buq.withMerchant != nil {
 			_spec.Node.AddColumnOnce(backenduser.FieldMerchantID)
+		}
+		if buq.withDepartment != nil {
+			_spec.Node.AddColumnOnce(backenduser.FieldDepartmentID)
 		}
 	}
 	if ps := buq.predicates; len(ps) > 0 {

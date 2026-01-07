@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
@@ -95,6 +97,20 @@ func (suu *StoreUserUpdate) SetNickname(s string) *StoreUserUpdate {
 func (suu *StoreUserUpdate) SetNillableNickname(s *string) *StoreUserUpdate {
 	if s != nil {
 		suu.SetNickname(*s)
+	}
+	return suu
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (suu *StoreUserUpdate) SetDepartmentID(u uuid.UUID) *StoreUserUpdate {
+	suu.mutation.SetDepartmentID(u)
+	return suu
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (suu *StoreUserUpdate) SetNillableDepartmentID(u *uuid.UUID) *StoreUserUpdate {
+	if u != nil {
+		suu.SetDepartmentID(*u)
 	}
 	return suu
 }
@@ -195,9 +211,20 @@ func (suu *StoreUserUpdate) SetNillableIsSuperadmin(b *bool) *StoreUserUpdate {
 	return suu
 }
 
+// SetDepartment sets the "department" edge to the Department entity.
+func (suu *StoreUserUpdate) SetDepartment(d *Department) *StoreUserUpdate {
+	return suu.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the StoreUserMutation object of the builder.
 func (suu *StoreUserUpdate) Mutation() *StoreUserMutation {
 	return suu.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (suu *StoreUserUpdate) ClearDepartment() *StoreUserUpdate {
+	suu.mutation.ClearDepartment()
+	return suu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -280,6 +307,9 @@ func (suu *StoreUserUpdate) check() error {
 	if suu.mutation.StoreCleared() && len(suu.mutation.StoreIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.store"`)
 	}
+	if suu.mutation.DepartmentCleared() && len(suu.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "StoreUser.department"`)
+	}
 	return nil
 }
 
@@ -342,6 +372,35 @@ func (suu *StoreUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := suu.mutation.IsSuperadmin(); ok {
 		_spec.SetField(storeuser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if suu.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   storeuser.DepartmentTable,
+			Columns: []string{storeuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suu.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   storeuser.DepartmentTable,
+			Columns: []string{storeuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(suu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, suu.driver, _spec); err != nil {
@@ -430,6 +489,20 @@ func (suuo *StoreUserUpdateOne) SetNickname(s string) *StoreUserUpdateOne {
 func (suuo *StoreUserUpdateOne) SetNillableNickname(s *string) *StoreUserUpdateOne {
 	if s != nil {
 		suuo.SetNickname(*s)
+	}
+	return suuo
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (suuo *StoreUserUpdateOne) SetDepartmentID(u uuid.UUID) *StoreUserUpdateOne {
+	suuo.mutation.SetDepartmentID(u)
+	return suuo
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (suuo *StoreUserUpdateOne) SetNillableDepartmentID(u *uuid.UUID) *StoreUserUpdateOne {
+	if u != nil {
+		suuo.SetDepartmentID(*u)
 	}
 	return suuo
 }
@@ -530,9 +603,20 @@ func (suuo *StoreUserUpdateOne) SetNillableIsSuperadmin(b *bool) *StoreUserUpdat
 	return suuo
 }
 
+// SetDepartment sets the "department" edge to the Department entity.
+func (suuo *StoreUserUpdateOne) SetDepartment(d *Department) *StoreUserUpdateOne {
+	return suuo.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the StoreUserMutation object of the builder.
 func (suuo *StoreUserUpdateOne) Mutation() *StoreUserMutation {
 	return suuo.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (suuo *StoreUserUpdateOne) ClearDepartment() *StoreUserUpdateOne {
+	suuo.mutation.ClearDepartment()
+	return suuo
 }
 
 // Where appends a list predicates to the StoreUserUpdate builder.
@@ -628,6 +712,9 @@ func (suuo *StoreUserUpdateOne) check() error {
 	if suuo.mutation.StoreCleared() && len(suuo.mutation.StoreIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.store"`)
 	}
+	if suuo.mutation.DepartmentCleared() && len(suuo.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "StoreUser.department"`)
+	}
 	return nil
 }
 
@@ -707,6 +794,35 @@ func (suuo *StoreUserUpdateOne) sqlSave(ctx context.Context) (_node *StoreUser, 
 	}
 	if value, ok := suuo.mutation.IsSuperadmin(); ok {
 		_spec.SetField(storeuser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if suuo.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   storeuser.DepartmentTable,
+			Columns: []string{storeuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suuo.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   storeuser.DepartmentTable,
+			Columns: []string{storeuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(suuo.modifiers...)
 	_node = &StoreUser{config: suuo.config}

@@ -447,6 +447,16 @@ func StoreIDNotNil() predicate.Role {
 	return predicate.Role(sql.FieldNotNull(FieldStoreID))
 }
 
+// LoginChannelsIsNil applies the IsNil predicate on the "login_channels" field.
+func LoginChannelsIsNil() predicate.Role {
+	return predicate.Role(sql.FieldIsNull(FieldLoginChannels))
+}
+
+// LoginChannelsNotNil applies the NotNil predicate on the "login_channels" field.
+func LoginChannelsNotNil() predicate.Role {
+	return predicate.Role(sql.FieldNotNull(FieldLoginChannels))
+}
+
 // DataScopeEQ applies the EQ predicate on the "data_scope" field.
 func DataScopeEQ(v domain.RoleDataScopeType) predicate.Role {
 	vc := v

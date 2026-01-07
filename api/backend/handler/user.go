@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/opentracing/opentracing-go"
 	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -13,16 +15,22 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"go.uber.org/fx"
 )
 
 type UserHandler struct {
 	UserInteractor domain.BackendUserInteractor
+	UserSeq        domain.IncrSequence
 }
 
-func NewUserHandler(userInteractor domain.BackendUserInteractor) *UserHandler {
-	return &UserHandler{
-		UserInteractor: userInteractor,
-	}
+type UserHandlerParams struct {
+	fx.In
+	UserInteractor domain.BackendUserInteractor
+	UserSeq        domain.IncrSequence `name:"backend_user_seq"`
+}
+
+func NewUserHandler(p UserHandlerParams) *UserHandler {
+	return &UserHandler{UserInteractor: p.UserInteractor, UserSeq: p.UserSeq}
 }
 
 func (h *UserHandler) Routes(r gin.IRouter) {
@@ -30,6 +38,11 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.POST("/login", h.Login())
 	r.POST("/logout", h.Logout())
 	r.POST("/info", h.Info())
+	r.POST("", h.Create())
+	r.PUT("/:id", h.Update())
+	r.DELETE("/:id", h.Delete())
+	r.GET("/:id", h.Get())
+	r.GET("", h.List())
 }
 
 func (h *UserHandler) NoAuths() []string {
@@ -133,4 +146,265 @@ func (h *UserHandler) Info() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 		response.Ok(c, user)
 	}
+}
+
+// Create 后台用户创建
+//
+//	@Tags			用户管理
+//	@Summary		创建后台用户
+//	@Description	在品牌后台创建用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body	types.BackendUserCreateReq	true	"创建用户请求"
+//	@Success		200		"No Content"
+//	@Router			/user [post]
+func (h *UserHandler) Create() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Create")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.BackendUserCreateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		userCode, err := h.generateUserCode(ctx)
+		if err != nil {
+			c.Error(fmt.Errorf("failed to generate createUser code: %w", err))
+			return
+		}
+		user := domain.FromBackendUserContext(ctx)
+		createUser := &domain.BackendUser{
+			Username:     req.Username,
+			Nickname:     req.Nickname,
+			DepartmentID: req.DepartmentID,
+			Code:         userCode,
+			RealName:     req.RealName,
+			Gender:       req.Gender,
+			Email:        req.Email,
+			PhoneNumber:  req.PhoneNumber,
+			Enabled:      req.Enabled,
+			RoleIDs:      req.RoleIDs,
+			MerchantID:   user.MerchantID,
+		}
+		if err := createUser.SetPassword(req.Password); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		if err := h.UserInteractor.Create(ctx, createUser); err != nil {
+			if errors.Is(err, domain.ErrAdminUserUsernameExist) || errors.Is(err, domain.ErrBackendUserUsernameExist) {
+				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
+				return
+			}
+			err = fmt.Errorf("failed to create backend createUser: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Update 后台用户更新
+//
+//	@Tags			用户管理
+//	@Summary		更新后台用户
+//	@Description	修改指定后台用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string						true	"用户ID"
+//	@Param			data	body	types.BackendUserUpdateReq	true	"更新用户请求"
+//	@Success		200		"No Content"
+//	@Router			/user/{id} [put]
+func (h *UserHandler) Update() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Update")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		var req types.BackendUserUpdateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := &domain.BackendUser{
+			ID:           id,
+			Username:     req.Username,
+			Nickname:     req.Nickname,
+			DepartmentID: req.DepartmentID,
+			RealName:     req.RealName,
+			Gender:       req.Gender,
+			Email:        req.Email,
+			PhoneNumber:  req.PhoneNumber,
+			Enabled:      req.Enabled,
+			RoleIDs:      req.RoleIDs,
+		}
+		if req.Password != "" {
+			if err := user.SetPassword(req.Password); err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+		}
+
+		if err := h.UserInteractor.Update(ctx, user); err != nil {
+			if errors.Is(err, domain.ErrBackendUserUsernameExist) || errors.Is(err, domain.ErrAdminUserUsernameExist) {
+				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
+				return
+			}
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to update backend user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Delete 后台用户删除
+//
+//	@Tags			用户管理
+//	@Summary		删除后台用户
+//	@Description	删除指定后台用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"用户ID"
+//	@Success		200	"No Content"
+//	@Router			/user/{id} [delete]
+func (h *UserHandler) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Delete")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		if err := h.UserInteractor.Delete(ctx, id); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to delete backend user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Get 后台用户详情
+//
+//	@Tags			用户管理
+//	@Summary		获取后台用户
+//	@Description	查询指定后台用户详情
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"用户ID"
+//	@Success		200	{object}	domain.BackendUser
+//	@Router			/user/{id} [get]
+func (h *UserHandler) Get() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Get")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user, err := h.UserInteractor.GetUser(ctx, id)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to get backend user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, user)
+	}
+}
+
+// List 后台用户列表
+//
+//	@Tags			用户管理
+//	@Summary		后台用户列表
+//	@Description	查询后台用户列表
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	query		types.AccountListReq	true	"后台用户列表请求"
+//	@Success		200		{object}	types.AccountListResp
+//	@Router			/user [get]
+func (h *UserHandler) List() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.List")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.AccountListReq
+		if err := c.ShouldBindQuery(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		user := domain.FromBackendUserContext(ctx)
+		pager := req.RequestPagination.ToPagination()
+		filter := &domain.BackendUserListFilter{
+			Code:        req.Code,
+			RealName:    req.RealName,
+			Gender:      req.Gender,
+			Email:       req.Email,
+			PhoneNumber: req.PhoneNumber,
+			Enabled:     req.Enabled,
+			MerchantID:  user.MerchantID,
+		}
+
+		users, total, err := h.UserInteractor.GetUsers(ctx, pager, filter, domain.NewBackendUserOrderByCreatedAt(true))
+		if err != nil {
+			err = fmt.Errorf("failed to get backend users: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, types.AccountListResp{Users: users, Total: total})
+	}
+}
+
+func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
+	seq, err := h.UserSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }

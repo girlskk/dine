@@ -46,9 +46,6 @@ func (h *RemarkHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.RemarkCreateReq	true	"请求信息"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/remark [post]
 func (h *RemarkHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -102,9 +99,6 @@ func (h *RemarkHandler) Create() gin.HandlerFunc {
 //	@Param			id		path	string					true	"备注ID"
 //	@Param			data	body	types.RemarkUpdateReq	true	"请求信息"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/remark/{id} [put]
 func (h *RemarkHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -159,9 +153,6 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 //	@Param			id	path	string	true	"备注ID"
 //	@Success		200	"No Content"
 //	@Success		204	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		403	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/remark/{id} [delete]
 func (h *RemarkHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -206,9 +197,6 @@ func (h *RemarkHandler) Delete() gin.HandlerFunc {
 //	@Description	根据备注ID获取详情
 //	@Param			id	path		string	true	"备注ID"
 //	@Success		200	{object}	response.Response{data=domain.Remark}
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/remark/{id} [get]
 func (h *RemarkHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -246,8 +234,6 @@ func (h *RemarkHandler) Get() gin.HandlerFunc {
 //	@Description	分页查询备注列表
 //	@Param			data	query		types.RemarkListReq	true	"备注列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.RemarkListResp}
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/remark [get]
 func (h *RemarkHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -295,9 +281,6 @@ func (h *RemarkHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"备注ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/remark/{id}/enable [put]
 func (h *RemarkHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -340,9 +323,6 @@ func (h *RemarkHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"备注ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/remark/{id}/disable [put]
 func (h *RemarkHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {

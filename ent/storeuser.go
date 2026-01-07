@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
@@ -38,6 +39,10 @@ type StoreUser struct {
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 所属门店 ID
 	StoreID uuid.UUID `json:"store_id,omitempty"`
+	// 部门ID
+	DepartmentID uuid.UUID `json:"department_id,omitempty"`
+	// 编码
+	Code string `json:"code,omitempty"`
 	// 真实姓名
 	RealName string `json:"real_name,omitempty"`
 	// 性别
@@ -62,9 +67,11 @@ type StoreUserEdges struct {
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// Store holds the value of the store edge.
 	Store *Store `json:"store,omitempty"`
+	// Department holds the value of the department edge.
+	Department *Department `json:"department,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -89,6 +96,17 @@ func (e StoreUserEdges) StoreOrErr() (*Store, error) {
 	return nil, &NotLoadedError{edge: "store"}
 }
 
+// DepartmentOrErr returns the Department value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StoreUserEdges) DepartmentOrErr() (*Department, error) {
+	if e.Department != nil {
+		return e.Department, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: department.Label}
+	}
+	return nil, &NotLoadedError{edge: "department"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*StoreUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -98,11 +116,11 @@ func (*StoreUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case storeuser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case storeuser.FieldUsername, storeuser.FieldHashedPassword, storeuser.FieldNickname, storeuser.FieldRealName, storeuser.FieldGender, storeuser.FieldEmail, storeuser.FieldPhoneNumber:
+		case storeuser.FieldUsername, storeuser.FieldHashedPassword, storeuser.FieldNickname, storeuser.FieldCode, storeuser.FieldRealName, storeuser.FieldGender, storeuser.FieldEmail, storeuser.FieldPhoneNumber:
 			values[i] = new(sql.NullString)
 		case storeuser.FieldCreatedAt, storeuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case storeuser.FieldID, storeuser.FieldMerchantID, storeuser.FieldStoreID:
+		case storeuser.FieldID, storeuser.FieldMerchantID, storeuser.FieldStoreID, storeuser.FieldDepartmentID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -173,6 +191,18 @@ func (su *StoreUser) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				su.StoreID = *value
 			}
+		case storeuser.FieldDepartmentID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field department_id", values[i])
+			} else if value != nil {
+				su.DepartmentID = *value
+			}
+		case storeuser.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				su.Code = value.String
+			}
 		case storeuser.FieldRealName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field real_name", values[i])
@@ -232,6 +262,11 @@ func (su *StoreUser) QueryStore() *StoreQuery {
 	return NewStoreUserClient(su.config).QueryStore(su)
 }
 
+// QueryDepartment queries the "department" edge of the StoreUser entity.
+func (su *StoreUser) QueryDepartment() *DepartmentQuery {
+	return NewStoreUserClient(su.config).QueryDepartment(su)
+}
+
 // Update returns a builder for updating this StoreUser.
 // Note that you need to call StoreUser.Unwrap() before calling this method if this StoreUser
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -278,6 +313,12 @@ func (su *StoreUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("store_id=")
 	builder.WriteString(fmt.Sprintf("%v", su.StoreID))
+	builder.WriteString(", ")
+	builder.WriteString("department_id=")
+	builder.WriteString(fmt.Sprintf("%v", su.DepartmentID))
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(su.Code)
 	builder.WriteString(", ")
 	builder.WriteString("real_name=")
 	builder.WriteString(su.RealName)

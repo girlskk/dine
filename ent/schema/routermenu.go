@@ -30,9 +30,11 @@ func (RouterMenu) Fields() []ent.Field {
 			MaxLen(100).
 			Comment("菜单名称"),
 		field.String("path").
-			Optional().
 			MaxLen(255).
 			Comment("前端路由路径"),
+		field.Int("layer").
+			Default(1).
+			Comment("菜单层级"),
 		field.String("component").
 			Optional().
 			MaxLen(255).

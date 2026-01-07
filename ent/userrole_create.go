@@ -379,6 +379,18 @@ func (u *UserRoleUpsert) UpdateUserType() *UserRoleUpsert {
 	return u
 }
 
+// SetRoleID sets the "role_id" field.
+func (u *UserRoleUpsert) SetRoleID(v uuid.UUID) *UserRoleUpsert {
+	u.Set(userrole.FieldRoleID, v)
+	return u
+}
+
+// UpdateRoleID sets the "role_id" field to the value that was provided on create.
+func (u *UserRoleUpsert) UpdateRoleID() *UserRoleUpsert {
+	u.SetExcluded(userrole.FieldRoleID)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -401,9 +413,6 @@ func (u *UserRoleUpsertOne) UpdateNewValues() *UserRoleUpsertOne {
 		}
 		if _, exists := u.create.mutation.UserID(); exists {
 			s.SetIgnore(userrole.FieldUserID)
-		}
-		if _, exists := u.create.mutation.RoleID(); exists {
-			s.SetIgnore(userrole.FieldRoleID)
 		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(userrole.FieldMerchantID)
@@ -488,6 +497,20 @@ func (u *UserRoleUpsertOne) SetUserType(v domain.UserType) *UserRoleUpsertOne {
 func (u *UserRoleUpsertOne) UpdateUserType() *UserRoleUpsertOne {
 	return u.Update(func(s *UserRoleUpsert) {
 		s.UpdateUserType()
+	})
+}
+
+// SetRoleID sets the "role_id" field.
+func (u *UserRoleUpsertOne) SetRoleID(v uuid.UUID) *UserRoleUpsertOne {
+	return u.Update(func(s *UserRoleUpsert) {
+		s.SetRoleID(v)
+	})
+}
+
+// UpdateRoleID sets the "role_id" field to the value that was provided on create.
+func (u *UserRoleUpsertOne) UpdateRoleID() *UserRoleUpsertOne {
+	return u.Update(func(s *UserRoleUpsert) {
+		s.UpdateRoleID()
 	})
 }
 
@@ -680,9 +703,6 @@ func (u *UserRoleUpsertBulk) UpdateNewValues() *UserRoleUpsertBulk {
 			if _, exists := b.mutation.UserID(); exists {
 				s.SetIgnore(userrole.FieldUserID)
 			}
-			if _, exists := b.mutation.RoleID(); exists {
-				s.SetIgnore(userrole.FieldRoleID)
-			}
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(userrole.FieldMerchantID)
 			}
@@ -767,6 +787,20 @@ func (u *UserRoleUpsertBulk) SetUserType(v domain.UserType) *UserRoleUpsertBulk 
 func (u *UserRoleUpsertBulk) UpdateUserType() *UserRoleUpsertBulk {
 	return u.Update(func(s *UserRoleUpsert) {
 		s.UpdateUserType()
+	})
+}
+
+// SetRoleID sets the "role_id" field.
+func (u *UserRoleUpsertBulk) SetRoleID(v uuid.UUID) *UserRoleUpsertBulk {
+	return u.Update(func(s *UserRoleUpsert) {
+		s.SetRoleID(v)
+	})
+}
+
+// UpdateRoleID sets the "role_id" field to the value that was provided on create.
+func (u *UserRoleUpsertBulk) UpdateRoleID() *UserRoleUpsertBulk {
+	return u.Update(func(s *UserRoleUpsert) {
+		s.UpdateRoleID()
 	})
 }
 

@@ -66,14 +66,15 @@ func NewRouterMenuListOrderBySort(desc bool) RouterMenuListOrderBy {
 
 type RouterMenu struct {
 	ID        uuid.UUID `json:"id"`
-	UserType  UserType  `json:"user_type"`
-	ParentID  uuid.UUID `json:"parent_id"`
-	Name      string    `json:"name"`
-	Path      string    `json:"path"`
-	Component string    `json:"component"`
-	Icon      string    `json:"icon"`
-	Sort      int       `json:"sort"`
-	Enabled   bool      `json:"enabled"`
+	UserType  UserType  `json:"user_type"` // 类型
+	ParentID  uuid.UUID `json:"parent_id"` // 父级菜单ID，根菜单为 uuid.Nil
+	Name      string    `json:"name"`      // 菜单名称
+	Path      string    `json:"path"`      // 菜单路径
+	Layer     int       `json:"layer"`     // 菜单层级
+	Component string    `json:"component"` // 前端组件路径
+	Icon      string    `json:"icon"`      // 菜单图标
+	Sort      int       `json:"sort"`      // 菜单排序
+	Enabled   bool      `json:"enabled"`   // 是否启用
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -83,6 +84,7 @@ type RouterMenuListFilter struct {
 	ParentID uuid.UUID `json:"parent_id"`
 	Name     string    `json:"name"`
 	Enabled  *bool     `json:"enabled"`
+	Layer    int       `json:"layer"`
 }
 
 type CreateRouterMenuParams struct {

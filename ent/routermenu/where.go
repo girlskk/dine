@@ -87,6 +87,11 @@ func Path(v string) predicate.RouterMenu {
 	return predicate.RouterMenu(sql.FieldEQ(FieldPath, v))
 }
 
+// Layer applies equality check predicate on the "layer" field. It's identical to LayerEQ.
+func Layer(v int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldEQ(FieldLayer, v))
+}
+
 // Component applies equality check predicate on the "component" field. It's identical to ComponentEQ.
 func Component(v string) predicate.RouterMenu {
 	return predicate.RouterMenu(sql.FieldEQ(FieldComponent, v))
@@ -427,16 +432,6 @@ func PathHasSuffix(v string) predicate.RouterMenu {
 	return predicate.RouterMenu(sql.FieldHasSuffix(FieldPath, v))
 }
 
-// PathIsNil applies the IsNil predicate on the "path" field.
-func PathIsNil() predicate.RouterMenu {
-	return predicate.RouterMenu(sql.FieldIsNull(FieldPath))
-}
-
-// PathNotNil applies the NotNil predicate on the "path" field.
-func PathNotNil() predicate.RouterMenu {
-	return predicate.RouterMenu(sql.FieldNotNull(FieldPath))
-}
-
 // PathEqualFold applies the EqualFold predicate on the "path" field.
 func PathEqualFold(v string) predicate.RouterMenu {
 	return predicate.RouterMenu(sql.FieldEqualFold(FieldPath, v))
@@ -445,6 +440,46 @@ func PathEqualFold(v string) predicate.RouterMenu {
 // PathContainsFold applies the ContainsFold predicate on the "path" field.
 func PathContainsFold(v string) predicate.RouterMenu {
 	return predicate.RouterMenu(sql.FieldContainsFold(FieldPath, v))
+}
+
+// LayerEQ applies the EQ predicate on the "layer" field.
+func LayerEQ(v int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldEQ(FieldLayer, v))
+}
+
+// LayerNEQ applies the NEQ predicate on the "layer" field.
+func LayerNEQ(v int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldNEQ(FieldLayer, v))
+}
+
+// LayerIn applies the In predicate on the "layer" field.
+func LayerIn(vs ...int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldIn(FieldLayer, vs...))
+}
+
+// LayerNotIn applies the NotIn predicate on the "layer" field.
+func LayerNotIn(vs ...int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldNotIn(FieldLayer, vs...))
+}
+
+// LayerGT applies the GT predicate on the "layer" field.
+func LayerGT(v int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldGT(FieldLayer, v))
+}
+
+// LayerGTE applies the GTE predicate on the "layer" field.
+func LayerGTE(v int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldGTE(FieldLayer, v))
+}
+
+// LayerLT applies the LT predicate on the "layer" field.
+func LayerLT(v int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldLT(FieldLayer, v))
+}
+
+// LayerLTE applies the LTE predicate on the "layer" field.
+func LayerLTE(v int) predicate.RouterMenu {
+	return predicate.RouterMenu(sql.FieldLTE(FieldLayer, v))
 }
 
 // ComponentEQ applies the EQ predicate on the "component" field.

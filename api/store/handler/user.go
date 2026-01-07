@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/opentracing/opentracing-go"
 	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -13,16 +15,22 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"go.uber.org/fx"
 )
 
 type UserHandler struct {
 	UserInteractor domain.StoreUserInteractor
+	UserSeq        domain.IncrSequence
 }
 
-func NewUserHandler(userInteractor domain.StoreUserInteractor) *UserHandler {
-	return &UserHandler{
-		UserInteractor: userInteractor,
-	}
+type UserHandlerParams struct {
+	fx.In
+	UserInteractor domain.StoreUserInteractor
+	UserSeq        domain.IncrSequence `name:"store_user_seq"`
+}
+
+func NewUserHandler(p UserHandlerParams) *UserHandler {
+	return &UserHandler{UserInteractor: p.UserInteractor, UserSeq: p.UserSeq}
 }
 
 func (h *UserHandler) Routes(r gin.IRouter) {
@@ -30,12 +38,15 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.POST("/login", h.Login())
 	r.POST("/logout", h.Logout())
 	r.POST("/info", h.Info())
+	r.POST("", h.Create())
+	r.PUT("/:id", h.Update())
+	r.DELETE("/:id", h.Delete())
+	r.GET("/:id", h.Get())
+	r.GET("", h.List())
 }
 
 func (h *UserHandler) NoAuths() []string {
-	return []string{
-		"/user/login",
-	}
+	return []string{"/user/login"}
 }
 
 // Login
@@ -43,11 +54,11 @@ func (h *UserHandler) NoAuths() []string {
 //	@Tags		用户管理
 //	@Security	BearerAuth
 //	@Summary	用户登录
-//	@Accept		json
-//	@Produce	json
-//	@Param		data	body		types.LoginReq	true	"请求信息"
-//	@Success	200		{object}	types.LoginResp	"成功"
-//	@Router		/user/login [post]
+
+// @Produce	json
+// @Param		data	body		types.LoginReq	true	"请求信息"
+// @Success	200		{object}	types.LoginResp	"成功"
+// @Router		/user/login [post]
 func (h *UserHandler) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -90,10 +101,10 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 //	@Tags		用户管理
 //	@Security	BearerAuth
 //	@Summary	用户登出
-//	@Accept		json
-//	@Produce	json
-//	@Success	200	"No Content"
-//	@Router		/user/logout [post]
+
+// @Produce	json
+// @Success	200	"No Content"
+// @Router		/user/logout [post]
 func (h *UserHandler) Logout() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -117,10 +128,10 @@ func (h *UserHandler) Logout() gin.HandlerFunc {
 //	@Tags		用户管理
 //	@Security	BearerAuth
 //	@Summary	获取当前用户信息
-//	@Accept		json
-//	@Produce	json
-//	@Success	200	{object}	domain.StoreUser	"成功"
-//	@Router		/user/info [post]
+
+// @Produce	json
+// @Success	200	{object}	domain.StoreUser	"成功"
+// @Router		/user/info [post]
 func (h *UserHandler) Info() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -133,4 +144,267 @@ func (h *UserHandler) Info() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 		response.Ok(c, user)
 	}
+}
+
+// Create 门店后台用户创建
+//
+//	@Tags			用户管理
+//	@Summary		创建门店用户
+//	@Description	在门店后台创建用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body	types.StoreUserCreateReq	true	"创建用户请求"
+//	@Success		200		"No Content"
+//	@Router			/user [post]
+func (h *UserHandler) Create() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Create")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.StoreUserCreateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		userCode, err := h.generateUserCode(ctx)
+		if err != nil {
+			c.Error(fmt.Errorf("failed to generate user code: %w", err))
+			return
+		}
+		user := domain.FromStoreUserContext(ctx)
+		createUser := &domain.StoreUser{
+			Username:     req.Username,
+			Nickname:     req.Nickname,
+			DepartmentID: req.DepartmentID,
+			Code:         userCode,
+			RealName:     req.RealName,
+			Gender:       req.Gender,
+			Email:        req.Email,
+			PhoneNumber:  req.PhoneNumber,
+			Enabled:      req.Enabled,
+			RoleIDs:      req.RoleIDs,
+			MerchantID:   user.MerchantID,
+			StoreID:      user.StoreID,
+		}
+		if err := createUser.SetPassword(req.Password); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		if err := h.UserInteractor.Create(ctx, createUser); err != nil {
+			if errors.Is(err, domain.ErrBackendUserUsernameExist) {
+				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
+				return
+			}
+			err = fmt.Errorf("failed to create store user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Update 门店后台用户更新
+//
+//	@Tags			用户管理
+//	@Summary		更新门店用户
+//	@Description	修改指定门店用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string						true	"用户ID"
+//	@Param			data	body	types.StoreUserUpdateReq	true	"更新用户请求"
+//	@Success		200		"No Content"
+//	@Router			/user/{id} [put]
+func (h *UserHandler) Update() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Update")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		var req types.StoreUserUpdateReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := &domain.StoreUser{
+			ID:           id,
+			Username:     req.Username,
+			Nickname:     req.Nickname,
+			DepartmentID: req.DepartmentID,
+			RealName:     req.RealName,
+			Gender:       req.Gender,
+			Email:        req.Email,
+			PhoneNumber:  req.PhoneNumber,
+			Enabled:      req.Enabled,
+			RoleIDs:      req.RoleIDs,
+		}
+		if req.Password != "" {
+			if err := user.SetPassword(req.Password); err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+		}
+
+		if err := h.UserInteractor.Update(ctx, user); err != nil {
+			if errors.Is(err, domain.ErrBackendUserUsernameExist) {
+				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
+				return
+			}
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to update store user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Delete 门店后台用户删除
+//
+//	@Tags			用户管理
+//	@Summary		删除门店用户
+//	@Description	删除指定门店用户
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"用户ID"
+//	@Success		200	"No Content"
+//	@Router			/user/{id} [delete]
+func (h *UserHandler) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Delete")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		if err := h.UserInteractor.Delete(ctx, id); err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to delete store user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Get 门店后台用户详情
+//
+//	@Tags			用户管理
+//	@Summary		获取门店用户
+//	@Description	查询指定门店用户详情
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"用户ID"
+//	@Success		200	{object}	domain.StoreUser
+//	@Router			/user/{id} [get]
+func (h *UserHandler) Get() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Get")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user, err := h.UserInteractor.GetUser(ctx, id)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			err = fmt.Errorf("failed to get store user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, user)
+	}
+}
+
+// List 门店后台用户列表
+//
+//	@Tags			用户管理
+//	@Summary		门店用户列表
+//	@Description	查询门店用户列表
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	query		types.AccountListReq	true	"门店用户列表请求"
+//	@Success		200		{object}	types.AccountListResp
+//	@Router			/user [get]
+func (h *UserHandler) List() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.List")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.AccountListReq
+		if err := c.ShouldBindQuery(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		user := domain.FromStoreUserContext(ctx)
+		pager := req.RequestPagination.ToPagination()
+		filter := &domain.StoreUserListFilter{
+			Code:        req.Code,
+			RealName:    req.RealName,
+			Gender:      req.Gender,
+			Email:       req.Email,
+			PhoneNumber: req.PhoneNumber,
+			Enabled:     req.Enabled,
+			MerchantID:  user.MerchantID,
+			StoreID:     user.StoreID,
+		}
+
+		users, total, err := h.UserInteractor.GetUsers(ctx, pager, filter, domain.NewStoreUserOrderByCreatedAt(true))
+		if err != nil {
+			err = fmt.Errorf("failed to get store users: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, types.AccountListResp{Users: users, Total: total})
+	}
+}
+
+func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
+	seq, err := h.UserSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }

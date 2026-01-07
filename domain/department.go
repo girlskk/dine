@@ -41,13 +41,13 @@ type DepartmentInteractor interface {
 type DepartmentType string
 
 const (
-	DepartmentTypeAdmin DepartmentType = "admin"
-	DepartmentBackend   DepartmentType = "backend"
-	DepartmentStore     DepartmentType = "store"
+	DepartmentAdmin   DepartmentType = "admin"
+	DepartmentBackend DepartmentType = "backend"
+	DepartmentStore   DepartmentType = "store"
 )
 
 func (DepartmentType) Values() []string {
-	return []string{string(DepartmentTypeAdmin), string(DepartmentBackend), string(DepartmentStore)}
+	return []string{string(DepartmentAdmin), string(DepartmentBackend), string(DepartmentStore)}
 }
 
 type DepartmentListOrderByType int

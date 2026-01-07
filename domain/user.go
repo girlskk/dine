@@ -4,6 +4,7 @@ import "github.com/google/uuid"
 
 // User 通用用户接口，用于验证用户身份
 type User interface {
+	GetUserID() uuid.UUID
 	GetMerchantID() uuid.UUID
 	GetStoreID() uuid.UUID
 	GetUserType() UserType

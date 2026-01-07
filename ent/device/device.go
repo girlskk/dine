@@ -50,6 +50,8 @@ const (
 	FieldSortOrder = "sort_order"
 	// FieldPaperSize holds the string denoting the paper_size field in the database.
 	FieldPaperSize = "paper_size"
+	// FieldConnectType holds the string denoting the connect_type field in the database.
+	FieldConnectType = "connect_type"
 	// FieldStallID holds the string denoting the stall_id field in the database.
 	FieldStallID = "stall_id"
 	// FieldOrderChannels holds the string denoting the order_channels field in the database.
@@ -112,6 +114,7 @@ var Columns = []string{
 	FieldIP,
 	FieldSortOrder,
 	FieldPaperSize,
+	FieldConnectType,
 	FieldStallID,
 	FieldOrderChannels,
 	FieldDiningWays,
@@ -203,6 +206,16 @@ func PaperSizeValidator(ps domain.PaperSize) error {
 		return nil
 	default:
 		return fmt.Errorf("device: invalid enum value for paper_size field: %q", ps)
+	}
+}
+
+// ConnectTypeValidator is a validator for the "connect_type" field enum values. It is called by the builders before save.
+func ConnectTypeValidator(ct domain.DeviceConnectType) error {
+	switch ct {
+	case "inside", "outside":
+		return nil
+	default:
+		return fmt.Errorf("device: invalid enum value for connect_type field: %q", ct)
 	}
 }
 
@@ -312,6 +325,11 @@ func BySortOrder(opts ...sql.OrderTermOption) OrderOption {
 // ByPaperSize orders the results by the paper_size field.
 func ByPaperSize(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPaperSize, opts...).ToFunc()
+}
+
+// ByConnectType orders the results by the connect_type field.
+func ByConnectType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldConnectType, opts...).ToFunc()
 }
 
 // ByStallID orders the results by the stall_id field.

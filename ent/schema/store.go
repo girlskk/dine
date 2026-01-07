@@ -46,7 +46,7 @@ func (Store) Fields() []ent.Field {
 		field.Enum("business_model").
 			GoType(domain.BusinessModel("")).
 			Comment("经营模式：直营 加盟"),
-		field.UUID("business_type_id", uuid.UUID{}).
+		field.String("business_type_code").
 			Comment("业态类型"),
 		field.String("location_number").
 			NotEmpty().
@@ -146,12 +146,6 @@ func (Store) Edges() []ent.Edge {
 			Field("merchant_id").
 			Unique().
 			Immutable().
-			Required(),
-		// 业态类型
-		edge.From("merchant_business_type", MerchantBusinessType.Type).
-			Ref("stores").
-			Field("business_type_id").
-			Unique().
 			Required(),
 		// 地区关联（绑定已有外键字段）
 		edge.From("country", Country.Type).

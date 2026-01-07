@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -40,6 +41,8 @@ type Role struct {
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 所属门店 ID，若为空则表示为商户级部门
 	StoreID uuid.UUID `json:"store_id,omitempty"`
+	// 允许登录渠道，取自 login_channel，多选
+	LoginChannels []domain.LoginChannel `json:"login_channels,omitempty"`
 	// 数据权限范围(保留字段)
 	DataScope domain.RoleDataScopeType `json:"data_scope,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -86,6 +89,8 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case role.FieldLoginChannels:
+			values[i] = new([]byte)
 		case role.FieldEnable:
 			values[i] = new(sql.NullBool)
 		case role.FieldDeletedAt:
@@ -171,6 +176,14 @@ func (r *Role) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				r.StoreID = *value
 			}
+		case role.FieldLoginChannels:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field login_channels", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &r.LoginChannels); err != nil {
+					return fmt.Errorf("unmarshal field login_channels: %w", err)
+				}
+			}
 		case role.FieldDataScope:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field data_scope", values[i])
@@ -249,6 +262,9 @@ func (r *Role) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("store_id=")
 	builder.WriteString(fmt.Sprintf("%v", r.StoreID))
+	builder.WriteString(", ")
+	builder.WriteString("login_channels=")
+	builder.WriteString(fmt.Sprintf("%v", r.LoginChannels))
 	builder.WriteString(", ")
 	builder.WriteString("data_scope=")
 	builder.WriteString(fmt.Sprintf("%v", r.DataScope))

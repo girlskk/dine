@@ -11,8 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -95,6 +97,20 @@ func (buu *BackendUserUpdate) SetNickname(s string) *BackendUserUpdate {
 func (buu *BackendUserUpdate) SetNillableNickname(s *string) *BackendUserUpdate {
 	if s != nil {
 		buu.SetNickname(*s)
+	}
+	return buu
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (buu *BackendUserUpdate) SetDepartmentID(u uuid.UUID) *BackendUserUpdate {
+	buu.mutation.SetDepartmentID(u)
+	return buu
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (buu *BackendUserUpdate) SetNillableDepartmentID(u *uuid.UUID) *BackendUserUpdate {
+	if u != nil {
+		buu.SetDepartmentID(*u)
 	}
 	return buu
 }
@@ -195,9 +211,20 @@ func (buu *BackendUserUpdate) SetNillableIsSuperadmin(b *bool) *BackendUserUpdat
 	return buu
 }
 
+// SetDepartment sets the "department" edge to the Department entity.
+func (buu *BackendUserUpdate) SetDepartment(d *Department) *BackendUserUpdate {
+	return buu.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the BackendUserMutation object of the builder.
 func (buu *BackendUserUpdate) Mutation() *BackendUserMutation {
 	return buu.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (buu *BackendUserUpdate) ClearDepartment() *BackendUserUpdate {
+	buu.mutation.ClearDepartment()
+	return buu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -277,6 +304,9 @@ func (buu *BackendUserUpdate) check() error {
 	if buu.mutation.MerchantCleared() && len(buu.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "BackendUser.merchant"`)
 	}
+	if buu.mutation.DepartmentCleared() && len(buu.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "BackendUser.department"`)
+	}
 	return nil
 }
 
@@ -339,6 +369,35 @@ func (buu *BackendUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := buu.mutation.IsSuperadmin(); ok {
 		_spec.SetField(backenduser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if buu.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   backenduser.DepartmentTable,
+			Columns: []string{backenduser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buu.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   backenduser.DepartmentTable,
+			Columns: []string{backenduser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(buu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, buu.driver, _spec); err != nil {
@@ -427,6 +486,20 @@ func (buuo *BackendUserUpdateOne) SetNickname(s string) *BackendUserUpdateOne {
 func (buuo *BackendUserUpdateOne) SetNillableNickname(s *string) *BackendUserUpdateOne {
 	if s != nil {
 		buuo.SetNickname(*s)
+	}
+	return buuo
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (buuo *BackendUserUpdateOne) SetDepartmentID(u uuid.UUID) *BackendUserUpdateOne {
+	buuo.mutation.SetDepartmentID(u)
+	return buuo
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (buuo *BackendUserUpdateOne) SetNillableDepartmentID(u *uuid.UUID) *BackendUserUpdateOne {
+	if u != nil {
+		buuo.SetDepartmentID(*u)
 	}
 	return buuo
 }
@@ -527,9 +600,20 @@ func (buuo *BackendUserUpdateOne) SetNillableIsSuperadmin(b *bool) *BackendUserU
 	return buuo
 }
 
+// SetDepartment sets the "department" edge to the Department entity.
+func (buuo *BackendUserUpdateOne) SetDepartment(d *Department) *BackendUserUpdateOne {
+	return buuo.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the BackendUserMutation object of the builder.
 func (buuo *BackendUserUpdateOne) Mutation() *BackendUserMutation {
 	return buuo.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (buuo *BackendUserUpdateOne) ClearDepartment() *BackendUserUpdateOne {
+	buuo.mutation.ClearDepartment()
+	return buuo
 }
 
 // Where appends a list predicates to the BackendUserUpdate builder.
@@ -622,6 +706,9 @@ func (buuo *BackendUserUpdateOne) check() error {
 	if buuo.mutation.MerchantCleared() && len(buuo.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "BackendUser.merchant"`)
 	}
+	if buuo.mutation.DepartmentCleared() && len(buuo.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "BackendUser.department"`)
+	}
 	return nil
 }
 
@@ -701,6 +788,35 @@ func (buuo *BackendUserUpdateOne) sqlSave(ctx context.Context) (_node *BackendUs
 	}
 	if value, ok := buuo.mutation.IsSuperadmin(); ok {
 		_spec.SetField(backenduser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if buuo.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   backenduser.DepartmentTable,
+			Columns: []string{backenduser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buuo.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   backenduser.DepartmentTable,
+			Columns: []string{backenduser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(buuo.modifiers...)
 	_node = &BackendUser{config: buuo.config}

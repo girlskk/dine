@@ -34,6 +34,8 @@ type RouterMenu struct {
 	Name string `json:"name,omitempty"`
 	// 前端路由路径
 	Path string `json:"path,omitempty"`
+	// 菜单层级
+	Layer int `json:"layer,omitempty"`
 	// 前端组件标识
 	Component string `json:"component,omitempty"`
 	// 菜单图标
@@ -73,7 +75,7 @@ func (*RouterMenu) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case routermenu.FieldEnabled:
 			values[i] = new(sql.NullBool)
-		case routermenu.FieldDeletedAt, routermenu.FieldSort:
+		case routermenu.FieldDeletedAt, routermenu.FieldLayer, routermenu.FieldSort:
 			values[i] = new(sql.NullInt64)
 		case routermenu.FieldUserType, routermenu.FieldName, routermenu.FieldPath, routermenu.FieldComponent, routermenu.FieldIcon:
 			values[i] = new(sql.NullString)
@@ -143,6 +145,12 @@ func (rm *RouterMenu) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field path", values[i])
 			} else if value.Valid {
 				rm.Path = value.String
+			}
+		case routermenu.FieldLayer:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field layer", values[i])
+			} else if value.Valid {
+				rm.Layer = int(value.Int64)
 			}
 		case routermenu.FieldComponent:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -229,6 +237,9 @@ func (rm *RouterMenu) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("path=")
 	builder.WriteString(rm.Path)
+	builder.WriteString(", ")
+	builder.WriteString("layer=")
+	builder.WriteString(fmt.Sprintf("%v", rm.Layer))
 	builder.WriteString(", ")
 	builder.WriteString("component=")
 	builder.WriteString(rm.Component)

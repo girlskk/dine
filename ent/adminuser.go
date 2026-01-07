@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 )
 
 // AdminUser is the model entity for the AdminUser schema.
@@ -32,6 +33,10 @@ type AdminUser struct {
 	HashedPassword string `json:"hashed_password,omitempty"`
 	// 昵称
 	Nickname string `json:"nickname,omitempty"`
+	// 部门ID
+	DepartmentID uuid.UUID `json:"department_id,omitempty"`
+	// 编码
+	Code string `json:"code,omitempty"`
 	// 真实姓名
 	RealName string `json:"real_name,omitempty"`
 	// 性别
@@ -44,7 +49,30 @@ type AdminUser struct {
 	Enabled bool `json:"enabled,omitempty"`
 	// 是否为超级管理员
 	IsSuperadmin bool `json:"is_superadmin,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AdminUserQuery when eager-loading is set.
+	Edges        AdminUserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// AdminUserEdges holds the relations/edges for other nodes in the graph.
+type AdminUserEdges struct {
+	// Department holds the value of the department edge.
+	Department *Department `json:"department,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// DepartmentOrErr returns the Department value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AdminUserEdges) DepartmentOrErr() (*Department, error) {
+	if e.Department != nil {
+		return e.Department, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: department.Label}
+	}
+	return nil, &NotLoadedError{edge: "department"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -56,11 +84,11 @@ func (*AdminUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case adminuser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname, adminuser.FieldRealName, adminuser.FieldGender, adminuser.FieldEmail, adminuser.FieldPhoneNumber:
+		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname, adminuser.FieldCode, adminuser.FieldRealName, adminuser.FieldGender, adminuser.FieldEmail, adminuser.FieldPhoneNumber:
 			values[i] = new(sql.NullString)
 		case adminuser.FieldCreatedAt, adminuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case adminuser.FieldID:
+		case adminuser.FieldID, adminuser.FieldDepartmentID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -119,6 +147,18 @@ func (au *AdminUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				au.Nickname = value.String
 			}
+		case adminuser.FieldDepartmentID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field department_id", values[i])
+			} else if value != nil {
+				au.DepartmentID = *value
+			}
+		case adminuser.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				au.Code = value.String
+			}
 		case adminuser.FieldRealName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field real_name", values[i])
@@ -168,6 +208,11 @@ func (au *AdminUser) Value(name string) (ent.Value, error) {
 	return au.selectValues.Get(name)
 }
 
+// QueryDepartment queries the "department" edge of the AdminUser entity.
+func (au *AdminUser) QueryDepartment() *DepartmentQuery {
+	return NewAdminUserClient(au.config).QueryDepartment(au)
+}
+
 // Update returns a builder for updating this AdminUser.
 // Note that you need to call AdminUser.Unwrap() before calling this method if this AdminUser
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -208,6 +253,12 @@ func (au *AdminUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(au.Nickname)
+	builder.WriteString(", ")
+	builder.WriteString("department_id=")
+	builder.WriteString(fmt.Sprintf("%v", au.DepartmentID))
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(au.Code)
 	builder.WriteString(", ")
 	builder.WriteString("real_name=")
 	builder.WriteString(au.RealName)

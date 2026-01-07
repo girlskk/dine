@@ -19,16 +19,18 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/user_role_repository.go -package=mock . UserRoleRepository
 type UserRoleRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*UserRole, error)
+	FindOneByUser(ctx context.Context, user User) (*UserRole, error)
 	Create(ctx context.Context, userRole *UserRole) error
 	CreateBulk(ctx context.Context, userRoles []*UserRole) error
-	CreateBulkByRoleIDUsers(ctx context.Context, roleID uuid.UUID, users []*User) error
-	CreateBulkByUserIDRoles(ctx context.Context, user *User, roles []uuid.UUID) error
-	Deletes(ctx context.Context, ids []uuid.UUID) error
-	DeleteByRoles(ctx context.Context, roleIDs []uuid.UUID) error
-	DeleteByUsers(ctx context.Context, userType UserType, userIDs []uuid.UUID) error
+	CreateBulkByRoleIDUsers(ctx context.Context, roleID uuid.UUID, users []User) error
+	CreateBulkByUserIDRoles(ctx context.Context, user User, roles []uuid.UUID) error
+	Update(ctx context.Context, userRole *UserRole) error
+	Deletes(ctx context.Context, ids ...uuid.UUID) error
+	DeleteByRoles(ctx context.Context, roleIDs ...uuid.UUID) error
+	DeleteByUsers(ctx context.Context, userType UserType, userIDs ...uuid.UUID) error
 	GetUserRoles(ctx context.Context, pager *upagination.Pagination, filter *UserRoleListFilter, orderBys ...UserRoleListOrderBy) ([]*UserRole, int, error)
-	GetUsersByRoleID(ctx context.Context, userType UserType, roleID uuid.UUID) ([]uuid.UUID, error)
-	GetRolesByUserID(ctx context.Context, userType UserType, userID uuid.UUID) ([]uuid.UUID, error)
+	GetByRoleIDs(ctx context.Context, userType UserType, roleID ...uuid.UUID) ([]*UserRole, error)
+	GetByUserIDs(ctx context.Context, userType UserType, userID ...uuid.UUID) ([]*UserRole, error)
 }
 
 type UserRoleListOrderByType int

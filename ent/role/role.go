@@ -36,6 +36,8 @@ const (
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
 	FieldStoreID = "store_id"
+	// FieldLoginChannels holds the string denoting the login_channels field in the database.
+	FieldLoginChannels = "login_channels"
 	// FieldDataScope holds the string denoting the data_scope field in the database.
 	FieldDataScope = "data_scope"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
@@ -72,6 +74,7 @@ var Columns = []string{
 	FieldEnable,
 	FieldMerchantID,
 	FieldStoreID,
+	FieldLoginChannels,
 	FieldDataScope,
 }
 
@@ -101,6 +104,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt int64
+	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	CodeValidator func(string) error
 	// DefaultEnable holds the default value on creation for the "enable" field.
 	DefaultEnable bool
 	// DefaultID holds the default value on creation for the "id" field.

@@ -137,7 +137,7 @@ func (s *DepartmentRepositoryTestSuite) TestDepartment_GetDepartments() {
 	require.NoError(s.T(), s.repo.Create(s.ctx, dept1))
 	time.Sleep(10 * time.Millisecond)
 	dept2 := s.newDepartment("002", m1, s1)
-	dept2.DepartmentType = domain.DepartmentTypeAdmin
+	dept2.DepartmentType = domain.DepartmentAdmin
 	dept2.Enable = false
 	require.NoError(s.T(), s.repo.Create(s.ctx, dept2))
 	time.Sleep(10 * time.Millisecond)

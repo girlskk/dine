@@ -62,6 +62,8 @@ var Module = fx.Module(
 		asHandler(handler.NewRemarkCategoryHandler),
 		asHandler(handler.NewStallHandler),
 		asHandler(handler.NewTaxFeeHandler),
+		asHandler(handler.NewRoleHandler),
+		asHandler(handler.NewDepartmentHandler),
 	),
 )
 

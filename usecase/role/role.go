@@ -30,14 +30,15 @@ func (interactor *RoleInteractor) CreateRole(ctx context.Context, params *domain
 	}
 
 	role := &domain.Role{
-		ID:         uuid.New(),
-		Name:       params.Name,
-		Code:       params.Code,
-		RoleType:   params.RoleType,
-		DataScope:  params.DataScope,
-		Enable:     params.Enable,
-		MerchantID: params.MerchantID,
-		StoreID:    params.StoreID,
+		ID:            uuid.New(),
+		Name:          params.Name,
+		Code:          params.Code,
+		RoleType:      params.RoleType,
+		DataScope:     params.DataScope,
+		Enable:        params.Enable,
+		MerchantID:    params.MerchantID,
+		StoreID:       params.StoreID,
+		LoginChannels: params.LoginChannels,
 	}
 
 	if err = interactor.checkExists(ctx, role); err != nil {
@@ -68,14 +69,15 @@ func (interactor *RoleInteractor) UpdateRole(ctx context.Context, params *domain
 	}
 
 	role := &domain.Role{
-		ID:         old.ID,
-		Name:       params.Name,
-		Code:       params.Code,
-		RoleType:   params.RoleType,
-		DataScope:  params.DataScope,
-		Enable:     params.Enable,
-		MerchantID: params.MerchantID,
-		StoreID:    params.StoreID,
+		ID:            old.ID,
+		Name:          params.Name,
+		Code:          old.Code,
+		RoleType:      params.RoleType,
+		DataScope:     params.DataScope,
+		Enable:        params.Enable,
+		MerchantID:    params.MerchantID,
+		StoreID:       params.StoreID,
+		LoginChannels: params.LoginChannels,
 	}
 
 	if err = interactor.checkExists(ctx, role); err != nil {
@@ -156,7 +158,6 @@ func (interactor *RoleInteractor) checkExists(ctx context.Context, role *domain.
 
 	exists, existsErr := interactor.ds.RoleRepo().Exists(ctx, domain.RoleExistsParams{
 		Name:       role.Name,
-		Code:       role.Code,
 		MerchantID: role.MerchantID,
 		StoreID:    role.StoreID,
 		ExcludeID:  role.ID,

@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 )
 
 // AdminUserCreate is the builder for creating a AdminUser entity.
@@ -82,6 +83,18 @@ func (auc *AdminUserCreate) SetHashedPassword(s string) *AdminUserCreate {
 // SetNickname sets the "nickname" field.
 func (auc *AdminUserCreate) SetNickname(s string) *AdminUserCreate {
 	auc.mutation.SetNickname(s)
+	return auc
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (auc *AdminUserCreate) SetDepartmentID(u uuid.UUID) *AdminUserCreate {
+	auc.mutation.SetDepartmentID(u)
+	return auc
+}
+
+// SetCode sets the "code" field.
+func (auc *AdminUserCreate) SetCode(s string) *AdminUserCreate {
+	auc.mutation.SetCode(s)
 	return auc
 }
 
@@ -165,6 +178,11 @@ func (auc *AdminUserCreate) SetNillableID(u *uuid.UUID) *AdminUserCreate {
 		auc.SetID(*u)
 	}
 	return auc
+}
+
+// SetDepartment sets the "department" edge to the Department entity.
+func (auc *AdminUserCreate) SetDepartment(d *Department) *AdminUserCreate {
+	return auc.SetDepartmentID(d.ID)
 }
 
 // Mutation returns the AdminUserMutation object of the builder.
@@ -270,6 +288,17 @@ func (auc *AdminUserCreate) check() error {
 	if _, ok := auc.mutation.Nickname(); !ok {
 		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "AdminUser.nickname"`)}
 	}
+	if _, ok := auc.mutation.DepartmentID(); !ok {
+		return &ValidationError{Name: "department_id", err: errors.New(`ent: missing required field "AdminUser.department_id"`)}
+	}
+	if _, ok := auc.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "AdminUser.code"`)}
+	}
+	if v, ok := auc.mutation.Code(); ok {
+		if err := adminuser.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "AdminUser.code": %w`, err)}
+		}
+	}
 	if _, ok := auc.mutation.RealName(); !ok {
 		return &ValidationError{Name: "real_name", err: errors.New(`ent: missing required field "AdminUser.real_name"`)}
 	}
@@ -301,6 +330,9 @@ func (auc *AdminUserCreate) check() error {
 	}
 	if _, ok := auc.mutation.IsSuperadmin(); !ok {
 		return &ValidationError{Name: "is_superadmin", err: errors.New(`ent: missing required field "AdminUser.is_superadmin"`)}
+	}
+	if len(auc.mutation.DepartmentIDs()) == 0 {
+		return &ValidationError{Name: "department", err: errors.New(`ent: missing required edge "AdminUser.department"`)}
 	}
 	return nil
 }
@@ -362,6 +394,10 @@ func (auc *AdminUserCreate) createSpec() (*AdminUser, *sqlgraph.CreateSpec) {
 		_spec.SetField(adminuser.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
 	}
+	if value, ok := auc.mutation.Code(); ok {
+		_spec.SetField(adminuser.FieldCode, field.TypeString, value)
+		_node.Code = value
+	}
 	if value, ok := auc.mutation.RealName(); ok {
 		_spec.SetField(adminuser.FieldRealName, field.TypeString, value)
 		_node.RealName = value
@@ -385,6 +421,23 @@ func (auc *AdminUserCreate) createSpec() (*AdminUser, *sqlgraph.CreateSpec) {
 	if value, ok := auc.mutation.IsSuperadmin(); ok {
 		_spec.SetField(adminuser.FieldIsSuperadmin, field.TypeBool, value)
 		_node.IsSuperadmin = value
+	}
+	if nodes := auc.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DepartmentID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -504,6 +557,18 @@ func (u *AdminUserUpsert) UpdateNickname() *AdminUserUpsert {
 	return u
 }
 
+// SetDepartmentID sets the "department_id" field.
+func (u *AdminUserUpsert) SetDepartmentID(v uuid.UUID) *AdminUserUpsert {
+	u.Set(adminuser.FieldDepartmentID, v)
+	return u
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *AdminUserUpsert) UpdateDepartmentID() *AdminUserUpsert {
+	u.SetExcluded(adminuser.FieldDepartmentID)
+	return u
+}
+
 // SetRealName sets the "real_name" field.
 func (u *AdminUserUpsert) SetRealName(v string) *AdminUserUpsert {
 	u.Set(adminuser.FieldRealName, v)
@@ -607,6 +672,9 @@ func (u *AdminUserUpsertOne) UpdateNewValues() *AdminUserUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(adminuser.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.Code(); exists {
+			s.SetIgnore(adminuser.FieldCode)
 		}
 	}))
 	return u
@@ -713,6 +781,20 @@ func (u *AdminUserUpsertOne) SetNickname(v string) *AdminUserUpsertOne {
 func (u *AdminUserUpsertOne) UpdateNickname() *AdminUserUpsertOne {
 	return u.Update(func(s *AdminUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (u *AdminUserUpsertOne) SetDepartmentID(v uuid.UUID) *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetDepartmentID(v)
+	})
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *AdminUserUpsertOne) UpdateDepartmentID() *AdminUserUpsertOne {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateDepartmentID()
 	})
 }
 
@@ -1000,6 +1082,9 @@ func (u *AdminUserUpsertBulk) UpdateNewValues() *AdminUserUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(adminuser.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.Code(); exists {
+				s.SetIgnore(adminuser.FieldCode)
+			}
 		}
 	}))
 	return u
@@ -1106,6 +1191,20 @@ func (u *AdminUserUpsertBulk) SetNickname(v string) *AdminUserUpsertBulk {
 func (u *AdminUserUpsertBulk) UpdateNickname() *AdminUserUpsertBulk {
 	return u.Update(func(s *AdminUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (u *AdminUserUpsertBulk) SetDepartmentID(v uuid.UUID) *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.SetDepartmentID(v)
+	})
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *AdminUserUpsertBulk) UpdateDepartmentID() *AdminUserUpsertBulk {
+	return u.Update(func(s *AdminUserUpsert) {
+		s.UpdateDepartmentID()
 	})
 }
 

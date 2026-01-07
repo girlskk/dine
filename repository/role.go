@@ -56,7 +56,8 @@ func (repo *RoleRepository) Create(ctx context.Context, domainRole *domain.Role)
 		SetDataScope(domainRole.DataScope).
 		SetEnable(domainRole.Enable).
 		SetMerchantID(domainRole.MerchantID).
-		SetStoreID(domainRole.StoreID)
+		SetStoreID(domainRole.StoreID).
+		SetLoginChannels(domainRole.LoginChannels)
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -80,7 +81,8 @@ func (repo *RoleRepository) Update(ctx context.Context, domainRole *domain.Role)
 	builder := repo.Client.Role.UpdateOneID(domainRole.ID).
 		SetName(domainRole.Name).
 		SetDataScope(domainRole.DataScope).
-		SetEnable(domainRole.Enable)
+		SetEnable(domainRole.Enable).
+		SetLoginChannels(domainRole.LoginChannels)
 
 	updated, err := builder.Save(ctx)
 	if err != nil {
@@ -135,6 +137,21 @@ func (repo *RoleRepository) GetRoles(ctx context.Context, pager *upagination.Pag
 	}
 
 	roles = lo.Map(list, func(item *ent.Role, _ int) *domain.Role {
+		return convertRoleToDomain(item)
+	})
+	return
+}
+
+func (repo *RoleRepository) ListByIDs(ctx context.Context, ids ...uuid.UUID) (roles []*domain.Role, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "RoleRepository.ListByIDs")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	ers, err := repo.Client.Role.Query().Where(role.IDIn(ids...)).All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list roles by ids: %w", err)
+	}
+
+	roles = lo.Map(ers, func(item *ent.Role, _ int) *domain.Role {
 		return convertRoleToDomain(item)
 	})
 	return
@@ -212,15 +229,16 @@ func convertRoleToDomain(er *ent.Role) *domain.Role {
 		return nil
 	}
 	return &domain.Role{
-		ID:         er.ID,
-		Name:       er.Name,
-		Code:       er.Code,
-		RoleType:   er.RoleType,
-		DataScope:  er.DataScope,
-		Enable:     er.Enable,
-		MerchantID: er.MerchantID,
-		StoreID:    er.StoreID,
-		CreatedAt:  er.CreatedAt,
-		UpdatedAt:  er.UpdatedAt,
+		ID:            er.ID,
+		Name:          er.Name,
+		Code:          er.Code,
+		RoleType:      er.RoleType,
+		DataScope:     er.DataScope,
+		Enable:        er.Enable,
+		MerchantID:    er.MerchantID,
+		StoreID:       er.StoreID,
+		LoginChannels: er.LoginChannels,
+		CreatedAt:     er.CreatedAt,
+		UpdatedAt:     er.UpdatedAt,
 	}
 }

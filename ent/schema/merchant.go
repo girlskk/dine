@@ -50,8 +50,8 @@ func (Merchant) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("UTC 时区的过期时间"),
-		field.UUID("business_type_id", uuid.UUID{}).
-			Comment("业务类型"),
+		field.String("business_type_code").
+			Comment("业态类型"),
 		field.String("merchant_logo").
 			Default("").
 			MaxLen(500).
@@ -100,12 +100,6 @@ func (Merchant) Fields() []ent.Field {
 // Edges of the Merchant.
 func (Merchant) Edges() []ent.Edge {
 	return []ent.Edge{
-		// 业态类型
-		edge.From("merchant_business_type", MerchantBusinessType.Type).
-			Ref("merchants").
-			Field("business_type_id").
-			Unique().
-			Required(),
 		// 地区关联（绑定已有外键字段）
 		edge.From("country", Country.Type).
 			Ref("merchants").

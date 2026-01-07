@@ -32,6 +32,8 @@ const (
 	FieldName = "name"
 	// FieldPath holds the string denoting the path field in the database.
 	FieldPath = "path"
+	// FieldLayer holds the string denoting the layer field in the database.
+	FieldLayer = "layer"
 	// FieldComponent holds the string denoting the component field in the database.
 	FieldComponent = "component"
 	// FieldIcon holds the string denoting the icon field in the database.
@@ -63,6 +65,7 @@ var Columns = []string{
 	FieldParentID,
 	FieldName,
 	FieldPath,
+	FieldLayer,
 	FieldComponent,
 	FieldIcon,
 	FieldSort,
@@ -99,6 +102,8 @@ var (
 	NameValidator func(string) error
 	// PathValidator is a validator for the "path" field. It is called by the builders before save.
 	PathValidator func(string) error
+	// DefaultLayer holds the default value on creation for the "layer" field.
+	DefaultLayer int
 	// ComponentValidator is a validator for the "component" field. It is called by the builders before save.
 	ComponentValidator func(string) error
 	// IconValidator is a validator for the "icon" field. It is called by the builders before save.
@@ -162,6 +167,11 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByPath orders the results by the path field.
 func ByPath(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPath, opts...).ToFunc()
+}
+
+// ByLayer orders the results by the layer field.
+func ByLayer(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLayer, opts...).ToFunc()
 }
 
 // ByComponent orders the results by the component field.

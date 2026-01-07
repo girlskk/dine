@@ -799,6 +799,22 @@ func (c *AdminUserClient) GetX(ctx context.Context, id uuid.UUID) *AdminUser {
 	return obj
 }
 
+// QueryDepartment queries the department edge of a AdminUser.
+func (c *AdminUserClient) QueryDepartment(au *AdminUser) *DepartmentQuery {
+	query := (&DepartmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := au.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adminuser.Table, adminuser.FieldID, id),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, adminuser.DepartmentTable, adminuser.DepartmentColumn),
+		)
+		fromV = sqlgraph.Neighbors(au.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AdminUserClient) Hooks() []Hook {
 	hooks := c.hooks.AdminUser
@@ -943,6 +959,22 @@ func (c *BackendUserClient) QueryMerchant(bu *BackendUser) *MerchantQuery {
 			sqlgraph.From(backenduser.Table, backenduser.FieldID, id),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, backenduser.MerchantTable, backenduser.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(bu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDepartment queries the department edge of a BackendUser.
+func (c *BackendUserClient) QueryDepartment(bu *BackendUser) *DepartmentQuery {
+	query := (&DepartmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(backenduser.Table, backenduser.FieldID, id),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, backenduser.DepartmentTable, backenduser.DepartmentColumn),
 		)
 		fromV = sqlgraph.Neighbors(bu.driver.Dialect(), step)
 		return fromV, nil
@@ -1723,6 +1755,54 @@ func (c *DepartmentClient) QueryStore(d *Department) *StoreQuery {
 			sqlgraph.From(department.Table, department.FieldID, id),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, department.StoreTable, department.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAdminUsers queries the admin_users edge of a Department.
+func (c *DepartmentClient) QueryAdminUsers(d *Department) *AdminUserQuery {
+	query := (&AdminUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, id),
+			sqlgraph.To(adminuser.Table, adminuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.AdminUsersTable, department.AdminUsersColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBackendUsers queries the backend_users edge of a Department.
+func (c *DepartmentClient) QueryBackendUsers(d *Department) *BackendUserQuery {
+	query := (&BackendUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, id),
+			sqlgraph.To(backenduser.Table, backenduser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.BackendUsersTable, department.BackendUsersColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStoreUsers queries the store_users edge of a Department.
+func (c *DepartmentClient) QueryStoreUsers(d *Department) *StoreUserQuery {
+	query := (&StoreUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, id),
+			sqlgraph.To(storeuser.Table, storeuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.StoreUsersTable, department.StoreUsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
 		return fromV, nil
@@ -2597,22 +2677,6 @@ func (c *MerchantClient) GetX(ctx context.Context, id uuid.UUID) *Merchant {
 	return obj
 }
 
-// QueryMerchantBusinessType queries the merchant_business_type edge of a Merchant.
-func (c *MerchantClient) QueryMerchantBusinessType(m *Merchant) *MerchantBusinessTypeQuery {
-	query := (&MerchantBusinessTypeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.MerchantBusinessTypeTable, merchant.MerchantBusinessTypeColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryCountry queries the country edge of a Merchant.
 func (c *MerchantClient) QueryCountry(m *Merchant) *CountryQuery {
 	query := (&CountryClient{config: c.config}).Query()
@@ -3002,38 +3066,6 @@ func (c *MerchantBusinessTypeClient) GetX(ctx context.Context, id uuid.UUID) *Me
 		panic(err)
 	}
 	return obj
-}
-
-// QueryMerchants queries the merchants edge of a MerchantBusinessType.
-func (c *MerchantBusinessTypeClient) QueryMerchants(mbt *MerchantBusinessType) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mbt.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchantbusinesstype.Table, merchantbusinesstype.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchantbusinesstype.MerchantsTable, merchantbusinesstype.MerchantsColumn),
-		)
-		fromV = sqlgraph.Neighbors(mbt.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryStores queries the stores edge of a MerchantBusinessType.
-func (c *MerchantBusinessTypeClient) QueryStores(mbt *MerchantBusinessType) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mbt.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchantbusinesstype.Table, merchantbusinesstype.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchantbusinesstype.StoresTable, merchantbusinesstype.StoresColumn),
-		)
-		fromV = sqlgraph.Neighbors(mbt.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // Hooks returns the client hooks.
@@ -6861,22 +6893,6 @@ func (c *StoreClient) QueryMerchant(s *Store) *MerchantQuery {
 	return query
 }
 
-// QueryMerchantBusinessType queries the merchant_business_type edge of a Store.
-func (c *StoreClient) QueryMerchantBusinessType(s *Store) *MerchantBusinessTypeQuery {
-	query := (&MerchantBusinessTypeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, id),
-			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.MerchantBusinessTypeTable, store.MerchantBusinessTypeColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryCountry queries the country edge of a Store.
 func (c *StoreClient) QueryCountry(s *Store) *CountryQuery {
 	query := (&CountryClient{config: c.config}).Query()
@@ -7245,6 +7261,22 @@ func (c *StoreUserClient) QueryStore(su *StoreUser) *StoreQuery {
 			sqlgraph.From(storeuser.Table, storeuser.FieldID, id),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.StoreTable, storeuser.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(su.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDepartment queries the department edge of a StoreUser.
+func (c *StoreUserClient) QueryDepartment(su *StoreUser) *DepartmentQuery {
+	query := (&DepartmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := su.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storeuser.Table, storeuser.FieldID, id),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.DepartmentTable, storeuser.DepartmentColumn),
 		)
 		fromV = sqlgraph.Neighbors(su.driver.Dialect(), step)
 		return fromV, nil

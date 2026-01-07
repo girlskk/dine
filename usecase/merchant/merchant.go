@@ -53,7 +53,9 @@ func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domain
 	return
 }
 func (interactor *MerchantInteractor) loginUserExists(ctx context.Context, loginUser string) (exists bool, err error) {
-	return interactor.DataStore.BackendUserRepo().Exists(ctx, loginUser)
+	return interactor.DataStore.BackendUserRepo().Exists(ctx, domain.BackendUserExistsParams{
+		Username: loginUser,
+	})
 }
 func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context,
 	domainCMerchant *domain.CreateMerchantParams,
@@ -310,7 +312,11 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 		}
 		return nil, err
 	}
-	return
+
+	if bt, err := interactor.DataStore.MerchantBusinessTypeRepo().FindByCode(ctx, domainMerchant.BusinessTypeCode); err == nil {
+		domainMerchant.BusinessTypeName = bt.TypeName
+	}
+	return domainMerchant, nil
 }
 
 func (interactor *MerchantInteractor) GetMerchants(ctx context.Context,
@@ -416,7 +422,7 @@ func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Cont
 		MerchantType:      domainCMerchant.MerchantType,
 		BrandName:         domainCMerchant.BrandName,
 		AdminPhoneNumber:  domainCMerchant.AdminPhoneNumber,
-		BusinessTypeID:    domainCMerchant.BusinessTypeID,
+		BusinessTypeCode:  domainCMerchant.BusinessTypeCode,
 		MerchantLogo:      domainCMerchant.MerchantLogo,
 		Description:       domainCMerchant.Description,
 		LoginAccount:      domainCMerchant.LoginAccount,
@@ -452,7 +458,7 @@ func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Cont
 		BrandName:         domainUMerchant.BrandName,
 		AdminPhoneNumber:  domainUMerchant.AdminPhoneNumber,
 		ExpireUTC:         oldMerchant.ExpireUTC,
-		BusinessTypeID:    domainUMerchant.BusinessTypeID,
+		BusinessTypeCode:  domainUMerchant.BusinessTypeCode,
 		MerchantLogo:      domainUMerchant.MerchantLogo,
 		Description:       domainUMerchant.Description,
 		Status:            oldMerchant.Status,
