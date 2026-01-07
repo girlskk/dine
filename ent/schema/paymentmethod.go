@@ -37,7 +37,7 @@ func (PaymentMethod) Fields() []ent.Field {
 			Comment("计入规则:income-计入实收,discount-计入优惠"),
 		field.Enum("payment_type").
 			GoType(domain.PaymentMethodPayType("")).
-			Default(string(domain.PaymentMethodPayTypeOther)).
+			Default(string(domain.PaymentMethodPayTypeCash)).
 			Comment("结算分类:cash-现金,online_payment-在线支付,member_card-会员卡,custom_coupon-自定义券,partner_coupon-三方合作券,bank_card-银行卡"),
 		field.Other("fee_rate", decimal.Decimal{}).
 			SchemaType(map[string]string{

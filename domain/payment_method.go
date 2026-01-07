@@ -41,20 +41,22 @@ func (PaymentMethodAccountingRule) Values() []string {
 type PaymentMethodPayType string
 
 const (
-	PaymentMethodPayTypeOther         PaymentMethodPayType = "other"          // 其他
 	PaymentMethodPayTypeCash          PaymentMethodPayType = "cash"           // 现金
-	PaymentMethodPayTypeOfflineCard   PaymentMethodPayType = "offline_card"   // 线下刷卡
-	PaymentMethodPayTypeCustomCoupon  PaymentMethodPayType = "custom_coupon"  // 自定义券
+	PaymentMethodPayTypeOnlinePayment PaymentMethodPayType = "online_payment" // 在线支付
+	PaymentMethodPayTypeMemberCard    PaymentMethodPayType = "member_card"    // 会员卡
+	PaymentMethodPayTypeCustomCoupon  PaymentMethodPayType = "custom_coupon"  // 系统自定义券
 	PaymentMethodPayTypePartnerCoupon PaymentMethodPayType = "partner_coupon" // 三方合作券
+	PaymentMethodPayTypeBankCard      PaymentMethodPayType = "bank_card"      // 银行卡
 )
 
 func (PaymentMethodPayType) Values() []string {
 	return []string{
-		string(PaymentMethodPayTypeOther),
 		string(PaymentMethodPayTypeCash),
-		string(PaymentMethodPayTypeOfflineCard),
+		string(PaymentMethodPayTypeOnlinePayment),
+		string(PaymentMethodPayTypeMemberCard),
 		string(PaymentMethodPayTypeCustomCoupon),
 		string(PaymentMethodPayTypePartnerCoupon),
+		string(PaymentMethodPayTypeBankCard),
 	}
 }
 
@@ -138,6 +140,7 @@ type PaymentMethodRepository interface {
 	Update(ctx context.Context, menu *PaymentMethod) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params PaymentMethodSearchParams) (*PaymentMethodSearchRes, error)
+	Stat(ctx context.Context, params PaymentMethodStatParams) (*PaymentMethodStatRes, error)
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/payment_method_interactor.go -package=mock . PaymentMethodInteractor
@@ -147,11 +150,12 @@ type PaymentMethodInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID, user User) error
 	GetDetail(ctx context.Context, id uuid.UUID, user User) (*PaymentMethod, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params PaymentMethodSearchParams) (*PaymentMethodSearchRes, error)
+	Stat(ctx context.Context, params PaymentMethodStatParams) (*PaymentMethodStatRes, error)
 }
 type PaymentMethodSearchParams struct {
 	MerchantID uuid.UUID
 	StoreID    uuid.UUID
-	Name       string // 菜单名称（模糊匹配）
+	Name       string // 结算方式名称（模糊匹配）
 	Source     PaymentMethodSource
 }
 
@@ -159,4 +163,21 @@ type PaymentMethodSearchParams struct {
 type PaymentMethodSearchRes struct {
 	*upagination.Pagination
 	Items PaymentMethods `json:"items"`
+}
+
+// PaymentMethodStatParams 统计各个结算分类对应的结算方式数量
+type PaymentMethodStatParams struct {
+	MerchantID uuid.UUID
+	StoreID    uuid.UUID
+	Name       string // 结算方式名称（模糊匹配）
+	Source     PaymentMethodSource
+}
+
+type PaymentMethodStatRes struct {
+	CashCount          int `json:"cash_count"`           // 现金数量
+	OnlinePaymentCount int `json:"online_payment_count"` // 在线支付数量
+	MemberCardCount    int `json:"member_card_count"`    // 会员卡数量
+	CustomCouponCount  int `json:"custom_coupon_count"`  // 自定义券数量
+	PartnerCouponCount int `json:"partner_coupon_count"` // 三方合作券数量
+	BankCardCount      int `json:"bank_card_count"`      // 银行卡数量
 }

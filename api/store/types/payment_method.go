@@ -37,3 +37,9 @@ type PaymentMethodListReq struct {
 	Name   string                     `json:"name" form:"name"`     // 结算方式名称（模糊匹配）
 	Source domain.PaymentMethodSource `json:"source" form:"source"` // 来源:brand-品牌,store-门店,system-系统
 }
+
+// PaymentMethodStatReq 统计各个结算分类对应的结算方式数量
+type PaymentMethodStatReq struct {
+	Name   string                     `json:"name" form:"name"`     // 结算方式名称（模糊匹配）
+	Source domain.PaymentMethodSource `json:"source" form:"source"` // 来源:brand-品牌,store-门店,system-系统
+}

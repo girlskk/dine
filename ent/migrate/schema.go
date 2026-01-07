@@ -812,7 +812,7 @@ var (
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "accounting_rule", Type: field.TypeEnum, Enums: []string{"income", "discount"}, Default: "income"},
-		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"other", "cash", "offline_card", "custom_coupon", "partner_coupon"}, Default: "other"},
+		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"cash", "online_payment", "member_card", "custom_coupon", "partner_coupon", "bank_card"}, Default: "cash"},
 		{Name: "fee_rate", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "invoice_rule", Type: field.TypeEnum, Nullable: true, Enums: []string{"no_invoice", "actual_amount"}},
 		{Name: "cash_drawer_status", Type: field.TypeBool, Default: false},

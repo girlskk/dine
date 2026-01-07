@@ -95,6 +95,21 @@ func (mr *MockPaymentMethodInteractorMockRecorder) PagedListBySearch(arg0, arg1,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PagedListBySearch", reflect.TypeOf((*MockPaymentMethodInteractor)(nil).PagedListBySearch), arg0, arg1, arg2)
 }
 
+// Stat mocks base method.
+func (m *MockPaymentMethodInteractor) Stat(arg0 context.Context, arg1 domain.PaymentMethodStatParams) (*domain.PaymentMethodStatRes, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Stat", arg0, arg1)
+	ret0, _ := ret[0].(*domain.PaymentMethodStatRes)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Stat indicates an expected call of Stat.
+func (mr *MockPaymentMethodInteractorMockRecorder) Stat(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stat", reflect.TypeOf((*MockPaymentMethodInteractor)(nil).Stat), arg0, arg1)
+}
+
 // Update mocks base method.
 func (m *MockPaymentMethodInteractor) Update(arg0 context.Context, arg1 *domain.PaymentMethod, arg2 domain.User) error {
 	m.ctrl.T.Helper()

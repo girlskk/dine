@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
@@ -202,4 +203,51 @@ func convertPaymentMethodToDomain(pm *ent.PaymentMethod) *domain.PaymentMethod {
 		CreatedAt:             pm.CreatedAt,
 	}
 	return m
+}
+
+func (repo *PaymentMethodRepository) Stat(
+	ctx context.Context,
+	params domain.PaymentMethodStatParams,
+) (res *domain.PaymentMethodStatRes, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "PaymentMethodRepository.Stat")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.PaymentMethod.Query()
+
+	if params.MerchantID != uuid.Nil {
+		query.Where(paymentmethod.MerchantID(params.MerchantID))
+	}
+	if params.StoreID != uuid.Nil {
+		query.Where(paymentmethod.StoreID(params.StoreID))
+	}
+	if params.Name != "" {
+		query.Where(paymentmethod.NameContains(params.Name))
+	}
+	if params.Source != "" {
+		query.Where(paymentmethod.SourceEQ(params.Source))
+	}
+	type result struct {
+		PaymentType string `json:"payment_type"`
+		Count       int    `json:"count"`
+	}
+	var resultList []result
+	err = query.GroupBy(paymentmethod.FieldPaymentType).
+		Aggregate(ent.Count()).
+		Scan(ctx, &resultList)
+	if err != nil {
+		return nil, err
+	}
+	paymentTypeCount := lo.SliceToMap(resultList, func(item result) (string, int) {
+		return item.PaymentType, item.Count
+	})
+	return &domain.PaymentMethodStatRes{
+		CashCount:          paymentTypeCount[string(domain.PaymentMethodPayTypeCash)],
+		OnlinePaymentCount: paymentTypeCount[string(domain.PaymentMethodPayTypeOnlinePayment)],
+		MemberCardCount:    paymentTypeCount[string(domain.PaymentMethodPayTypeMemberCard)],
+		CustomCouponCount:  paymentTypeCount[string(domain.PaymentMethodPayTypeCustomCoupon)],
+		PartnerCouponCount: paymentTypeCount[string(domain.PaymentMethodPayTypePartnerCoupon)],
+		BankCardCount:      paymentTypeCount[string(domain.PaymentMethodPayTypeBankCard)],
+	}, nil
 }

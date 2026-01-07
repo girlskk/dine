@@ -160,6 +160,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment/method/stat": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "统计各个结算分类对应的结算方式数量",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算方式名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "来源:brand-品牌,store-门店,system-系统",
+                        "name": "source",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentMethodStatRes"
+                        }
+                    }
+                }
+            }
+        },
         "/payment/method/{id}": {
             "get": {
                 "security": [
@@ -2902,25 +2937,28 @@ const docTemplate = `{
         "domain.PaymentMethodPayType": {
             "type": "string",
             "enum": [
-                "other",
                 "cash",
-                "offline_card",
+                "online_payment",
+                "member_card",
                 "custom_coupon",
-                "partner_coupon"
+                "partner_coupon",
+                "bank_card"
             ],
             "x-enum-comments": {
+                "PaymentMethodPayTypeBankCard": "银行卡",
                 "PaymentMethodPayTypeCash": "现金",
-                "PaymentMethodPayTypeCustomCoupon": "自定义券",
-                "PaymentMethodPayTypeOfflineCard": "线下刷卡",
-                "PaymentMethodPayTypeOther": "其他",
+                "PaymentMethodPayTypeCustomCoupon": "系统自定义券",
+                "PaymentMethodPayTypeMemberCard": "会员卡",
+                "PaymentMethodPayTypeOnlinePayment": "在线支付",
                 "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
             "x-enum-varnames": [
-                "PaymentMethodPayTypeOther",
                 "PaymentMethodPayTypeCash",
-                "PaymentMethodPayTypeOfflineCard",
+                "PaymentMethodPayTypeOnlinePayment",
+                "PaymentMethodPayTypeMemberCard",
                 "PaymentMethodPayTypeCustomCoupon",
-                "PaymentMethodPayTypePartnerCoupon"
+                "PaymentMethodPayTypePartnerCoupon",
+                "PaymentMethodPayTypeBankCard"
             ]
         },
         "domain.PaymentMethodSearchRes": {
@@ -2963,6 +3001,35 @@ const docTemplate = `{
                 "PaymentMethodSourceStore",
                 "PaymentMethodSourceSystem"
             ]
+        },
+        "domain.PaymentMethodStatRes": {
+            "type": "object",
+            "properties": {
+                "bank_card_count": {
+                    "description": "银行卡数量",
+                    "type": "integer"
+                },
+                "cash_count": {
+                    "description": "现金数量",
+                    "type": "integer"
+                },
+                "custom_coupon_count": {
+                    "description": "自定义券数量",
+                    "type": "integer"
+                },
+                "member_card_count": {
+                    "description": "会员卡数量",
+                    "type": "integer"
+                },
+                "online_payment_count": {
+                    "description": "在线支付数量",
+                    "type": "integer"
+                },
+                "partner_coupon_count": {
+                    "description": "三方合作券数量",
+                    "type": "integer"
+                }
+            }
         },
         "domain.Product": {
             "type": "object",
@@ -3662,16 +3729,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "PaymentMethodDisplayChannelPOS",
-                "PaymentMethodDisplayChannelMobileOrdering",
-                "PaymentMethodDisplayChannelScanOrdering",
-                "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery",
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",
                 "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery"
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {

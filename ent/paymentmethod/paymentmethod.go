@@ -119,12 +119,12 @@ func AccountingRuleValidator(ar domain.PaymentMethodAccountingRule) error {
 	}
 }
 
-const DefaultPaymentType domain.PaymentMethodPayType = "other"
+const DefaultPaymentType domain.PaymentMethodPayType = "cash"
 
 // PaymentTypeValidator is a validator for the "payment_type" field enum values. It is called by the builders before save.
 func PaymentTypeValidator(pt domain.PaymentMethodPayType) error {
 	switch pt {
-	case "other", "cash", "offline_card", "custom_coupon", "partner_coupon":
+	case "cash", "online_payment", "member_card", "custom_coupon", "partner_coupon", "bank_card":
 		return nil
 	default:
 		return fmt.Errorf("paymentmethod: invalid enum value for payment_type field: %q", pt)
