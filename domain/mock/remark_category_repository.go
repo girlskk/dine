@@ -95,7 +95,7 @@ func (mr *MockRemarkCategoryRepositoryMockRecorder) FindByID(arg0, arg1 interfac
 }
 
 // GetRemarkCategories mocks base method.
-func (m *MockRemarkCategoryRepository) GetRemarkCategories(arg0 context.Context, arg1 domain.RemarkCategoryListFilter) (domain.RemarkCategories, error) {
+func (m *MockRemarkCategoryRepository) GetRemarkCategories(arg0 context.Context, arg1 *domain.RemarkCategoryListFilter) (domain.RemarkCategories, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRemarkCategories", arg0, arg1)
 	ret0, _ := ret[0].(domain.RemarkCategories)

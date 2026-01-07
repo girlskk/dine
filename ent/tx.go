@@ -44,6 +44,8 @@ type Tx struct {
 	Order *OrderClient
 	// OrderProduct is the client for interacting with the OrderProduct builders.
 	OrderProduct *OrderProductClient
+	// PaymentMethod is the client for interacting with the PaymentMethod builders.
+	PaymentMethod *PaymentMethodClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// Product is the client for interacting with the Product builders.
@@ -237,6 +239,7 @@ func (tx *Tx) init() {
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
 	tx.Order = NewOrderClient(tx.config)
 	tx.OrderProduct = NewOrderProductClient(tx.config)
+	tx.PaymentMethod = NewPaymentMethodClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Product = NewProductClient(tx.config)
 	tx.ProductAttr = NewProductAttrClient(tx.config)

@@ -9,6 +9,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/order"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/paymentmethod"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/product"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productattr"
@@ -120,6 +121,10 @@ var Module = fx.Module(
 		fx.Annotate(
 			department.NewDepartmentInteractor,
 			fx.As(new(domain.DepartmentInteractor)),
+		),
+		fx.Annotate(
+			paymentmethod.NewPaymentMethodInteractor,
+			fx.As(new(domain.PaymentMethodInteractor)),
 		),
 		fx.Annotate(
 			permission.NewPermissionInteractor,

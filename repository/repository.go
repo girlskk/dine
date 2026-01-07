@@ -44,6 +44,7 @@ type Repository struct {
 	countryRepo              *CountryRepository
 	provinceRepo             *ProvinceRepository
 	departmentRepo           *DepartmentRepository
+	paymentMethodRepo        *PaymentMethodRepository
 	roleRepo                 *RoleRepository
 	permissionRepo           *PermissionRepository
 	routerMenuRepo           *RouterMenuRepository
@@ -371,6 +372,15 @@ func (repo *Repository) DepartmentRepo() domain.DepartmentRepository {
 		repo.departmentRepo = NewDepartmentRepository(repo.client)
 	}
 	return repo.departmentRepo
+}
+
+func (repo *Repository) PaymentMethodRepo() domain.PaymentMethodRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.paymentMethodRepo == nil {
+		repo.paymentMethodRepo = NewPaymentMethodRepository(repo.client)
+	}
+	return repo.paymentMethodRepo
 }
 
 func (repo *Repository) RoleRepo() domain.RoleRepository {

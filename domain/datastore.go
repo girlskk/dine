@@ -34,6 +34,7 @@ type DataStore interface {
 	CountryRepo() CountryRepository
 	ProvinceRepo() ProvinceRepository
 	DepartmentRepo() DepartmentRepository
+	PaymentMethodRepo() PaymentMethodRepository
 	RoleRepo() RoleRepository
 	PermissionRepo() PermissionRepository
 	RouterMenuRepo() RouterMenuRepository
