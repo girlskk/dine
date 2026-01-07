@@ -96,6 +96,21 @@ func (c Channel) GetName() string {
 	}
 }
 
+// FeeType 费用类型
+type FeeType string
+
+const (
+	FeeTypeService   FeeType = "SERVICE"   // 服务费
+	FeeTypePackaging FeeType = "PACKAGING" // 打包费
+)
+
+func (FeeType) Values() []string {
+	return []string{
+		string(FeeTypeService),
+		string(FeeTypePackaging),
+	}
+}
+
 type OrderRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*Order, error)
 	Create(ctx context.Context, order *Order) error
@@ -116,15 +131,14 @@ type OrderInteractor interface {
 
 // OrderCashier 收银员信息
 type OrderCashier struct {
-	CashierID   string `json:"cashier_id,omitempty"`   // 收银员ID
-	CashierName string `json:"cashier_name,omitempty"` // 收银员名称
+	CashierID   uuid.UUID `json:"cashier_id,omitempty"`   // 收银员ID
+	CashierName string    `json:"cashier_name,omitempty"` // 收银员名称
 }
 
-// OrderPOS POS 终端信息
+// OrderPOS POS 终端信息 对应device表
 type OrderPOS struct {
-	PosID    string `json:"pos_id,omitempty"`    // POS ID
-	PosCode  string `json:"pos_code,omitempty"`  // POS 编码
-	DeviceID string `json:"device_id,omitempty"` // 设备ID
+	ID   uuid.UUID `json:"id"`   // POS 设备id
+	Name string    `json:"name"` // POS 设备名称
 }
 
 // OrderStore 门店信息
@@ -139,9 +153,9 @@ type OrderStore struct {
 
 // OrderFee 费用明细
 type OrderFee struct {
-	FeeID   string `json:"fee_id,omitempty"`   // 费用ID
-	FeeName string `json:"fee_name,omitempty"` // 费用名称
-	FeeType string `json:"fee_type,omitempty"` // 费用类型（TIP/PACKAGING/SURCHARGE/OTHER 等）
+	FeeID   uuid.UUID `json:"fee_id,omitempty"`   // 费用ID
+	FeeName string    `json:"fee_name,omitempty"` // 费用名称
+	FeeType FeeType   `json:"fee_type,omitempty"` // 费用类型
 
 	Amount decimal.Decimal `json:"amount"`         // 费用金额
 	Meta   interface{}     `json:"meta,omitempty"` // 扩展信息
@@ -149,21 +163,14 @@ type OrderFee struct {
 
 // OrderTaxRate 税率信息
 type OrderTaxRate struct {
-	TaxRateID   string `json:"tax_rate_id,omitempty"`   // 税率ID
-	TaxRateName string `json:"tax_rate_name,omitempty"` // 税率名称
+	TaxRateID   uuid.UUID `json:"tax_rate_id,omitempty"`   // 税率ID
+	TaxRateName string    `json:"tax_rate_name,omitempty"` // 税率名称
 
 	Rate decimal.Decimal `json:"rate"` // 税率（百分比）
 
 	TaxableAmount decimal.Decimal `json:"taxable_amount"` // 计税金额
 	TaxAmount     decimal.Decimal `json:"tax_amount"`     // 税额
 	Meta          interface{}     `json:"meta,omitempty"` // 扩展信息
-}
-
-// OrderRefund 退款单信息（order_type=REFUND/PARTIAL_REFUND）
-type OrderRefund struct {
-	OriginOrderID string `json:"origin_order_id,omitempty"` // 原正单订单ID
-	OriginOrderNo string `json:"origin_order_no,omitempty"` // 原正单订单号
-	Reason        string `json:"reason,omitempty"`          // 退款说明
 }
 
 // OrderAmount 金额汇总
@@ -177,15 +184,18 @@ type OrderAmount struct {
 	RoundingAmount  decimal.Decimal `json:"rounding_amount"`   // 舍入/抹零
 	AmountDue       decimal.Decimal `json:"amount_due"`        // 应收
 	AmountPaid      decimal.Decimal `json:"amount_paid"`       // 实收
+	OverpayAmount   decimal.Decimal `json:"overpay_amount"`    // 溢收
 	ChangeAmount    decimal.Decimal `json:"change_amount"`     // 找零
 	AmountRefunded  decimal.Decimal `json:"amount_refunded"`   // 已退款
 }
 
 // OrderPayment 支付记录
 type OrderPayment struct {
-	PaymentNo     string          `json:"payment_no"`     // 支付号（第三方/外部交易号）
-	PaymentMethod string          `json:"payment_method"` // 支付方式
-	PaymentAmount decimal.Decimal `json:"payment_amount"` // 支付金额
+	PaymentNo     string               `json:"payment_no"`     // 支付号（第三方/外部交易号）
+	PaymentMethod PaymentMethodPayType `json:"payment_method"` // 支付方式
+	PaymentStatus PaymentStatus        `json:"payment_status"` // 支付状态
+	PaymentAmount decimal.Decimal      `json:"payment_amount"` // 支付金额
+	RefundAmount  decimal.Decimal      `json:"refund_amount"`  // 退款金额
 
 	POS     OrderPOS     `json:"pos"`     // POS 终端信息
 	Cashier OrderCashier `json:"cashier"` // 收银员信息
@@ -206,22 +216,22 @@ type Order struct {
 	ShiftNo      string `json:"shift_no"`      // 班次号
 	OrderNo      string `json:"order_no"`      // 订单号
 
-	OrderType OrderType   `json:"order_type"` // 订单类型
-	Refund    OrderRefund `json:"refund"`     // 退款单信息
+	OrderType OrderType `json:"order_type"` // 订单类型
 
 	PlacedAt    time.Time `json:"placed_at"`    // 下单时间
 	PaidAt      time.Time `json:"paid_at"`      // 支付完成时间
 	CompletedAt time.Time `json:"completed_at"` // 完成时间
 
-	PlacedBy string `json:"placed_by"` // 下单人
+	PlacedBy     uuid.UUID `json:"placed_by"`      // 下单人ID
+	PlacedByName string    `json:"placed_by_name"` // 下单人名称
 
 	DiningMode    DiningMode    `json:"dining_mode"`    // 堂食/外卖
 	OrderStatus   OrderStatus   `json:"order_status"`   // 订单状态
 	PaymentStatus PaymentStatus `json:"payment_status"` // 支付状态
 
-	TableID    string `json:"table_id"`    // 桌位ID
-	TableName  string `json:"table_name"`  // 桌位名称
-	GuestCount int    `json:"guest_count"` // 用餐人数
+	TableID    uuid.UUID `json:"table_id"`    // 桌位ID
+	TableName  string    `json:"table_name"`  // 桌位名称
+	GuestCount int       `json:"guest_count"` // 用餐人数
 
 	Store   OrderStore   `json:"store"`   // 门店信息
 	Channel Channel      `json:"channel"` // 下单渠道
@@ -232,6 +242,8 @@ type Order struct {
 	Fees     []OrderFee     `json:"fees"`      // 费用
 	Payments []OrderPayment `json:"payments"`  // 支付记录
 	Amount   OrderAmount    `json:"amount"`    // 金额汇总
+
+	Remark string `json:"remark"` // 整单备注
 
 	OrderProducts []OrderProduct `json:"order_products"` // 订单商品明细
 }

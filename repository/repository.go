@@ -44,6 +44,7 @@ type Repository struct {
 	countryRepo              *CountryRepository
 	provinceRepo             *ProvinceRepository
 	departmentRepo           *DepartmentRepository
+	paymentMethodRepo        *PaymentMethodRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -366,4 +367,13 @@ func (repo *Repository) DepartmentRepo() domain.DepartmentRepository {
 		repo.departmentRepo = NewDepartmentRepository(repo.client)
 	}
 	return repo.departmentRepo
+}
+
+func (repo *Repository) PaymentMethodRepo() domain.PaymentMethodRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.paymentMethodRepo == nil {
+		repo.paymentMethodRepo = NewPaymentMethodRepository(repo.client)
+	}
+	return repo.paymentMethodRepo
 }

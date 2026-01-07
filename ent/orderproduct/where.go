@@ -103,11 +103,6 @@ func CategoryID(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldCategoryID, v))
 }
 
-// MenuID applies equality check predicate on the "menu_id" field. It's identical to MenuIDEQ.
-func MenuID(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldMenuID, v))
-}
-
 // UnitID applies equality check predicate on the "unit_id" field. It's identical to UnitIDEQ.
 func UnitID(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldUnitID, v))
@@ -123,9 +118,19 @@ func Description(v string) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldDescription, v))
 }
 
+// IsGift applies equality check predicate on the "is_gift" field. It's identical to IsGiftEQ.
+func IsGift(v bool) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldIsGift, v))
+}
+
 // Qty applies equality check predicate on the "qty" field. It's identical to QtyEQ.
 func Qty(v int) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldQty, v))
+}
+
+// GiftQty applies equality check predicate on the "gift_qty" field. It's identical to GiftQtyEQ.
+func GiftQty(v int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldGiftQty, v))
 }
 
 // Subtotal applies equality check predicate on the "subtotal" field. It's identical to SubtotalEQ.
@@ -184,7 +189,7 @@ func RefundReason(v string) predicate.OrderProduct {
 }
 
 // RefundedBy applies equality check predicate on the "refunded_by" field. It's identical to RefundedByEQ.
-func RefundedBy(v string) predicate.OrderProduct {
+func RefundedBy(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldRefundedBy, v))
 }
 
@@ -198,14 +203,9 @@ func Note(v string) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldNote, v))
 }
 
-// EstimatedCostPrice applies equality check predicate on the "estimated_cost_price" field. It's identical to EstimatedCostPriceEQ.
-func EstimatedCostPrice(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldEstimatedCostPrice, v))
-}
-
-// DeliveryCostPrice applies equality check predicate on the "delivery_cost_price" field. It's identical to DeliveryCostPriceEQ.
-func DeliveryCostPrice(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldDeliveryCostPrice, v))
+// Price applies equality check predicate on the "price" field. It's identical to PriceEQ.
+func Price(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldPrice, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -638,56 +638,6 @@ func CategoryIDNotNil() predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNotNull(FieldCategoryID))
 }
 
-// MenuIDEQ applies the EQ predicate on the "menu_id" field.
-func MenuIDEQ(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldMenuID, v))
-}
-
-// MenuIDNEQ applies the NEQ predicate on the "menu_id" field.
-func MenuIDNEQ(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNEQ(FieldMenuID, v))
-}
-
-// MenuIDIn applies the In predicate on the "menu_id" field.
-func MenuIDIn(vs ...uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIn(FieldMenuID, vs...))
-}
-
-// MenuIDNotIn applies the NotIn predicate on the "menu_id" field.
-func MenuIDNotIn(vs ...uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotIn(FieldMenuID, vs...))
-}
-
-// MenuIDGT applies the GT predicate on the "menu_id" field.
-func MenuIDGT(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGT(FieldMenuID, v))
-}
-
-// MenuIDGTE applies the GTE predicate on the "menu_id" field.
-func MenuIDGTE(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGTE(FieldMenuID, v))
-}
-
-// MenuIDLT applies the LT predicate on the "menu_id" field.
-func MenuIDLT(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLT(FieldMenuID, v))
-}
-
-// MenuIDLTE applies the LTE predicate on the "menu_id" field.
-func MenuIDLTE(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLTE(FieldMenuID, v))
-}
-
-// MenuIDIsNil applies the IsNil predicate on the "menu_id" field.
-func MenuIDIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldMenuID))
-}
-
-// MenuIDNotNil applies the NotNil predicate on the "menu_id" field.
-func MenuIDNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldMenuID))
-}
-
 // UnitIDEQ applies the EQ predicate on the "unit_id" field.
 func UnitIDEQ(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldUnitID, v))
@@ -736,66 +686,6 @@ func UnitIDIsNil() predicate.OrderProduct {
 // UnitIDNotNil applies the NotNil predicate on the "unit_id" field.
 func UnitIDNotNil() predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNotNull(FieldUnitID))
-}
-
-// SupportTypesIsNil applies the IsNil predicate on the "support_types" field.
-func SupportTypesIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldSupportTypes))
-}
-
-// SupportTypesNotNil applies the NotNil predicate on the "support_types" field.
-func SupportTypesNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldSupportTypes))
-}
-
-// SaleStatusEQ applies the EQ predicate on the "sale_status" field.
-func SaleStatusEQ(v domain.ProductSaleStatus) predicate.OrderProduct {
-	vc := v
-	return predicate.OrderProduct(sql.FieldEQ(FieldSaleStatus, vc))
-}
-
-// SaleStatusNEQ applies the NEQ predicate on the "sale_status" field.
-func SaleStatusNEQ(v domain.ProductSaleStatus) predicate.OrderProduct {
-	vc := v
-	return predicate.OrderProduct(sql.FieldNEQ(FieldSaleStatus, vc))
-}
-
-// SaleStatusIn applies the In predicate on the "sale_status" field.
-func SaleStatusIn(vs ...domain.ProductSaleStatus) predicate.OrderProduct {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.OrderProduct(sql.FieldIn(FieldSaleStatus, v...))
-}
-
-// SaleStatusNotIn applies the NotIn predicate on the "sale_status" field.
-func SaleStatusNotIn(vs ...domain.ProductSaleStatus) predicate.OrderProduct {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.OrderProduct(sql.FieldNotIn(FieldSaleStatus, v...))
-}
-
-// SaleStatusIsNil applies the IsNil predicate on the "sale_status" field.
-func SaleStatusIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldSaleStatus))
-}
-
-// SaleStatusNotNil applies the NotNil predicate on the "sale_status" field.
-func SaleStatusNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldSaleStatus))
-}
-
-// SaleChannelsIsNil applies the IsNil predicate on the "sale_channels" field.
-func SaleChannelsIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldSaleChannels))
-}
-
-// SaleChannelsNotNil applies the NotNil predicate on the "sale_channels" field.
-func SaleChannelsNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldSaleChannels))
 }
 
 // MainImageEQ applies the EQ predicate on the "main_image" field.
@@ -928,6 +818,16 @@ func DescriptionContainsFold(v string) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldContainsFold(FieldDescription, v))
 }
 
+// IsGiftEQ applies the EQ predicate on the "is_gift" field.
+func IsGiftEQ(v bool) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldIsGift, v))
+}
+
+// IsGiftNEQ applies the NEQ predicate on the "is_gift" field.
+func IsGiftNEQ(v bool) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNEQ(FieldIsGift, v))
+}
+
 // QtyEQ applies the EQ predicate on the "qty" field.
 func QtyEQ(v int) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldQty, v))
@@ -966,6 +866,46 @@ func QtyLT(v int) predicate.OrderProduct {
 // QtyLTE applies the LTE predicate on the "qty" field.
 func QtyLTE(v int) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldLTE(FieldQty, v))
+}
+
+// GiftQtyEQ applies the EQ predicate on the "gift_qty" field.
+func GiftQtyEQ(v int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldGiftQty, v))
+}
+
+// GiftQtyNEQ applies the NEQ predicate on the "gift_qty" field.
+func GiftQtyNEQ(v int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNEQ(FieldGiftQty, v))
+}
+
+// GiftQtyIn applies the In predicate on the "gift_qty" field.
+func GiftQtyIn(vs ...int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIn(FieldGiftQty, vs...))
+}
+
+// GiftQtyNotIn applies the NotIn predicate on the "gift_qty" field.
+func GiftQtyNotIn(vs ...int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotIn(FieldGiftQty, vs...))
+}
+
+// GiftQtyGT applies the GT predicate on the "gift_qty" field.
+func GiftQtyGT(v int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGT(FieldGiftQty, v))
+}
+
+// GiftQtyGTE applies the GTE predicate on the "gift_qty" field.
+func GiftQtyGTE(v int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGTE(FieldGiftQty, v))
+}
+
+// GiftQtyLT applies the LT predicate on the "gift_qty" field.
+func GiftQtyLT(v int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLT(FieldGiftQty, v))
+}
+
+// GiftQtyLTE applies the LTE predicate on the "gift_qty" field.
+func GiftQtyLTE(v int) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLTE(FieldGiftQty, v))
 }
 
 // SubtotalEQ applies the EQ predicate on the "subtotal" field.
@@ -1534,58 +1474,43 @@ func RefundReasonContainsFold(v string) predicate.OrderProduct {
 }
 
 // RefundedByEQ applies the EQ predicate on the "refunded_by" field.
-func RefundedByEQ(v string) predicate.OrderProduct {
+func RefundedByEQ(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldRefundedBy, v))
 }
 
 // RefundedByNEQ applies the NEQ predicate on the "refunded_by" field.
-func RefundedByNEQ(v string) predicate.OrderProduct {
+func RefundedByNEQ(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNEQ(FieldRefundedBy, v))
 }
 
 // RefundedByIn applies the In predicate on the "refunded_by" field.
-func RefundedByIn(vs ...string) predicate.OrderProduct {
+func RefundedByIn(vs ...uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldIn(FieldRefundedBy, vs...))
 }
 
 // RefundedByNotIn applies the NotIn predicate on the "refunded_by" field.
-func RefundedByNotIn(vs ...string) predicate.OrderProduct {
+func RefundedByNotIn(vs ...uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNotIn(FieldRefundedBy, vs...))
 }
 
 // RefundedByGT applies the GT predicate on the "refunded_by" field.
-func RefundedByGT(v string) predicate.OrderProduct {
+func RefundedByGT(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldGT(FieldRefundedBy, v))
 }
 
 // RefundedByGTE applies the GTE predicate on the "refunded_by" field.
-func RefundedByGTE(v string) predicate.OrderProduct {
+func RefundedByGTE(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldGTE(FieldRefundedBy, v))
 }
 
 // RefundedByLT applies the LT predicate on the "refunded_by" field.
-func RefundedByLT(v string) predicate.OrderProduct {
+func RefundedByLT(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldLT(FieldRefundedBy, v))
 }
 
 // RefundedByLTE applies the LTE predicate on the "refunded_by" field.
-func RefundedByLTE(v string) predicate.OrderProduct {
+func RefundedByLTE(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldLTE(FieldRefundedBy, v))
-}
-
-// RefundedByContains applies the Contains predicate on the "refunded_by" field.
-func RefundedByContains(v string) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldContains(FieldRefundedBy, v))
-}
-
-// RefundedByHasPrefix applies the HasPrefix predicate on the "refunded_by" field.
-func RefundedByHasPrefix(v string) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldHasPrefix(FieldRefundedBy, v))
-}
-
-// RefundedByHasSuffix applies the HasSuffix predicate on the "refunded_by" field.
-func RefundedByHasSuffix(v string) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldHasSuffix(FieldRefundedBy, v))
 }
 
 // RefundedByIsNil applies the IsNil predicate on the "refunded_by" field.
@@ -1596,16 +1521,6 @@ func RefundedByIsNil() predicate.OrderProduct {
 // RefundedByNotNil applies the NotNil predicate on the "refunded_by" field.
 func RefundedByNotNil() predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNotNull(FieldRefundedBy))
-}
-
-// RefundedByEqualFold applies the EqualFold predicate on the "refunded_by" field.
-func RefundedByEqualFold(v string) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEqualFold(FieldRefundedBy, v))
-}
-
-// RefundedByContainsFold applies the ContainsFold predicate on the "refunded_by" field.
-func RefundedByContainsFold(v string) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldContainsFold(FieldRefundedBy, v))
 }
 
 // RefundedAtEQ applies the EQ predicate on the "refunded_at" field.
@@ -1733,114 +1648,64 @@ func NoteContainsFold(v string) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldContainsFold(FieldNote, v))
 }
 
-// EstimatedCostPriceEQ applies the EQ predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceEQ(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldEstimatedCostPrice, v))
+// PriceEQ applies the EQ predicate on the "price" field.
+func PriceEQ(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldPrice, v))
 }
 
-// EstimatedCostPriceNEQ applies the NEQ predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceNEQ(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNEQ(FieldEstimatedCostPrice, v))
+// PriceNEQ applies the NEQ predicate on the "price" field.
+func PriceNEQ(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNEQ(FieldPrice, v))
 }
 
-// EstimatedCostPriceIn applies the In predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceIn(vs ...decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIn(FieldEstimatedCostPrice, vs...))
+// PriceIn applies the In predicate on the "price" field.
+func PriceIn(vs ...decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIn(FieldPrice, vs...))
 }
 
-// EstimatedCostPriceNotIn applies the NotIn predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceNotIn(vs ...decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotIn(FieldEstimatedCostPrice, vs...))
+// PriceNotIn applies the NotIn predicate on the "price" field.
+func PriceNotIn(vs ...decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotIn(FieldPrice, vs...))
 }
 
-// EstimatedCostPriceGT applies the GT predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceGT(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGT(FieldEstimatedCostPrice, v))
+// PriceGT applies the GT predicate on the "price" field.
+func PriceGT(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGT(FieldPrice, v))
 }
 
-// EstimatedCostPriceGTE applies the GTE predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceGTE(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGTE(FieldEstimatedCostPrice, v))
+// PriceGTE applies the GTE predicate on the "price" field.
+func PriceGTE(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGTE(FieldPrice, v))
 }
 
-// EstimatedCostPriceLT applies the LT predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceLT(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLT(FieldEstimatedCostPrice, v))
+// PriceLT applies the LT predicate on the "price" field.
+func PriceLT(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLT(FieldPrice, v))
 }
 
-// EstimatedCostPriceLTE applies the LTE predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceLTE(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLTE(FieldEstimatedCostPrice, v))
+// PriceLTE applies the LTE predicate on the "price" field.
+func PriceLTE(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLTE(FieldPrice, v))
 }
 
-// EstimatedCostPriceIsNil applies the IsNil predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldEstimatedCostPrice))
+// PriceIsNil applies the IsNil predicate on the "price" field.
+func PriceIsNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIsNull(FieldPrice))
 }
 
-// EstimatedCostPriceNotNil applies the NotNil predicate on the "estimated_cost_price" field.
-func EstimatedCostPriceNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldEstimatedCostPrice))
+// PriceNotNil applies the NotNil predicate on the "price" field.
+func PriceNotNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotNull(FieldPrice))
 }
 
-// DeliveryCostPriceEQ applies the EQ predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceEQ(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldDeliveryCostPrice, v))
+// GroupsIsNil applies the IsNil predicate on the "groups" field.
+func GroupsIsNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIsNull(FieldGroups))
 }
 
-// DeliveryCostPriceNEQ applies the NEQ predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceNEQ(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNEQ(FieldDeliveryCostPrice, v))
-}
-
-// DeliveryCostPriceIn applies the In predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceIn(vs ...decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIn(FieldDeliveryCostPrice, vs...))
-}
-
-// DeliveryCostPriceNotIn applies the NotIn predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceNotIn(vs ...decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotIn(FieldDeliveryCostPrice, vs...))
-}
-
-// DeliveryCostPriceGT applies the GT predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceGT(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGT(FieldDeliveryCostPrice, v))
-}
-
-// DeliveryCostPriceGTE applies the GTE predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceGTE(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGTE(FieldDeliveryCostPrice, v))
-}
-
-// DeliveryCostPriceLT applies the LT predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceLT(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLT(FieldDeliveryCostPrice, v))
-}
-
-// DeliveryCostPriceLTE applies the LTE predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceLTE(v decimal.Decimal) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLTE(FieldDeliveryCostPrice, v))
-}
-
-// DeliveryCostPriceIsNil applies the IsNil predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldDeliveryCostPrice))
-}
-
-// DeliveryCostPriceNotNil applies the NotNil predicate on the "delivery_cost_price" field.
-func DeliveryCostPriceNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldDeliveryCostPrice))
-}
-
-// SetMealGroupsIsNil applies the IsNil predicate on the "set_meal_groups" field.
-func SetMealGroupsIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldSetMealGroups))
-}
-
-// SetMealGroupsNotNil applies the NotNil predicate on the "set_meal_groups" field.
-func SetMealGroupsNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldSetMealGroups))
+// GroupsNotNil applies the NotNil predicate on the "groups" field.
+func GroupsNotNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotNull(FieldGroups))
 }
 
 // SpecRelationsIsNil applies the IsNil predicate on the "spec_relations" field.

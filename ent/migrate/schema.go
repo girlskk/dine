@@ -661,15 +661,15 @@ var (
 		{Name: "shift_no", Type: field.TypeString, Nullable: true},
 		{Name: "order_no", Type: field.TypeString},
 		{Name: "order_type", Type: field.TypeEnum, Enums: []string{"SALE", "REFUND", "PARTIAL_REFUND"}, Default: "SALE"},
-		{Name: "refund", Type: field.TypeJSON, Nullable: true},
 		{Name: "placed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "paid_at", Type: field.TypeTime, Nullable: true},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "placed_by", Type: field.TypeString, Nullable: true},
+		{Name: "placed_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "placed_by_name", Type: field.TypeString, Nullable: true},
 		{Name: "dining_mode", Type: field.TypeEnum, Enums: []string{"DINE_IN"}, Default: "DINE_IN"},
 		{Name: "order_status", Type: field.TypeEnum, Enums: []string{"PLACED", "COMPLETED", "CANCELLED"}, Default: "PLACED"},
 		{Name: "payment_status", Type: field.TypeEnum, Enums: []string{"UNPAID", "PAYING", "PAID", "REFUNDED"}, Default: "UNPAID"},
-		{Name: "table_id", Type: field.TypeString, Nullable: true},
+		{Name: "table_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "table_name", Type: field.TypeString, Nullable: true},
 		{Name: "guest_count", Type: field.TypeInt, Nullable: true},
 		{Name: "store", Type: field.TypeJSON},
@@ -680,6 +680,7 @@ var (
 		{Name: "fees", Type: field.TypeJSON, Nullable: true},
 		{Name: "payments", Type: field.TypeJSON, Nullable: true},
 		{Name: "amount", Type: field.TypeJSON},
+		{Name: "remark", Type: field.TypeString, Nullable: true, Size: 255},
 	}
 	// OrdersTable holds the schema information for the "orders" table.
 	OrdersTable = &schema.Table{
@@ -736,14 +737,12 @@ var (
 		{Name: "product_name", Type: field.TypeString},
 		{Name: "product_type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
 		{Name: "category_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "menu_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "unit_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "support_types", Type: field.TypeJSON, Nullable: true},
-		{Name: "sale_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"on_sale", "off_sale"}},
-		{Name: "sale_channels", Type: field.TypeJSON, Nullable: true},
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
+		{Name: "is_gift", Type: field.TypeBool, Default: false},
 		{Name: "qty", Type: field.TypeInt, Default: 1},
+		{Name: "gift_qty", Type: field.TypeInt, Default: 0},
 		{Name: "subtotal", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "discount_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "amount_before_tax", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
@@ -755,12 +754,11 @@ var (
 		{Name: "void_qty", Type: field.TypeInt, Default: 0},
 		{Name: "void_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
-		{Name: "refunded_by", Type: field.TypeString, Nullable: true},
+		{Name: "refunded_by", Type: field.TypeUUID, Nullable: true},
 		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
 		{Name: "note", Type: field.TypeString, Nullable: true},
-		{Name: "estimated_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
-		{Name: "delivery_cost_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
-		{Name: "set_meal_groups", Type: field.TypeJSON, Nullable: true},
+		{Name: "price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "groups", Type: field.TypeJSON, Nullable: true},
 		{Name: "spec_relations", Type: field.TypeJSON, Nullable: true},
 		{Name: "attr_relations", Type: field.TypeJSON, Nullable: true},
 		{Name: "order_id", Type: field.TypeUUID},
@@ -773,7 +771,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "order_products_orders_order_products",
-				Columns:    []*schema.Column{OrderProductsColumns[37]},
+				Columns:    []*schema.Column{OrderProductsColumns[34]},
 				RefColumns: []*schema.Column{OrdersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -787,7 +785,7 @@ var (
 			{
 				Name:    "orderproduct_order_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrderProductsColumns[37]},
+				Columns: []*schema.Column{OrderProductsColumns[34]},
 			},
 			{
 				Name:    "orderproduct_product_id",
@@ -797,7 +795,44 @@ var (
 			{
 				Name:    "orderproduct_order_id_order_item_id",
 				Unique:  true,
-				Columns: []*schema.Column{OrderProductsColumns[37], OrderProductsColumns[4]},
+				Columns: []*schema.Column{OrderProductsColumns[34], OrderProductsColumns[4]},
+			},
+		},
+	}
+	// PaymentMethodsColumns holds the columns for the "payment_methods" table.
+	PaymentMethodsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "accounting_rule", Type: field.TypeEnum, Enums: []string{"income", "discount"}, Default: "income"},
+		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"other", "cash", "offline_card", "custom_coupon", "partner_coupon"}, Default: "other"},
+		{Name: "fee_rate", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
+		{Name: "invoice_rule", Type: field.TypeEnum, Nullable: true, Enums: []string{"no_invoice", "actual_amount"}},
+		{Name: "cash_drawer_status", Type: field.TypeBool, Default: false},
+		{Name: "display_channels", Type: field.TypeJSON},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"brand", "store", "system"}, Default: "brand"},
+		{Name: "store_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "status", Type: field.TypeBool, Default: false},
+	}
+	// PaymentMethodsTable holds the schema information for the "payment_methods" table.
+	PaymentMethodsTable = &schema.Table{
+		Name:       "payment_methods",
+		Columns:    PaymentMethodsColumns,
+		PrimaryKey: []*schema.Column{PaymentMethodsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "paymentmethod_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentMethodsColumns[3]},
+			},
+			{
+				Name:    "paymentmethod_merchant_id_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentMethodsColumns[4], PaymentMethodsColumns[5]},
 			},
 		},
 	}
@@ -1784,6 +1819,7 @@ var (
 		MerchantRenewalsTable,
 		OrdersTable,
 		OrderProductsTable,
+		PaymentMethodsTable,
 		ProductsTable,
 		ProductAttrsTable,
 		ProductAttrItemsTable,

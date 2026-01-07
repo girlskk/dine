@@ -1,5 +1,56 @@
 basePath: /api/v1
 definitions:
+  domain.Category:
+    properties:
+      children:
+        description: '@TODO 关联信息'
+        items:
+          $ref: '#/definitions/domain.Category'
+        type: array
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 分类ID
+        type: string
+      inherit_stall:
+        description: 是否继承父分类的出品部门ID
+        type: boolean
+      inherit_tax_rate:
+        description: 是否继承父分类的税率ID
+        type: boolean
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 分类名称
+        type: string
+      parent:
+        allOf:
+        - $ref: '#/definitions/domain.Category'
+        description: 父分类
+      parent_id:
+        description: 父分类ID
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      sort_order:
+        description: 排序，值越小越靠前
+        type: integer
+      stall_id:
+        description: 出品部门ID
+        type: string
+      store_id:
+        description: 门店ID
+        type: string
+      tax_rate_id:
+        description: 税率ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
   domain.Channel:
     enum:
     - POS
@@ -16,6 +67,28 @@ definitions:
       DiningModeDineIn: 堂食
     x-enum-varnames:
     - DiningModeDineIn
+  domain.EffectiveDateType:
+    enum:
+    - daily
+    - custom
+    type: string
+    x-enum-comments:
+      EffectiveDateTypeCustom: 自定义
+      EffectiveDateTypeDaily: 按天
+    x-enum-varnames:
+    - EffectiveDateTypeDaily
+    - EffectiveDateTypeCustom
+  domain.FeeType:
+    enum:
+    - SERVICE
+    - PACKAGING
+    type: string
+    x-enum-comments:
+      FeeTypePackaging: 打包费
+      FeeTypeService: 服务费
+    x-enum-varnames:
+    - FeeTypeService
+    - FeeTypePackaging
   domain.Order:
     properties:
       amount:
@@ -87,7 +160,10 @@ definitions:
         description: 下单时间
         type: string
       placed_by:
-        description: 下单人
+        description: 下单人ID
+        type: string
+      placed_by_name:
+        description: 下单人名称
         type: string
       pos:
         allOf:
@@ -147,6 +223,9 @@ definitions:
       items_subtotal:
         description: 商品小计
         type: number
+      overpay_amount:
+        description: 溢收
+        type: number
       rounding_amount:
         description: 舍入/抹零
         type: number
@@ -178,21 +257,19 @@ definitions:
         description: 费用名称
         type: string
       fee_type:
-        description: 费用类型（TIP/PACKAGING/SURCHARGE/OTHER 等）
-        type: string
+        allOf:
+        - $ref: '#/definitions/domain.FeeType'
+        description: 费用类型
       meta:
         description: 扩展信息
     type: object
   domain.OrderPOS:
     properties:
-      device_id:
-        description: 设备ID
+      id:
+        description: POS 设备id
         type: string
-      pos_code:
-        description: POS 编码
-        type: string
-      pos_id:
-        description: POS ID
+      name:
+        description: POS 设备名称
         type: string
     type: object
   domain.OrderPayment:
@@ -208,15 +285,23 @@ definitions:
         description: 支付金额
         type: number
       payment_method:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentMethod'
         description: 支付方式
-        type: string
       payment_no:
         description: 支付号（第三方/外部交易号）
         type: string
+      payment_status:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentStatus'
+        description: 支付状态
       pos:
         allOf:
         - $ref: '#/definitions/domain.OrderPOS'
         description: POS 终端信息
+      refund_amount:
+        description: 退款金额
+        type: number
     type: object
   domain.OrderProduct:
     properties:
@@ -229,35 +314,37 @@ definitions:
       attr_relations:
         description: 口味做法信息
         items:
-          type: integer
+          $ref: '#/definitions/domain.ProductAttrRelation'
         type: array
       category_id:
         description: 分类ID
         type: string
       created_at:
         type: string
-      delivery_cost_price:
-        description: 外卖成本价
-        type: number
       description:
         description: 菜品描述
         type: string
       discount_amount:
         description: 优惠金额
         type: number
-      estimated_cost_price:
+      gift_qty:
+        description: 赠送数量
+        type: integer
+      groups:
         description: 套餐信息（仅套餐商品使用）
-        type: number
+        items:
+          $ref: '#/definitions/domain.SetMealGroup'
+        type: array
       id:
         type: string
       index:
         description: 下单序号（同订单内第几次下单）
         type: integer
+      is_gift:
+        description: 是否赠送
+        type: boolean
       main_image:
         description: 商品主图
-        type: string
-      menu_id:
-        description: 菜单ID
         type: string
       note:
         description: 其他信息
@@ -268,6 +355,9 @@ definitions:
       order_item_id:
         description: 订单内明细ID
         type: string
+      price:
+        description: 数量与金额
+        type: number
       product_id:
         description: 商品基础信息
         type: string
@@ -282,7 +372,7 @@ definitions:
         description: 促销信息
         type: number
       qty:
-        description: 数量与金额
+        description: 数量
         type: integer
       refund_reason:
         description: 退菜原因
@@ -293,33 +383,14 @@ definitions:
       refunded_by:
         description: 退菜操作人
         type: string
-      sale_channels:
-        description: 售卖渠道
-        items:
-          $ref: '#/definitions/domain.SaleChannel'
-        type: array
-      sale_status:
-        allOf:
-        - $ref: '#/definitions/domain.ProductSaleStatus'
-        description: 售卖状态
-      set_meal_groups:
-        description: 套餐组信息
-        items:
-          type: integer
-        type: array
       spec_relations:
         description: 规格信息
         items:
-          type: integer
+          $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
       subtotal:
         description: 小计
         type: number
-      support_types:
-        description: 支持类型（堂食、外带、外卖）
-        items:
-          $ref: '#/definitions/domain.ProductSupportType'
-        type: array
       tax:
         description: 税额
         type: number
@@ -421,6 +492,41 @@ definitions:
     - OrderTypeSale
     - OrderTypeRefund
     - OrderTypePartialRefund
+  domain.PackingFee:
+    properties:
+      id:
+        description: 打包费ID
+        type: string
+      name:
+        description: 打包费名称
+        type: string
+      price:
+        description: 打包费价格
+        type: number
+    type: object
+  domain.PaymentMethod:
+    enum:
+    - CASH
+    - ONLINE_PAYMENT
+    - MEMBER_CARD
+    - CUSTOM_COUPON
+    - PARTNER_COUPON
+    - BANK_CARD
+    type: string
+    x-enum-comments:
+      PaymentMethodBankCard: 银行卡
+      PaymentMethodCash: 现金
+      PaymentMethodCustomCoupon: 自定义券
+      PaymentMethodMemberCard: 会员卡
+      PaymentMethodOnlinePayment: 在线支付
+      PaymentMethodPartnerCoupon: 三方合作券
+    x-enum-varnames:
+    - PaymentMethodCash
+    - PaymentMethodOnlinePayment
+    - PaymentMethodMemberCard
+    - PaymentMethodCustomCoupon
+    - PaymentMethodPartnerCoupon
+    - PaymentMethodBankCard
   domain.PaymentStatus:
     enum:
     - UNPAID
@@ -438,6 +544,225 @@ definitions:
     - PaymentStatusPaying
     - PaymentStatusPaid
     - PaymentStatusRefunded
+  domain.Product:
+    properties:
+      add_sale_quantity:
+        description: 加售份数
+        type: integer
+      attr_relations:
+        description: 商品口味做法关联列表
+        items:
+          $ref: '#/definitions/domain.ProductAttrRelation'
+        type: array
+      category:
+        allOf:
+        - $ref: '#/definitions/domain.Category'
+        description: 分类
+      category_id:
+        description: 基础信息
+        type: string
+      created_at:
+        description: 时间戳
+        type: string
+      delivery_cost_price:
+        description: 外卖成本价（可选，单位：分，仅套餐商品使用）
+        type: number
+      description:
+        description: 菜品描述
+        type: string
+      detail_images:
+        description: 详情图片
+        items:
+          type: string
+        type: array
+      effective_date_type:
+        allOf:
+        - $ref: '#/definitions/domain.EffectiveDateType'
+        description: 生效日期类型
+      effective_end_time:
+        description: 生效结束时间
+        type: string
+      effective_start_time:
+        description: 生效开始时间
+        type: string
+      estimated_cost_price:
+        description: 套餐属性（仅套餐商品使用）
+        type: number
+      groups:
+        allOf:
+        - $ref: '#/definitions/domain.SetMealGroups'
+        description: 套餐组列表
+      id:
+        description: 商品ID
+        type: string
+      inherit_stall:
+        description: 是否继承原出品部门
+        type: boolean
+      inherit_tax_rate:
+        description: 其他信息
+        type: boolean
+      main_image:
+        description: 展示信息
+        type: string
+      menu_id:
+        description: 菜单ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      min_sale_quantity:
+        description: 起售份数
+        type: integer
+      mnemonic:
+        description: 助记词
+        type: string
+      name:
+        description: 商品名称
+        type: string
+      sale_channels:
+        description: 售卖渠道
+        items:
+          $ref: '#/definitions/domain.SaleChannel'
+        type: array
+      sale_status:
+        allOf:
+        - $ref: '#/definitions/domain.ProductSaleStatus'
+        description: 售卖信息
+      shelf_life:
+        description: 保质期（单位：天）
+        type: integer
+      spec_relations:
+        description: 关联信息
+        items:
+          $ref: '#/definitions/domain.ProductSpecRelation'
+        type: array
+      stall_id:
+        description: 指定出品部门ID
+        type: string
+      store_id:
+        description: 门店ID
+        type: string
+      support_types:
+        description: 支持类型（堂食、外带）
+        items:
+          $ref: '#/definitions/domain.ProductSupportType'
+        type: array
+      tags:
+        description: 商品标签列表
+        items:
+          $ref: '#/definitions/domain.ProductTag'
+        type: array
+      tax_rate_id:
+        description: 指定税率ID
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductType'
+        description: 商品类型
+      unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 单位
+      unit_id:
+        description: 属性关联
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductAttr:
+    properties:
+      channels:
+        description: 售卖渠道列表
+        items:
+          $ref: '#/definitions/domain.SaleChannel'
+        type: array
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 口味做法ID
+        type: string
+      items:
+        description: 关联信息
+        items:
+          $ref: '#/definitions/domain.ProductAttrItem'
+        type: array
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 口味做法名称
+        type: string
+      product_count:
+        description: 关联的商品数量（所有项的关联商品数量累加）
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductAttrItem:
+    properties:
+      attr_id:
+        description: 口味做法ID（外键）
+        type: string
+      base_price:
+        description: 基础加价（单位：分）
+        type: number
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 口味做法项ID
+        type: string
+      image:
+        description: 图片URL（可选）
+        type: string
+      name:
+        description: 口味做法项名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductAttrRelation:
+    properties:
+      attr:
+        allOf:
+        - $ref: '#/definitions/domain.ProductAttr'
+        description: 关联信息
+      attr_id:
+        description: 口味做法ID
+        type: string
+      attr_item:
+        allOf:
+        - $ref: '#/definitions/domain.ProductAttrItem'
+        description: 口味做法项
+      attr_item_id:
+        description: 口味做法项ID
+        type: string
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 关联ID
+        type: string
+      is_default:
+        description: 是否默认项
+        type: boolean
+      product_id:
+        description: 商品ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
   domain.ProductSaleStatus:
     enum:
     - on_sale
@@ -449,6 +774,58 @@ definitions:
     x-enum-varnames:
     - ProductSaleStatusOnSale
     - ProductSaleStatusOffSale
+  domain.ProductSpecRelation:
+    properties:
+      barcode:
+        description: 条形码
+        type: string
+      base_price:
+        description: 基础价格（单位：分）
+        type: number
+      created_at:
+        description: 创建时间
+        type: string
+      estimated_cost_price:
+        description: 预估成本价（单位：分，可选）
+        type: number
+      id:
+        description: 关联ID
+        type: string
+      is_default:
+        description: 是否默认项
+        type: boolean
+      member_price:
+        description: 会员价（单位：分，可选）
+        type: number
+      other_price1:
+        description: 其他价格1（单位：分，可选）
+        type: number
+      other_price2:
+        description: 其他价格2（单位：分，可选）
+        type: number
+      other_price3:
+        description: 其他价格3（单位：分，可选）
+        type: number
+      packing_fee:
+        allOf:
+        - $ref: '#/definitions/domain.PackingFee'
+        description: 打包费
+      packing_fee_id:
+        description: 打包费ID（引用费用配置）
+        type: string
+      product_id:
+        description: 商品ID
+        type: string
+      spec_id:
+        description: 规格ID
+        type: string
+      spec_name:
+        description: 关联信息
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
   domain.ProductSupportType:
     enum:
     - dine
@@ -463,6 +840,30 @@ definitions:
     - ProductSupportTypeDine
     - ProductSupportTypeTakeaway
     - ProductSupportTypeDelivery
+  domain.ProductTag:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 标签ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 标签名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
   domain.ProductType:
     enum:
     - normal
@@ -474,6 +875,45 @@ definitions:
     x-enum-varnames:
     - ProductTypeNormal
     - ProductTypeSetMeal
+  domain.ProductUnit:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 单位ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 单位名称
+        type: string
+      product_count:
+        description: 关联的商品数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnitType'
+        description: 单位类型：quantity（数量单位）、weight（重量单位）
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProductUnitType:
+    enum:
+    - quantity
+    - weight
+    type: string
+    x-enum-comments:
+      ProductUnitTypeQuantity: 数量单位
+      ProductUnitTypeWeight: 重量单位
+    x-enum-varnames:
+    - ProductUnitTypeQuantity
+    - ProductUnitTypeWeight
   domain.SaleChannel:
     enum:
     - POS
@@ -481,19 +921,114 @@ definitions:
     - Scan
     - SelfService
     - ThirdParty
+    - POS
+    - Mobile
+    - Scan
+    - SelfService
+    - ThirdParty
     type: string
     x-enum-comments:
+      PaymentMethodDisplayChannelMobileOrdering: 移动点餐
+      PaymentMethodDisplayChannelPOS: POS
+      PaymentMethodDisplayChannelScanOrdering: 扫码点餐
+      PaymentMethodDisplayChannelSelfService: 自助点餐
+      PaymentMethodDisplayChannelThirdPartyDelivery: 三方外卖
       SaleChannelMobileOrdering: 移动点餐
       SaleChannelPOS: POS
       SaleChannelScanOrdering: 扫码点餐
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
+    - PaymentMethodDisplayChannelPOS
+    - PaymentMethodDisplayChannelMobileOrdering
+    - PaymentMethodDisplayChannelScanOrdering
+    - PaymentMethodDisplayChannelSelfService
+    - PaymentMethodDisplayChannelThirdPartyDelivery
     - SaleChannelPOS
     - SaleChannelMobileOrdering
     - SaleChannelScanOrdering
     - SaleChannelSelfService
     - SaleChannelThirdPartyDelivery
+  domain.SetMealDetail:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      group_id:
+        description: 套餐组ID（外键）
+        type: string
+      id:
+        description: 详情ID
+        type: string
+      is_default:
+        description: 是否默认（必选，每个套餐组中只能有一个默认项）
+        type: boolean
+      optional_product_ids:
+        description: 备选商品ID列表（可选，多选）
+        items:
+          type: string
+        type: array
+      optional_products:
+        description: 备选商品
+        items:
+          $ref: '#/definitions/domain.Product'
+        type: array
+      product:
+        allOf:
+        - $ref: '#/definitions/domain.Product'
+        description: 关联信息
+      product_id:
+        description: 商品ID（外键，引用普通商品）
+        type: string
+      quantity:
+        description: 数量（必选，必须为正整数）
+        type: integer
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.SetMealGroup:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      details:
+        description: 关联信息
+        items:
+          $ref: '#/definitions/domain.SetMealDetail'
+        type: array
+      id:
+        description: 套餐组ID
+        type: string
+      name:
+        description: 套餐组名称
+        type: string
+      product_id:
+        description: 套餐商品ID（外键）
+        type: string
+      selection_type:
+        allOf:
+        - $ref: '#/definitions/domain.SetMealGroupSelectionType'
+        description: 点单限制：fixed（固定分组）、optional（可选套餐）
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.SetMealGroupSelectionType:
+    enum:
+    - fixed
+    - optional
+    type: string
+    x-enum-comments:
+      SetMealGroupSelectionTypeFixed: 固定分组
+      SetMealGroupSelectionTypeOptional: 可选套餐
+    x-enum-varnames:
+    - SetMealGroupSelectionTypeFixed
+    - SetMealGroupSelectionTypeOptional
+  domain.SetMealGroups:
+    items:
+      $ref: '#/definitions/domain.SetMealGroup'
+    type: array
   types.CreateOrderReq:
     properties:
       amount:
@@ -525,9 +1060,6 @@ definitions:
       guest_count:
         description: 用餐人数
         type: integer
-      merchant_id:
-        description: 品牌商ID
-        type: string
       order_no:
         description: 订单号
         type: string
@@ -584,9 +1116,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.OrderStore'
         description: 门店信息
-      store_id:
-        description: 门店ID
-        type: string
       table_id:
         description: 桌位ID
         type: string
@@ -601,8 +1130,6 @@ definitions:
     required:
     - business_date
     - dining_mode
-    - merchant_id
-    - store_id
     type: object
   types.ListOrderResp:
     properties:
@@ -741,16 +1268,6 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 品牌商ID
-        in: query
-        name: merchant_id
-        required: true
-        type: string
-      - description: 门店ID
-        in: query
-        name: store_id
-        required: true
-        type: string
       - description: 营业日
         in: query
         name: business_date

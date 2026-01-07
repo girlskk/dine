@@ -65,7 +65,7 @@ func (mr *MockRemarkCategoryInteractorMockRecorder) Delete(arg0, arg1 interface{
 }
 
 // GetRemarkCategories mocks base method.
-func (m *MockRemarkCategoryInteractor) GetRemarkCategories(arg0 context.Context, arg1 domain.RemarkCategoryListFilter) (domain.RemarkCategories, error) {
+func (m *MockRemarkCategoryInteractor) GetRemarkCategories(arg0 context.Context, arg1 *domain.RemarkCategoryListFilter) (domain.RemarkCategories, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRemarkCategories", arg0, arg1)
 	ret0, _ := ret[0].(domain.RemarkCategories)

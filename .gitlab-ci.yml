@@ -3,11 +3,6 @@ variables:
   REGISTRY_DOMAIN: "harbor.jiguang.dev"
   REGISTRY_NAMESPACE: "pos_dine_api"
 
-# 缓存
-cache:
-  paths:
-    - pkg/mod/
-
 # 阶段
 stages:
   - build
