@@ -93,3 +93,17 @@ func (mr *MockPaymentAccountInteractorMockRecorder) Update(arg0, arg1, arg2 inte
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPaymentAccountInteractor)(nil).Update), arg0, arg1, arg2)
 }
+
+// UpdateDefaultStatus mocks base method.
+func (m *MockPaymentAccountInteractor) UpdateDefaultStatus(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDefaultStatus", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDefaultStatus indicates an expected call of UpdateDefaultStatus.
+func (mr *MockPaymentAccountInteractorMockRecorder) UpdateDefaultStatus(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDefaultStatus", reflect.TypeOf((*MockPaymentAccountInteractor)(nil).UpdateDefaultStatus), arg0, arg1, arg2)
+}

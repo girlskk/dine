@@ -1090,6 +1090,33 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment/account/{id}/default": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "更新收款账户默认状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/payment/method": {
             "get": {
                 "security": [
@@ -6196,6 +6223,10 @@ const docTemplate = `{
                     "description": "收款账户ID",
                     "type": "string"
                 },
+                "is_default": {
+                    "description": "是否默认",
+                    "type": "boolean"
+                },
                 "merchant_id": {
                     "description": "品牌商ID",
                     "type": "string"
@@ -8121,23 +8152,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",

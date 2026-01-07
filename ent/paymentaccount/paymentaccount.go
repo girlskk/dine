@@ -31,6 +31,8 @@ const (
 	FieldMerchantNumber = "merchant_number"
 	// FieldMerchantName holds the string denoting the merchant_name field in the database.
 	FieldMerchantName = "merchant_name"
+	// FieldIsDefault holds the string denoting the is_default field in the database.
+	FieldIsDefault = "is_default"
 	// Table holds the table name of the paymentaccount in the database.
 	Table = "payment_accounts"
 )
@@ -45,6 +47,7 @@ var Columns = []string{
 	FieldChannel,
 	FieldMerchantNumber,
 	FieldMerchantName,
+	FieldIsDefault,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -77,6 +80,8 @@ var (
 	MerchantNumberValidator func(string) error
 	// MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
 	MerchantNameValidator func(string) error
+	// DefaultIsDefault holds the default value on creation for the "is_default" field.
+	DefaultIsDefault bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -132,4 +137,9 @@ func ByMerchantNumber(opts ...sql.OrderTermOption) OrderOption {
 // ByMerchantName orders the results by the merchant_name field.
 func ByMerchantName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMerchantName, opts...).ToFunc()
+}
+
+// ByIsDefault orders the results by the is_default field.
+func ByIsDefault(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsDefault, opts...).ToFunc()
 }

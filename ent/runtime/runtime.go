@@ -1073,6 +1073,10 @@ func init() {
 			return nil
 		}
 	}()
+	// paymentaccountDescIsDefault is the schema descriptor for is_default field.
+	paymentaccountDescIsDefault := paymentaccountFields[4].Descriptor()
+	// paymentaccount.DefaultIsDefault holds the default value on creation for the is_default field.
+	paymentaccount.DefaultIsDefault = paymentaccountDescIsDefault.Default.(bool)
 	// paymentaccountDescID is the schema descriptor for id field.
 	paymentaccountDescID := paymentaccountMixinFields0[0].Descriptor()
 	// paymentaccount.DefaultID holds the default value on creation for the id field.

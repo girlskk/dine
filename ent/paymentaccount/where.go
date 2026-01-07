@@ -86,6 +86,11 @@ func MerchantName(v string) predicate.PaymentAccount {
 	return predicate.PaymentAccount(sql.FieldEQ(FieldMerchantName, v))
 }
 
+// IsDefault applies equality check predicate on the "is_default" field. It's identical to IsDefaultEQ.
+func IsDefault(v bool) predicate.PaymentAccount {
+	return predicate.PaymentAccount(sql.FieldEQ(FieldIsDefault, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.PaymentAccount {
 	return predicate.PaymentAccount(sql.FieldEQ(FieldCreatedAt, v))
@@ -404,6 +409,16 @@ func MerchantNameEqualFold(v string) predicate.PaymentAccount {
 // MerchantNameContainsFold applies the ContainsFold predicate on the "merchant_name" field.
 func MerchantNameContainsFold(v string) predicate.PaymentAccount {
 	return predicate.PaymentAccount(sql.FieldContainsFold(FieldMerchantName, v))
+}
+
+// IsDefaultEQ applies the EQ predicate on the "is_default" field.
+func IsDefaultEQ(v bool) predicate.PaymentAccount {
+	return predicate.PaymentAccount(sql.FieldEQ(FieldIsDefault, v))
+}
+
+// IsDefaultNEQ applies the NEQ predicate on the "is_default" field.
+func IsDefaultNEQ(v bool) predicate.PaymentAccount {
+	return predicate.PaymentAccount(sql.FieldNEQ(FieldIsDefault, v))
 }
 
 // And groups predicates with the AND operator between them.

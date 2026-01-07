@@ -34,6 +34,8 @@ type PaymentAccount struct {
 	MerchantNumber string `json:"merchant_number,omitempty"`
 	// 支付商户名称
 	MerchantName string `json:"merchant_name,omitempty"`
+	// 是否默认
+	IsDefault    bool `json:"is_default,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -42,6 +44,8 @@ func (*PaymentAccount) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case paymentaccount.FieldIsDefault:
+			values[i] = new(sql.NullBool)
 		case paymentaccount.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case paymentaccount.FieldChannel, paymentaccount.FieldMerchantNumber, paymentaccount.FieldMerchantName:
@@ -113,6 +117,12 @@ func (pa *PaymentAccount) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pa.MerchantName = value.String
 			}
+		case paymentaccount.FieldIsDefault:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_default", values[i])
+			} else if value.Valid {
+				pa.IsDefault = value.Bool
+			}
 		default:
 			pa.selectValues.Set(columns[i], values[i])
 		}
@@ -169,6 +179,9 @@ func (pa *PaymentAccount) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("merchant_name=")
 	builder.WriteString(pa.MerchantName)
+	builder.WriteString(", ")
+	builder.WriteString("is_default=")
+	builder.WriteString(fmt.Sprintf("%v", pa.IsDefault))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -91,6 +91,20 @@ func (pac *PaymentAccountCreate) SetMerchantName(s string) *PaymentAccountCreate
 	return pac
 }
 
+// SetIsDefault sets the "is_default" field.
+func (pac *PaymentAccountCreate) SetIsDefault(b bool) *PaymentAccountCreate {
+	pac.mutation.SetIsDefault(b)
+	return pac
+}
+
+// SetNillableIsDefault sets the "is_default" field if the given value is not nil.
+func (pac *PaymentAccountCreate) SetNillableIsDefault(b *bool) *PaymentAccountCreate {
+	if b != nil {
+		pac.SetIsDefault(*b)
+	}
+	return pac
+}
+
 // SetID sets the "id" field.
 func (pac *PaymentAccountCreate) SetID(u uuid.UUID) *PaymentAccountCreate {
 	pac.mutation.SetID(u)
@@ -160,6 +174,10 @@ func (pac *PaymentAccountCreate) defaults() error {
 		v := paymentaccount.DefaultDeletedAt
 		pac.mutation.SetDeletedAt(v)
 	}
+	if _, ok := pac.mutation.IsDefault(); !ok {
+		v := paymentaccount.DefaultIsDefault
+		pac.mutation.SetIsDefault(v)
+	}
 	if _, ok := pac.mutation.ID(); !ok {
 		if paymentaccount.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized paymentaccount.DefaultID (forgotten import ent/runtime?)")
@@ -207,6 +225,9 @@ func (pac *PaymentAccountCreate) check() error {
 		if err := paymentaccount.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "PaymentAccount.merchant_name": %w`, err)}
 		}
+	}
+	if _, ok := pac.mutation.IsDefault(); !ok {
+		return &ValidationError{Name: "is_default", err: errors.New(`ent: missing required field "PaymentAccount.is_default"`)}
 	}
 	return nil
 }
@@ -271,6 +292,10 @@ func (pac *PaymentAccountCreate) createSpec() (*PaymentAccount, *sqlgraph.Create
 	if value, ok := pac.mutation.MerchantName(); ok {
 		_spec.SetField(paymentaccount.FieldMerchantName, field.TypeString, value)
 		_node.MerchantName = value
+	}
+	if value, ok := pac.mutation.IsDefault(); ok {
+		_spec.SetField(paymentaccount.FieldIsDefault, field.TypeBool, value)
+		_node.IsDefault = value
 	}
 	return _node, _spec
 }
@@ -387,6 +412,18 @@ func (u *PaymentAccountUpsert) SetMerchantName(v string) *PaymentAccountUpsert {
 // UpdateMerchantName sets the "merchant_name" field to the value that was provided on create.
 func (u *PaymentAccountUpsert) UpdateMerchantName() *PaymentAccountUpsert {
 	u.SetExcluded(paymentaccount.FieldMerchantName)
+	return u
+}
+
+// SetIsDefault sets the "is_default" field.
+func (u *PaymentAccountUpsert) SetIsDefault(v bool) *PaymentAccountUpsert {
+	u.Set(paymentaccount.FieldIsDefault, v)
+	return u
+}
+
+// UpdateIsDefault sets the "is_default" field to the value that was provided on create.
+func (u *PaymentAccountUpsert) UpdateIsDefault() *PaymentAccountUpsert {
+	u.SetExcluded(paymentaccount.FieldIsDefault)
 	return u
 }
 
@@ -518,6 +555,20 @@ func (u *PaymentAccountUpsertOne) SetMerchantName(v string) *PaymentAccountUpser
 func (u *PaymentAccountUpsertOne) UpdateMerchantName() *PaymentAccountUpsertOne {
 	return u.Update(func(s *PaymentAccountUpsert) {
 		s.UpdateMerchantName()
+	})
+}
+
+// SetIsDefault sets the "is_default" field.
+func (u *PaymentAccountUpsertOne) SetIsDefault(v bool) *PaymentAccountUpsertOne {
+	return u.Update(func(s *PaymentAccountUpsert) {
+		s.SetIsDefault(v)
+	})
+}
+
+// UpdateIsDefault sets the "is_default" field to the value that was provided on create.
+func (u *PaymentAccountUpsertOne) UpdateIsDefault() *PaymentAccountUpsertOne {
+	return u.Update(func(s *PaymentAccountUpsert) {
+		s.UpdateIsDefault()
 	})
 }
 
@@ -816,6 +867,20 @@ func (u *PaymentAccountUpsertBulk) SetMerchantName(v string) *PaymentAccountUpse
 func (u *PaymentAccountUpsertBulk) UpdateMerchantName() *PaymentAccountUpsertBulk {
 	return u.Update(func(s *PaymentAccountUpsert) {
 		s.UpdateMerchantName()
+	})
+}
+
+// SetIsDefault sets the "is_default" field.
+func (u *PaymentAccountUpsertBulk) SetIsDefault(v bool) *PaymentAccountUpsertBulk {
+	return u.Update(func(s *PaymentAccountUpsert) {
+		s.SetIsDefault(v)
+	})
+}
+
+// UpdateIsDefault sets the "is_default" field to the value that was provided on create.
+func (u *PaymentAccountUpsertBulk) UpdateIsDefault() *PaymentAccountUpsertBulk {
+	return u.Update(func(s *PaymentAccountUpsert) {
+		s.UpdateIsDefault()
 	})
 }
 

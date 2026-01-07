@@ -15,7 +15,7 @@ import (
 
 var (
 	ErrPaymentAccountNotExists           = errors.New("收款账户不存在")
-	ErrPaymentAccountMerchantNumberExist = errors.New("支付商户号已存在")
+	ErrPaymentAccountMerchantNumberExist = errors.New("支付商户号在当前品牌商+渠道下已存在")
 	ErrPaymentAccountHasStoreAccounts    = errors.New("收款账户下有绑定门店收款账户，不可删除")
 )
 
@@ -47,6 +47,8 @@ type PaymentAccountRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*PaymentAccount, error)
 	Create(ctx context.Context, account *PaymentAccount) error
 	Update(ctx context.Context, account *PaymentAccount) error
+	UpdateAllDefaultStatus(ctx context.Context, merchantID uuid.UUID, isDefault bool) error
+	FindForUpdateByMerchantID(ctx context.Context, merchantID uuid.UUID) (PaymentAccounts, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params PaymentAccountExistsParams) (bool, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params PaymentAccountSearchParams) (*PaymentAccountSearchRes, error)
@@ -63,6 +65,7 @@ type PaymentAccountRepository interface {
 type PaymentAccountInteractor interface {
 	Create(ctx context.Context, account *PaymentAccount) error
 	Update(ctx context.Context, account *PaymentAccount, user User) error
+	UpdateDefaultStatus(ctx context.Context, id uuid.UUID, user User) error
 	Delete(ctx context.Context, id uuid.UUID, user User) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params PaymentAccountSearchParams) (*PaymentAccountSearchRes, error)
 }
@@ -78,6 +81,7 @@ type PaymentAccount struct {
 	Channel        PaymentChannel `json:"channel"`         // 支付渠道
 	MerchantNumber string         `json:"merchant_number"` // 支付商户号
 	MerchantName   string         `json:"merchant_name"`   // 支付商户名称
+	IsDefault      bool           `json:"is_default"`      // 是否默认
 	CreatedAt      time.Time      `json:"created_at"`      // 创建时间
 	UpdatedAt      time.Time      `json:"updated_at"`      // 更新时间
 }
@@ -91,9 +95,9 @@ type PaymentAccounts []*PaymentAccount
 
 // PaymentAccountExistsParams 存在性检查参数
 type PaymentAccountExistsParams struct {
-	MerchantID     uuid.UUID // 品牌商ID
-	MerchantNumber string    // 支付商户号
-	ExcludeID      uuid.UUID // 排除的ID（用于更新时检查唯一性）
+	MerchantID uuid.UUID      // 品牌商ID
+	Channel    PaymentChannel // 支付渠道
+	ExcludeID  uuid.UUID      // 排除的ID（用于更新时检查唯一性）
 }
 
 // PaymentAccountSearchParams 查询参数

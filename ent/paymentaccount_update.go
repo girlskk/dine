@@ -99,6 +99,20 @@ func (pau *PaymentAccountUpdate) SetNillableMerchantName(s *string) *PaymentAcco
 	return pau
 }
 
+// SetIsDefault sets the "is_default" field.
+func (pau *PaymentAccountUpdate) SetIsDefault(b bool) *PaymentAccountUpdate {
+	pau.mutation.SetIsDefault(b)
+	return pau
+}
+
+// SetNillableIsDefault sets the "is_default" field if the given value is not nil.
+func (pau *PaymentAccountUpdate) SetNillableIsDefault(b *bool) *PaymentAccountUpdate {
+	if b != nil {
+		pau.SetIsDefault(*b)
+	}
+	return pau
+}
+
 // Mutation returns the PaymentAccountMutation object of the builder.
 func (pau *PaymentAccountUpdate) Mutation() *PaymentAccountMutation {
 	return pau.mutation
@@ -202,6 +216,9 @@ func (pau *PaymentAccountUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := pau.mutation.MerchantName(); ok {
 		_spec.SetField(paymentaccount.FieldMerchantName, field.TypeString, value)
 	}
+	if value, ok := pau.mutation.IsDefault(); ok {
+		_spec.SetField(paymentaccount.FieldIsDefault, field.TypeBool, value)
+	}
 	_spec.AddModifiers(pau.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, pau.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -289,6 +306,20 @@ func (pauo *PaymentAccountUpdateOne) SetMerchantName(s string) *PaymentAccountUp
 func (pauo *PaymentAccountUpdateOne) SetNillableMerchantName(s *string) *PaymentAccountUpdateOne {
 	if s != nil {
 		pauo.SetMerchantName(*s)
+	}
+	return pauo
+}
+
+// SetIsDefault sets the "is_default" field.
+func (pauo *PaymentAccountUpdateOne) SetIsDefault(b bool) *PaymentAccountUpdateOne {
+	pauo.mutation.SetIsDefault(b)
+	return pauo
+}
+
+// SetNillableIsDefault sets the "is_default" field if the given value is not nil.
+func (pauo *PaymentAccountUpdateOne) SetNillableIsDefault(b *bool) *PaymentAccountUpdateOne {
+	if b != nil {
+		pauo.SetIsDefault(*b)
 	}
 	return pauo
 }
@@ -425,6 +456,9 @@ func (pauo *PaymentAccountUpdateOne) sqlSave(ctx context.Context) (_node *Paymen
 	}
 	if value, ok := pauo.mutation.MerchantName(); ok {
 		_spec.SetField(paymentaccount.FieldMerchantName, field.TypeString, value)
+	}
+	if value, ok := pauo.mutation.IsDefault(); ok {
+		_spec.SetField(paymentaccount.FieldIsDefault, field.TypeBool, value)
 	}
 	_spec.AddModifiers(pauo.modifiers...)
 	_node = &PaymentAccount{config: pauo.config}

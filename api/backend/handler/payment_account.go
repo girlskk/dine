@@ -32,6 +32,7 @@ func (h *PaymentAccountHandler) Routes(r gin.IRouter) {
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("", h.List())
+	r.PUT("/:id/default", h.UpdateDefault())
 }
 
 func (h *PaymentAccountHandler) NoAuths() []string {
@@ -67,6 +68,7 @@ func (h *PaymentAccountHandler) Create() gin.HandlerFunc {
 			Channel:        req.Channel,
 			MerchantNumber: req.MerchantNumber,
 			MerchantName:   req.MerchantName,
+			IsDefault:      false,
 		}
 
 		err := h.PaymentAccountInteractor.Create(ctx, account)
@@ -239,5 +241,44 @@ func (h *PaymentAccountHandler) List() gin.HandlerFunc {
 		}
 
 		response.Ok(c, res)
+	}
+}
+
+// UpdateDefault
+//
+//	@Tags		收款账户
+//	@Security	BearerAuth
+//	@Summary	更新收款账户默认状态
+//	@Param		id	path	string	true	"收款账户ID"
+//	@Success	200
+//	@Router		/payment/account/{id}/default [put]
+func (h *PaymentAccountHandler) UpdateDefault() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("PaymentAccountHandler.Update")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		idStr := c.Param("id")
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("invalid payment account id: %w", err)))
+			return
+		}
+
+		user := domain.FromBackendUserContext(ctx)
+
+		err = h.PaymentAccountInteractor.UpdateDefaultStatus(ctx, id, user)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to update payment account: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
 	}
 }

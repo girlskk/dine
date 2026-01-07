@@ -31,6 +31,7 @@ func (PaymentAccount) Fields() []ent.Field {
 			Comment("支付渠道：rm"),
 		field.String("merchant_number").MaxLen(255).NotEmpty().Comment("支付商户号"),
 		field.String("merchant_name").MaxLen(255).NotEmpty().Comment("支付商户名称"),
+		field.Bool("is_default").Default(false).Comment("是否默认"),
 	}
 }
 
@@ -38,7 +39,7 @@ func (PaymentAccount) Fields() []ent.Field {
 func (PaymentAccount) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("merchant_id"),
-		// 唯一索引：支付商户号在当前品牌商下唯一
-		index.Fields("merchant_id", "merchant_number", "deleted_at").Unique(),
+		// 唯一索引：品牌商+渠道在当前品牌商下唯一
+		index.Fields("merchant_id", "channel", "deleted_at").Unique(),
 	}
 }

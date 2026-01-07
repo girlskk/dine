@@ -110,6 +110,21 @@ func (mr *MockPaymentAccountRepositoryMockRecorder) FindByID(arg0, arg1 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockPaymentAccountRepository)(nil).FindByID), arg0, arg1)
 }
 
+// FindForUpdateByMerchantID mocks base method.
+func (m *MockPaymentAccountRepository) FindForUpdateByMerchantID(arg0 context.Context, arg1 uuid.UUID) (domain.PaymentAccounts, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindForUpdateByMerchantID", arg0, arg1)
+	ret0, _ := ret[0].(domain.PaymentAccounts)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindForUpdateByMerchantID indicates an expected call of FindForUpdateByMerchantID.
+func (mr *MockPaymentAccountRepositoryMockRecorder) FindForUpdateByMerchantID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForUpdateByMerchantID", reflect.TypeOf((*MockPaymentAccountRepository)(nil).FindForUpdateByMerchantID), arg0, arg1)
+}
+
 // PagedListBySearch mocks base method.
 func (m *MockPaymentAccountRepository) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.PaymentAccountSearchParams) (*domain.PaymentAccountSearchRes, error) {
 	m.ctrl.T.Helper()
@@ -137,4 +152,18 @@ func (m *MockPaymentAccountRepository) Update(arg0 context.Context, arg1 *domain
 func (mr *MockPaymentAccountRepositoryMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPaymentAccountRepository)(nil).Update), arg0, arg1)
+}
+
+// UpdateAllDefaultStatus mocks base method.
+func (m *MockPaymentAccountRepository) UpdateAllDefaultStatus(arg0 context.Context, arg1 uuid.UUID, arg2 bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAllDefaultStatus", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAllDefaultStatus indicates an expected call of UpdateAllDefaultStatus.
+func (mr *MockPaymentAccountRepositoryMockRecorder) UpdateAllDefaultStatus(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAllDefaultStatus", reflect.TypeOf((*MockPaymentAccountRepository)(nil).UpdateAllDefaultStatus), arg0, arg1, arg2)
 }

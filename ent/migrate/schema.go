@@ -846,6 +846,7 @@ var (
 		{Name: "channel", Type: field.TypeEnum, Enums: []string{"rm"}},
 		{Name: "merchant_number", Type: field.TypeString, Size: 255},
 		{Name: "merchant_name", Type: field.TypeString, Size: 255},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
 	}
 	// PaymentAccountsTable holds the schema information for the "payment_accounts" table.
 	PaymentAccountsTable = &schema.Table{
@@ -864,9 +865,9 @@ var (
 				Columns: []*schema.Column{PaymentAccountsColumns[4]},
 			},
 			{
-				Name:    "paymentaccount_merchant_id_merchant_number_deleted_at",
+				Name:    "paymentaccount_merchant_id_channel_deleted_at",
 				Unique:  true,
-				Columns: []*schema.Column{PaymentAccountsColumns[4], PaymentAccountsColumns[6], PaymentAccountsColumns[3]},
+				Columns: []*schema.Column{PaymentAccountsColumns[4], PaymentAccountsColumns[5], PaymentAccountsColumns[3]},
 			},
 		},
 	}

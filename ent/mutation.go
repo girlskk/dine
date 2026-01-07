@@ -22231,6 +22231,7 @@ type PaymentAccountMutation struct {
 	channel         *domain.PaymentChannel
 	merchant_number *string
 	merchant_name   *string
+	is_default      *bool
 	clearedFields   map[string]struct{}
 	done            bool
 	oldValue        func(context.Context) (*PaymentAccount, error)
@@ -22613,6 +22614,42 @@ func (m *PaymentAccountMutation) ResetMerchantName() {
 	m.merchant_name = nil
 }
 
+// SetIsDefault sets the "is_default" field.
+func (m *PaymentAccountMutation) SetIsDefault(b bool) {
+	m.is_default = &b
+}
+
+// IsDefault returns the value of the "is_default" field in the mutation.
+func (m *PaymentAccountMutation) IsDefault() (r bool, exists bool) {
+	v := m.is_default
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsDefault returns the old "is_default" field's value of the PaymentAccount entity.
+// If the PaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentAccountMutation) OldIsDefault(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsDefault is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsDefault requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsDefault: %w", err)
+	}
+	return oldValue.IsDefault, nil
+}
+
+// ResetIsDefault resets all changes to the "is_default" field.
+func (m *PaymentAccountMutation) ResetIsDefault() {
+	m.is_default = nil
+}
+
 // Where appends a list predicates to the PaymentAccountMutation builder.
 func (m *PaymentAccountMutation) Where(ps ...predicate.PaymentAccount) {
 	m.predicates = append(m.predicates, ps...)
@@ -22647,7 +22684,7 @@ func (m *PaymentAccountMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentAccountMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, paymentaccount.FieldCreatedAt)
 	}
@@ -22668,6 +22705,9 @@ func (m *PaymentAccountMutation) Fields() []string {
 	}
 	if m.merchant_name != nil {
 		fields = append(fields, paymentaccount.FieldMerchantName)
+	}
+	if m.is_default != nil {
+		fields = append(fields, paymentaccount.FieldIsDefault)
 	}
 	return fields
 }
@@ -22691,6 +22731,8 @@ func (m *PaymentAccountMutation) Field(name string) (ent.Value, bool) {
 		return m.MerchantNumber()
 	case paymentaccount.FieldMerchantName:
 		return m.MerchantName()
+	case paymentaccount.FieldIsDefault:
+		return m.IsDefault()
 	}
 	return nil, false
 }
@@ -22714,6 +22756,8 @@ func (m *PaymentAccountMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldMerchantNumber(ctx)
 	case paymentaccount.FieldMerchantName:
 		return m.OldMerchantName(ctx)
+	case paymentaccount.FieldIsDefault:
+		return m.OldIsDefault(ctx)
 	}
 	return nil, fmt.Errorf("unknown PaymentAccount field %s", name)
 }
@@ -22771,6 +22815,13 @@ func (m *PaymentAccountMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMerchantName(v)
+		return nil
+	case paymentaccount.FieldIsDefault:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsDefault(v)
 		return nil
 	}
 	return fmt.Errorf("unknown PaymentAccount field %s", name)
@@ -22856,6 +22907,9 @@ func (m *PaymentAccountMutation) ResetField(name string) error {
 		return nil
 	case paymentaccount.FieldMerchantName:
 		m.ResetMerchantName()
+		return nil
+	case paymentaccount.FieldIsDefault:
+		m.ResetIsDefault()
 		return nil
 	}
 	return fmt.Errorf("unknown PaymentAccount field %s", name)

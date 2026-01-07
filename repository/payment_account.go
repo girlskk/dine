@@ -52,6 +52,7 @@ func (repo *PaymentAccountRepository) Create(ctx context.Context, account *domai
 		SetChannel(account.Channel).
 		SetMerchantNumber(account.MerchantNumber).
 		SetMerchantName(account.MerchantName).
+		SetIsDefault(account.IsDefault).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -72,6 +73,7 @@ func (repo *PaymentAccountRepository) Update(ctx context.Context, account *domai
 		SetChannel(account.Channel).
 		SetMerchantNumber(account.MerchantNumber).
 		SetMerchantName(account.MerchantName).
+		SetIsDefault(account.IsDefault).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -98,7 +100,7 @@ func (repo *PaymentAccountRepository) Exists(ctx context.Context, params domain.
 
 	query := repo.Client.PaymentAccount.Query().
 		Where(entpaymentaccount.MerchantID(params.MerchantID)).
-		Where(entpaymentaccount.MerchantNumber(params.MerchantNumber))
+		Where(entpaymentaccount.ChannelEQ(params.Channel))
 
 	// 排除指定的ID（用于更新时检查唯一性）
 	if params.ExcludeID != uuid.Nil {
@@ -171,6 +173,43 @@ func (repo *PaymentAccountRepository) PagedListBySearch(
 	}, nil
 }
 
+// FindForUpdateByMerchantID 锁定查询该品牌商下所有账户（用于并发控制）
+func (repo *PaymentAccountRepository) FindForUpdateByMerchantID(ctx context.Context, merchantID uuid.UUID) (res domain.PaymentAccounts, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "PaymentAccountRepository.FindForUpdateByMerchantID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	entAccounts, err := repo.Client.PaymentAccount.Query().
+		Where(entpaymentaccount.MerchantID(merchantID)).
+		ForUpdate(). // 行级锁：锁定该品牌商下所有账户
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.PaymentAccounts, 0, len(entAccounts))
+	for _, a := range entAccounts {
+		items = append(items, convertPaymentAccountToDomain(a))
+	}
+
+	return items, nil
+}
+
+// UpdateAllDefaultStatus 批量更新该品牌商下所有账户的默认状态
+func (repo *PaymentAccountRepository) UpdateAllDefaultStatus(ctx context.Context, merchantID uuid.UUID, isDefault bool) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "PaymentAccountRepository.UpdateAllDefaultStatus")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	_, err = repo.Client.PaymentAccount.Update().
+		Where(entpaymentaccount.MerchantID(merchantID)).
+		SetIsDefault(isDefault).
+		Save(ctx)
+	return err
+}
+
 func (repo *PaymentAccountRepository) CountStoreAccounts(ctx context.Context, id uuid.UUID) (count int, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "PaymentAccountRepository.CountStoreAccounts")
 	defer func() {
@@ -197,6 +236,7 @@ func convertPaymentAccountToDomain(epa *ent.PaymentAccount) *domain.PaymentAccou
 		Channel:        epa.Channel,
 		MerchantNumber: epa.MerchantNumber,
 		MerchantName:   epa.MerchantName,
+		IsDefault:      epa.IsDefault,
 		CreatedAt:      epa.CreatedAt,
 		UpdatedAt:      epa.UpdatedAt,
 	}
