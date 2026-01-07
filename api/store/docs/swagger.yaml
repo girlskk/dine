@@ -1210,16 +1210,16 @@ definitions:
     - 自助点餐
     - 三方外卖
     x-enum-varnames:
-    - PaymentMethodDisplayChannelPOS
-    - PaymentMethodDisplayChannelMobileOrdering
-    - PaymentMethodDisplayChannelScanOrdering
-    - PaymentMethodDisplayChannelSelfService
-    - PaymentMethodDisplayChannelThirdPartyDelivery
     - SaleChannelPOS
     - SaleChannelMobileOrdering
     - SaleChannelScanOrdering
     - SaleChannelSelfService
     - SaleChannelThirdPartyDelivery
+    - PaymentMethodDisplayChannelPOS
+    - PaymentMethodDisplayChannelMobileOrdering
+    - PaymentMethodDisplayChannelScanOrdering
+    - PaymentMethodDisplayChannelSelfService
+    - PaymentMethodDisplayChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -1591,22 +1591,8 @@ definitions:
     - 4
     - 5
     - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     type: integer
     x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
     - Sunday
     - Monday
     - Tuesday

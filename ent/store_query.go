@@ -31,6 +31,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -59,6 +60,7 @@ type StoreQuery struct {
 	withRoles                   *RoleQuery
 	withProfitDistributionRules *ProfitDistributionRuleQuery
 	withProfitDistributionBills *ProfitDistributionBillQuery
+	withStorePaymentAccounts    *StorePaymentAccountQuery
 	modifiers                   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -470,6 +472,28 @@ func (sq *StoreQuery) QueryProfitDistributionBills() *ProfitDistributionBillQuer
 	return query
 }
 
+// QueryStorePaymentAccounts chains the current query on the "store_payment_accounts" edge.
+func (sq *StoreQuery) QueryStorePaymentAccounts() *StorePaymentAccountQuery {
+	query := (&StorePaymentAccountClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, selector),
+			sqlgraph.To(storepaymentaccount.Table, storepaymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.StorePaymentAccountsTable, store.StorePaymentAccountsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Store entity from the query.
 // Returns a *NotFoundError when no Store was found.
 func (sq *StoreQuery) First(ctx context.Context) (*Store, error) {
@@ -679,6 +703,7 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		withRoles:                   sq.withRoles.Clone(),
 		withProfitDistributionRules: sq.withProfitDistributionRules.Clone(),
 		withProfitDistributionBills: sq.withProfitDistributionBills.Clone(),
+		withStorePaymentAccounts:    sq.withStorePaymentAccounts.Clone(),
 		// clone intermediate query.
 		sql:       sq.sql.Clone(),
 		path:      sq.path,
@@ -873,6 +898,17 @@ func (sq *StoreQuery) WithProfitDistributionBills(opts ...func(*ProfitDistributi
 	return sq
 }
 
+// WithStorePaymentAccounts tells the query-builder to eager-load the nodes that are connected to
+// the "store_payment_accounts" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StoreQuery) WithStorePaymentAccounts(opts ...func(*StorePaymentAccountQuery)) *StoreQuery {
+	query := (&StorePaymentAccountClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withStorePaymentAccounts = query
+	return sq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -951,7 +987,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [17]bool{
+		loadedTypes = [18]bool{
 			sq.withMerchant != nil,
 			sq.withMerchantBusinessType != nil,
 			sq.withCountry != nil,
@@ -969,6 +1005,7 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			sq.withRoles != nil,
 			sq.withProfitDistributionRules != nil,
 			sq.withProfitDistributionBills != nil,
+			sq.withStorePaymentAccounts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -1105,6 +1142,15 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 			func(n *Store) { n.Edges.ProfitDistributionBills = []*ProfitDistributionBill{} },
 			func(n *Store, e *ProfitDistributionBill) {
 				n.Edges.ProfitDistributionBills = append(n.Edges.ProfitDistributionBills, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withStorePaymentAccounts; query != nil {
+		if err := sq.loadStorePaymentAccounts(ctx, query, nodes,
+			func(n *Store) { n.Edges.StorePaymentAccounts = []*StorePaymentAccount{} },
+			func(n *Store, e *StorePaymentAccount) {
+				n.Edges.StorePaymentAccounts = append(n.Edges.StorePaymentAccounts, e)
 			}); err != nil {
 			return nil, err
 		}
@@ -1663,6 +1709,36 @@ func (sq *StoreQuery) loadProfitDistributionBills(ctx context.Context, query *Pr
 	}
 	query.Where(predicate.ProfitDistributionBill(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(store.ProfitDistributionBillsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.StoreID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "store_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (sq *StoreQuery) loadStorePaymentAccounts(ctx context.Context, query *StorePaymentAccountQuery, nodes []*Store, init func(*Store), assign func(*Store, *StorePaymentAccount)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Store)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(storepaymentaccount.FieldStoreID)
+	}
+	query.Where(predicate.StorePaymentAccount(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(store.StorePaymentAccountsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

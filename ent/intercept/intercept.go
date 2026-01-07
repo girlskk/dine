@@ -45,6 +45,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -1077,6 +1078,33 @@ func (f TraverseStore) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.StoreQuery", q)
 }
 
+// The StorePaymentAccountFunc type is an adapter to allow the use of ordinary function as a Querier.
+type StorePaymentAccountFunc func(context.Context, *ent.StorePaymentAccountQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f StorePaymentAccountFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.StorePaymentAccountQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.StorePaymentAccountQuery", q)
+}
+
+// The TraverseStorePaymentAccount type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseStorePaymentAccount func(context.Context, *ent.StorePaymentAccountQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseStorePaymentAccount) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseStorePaymentAccount) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.StorePaymentAccountQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.StorePaymentAccountQuery", q)
+}
+
 // The StoreUserFunc type is an adapter to allow the use of ordinary function as a Querier.
 type StoreUserFunc func(context.Context, *ent.StoreUserQuery) (ent.Value, error)
 
@@ -1206,6 +1234,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.StallQuery, predicate.Stall, stall.OrderOption]{typ: ent.TypeStall, tq: q}, nil
 	case *ent.StoreQuery:
 		return &query[*ent.StoreQuery, predicate.Store, store.OrderOption]{typ: ent.TypeStore, tq: q}, nil
+	case *ent.StorePaymentAccountQuery:
+		return &query[*ent.StorePaymentAccountQuery, predicate.StorePaymentAccount, storepaymentaccount.OrderOption]{typ: ent.TypeStorePaymentAccount, tq: q}, nil
 	case *ent.StoreUserQuery:
 		return &query[*ent.StoreUserQuery, predicate.StoreUser, storeuser.OrderOption]{typ: ent.TypeStoreUser, tq: q}, nil
 	case *ent.TaxFeeQuery:

@@ -52,6 +52,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -133,6 +134,8 @@ type Client struct {
 	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
+	// StorePaymentAccount is the client for interacting with the StorePaymentAccount builders.
+	StorePaymentAccount *StorePaymentAccountClient
 	// StoreUser is the client for interacting with the StoreUser builders.
 	StoreUser *StoreUserClient
 	// TaxFee is the client for interacting with the TaxFee builders.
@@ -184,6 +187,7 @@ func (c *Client) init() {
 	c.SetMealGroup = NewSetMealGroupClient(c.config)
 	c.Stall = NewStallClient(c.config)
 	c.Store = NewStoreClient(c.config)
+	c.StorePaymentAccount = NewStorePaymentAccountClient(c.config)
 	c.StoreUser = NewStoreUserClient(c.config)
 	c.TaxFee = NewTaxFeeClient(c.config)
 }
@@ -314,6 +318,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		SetMealGroup:           NewSetMealGroupClient(cfg),
 		Stall:                  NewStallClient(cfg),
 		Store:                  NewStoreClient(cfg),
+		StorePaymentAccount:    NewStorePaymentAccountClient(cfg),
 		StoreUser:              NewStoreUserClient(cfg),
 		TaxFee:                 NewTaxFeeClient(cfg),
 	}, nil
@@ -371,6 +376,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		SetMealGroup:           NewSetMealGroupClient(cfg),
 		Stall:                  NewStallClient(cfg),
 		Store:                  NewStoreClient(cfg),
+		StorePaymentAccount:    NewStorePaymentAccountClient(cfg),
 		StoreUser:              NewStoreUserClient(cfg),
 		TaxFee:                 NewTaxFeeClient(cfg),
 	}, nil
@@ -409,7 +415,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
 		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Province,
 		c.Remark, c.RemarkCategory, c.Role, c.SetMealDetail, c.SetMealGroup, c.Stall,
-		c.Store, c.StoreUser, c.TaxFee,
+		c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
 	} {
 		n.Use(hooks...)
 	}
@@ -426,7 +432,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
 		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Province,
 		c.Remark, c.RemarkCategory, c.Role, c.SetMealDetail, c.SetMealGroup, c.Stall,
-		c.Store, c.StoreUser, c.TaxFee,
+		c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -507,6 +513,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Stall.mutate(ctx, m)
 	case *StoreMutation:
 		return c.Store.mutate(ctx, m)
+	case *StorePaymentAccountMutation:
+		return c.StorePaymentAccount.mutate(ctx, m)
 	case *StoreUserMutation:
 		return c.StoreUser.mutate(ctx, m)
 	case *TaxFeeMutation:
@@ -3662,6 +3670,22 @@ func (c *PaymentAccountClient) GetX(ctx context.Context, id uuid.UUID) *PaymentA
 		panic(err)
 	}
 	return obj
+}
+
+// QueryStorePaymentAccounts queries the store_payment_accounts edge of a PaymentAccount.
+func (c *PaymentAccountClient) QueryStorePaymentAccounts(pa *PaymentAccount) *StorePaymentAccountQuery {
+	query := (&StorePaymentAccountClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(paymentaccount.Table, paymentaccount.FieldID, id),
+			sqlgraph.To(storepaymentaccount.Table, storepaymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, paymentaccount.StorePaymentAccountsTable, paymentaccount.StorePaymentAccountsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -7253,6 +7277,22 @@ func (c *StoreClient) QueryProfitDistributionBills(s *Store) *ProfitDistribution
 	return query
 }
 
+// QueryStorePaymentAccounts queries the store_payment_accounts edge of a Store.
+func (c *StoreClient) QueryStorePaymentAccounts(s *Store) *StorePaymentAccountQuery {
+	query := (&StorePaymentAccountClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(storepaymentaccount.Table, storepaymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.StorePaymentAccountsTable, store.StorePaymentAccountsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StoreClient) Hooks() []Hook {
 	hooks := c.hooks.Store
@@ -7277,6 +7317,173 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 		return (&StoreDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Store mutation op: %q", m.Op())
+	}
+}
+
+// StorePaymentAccountClient is a client for the StorePaymentAccount schema.
+type StorePaymentAccountClient struct {
+	config
+}
+
+// NewStorePaymentAccountClient returns a client for the StorePaymentAccount from the given config.
+func NewStorePaymentAccountClient(c config) *StorePaymentAccountClient {
+	return &StorePaymentAccountClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `storepaymentaccount.Hooks(f(g(h())))`.
+func (c *StorePaymentAccountClient) Use(hooks ...Hook) {
+	c.hooks.StorePaymentAccount = append(c.hooks.StorePaymentAccount, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `storepaymentaccount.Intercept(f(g(h())))`.
+func (c *StorePaymentAccountClient) Intercept(interceptors ...Interceptor) {
+	c.inters.StorePaymentAccount = append(c.inters.StorePaymentAccount, interceptors...)
+}
+
+// Create returns a builder for creating a StorePaymentAccount entity.
+func (c *StorePaymentAccountClient) Create() *StorePaymentAccountCreate {
+	mutation := newStorePaymentAccountMutation(c.config, OpCreate)
+	return &StorePaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of StorePaymentAccount entities.
+func (c *StorePaymentAccountClient) CreateBulk(builders ...*StorePaymentAccountCreate) *StorePaymentAccountCreateBulk {
+	return &StorePaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *StorePaymentAccountClient) MapCreateBulk(slice any, setFunc func(*StorePaymentAccountCreate, int)) *StorePaymentAccountCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &StorePaymentAccountCreateBulk{err: fmt.Errorf("calling to StorePaymentAccountClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*StorePaymentAccountCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &StorePaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for StorePaymentAccount.
+func (c *StorePaymentAccountClient) Update() *StorePaymentAccountUpdate {
+	mutation := newStorePaymentAccountMutation(c.config, OpUpdate)
+	return &StorePaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *StorePaymentAccountClient) UpdateOne(spa *StorePaymentAccount) *StorePaymentAccountUpdateOne {
+	mutation := newStorePaymentAccountMutation(c.config, OpUpdateOne, withStorePaymentAccount(spa))
+	return &StorePaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *StorePaymentAccountClient) UpdateOneID(id uuid.UUID) *StorePaymentAccountUpdateOne {
+	mutation := newStorePaymentAccountMutation(c.config, OpUpdateOne, withStorePaymentAccountID(id))
+	return &StorePaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for StorePaymentAccount.
+func (c *StorePaymentAccountClient) Delete() *StorePaymentAccountDelete {
+	mutation := newStorePaymentAccountMutation(c.config, OpDelete)
+	return &StorePaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *StorePaymentAccountClient) DeleteOne(spa *StorePaymentAccount) *StorePaymentAccountDeleteOne {
+	return c.DeleteOneID(spa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *StorePaymentAccountClient) DeleteOneID(id uuid.UUID) *StorePaymentAccountDeleteOne {
+	builder := c.Delete().Where(storepaymentaccount.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &StorePaymentAccountDeleteOne{builder}
+}
+
+// Query returns a query builder for StorePaymentAccount.
+func (c *StorePaymentAccountClient) Query() *StorePaymentAccountQuery {
+	return &StorePaymentAccountQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeStorePaymentAccount},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a StorePaymentAccount entity by its id.
+func (c *StorePaymentAccountClient) Get(ctx context.Context, id uuid.UUID) (*StorePaymentAccount, error) {
+	return c.Query().Where(storepaymentaccount.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *StorePaymentAccountClient) GetX(ctx context.Context, id uuid.UUID) *StorePaymentAccount {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryStore queries the store edge of a StorePaymentAccount.
+func (c *StorePaymentAccountClient) QueryStore(spa *StorePaymentAccount) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := spa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storepaymentaccount.Table, storepaymentaccount.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storepaymentaccount.StoreTable, storepaymentaccount.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(spa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPaymentAccount queries the payment_account edge of a StorePaymentAccount.
+func (c *StorePaymentAccountClient) QueryPaymentAccount(spa *StorePaymentAccount) *PaymentAccountQuery {
+	query := (&PaymentAccountClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := spa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storepaymentaccount.Table, storepaymentaccount.FieldID, id),
+			sqlgraph.To(paymentaccount.Table, paymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storepaymentaccount.PaymentAccountTable, storepaymentaccount.PaymentAccountColumn),
+		)
+		fromV = sqlgraph.Neighbors(spa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *StorePaymentAccountClient) Hooks() []Hook {
+	hooks := c.hooks.StorePaymentAccount
+	return append(hooks[:len(hooks):len(hooks)], storepaymentaccount.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *StorePaymentAccountClient) Interceptors() []Interceptor {
+	inters := c.inters.StorePaymentAccount
+	return append(inters[:len(inters):len(inters)], storepaymentaccount.Interceptors[:]...)
+}
+
+func (c *StorePaymentAccountClient) mutate(ctx context.Context, m *StorePaymentAccountMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StorePaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StorePaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StorePaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StorePaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown StorePaymentAccount mutation op: %q", m.Op())
 	}
 }
 
@@ -7655,7 +7862,7 @@ type (
 		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
 		ProductSpecRelation, ProductTag, ProductUnit, ProfitDistributionBill,
 		ProfitDistributionRule, Province, Remark, RemarkCategory, Role, SetMealDetail,
-		SetMealGroup, Stall, Store, StoreUser, TaxFee []ent.Hook
+		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
@@ -7664,6 +7871,7 @@ type (
 		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
 		ProductSpecRelation, ProductTag, ProductUnit, ProfitDistributionBill,
 		ProfitDistributionRule, Province, Remark, RemarkCategory, Role, SetMealDetail,
-		SetMealGroup, Stall, Store, StoreUser, TaxFee []ent.Interceptor
+		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser,
+		TaxFee []ent.Interceptor
 	}
 )

@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -41,5 +42,13 @@ func (PaymentAccount) Indexes() []ent.Index {
 		index.Fields("merchant_id"),
 		// 唯一索引：品牌商+渠道在当前品牌商下唯一
 		index.Fields("merchant_id", "channel", "deleted_at").Unique(),
+	}
+}
+
+// Edges of the PaymentAccount.
+func (PaymentAccount) Edges() []ent.Edge {
+	return []ent.Edge{
+		// 关联的门店收款账户
+		edge.To("store_payment_accounts", StorePaymentAccount.Type).Comment("关联的门店收款账户"),
 	}
 }

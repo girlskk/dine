@@ -133,9 +133,11 @@ type StoreEdges struct {
 	ProfitDistributionRules []*ProfitDistributionRule `json:"profit_distribution_rules,omitempty"`
 	// 关联的分账账单
 	ProfitDistributionBills []*ProfitDistributionBill `json:"profit_distribution_bills,omitempty"`
+	// 关联的门店收款账户
+	StorePaymentAccounts []*StorePaymentAccount `json:"store_payment_accounts,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [17]bool
+	loadedTypes [18]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -301,6 +303,15 @@ func (e StoreEdges) ProfitDistributionBillsOrErr() ([]*ProfitDistributionBill, e
 		return e.ProfitDistributionBills, nil
 	}
 	return nil, &NotLoadedError{edge: "profit_distribution_bills"}
+}
+
+// StorePaymentAccountsOrErr returns the StorePaymentAccounts value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) StorePaymentAccountsOrErr() ([]*StorePaymentAccount, error) {
+	if e.loadedTypes[17] {
+		return e.StorePaymentAccounts, nil
+	}
+	return nil, &NotLoadedError{edge: "store_payment_accounts"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -633,6 +644,11 @@ func (s *Store) QueryProfitDistributionRules() *ProfitDistributionRuleQuery {
 // QueryProfitDistributionBills queries the "profit_distribution_bills" edge of the Store entity.
 func (s *Store) QueryProfitDistributionBills() *ProfitDistributionBillQuery {
 	return NewStoreClient(s.config).QueryProfitDistributionBills(s)
+}
+
+// QueryStorePaymentAccounts queries the "store_payment_accounts" edge of the Store entity.
+func (s *Store) QueryStorePaymentAccounts() *StorePaymentAccountQuery {
+	return NewStoreClient(s.config).QueryStorePaymentAccounts(s)
 }
 
 // Update returns a builder for updating this Store.

@@ -38,6 +38,7 @@ type DataStore interface {
 	PaymentMethodRepo() PaymentMethodRepository
 	ProfitDistributionBillRepo() ProfitDistributionBillRepository
 	PaymentAccountRepo() PaymentAccountRepository
+	StorePaymentAccountRepo() StorePaymentAccountRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

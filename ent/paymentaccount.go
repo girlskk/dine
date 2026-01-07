@@ -35,8 +35,29 @@ type PaymentAccount struct {
 	// 支付商户名称
 	MerchantName string `json:"merchant_name,omitempty"`
 	// 是否默认
-	IsDefault    bool `json:"is_default,omitempty"`
+	IsDefault bool `json:"is_default,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the PaymentAccountQuery when eager-loading is set.
+	Edges        PaymentAccountEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// PaymentAccountEdges holds the relations/edges for other nodes in the graph.
+type PaymentAccountEdges struct {
+	// 关联的门店收款账户
+	StorePaymentAccounts []*StorePaymentAccount `json:"store_payment_accounts,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// StorePaymentAccountsOrErr returns the StorePaymentAccounts value or an error if the edge
+// was not loaded in eager-loading.
+func (e PaymentAccountEdges) StorePaymentAccountsOrErr() ([]*StorePaymentAccount, error) {
+	if e.loadedTypes[0] {
+		return e.StorePaymentAccounts, nil
+	}
+	return nil, &NotLoadedError{edge: "store_payment_accounts"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -134,6 +155,11 @@ func (pa *PaymentAccount) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (pa *PaymentAccount) Value(name string) (ent.Value, error) {
 	return pa.selectValues.Get(name)
+}
+
+// QueryStorePaymentAccounts queries the "store_payment_accounts" edge of the PaymentAccount entity.
+func (pa *PaymentAccount) QueryStorePaymentAccounts() *StorePaymentAccountQuery {
+	return NewPaymentAccountClient(pa.config).QueryStorePaymentAccounts(pa)
 }
 
 // Update returns a builder for updating this PaymentAccount.

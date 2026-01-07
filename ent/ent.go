@@ -48,6 +48,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -146,6 +147,7 @@ func checkColumn(table, column string) error {
 			setmealgroup.Table:           setmealgroup.ValidColumn,
 			stall.Table:                  stall.ValidColumn,
 			store.Table:                  store.ValidColumn,
+			storepaymentaccount.Table:    storepaymentaccount.ValidColumn,
 			storeuser.Table:              storeuser.ValidColumn,
 			taxfee.Table:                 taxfee.ValidColumn,
 		})

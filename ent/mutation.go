@@ -52,6 +52,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -101,6 +102,7 @@ const (
 	TypeSetMealGroup           = "SetMealGroup"
 	TypeStall                  = "Stall"
 	TypeStore                  = "Store"
+	TypeStorePaymentAccount    = "StorePaymentAccount"
 	TypeStoreUser              = "StoreUser"
 	TypeTaxFee                 = "TaxFee"
 )
@@ -22220,22 +22222,25 @@ func (m *OrderProductMutation) ResetEdge(name string) error {
 // PaymentAccountMutation represents an operation that mutates the PaymentAccount nodes in the graph.
 type PaymentAccountMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *uuid.UUID
-	created_at      *time.Time
-	updated_at      *time.Time
-	deleted_at      *int64
-	adddeleted_at   *int64
-	merchant_id     *uuid.UUID
-	channel         *domain.PaymentChannel
-	merchant_number *string
-	merchant_name   *string
-	is_default      *bool
-	clearedFields   map[string]struct{}
-	done            bool
-	oldValue        func(context.Context) (*PaymentAccount, error)
-	predicates      []predicate.PaymentAccount
+	op                            Op
+	typ                           string
+	id                            *uuid.UUID
+	created_at                    *time.Time
+	updated_at                    *time.Time
+	deleted_at                    *int64
+	adddeleted_at                 *int64
+	merchant_id                   *uuid.UUID
+	channel                       *domain.PaymentChannel
+	merchant_number               *string
+	merchant_name                 *string
+	is_default                    *bool
+	clearedFields                 map[string]struct{}
+	store_payment_accounts        map[uuid.UUID]struct{}
+	removedstore_payment_accounts map[uuid.UUID]struct{}
+	clearedstore_payment_accounts bool
+	done                          bool
+	oldValue                      func(context.Context) (*PaymentAccount, error)
+	predicates                    []predicate.PaymentAccount
 }
 
 var _ ent.Mutation = (*PaymentAccountMutation)(nil)
@@ -22650,6 +22655,60 @@ func (m *PaymentAccountMutation) ResetIsDefault() {
 	m.is_default = nil
 }
 
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by ids.
+func (m *PaymentAccountMutation) AddStorePaymentAccountIDs(ids ...uuid.UUID) {
+	if m.store_payment_accounts == nil {
+		m.store_payment_accounts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.store_payment_accounts[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStorePaymentAccounts clears the "store_payment_accounts" edge to the StorePaymentAccount entity.
+func (m *PaymentAccountMutation) ClearStorePaymentAccounts() {
+	m.clearedstore_payment_accounts = true
+}
+
+// StorePaymentAccountsCleared reports if the "store_payment_accounts" edge to the StorePaymentAccount entity was cleared.
+func (m *PaymentAccountMutation) StorePaymentAccountsCleared() bool {
+	return m.clearedstore_payment_accounts
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (m *PaymentAccountMutation) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) {
+	if m.removedstore_payment_accounts == nil {
+		m.removedstore_payment_accounts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.store_payment_accounts, ids[i])
+		m.removedstore_payment_accounts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStorePaymentAccounts returns the removed IDs of the "store_payment_accounts" edge to the StorePaymentAccount entity.
+func (m *PaymentAccountMutation) RemovedStorePaymentAccountsIDs() (ids []uuid.UUID) {
+	for id := range m.removedstore_payment_accounts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StorePaymentAccountsIDs returns the "store_payment_accounts" edge IDs in the mutation.
+func (m *PaymentAccountMutation) StorePaymentAccountsIDs() (ids []uuid.UUID) {
+	for id := range m.store_payment_accounts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStorePaymentAccounts resets all changes to the "store_payment_accounts" edge.
+func (m *PaymentAccountMutation) ResetStorePaymentAccounts() {
+	m.store_payment_accounts = nil
+	m.clearedstore_payment_accounts = false
+	m.removedstore_payment_accounts = nil
+}
+
 // Where appends a list predicates to the PaymentAccountMutation builder.
 func (m *PaymentAccountMutation) Where(ps ...predicate.PaymentAccount) {
 	m.predicates = append(m.predicates, ps...)
@@ -22917,49 +22976,85 @@ func (m *PaymentAccountMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PaymentAccountMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.store_payment_accounts != nil {
+		edges = append(edges, paymentaccount.EdgeStorePaymentAccounts)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *PaymentAccountMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case paymentaccount.EdgeStorePaymentAccounts:
+		ids := make([]ent.Value, 0, len(m.store_payment_accounts))
+		for id := range m.store_payment_accounts {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PaymentAccountMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedstore_payment_accounts != nil {
+		edges = append(edges, paymentaccount.EdgeStorePaymentAccounts)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *PaymentAccountMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case paymentaccount.EdgeStorePaymentAccounts:
+		ids := make([]ent.Value, 0, len(m.removedstore_payment_accounts))
+		for id := range m.removedstore_payment_accounts {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PaymentAccountMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedstore_payment_accounts {
+		edges = append(edges, paymentaccount.EdgeStorePaymentAccounts)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *PaymentAccountMutation) EdgeCleared(name string) bool {
+	switch name {
+	case paymentaccount.EdgeStorePaymentAccounts:
+		return m.clearedstore_payment_accounts
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *PaymentAccountMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown PaymentAccount unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *PaymentAccountMutation) ResetEdge(name string) error {
+	switch name {
+	case paymentaccount.EdgeStorePaymentAccounts:
+		m.ResetStorePaymentAccounts()
+		return nil
+	}
 	return fmt.Errorf("unknown PaymentAccount edge %s", name)
 }
 
@@ -43002,6 +43097,9 @@ type StoreMutation struct {
 	profit_distribution_bills        map[uuid.UUID]struct{}
 	removedprofit_distribution_bills map[uuid.UUID]struct{}
 	clearedprofit_distribution_bills bool
+	store_payment_accounts           map[uuid.UUID]struct{}
+	removedstore_payment_accounts    map[uuid.UUID]struct{}
+	clearedstore_payment_accounts    bool
 	done                             bool
 	oldValue                         func(context.Context) (*Store, error)
 	predicates                       []predicate.Store
@@ -45318,6 +45416,60 @@ func (m *StoreMutation) ResetProfitDistributionBills() {
 	m.removedprofit_distribution_bills = nil
 }
 
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by ids.
+func (m *StoreMutation) AddStorePaymentAccountIDs(ids ...uuid.UUID) {
+	if m.store_payment_accounts == nil {
+		m.store_payment_accounts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.store_payment_accounts[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStorePaymentAccounts clears the "store_payment_accounts" edge to the StorePaymentAccount entity.
+func (m *StoreMutation) ClearStorePaymentAccounts() {
+	m.clearedstore_payment_accounts = true
+}
+
+// StorePaymentAccountsCleared reports if the "store_payment_accounts" edge to the StorePaymentAccount entity was cleared.
+func (m *StoreMutation) StorePaymentAccountsCleared() bool {
+	return m.clearedstore_payment_accounts
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (m *StoreMutation) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) {
+	if m.removedstore_payment_accounts == nil {
+		m.removedstore_payment_accounts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.store_payment_accounts, ids[i])
+		m.removedstore_payment_accounts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStorePaymentAccounts returns the removed IDs of the "store_payment_accounts" edge to the StorePaymentAccount entity.
+func (m *StoreMutation) RemovedStorePaymentAccountsIDs() (ids []uuid.UUID) {
+	for id := range m.removedstore_payment_accounts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StorePaymentAccountsIDs returns the "store_payment_accounts" edge IDs in the mutation.
+func (m *StoreMutation) StorePaymentAccountsIDs() (ids []uuid.UUID) {
+	for id := range m.store_payment_accounts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStorePaymentAccounts resets all changes to the "store_payment_accounts" edge.
+func (m *StoreMutation) ResetStorePaymentAccounts() {
+	m.store_payment_accounts = nil
+	m.clearedstore_payment_accounts = false
+	m.removedstore_payment_accounts = nil
+}
+
 // Where appends a list predicates to the StoreMutation builder.
 func (m *StoreMutation) Where(ps ...predicate.Store) {
 	m.predicates = append(m.predicates, ps...)
@@ -46098,7 +46250,7 @@ func (m *StoreMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StoreMutation) AddedEdges() []string {
-	edges := make([]string, 0, 17)
+	edges := make([]string, 0, 18)
 	if m.merchant != nil {
 		edges = append(edges, store.EdgeMerchant)
 	}
@@ -46149,6 +46301,9 @@ func (m *StoreMutation) AddedEdges() []string {
 	}
 	if m.profit_distribution_bills != nil {
 		edges = append(edges, store.EdgeProfitDistributionBills)
+	}
+	if m.store_payment_accounts != nil {
+		edges = append(edges, store.EdgeStorePaymentAccounts)
 	}
 	return edges
 }
@@ -46247,13 +46402,19 @@ func (m *StoreMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case store.EdgeStorePaymentAccounts:
+		ids := make([]ent.Value, 0, len(m.store_payment_accounts))
+		for id := range m.store_payment_accounts {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StoreMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 17)
+	edges := make([]string, 0, 18)
 	if m.removedstore_users != nil {
 		edges = append(edges, store.EdgeStoreUsers)
 	}
@@ -46286,6 +46447,9 @@ func (m *StoreMutation) RemovedEdges() []string {
 	}
 	if m.removedprofit_distribution_bills != nil {
 		edges = append(edges, store.EdgeProfitDistributionBills)
+	}
+	if m.removedstore_payment_accounts != nil {
+		edges = append(edges, store.EdgeStorePaymentAccounts)
 	}
 	return edges
 }
@@ -46360,13 +46524,19 @@ func (m *StoreMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case store.EdgeStorePaymentAccounts:
+		ids := make([]ent.Value, 0, len(m.removedstore_payment_accounts))
+		for id := range m.removedstore_payment_accounts {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StoreMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 17)
+	edges := make([]string, 0, 18)
 	if m.clearedmerchant {
 		edges = append(edges, store.EdgeMerchant)
 	}
@@ -46418,6 +46588,9 @@ func (m *StoreMutation) ClearedEdges() []string {
 	if m.clearedprofit_distribution_bills {
 		edges = append(edges, store.EdgeProfitDistributionBills)
 	}
+	if m.clearedstore_payment_accounts {
+		edges = append(edges, store.EdgeStorePaymentAccounts)
+	}
 	return edges
 }
 
@@ -46459,6 +46632,8 @@ func (m *StoreMutation) EdgeCleared(name string) bool {
 		return m.clearedprofit_distribution_rules
 	case store.EdgeProfitDistributionBills:
 		return m.clearedprofit_distribution_bills
+	case store.EdgeStorePaymentAccounts:
+		return m.clearedstore_payment_accounts
 	}
 	return false
 }
@@ -46544,8 +46719,803 @@ func (m *StoreMutation) ResetEdge(name string) error {
 	case store.EdgeProfitDistributionBills:
 		m.ResetProfitDistributionBills()
 		return nil
+	case store.EdgeStorePaymentAccounts:
+		m.ResetStorePaymentAccounts()
+		return nil
 	}
 	return fmt.Errorf("unknown Store edge %s", name)
+}
+
+// StorePaymentAccountMutation represents an operation that mutates the StorePaymentAccount nodes in the graph.
+type StorePaymentAccountMutation struct {
+	config
+	op                     Op
+	typ                    string
+	id                     *uuid.UUID
+	created_at             *time.Time
+	updated_at             *time.Time
+	deleted_at             *int64
+	adddeleted_at          *int64
+	merchant_id            *uuid.UUID
+	merchant_number        *string
+	clearedFields          map[string]struct{}
+	store                  *uuid.UUID
+	clearedstore           bool
+	payment_account        *uuid.UUID
+	clearedpayment_account bool
+	done                   bool
+	oldValue               func(context.Context) (*StorePaymentAccount, error)
+	predicates             []predicate.StorePaymentAccount
+}
+
+var _ ent.Mutation = (*StorePaymentAccountMutation)(nil)
+
+// storepaymentaccountOption allows management of the mutation configuration using functional options.
+type storepaymentaccountOption func(*StorePaymentAccountMutation)
+
+// newStorePaymentAccountMutation creates new mutation for the StorePaymentAccount entity.
+func newStorePaymentAccountMutation(c config, op Op, opts ...storepaymentaccountOption) *StorePaymentAccountMutation {
+	m := &StorePaymentAccountMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeStorePaymentAccount,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withStorePaymentAccountID sets the ID field of the mutation.
+func withStorePaymentAccountID(id uuid.UUID) storepaymentaccountOption {
+	return func(m *StorePaymentAccountMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *StorePaymentAccount
+		)
+		m.oldValue = func(ctx context.Context) (*StorePaymentAccount, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().StorePaymentAccount.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withStorePaymentAccount sets the old StorePaymentAccount of the mutation.
+func withStorePaymentAccount(node *StorePaymentAccount) storepaymentaccountOption {
+	return func(m *StorePaymentAccountMutation) {
+		m.oldValue = func(context.Context) (*StorePaymentAccount, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m StorePaymentAccountMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m StorePaymentAccountMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of StorePaymentAccount entities.
+func (m *StorePaymentAccountMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *StorePaymentAccountMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *StorePaymentAccountMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().StorePaymentAccount.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *StorePaymentAccountMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *StorePaymentAccountMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the StorePaymentAccount entity.
+// If the StorePaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StorePaymentAccountMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *StorePaymentAccountMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *StorePaymentAccountMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *StorePaymentAccountMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the StorePaymentAccount entity.
+// If the StorePaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StorePaymentAccountMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *StorePaymentAccountMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *StorePaymentAccountMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *StorePaymentAccountMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the StorePaymentAccount entity.
+// If the StorePaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StorePaymentAccountMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *StorePaymentAccountMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *StorePaymentAccountMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *StorePaymentAccountMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetMerchantID sets the "merchant_id" field.
+func (m *StorePaymentAccountMutation) SetMerchantID(u uuid.UUID) {
+	m.merchant_id = &u
+}
+
+// MerchantID returns the value of the "merchant_id" field in the mutation.
+func (m *StorePaymentAccountMutation) MerchantID() (r uuid.UUID, exists bool) {
+	v := m.merchant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMerchantID returns the old "merchant_id" field's value of the StorePaymentAccount entity.
+// If the StorePaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StorePaymentAccountMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMerchantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMerchantID: %w", err)
+	}
+	return oldValue.MerchantID, nil
+}
+
+// ResetMerchantID resets all changes to the "merchant_id" field.
+func (m *StorePaymentAccountMutation) ResetMerchantID() {
+	m.merchant_id = nil
+}
+
+// SetStoreID sets the "store_id" field.
+func (m *StorePaymentAccountMutation) SetStoreID(u uuid.UUID) {
+	m.store = &u
+}
+
+// StoreID returns the value of the "store_id" field in the mutation.
+func (m *StorePaymentAccountMutation) StoreID() (r uuid.UUID, exists bool) {
+	v := m.store
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStoreID returns the old "store_id" field's value of the StorePaymentAccount entity.
+// If the StorePaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StorePaymentAccountMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStoreID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStoreID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStoreID: %w", err)
+	}
+	return oldValue.StoreID, nil
+}
+
+// ResetStoreID resets all changes to the "store_id" field.
+func (m *StorePaymentAccountMutation) ResetStoreID() {
+	m.store = nil
+}
+
+// SetPaymentAccountID sets the "payment_account_id" field.
+func (m *StorePaymentAccountMutation) SetPaymentAccountID(u uuid.UUID) {
+	m.payment_account = &u
+}
+
+// PaymentAccountID returns the value of the "payment_account_id" field in the mutation.
+func (m *StorePaymentAccountMutation) PaymentAccountID() (r uuid.UUID, exists bool) {
+	v := m.payment_account
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPaymentAccountID returns the old "payment_account_id" field's value of the StorePaymentAccount entity.
+// If the StorePaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StorePaymentAccountMutation) OldPaymentAccountID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPaymentAccountID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPaymentAccountID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPaymentAccountID: %w", err)
+	}
+	return oldValue.PaymentAccountID, nil
+}
+
+// ResetPaymentAccountID resets all changes to the "payment_account_id" field.
+func (m *StorePaymentAccountMutation) ResetPaymentAccountID() {
+	m.payment_account = nil
+}
+
+// SetMerchantNumber sets the "merchant_number" field.
+func (m *StorePaymentAccountMutation) SetMerchantNumber(s string) {
+	m.merchant_number = &s
+}
+
+// MerchantNumber returns the value of the "merchant_number" field in the mutation.
+func (m *StorePaymentAccountMutation) MerchantNumber() (r string, exists bool) {
+	v := m.merchant_number
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMerchantNumber returns the old "merchant_number" field's value of the StorePaymentAccount entity.
+// If the StorePaymentAccount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StorePaymentAccountMutation) OldMerchantNumber(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMerchantNumber is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMerchantNumber requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMerchantNumber: %w", err)
+	}
+	return oldValue.MerchantNumber, nil
+}
+
+// ResetMerchantNumber resets all changes to the "merchant_number" field.
+func (m *StorePaymentAccountMutation) ResetMerchantNumber() {
+	m.merchant_number = nil
+}
+
+// ClearStore clears the "store" edge to the Store entity.
+func (m *StorePaymentAccountMutation) ClearStore() {
+	m.clearedstore = true
+	m.clearedFields[storepaymentaccount.FieldStoreID] = struct{}{}
+}
+
+// StoreCleared reports if the "store" edge to the Store entity was cleared.
+func (m *StorePaymentAccountMutation) StoreCleared() bool {
+	return m.clearedstore
+}
+
+// StoreIDs returns the "store" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// StoreID instead. It exists only for internal usage by the builders.
+func (m *StorePaymentAccountMutation) StoreIDs() (ids []uuid.UUID) {
+	if id := m.store; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetStore resets all changes to the "store" edge.
+func (m *StorePaymentAccountMutation) ResetStore() {
+	m.store = nil
+	m.clearedstore = false
+}
+
+// ClearPaymentAccount clears the "payment_account" edge to the PaymentAccount entity.
+func (m *StorePaymentAccountMutation) ClearPaymentAccount() {
+	m.clearedpayment_account = true
+	m.clearedFields[storepaymentaccount.FieldPaymentAccountID] = struct{}{}
+}
+
+// PaymentAccountCleared reports if the "payment_account" edge to the PaymentAccount entity was cleared.
+func (m *StorePaymentAccountMutation) PaymentAccountCleared() bool {
+	return m.clearedpayment_account
+}
+
+// PaymentAccountIDs returns the "payment_account" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// PaymentAccountID instead. It exists only for internal usage by the builders.
+func (m *StorePaymentAccountMutation) PaymentAccountIDs() (ids []uuid.UUID) {
+	if id := m.payment_account; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetPaymentAccount resets all changes to the "payment_account" edge.
+func (m *StorePaymentAccountMutation) ResetPaymentAccount() {
+	m.payment_account = nil
+	m.clearedpayment_account = false
+}
+
+// Where appends a list predicates to the StorePaymentAccountMutation builder.
+func (m *StorePaymentAccountMutation) Where(ps ...predicate.StorePaymentAccount) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the StorePaymentAccountMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *StorePaymentAccountMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.StorePaymentAccount, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *StorePaymentAccountMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *StorePaymentAccountMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (StorePaymentAccount).
+func (m *StorePaymentAccountMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *StorePaymentAccountMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.created_at != nil {
+		fields = append(fields, storepaymentaccount.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, storepaymentaccount.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, storepaymentaccount.FieldDeletedAt)
+	}
+	if m.merchant_id != nil {
+		fields = append(fields, storepaymentaccount.FieldMerchantID)
+	}
+	if m.store != nil {
+		fields = append(fields, storepaymentaccount.FieldStoreID)
+	}
+	if m.payment_account != nil {
+		fields = append(fields, storepaymentaccount.FieldPaymentAccountID)
+	}
+	if m.merchant_number != nil {
+		fields = append(fields, storepaymentaccount.FieldMerchantNumber)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *StorePaymentAccountMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case storepaymentaccount.FieldCreatedAt:
+		return m.CreatedAt()
+	case storepaymentaccount.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case storepaymentaccount.FieldDeletedAt:
+		return m.DeletedAt()
+	case storepaymentaccount.FieldMerchantID:
+		return m.MerchantID()
+	case storepaymentaccount.FieldStoreID:
+		return m.StoreID()
+	case storepaymentaccount.FieldPaymentAccountID:
+		return m.PaymentAccountID()
+	case storepaymentaccount.FieldMerchantNumber:
+		return m.MerchantNumber()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *StorePaymentAccountMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case storepaymentaccount.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case storepaymentaccount.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case storepaymentaccount.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case storepaymentaccount.FieldMerchantID:
+		return m.OldMerchantID(ctx)
+	case storepaymentaccount.FieldStoreID:
+		return m.OldStoreID(ctx)
+	case storepaymentaccount.FieldPaymentAccountID:
+		return m.OldPaymentAccountID(ctx)
+	case storepaymentaccount.FieldMerchantNumber:
+		return m.OldMerchantNumber(ctx)
+	}
+	return nil, fmt.Errorf("unknown StorePaymentAccount field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *StorePaymentAccountMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case storepaymentaccount.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case storepaymentaccount.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case storepaymentaccount.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case storepaymentaccount.FieldMerchantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMerchantID(v)
+		return nil
+	case storepaymentaccount.FieldStoreID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStoreID(v)
+		return nil
+	case storepaymentaccount.FieldPaymentAccountID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPaymentAccountID(v)
+		return nil
+	case storepaymentaccount.FieldMerchantNumber:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMerchantNumber(v)
+		return nil
+	}
+	return fmt.Errorf("unknown StorePaymentAccount field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *StorePaymentAccountMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, storepaymentaccount.FieldDeletedAt)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *StorePaymentAccountMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case storepaymentaccount.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *StorePaymentAccountMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case storepaymentaccount.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown StorePaymentAccount numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *StorePaymentAccountMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *StorePaymentAccountMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *StorePaymentAccountMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown StorePaymentAccount nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *StorePaymentAccountMutation) ResetField(name string) error {
+	switch name {
+	case storepaymentaccount.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case storepaymentaccount.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case storepaymentaccount.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case storepaymentaccount.FieldMerchantID:
+		m.ResetMerchantID()
+		return nil
+	case storepaymentaccount.FieldStoreID:
+		m.ResetStoreID()
+		return nil
+	case storepaymentaccount.FieldPaymentAccountID:
+		m.ResetPaymentAccountID()
+		return nil
+	case storepaymentaccount.FieldMerchantNumber:
+		m.ResetMerchantNumber()
+		return nil
+	}
+	return fmt.Errorf("unknown StorePaymentAccount field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *StorePaymentAccountMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.store != nil {
+		edges = append(edges, storepaymentaccount.EdgeStore)
+	}
+	if m.payment_account != nil {
+		edges = append(edges, storepaymentaccount.EdgePaymentAccount)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *StorePaymentAccountMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case storepaymentaccount.EdgeStore:
+		if id := m.store; id != nil {
+			return []ent.Value{*id}
+		}
+	case storepaymentaccount.EdgePaymentAccount:
+		if id := m.payment_account; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *StorePaymentAccountMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *StorePaymentAccountMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *StorePaymentAccountMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedstore {
+		edges = append(edges, storepaymentaccount.EdgeStore)
+	}
+	if m.clearedpayment_account {
+		edges = append(edges, storepaymentaccount.EdgePaymentAccount)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *StorePaymentAccountMutation) EdgeCleared(name string) bool {
+	switch name {
+	case storepaymentaccount.EdgeStore:
+		return m.clearedstore
+	case storepaymentaccount.EdgePaymentAccount:
+		return m.clearedpayment_account
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *StorePaymentAccountMutation) ClearEdge(name string) error {
+	switch name {
+	case storepaymentaccount.EdgeStore:
+		m.ClearStore()
+		return nil
+	case storepaymentaccount.EdgePaymentAccount:
+		m.ClearPaymentAccount()
+		return nil
+	}
+	return fmt.Errorf("unknown StorePaymentAccount unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *StorePaymentAccountMutation) ResetEdge(name string) error {
+	switch name {
+	case storepaymentaccount.EdgeStore:
+		m.ResetStore()
+		return nil
+	case storepaymentaccount.EdgePaymentAccount:
+		m.ResetPaymentAccount()
+		return nil
+	}
+	return fmt.Errorf("unknown StorePaymentAccount edge %s", name)
 }
 
 // StoreUserMutation represents an operation that mutates the StoreUser nodes in the graph.

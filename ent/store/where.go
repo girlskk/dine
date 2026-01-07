@@ -2223,6 +2223,29 @@ func HasProfitDistributionBillsWith(preds ...predicate.ProfitDistributionBill) p
 	})
 }
 
+// HasStorePaymentAccounts applies the HasEdge predicate on the "store_payment_accounts" edge.
+func HasStorePaymentAccounts() predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StorePaymentAccountsTable, StorePaymentAccountsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStorePaymentAccountsWith applies the HasEdge predicate on the "store_payment_accounts" edge with a given conditions (other predicates).
+func HasStorePaymentAccountsWith(preds ...predicate.StorePaymentAccount) predicate.Store {
+	return predicate.Store(func(s *sql.Selector) {
+		step := newStorePaymentAccountsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Store) predicate.Store {
 	return predicate.Store(sql.AndPredicates(predicates...))

@@ -44,6 +44,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -2236,6 +2237,55 @@ func init() {
 	storeDescID := storeMixinFields0[0].Descriptor()
 	// store.DefaultID holds the default value on creation for the id field.
 	store.DefaultID = storeDescID.Default.(func() uuid.UUID)
+	storepaymentaccountMixin := schema.StorePaymentAccount{}.Mixin()
+	storepaymentaccountMixinHooks2 := storepaymentaccountMixin[2].Hooks()
+	storepaymentaccount.Hooks[0] = storepaymentaccountMixinHooks2[0]
+	storepaymentaccountMixinInters2 := storepaymentaccountMixin[2].Interceptors()
+	storepaymentaccount.Interceptors[0] = storepaymentaccountMixinInters2[0]
+	storepaymentaccountMixinFields0 := storepaymentaccountMixin[0].Fields()
+	_ = storepaymentaccountMixinFields0
+	storepaymentaccountMixinFields1 := storepaymentaccountMixin[1].Fields()
+	_ = storepaymentaccountMixinFields1
+	storepaymentaccountMixinFields2 := storepaymentaccountMixin[2].Fields()
+	_ = storepaymentaccountMixinFields2
+	storepaymentaccountFields := schema.StorePaymentAccount{}.Fields()
+	_ = storepaymentaccountFields
+	// storepaymentaccountDescCreatedAt is the schema descriptor for created_at field.
+	storepaymentaccountDescCreatedAt := storepaymentaccountMixinFields1[0].Descriptor()
+	// storepaymentaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	storepaymentaccount.DefaultCreatedAt = storepaymentaccountDescCreatedAt.Default.(func() time.Time)
+	// storepaymentaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	storepaymentaccountDescUpdatedAt := storepaymentaccountMixinFields1[1].Descriptor()
+	// storepaymentaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	storepaymentaccount.DefaultUpdatedAt = storepaymentaccountDescUpdatedAt.Default.(func() time.Time)
+	// storepaymentaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	storepaymentaccount.UpdateDefaultUpdatedAt = storepaymentaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// storepaymentaccountDescDeletedAt is the schema descriptor for deleted_at field.
+	storepaymentaccountDescDeletedAt := storepaymentaccountMixinFields2[0].Descriptor()
+	// storepaymentaccount.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	storepaymentaccount.DefaultDeletedAt = storepaymentaccountDescDeletedAt.Default.(int64)
+	// storepaymentaccountDescMerchantNumber is the schema descriptor for merchant_number field.
+	storepaymentaccountDescMerchantNumber := storepaymentaccountFields[3].Descriptor()
+	// storepaymentaccount.MerchantNumberValidator is a validator for the "merchant_number" field. It is called by the builders before save.
+	storepaymentaccount.MerchantNumberValidator = func() func(string) error {
+		validators := storepaymentaccountDescMerchantNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_number string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storepaymentaccountDescID is the schema descriptor for id field.
+	storepaymentaccountDescID := storepaymentaccountMixinFields0[0].Descriptor()
+	// storepaymentaccount.DefaultID holds the default value on creation for the id field.
+	storepaymentaccount.DefaultID = storepaymentaccountDescID.Default.(func() uuid.UUID)
 	storeuserMixin := schema.StoreUser{}.Mixin()
 	storeuserMixinHooks1 := storeuserMixin[1].Hooks()
 	storeuser.Hooks[0] = storeuserMixinHooks1[0]

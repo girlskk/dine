@@ -22,6 +22,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/taxfee"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/userauth"
 	"go.uber.org/fx"
@@ -137,6 +138,10 @@ var Module = fx.Module(
 		fx.Annotate(
 			paymentaccount.NewPaymentAccountInteractor,
 			fx.As(new(domain.PaymentAccountInteractor)),
+		),
+		fx.Annotate(
+			storepaymentaccount.NewStorePaymentAccountInteractor,
+			fx.As(new(domain.StorePaymentAccountInteractor)),
 		),
 	),
 )

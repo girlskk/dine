@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 )
 
 // PaymentAccountCreate is the builder for creating a PaymentAccount entity.
@@ -117,6 +118,21 @@ func (pac *PaymentAccountCreate) SetNillableID(u *uuid.UUID) *PaymentAccountCrea
 		pac.SetID(*u)
 	}
 	return pac
+}
+
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (pac *PaymentAccountCreate) AddStorePaymentAccountIDs(ids ...uuid.UUID) *PaymentAccountCreate {
+	pac.mutation.AddStorePaymentAccountIDs(ids...)
+	return pac
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (pac *PaymentAccountCreate) AddStorePaymentAccounts(s ...*StorePaymentAccount) *PaymentAccountCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pac.AddStorePaymentAccountIDs(ids...)
 }
 
 // Mutation returns the PaymentAccountMutation object of the builder.
@@ -296,6 +312,22 @@ func (pac *PaymentAccountCreate) createSpec() (*PaymentAccount, *sqlgraph.Create
 	if value, ok := pac.mutation.IsDefault(); ok {
 		_spec.SetField(paymentaccount.FieldIsDefault, field.TypeBool, value)
 		_node.IsDefault = value
+	}
+	if nodes := pac.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentaccount.StorePaymentAccountsTable,
+			Columns: []string{paymentaccount.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

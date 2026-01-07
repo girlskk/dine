@@ -1274,6 +1274,134 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment/store-account": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "查询门店收款账户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "创建时间结束（可选）",
+                        "name": "created_at_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间开始（可选）",
+                        "name": "created_at_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "品牌商支付商户名称（可选，模糊匹配）",
+                        "name": "merchant_name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "门店ID列表（可选，多选）",
+                        "name": "store_ids",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StorePaymentAccountSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "创建门店收款账户",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StorePaymentAccountCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/store-account/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "更新门店收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StorePaymentAccountUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/product": {
             "get": {
                 "security": [
@@ -4404,6 +4532,33 @@ const docTemplate = `{
                 }
             }
         },
+        "/store/payment/account/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "删除门店收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/store/{id}": {
             "get": {
                 "security": [
@@ -5429,7 +5584,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -8011,6 +8166,78 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.StorePaymentAccount": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "门店收款账户ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "merchant_number": {
+                    "description": "支付商户号",
+                    "type": "string"
+                },
+                "payment_account": {
+                    "description": "品牌商收款账户",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentAccount"
+                        }
+                    ]
+                },
+                "payment_account_id": {
+                    "description": "品牌商收款账户ID",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "关联信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StorePaymentAccountSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StorePaymentAccount"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.StoreSimple": {
             "type": "object",
             "properties": {
@@ -8142,27 +8369,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.AdditionalFeeCreateReq": {
             "type": "object",
@@ -10662,6 +10868,42 @@ const docTemplate = `{
                 "total": {
                     "description": "总数",
                     "type": "integer"
+                }
+            }
+        },
+        "types.StorePaymentAccountCreateReq": {
+            "type": "object",
+            "required": [
+                "merchant_number",
+                "payment_account_id",
+                "store_id"
+            ],
+            "properties": {
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "payment_account_id": {
+                    "description": "品牌商收款账户ID（必选）",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店ID（必选）",
+                    "type": "string"
+                }
+            }
+        },
+        "types.StorePaymentAccountUpdateReq": {
+            "type": "object",
+            "required": [
+                "merchant_number"
+            ],
+            "properties": {
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },

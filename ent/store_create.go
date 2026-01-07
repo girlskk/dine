@@ -30,6 +30,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -631,6 +632,21 @@ func (sc *StoreCreate) AddProfitDistributionBills(p ...*ProfitDistributionBill) 
 		ids[i] = p[i].ID
 	}
 	return sc.AddProfitDistributionBillIDs(ids...)
+}
+
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (sc *StoreCreate) AddStorePaymentAccountIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddStorePaymentAccountIDs(ids...)
+	return sc
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (sc *StoreCreate) AddStorePaymentAccounts(s ...*StorePaymentAccount) *StoreCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddStorePaymentAccountIDs(ids...)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -1316,6 +1332,22 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

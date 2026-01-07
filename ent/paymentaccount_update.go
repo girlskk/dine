@@ -11,9 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 )
 
 // PaymentAccountUpdate is the builder for updating PaymentAccount entities.
@@ -113,9 +115,45 @@ func (pau *PaymentAccountUpdate) SetNillableIsDefault(b *bool) *PaymentAccountUp
 	return pau
 }
 
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (pau *PaymentAccountUpdate) AddStorePaymentAccountIDs(ids ...uuid.UUID) *PaymentAccountUpdate {
+	pau.mutation.AddStorePaymentAccountIDs(ids...)
+	return pau
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (pau *PaymentAccountUpdate) AddStorePaymentAccounts(s ...*StorePaymentAccount) *PaymentAccountUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pau.AddStorePaymentAccountIDs(ids...)
+}
+
 // Mutation returns the PaymentAccountMutation object of the builder.
 func (pau *PaymentAccountUpdate) Mutation() *PaymentAccountMutation {
 	return pau.mutation
+}
+
+// ClearStorePaymentAccounts clears all "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (pau *PaymentAccountUpdate) ClearStorePaymentAccounts() *PaymentAccountUpdate {
+	pau.mutation.ClearStorePaymentAccounts()
+	return pau
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to StorePaymentAccount entities by IDs.
+func (pau *PaymentAccountUpdate) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) *PaymentAccountUpdate {
+	pau.mutation.RemoveStorePaymentAccountIDs(ids...)
+	return pau
+}
+
+// RemoveStorePaymentAccounts removes "store_payment_accounts" edges to StorePaymentAccount entities.
+func (pau *PaymentAccountUpdate) RemoveStorePaymentAccounts(s ...*StorePaymentAccount) *PaymentAccountUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pau.RemoveStorePaymentAccountIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -218,6 +256,51 @@ func (pau *PaymentAccountUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if value, ok := pau.mutation.IsDefault(); ok {
 		_spec.SetField(paymentaccount.FieldIsDefault, field.TypeBool, value)
+	}
+	if pau.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentaccount.StorePaymentAccountsTable,
+			Columns: []string{paymentaccount.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pau.mutation.RemovedStorePaymentAccountsIDs(); len(nodes) > 0 && !pau.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentaccount.StorePaymentAccountsTable,
+			Columns: []string{paymentaccount.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pau.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentaccount.StorePaymentAccountsTable,
+			Columns: []string{paymentaccount.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(pau.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, pau.driver, _spec); err != nil {
@@ -324,9 +407,45 @@ func (pauo *PaymentAccountUpdateOne) SetNillableIsDefault(b *bool) *PaymentAccou
 	return pauo
 }
 
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (pauo *PaymentAccountUpdateOne) AddStorePaymentAccountIDs(ids ...uuid.UUID) *PaymentAccountUpdateOne {
+	pauo.mutation.AddStorePaymentAccountIDs(ids...)
+	return pauo
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (pauo *PaymentAccountUpdateOne) AddStorePaymentAccounts(s ...*StorePaymentAccount) *PaymentAccountUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pauo.AddStorePaymentAccountIDs(ids...)
+}
+
 // Mutation returns the PaymentAccountMutation object of the builder.
 func (pauo *PaymentAccountUpdateOne) Mutation() *PaymentAccountMutation {
 	return pauo.mutation
+}
+
+// ClearStorePaymentAccounts clears all "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (pauo *PaymentAccountUpdateOne) ClearStorePaymentAccounts() *PaymentAccountUpdateOne {
+	pauo.mutation.ClearStorePaymentAccounts()
+	return pauo
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to StorePaymentAccount entities by IDs.
+func (pauo *PaymentAccountUpdateOne) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) *PaymentAccountUpdateOne {
+	pauo.mutation.RemoveStorePaymentAccountIDs(ids...)
+	return pauo
+}
+
+// RemoveStorePaymentAccounts removes "store_payment_accounts" edges to StorePaymentAccount entities.
+func (pauo *PaymentAccountUpdateOne) RemoveStorePaymentAccounts(s ...*StorePaymentAccount) *PaymentAccountUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pauo.RemoveStorePaymentAccountIDs(ids...)
 }
 
 // Where appends a list predicates to the PaymentAccountUpdate builder.
@@ -459,6 +578,51 @@ func (pauo *PaymentAccountUpdateOne) sqlSave(ctx context.Context) (_node *Paymen
 	}
 	if value, ok := pauo.mutation.IsDefault(); ok {
 		_spec.SetField(paymentaccount.FieldIsDefault, field.TypeBool, value)
+	}
+	if pauo.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentaccount.StorePaymentAccountsTable,
+			Columns: []string{paymentaccount.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pauo.mutation.RemovedStorePaymentAccountsIDs(); len(nodes) > 0 && !pauo.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentaccount.StorePaymentAccountsTable,
+			Columns: []string{paymentaccount.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pauo.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentaccount.StorePaymentAccountsTable,
+			Columns: []string{paymentaccount.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(pauo.modifiers...)
 	_node = &PaymentAccount{config: pauo.config}

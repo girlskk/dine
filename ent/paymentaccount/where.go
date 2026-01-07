@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -419,6 +420,29 @@ func IsDefaultEQ(v bool) predicate.PaymentAccount {
 // IsDefaultNEQ applies the NEQ predicate on the "is_default" field.
 func IsDefaultNEQ(v bool) predicate.PaymentAccount {
 	return predicate.PaymentAccount(sql.FieldNEQ(FieldIsDefault, v))
+}
+
+// HasStorePaymentAccounts applies the HasEdge predicate on the "store_payment_accounts" edge.
+func HasStorePaymentAccounts() predicate.PaymentAccount {
+	return predicate.PaymentAccount(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StorePaymentAccountsTable, StorePaymentAccountsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStorePaymentAccountsWith applies the HasEdge predicate on the "store_payment_accounts" edge with a given conditions (other predicates).
+func HasStorePaymentAccountsWith(preds ...predicate.StorePaymentAccount) predicate.PaymentAccount {
+	return predicate.PaymentAccount(func(s *sql.Selector) {
+		step := newStorePaymentAccountsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

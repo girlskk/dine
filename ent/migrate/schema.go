@@ -1843,6 +1843,59 @@ var (
 			},
 		},
 	}
+	// StorePaymentAccountsColumns holds the columns for the "store_payment_accounts" table.
+	StorePaymentAccountsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "merchant_number", Type: field.TypeString, Size: 255},
+		{Name: "payment_account_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+	}
+	// StorePaymentAccountsTable holds the schema information for the "store_payment_accounts" table.
+	StorePaymentAccountsTable = &schema.Table{
+		Name:       "store_payment_accounts",
+		Columns:    StorePaymentAccountsColumns,
+		PrimaryKey: []*schema.Column{StorePaymentAccountsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "store_payment_accounts_payment_accounts_store_payment_accounts",
+				Columns:    []*schema.Column{StorePaymentAccountsColumns[6]},
+				RefColumns: []*schema.Column{PaymentAccountsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "store_payment_accounts_stores_store_payment_accounts",
+				Columns:    []*schema.Column{StorePaymentAccountsColumns[7]},
+				RefColumns: []*schema.Column{StoresColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "storepaymentaccount_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{StorePaymentAccountsColumns[3]},
+			},
+			{
+				Name:    "storepaymentaccount_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{StorePaymentAccountsColumns[7]},
+			},
+			{
+				Name:    "storepaymentaccount_payment_account_id",
+				Unique:  false,
+				Columns: []*schema.Column{StorePaymentAccountsColumns[6]},
+			},
+			{
+				Name:    "storepaymentaccount_store_id_payment_account_id_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{StorePaymentAccountsColumns[7], StorePaymentAccountsColumns[6], StorePaymentAccountsColumns[3]},
+			},
+		},
+	}
 	// StoreUsersColumns holds the columns for the "store_users" table.
 	StoreUsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -2057,6 +2110,7 @@ var (
 		SetMealGroupsTable,
 		StallsTable,
 		StoresTable,
+		StorePaymentAccountsTable,
 		StoreUsersTable,
 		TaxFeesTable,
 		MenuStoreRelationsTable,
@@ -2124,6 +2178,8 @@ func init() {
 	StoresTable.ForeignKeys[3].RefTable = MerchantsTable
 	StoresTable.ForeignKeys[4].RefTable = MerchantBusinessTypesTable
 	StoresTable.ForeignKeys[5].RefTable = ProvincesTable
+	StorePaymentAccountsTable.ForeignKeys[0].RefTable = PaymentAccountsTable
+	StorePaymentAccountsTable.ForeignKeys[1].RefTable = StoresTable
 	StoreUsersTable.ForeignKeys[0].RefTable = MerchantsTable
 	StoreUsersTable.ForeignKeys[1].RefTable = StoresTable
 	TaxFeesTable.ForeignKeys[0].RefTable = MerchantsTable

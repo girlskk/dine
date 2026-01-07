@@ -114,6 +114,9 @@ type Stall func(*sql.Selector)
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)
 
+// StorePaymentAccount is the predicate function for storepaymentaccount builders.
+type StorePaymentAccount func(*sql.Selector)
+
 // StoreUser is the predicate function for storeuser builders.
 type StoreUser func(*sql.Selector)
 

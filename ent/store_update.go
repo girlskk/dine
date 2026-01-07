@@ -30,6 +30,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -745,6 +746,21 @@ func (su *StoreUpdate) AddProfitDistributionBills(p ...*ProfitDistributionBill) 
 	return su.AddProfitDistributionBillIDs(ids...)
 }
 
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (su *StoreUpdate) AddStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddStorePaymentAccountIDs(ids...)
+	return su
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (su *StoreUpdate) AddStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddStorePaymentAccountIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
@@ -1009,6 +1025,27 @@ func (su *StoreUpdate) RemoveProfitDistributionBills(p ...*ProfitDistributionBil
 		ids[i] = p[i].ID
 	}
 	return su.RemoveProfitDistributionBillIDs(ids...)
+}
+
+// ClearStorePaymentAccounts clears all "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (su *StoreUpdate) ClearStorePaymentAccounts() *StoreUpdate {
+	su.mutation.ClearStorePaymentAccounts()
+	return su
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to StorePaymentAccount entities by IDs.
+func (su *StoreUpdate) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveStorePaymentAccountIDs(ids...)
+	return su
+}
+
+// RemoveStorePaymentAccounts removes "store_payment_accounts" edges to StorePaymentAccount entities.
+func (su *StoreUpdate) RemoveStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveStorePaymentAccountIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1941,6 +1978,51 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedStorePaymentAccountsIDs(); len(nodes) > 0 && !su.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(su.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -2660,6 +2742,21 @@ func (suo *StoreUpdateOne) AddProfitDistributionBills(p ...*ProfitDistributionBi
 	return suo.AddProfitDistributionBillIDs(ids...)
 }
 
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (suo *StoreUpdateOne) AddStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddStorePaymentAccountIDs(ids...)
+	return suo
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (suo *StoreUpdateOne) AddStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddStorePaymentAccountIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
@@ -2924,6 +3021,27 @@ func (suo *StoreUpdateOne) RemoveProfitDistributionBills(p ...*ProfitDistributio
 		ids[i] = p[i].ID
 	}
 	return suo.RemoveProfitDistributionBillIDs(ids...)
+}
+
+// ClearStorePaymentAccounts clears all "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (suo *StoreUpdateOne) ClearStorePaymentAccounts() *StoreUpdateOne {
+	suo.mutation.ClearStorePaymentAccounts()
+	return suo
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to StorePaymentAccount entities by IDs.
+func (suo *StoreUpdateOne) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveStorePaymentAccountIDs(ids...)
+	return suo
+}
+
+// RemoveStorePaymentAccounts removes "store_payment_accounts" edges to StorePaymentAccount entities.
+func (suo *StoreUpdateOne) RemoveStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveStorePaymentAccountIDs(ids...)
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -3879,6 +3997,51 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedStorePaymentAccountsIDs(); len(nodes) > 0 && !suo.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

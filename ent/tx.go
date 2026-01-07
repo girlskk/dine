@@ -84,6 +84,8 @@ type Tx struct {
 	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
+	// StorePaymentAccount is the client for interacting with the StorePaymentAccount builders.
+	StorePaymentAccount *StorePaymentAccountClient
 	// StoreUser is the client for interacting with the StoreUser builders.
 	StoreUser *StoreUserClient
 	// TaxFee is the client for interacting with the TaxFee builders.
@@ -255,6 +257,7 @@ func (tx *Tx) init() {
 	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
+	tx.StorePaymentAccount = NewStorePaymentAccountClient(tx.config)
 	tx.StoreUser = NewStoreUserClient(tx.config)
 	tx.TaxFee = NewTaxFeeClient(tx.config)
 }

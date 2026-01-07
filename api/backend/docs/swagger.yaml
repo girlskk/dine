@@ -190,7 +190,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -2018,6 +2018,54 @@ definitions:
       updated_at:
         type: string
     type: object
+  domain.StorePaymentAccount:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 门店收款账户ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      merchant_number:
+        description: 支付商户号
+        type: string
+      payment_account:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentAccount'
+        description: 品牌商收款账户
+      payment_account_id:
+        description: 品牌商收款账户ID
+        type: string
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.StoreSimple'
+        description: 关联信息
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.StorePaymentAccountSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.StorePaymentAccount'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
   domain.StoreSimple:
     properties:
       id:
@@ -2109,24 +2157,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.AdditionalFeeCreateReq:
     properties:
       charge_mode:
@@ -3892,6 +3922,32 @@ definitions:
         description: 总数
         type: integer
     type: object
+  types.StorePaymentAccountCreateReq:
+    properties:
+      merchant_number:
+        description: 支付商户号（必选）
+        maxLength: 255
+        type: string
+      payment_account_id:
+        description: 品牌商收款账户ID（必选）
+        type: string
+      store_id:
+        description: 门店ID（必选）
+        type: string
+    required:
+    - merchant_number
+    - payment_account_id
+    - store_id
+    type: object
+  types.StorePaymentAccountUpdateReq:
+    properties:
+      merchant_number:
+        description: 支付商户号（必选）
+        maxLength: 255
+        type: string
+    required:
+    - merchant_number
+    type: object
   types.TaxFeeCreateReq:
     properties:
       name:
@@ -4887,6 +4943,86 @@ paths:
       summary: 更新结算方式
       tags:
       - 结算方式管理
+  /payment/store-account:
+    get:
+      parameters:
+      - description: 创建时间结束（可选）
+        in: query
+        name: created_at_end
+        type: string
+      - description: 创建时间开始（可选）
+        in: query
+        name: created_at_start
+        type: string
+      - description: 品牌商支付商户名称（可选，模糊匹配）
+        in: query
+        name: merchant_name
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      - collectionFormat: csv
+        description: 门店ID列表（可选，多选）
+        in: query
+        items:
+          type: string
+        name: store_ids
+        type: array
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.StorePaymentAccountSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询门店收款账户列表
+      tags:
+      - 门店收款账户
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StorePaymentAccountCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建门店收款账户
+      tags:
+      - 门店收款账户
+  /payment/store-account/{id}:
+    put:
+      parameters:
+      - description: 门店收款账户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StorePaymentAccountUpdateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新门店收款账户
+      tags:
+      - 门店收款账户
   /product:
     get:
       parameters:
@@ -6999,6 +7135,22 @@ paths:
       summary: 门店列表
       tags:
       - 门店管理
+  /store/payment/account/{id}:
+    delete:
+      parameters:
+      - description: 门店收款账户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除门店收款账户
+      tags:
+      - 门店收款账户
   /tax_fee:
     get:
       consumes:

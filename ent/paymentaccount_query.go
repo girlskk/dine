@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -15,16 +16,18 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 )
 
 // PaymentAccountQuery is the builder for querying PaymentAccount entities.
 type PaymentAccountQuery struct {
 	config
-	ctx        *QueryContext
-	order      []paymentaccount.OrderOption
-	inters     []Interceptor
-	predicates []predicate.PaymentAccount
-	modifiers  []func(*sql.Selector)
+	ctx                      *QueryContext
+	order                    []paymentaccount.OrderOption
+	inters                   []Interceptor
+	predicates               []predicate.PaymentAccount
+	withStorePaymentAccounts *StorePaymentAccountQuery
+	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +62,28 @@ func (paq *PaymentAccountQuery) Unique(unique bool) *PaymentAccountQuery {
 func (paq *PaymentAccountQuery) Order(o ...paymentaccount.OrderOption) *PaymentAccountQuery {
 	paq.order = append(paq.order, o...)
 	return paq
+}
+
+// QueryStorePaymentAccounts chains the current query on the "store_payment_accounts" edge.
+func (paq *PaymentAccountQuery) QueryStorePaymentAccounts() *StorePaymentAccountQuery {
+	query := (&StorePaymentAccountClient{config: paq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := paq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := paq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(paymentaccount.Table, paymentaccount.FieldID, selector),
+			sqlgraph.To(storepaymentaccount.Table, storepaymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, paymentaccount.StorePaymentAccountsTable, paymentaccount.StorePaymentAccountsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(paq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first PaymentAccount entity from the query.
@@ -248,16 +273,28 @@ func (paq *PaymentAccountQuery) Clone() *PaymentAccountQuery {
 		return nil
 	}
 	return &PaymentAccountQuery{
-		config:     paq.config,
-		ctx:        paq.ctx.Clone(),
-		order:      append([]paymentaccount.OrderOption{}, paq.order...),
-		inters:     append([]Interceptor{}, paq.inters...),
-		predicates: append([]predicate.PaymentAccount{}, paq.predicates...),
+		config:                   paq.config,
+		ctx:                      paq.ctx.Clone(),
+		order:                    append([]paymentaccount.OrderOption{}, paq.order...),
+		inters:                   append([]Interceptor{}, paq.inters...),
+		predicates:               append([]predicate.PaymentAccount{}, paq.predicates...),
+		withStorePaymentAccounts: paq.withStorePaymentAccounts.Clone(),
 		// clone intermediate query.
 		sql:       paq.sql.Clone(),
 		path:      paq.path,
 		modifiers: append([]func(*sql.Selector){}, paq.modifiers...),
 	}
+}
+
+// WithStorePaymentAccounts tells the query-builder to eager-load the nodes that are connected to
+// the "store_payment_accounts" edge. The optional arguments are used to configure the query builder of the edge.
+func (paq *PaymentAccountQuery) WithStorePaymentAccounts(opts ...func(*StorePaymentAccountQuery)) *PaymentAccountQuery {
+	query := (&StorePaymentAccountClient{config: paq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	paq.withStorePaymentAccounts = query
+	return paq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +373,11 @@ func (paq *PaymentAccountQuery) prepareQuery(ctx context.Context) error {
 
 func (paq *PaymentAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*PaymentAccount, error) {
 	var (
-		nodes = []*PaymentAccount{}
-		_spec = paq.querySpec()
+		nodes       = []*PaymentAccount{}
+		_spec       = paq.querySpec()
+		loadedTypes = [1]bool{
+			paq.withStorePaymentAccounts != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*PaymentAccount).scanValues(nil, columns)
@@ -345,6 +385,7 @@ func (paq *PaymentAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &PaymentAccount{config: paq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(paq.modifiers) > 0 {
@@ -359,7 +400,47 @@ func (paq *PaymentAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := paq.withStorePaymentAccounts; query != nil {
+		if err := paq.loadStorePaymentAccounts(ctx, query, nodes,
+			func(n *PaymentAccount) { n.Edges.StorePaymentAccounts = []*StorePaymentAccount{} },
+			func(n *PaymentAccount, e *StorePaymentAccount) {
+				n.Edges.StorePaymentAccounts = append(n.Edges.StorePaymentAccounts, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (paq *PaymentAccountQuery) loadStorePaymentAccounts(ctx context.Context, query *StorePaymentAccountQuery, nodes []*PaymentAccount, init func(*PaymentAccount), assign func(*PaymentAccount, *StorePaymentAccount)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*PaymentAccount)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(storepaymentaccount.FieldPaymentAccountID)
+	}
+	query.Where(predicate.StorePaymentAccount(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(paymentaccount.StorePaymentAccountsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.PaymentAccountID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "payment_account_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (paq *PaymentAccountQuery) sqlCount(ctx context.Context) (int, error) {
