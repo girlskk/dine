@@ -85,6 +85,7 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			Fees:          req.Fees,
 			Payments:      req.Payments,
 			Amount:        req.Amount,
+			Remark:        req.Remark,
 		}
 
 		if req.OrderType != "" {
@@ -214,6 +215,7 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 			Fees:          req.Fees,
 			Payments:      req.Payments,
 			Amount:        req.Amount,
+			Remark:        req.Remark,
 		}
 
 		if req.OrderType != "" {

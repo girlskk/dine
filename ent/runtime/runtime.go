@@ -936,6 +936,10 @@ func init() {
 	orderDescOrderNo := orderFields[4].Descriptor()
 	// order.OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
 	order.OrderNoValidator = orderDescOrderNo.Validators[0].(func(string) error)
+	// orderDescRemark is the schema descriptor for remark field.
+	orderDescRemark := orderFields[25].Descriptor()
+	// order.RemarkValidator is a validator for the "remark" field. It is called by the builders before save.
+	order.RemarkValidator = orderDescRemark.Validators[0].(func(string) error)
 	// orderDescID is the schema descriptor for id field.
 	orderDescID := orderMixinFields0[0].Descriptor()
 	// order.DefaultID holds the default value on creation for the id field.

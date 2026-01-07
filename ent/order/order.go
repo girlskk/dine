@@ -74,6 +74,8 @@ const (
 	FieldPayments = "payments"
 	// FieldAmount holds the string denoting the amount field in the database.
 	FieldAmount = "amount"
+	// FieldRemark holds the string denoting the remark field in the database.
+	FieldRemark = "remark"
 	// EdgeOrderProducts holds the string denoting the order_products edge name in mutations.
 	EdgeOrderProducts = "order_products"
 	// Table holds the table name of the order in the database.
@@ -118,6 +120,7 @@ var Columns = []string{
 	FieldFees,
 	FieldPayments,
 	FieldAmount,
+	FieldRemark,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -150,6 +153,8 @@ var (
 	BusinessDateValidator func(string) error
 	// OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
 	OrderNoValidator func(string) error
+	// RemarkValidator is a validator for the "remark" field. It is called by the builders before save.
+	RemarkValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -325,6 +330,11 @@ func ByGuestCount(opts ...sql.OrderTermOption) OrderOption {
 // ByChannel orders the results by the channel field.
 func ByChannel(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldChannel, opts...).ToFunc()
+}
+
+// ByRemark orders the results by the remark field.
+func ByRemark(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRemark, opts...).ToFunc()
 }
 
 // ByOrderProductsCount orders the results by order_products count.

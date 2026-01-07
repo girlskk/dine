@@ -77,6 +77,8 @@ type Order struct {
 	Payments []domain.OrderPayment `json:"payments,omitempty"`
 	// 金额汇总
 	Amount domain.OrderAmount `json:"amount,omitempty"`
+	// 整单备注
+	Remark string `json:"remark,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrderQuery when eager-loading is set.
 	Edges        OrderEdges `json:"edges"`
@@ -110,7 +112,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case order.FieldDeletedAt, order.FieldGuestCount:
 			values[i] = new(sql.NullInt64)
-		case order.FieldBusinessDate, order.FieldShiftNo, order.FieldOrderNo, order.FieldOrderType, order.FieldPlacedByName, order.FieldDiningMode, order.FieldOrderStatus, order.FieldPaymentStatus, order.FieldTableName, order.FieldChannel:
+		case order.FieldBusinessDate, order.FieldShiftNo, order.FieldOrderNo, order.FieldOrderType, order.FieldPlacedByName, order.FieldDiningMode, order.FieldOrderStatus, order.FieldPaymentStatus, order.FieldTableName, order.FieldChannel, order.FieldRemark:
 			values[i] = new(sql.NullString)
 		case order.FieldCreatedAt, order.FieldUpdatedAt, order.FieldPlacedAt, order.FieldPaidAt, order.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
@@ -322,6 +324,12 @@ func (o *Order) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field amount: %w", err)
 				}
 			}
+		case order.FieldRemark:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field remark", values[i])
+			} else if value.Valid {
+				o.Remark = value.String
+			}
 		default:
 			o.selectValues.Set(columns[i], values[i])
 		}
@@ -452,6 +460,9 @@ func (o *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("amount=")
 	builder.WriteString(fmt.Sprintf("%v", o.Amount))
+	builder.WriteString(", ")
+	builder.WriteString("remark=")
+	builder.WriteString(o.Remark)
 	builder.WriteByte(')')
 	return builder.String()
 }

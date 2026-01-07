@@ -16799,6 +16799,7 @@ type OrderMutation struct {
 	payments              *[]domain.OrderPayment
 	appendpayments        []domain.OrderPayment
 	amount                *domain.OrderAmount
+	remark                *string
 	clearedFields         map[string]struct{}
 	order_products        map[uuid.UUID]struct{}
 	removedorder_products map[uuid.UUID]struct{}
@@ -18165,6 +18166,55 @@ func (m *OrderMutation) ResetAmount() {
 	m.amount = nil
 }
 
+// SetRemark sets the "remark" field.
+func (m *OrderMutation) SetRemark(s string) {
+	m.remark = &s
+}
+
+// Remark returns the value of the "remark" field in the mutation.
+func (m *OrderMutation) Remark() (r string, exists bool) {
+	v := m.remark
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRemark returns the old "remark" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldRemark(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRemark is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRemark requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRemark: %w", err)
+	}
+	return oldValue.Remark, nil
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (m *OrderMutation) ClearRemark() {
+	m.remark = nil
+	m.clearedFields[order.FieldRemark] = struct{}{}
+}
+
+// RemarkCleared returns if the "remark" field was cleared in this mutation.
+func (m *OrderMutation) RemarkCleared() bool {
+	_, ok := m.clearedFields[order.FieldRemark]
+	return ok
+}
+
+// ResetRemark resets all changes to the "remark" field.
+func (m *OrderMutation) ResetRemark() {
+	m.remark = nil
+	delete(m.clearedFields, order.FieldRemark)
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by ids.
 func (m *OrderMutation) AddOrderProductIDs(ids ...uuid.UUID) {
 	if m.order_products == nil {
@@ -18253,7 +18303,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 28)
+	fields := make([]string, 0, 29)
 	if m.created_at != nil {
 		fields = append(fields, order.FieldCreatedAt)
 	}
@@ -18338,6 +18388,9 @@ func (m *OrderMutation) Fields() []string {
 	if m.amount != nil {
 		fields = append(fields, order.FieldAmount)
 	}
+	if m.remark != nil {
+		fields = append(fields, order.FieldRemark)
+	}
 	return fields
 }
 
@@ -18402,6 +18455,8 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.Payments()
 	case order.FieldAmount:
 		return m.Amount()
+	case order.FieldRemark:
+		return m.Remark()
 	}
 	return nil, false
 }
@@ -18467,6 +18522,8 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldPayments(ctx)
 	case order.FieldAmount:
 		return m.OldAmount(ctx)
+	case order.FieldRemark:
+		return m.OldRemark(ctx)
 	}
 	return nil, fmt.Errorf("unknown Order field %s", name)
 }
@@ -18672,6 +18729,13 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAmount(v)
 		return nil
+	case order.FieldRemark:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRemark(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Order field %s", name)
 }
@@ -18765,6 +18829,9 @@ func (m *OrderMutation) ClearedFields() []string {
 	if m.FieldCleared(order.FieldPayments) {
 		fields = append(fields, order.FieldPayments)
 	}
+	if m.FieldCleared(order.FieldRemark) {
+		fields = append(fields, order.FieldRemark)
+	}
 	return fields
 }
 
@@ -18814,6 +18881,9 @@ func (m *OrderMutation) ClearField(name string) error {
 		return nil
 	case order.FieldPayments:
 		m.ClearPayments()
+		return nil
+	case order.FieldRemark:
+		m.ClearRemark()
 		return nil
 	}
 	return fmt.Errorf("unknown Order nullable field %s", name)
@@ -18906,6 +18976,9 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldAmount:
 		m.ResetAmount()
+		return nil
+	case order.FieldRemark:
+		m.ResetRemark()
 		return nil
 	}
 	return fmt.Errorf("unknown Order field %s", name)

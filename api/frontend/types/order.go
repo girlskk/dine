@@ -37,6 +37,8 @@ type CreateOrderReq struct {
 	Fees          []domain.OrderFee     `json:"fees"`           // 费用明细
 	Payments      []domain.OrderPayment `json:"payments"`       // 支付记录
 	Amount        domain.OrderAmount    `json:"amount"`         // 金额汇总
+
+	Remark string `json:"remark"` // 整单备注
 }
 
 // UpdateOrderReq 更新订单请求
@@ -69,6 +71,8 @@ type UpdateOrderReq struct {
 	Fees          []domain.OrderFee     `json:"fees"`           // 费用明细
 	Payments      []domain.OrderPayment `json:"payments"`       // 支付记录
 	Amount        domain.OrderAmount    `json:"amount"`         // 金额汇总
+
+	Remark string `json:"remark"` // 整单备注
 }
 
 // ListOrderReq 订单列表请求

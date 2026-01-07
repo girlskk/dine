@@ -330,6 +330,20 @@ func (oc *OrderCreate) SetAmount(da domain.OrderAmount) *OrderCreate {
 	return oc
 }
 
+// SetRemark sets the "remark" field.
+func (oc *OrderCreate) SetRemark(s string) *OrderCreate {
+	oc.mutation.SetRemark(s)
+	return oc
+}
+
+// SetNillableRemark sets the "remark" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableRemark(s *string) *OrderCreate {
+	if s != nil {
+		oc.SetRemark(*s)
+	}
+	return oc
+}
+
 // SetID sets the "id" field.
 func (oc *OrderCreate) SetID(u uuid.UUID) *OrderCreate {
 	oc.mutation.SetID(u)
@@ -529,6 +543,11 @@ func (oc *OrderCreate) check() error {
 	if _, ok := oc.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Order.amount"`)}
 	}
+	if v, ok := oc.mutation.Remark(); ok {
+		if err := order.RemarkValidator(v); err != nil {
+			return &ValidationError{Name: "remark", err: fmt.Errorf(`ent: validator failed for field "Order.remark": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -676,6 +695,10 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
 		_node.Amount = value
+	}
+	if value, ok := oc.mutation.Remark(); ok {
+		_spec.SetField(order.FieldRemark, field.TypeString, value)
+		_node.Remark = value
 	}
 	if nodes := oc.mutation.OrderProductsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1126,6 +1149,24 @@ func (u *OrderUpsert) SetAmount(v domain.OrderAmount) *OrderUpsert {
 // UpdateAmount sets the "amount" field to the value that was provided on create.
 func (u *OrderUpsert) UpdateAmount() *OrderUpsert {
 	u.SetExcluded(order.FieldAmount)
+	return u
+}
+
+// SetRemark sets the "remark" field.
+func (u *OrderUpsert) SetRemark(v string) *OrderUpsert {
+	u.Set(order.FieldRemark, v)
+	return u
+}
+
+// UpdateRemark sets the "remark" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateRemark() *OrderUpsert {
+	u.SetExcluded(order.FieldRemark)
+	return u
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (u *OrderUpsert) ClearRemark() *OrderUpsert {
+	u.SetNull(order.FieldRemark)
 	return u
 }
 
@@ -1631,6 +1672,27 @@ func (u *OrderUpsertOne) SetAmount(v domain.OrderAmount) *OrderUpsertOne {
 func (u *OrderUpsertOne) UpdateAmount() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateAmount()
+	})
+}
+
+// SetRemark sets the "remark" field.
+func (u *OrderUpsertOne) SetRemark(v string) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRemark(v)
+	})
+}
+
+// UpdateRemark sets the "remark" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateRemark() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRemark()
+	})
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (u *OrderUpsertOne) ClearRemark() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRemark()
 	})
 }
 
@@ -2303,6 +2365,27 @@ func (u *OrderUpsertBulk) SetAmount(v domain.OrderAmount) *OrderUpsertBulk {
 func (u *OrderUpsertBulk) UpdateAmount() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateAmount()
+	})
+}
+
+// SetRemark sets the "remark" field.
+func (u *OrderUpsertBulk) SetRemark(v string) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRemark(v)
+	})
+}
+
+// UpdateRemark sets the "remark" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateRemark() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRemark()
+	})
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (u *OrderUpsertBulk) ClearRemark() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRemark()
 	})
 }
 

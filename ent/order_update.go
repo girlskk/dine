@@ -455,6 +455,26 @@ func (ou *OrderUpdate) SetNillableAmount(da *domain.OrderAmount) *OrderUpdate {
 	return ou
 }
 
+// SetRemark sets the "remark" field.
+func (ou *OrderUpdate) SetRemark(s string) *OrderUpdate {
+	ou.mutation.SetRemark(s)
+	return ou
+}
+
+// SetNillableRemark sets the "remark" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableRemark(s *string) *OrderUpdate {
+	if s != nil {
+		ou.SetRemark(*s)
+	}
+	return ou
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (ou *OrderUpdate) ClearRemark() *OrderUpdate {
+	ou.mutation.ClearRemark()
+	return ou
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
 func (ou *OrderUpdate) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdate {
 	ou.mutation.AddOrderProductIDs(ids...)
@@ -573,6 +593,11 @@ func (ou *OrderUpdate) check() error {
 	if v, ok := ou.mutation.Channel(); ok {
 		if err := order.ChannelValidator(v); err != nil {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
+		}
+	}
+	if v, ok := ou.mutation.Remark(); ok {
+		if err := order.RemarkValidator(v); err != nil {
+			return &ValidationError{Name: "remark", err: fmt.Errorf(`ent: validator failed for field "Order.remark": %w`, err)}
 		}
 	}
 	return nil
@@ -727,6 +752,12 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
+	}
+	if value, ok := ou.mutation.Remark(); ok {
+		_spec.SetField(order.FieldRemark, field.TypeString, value)
+	}
+	if ou.mutation.RemarkCleared() {
+		_spec.ClearField(order.FieldRemark, field.TypeString)
 	}
 	if ou.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1217,6 +1248,26 @@ func (ouo *OrderUpdateOne) SetNillableAmount(da *domain.OrderAmount) *OrderUpdat
 	return ouo
 }
 
+// SetRemark sets the "remark" field.
+func (ouo *OrderUpdateOne) SetRemark(s string) *OrderUpdateOne {
+	ouo.mutation.SetRemark(s)
+	return ouo
+}
+
+// SetNillableRemark sets the "remark" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableRemark(s *string) *OrderUpdateOne {
+	if s != nil {
+		ouo.SetRemark(*s)
+	}
+	return ouo
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (ouo *OrderUpdateOne) ClearRemark() *OrderUpdateOne {
+	ouo.mutation.ClearRemark()
+	return ouo
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
 func (ouo *OrderUpdateOne) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdateOne {
 	ouo.mutation.AddOrderProductIDs(ids...)
@@ -1348,6 +1399,11 @@ func (ouo *OrderUpdateOne) check() error {
 	if v, ok := ouo.mutation.Channel(); ok {
 		if err := order.ChannelValidator(v); err != nil {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
+		}
+	}
+	if v, ok := ouo.mutation.Remark(); ok {
+		if err := order.RemarkValidator(v); err != nil {
+			return &ValidationError{Name: "remark", err: fmt.Errorf(`ent: validator failed for field "Order.remark": %w`, err)}
 		}
 	}
 	return nil
@@ -1519,6 +1575,12 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if value, ok := ouo.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
+	}
+	if value, ok := ouo.mutation.Remark(); ok {
+		_spec.SetField(order.FieldRemark, field.TypeString, value)
+	}
+	if ouo.mutation.RemarkCleared() {
+		_spec.ClearField(order.FieldRemark, field.TypeString)
 	}
 	if ouo.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{

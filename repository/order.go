@@ -123,6 +123,11 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 	// Amount
 	builder = builder.SetAmount(o.Amount)
 
+	// Remark
+	if o.Remark != "" {
+		builder = builder.SetRemark(o.Remark)
+	}
+
 	created, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsValidationError(err) {
@@ -226,6 +231,11 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 
 	// Amount
 	builder = builder.SetAmount(o.Amount)
+
+	// Remark
+	if o.Remark != "" {
+		builder = builder.SetRemark(o.Remark)
+	}
 
 	_, err = builder.Save(ctx)
 	if err != nil {
@@ -498,6 +508,8 @@ func convertOrderToDomain(eo *ent.Order) *domain.Order {
 		Fees:     eo.Fees,
 		Payments: eo.Payments,
 		Amount:   eo.Amount,
+
+		Remark: eo.Remark,
 
 		OrderProducts: orderProducts,
 	}

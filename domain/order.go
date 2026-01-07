@@ -241,6 +241,8 @@ type Order struct {
 	Payments []OrderPayment `json:"payments"`  // 支付记录
 	Amount   OrderAmount    `json:"amount"`    // 金额汇总
 
+	Remark string `json:"remark"` // 整单备注
+
 	OrderProducts []OrderProduct `json:"order_products"` // 订单商品明细
 }
 

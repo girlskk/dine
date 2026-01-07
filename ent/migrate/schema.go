@@ -680,6 +680,7 @@ var (
 		{Name: "fees", Type: field.TypeJSON, Nullable: true},
 		{Name: "payments", Type: field.TypeJSON, Nullable: true},
 		{Name: "amount", Type: field.TypeJSON},
+		{Name: "remark", Type: field.TypeString, Nullable: true, Size: 255},
 	}
 	// OrdersTable holds the schema information for the "orders" table.
 	OrdersTable = &schema.Table{

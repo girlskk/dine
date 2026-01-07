@@ -45,6 +45,7 @@ func (s *OrderTestSuite) newTestOrder(storeID, orderNo string) *domain.Order {
 		Pos:          domain.OrderPOS{ID: uuid.New(), Name: "test-pos"},
 		Cashier:      domain.OrderCashier{CashierID: uuid.New(), CashierName: "test-cashier"},
 		Amount:       domain.OrderAmount{},
+		Remark:       "测试备注",
 	}
 }
 
@@ -87,6 +88,7 @@ func (s *OrderTestSuite) TestOrder_Create() {
 		require.Equal(t, order.OrderNo, dbOrder.OrderNo)
 		require.Equal(t, domain.DiningModeDineIn, dbOrder.DiningMode)
 		require.Equal(t, order.Store.ID, dbOrder.Store.ID)
+		require.Equal(t, "测试备注", dbOrder.Remark)
 	})
 
 	s.T().Run("唯一键冲突返回 Conflict", func(t *testing.T) {
@@ -126,6 +128,7 @@ func (s *OrderTestSuite) TestOrder_FindByID() {
 		require.Equal(t, order.StoreID, found.StoreID)
 		require.Equal(t, order.OrderNo, found.OrderNo)
 		require.Equal(t, domain.DiningModeDineIn, found.DiningMode)
+		require.Equal(t, "测试备注", found.Remark)
 	})
 
 	s.T().Run("不存在的ID", func(t *testing.T) {

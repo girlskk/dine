@@ -1,0 +1,3 @@
+-- Modify "orders" table
+ALTER TABLE `orders`
+ADD COLUMN `remark` varchar(255) NULL;
