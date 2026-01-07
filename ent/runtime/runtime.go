@@ -1008,7 +1008,7 @@ func init() {
 	// orderproduct.DefaultGiftQty holds the default value on creation for the gift_qty field.
 	orderproduct.DefaultGiftQty = orderproductDescGiftQty.Default.(int)
 	// orderproductDescVoidQty is the schema descriptor for void_qty field.
-	orderproductDescVoidQty := orderproductFields[21].Descriptor()
+	orderproductDescVoidQty := orderproductFields[23].Descriptor()
 	// orderproduct.DefaultVoidQty holds the default value on creation for the void_qty field.
 	orderproduct.DefaultVoidQty = orderproductDescVoidQty.Default.(int)
 	// orderproductDescID is the schema descriptor for id field.

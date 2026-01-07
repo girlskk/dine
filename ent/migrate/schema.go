@@ -736,7 +736,7 @@ var (
 		{Name: "product_id", Type: field.TypeUUID},
 		{Name: "product_name", Type: field.TypeString},
 		{Name: "product_type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
-		{Name: "category_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "category", Type: field.TypeJSON, Nullable: true},
 		{Name: "unit_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
@@ -751,6 +751,8 @@ var (
 		{Name: "amount_after_tax", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "total", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "promotion_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "attr_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "gift_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "void_qty", Type: field.TypeInt, Default: 0},
 		{Name: "void_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
@@ -771,7 +773,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "order_products_orders_order_products",
-				Columns:    []*schema.Column{OrderProductsColumns[34]},
+				Columns:    []*schema.Column{OrderProductsColumns[36]},
 				RefColumns: []*schema.Column{OrdersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -785,7 +787,7 @@ var (
 			{
 				Name:    "orderproduct_order_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrderProductsColumns[34]},
+				Columns: []*schema.Column{OrderProductsColumns[36]},
 			},
 			{
 				Name:    "orderproduct_product_id",
@@ -795,7 +797,7 @@ var (
 			{
 				Name:    "orderproduct_order_id_order_item_id",
 				Unique:  true,
-				Columns: []*schema.Column{OrderProductsColumns[34], OrderProductsColumns[4]},
+				Columns: []*schema.Column{OrderProductsColumns[36], OrderProductsColumns[4]},
 			},
 		},
 	}

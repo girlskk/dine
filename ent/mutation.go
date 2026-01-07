@@ -19084,7 +19084,7 @@ type OrderProductMutation struct {
 	product_id           *uuid.UUID
 	product_name         *string
 	product_type         *domain.ProductType
-	category_id          *uuid.UUID
+	category             *domain.Category
 	unit_id              *uuid.UUID
 	main_image           *string
 	description          *string
@@ -19101,6 +19101,8 @@ type OrderProductMutation struct {
 	amount_after_tax     *decimal.Decimal
 	total                *decimal.Decimal
 	promotion_discount   *decimal.Decimal
+	attr_amount          *decimal.Decimal
+	gift_amount          *decimal.Decimal
 	void_qty             *int
 	addvoid_qty          *int
 	void_amount          *decimal.Decimal
@@ -19591,53 +19593,53 @@ func (m *OrderProductMutation) ResetProductType() {
 	m.product_type = nil
 }
 
-// SetCategoryID sets the "category_id" field.
-func (m *OrderProductMutation) SetCategoryID(u uuid.UUID) {
-	m.category_id = &u
+// SetCategory sets the "category" field.
+func (m *OrderProductMutation) SetCategory(d domain.Category) {
+	m.category = &d
 }
 
-// CategoryID returns the value of the "category_id" field in the mutation.
-func (m *OrderProductMutation) CategoryID() (r uuid.UUID, exists bool) {
-	v := m.category_id
+// Category returns the value of the "category" field in the mutation.
+func (m *OrderProductMutation) Category() (r domain.Category, exists bool) {
+	v := m.category
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCategoryID returns the old "category_id" field's value of the OrderProduct entity.
+// OldCategory returns the old "category" field's value of the OrderProduct entity.
 // If the OrderProduct object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderProductMutation) OldCategoryID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *OrderProductMutation) OldCategory(ctx context.Context) (v domain.Category, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategoryID is only allowed on UpdateOne operations")
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategoryID requires an ID field in the mutation")
+		return v, errors.New("OldCategory requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategoryID: %w", err)
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
 	}
-	return oldValue.CategoryID, nil
+	return oldValue.Category, nil
 }
 
-// ClearCategoryID clears the value of the "category_id" field.
-func (m *OrderProductMutation) ClearCategoryID() {
-	m.category_id = nil
-	m.clearedFields[orderproduct.FieldCategoryID] = struct{}{}
+// ClearCategory clears the value of the "category" field.
+func (m *OrderProductMutation) ClearCategory() {
+	m.category = nil
+	m.clearedFields[orderproduct.FieldCategory] = struct{}{}
 }
 
-// CategoryIDCleared returns if the "category_id" field was cleared in this mutation.
-func (m *OrderProductMutation) CategoryIDCleared() bool {
-	_, ok := m.clearedFields[orderproduct.FieldCategoryID]
+// CategoryCleared returns if the "category" field was cleared in this mutation.
+func (m *OrderProductMutation) CategoryCleared() bool {
+	_, ok := m.clearedFields[orderproduct.FieldCategory]
 	return ok
 }
 
-// ResetCategoryID resets all changes to the "category_id" field.
-func (m *OrderProductMutation) ResetCategoryID() {
-	m.category_id = nil
-	delete(m.clearedFields, orderproduct.FieldCategoryID)
+// ResetCategory resets all changes to the "category" field.
+func (m *OrderProductMutation) ResetCategory() {
+	m.category = nil
+	delete(m.clearedFields, orderproduct.FieldCategory)
 }
 
 // SetUnitID sets the "unit_id" field.
@@ -20301,6 +20303,104 @@ func (m *OrderProductMutation) ResetPromotionDiscount() {
 	delete(m.clearedFields, orderproduct.FieldPromotionDiscount)
 }
 
+// SetAttrAmount sets the "attr_amount" field.
+func (m *OrderProductMutation) SetAttrAmount(d decimal.Decimal) {
+	m.attr_amount = &d
+}
+
+// AttrAmount returns the value of the "attr_amount" field in the mutation.
+func (m *OrderProductMutation) AttrAmount() (r decimal.Decimal, exists bool) {
+	v := m.attr_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAttrAmount returns the old "attr_amount" field's value of the OrderProduct entity.
+// If the OrderProduct object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderProductMutation) OldAttrAmount(ctx context.Context) (v *decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAttrAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAttrAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAttrAmount: %w", err)
+	}
+	return oldValue.AttrAmount, nil
+}
+
+// ClearAttrAmount clears the value of the "attr_amount" field.
+func (m *OrderProductMutation) ClearAttrAmount() {
+	m.attr_amount = nil
+	m.clearedFields[orderproduct.FieldAttrAmount] = struct{}{}
+}
+
+// AttrAmountCleared returns if the "attr_amount" field was cleared in this mutation.
+func (m *OrderProductMutation) AttrAmountCleared() bool {
+	_, ok := m.clearedFields[orderproduct.FieldAttrAmount]
+	return ok
+}
+
+// ResetAttrAmount resets all changes to the "attr_amount" field.
+func (m *OrderProductMutation) ResetAttrAmount() {
+	m.attr_amount = nil
+	delete(m.clearedFields, orderproduct.FieldAttrAmount)
+}
+
+// SetGiftAmount sets the "gift_amount" field.
+func (m *OrderProductMutation) SetGiftAmount(d decimal.Decimal) {
+	m.gift_amount = &d
+}
+
+// GiftAmount returns the value of the "gift_amount" field in the mutation.
+func (m *OrderProductMutation) GiftAmount() (r decimal.Decimal, exists bool) {
+	v := m.gift_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGiftAmount returns the old "gift_amount" field's value of the OrderProduct entity.
+// If the OrderProduct object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderProductMutation) OldGiftAmount(ctx context.Context) (v *decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGiftAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGiftAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGiftAmount: %w", err)
+	}
+	return oldValue.GiftAmount, nil
+}
+
+// ClearGiftAmount clears the value of the "gift_amount" field.
+func (m *OrderProductMutation) ClearGiftAmount() {
+	m.gift_amount = nil
+	m.clearedFields[orderproduct.FieldGiftAmount] = struct{}{}
+}
+
+// GiftAmountCleared returns if the "gift_amount" field was cleared in this mutation.
+func (m *OrderProductMutation) GiftAmountCleared() bool {
+	_, ok := m.clearedFields[orderproduct.FieldGiftAmount]
+	return ok
+}
+
+// ResetGiftAmount resets all changes to the "gift_amount" field.
+func (m *OrderProductMutation) ResetGiftAmount() {
+	m.gift_amount = nil
+	delete(m.clearedFields, orderproduct.FieldGiftAmount)
+}
+
 // SetVoidQty sets the "void_qty" field.
 func (m *OrderProductMutation) SetVoidQty(i int) {
 	m.void_qty = &i
@@ -20907,7 +21007,7 @@ func (m *OrderProductMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderProductMutation) Fields() []string {
-	fields := make([]string, 0, 34)
+	fields := make([]string, 0, 36)
 	if m.created_at != nil {
 		fields = append(fields, orderproduct.FieldCreatedAt)
 	}
@@ -20935,8 +21035,8 @@ func (m *OrderProductMutation) Fields() []string {
 	if m.product_type != nil {
 		fields = append(fields, orderproduct.FieldProductType)
 	}
-	if m.category_id != nil {
-		fields = append(fields, orderproduct.FieldCategoryID)
+	if m.category != nil {
+		fields = append(fields, orderproduct.FieldCategory)
 	}
 	if m.unit_id != nil {
 		fields = append(fields, orderproduct.FieldUnitID)
@@ -20979,6 +21079,12 @@ func (m *OrderProductMutation) Fields() []string {
 	}
 	if m.promotion_discount != nil {
 		fields = append(fields, orderproduct.FieldPromotionDiscount)
+	}
+	if m.attr_amount != nil {
+		fields = append(fields, orderproduct.FieldAttrAmount)
+	}
+	if m.gift_amount != nil {
+		fields = append(fields, orderproduct.FieldGiftAmount)
 	}
 	if m.void_qty != nil {
 		fields = append(fields, orderproduct.FieldVoidQty)
@@ -21036,8 +21142,8 @@ func (m *OrderProductMutation) Field(name string) (ent.Value, bool) {
 		return m.ProductName()
 	case orderproduct.FieldProductType:
 		return m.ProductType()
-	case orderproduct.FieldCategoryID:
-		return m.CategoryID()
+	case orderproduct.FieldCategory:
+		return m.Category()
 	case orderproduct.FieldUnitID:
 		return m.UnitID()
 	case orderproduct.FieldMainImage:
@@ -21066,6 +21172,10 @@ func (m *OrderProductMutation) Field(name string) (ent.Value, bool) {
 		return m.Total()
 	case orderproduct.FieldPromotionDiscount:
 		return m.PromotionDiscount()
+	case orderproduct.FieldAttrAmount:
+		return m.AttrAmount()
+	case orderproduct.FieldGiftAmount:
+		return m.GiftAmount()
 	case orderproduct.FieldVoidQty:
 		return m.VoidQty()
 	case orderproduct.FieldVoidAmount:
@@ -21113,8 +21223,8 @@ func (m *OrderProductMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldProductName(ctx)
 	case orderproduct.FieldProductType:
 		return m.OldProductType(ctx)
-	case orderproduct.FieldCategoryID:
-		return m.OldCategoryID(ctx)
+	case orderproduct.FieldCategory:
+		return m.OldCategory(ctx)
 	case orderproduct.FieldUnitID:
 		return m.OldUnitID(ctx)
 	case orderproduct.FieldMainImage:
@@ -21143,6 +21253,10 @@ func (m *OrderProductMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldTotal(ctx)
 	case orderproduct.FieldPromotionDiscount:
 		return m.OldPromotionDiscount(ctx)
+	case orderproduct.FieldAttrAmount:
+		return m.OldAttrAmount(ctx)
+	case orderproduct.FieldGiftAmount:
+		return m.OldGiftAmount(ctx)
 	case orderproduct.FieldVoidQty:
 		return m.OldVoidQty(ctx)
 	case orderproduct.FieldVoidAmount:
@@ -21235,12 +21349,12 @@ func (m *OrderProductMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetProductType(v)
 		return nil
-	case orderproduct.FieldCategoryID:
-		v, ok := value.(uuid.UUID)
+	case orderproduct.FieldCategory:
+		v, ok := value.(domain.Category)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCategoryID(v)
+		m.SetCategory(v)
 		return nil
 	case orderproduct.FieldUnitID:
 		v, ok := value.(uuid.UUID)
@@ -21339,6 +21453,20 @@ func (m *OrderProductMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPromotionDiscount(v)
+		return nil
+	case orderproduct.FieldAttrAmount:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAttrAmount(v)
+		return nil
+	case orderproduct.FieldGiftAmount:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGiftAmount(v)
 		return nil
 	case orderproduct.FieldVoidQty:
 		v, ok := value.(int)
@@ -21503,8 +21631,8 @@ func (m *OrderProductMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *OrderProductMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(orderproduct.FieldCategoryID) {
-		fields = append(fields, orderproduct.FieldCategoryID)
+	if m.FieldCleared(orderproduct.FieldCategory) {
+		fields = append(fields, orderproduct.FieldCategory)
 	}
 	if m.FieldCleared(orderproduct.FieldUnitID) {
 		fields = append(fields, orderproduct.FieldUnitID)
@@ -21532,6 +21660,12 @@ func (m *OrderProductMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(orderproduct.FieldPromotionDiscount) {
 		fields = append(fields, orderproduct.FieldPromotionDiscount)
+	}
+	if m.FieldCleared(orderproduct.FieldAttrAmount) {
+		fields = append(fields, orderproduct.FieldAttrAmount)
+	}
+	if m.FieldCleared(orderproduct.FieldGiftAmount) {
+		fields = append(fields, orderproduct.FieldGiftAmount)
 	}
 	if m.FieldCleared(orderproduct.FieldVoidAmount) {
 		fields = append(fields, orderproduct.FieldVoidAmount)
@@ -21574,8 +21708,8 @@ func (m *OrderProductMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *OrderProductMutation) ClearField(name string) error {
 	switch name {
-	case orderproduct.FieldCategoryID:
-		m.ClearCategoryID()
+	case orderproduct.FieldCategory:
+		m.ClearCategory()
 		return nil
 	case orderproduct.FieldUnitID:
 		m.ClearUnitID()
@@ -21603,6 +21737,12 @@ func (m *OrderProductMutation) ClearField(name string) error {
 		return nil
 	case orderproduct.FieldPromotionDiscount:
 		m.ClearPromotionDiscount()
+		return nil
+	case orderproduct.FieldAttrAmount:
+		m.ClearAttrAmount()
+		return nil
+	case orderproduct.FieldGiftAmount:
+		m.ClearGiftAmount()
 		return nil
 	case orderproduct.FieldVoidAmount:
 		m.ClearVoidAmount()
@@ -21666,8 +21806,8 @@ func (m *OrderProductMutation) ResetField(name string) error {
 	case orderproduct.FieldProductType:
 		m.ResetProductType()
 		return nil
-	case orderproduct.FieldCategoryID:
-		m.ResetCategoryID()
+	case orderproduct.FieldCategory:
+		m.ResetCategory()
 		return nil
 	case orderproduct.FieldUnitID:
 		m.ResetUnitID()
@@ -21710,6 +21850,12 @@ func (m *OrderProductMutation) ResetField(name string) error {
 		return nil
 	case orderproduct.FieldPromotionDiscount:
 		m.ResetPromotionDiscount()
+		return nil
+	case orderproduct.FieldAttrAmount:
+		m.ResetAttrAmount()
+		return nil
+	case orderproduct.FieldGiftAmount:
+		m.ResetGiftAmount()
 		return nil
 	case orderproduct.FieldVoidQty:
 		m.ResetVoidQty()

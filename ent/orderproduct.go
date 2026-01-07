@@ -41,8 +41,8 @@ type OrderProduct struct {
 	ProductName string `json:"product_name,omitempty"`
 	// 商品类型：normal（普通商品）、set_meal（套餐商品）
 	ProductType domain.ProductType `json:"product_type,omitempty"`
-	// 分类ID
-	CategoryID uuid.UUID `json:"category_id,omitempty"`
+	// 分类信息
+	Category domain.Category `json:"category,omitempty"`
 	// 单位ID
 	UnitID uuid.UUID `json:"unit_id,omitempty"`
 	// 商品主图
@@ -71,6 +71,10 @@ type OrderProduct struct {
 	Total *decimal.Decimal `json:"total,omitempty"`
 	// 促销优惠金额
 	PromotionDiscount *decimal.Decimal `json:"promotion_discount,omitempty"`
+	// 做法金额
+	AttrAmount *decimal.Decimal `json:"attr_amount,omitempty"`
+	// 赠送金额
+	GiftAmount *decimal.Decimal `json:"gift_amount,omitempty"`
 	// 已退菜数量汇总
 	VoidQty int `json:"void_qty,omitempty"`
 	// 已退菜金额汇总
@@ -122,9 +126,9 @@ func (*OrderProduct) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case orderproduct.FieldSubtotal, orderproduct.FieldDiscountAmount, orderproduct.FieldAmountBeforeTax, orderproduct.FieldTaxRate, orderproduct.FieldTax, orderproduct.FieldAmountAfterTax, orderproduct.FieldTotal, orderproduct.FieldPromotionDiscount, orderproduct.FieldVoidAmount, orderproduct.FieldPrice:
+		case orderproduct.FieldSubtotal, orderproduct.FieldDiscountAmount, orderproduct.FieldAmountBeforeTax, orderproduct.FieldTaxRate, orderproduct.FieldTax, orderproduct.FieldAmountAfterTax, orderproduct.FieldTotal, orderproduct.FieldPromotionDiscount, orderproduct.FieldAttrAmount, orderproduct.FieldGiftAmount, orderproduct.FieldVoidAmount, orderproduct.FieldPrice:
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
-		case orderproduct.FieldGroups, orderproduct.FieldSpecRelations, orderproduct.FieldAttrRelations:
+		case orderproduct.FieldCategory, orderproduct.FieldGroups, orderproduct.FieldSpecRelations, orderproduct.FieldAttrRelations:
 			values[i] = new([]byte)
 		case orderproduct.FieldIsGift:
 			values[i] = new(sql.NullBool)
@@ -134,7 +138,7 @@ func (*OrderProduct) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case orderproduct.FieldCreatedAt, orderproduct.FieldUpdatedAt, orderproduct.FieldRefundedAt:
 			values[i] = new(sql.NullTime)
-		case orderproduct.FieldID, orderproduct.FieldOrderID, orderproduct.FieldProductID, orderproduct.FieldCategoryID, orderproduct.FieldUnitID, orderproduct.FieldRefundedBy:
+		case orderproduct.FieldID, orderproduct.FieldOrderID, orderproduct.FieldProductID, orderproduct.FieldUnitID, orderproduct.FieldRefundedBy:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -211,11 +215,13 @@ func (op *OrderProduct) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				op.ProductType = domain.ProductType(value.String)
 			}
-		case orderproduct.FieldCategoryID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field category_id", values[i])
-			} else if value != nil {
-				op.CategoryID = *value
+		case orderproduct.FieldCategory:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &op.Category); err != nil {
+					return fmt.Errorf("unmarshal field category: %w", err)
+				}
 			}
 		case orderproduct.FieldUnitID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -308,6 +314,20 @@ func (op *OrderProduct) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				op.PromotionDiscount = new(decimal.Decimal)
 				*op.PromotionDiscount = *value.S.(*decimal.Decimal)
+			}
+		case orderproduct.FieldAttrAmount:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field attr_amount", values[i])
+			} else if value.Valid {
+				op.AttrAmount = new(decimal.Decimal)
+				*op.AttrAmount = *value.S.(*decimal.Decimal)
+			}
+		case orderproduct.FieldGiftAmount:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field gift_amount", values[i])
+			} else if value.Valid {
+				op.GiftAmount = new(decimal.Decimal)
+				*op.GiftAmount = *value.S.(*decimal.Decimal)
 			}
 		case orderproduct.FieldVoidQty:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -446,8 +466,8 @@ func (op *OrderProduct) String() string {
 	builder.WriteString("product_type=")
 	builder.WriteString(fmt.Sprintf("%v", op.ProductType))
 	builder.WriteString(", ")
-	builder.WriteString("category_id=")
-	builder.WriteString(fmt.Sprintf("%v", op.CategoryID))
+	builder.WriteString("category=")
+	builder.WriteString(fmt.Sprintf("%v", op.Category))
 	builder.WriteString(", ")
 	builder.WriteString("unit_id=")
 	builder.WriteString(fmt.Sprintf("%v", op.UnitID))
@@ -504,6 +524,16 @@ func (op *OrderProduct) String() string {
 	builder.WriteString(", ")
 	if v := op.PromotionDiscount; v != nil {
 		builder.WriteString("promotion_discount=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := op.AttrAmount; v != nil {
+		builder.WriteString("attr_amount=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := op.GiftAmount; v != nil {
+		builder.WriteString("gift_amount=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

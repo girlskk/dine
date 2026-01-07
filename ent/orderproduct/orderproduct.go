@@ -36,8 +36,8 @@ const (
 	FieldProductName = "product_name"
 	// FieldProductType holds the string denoting the product_type field in the database.
 	FieldProductType = "product_type"
-	// FieldCategoryID holds the string denoting the category_id field in the database.
-	FieldCategoryID = "category_id"
+	// FieldCategory holds the string denoting the category field in the database.
+	FieldCategory = "category"
 	// FieldUnitID holds the string denoting the unit_id field in the database.
 	FieldUnitID = "unit_id"
 	// FieldMainImage holds the string denoting the main_image field in the database.
@@ -66,6 +66,10 @@ const (
 	FieldTotal = "total"
 	// FieldPromotionDiscount holds the string denoting the promotion_discount field in the database.
 	FieldPromotionDiscount = "promotion_discount"
+	// FieldAttrAmount holds the string denoting the attr_amount field in the database.
+	FieldAttrAmount = "attr_amount"
+	// FieldGiftAmount holds the string denoting the gift_amount field in the database.
+	FieldGiftAmount = "gift_amount"
 	// FieldVoidQty holds the string denoting the void_qty field in the database.
 	FieldVoidQty = "void_qty"
 	// FieldVoidAmount holds the string denoting the void_amount field in the database.
@@ -111,7 +115,7 @@ var Columns = []string{
 	FieldProductID,
 	FieldProductName,
 	FieldProductType,
-	FieldCategoryID,
+	FieldCategory,
 	FieldUnitID,
 	FieldMainImage,
 	FieldDescription,
@@ -126,6 +130,8 @@ var Columns = []string{
 	FieldAmountAfterTax,
 	FieldTotal,
 	FieldPromotionDiscount,
+	FieldAttrAmount,
+	FieldGiftAmount,
 	FieldVoidQty,
 	FieldVoidAmount,
 	FieldRefundReason,
@@ -255,11 +261,6 @@ func ByProductType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProductType, opts...).ToFunc()
 }
 
-// ByCategoryID orders the results by the category_id field.
-func ByCategoryID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCategoryID, opts...).ToFunc()
-}
-
 // ByUnitID orders the results by the unit_id field.
 func ByUnitID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUnitID, opts...).ToFunc()
@@ -328,6 +329,16 @@ func ByTotal(opts ...sql.OrderTermOption) OrderOption {
 // ByPromotionDiscount orders the results by the promotion_discount field.
 func ByPromotionDiscount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPromotionDiscount, opts...).ToFunc()
+}
+
+// ByAttrAmount orders the results by the attr_amount field.
+func ByAttrAmount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAttrAmount, opts...).ToFunc()
+}
+
+// ByGiftAmount orders the results by the gift_amount field.
+func ByGiftAmount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGiftAmount, opts...).ToFunc()
 }
 
 // ByVoidQty orders the results by the void_qty field.

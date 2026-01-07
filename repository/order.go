@@ -358,8 +358,8 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	if op.ID != uuid.Nil {
 		builder = builder.SetID(op.ID)
 	}
-	if op.CategoryID != uuid.Nil {
-		builder = builder.SetCategoryID(op.CategoryID)
+	if op.Category.ID != uuid.Nil {
+		builder = builder.SetCategory(op.Category)
 	}
 	if op.UnitID != uuid.Nil {
 		builder = builder.SetUnitID(op.UnitID)
@@ -398,6 +398,14 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	}
 	if !op.PromotionDiscount.IsZero() {
 		builder = builder.SetPromotionDiscount(op.PromotionDiscount)
+	}
+
+	// 做法金额与赠送金额
+	if !op.AttrAmount.IsZero() {
+		builder = builder.SetAttrAmount(op.AttrAmount)
+	}
+	if !op.GiftAmount.IsZero() {
+		builder = builder.SetGiftAmount(op.GiftAmount)
 	}
 
 	// 退菜信息
@@ -523,7 +531,7 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 	}
 
 	var subtotal, discountAmount, amountBeforeTax, taxRate, tax, amountAfterTax, total decimal.Decimal
-	var promotionDiscount, voidAmount, price decimal.Decimal
+	var promotionDiscount, voidAmount, price, attrAmount, giftAmount decimal.Decimal
 
 	if eop.Subtotal != nil {
 		subtotal = *eop.Subtotal
@@ -549,6 +557,12 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 	if eop.PromotionDiscount != nil {
 		promotionDiscount = *eop.PromotionDiscount
 	}
+	if eop.AttrAmount != nil {
+		attrAmount = *eop.AttrAmount
+	}
+	if eop.GiftAmount != nil {
+		giftAmount = *eop.GiftAmount
+	}
 	if eop.VoidAmount != nil {
 		voidAmount = *eop.VoidAmount
 	}
@@ -568,7 +582,7 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 		ProductID:   eop.ProductID,
 		ProductName: eop.ProductName,
 		ProductType: eop.ProductType,
-		CategoryID:  eop.CategoryID,
+		Category:    eop.Category,
 		UnitID:      eop.UnitID,
 		MainImage:   eop.MainImage,
 		Description: eop.Description,
@@ -585,6 +599,9 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 		Total:           total,
 
 		PromotionDiscount: promotionDiscount,
+
+		AttrAmount: attrAmount,
+		GiftAmount: giftAmount,
 
 		VoidQty:      eop.VoidQty,
 		VoidAmount:   voidAmount,
