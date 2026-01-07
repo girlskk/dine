@@ -3075,9 +3075,22 @@ func (m *BackendUserMutation) OldNickname(ctx context.Context) (v string, err er
 	return oldValue.Nickname, nil
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (m *BackendUserMutation) ClearNickname() {
+	m.nickname = nil
+	m.clearedFields[backenduser.FieldNickname] = struct{}{}
+}
+
+// NicknameCleared returns if the "nickname" field was cleared in this mutation.
+func (m *BackendUserMutation) NicknameCleared() bool {
+	_, ok := m.clearedFields[backenduser.FieldNickname]
+	return ok
+}
+
 // ResetNickname resets all changes to the "nickname" field.
 func (m *BackendUserMutation) ResetNickname() {
 	m.nickname = nil
+	delete(m.clearedFields, backenduser.FieldNickname)
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -3147,9 +3160,22 @@ func (m *BackendUserMutation) OldDepartmentID(ctx context.Context) (v uuid.UUID,
 	return oldValue.DepartmentID, nil
 }
 
+// ClearDepartmentID clears the value of the "department_id" field.
+func (m *BackendUserMutation) ClearDepartmentID() {
+	m.department = nil
+	m.clearedFields[backenduser.FieldDepartmentID] = struct{}{}
+}
+
+// DepartmentIDCleared returns if the "department_id" field was cleared in this mutation.
+func (m *BackendUserMutation) DepartmentIDCleared() bool {
+	_, ok := m.clearedFields[backenduser.FieldDepartmentID]
+	return ok
+}
+
 // ResetDepartmentID resets all changes to the "department_id" field.
 func (m *BackendUserMutation) ResetDepartmentID() {
 	m.department = nil
+	delete(m.clearedFields, backenduser.FieldDepartmentID)
 }
 
 // SetCode sets the "code" field.
@@ -3465,7 +3491,7 @@ func (m *BackendUserMutation) ClearDepartment() {
 
 // DepartmentCleared reports if the "department" edge to the Department entity was cleared.
 func (m *BackendUserMutation) DepartmentCleared() bool {
-	return m.cleareddepartment
+	return m.DepartmentIDCleared() || m.cleareddepartment
 }
 
 // DepartmentIDs returns the "department" edge IDs in the mutation.
@@ -3800,6 +3826,12 @@ func (m *BackendUserMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *BackendUserMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(backenduser.FieldNickname) {
+		fields = append(fields, backenduser.FieldNickname)
+	}
+	if m.FieldCleared(backenduser.FieldDepartmentID) {
+		fields = append(fields, backenduser.FieldDepartmentID)
+	}
 	if m.FieldCleared(backenduser.FieldEmail) {
 		fields = append(fields, backenduser.FieldEmail)
 	}
@@ -3820,6 +3852,12 @@ func (m *BackendUserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *BackendUserMutation) ClearField(name string) error {
 	switch name {
+	case backenduser.FieldNickname:
+		m.ClearNickname()
+		return nil
+	case backenduser.FieldDepartmentID:
+		m.ClearDepartmentID()
+		return nil
 	case backenduser.FieldEmail:
 		m.ClearEmail()
 		return nil
@@ -46997,9 +47035,22 @@ func (m *StoreUserMutation) OldNickname(ctx context.Context) (v string, err erro
 	return oldValue.Nickname, nil
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (m *StoreUserMutation) ClearNickname() {
+	m.nickname = nil
+	m.clearedFields[storeuser.FieldNickname] = struct{}{}
+}
+
+// NicknameCleared returns if the "nickname" field was cleared in this mutation.
+func (m *StoreUserMutation) NicknameCleared() bool {
+	_, ok := m.clearedFields[storeuser.FieldNickname]
+	return ok
+}
+
 // ResetNickname resets all changes to the "nickname" field.
 func (m *StoreUserMutation) ResetNickname() {
 	m.nickname = nil
+	delete(m.clearedFields, storeuser.FieldNickname)
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -47105,9 +47156,22 @@ func (m *StoreUserMutation) OldDepartmentID(ctx context.Context) (v uuid.UUID, e
 	return oldValue.DepartmentID, nil
 }
 
+// ClearDepartmentID clears the value of the "department_id" field.
+func (m *StoreUserMutation) ClearDepartmentID() {
+	m.department = nil
+	m.clearedFields[storeuser.FieldDepartmentID] = struct{}{}
+}
+
+// DepartmentIDCleared returns if the "department_id" field was cleared in this mutation.
+func (m *StoreUserMutation) DepartmentIDCleared() bool {
+	_, ok := m.clearedFields[storeuser.FieldDepartmentID]
+	return ok
+}
+
 // ResetDepartmentID resets all changes to the "department_id" field.
 func (m *StoreUserMutation) ResetDepartmentID() {
 	m.department = nil
+	delete(m.clearedFields, storeuser.FieldDepartmentID)
 }
 
 // SetCode sets the "code" field.
@@ -47450,7 +47514,7 @@ func (m *StoreUserMutation) ClearDepartment() {
 
 // DepartmentCleared reports if the "department" edge to the Department entity was cleared.
 func (m *StoreUserMutation) DepartmentCleared() bool {
-	return m.cleareddepartment
+	return m.DepartmentIDCleared() || m.cleareddepartment
 }
 
 // DepartmentIDs returns the "department" edge IDs in the mutation.
@@ -47799,6 +47863,12 @@ func (m *StoreUserMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *StoreUserMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(storeuser.FieldNickname) {
+		fields = append(fields, storeuser.FieldNickname)
+	}
+	if m.FieldCleared(storeuser.FieldDepartmentID) {
+		fields = append(fields, storeuser.FieldDepartmentID)
+	}
 	if m.FieldCleared(storeuser.FieldEmail) {
 		fields = append(fields, storeuser.FieldEmail)
 	}
@@ -47819,6 +47889,12 @@ func (m *StoreUserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *StoreUserMutation) ClearField(name string) error {
 	switch name {
+	case storeuser.FieldNickname:
+		m.ClearNickname()
+		return nil
+	case storeuser.FieldDepartmentID:
+		m.ClearDepartmentID()
+		return nil
 	case storeuser.FieldEmail:
 		m.ClearEmail()
 		return nil

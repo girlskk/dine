@@ -32,13 +32,24 @@ func (repo *BackendUserRepository) Create(ctx context.Context, user *domain.Back
 		util.SpanErrFinish(span, err)
 	}()
 
-	_, err = repo.Client.BackendUser.Create().
+	builder := repo.Client.BackendUser.Create().SetID(user.ID).
 		SetUsername(user.Username).
 		SetNickname(user.Nickname).
 		SetHashedPassword(user.HashedPassword).
 		SetMerchantID(user.MerchantID).
-		Save(ctx)
+		SetCode(user.Code).
+		SetRealName(user.RealName).
+		SetGender(user.Gender).
+		SetEmail(user.Email).
+		SetPhoneNumber(user.PhoneNumber).
+		SetEnabled(user.Enabled).
+		SetIsSuperadmin(user.IsSuperAdmin)
 
+	if user.DepartmentID != uuid.Nil {
+		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+
+	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
 			err = domain.ConflictError(err)
@@ -113,13 +124,32 @@ func (repo *BackendUserRepository) Update(ctx context.Context, user *domain.Back
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	update := repo.Client.BackendUser.Update().
-		SetHashedPassword(user.HashedPassword)
 
-	if user.ID != uuid.Nil {
-		update.Where(backenduser.ID(user.ID))
+	builder := repo.Client.BackendUser.UpdateOneID(user.ID).
+		SetUsername(user.Username).
+		SetNickname(user.Nickname).
+		SetHashedPassword(user.HashedPassword).
+		SetRealName(user.RealName).
+		SetGender(user.Gender).
+		SetEmail(user.Email).
+		SetPhoneNumber(user.PhoneNumber).
+		SetEnabled(user.Enabled).
+		SetIsSuperadmin(user.IsSuperAdmin)
+
+	if user.DepartmentID != uuid.Nil {
+		builder = builder.SetDepartmentID(user.DepartmentID)
 	}
-	_, err = update.Save(ctx)
+	_, err = builder.Save(ctx)
+	if err != nil {
+		if ent.IsConstraintError(err) {
+			err = domain.ConflictError(err)
+		}
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(err)
+		}
+		err = fmt.Errorf("failed to update backend user: %w", err)
+		return
+	}
 	return err
 }
 func (repo *BackendUserRepository) Delete(ctx context.Context, id uuid.UUID) (err error) {
@@ -175,9 +205,19 @@ func convertBackendUser(eu *ent.BackendUser) *domain.BackendUser {
 	du := &domain.BackendUser{
 		ID:             eu.ID,
 		MerchantID:     eu.MerchantID,
+		DepartmentID:   eu.DepartmentID,
 		Username:       eu.Username,
 		HashedPassword: eu.HashedPassword,
 		Nickname:       eu.Nickname,
+		Code:           eu.Code,
+		RealName:       eu.RealName,
+		Gender:         eu.Gender,
+		Email:          eu.Email,
+		PhoneNumber:    eu.PhoneNumber,
+		Enabled:        eu.Enabled,
+		IsSuperAdmin:   eu.IsSuperadmin,
+		CreatedAt:      eu.CreatedAt,
+		UpdatedAt:      eu.UpdatedAt,
 	}
 	if eu.Edges.Department != nil {
 		du.Department = convertDepartmentToDomain(eu.Edges.Department)

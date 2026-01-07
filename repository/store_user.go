@@ -32,13 +32,25 @@ func (repo *StoreUserRepository) Create(ctx context.Context, user *domain.StoreU
 		util.SpanErrFinish(span, err)
 	}()
 
-	_, err = repo.Client.StoreUser.Create().SetID(user.ID).
+	builder := repo.Client.StoreUser.Create().SetID(user.ID).
 		SetUsername(user.Username).
-		SetHashedPassword(user.HashedPassword).
 		SetNickname(user.Nickname).
+		SetHashedPassword(user.HashedPassword).
 		SetMerchantID(user.MerchantID).
 		SetStoreID(user.StoreID).
-		Save(ctx)
+		SetCode(user.Code).
+		SetRealName(user.RealName).
+		SetGender(user.Gender).
+		SetEmail(user.Email).
+		SetPhoneNumber(user.PhoneNumber).
+		SetEnabled(user.Enabled).
+		SetIsSuperadmin(user.IsSuperAdmin)
+
+	if user.DepartmentID != uuid.Nil {
+		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+
+	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
 			err = domain.ConflictError(err)
@@ -116,17 +128,29 @@ func (repo *StoreUserRepository) Update(ctx context.Context, user *domain.StoreU
 		util.SpanErrFinish(span, err)
 	}()
 
-	_, err = repo.Client.StoreUser.UpdateOneID(user.ID).
+	builder := repo.Client.StoreUser.UpdateOneID(user.ID).
 		SetUsername(user.Username).
-		SetHashedPassword(user.HashedPassword).
 		SetNickname(user.Nickname).
-		Save(ctx)
+		SetHashedPassword(user.HashedPassword).
+		SetRealName(user.RealName).
+		SetGender(user.Gender).
+		SetEmail(user.Email).
+		SetPhoneNumber(user.PhoneNumber).
+		SetEnabled(user.Enabled).
+		SetIsSuperadmin(user.IsSuperAdmin)
+
+	if user.DepartmentID != uuid.Nil {
+		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
 			err = domain.ConflictError(err)
+			return
 		}
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to update store user: %w", err)
 		return

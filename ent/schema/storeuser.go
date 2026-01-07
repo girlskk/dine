@@ -26,6 +26,7 @@ func (StoreUser) Fields() []ent.Field {
 			NotEmpty().
 			Comment("密码哈希"),
 		field.String("nickname").
+			Optional().
 			Comment("昵称"),
 		field.UUID("merchant_id", uuid.UUID{}).
 			Immutable().
@@ -34,6 +35,7 @@ func (StoreUser) Fields() []ent.Field {
 			Immutable().
 			Comment("所属门店 ID"),
 		field.UUID("department_id", uuid.UUID{}).
+			Optional().
 			Comment("部门ID"),
 		field.String("code").
 			NotEmpty().
@@ -80,8 +82,7 @@ func (StoreUser) Edges() []ent.Edge {
 		edge.From("department", Department.Type).
 			Ref("store_users").
 			Field("department_id").
-			Unique().
-			Required(),
+			Unique(),
 	}
 }
 

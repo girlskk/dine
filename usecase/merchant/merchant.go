@@ -107,7 +107,15 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 			ID:             uuid.New(),
 			Username:       domainMerchant.LoginAccount,
 			HashedPassword: domainMerchant.LoginPassword,
+			Nickname:       "admin",
 			MerchantID:     merchantID,
+			Code:           merchantID.String(),
+			RealName:       "admin",
+			Gender:         domain.GenderOther,
+			Email:          "",
+			PhoneNumber:    "",
+			Enabled:        true,
+			IsSuperAdmin:   true,
 		})
 		if err != nil {
 			return err
@@ -123,9 +131,16 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 				ID:             uuid.New(),
 				Username:       domainMerchant.LoginAccount,
 				HashedPassword: domainMerchant.LoginPassword,
-				Nickname:       "",
+				Nickname:       "admin",
 				MerchantID:     merchantID,
 				StoreID:        storeID,
+				Code:           storeID.String(),
+				RealName:       "admin",
+				Gender:         domain.GenderOther,
+				Email:          "",
+				PhoneNumber:    "",
+				Enabled:        true,
+				IsSuperAdmin:   true,
 			})
 			if err != nil {
 				return err

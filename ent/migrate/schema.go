@@ -123,7 +123,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
-		{Name: "nickname", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString, Nullable: true},
 		{Name: "code", Type: field.TypeString},
 		{Name: "real_name", Type: field.TypeString, Size: 100},
 		{Name: "gender", Type: field.TypeEnum, Enums: []string{"male", "female", "other", "unknown"}},
@@ -131,7 +131,7 @@ var (
 		{Name: "phone_number", Type: field.TypeString, Nullable: true, Size: 20},
 		{Name: "enabled", Type: field.TypeBool, Default: false},
 		{Name: "is_superadmin", Type: field.TypeBool, Default: false},
-		{Name: "department_id", Type: field.TypeUUID},
+		{Name: "department_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "merchant_id", Type: field.TypeUUID},
 	}
 	// BackendUsersTable holds the schema information for the "backend_users" table.
@@ -144,7 +144,7 @@ var (
 				Symbol:     "backend_users_departments_backend_users",
 				Columns:    []*schema.Column{BackendUsersColumns[14]},
 				RefColumns: []*schema.Column{DepartmentsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "backend_users_merchants_backend_users",
@@ -1812,7 +1812,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "username", Type: field.TypeString, Size: 100},
 		{Name: "hashed_password", Type: field.TypeString},
-		{Name: "nickname", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString, Nullable: true},
 		{Name: "code", Type: field.TypeString},
 		{Name: "real_name", Type: field.TypeString, Size: 100},
 		{Name: "gender", Type: field.TypeEnum, Enums: []string{"male", "female", "other", "unknown"}},
@@ -1820,7 +1820,7 @@ var (
 		{Name: "phone_number", Type: field.TypeString, Nullable: true, Size: 20},
 		{Name: "enabled", Type: field.TypeBool, Default: false},
 		{Name: "is_superadmin", Type: field.TypeBool, Default: false},
-		{Name: "department_id", Type: field.TypeUUID},
+		{Name: "department_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "merchant_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID},
 	}
@@ -1834,7 +1834,7 @@ var (
 				Symbol:     "store_users_departments_store_users",
 				Columns:    []*schema.Column{StoreUsersColumns[14]},
 				RefColumns: []*schema.Column{DepartmentsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "store_users_merchants_store_users",

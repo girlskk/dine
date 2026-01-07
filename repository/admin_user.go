@@ -77,15 +77,26 @@ func (repo *AdminUserRepository) Create(ctx context.Context, user *domain.AdminU
 		util.SpanErrFinish(span, err)
 	}()
 
-	_, err = repo.Client.AdminUser.Create().SetID(user.ID).
+	builder := repo.Client.AdminUser.Create().SetID(user.ID).
 		SetUsername(user.Username).
-		SetHashedPassword(user.HashedPassword).
 		SetNickname(user.Nickname).
-		Save(ctx)
+		SetHashedPassword(user.HashedPassword).
+		SetCode(user.Code).
+		SetRealName(user.RealName).
+		SetGender(user.Gender).
+		SetEmail(user.Email).
+		SetPhoneNumber(user.PhoneNumber).
+		SetEnabled(user.Enabled).
+		SetIsSuperadmin(user.IsSuperAdmin)
 
+	if user.DepartmentID != uuid.Nil {
+		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
 			err = domain.ConflictError(err)
+			return
 		}
 		err = fmt.Errorf("failed to create user: %w", err)
 		return
@@ -100,17 +111,28 @@ func (repo *AdminUserRepository) Update(ctx context.Context, user *domain.AdminU
 		util.SpanErrFinish(span, err)
 	}()
 
-	_, err = repo.Client.AdminUser.UpdateOneID(user.ID).
+	builder := repo.Client.AdminUser.UpdateOneID(user.ID).
 		SetUsername(user.Username).
-		SetHashedPassword(user.HashedPassword).
 		SetNickname(user.Nickname).
-		Save(ctx)
+		SetHashedPassword(user.HashedPassword).
+		SetRealName(user.RealName).
+		SetGender(user.Gender).
+		SetEmail(user.Email).
+		SetPhoneNumber(user.PhoneNumber).
+		SetEnabled(user.Enabled).
+		SetIsSuperadmin(user.IsSuperAdmin)
+	if user.DepartmentID != uuid.Nil {
+		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
 			err = domain.ConflictError(err)
+			return
 		}
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to update user: %w", err)
 		return
@@ -129,6 +151,7 @@ func (repo *AdminUserRepository) Delete(ctx context.Context, id uuid.UUID) (err 
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.NotFoundError(err)
+			return
 		}
 		err = fmt.Errorf("failed to delete user: %w", err)
 		return

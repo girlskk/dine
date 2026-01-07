@@ -88,6 +88,14 @@ func (suc *StoreUserCreate) SetNickname(s string) *StoreUserCreate {
 	return suc
 }
 
+// SetNillableNickname sets the "nickname" field if the given value is not nil.
+func (suc *StoreUserCreate) SetNillableNickname(s *string) *StoreUserCreate {
+	if s != nil {
+		suc.SetNickname(*s)
+	}
+	return suc
+}
+
 // SetMerchantID sets the "merchant_id" field.
 func (suc *StoreUserCreate) SetMerchantID(u uuid.UUID) *StoreUserCreate {
 	suc.mutation.SetMerchantID(u)
@@ -103,6 +111,14 @@ func (suc *StoreUserCreate) SetStoreID(u uuid.UUID) *StoreUserCreate {
 // SetDepartmentID sets the "department_id" field.
 func (suc *StoreUserCreate) SetDepartmentID(u uuid.UUID) *StoreUserCreate {
 	suc.mutation.SetDepartmentID(u)
+	return suc
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (suc *StoreUserCreate) SetNillableDepartmentID(u *uuid.UUID) *StoreUserCreate {
+	if u != nil {
+		suc.SetDepartmentID(*u)
+	}
 	return suc
 }
 
@@ -309,17 +325,11 @@ func (suc *StoreUserCreate) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "StoreUser.hashed_password": %w`, err)}
 		}
 	}
-	if _, ok := suc.mutation.Nickname(); !ok {
-		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "StoreUser.nickname"`)}
-	}
 	if _, ok := suc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "StoreUser.merchant_id"`)}
 	}
 	if _, ok := suc.mutation.StoreID(); !ok {
 		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "StoreUser.store_id"`)}
-	}
-	if _, ok := suc.mutation.DepartmentID(); !ok {
-		return &ValidationError{Name: "department_id", err: errors.New(`ent: missing required field "StoreUser.department_id"`)}
 	}
 	if _, ok := suc.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "StoreUser.code"`)}
@@ -366,9 +376,6 @@ func (suc *StoreUserCreate) check() error {
 	}
 	if len(suc.mutation.StoreIDs()) == 0 {
 		return &ValidationError{Name: "store", err: errors.New(`ent: missing required edge "StoreUser.store"`)}
-	}
-	if len(suc.mutation.DepartmentIDs()) == 0 {
-		return &ValidationError{Name: "department", err: errors.New(`ent: missing required edge "StoreUser.department"`)}
 	}
 	return nil
 }
@@ -627,6 +634,12 @@ func (u *StoreUserUpsert) UpdateNickname() *StoreUserUpsert {
 	return u
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (u *StoreUserUpsert) ClearNickname() *StoreUserUpsert {
+	u.SetNull(storeuser.FieldNickname)
+	return u
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (u *StoreUserUpsert) SetDepartmentID(v uuid.UUID) *StoreUserUpsert {
 	u.Set(storeuser.FieldDepartmentID, v)
@@ -636,6 +649,12 @@ func (u *StoreUserUpsert) SetDepartmentID(v uuid.UUID) *StoreUserUpsert {
 // UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
 func (u *StoreUserUpsert) UpdateDepartmentID() *StoreUserUpsert {
 	u.SetExcluded(storeuser.FieldDepartmentID)
+	return u
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *StoreUserUpsert) ClearDepartmentID() *StoreUserUpsert {
+	u.SetNull(storeuser.FieldDepartmentID)
 	return u
 }
 
@@ -860,6 +879,13 @@ func (u *StoreUserUpsertOne) UpdateNickname() *StoreUserUpsertOne {
 	})
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (u *StoreUserUpsertOne) ClearNickname() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearNickname()
+	})
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (u *StoreUserUpsertOne) SetDepartmentID(v uuid.UUID) *StoreUserUpsertOne {
 	return u.Update(func(s *StoreUserUpsert) {
@@ -871,6 +897,13 @@ func (u *StoreUserUpsertOne) SetDepartmentID(v uuid.UUID) *StoreUserUpsertOne {
 func (u *StoreUserUpsertOne) UpdateDepartmentID() *StoreUserUpsertOne {
 	return u.Update(func(s *StoreUserUpsert) {
 		s.UpdateDepartmentID()
+	})
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *StoreUserUpsertOne) ClearDepartmentID() *StoreUserUpsertOne {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearDepartmentID()
 	})
 }
 
@@ -1276,6 +1309,13 @@ func (u *StoreUserUpsertBulk) UpdateNickname() *StoreUserUpsertBulk {
 	})
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (u *StoreUserUpsertBulk) ClearNickname() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearNickname()
+	})
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (u *StoreUserUpsertBulk) SetDepartmentID(v uuid.UUID) *StoreUserUpsertBulk {
 	return u.Update(func(s *StoreUserUpsert) {
@@ -1287,6 +1327,13 @@ func (u *StoreUserUpsertBulk) SetDepartmentID(v uuid.UUID) *StoreUserUpsertBulk 
 func (u *StoreUserUpsertBulk) UpdateDepartmentID() *StoreUserUpsertBulk {
 	return u.Update(func(s *StoreUserUpsert) {
 		s.UpdateDepartmentID()
+	})
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *StoreUserUpsertBulk) ClearDepartmentID() *StoreUserUpsertBulk {
+	return u.Update(func(s *StoreUserUpsert) {
+		s.ClearDepartmentID()
 	})
 }
 

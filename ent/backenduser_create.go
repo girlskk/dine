@@ -87,6 +87,14 @@ func (buc *BackendUserCreate) SetNickname(s string) *BackendUserCreate {
 	return buc
 }
 
+// SetNillableNickname sets the "nickname" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillableNickname(s *string) *BackendUserCreate {
+	if s != nil {
+		buc.SetNickname(*s)
+	}
+	return buc
+}
+
 // SetMerchantID sets the "merchant_id" field.
 func (buc *BackendUserCreate) SetMerchantID(u uuid.UUID) *BackendUserCreate {
 	buc.mutation.SetMerchantID(u)
@@ -96,6 +104,14 @@ func (buc *BackendUserCreate) SetMerchantID(u uuid.UUID) *BackendUserCreate {
 // SetDepartmentID sets the "department_id" field.
 func (buc *BackendUserCreate) SetDepartmentID(u uuid.UUID) *BackendUserCreate {
 	buc.mutation.SetDepartmentID(u)
+	return buc
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillableDepartmentID(u *uuid.UUID) *BackendUserCreate {
+	if u != nil {
+		buc.SetDepartmentID(*u)
+	}
 	return buc
 }
 
@@ -297,14 +313,8 @@ func (buc *BackendUserCreate) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "BackendUser.hashed_password": %w`, err)}
 		}
 	}
-	if _, ok := buc.mutation.Nickname(); !ok {
-		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "BackendUser.nickname"`)}
-	}
 	if _, ok := buc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "BackendUser.merchant_id"`)}
-	}
-	if _, ok := buc.mutation.DepartmentID(); !ok {
-		return &ValidationError{Name: "department_id", err: errors.New(`ent: missing required field "BackendUser.department_id"`)}
 	}
 	if _, ok := buc.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "BackendUser.code"`)}
@@ -348,9 +358,6 @@ func (buc *BackendUserCreate) check() error {
 	}
 	if len(buc.mutation.MerchantIDs()) == 0 {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "BackendUser.merchant"`)}
-	}
-	if len(buc.mutation.DepartmentIDs()) == 0 {
-		return &ValidationError{Name: "department", err: errors.New(`ent: missing required edge "BackendUser.department"`)}
 	}
 	return nil
 }
@@ -592,6 +599,12 @@ func (u *BackendUserUpsert) UpdateNickname() *BackendUserUpsert {
 	return u
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (u *BackendUserUpsert) ClearNickname() *BackendUserUpsert {
+	u.SetNull(backenduser.FieldNickname)
+	return u
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (u *BackendUserUpsert) SetDepartmentID(v uuid.UUID) *BackendUserUpsert {
 	u.Set(backenduser.FieldDepartmentID, v)
@@ -601,6 +614,12 @@ func (u *BackendUserUpsert) SetDepartmentID(v uuid.UUID) *BackendUserUpsert {
 // UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
 func (u *BackendUserUpsert) UpdateDepartmentID() *BackendUserUpsert {
 	u.SetExcluded(backenduser.FieldDepartmentID)
+	return u
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *BackendUserUpsert) ClearDepartmentID() *BackendUserUpsert {
+	u.SetNull(backenduser.FieldDepartmentID)
 	return u
 }
 
@@ -822,6 +841,13 @@ func (u *BackendUserUpsertOne) UpdateNickname() *BackendUserUpsertOne {
 	})
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (u *BackendUserUpsertOne) ClearNickname() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearNickname()
+	})
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (u *BackendUserUpsertOne) SetDepartmentID(v uuid.UUID) *BackendUserUpsertOne {
 	return u.Update(func(s *BackendUserUpsert) {
@@ -833,6 +859,13 @@ func (u *BackendUserUpsertOne) SetDepartmentID(v uuid.UUID) *BackendUserUpsertOn
 func (u *BackendUserUpsertOne) UpdateDepartmentID() *BackendUserUpsertOne {
 	return u.Update(func(s *BackendUserUpsert) {
 		s.UpdateDepartmentID()
+	})
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *BackendUserUpsertOne) ClearDepartmentID() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearDepartmentID()
 	})
 }
 
@@ -1235,6 +1268,13 @@ func (u *BackendUserUpsertBulk) UpdateNickname() *BackendUserUpsertBulk {
 	})
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (u *BackendUserUpsertBulk) ClearNickname() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearNickname()
+	})
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (u *BackendUserUpsertBulk) SetDepartmentID(v uuid.UUID) *BackendUserUpsertBulk {
 	return u.Update(func(s *BackendUserUpsert) {
@@ -1246,6 +1286,13 @@ func (u *BackendUserUpsertBulk) SetDepartmentID(v uuid.UUID) *BackendUserUpsertB
 func (u *BackendUserUpsertBulk) UpdateDepartmentID() *BackendUserUpsertBulk {
 	return u.Update(func(s *BackendUserUpsert) {
 		s.UpdateDepartmentID()
+	})
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *BackendUserUpsertBulk) ClearDepartmentID() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearDepartmentID()
 	})
 }
 

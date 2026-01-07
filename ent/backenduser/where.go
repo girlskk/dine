@@ -432,6 +432,16 @@ func NicknameHasSuffix(v string) predicate.BackendUser {
 	return predicate.BackendUser(sql.FieldHasSuffix(FieldNickname, v))
 }
 
+// NicknameIsNil applies the IsNil predicate on the "nickname" field.
+func NicknameIsNil() predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldIsNull(FieldNickname))
+}
+
+// NicknameNotNil applies the NotNil predicate on the "nickname" field.
+func NicknameNotNil() predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldNotNull(FieldNickname))
+}
+
 // NicknameEqualFold applies the EqualFold predicate on the "nickname" field.
 func NicknameEqualFold(v string) predicate.BackendUser {
 	return predicate.BackendUser(sql.FieldEqualFold(FieldNickname, v))
@@ -480,6 +490,16 @@ func DepartmentIDIn(vs ...uuid.UUID) predicate.BackendUser {
 // DepartmentIDNotIn applies the NotIn predicate on the "department_id" field.
 func DepartmentIDNotIn(vs ...uuid.UUID) predicate.BackendUser {
 	return predicate.BackendUser(sql.FieldNotIn(FieldDepartmentID, vs...))
+}
+
+// DepartmentIDIsNil applies the IsNil predicate on the "department_id" field.
+func DepartmentIDIsNil() predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldIsNull(FieldDepartmentID))
+}
+
+// DepartmentIDNotNil applies the NotNil predicate on the "department_id" field.
+func DepartmentIDNotNil() predicate.BackendUser {
+	return predicate.BackendUser(sql.FieldNotNull(FieldDepartmentID))
 }
 
 // CodeEQ applies the EQ predicate on the "code" field.

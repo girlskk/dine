@@ -101,6 +101,12 @@ func (buu *BackendUserUpdate) SetNillableNickname(s *string) *BackendUserUpdate 
 	return buu
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (buu *BackendUserUpdate) ClearNickname() *BackendUserUpdate {
+	buu.mutation.ClearNickname()
+	return buu
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (buu *BackendUserUpdate) SetDepartmentID(u uuid.UUID) *BackendUserUpdate {
 	buu.mutation.SetDepartmentID(u)
@@ -112,6 +118,12 @@ func (buu *BackendUserUpdate) SetNillableDepartmentID(u *uuid.UUID) *BackendUser
 	if u != nil {
 		buu.SetDepartmentID(*u)
 	}
+	return buu
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (buu *BackendUserUpdate) ClearDepartmentID() *BackendUserUpdate {
+	buu.mutation.ClearDepartmentID()
 	return buu
 }
 
@@ -304,9 +316,6 @@ func (buu *BackendUserUpdate) check() error {
 	if buu.mutation.MerchantCleared() && len(buu.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "BackendUser.merchant"`)
 	}
-	if buu.mutation.DepartmentCleared() && len(buu.mutation.DepartmentIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "BackendUser.department"`)
-	}
 	return nil
 }
 
@@ -345,6 +354,9 @@ func (buu *BackendUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := buu.mutation.Nickname(); ok {
 		_spec.SetField(backenduser.FieldNickname, field.TypeString, value)
+	}
+	if buu.mutation.NicknameCleared() {
+		_spec.ClearField(backenduser.FieldNickname, field.TypeString)
 	}
 	if value, ok := buu.mutation.RealName(); ok {
 		_spec.SetField(backenduser.FieldRealName, field.TypeString, value)
@@ -490,6 +502,12 @@ func (buuo *BackendUserUpdateOne) SetNillableNickname(s *string) *BackendUserUpd
 	return buuo
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (buuo *BackendUserUpdateOne) ClearNickname() *BackendUserUpdateOne {
+	buuo.mutation.ClearNickname()
+	return buuo
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (buuo *BackendUserUpdateOne) SetDepartmentID(u uuid.UUID) *BackendUserUpdateOne {
 	buuo.mutation.SetDepartmentID(u)
@@ -501,6 +519,12 @@ func (buuo *BackendUserUpdateOne) SetNillableDepartmentID(u *uuid.UUID) *Backend
 	if u != nil {
 		buuo.SetDepartmentID(*u)
 	}
+	return buuo
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (buuo *BackendUserUpdateOne) ClearDepartmentID() *BackendUserUpdateOne {
+	buuo.mutation.ClearDepartmentID()
 	return buuo
 }
 
@@ -706,9 +730,6 @@ func (buuo *BackendUserUpdateOne) check() error {
 	if buuo.mutation.MerchantCleared() && len(buuo.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "BackendUser.merchant"`)
 	}
-	if buuo.mutation.DepartmentCleared() && len(buuo.mutation.DepartmentIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "BackendUser.department"`)
-	}
 	return nil
 }
 
@@ -764,6 +785,9 @@ func (buuo *BackendUserUpdateOne) sqlSave(ctx context.Context) (_node *BackendUs
 	}
 	if value, ok := buuo.mutation.Nickname(); ok {
 		_spec.SetField(backenduser.FieldNickname, field.TypeString, value)
+	}
+	if buuo.mutation.NicknameCleared() {
+		_spec.ClearField(backenduser.FieldNickname, field.TypeString)
 	}
 	if value, ok := buuo.mutation.RealName(); ok {
 		_spec.SetField(backenduser.FieldRealName, field.TypeString, value)

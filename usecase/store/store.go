@@ -38,9 +38,16 @@ func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore
 			ID:             uuid.New(),
 			Username:       domainStore.LoginAccount,
 			HashedPassword: domainStore.LoginPassword,
-			Nickname:       "",
+			Nickname:       "admin",
 			MerchantID:     domainStore.MerchantID,
 			StoreID:        storeID,
+			Code:           storeID.String(),
+			RealName:       "admin",
+			Gender:         domain.GenderOther,
+			Email:          "",
+			PhoneNumber:    "",
+			Enabled:        true,
+			IsSuperAdmin:   true,
 		})
 		if err != nil {
 			return err

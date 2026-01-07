@@ -101,6 +101,12 @@ func (suu *StoreUserUpdate) SetNillableNickname(s *string) *StoreUserUpdate {
 	return suu
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (suu *StoreUserUpdate) ClearNickname() *StoreUserUpdate {
+	suu.mutation.ClearNickname()
+	return suu
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (suu *StoreUserUpdate) SetDepartmentID(u uuid.UUID) *StoreUserUpdate {
 	suu.mutation.SetDepartmentID(u)
@@ -112,6 +118,12 @@ func (suu *StoreUserUpdate) SetNillableDepartmentID(u *uuid.UUID) *StoreUserUpda
 	if u != nil {
 		suu.SetDepartmentID(*u)
 	}
+	return suu
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (suu *StoreUserUpdate) ClearDepartmentID() *StoreUserUpdate {
+	suu.mutation.ClearDepartmentID()
 	return suu
 }
 
@@ -307,9 +319,6 @@ func (suu *StoreUserUpdate) check() error {
 	if suu.mutation.StoreCleared() && len(suu.mutation.StoreIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.store"`)
 	}
-	if suu.mutation.DepartmentCleared() && len(suu.mutation.DepartmentIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "StoreUser.department"`)
-	}
 	return nil
 }
 
@@ -348,6 +357,9 @@ func (suu *StoreUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := suu.mutation.Nickname(); ok {
 		_spec.SetField(storeuser.FieldNickname, field.TypeString, value)
+	}
+	if suu.mutation.NicknameCleared() {
+		_spec.ClearField(storeuser.FieldNickname, field.TypeString)
 	}
 	if value, ok := suu.mutation.RealName(); ok {
 		_spec.SetField(storeuser.FieldRealName, field.TypeString, value)
@@ -493,6 +505,12 @@ func (suuo *StoreUserUpdateOne) SetNillableNickname(s *string) *StoreUserUpdateO
 	return suuo
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (suuo *StoreUserUpdateOne) ClearNickname() *StoreUserUpdateOne {
+	suuo.mutation.ClearNickname()
+	return suuo
+}
+
 // SetDepartmentID sets the "department_id" field.
 func (suuo *StoreUserUpdateOne) SetDepartmentID(u uuid.UUID) *StoreUserUpdateOne {
 	suuo.mutation.SetDepartmentID(u)
@@ -504,6 +522,12 @@ func (suuo *StoreUserUpdateOne) SetNillableDepartmentID(u *uuid.UUID) *StoreUser
 	if u != nil {
 		suuo.SetDepartmentID(*u)
 	}
+	return suuo
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (suuo *StoreUserUpdateOne) ClearDepartmentID() *StoreUserUpdateOne {
+	suuo.mutation.ClearDepartmentID()
 	return suuo
 }
 
@@ -712,9 +736,6 @@ func (suuo *StoreUserUpdateOne) check() error {
 	if suuo.mutation.StoreCleared() && len(suuo.mutation.StoreIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "StoreUser.store"`)
 	}
-	if suuo.mutation.DepartmentCleared() && len(suuo.mutation.DepartmentIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "StoreUser.department"`)
-	}
 	return nil
 }
 
@@ -770,6 +791,9 @@ func (suuo *StoreUserUpdateOne) sqlSave(ctx context.Context) (_node *StoreUser, 
 	}
 	if value, ok := suuo.mutation.Nickname(); ok {
 		_spec.SetField(storeuser.FieldNickname, field.TypeString, value)
+	}
+	if suuo.mutation.NicknameCleared() {
+		_spec.ClearField(storeuser.FieldNickname, field.TypeString)
 	}
 	if value, ok := suuo.mutation.RealName(); ok {
 		_spec.SetField(storeuser.FieldRealName, field.TypeString, value)
