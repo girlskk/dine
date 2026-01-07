@@ -23,6 +23,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
@@ -1009,6 +1010,73 @@ func init() {
 	orderproductDescID := orderproductMixinFields0[0].Descriptor()
 	// orderproduct.DefaultID holds the default value on creation for the id field.
 	orderproduct.DefaultID = orderproductDescID.Default.(func() uuid.UUID)
+	paymentaccountMixin := schema.PaymentAccount{}.Mixin()
+	paymentaccountMixinHooks2 := paymentaccountMixin[2].Hooks()
+	paymentaccount.Hooks[0] = paymentaccountMixinHooks2[0]
+	paymentaccountMixinInters2 := paymentaccountMixin[2].Interceptors()
+	paymentaccount.Interceptors[0] = paymentaccountMixinInters2[0]
+	paymentaccountMixinFields0 := paymentaccountMixin[0].Fields()
+	_ = paymentaccountMixinFields0
+	paymentaccountMixinFields1 := paymentaccountMixin[1].Fields()
+	_ = paymentaccountMixinFields1
+	paymentaccountMixinFields2 := paymentaccountMixin[2].Fields()
+	_ = paymentaccountMixinFields2
+	paymentaccountFields := schema.PaymentAccount{}.Fields()
+	_ = paymentaccountFields
+	// paymentaccountDescCreatedAt is the schema descriptor for created_at field.
+	paymentaccountDescCreatedAt := paymentaccountMixinFields1[0].Descriptor()
+	// paymentaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	paymentaccount.DefaultCreatedAt = paymentaccountDescCreatedAt.Default.(func() time.Time)
+	// paymentaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	paymentaccountDescUpdatedAt := paymentaccountMixinFields1[1].Descriptor()
+	// paymentaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	paymentaccount.DefaultUpdatedAt = paymentaccountDescUpdatedAt.Default.(func() time.Time)
+	// paymentaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	paymentaccount.UpdateDefaultUpdatedAt = paymentaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// paymentaccountDescDeletedAt is the schema descriptor for deleted_at field.
+	paymentaccountDescDeletedAt := paymentaccountMixinFields2[0].Descriptor()
+	// paymentaccount.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	paymentaccount.DefaultDeletedAt = paymentaccountDescDeletedAt.Default.(int64)
+	// paymentaccountDescMerchantNumber is the schema descriptor for merchant_number field.
+	paymentaccountDescMerchantNumber := paymentaccountFields[2].Descriptor()
+	// paymentaccount.MerchantNumberValidator is a validator for the "merchant_number" field. It is called by the builders before save.
+	paymentaccount.MerchantNumberValidator = func() func(string) error {
+		validators := paymentaccountDescMerchantNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_number string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// paymentaccountDescMerchantName is the schema descriptor for merchant_name field.
+	paymentaccountDescMerchantName := paymentaccountFields[3].Descriptor()
+	// paymentaccount.MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
+	paymentaccount.MerchantNameValidator = func() func(string) error {
+		validators := paymentaccountDescMerchantName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_name string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// paymentaccountDescID is the schema descriptor for id field.
+	paymentaccountDescID := paymentaccountMixinFields0[0].Descriptor()
+	// paymentaccount.DefaultID holds the default value on creation for the id field.
+	paymentaccount.DefaultID = paymentaccountDescID.Default.(func() uuid.UUID)
 	paymentmethodMixin := schema.PaymentMethod{}.Mixin()
 	paymentmethodMixinHooks2 := paymentmethodMixin[2].Hooks()
 	paymentmethod.Hooks[0] = paymentmethodMixinHooks2[0]

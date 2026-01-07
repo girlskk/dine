@@ -47,6 +47,7 @@ type Repository struct {
 	paymentMethodRepo          *PaymentMethodRepository
 	profitDistributionRuleRepo *ProfitDistributionRuleRepository
 	profitDistributionBillRepo *ProfitDistributionBillRepository
+	paymentAccountRepo         *PaymentAccountRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -396,4 +397,13 @@ func (repo *Repository) ProfitDistributionBillRepo() domain.ProfitDistributionBi
 		repo.profitDistributionBillRepo = NewProfitDistributionBillRepository(repo.client)
 	}
 	return repo.profitDistributionBillRepo
+}
+
+func (repo *Repository) PaymentAccountRepo() domain.PaymentAccountRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.paymentAccountRepo == nil {
+		repo.paymentAccountRepo = NewPaymentAccountRepository(repo.client)
+	}
+	return repo.paymentAccountRepo
 }

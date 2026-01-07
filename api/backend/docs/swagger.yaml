@@ -190,7 +190,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          type: integer
+          $ref: '#/definitions/time.Weekday'
         type: array
     type: object
   domain.BusinessModel:
@@ -741,6 +741,57 @@ definitions:
     x-enum-varnames:
     - PaperSize58mm
     - PaperSize80mm
+  domain.PaymentAccount:
+    properties:
+      channel:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentChannel'
+        description: 支付渠道
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 收款账户ID
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      merchant_name:
+        description: 支付商户名称
+        type: string
+      merchant_number:
+        description: 支付商户号
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.PaymentAccountSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.PaymentAccount'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
+  domain.PaymentChannel:
+    enum:
+    - rm
+    type: string
+    x-enum-comments:
+      PaymentChannelRM: Revenue Monster
+    x-enum-descriptions:
+    - Revenue Monster
+    x-enum-varnames:
+    - PaymentChannelRM
   domain.PaymentMethod:
     properties:
       accounting_rule:
@@ -2055,6 +2106,38 @@ definitions:
         type: string
       data: {}
     type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   types.AdditionalFeeCreateReq:
     properties:
       charge_mode:
@@ -2735,6 +2818,48 @@ definitions:
         type: string
       x_oss_signature_version:
         type: string
+    type: object
+  types.PaymentAccountCreateReq:
+    properties:
+      channel:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentChannel'
+        description: 支付渠道（必选）
+        enum:
+        - rm
+      merchant_name:
+        description: 支付商户名称（必选）
+        maxLength: 255
+        type: string
+      merchant_number:
+        description: 支付商户号（必选）
+        maxLength: 255
+        type: string
+    required:
+    - channel
+    - merchant_name
+    - merchant_number
+    type: object
+  types.PaymentAccountUpdateReq:
+    properties:
+      channel:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentChannel'
+        description: 支付渠道（必选）
+        enum:
+        - rm
+      merchant_name:
+        description: 支付商户名称（必选）
+        maxLength: 255
+        type: string
+      merchant_number:
+        description: 支付商户号（必选）
+        maxLength: 255
+        type: string
+    required:
+    - channel
+    - merchant_name
+    - merchant_number
     type: object
   types.PaymentMethodCreateReq:
     properties:
@@ -4562,6 +4687,106 @@ paths:
       summary: 获取OSS Token
       tags:
       - 阿里OSS
+  /payment/account:
+    get:
+      parameters:
+      - description: 支付渠道（可选）
+        enum:
+        - rm
+        in: query
+        name: channel
+        type: string
+        x-enum-comments:
+          PaymentChannelRM: Revenue Monster
+        x-enum-descriptions:
+        - Revenue Monster
+        x-enum-varnames:
+        - PaymentChannelRM
+      - description: 创建时间结束（可选）
+        in: query
+        name: created_at_end
+        type: string
+      - description: 创建时间开始（可选）
+        in: query
+        name: created_at_start
+        type: string
+      - description: 支付商户名称（可选，模糊匹配）
+        in: query
+        name: merchant_name
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.PaymentAccountSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询收款账户列表
+      tags:
+      - 收款账户
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.PaymentAccountCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建收款账户
+      tags:
+      - 收款账户
+  /payment/account/{id}:
+    delete:
+      parameters:
+      - description: 收款账户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除收款账户
+      tags:
+      - 收款账户
+    put:
+      parameters:
+      - description: 收款账户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.PaymentAccountUpdateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新收款账户
+      tags:
+      - 收款账户
   /payment/method:
     get:
       parameters:

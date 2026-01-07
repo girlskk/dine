@@ -836,6 +836,40 @@ var (
 			},
 		},
 	}
+	// PaymentAccountsColumns holds the columns for the "payment_accounts" table.
+	PaymentAccountsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"rm"}},
+		{Name: "merchant_number", Type: field.TypeString, Size: 255},
+		{Name: "merchant_name", Type: field.TypeString, Size: 255},
+	}
+	// PaymentAccountsTable holds the schema information for the "payment_accounts" table.
+	PaymentAccountsTable = &schema.Table{
+		Name:       "payment_accounts",
+		Columns:    PaymentAccountsColumns,
+		PrimaryKey: []*schema.Column{PaymentAccountsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "paymentaccount_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentAccountsColumns[3]},
+			},
+			{
+				Name:    "paymentaccount_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentAccountsColumns[4]},
+			},
+			{
+				Name:    "paymentaccount_merchant_id_merchant_number_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{PaymentAccountsColumns[4], PaymentAccountsColumns[6], PaymentAccountsColumns[3]},
+			},
+		},
+	}
 	// PaymentMethodsColumns holds the columns for the "payment_methods" table.
 	PaymentMethodsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -2002,6 +2036,7 @@ var (
 		MerchantRenewalsTable,
 		OrdersTable,
 		OrderProductsTable,
+		PaymentAccountsTable,
 		PaymentMethodsTable,
 		ProductsTable,
 		ProductAttrsTable,

@@ -243,6 +243,20 @@ func (mr *MockDataStoreMockRecorder) OrderRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrderRepo", reflect.TypeOf((*MockDataStore)(nil).OrderRepo))
 }
 
+// PaymentAccountRepo mocks base method.
+func (m *MockDataStore) PaymentAccountRepo() domain.PaymentAccountRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PaymentAccountRepo")
+	ret0, _ := ret[0].(domain.PaymentAccountRepository)
+	return ret0
+}
+
+// PaymentAccountRepo indicates an expected call of PaymentAccountRepo.
+func (mr *MockDataStoreMockRecorder) PaymentAccountRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaymentAccountRepo", reflect.TypeOf((*MockDataStore)(nil).PaymentAccountRepo))
+}
+
 // PaymentMethodRepo mocks base method.
 func (m *MockDataStore) PaymentMethodRepo() domain.PaymentMethodRepository {
 	m.ctrl.T.Helper()

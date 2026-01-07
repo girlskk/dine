@@ -32,6 +32,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
@@ -92,6 +93,8 @@ type Client struct {
 	Order *OrderClient
 	// OrderProduct is the client for interacting with the OrderProduct builders.
 	OrderProduct *OrderProductClient
+	// PaymentAccount is the client for interacting with the PaymentAccount builders.
+	PaymentAccount *PaymentAccountClient
 	// PaymentMethod is the client for interacting with the PaymentMethod builders.
 	PaymentMethod *PaymentMethodClient
 	// Product is the client for interacting with the Product builders.
@@ -161,6 +164,7 @@ func (c *Client) init() {
 	c.MerchantRenewal = NewMerchantRenewalClient(c.config)
 	c.Order = NewOrderClient(c.config)
 	c.OrderProduct = NewOrderProductClient(c.config)
+	c.PaymentAccount = NewPaymentAccountClient(c.config)
 	c.PaymentMethod = NewPaymentMethodClient(c.config)
 	c.Product = NewProductClient(c.config)
 	c.ProductAttr = NewProductAttrClient(c.config)
@@ -290,6 +294,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		MerchantRenewal:        NewMerchantRenewalClient(cfg),
 		Order:                  NewOrderClient(cfg),
 		OrderProduct:           NewOrderProductClient(cfg),
+		PaymentAccount:         NewPaymentAccountClient(cfg),
 		PaymentMethod:          NewPaymentMethodClient(cfg),
 		Product:                NewProductClient(cfg),
 		ProductAttr:            NewProductAttrClient(cfg),
@@ -346,6 +351,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		MerchantRenewal:        NewMerchantRenewalClient(cfg),
 		Order:                  NewOrderClient(cfg),
 		OrderProduct:           NewOrderProductClient(cfg),
+		PaymentAccount:         NewPaymentAccountClient(cfg),
 		PaymentMethod:          NewPaymentMethodClient(cfg),
 		Product:                NewProductClient(cfg),
 		ProductAttr:            NewProductAttrClient(cfg),
@@ -399,7 +405,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
 		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
 		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.PaymentAccount, c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
 		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Province,
 		c.Remark, c.RemarkCategory, c.Role, c.SetMealDetail, c.SetMealGroup, c.Stall,
@@ -416,7 +422,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
 		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
 		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.PaymentAccount, c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
 		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Province,
 		c.Remark, c.RemarkCategory, c.Role, c.SetMealDetail, c.SetMealGroup, c.Stall,
@@ -461,6 +467,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Order.mutate(ctx, m)
 	case *OrderProductMutation:
 		return c.OrderProduct.mutate(ctx, m)
+	case *PaymentAccountMutation:
+		return c.PaymentAccount.mutate(ctx, m)
 	case *PaymentMethodMutation:
 		return c.PaymentMethod.mutate(ctx, m)
 	case *ProductMutation:
@@ -3545,6 +3553,141 @@ func (c *OrderProductClient) mutate(ctx context.Context, m *OrderProductMutation
 		return (&OrderProductDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown OrderProduct mutation op: %q", m.Op())
+	}
+}
+
+// PaymentAccountClient is a client for the PaymentAccount schema.
+type PaymentAccountClient struct {
+	config
+}
+
+// NewPaymentAccountClient returns a client for the PaymentAccount from the given config.
+func NewPaymentAccountClient(c config) *PaymentAccountClient {
+	return &PaymentAccountClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `paymentaccount.Hooks(f(g(h())))`.
+func (c *PaymentAccountClient) Use(hooks ...Hook) {
+	c.hooks.PaymentAccount = append(c.hooks.PaymentAccount, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `paymentaccount.Intercept(f(g(h())))`.
+func (c *PaymentAccountClient) Intercept(interceptors ...Interceptor) {
+	c.inters.PaymentAccount = append(c.inters.PaymentAccount, interceptors...)
+}
+
+// Create returns a builder for creating a PaymentAccount entity.
+func (c *PaymentAccountClient) Create() *PaymentAccountCreate {
+	mutation := newPaymentAccountMutation(c.config, OpCreate)
+	return &PaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of PaymentAccount entities.
+func (c *PaymentAccountClient) CreateBulk(builders ...*PaymentAccountCreate) *PaymentAccountCreateBulk {
+	return &PaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PaymentAccountClient) MapCreateBulk(slice any, setFunc func(*PaymentAccountCreate, int)) *PaymentAccountCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PaymentAccountCreateBulk{err: fmt.Errorf("calling to PaymentAccountClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PaymentAccountCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for PaymentAccount.
+func (c *PaymentAccountClient) Update() *PaymentAccountUpdate {
+	mutation := newPaymentAccountMutation(c.config, OpUpdate)
+	return &PaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PaymentAccountClient) UpdateOne(pa *PaymentAccount) *PaymentAccountUpdateOne {
+	mutation := newPaymentAccountMutation(c.config, OpUpdateOne, withPaymentAccount(pa))
+	return &PaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PaymentAccountClient) UpdateOneID(id uuid.UUID) *PaymentAccountUpdateOne {
+	mutation := newPaymentAccountMutation(c.config, OpUpdateOne, withPaymentAccountID(id))
+	return &PaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for PaymentAccount.
+func (c *PaymentAccountClient) Delete() *PaymentAccountDelete {
+	mutation := newPaymentAccountMutation(c.config, OpDelete)
+	return &PaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PaymentAccountClient) DeleteOne(pa *PaymentAccount) *PaymentAccountDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PaymentAccountClient) DeleteOneID(id uuid.UUID) *PaymentAccountDeleteOne {
+	builder := c.Delete().Where(paymentaccount.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PaymentAccountDeleteOne{builder}
+}
+
+// Query returns a query builder for PaymentAccount.
+func (c *PaymentAccountClient) Query() *PaymentAccountQuery {
+	return &PaymentAccountQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePaymentAccount},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a PaymentAccount entity by its id.
+func (c *PaymentAccountClient) Get(ctx context.Context, id uuid.UUID) (*PaymentAccount, error) {
+	return c.Query().Where(paymentaccount.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PaymentAccountClient) GetX(ctx context.Context, id uuid.UUID) *PaymentAccount {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *PaymentAccountClient) Hooks() []Hook {
+	hooks := c.hooks.PaymentAccount
+	return append(hooks[:len(hooks):len(hooks)], paymentaccount.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *PaymentAccountClient) Interceptors() []Interceptor {
+	inters := c.inters.PaymentAccount
+	return append(inters[:len(inters):len(inters)], paymentaccount.Interceptors[:]...)
+}
+
+func (c *PaymentAccountClient) mutate(ctx context.Context, m *PaymentAccountMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown PaymentAccount mutation op: %q", m.Op())
 	}
 }
 
@@ -7508,19 +7651,19 @@ type (
 	hooks struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
 		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentMethod, Product, ProductAttr,
-		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
-		Province, Remark, RemarkCategory, Role, SetMealDetail, SetMealGroup, Stall,
-		Store, StoreUser, TaxFee []ent.Hook
+		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, ProfitDistributionBill,
+		ProfitDistributionRule, Province, Remark, RemarkCategory, Role, SetMealDetail,
+		SetMealGroup, Stall, Store, StoreUser, TaxFee []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
 		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentMethod, Product, ProductAttr,
-		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
-		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
-		Province, Remark, RemarkCategory, Role, SetMealDetail, SetMealGroup, Stall,
-		Store, StoreUser, TaxFee []ent.Interceptor
+		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod, Product,
+		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
+		ProductSpecRelation, ProductTag, ProductUnit, ProfitDistributionBill,
+		ProfitDistributionRule, Province, Remark, RemarkCategory, Role, SetMealDetail,
+		SetMealGroup, Stall, Store, StoreUser, TaxFee []ent.Interceptor
 	}
 )

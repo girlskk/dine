@@ -922,6 +922,167 @@
                 }
             }
         },
+        "/payment/account": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "查询收款账户列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "rm"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "PaymentChannelRM": "Revenue Monster"
+                        },
+                        "x-enum-descriptions": [
+                            "Revenue Monster"
+                        ],
+                        "x-enum-varnames": [
+                            "PaymentChannelRM"
+                        ],
+                        "description": "支付渠道（可选）",
+                        "name": "channel",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间结束（可选）",
+                        "name": "created_at_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间开始（可选）",
+                        "name": "created_at_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "支付商户名称（可选，模糊匹配）",
+                        "name": "merchant_name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentAccountSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "创建收款账户",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentAccountCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/account/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "更新收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentAccountUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "删除收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/payment/method": {
             "get": {
                 "security": [
@@ -5234,7 +5395,7 @@
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -6007,6 +6168,81 @@
             "x-enum-varnames": [
                 "PaperSize58mm",
                 "PaperSize80mm"
+            ]
+        },
+        "domain.PaymentAccount": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "description": "支付渠道",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "收款账户ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "支付商户名称",
+                    "type": "string"
+                },
+                "merchant_number": {
+                    "description": "支付商户号",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.PaymentAccountSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.PaymentAccount"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.PaymentChannel": {
+            "type": "string",
+            "enum": [
+                "rm"
+            ],
+            "x-enum-comments": {
+                "PaymentChannelRM": "Revenue Monster"
+            },
+            "x-enum-descriptions": [
+                "Revenue Monster"
+            ],
+            "x-enum-varnames": [
+                "PaymentChannelRM"
             ]
         },
         "domain.PaymentMethod": {
@@ -7869,6 +8105,41 @@
                 "data": {}
             }
         },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
+        },
         "types.AdditionalFeeCreateReq": {
             "type": "object",
             "required": [
@@ -8846,6 +9117,68 @@
                 },
                 "x_oss_signature_version": {
                     "type": "string"
+                }
+            }
+        },
+        "types.PaymentAccountCreateReq": {
+            "type": "object",
+            "required": [
+                "channel",
+                "merchant_name",
+                "merchant_number"
+            ],
+            "properties": {
+                "channel": {
+                    "description": "支付渠道（必选）",
+                    "enum": [
+                        "rm"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "merchant_name": {
+                    "description": "支付商户名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.PaymentAccountUpdateReq": {
+            "type": "object",
+            "required": [
+                "channel",
+                "merchant_name",
+                "merchant_number"
+            ],
+            "properties": {
+                "channel": {
+                    "description": "支付渠道（必选）",
+                    "enum": [
+                        "rm"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "merchant_name": {
+                    "description": "支付商户名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },

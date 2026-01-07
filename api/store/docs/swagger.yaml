@@ -174,7 +174,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -1210,16 +1210,16 @@ definitions:
     - 自助点餐
     - 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -1582,24 +1582,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.Address:
     properties:
       address:

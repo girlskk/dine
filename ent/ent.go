@@ -28,6 +28,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
@@ -125,6 +126,7 @@ func checkColumn(table, column string) error {
 			merchantrenewal.Table:        merchantrenewal.ValidColumn,
 			order.Table:                  order.ValidColumn,
 			orderproduct.Table:           orderproduct.ValidColumn,
+			paymentaccount.Table:         paymentaccount.ValidColumn,
 			paymentmethod.Table:          paymentmethod.ValidColumn,
 			product.Table:                product.ValidColumn,
 			productattr.Table:            productattr.ValidColumn,
