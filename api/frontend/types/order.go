@@ -10,26 +10,23 @@ import (
 
 // CreateOrderReq 创建订单请求
 type CreateOrderReq struct {
-	MerchantID   uuid.UUID `json:"merchant_id" binding:"required"`   // 品牌商ID
-	StoreID      uuid.UUID `json:"store_id" binding:"required"`      // 门店ID
-	BusinessDate string    `json:"business_date" binding:"required"` // 营业日
-	ShiftNo      string    `json:"shift_no"`                         // 班次号
-	OrderNo      string    `json:"order_no"`                         // 订单号
+	BusinessDate string `json:"business_date" binding:"required"` // 营业日
+	ShiftNo      string `json:"shift_no"`                         // 班次号
+	OrderNo      string `json:"order_no"`                         // 订单号
 
-	OrderType string             `json:"order_type" binding:"omitempty,oneof=SALE REFUND PARTIAL_REFUND"` // 订单类型
-	Refund    domain.OrderRefund `json:"refund"`                                                          // 退款单信息
+	OrderType string `json:"order_type" binding:"omitempty,oneof=SALE REFUND PARTIAL_REFUND"` // 订单类型
 
 	DiningMode    string `json:"dining_mode" binding:"required,oneof=DINE_IN"`                         // 就餐模式
 	OrderStatus   string `json:"order_status" binding:"omitempty,oneof=PLACED COMPLETED CANCELLED"`    // 订单状态
 	PaymentStatus string `json:"payment_status" binding:"omitempty,oneof=UNPAID PAYING PAID REFUNDED"` // 支付状态
 	Channel       string `json:"channel" binding:"omitempty,oneof=POS"`                                // 下单渠道
 
-	TableID    string `json:"table_id"`    // 桌位ID
-	TableName  string `json:"table_name"`  // 桌位名称
-	GuestCount int    `json:"guest_count"` // 用餐人数
+	TableID    uuid.UUID `json:"table_id"`    // 桌位ID
+	TableName  string    `json:"table_name"`  // 桌位名称
+	GuestCount int       `json:"guest_count"` // 用餐人数
 
 	PlacedAt time.Time `json:"placed_at"` // 下单时间
-	PlacedBy string    `json:"placed_by"` // 下单人
+	PlacedBy uuid.UUID `json:"placed_by"` // 下单人
 
 	Store   domain.OrderStore   `json:"store"`   // 门店信息
 	Pos     domain.OrderPOS     `json:"pos"`     // POS终端信息
@@ -40,6 +37,8 @@ type CreateOrderReq struct {
 	Fees          []domain.OrderFee     `json:"fees"`           // 费用明细
 	Payments      []domain.OrderPayment `json:"payments"`       // 支付记录
 	Amount        domain.OrderAmount    `json:"amount"`         // 金额汇总
+
+	Remark string `json:"remark"` // 整单备注
 }
 
 // UpdateOrderReq 更新订单请求
@@ -48,21 +47,20 @@ type UpdateOrderReq struct {
 	ShiftNo      string `json:"shift_no"`      // 班次号
 	OrderNo      string `json:"order_no"`      // 订单号
 
-	OrderType string             `json:"order_type" binding:"omitempty,oneof=SALE REFUND PARTIAL_REFUND"` // 订单类型
-	Refund    domain.OrderRefund `json:"refund"`                                                          // 退款单信息
+	OrderType string `json:"order_type" binding:"omitempty,oneof=SALE REFUND PARTIAL_REFUND"` // 订单类型
 
 	DiningMode    string `json:"dining_mode" binding:"omitempty,oneof=DINE_IN"`                        // 就餐模式
 	OrderStatus   string `json:"order_status" binding:"omitempty,oneof=PLACED COMPLETED CANCELLED"`    // 订单状态
 	PaymentStatus string `json:"payment_status" binding:"omitempty,oneof=UNPAID PAYING PAID REFUNDED"` // 支付状态
 	Channel       string `json:"channel" binding:"omitempty,oneof=POS"`                                // 下单渠道
 
-	TableID    string `json:"table_id"`    // 桌位ID
-	TableName  string `json:"table_name"`  // 桌位名称
-	GuestCount int    `json:"guest_count"` // 用餐人数
+	TableID    uuid.UUID `json:"table_id"`    // 桌位ID
+	TableName  string    `json:"table_name"`  // 桌位名称
+	GuestCount int       `json:"guest_count"` // 用餐人数
 
 	PlacedAt time.Time `json:"placed_at"` // 下单时间
 	PaidAt   time.Time `json:"paid_at"`   // 支付完成时间
-	PlacedBy string    `json:"placed_by"` // 下单人
+	PlacedBy uuid.UUID `json:"placed_by"` // 下单人
 
 	Store   domain.OrderStore   `json:"store"`   // 门店信息
 	Pos     domain.OrderPOS     `json:"pos"`     // POS终端信息
@@ -73,12 +71,12 @@ type UpdateOrderReq struct {
 	Fees          []domain.OrderFee     `json:"fees"`           // 费用明细
 	Payments      []domain.OrderPayment `json:"payments"`       // 支付记录
 	Amount        domain.OrderAmount    `json:"amount"`         // 金额汇总
+
+	Remark string `json:"remark"` // 整单备注
 }
 
 // ListOrderReq 订单列表请求
-type ListOrderReq struct {
-	MerchantID    string `form:"merchant_id" binding:"required"`                                       // 品牌商ID
-	StoreID       string `form:"store_id" binding:"required"`                                          // 门店ID
+type ListOrderReq struct { // 门店ID
 	BusinessDate  string `form:"business_date"`                                                        // 营业日
 	OrderNo       string `form:"order_no"`                                                             // 订单号
 	OrderType     string `form:"order_type" binding:"omitempty,oneof=SALE REFUND PARTIAL_REFUND"`      // 订单类型
