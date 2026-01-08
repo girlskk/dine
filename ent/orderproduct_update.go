@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -173,26 +172,6 @@ func (opu *OrderProductUpdate) ClearCategoryID() *OrderProductUpdate {
 	return opu
 }
 
-// SetMenuID sets the "menu_id" field.
-func (opu *OrderProductUpdate) SetMenuID(u uuid.UUID) *OrderProductUpdate {
-	opu.mutation.SetMenuID(u)
-	return opu
-}
-
-// SetNillableMenuID sets the "menu_id" field if the given value is not nil.
-func (opu *OrderProductUpdate) SetNillableMenuID(u *uuid.UUID) *OrderProductUpdate {
-	if u != nil {
-		opu.SetMenuID(*u)
-	}
-	return opu
-}
-
-// ClearMenuID clears the value of the "menu_id" field.
-func (opu *OrderProductUpdate) ClearMenuID() *OrderProductUpdate {
-	opu.mutation.ClearMenuID()
-	return opu
-}
-
 // SetUnitID sets the "unit_id" field.
 func (opu *OrderProductUpdate) SetUnitID(u uuid.UUID) *OrderProductUpdate {
 	opu.mutation.SetUnitID(u)
@@ -210,62 +189,6 @@ func (opu *OrderProductUpdate) SetNillableUnitID(u *uuid.UUID) *OrderProductUpda
 // ClearUnitID clears the value of the "unit_id" field.
 func (opu *OrderProductUpdate) ClearUnitID() *OrderProductUpdate {
 	opu.mutation.ClearUnitID()
-	return opu
-}
-
-// SetSupportTypes sets the "support_types" field.
-func (opu *OrderProductUpdate) SetSupportTypes(dst []domain.ProductSupportType) *OrderProductUpdate {
-	opu.mutation.SetSupportTypes(dst)
-	return opu
-}
-
-// AppendSupportTypes appends dst to the "support_types" field.
-func (opu *OrderProductUpdate) AppendSupportTypes(dst []domain.ProductSupportType) *OrderProductUpdate {
-	opu.mutation.AppendSupportTypes(dst)
-	return opu
-}
-
-// ClearSupportTypes clears the value of the "support_types" field.
-func (opu *OrderProductUpdate) ClearSupportTypes() *OrderProductUpdate {
-	opu.mutation.ClearSupportTypes()
-	return opu
-}
-
-// SetSaleStatus sets the "sale_status" field.
-func (opu *OrderProductUpdate) SetSaleStatus(dss domain.ProductSaleStatus) *OrderProductUpdate {
-	opu.mutation.SetSaleStatus(dss)
-	return opu
-}
-
-// SetNillableSaleStatus sets the "sale_status" field if the given value is not nil.
-func (opu *OrderProductUpdate) SetNillableSaleStatus(dss *domain.ProductSaleStatus) *OrderProductUpdate {
-	if dss != nil {
-		opu.SetSaleStatus(*dss)
-	}
-	return opu
-}
-
-// ClearSaleStatus clears the value of the "sale_status" field.
-func (opu *OrderProductUpdate) ClearSaleStatus() *OrderProductUpdate {
-	opu.mutation.ClearSaleStatus()
-	return opu
-}
-
-// SetSaleChannels sets the "sale_channels" field.
-func (opu *OrderProductUpdate) SetSaleChannels(dc []domain.SaleChannel) *OrderProductUpdate {
-	opu.mutation.SetSaleChannels(dc)
-	return opu
-}
-
-// AppendSaleChannels appends dc to the "sale_channels" field.
-func (opu *OrderProductUpdate) AppendSaleChannels(dc []domain.SaleChannel) *OrderProductUpdate {
-	opu.mutation.AppendSaleChannels(dc)
-	return opu
-}
-
-// ClearSaleChannels clears the value of the "sale_channels" field.
-func (opu *OrderProductUpdate) ClearSaleChannels() *OrderProductUpdate {
-	opu.mutation.ClearSaleChannels()
 	return opu
 }
 
@@ -297,6 +220,20 @@ func (opu *OrderProductUpdate) SetNillableDescription(s *string) *OrderProductUp
 	return opu
 }
 
+// SetIsGift sets the "is_gift" field.
+func (opu *OrderProductUpdate) SetIsGift(b bool) *OrderProductUpdate {
+	opu.mutation.SetIsGift(b)
+	return opu
+}
+
+// SetNillableIsGift sets the "is_gift" field if the given value is not nil.
+func (opu *OrderProductUpdate) SetNillableIsGift(b *bool) *OrderProductUpdate {
+	if b != nil {
+		opu.SetIsGift(*b)
+	}
+	return opu
+}
+
 // SetQty sets the "qty" field.
 func (opu *OrderProductUpdate) SetQty(i int) *OrderProductUpdate {
 	opu.mutation.ResetQty()
@@ -315,6 +252,27 @@ func (opu *OrderProductUpdate) SetNillableQty(i *int) *OrderProductUpdate {
 // AddQty adds i to the "qty" field.
 func (opu *OrderProductUpdate) AddQty(i int) *OrderProductUpdate {
 	opu.mutation.AddQty(i)
+	return opu
+}
+
+// SetGiftQty sets the "gift_qty" field.
+func (opu *OrderProductUpdate) SetGiftQty(i int) *OrderProductUpdate {
+	opu.mutation.ResetGiftQty()
+	opu.mutation.SetGiftQty(i)
+	return opu
+}
+
+// SetNillableGiftQty sets the "gift_qty" field if the given value is not nil.
+func (opu *OrderProductUpdate) SetNillableGiftQty(i *int) *OrderProductUpdate {
+	if i != nil {
+		opu.SetGiftQty(*i)
+	}
+	return opu
+}
+
+// AddGiftQty adds i to the "gift_qty" field.
+func (opu *OrderProductUpdate) AddGiftQty(i int) *OrderProductUpdate {
+	opu.mutation.AddGiftQty(i)
 	return opu
 }
 
@@ -540,15 +498,15 @@ func (opu *OrderProductUpdate) ClearRefundReason() *OrderProductUpdate {
 }
 
 // SetRefundedBy sets the "refunded_by" field.
-func (opu *OrderProductUpdate) SetRefundedBy(s string) *OrderProductUpdate {
-	opu.mutation.SetRefundedBy(s)
+func (opu *OrderProductUpdate) SetRefundedBy(u uuid.UUID) *OrderProductUpdate {
+	opu.mutation.SetRefundedBy(u)
 	return opu
 }
 
 // SetNillableRefundedBy sets the "refunded_by" field if the given value is not nil.
-func (opu *OrderProductUpdate) SetNillableRefundedBy(s *string) *OrderProductUpdate {
-	if s != nil {
-		opu.SetRefundedBy(*s)
+func (opu *OrderProductUpdate) SetNillableRefundedBy(u *uuid.UUID) *OrderProductUpdate {
+	if u != nil {
+		opu.SetRefundedBy(*u)
 	}
 	return opu
 }
@@ -599,73 +557,53 @@ func (opu *OrderProductUpdate) ClearNote() *OrderProductUpdate {
 	return opu
 }
 
-// SetEstimatedCostPrice sets the "estimated_cost_price" field.
-func (opu *OrderProductUpdate) SetEstimatedCostPrice(d decimal.Decimal) *OrderProductUpdate {
-	opu.mutation.SetEstimatedCostPrice(d)
+// SetPrice sets the "price" field.
+func (opu *OrderProductUpdate) SetPrice(d decimal.Decimal) *OrderProductUpdate {
+	opu.mutation.SetPrice(d)
 	return opu
 }
 
-// SetNillableEstimatedCostPrice sets the "estimated_cost_price" field if the given value is not nil.
-func (opu *OrderProductUpdate) SetNillableEstimatedCostPrice(d *decimal.Decimal) *OrderProductUpdate {
+// SetNillablePrice sets the "price" field if the given value is not nil.
+func (opu *OrderProductUpdate) SetNillablePrice(d *decimal.Decimal) *OrderProductUpdate {
 	if d != nil {
-		opu.SetEstimatedCostPrice(*d)
+		opu.SetPrice(*d)
 	}
 	return opu
 }
 
-// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
-func (opu *OrderProductUpdate) ClearEstimatedCostPrice() *OrderProductUpdate {
-	opu.mutation.ClearEstimatedCostPrice()
+// ClearPrice clears the value of the "price" field.
+func (opu *OrderProductUpdate) ClearPrice() *OrderProductUpdate {
+	opu.mutation.ClearPrice()
 	return opu
 }
 
-// SetDeliveryCostPrice sets the "delivery_cost_price" field.
-func (opu *OrderProductUpdate) SetDeliveryCostPrice(d decimal.Decimal) *OrderProductUpdate {
-	opu.mutation.SetDeliveryCostPrice(d)
+// SetGroups sets the "groups" field.
+func (opu *OrderProductUpdate) SetGroups(dmg domain.SetMealGroups) *OrderProductUpdate {
+	opu.mutation.SetGroups(dmg)
 	return opu
 }
 
-// SetNillableDeliveryCostPrice sets the "delivery_cost_price" field if the given value is not nil.
-func (opu *OrderProductUpdate) SetNillableDeliveryCostPrice(d *decimal.Decimal) *OrderProductUpdate {
-	if d != nil {
-		opu.SetDeliveryCostPrice(*d)
-	}
+// AppendGroups appends dmg to the "groups" field.
+func (opu *OrderProductUpdate) AppendGroups(dmg domain.SetMealGroups) *OrderProductUpdate {
+	opu.mutation.AppendGroups(dmg)
 	return opu
 }
 
-// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
-func (opu *OrderProductUpdate) ClearDeliveryCostPrice() *OrderProductUpdate {
-	opu.mutation.ClearDeliveryCostPrice()
-	return opu
-}
-
-// SetSetMealGroups sets the "set_meal_groups" field.
-func (opu *OrderProductUpdate) SetSetMealGroups(jm json.RawMessage) *OrderProductUpdate {
-	opu.mutation.SetSetMealGroups(jm)
-	return opu
-}
-
-// AppendSetMealGroups appends jm to the "set_meal_groups" field.
-func (opu *OrderProductUpdate) AppendSetMealGroups(jm json.RawMessage) *OrderProductUpdate {
-	opu.mutation.AppendSetMealGroups(jm)
-	return opu
-}
-
-// ClearSetMealGroups clears the value of the "set_meal_groups" field.
-func (opu *OrderProductUpdate) ClearSetMealGroups() *OrderProductUpdate {
-	opu.mutation.ClearSetMealGroups()
+// ClearGroups clears the value of the "groups" field.
+func (opu *OrderProductUpdate) ClearGroups() *OrderProductUpdate {
+	opu.mutation.ClearGroups()
 	return opu
 }
 
 // SetSpecRelations sets the "spec_relations" field.
-func (opu *OrderProductUpdate) SetSpecRelations(jm json.RawMessage) *OrderProductUpdate {
-	opu.mutation.SetSpecRelations(jm)
+func (opu *OrderProductUpdate) SetSpecRelations(dsr domain.ProductSpecRelations) *OrderProductUpdate {
+	opu.mutation.SetSpecRelations(dsr)
 	return opu
 }
 
-// AppendSpecRelations appends jm to the "spec_relations" field.
-func (opu *OrderProductUpdate) AppendSpecRelations(jm json.RawMessage) *OrderProductUpdate {
-	opu.mutation.AppendSpecRelations(jm)
+// AppendSpecRelations appends dsr to the "spec_relations" field.
+func (opu *OrderProductUpdate) AppendSpecRelations(dsr domain.ProductSpecRelations) *OrderProductUpdate {
+	opu.mutation.AppendSpecRelations(dsr)
 	return opu
 }
 
@@ -676,14 +614,14 @@ func (opu *OrderProductUpdate) ClearSpecRelations() *OrderProductUpdate {
 }
 
 // SetAttrRelations sets the "attr_relations" field.
-func (opu *OrderProductUpdate) SetAttrRelations(jm json.RawMessage) *OrderProductUpdate {
-	opu.mutation.SetAttrRelations(jm)
+func (opu *OrderProductUpdate) SetAttrRelations(dar domain.ProductAttrRelations) *OrderProductUpdate {
+	opu.mutation.SetAttrRelations(dar)
 	return opu
 }
 
-// AppendAttrRelations appends jm to the "attr_relations" field.
-func (opu *OrderProductUpdate) AppendAttrRelations(jm json.RawMessage) *OrderProductUpdate {
-	opu.mutation.AppendAttrRelations(jm)
+// AppendAttrRelations appends dar to the "attr_relations" field.
+func (opu *OrderProductUpdate) AppendAttrRelations(dar domain.ProductAttrRelations) *OrderProductUpdate {
+	opu.mutation.AppendAttrRelations(dar)
 	return opu
 }
 
@@ -768,11 +706,6 @@ func (opu *OrderProductUpdate) check() error {
 			return &ValidationError{Name: "product_type", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.product_type": %w`, err)}
 		}
 	}
-	if v, ok := opu.mutation.SaleStatus(); ok {
-		if err := orderproduct.SaleStatusValidator(v); err != nil {
-			return &ValidationError{Name: "sale_status", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.sale_status": %w`, err)}
-		}
-	}
 	if v, ok := opu.mutation.MainImage(); ok {
 		if err := orderproduct.MainImageValidator(v); err != nil {
 			return &ValidationError{Name: "main_image", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.main_image": %w`, err)}
@@ -840,45 +773,11 @@ func (opu *OrderProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if opu.mutation.CategoryIDCleared() {
 		_spec.ClearField(orderproduct.FieldCategoryID, field.TypeUUID)
 	}
-	if value, ok := opu.mutation.MenuID(); ok {
-		_spec.SetField(orderproduct.FieldMenuID, field.TypeUUID, value)
-	}
-	if opu.mutation.MenuIDCleared() {
-		_spec.ClearField(orderproduct.FieldMenuID, field.TypeUUID)
-	}
 	if value, ok := opu.mutation.UnitID(); ok {
 		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
 	}
 	if opu.mutation.UnitIDCleared() {
 		_spec.ClearField(orderproduct.FieldUnitID, field.TypeUUID)
-	}
-	if value, ok := opu.mutation.SupportTypes(); ok {
-		_spec.SetField(orderproduct.FieldSupportTypes, field.TypeJSON, value)
-	}
-	if value, ok := opu.mutation.AppendedSupportTypes(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, orderproduct.FieldSupportTypes, value)
-		})
-	}
-	if opu.mutation.SupportTypesCleared() {
-		_spec.ClearField(orderproduct.FieldSupportTypes, field.TypeJSON)
-	}
-	if value, ok := opu.mutation.SaleStatus(); ok {
-		_spec.SetField(orderproduct.FieldSaleStatus, field.TypeEnum, value)
-	}
-	if opu.mutation.SaleStatusCleared() {
-		_spec.ClearField(orderproduct.FieldSaleStatus, field.TypeEnum)
-	}
-	if value, ok := opu.mutation.SaleChannels(); ok {
-		_spec.SetField(orderproduct.FieldSaleChannels, field.TypeJSON, value)
-	}
-	if value, ok := opu.mutation.AppendedSaleChannels(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, orderproduct.FieldSaleChannels, value)
-		})
-	}
-	if opu.mutation.SaleChannelsCleared() {
-		_spec.ClearField(orderproduct.FieldSaleChannels, field.TypeJSON)
 	}
 	if value, ok := opu.mutation.MainImage(); ok {
 		_spec.SetField(orderproduct.FieldMainImage, field.TypeString, value)
@@ -886,11 +785,20 @@ func (opu *OrderProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := opu.mutation.Description(); ok {
 		_spec.SetField(orderproduct.FieldDescription, field.TypeString, value)
 	}
+	if value, ok := opu.mutation.IsGift(); ok {
+		_spec.SetField(orderproduct.FieldIsGift, field.TypeBool, value)
+	}
 	if value, ok := opu.mutation.Qty(); ok {
 		_spec.SetField(orderproduct.FieldQty, field.TypeInt, value)
 	}
 	if value, ok := opu.mutation.AddedQty(); ok {
 		_spec.AddField(orderproduct.FieldQty, field.TypeInt, value)
+	}
+	if value, ok := opu.mutation.GiftQty(); ok {
+		_spec.SetField(orderproduct.FieldGiftQty, field.TypeInt, value)
+	}
+	if value, ok := opu.mutation.AddedGiftQty(); ok {
+		_spec.AddField(orderproduct.FieldGiftQty, field.TypeInt, value)
 	}
 	if value, ok := opu.mutation.Subtotal(); ok {
 		_spec.SetField(orderproduct.FieldSubtotal, field.TypeOther, value)
@@ -959,10 +867,10 @@ func (opu *OrderProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.ClearField(orderproduct.FieldRefundReason, field.TypeString)
 	}
 	if value, ok := opu.mutation.RefundedBy(); ok {
-		_spec.SetField(orderproduct.FieldRefundedBy, field.TypeString, value)
+		_spec.SetField(orderproduct.FieldRefundedBy, field.TypeUUID, value)
 	}
 	if opu.mutation.RefundedByCleared() {
-		_spec.ClearField(orderproduct.FieldRefundedBy, field.TypeString)
+		_spec.ClearField(orderproduct.FieldRefundedBy, field.TypeUUID)
 	}
 	if value, ok := opu.mutation.RefundedAt(); ok {
 		_spec.SetField(orderproduct.FieldRefundedAt, field.TypeTime, value)
@@ -976,28 +884,22 @@ func (opu *OrderProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if opu.mutation.NoteCleared() {
 		_spec.ClearField(orderproduct.FieldNote, field.TypeString)
 	}
-	if value, ok := opu.mutation.EstimatedCostPrice(); ok {
-		_spec.SetField(orderproduct.FieldEstimatedCostPrice, field.TypeOther, value)
+	if value, ok := opu.mutation.Price(); ok {
+		_spec.SetField(orderproduct.FieldPrice, field.TypeOther, value)
 	}
-	if opu.mutation.EstimatedCostPriceCleared() {
-		_spec.ClearField(orderproduct.FieldEstimatedCostPrice, field.TypeOther)
+	if opu.mutation.PriceCleared() {
+		_spec.ClearField(orderproduct.FieldPrice, field.TypeOther)
 	}
-	if value, ok := opu.mutation.DeliveryCostPrice(); ok {
-		_spec.SetField(orderproduct.FieldDeliveryCostPrice, field.TypeOther, value)
+	if value, ok := opu.mutation.Groups(); ok {
+		_spec.SetField(orderproduct.FieldGroups, field.TypeJSON, value)
 	}
-	if opu.mutation.DeliveryCostPriceCleared() {
-		_spec.ClearField(orderproduct.FieldDeliveryCostPrice, field.TypeOther)
-	}
-	if value, ok := opu.mutation.SetMealGroups(); ok {
-		_spec.SetField(orderproduct.FieldSetMealGroups, field.TypeJSON, value)
-	}
-	if value, ok := opu.mutation.AppendedSetMealGroups(); ok {
+	if value, ok := opu.mutation.AppendedGroups(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, orderproduct.FieldSetMealGroups, value)
+			sqljson.Append(u, orderproduct.FieldGroups, value)
 		})
 	}
-	if opu.mutation.SetMealGroupsCleared() {
-		_spec.ClearField(orderproduct.FieldSetMealGroups, field.TypeJSON)
+	if opu.mutation.GroupsCleared() {
+		_spec.ClearField(orderproduct.FieldGroups, field.TypeJSON)
 	}
 	if value, ok := opu.mutation.SpecRelations(); ok {
 		_spec.SetField(orderproduct.FieldSpecRelations, field.TypeJSON, value)
@@ -1210,26 +1112,6 @@ func (opuo *OrderProductUpdateOne) ClearCategoryID() *OrderProductUpdateOne {
 	return opuo
 }
 
-// SetMenuID sets the "menu_id" field.
-func (opuo *OrderProductUpdateOne) SetMenuID(u uuid.UUID) *OrderProductUpdateOne {
-	opuo.mutation.SetMenuID(u)
-	return opuo
-}
-
-// SetNillableMenuID sets the "menu_id" field if the given value is not nil.
-func (opuo *OrderProductUpdateOne) SetNillableMenuID(u *uuid.UUID) *OrderProductUpdateOne {
-	if u != nil {
-		opuo.SetMenuID(*u)
-	}
-	return opuo
-}
-
-// ClearMenuID clears the value of the "menu_id" field.
-func (opuo *OrderProductUpdateOne) ClearMenuID() *OrderProductUpdateOne {
-	opuo.mutation.ClearMenuID()
-	return opuo
-}
-
 // SetUnitID sets the "unit_id" field.
 func (opuo *OrderProductUpdateOne) SetUnitID(u uuid.UUID) *OrderProductUpdateOne {
 	opuo.mutation.SetUnitID(u)
@@ -1247,62 +1129,6 @@ func (opuo *OrderProductUpdateOne) SetNillableUnitID(u *uuid.UUID) *OrderProduct
 // ClearUnitID clears the value of the "unit_id" field.
 func (opuo *OrderProductUpdateOne) ClearUnitID() *OrderProductUpdateOne {
 	opuo.mutation.ClearUnitID()
-	return opuo
-}
-
-// SetSupportTypes sets the "support_types" field.
-func (opuo *OrderProductUpdateOne) SetSupportTypes(dst []domain.ProductSupportType) *OrderProductUpdateOne {
-	opuo.mutation.SetSupportTypes(dst)
-	return opuo
-}
-
-// AppendSupportTypes appends dst to the "support_types" field.
-func (opuo *OrderProductUpdateOne) AppendSupportTypes(dst []domain.ProductSupportType) *OrderProductUpdateOne {
-	opuo.mutation.AppendSupportTypes(dst)
-	return opuo
-}
-
-// ClearSupportTypes clears the value of the "support_types" field.
-func (opuo *OrderProductUpdateOne) ClearSupportTypes() *OrderProductUpdateOne {
-	opuo.mutation.ClearSupportTypes()
-	return opuo
-}
-
-// SetSaleStatus sets the "sale_status" field.
-func (opuo *OrderProductUpdateOne) SetSaleStatus(dss domain.ProductSaleStatus) *OrderProductUpdateOne {
-	opuo.mutation.SetSaleStatus(dss)
-	return opuo
-}
-
-// SetNillableSaleStatus sets the "sale_status" field if the given value is not nil.
-func (opuo *OrderProductUpdateOne) SetNillableSaleStatus(dss *domain.ProductSaleStatus) *OrderProductUpdateOne {
-	if dss != nil {
-		opuo.SetSaleStatus(*dss)
-	}
-	return opuo
-}
-
-// ClearSaleStatus clears the value of the "sale_status" field.
-func (opuo *OrderProductUpdateOne) ClearSaleStatus() *OrderProductUpdateOne {
-	opuo.mutation.ClearSaleStatus()
-	return opuo
-}
-
-// SetSaleChannels sets the "sale_channels" field.
-func (opuo *OrderProductUpdateOne) SetSaleChannels(dc []domain.SaleChannel) *OrderProductUpdateOne {
-	opuo.mutation.SetSaleChannels(dc)
-	return opuo
-}
-
-// AppendSaleChannels appends dc to the "sale_channels" field.
-func (opuo *OrderProductUpdateOne) AppendSaleChannels(dc []domain.SaleChannel) *OrderProductUpdateOne {
-	opuo.mutation.AppendSaleChannels(dc)
-	return opuo
-}
-
-// ClearSaleChannels clears the value of the "sale_channels" field.
-func (opuo *OrderProductUpdateOne) ClearSaleChannels() *OrderProductUpdateOne {
-	opuo.mutation.ClearSaleChannels()
 	return opuo
 }
 
@@ -1334,6 +1160,20 @@ func (opuo *OrderProductUpdateOne) SetNillableDescription(s *string) *OrderProdu
 	return opuo
 }
 
+// SetIsGift sets the "is_gift" field.
+func (opuo *OrderProductUpdateOne) SetIsGift(b bool) *OrderProductUpdateOne {
+	opuo.mutation.SetIsGift(b)
+	return opuo
+}
+
+// SetNillableIsGift sets the "is_gift" field if the given value is not nil.
+func (opuo *OrderProductUpdateOne) SetNillableIsGift(b *bool) *OrderProductUpdateOne {
+	if b != nil {
+		opuo.SetIsGift(*b)
+	}
+	return opuo
+}
+
 // SetQty sets the "qty" field.
 func (opuo *OrderProductUpdateOne) SetQty(i int) *OrderProductUpdateOne {
 	opuo.mutation.ResetQty()
@@ -1352,6 +1192,27 @@ func (opuo *OrderProductUpdateOne) SetNillableQty(i *int) *OrderProductUpdateOne
 // AddQty adds i to the "qty" field.
 func (opuo *OrderProductUpdateOne) AddQty(i int) *OrderProductUpdateOne {
 	opuo.mutation.AddQty(i)
+	return opuo
+}
+
+// SetGiftQty sets the "gift_qty" field.
+func (opuo *OrderProductUpdateOne) SetGiftQty(i int) *OrderProductUpdateOne {
+	opuo.mutation.ResetGiftQty()
+	opuo.mutation.SetGiftQty(i)
+	return opuo
+}
+
+// SetNillableGiftQty sets the "gift_qty" field if the given value is not nil.
+func (opuo *OrderProductUpdateOne) SetNillableGiftQty(i *int) *OrderProductUpdateOne {
+	if i != nil {
+		opuo.SetGiftQty(*i)
+	}
+	return opuo
+}
+
+// AddGiftQty adds i to the "gift_qty" field.
+func (opuo *OrderProductUpdateOne) AddGiftQty(i int) *OrderProductUpdateOne {
+	opuo.mutation.AddGiftQty(i)
 	return opuo
 }
 
@@ -1577,15 +1438,15 @@ func (opuo *OrderProductUpdateOne) ClearRefundReason() *OrderProductUpdateOne {
 }
 
 // SetRefundedBy sets the "refunded_by" field.
-func (opuo *OrderProductUpdateOne) SetRefundedBy(s string) *OrderProductUpdateOne {
-	opuo.mutation.SetRefundedBy(s)
+func (opuo *OrderProductUpdateOne) SetRefundedBy(u uuid.UUID) *OrderProductUpdateOne {
+	opuo.mutation.SetRefundedBy(u)
 	return opuo
 }
 
 // SetNillableRefundedBy sets the "refunded_by" field if the given value is not nil.
-func (opuo *OrderProductUpdateOne) SetNillableRefundedBy(s *string) *OrderProductUpdateOne {
-	if s != nil {
-		opuo.SetRefundedBy(*s)
+func (opuo *OrderProductUpdateOne) SetNillableRefundedBy(u *uuid.UUID) *OrderProductUpdateOne {
+	if u != nil {
+		opuo.SetRefundedBy(*u)
 	}
 	return opuo
 }
@@ -1636,73 +1497,53 @@ func (opuo *OrderProductUpdateOne) ClearNote() *OrderProductUpdateOne {
 	return opuo
 }
 
-// SetEstimatedCostPrice sets the "estimated_cost_price" field.
-func (opuo *OrderProductUpdateOne) SetEstimatedCostPrice(d decimal.Decimal) *OrderProductUpdateOne {
-	opuo.mutation.SetEstimatedCostPrice(d)
+// SetPrice sets the "price" field.
+func (opuo *OrderProductUpdateOne) SetPrice(d decimal.Decimal) *OrderProductUpdateOne {
+	opuo.mutation.SetPrice(d)
 	return opuo
 }
 
-// SetNillableEstimatedCostPrice sets the "estimated_cost_price" field if the given value is not nil.
-func (opuo *OrderProductUpdateOne) SetNillableEstimatedCostPrice(d *decimal.Decimal) *OrderProductUpdateOne {
+// SetNillablePrice sets the "price" field if the given value is not nil.
+func (opuo *OrderProductUpdateOne) SetNillablePrice(d *decimal.Decimal) *OrderProductUpdateOne {
 	if d != nil {
-		opuo.SetEstimatedCostPrice(*d)
+		opuo.SetPrice(*d)
 	}
 	return opuo
 }
 
-// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
-func (opuo *OrderProductUpdateOne) ClearEstimatedCostPrice() *OrderProductUpdateOne {
-	opuo.mutation.ClearEstimatedCostPrice()
+// ClearPrice clears the value of the "price" field.
+func (opuo *OrderProductUpdateOne) ClearPrice() *OrderProductUpdateOne {
+	opuo.mutation.ClearPrice()
 	return opuo
 }
 
-// SetDeliveryCostPrice sets the "delivery_cost_price" field.
-func (opuo *OrderProductUpdateOne) SetDeliveryCostPrice(d decimal.Decimal) *OrderProductUpdateOne {
-	opuo.mutation.SetDeliveryCostPrice(d)
+// SetGroups sets the "groups" field.
+func (opuo *OrderProductUpdateOne) SetGroups(dmg domain.SetMealGroups) *OrderProductUpdateOne {
+	opuo.mutation.SetGroups(dmg)
 	return opuo
 }
 
-// SetNillableDeliveryCostPrice sets the "delivery_cost_price" field if the given value is not nil.
-func (opuo *OrderProductUpdateOne) SetNillableDeliveryCostPrice(d *decimal.Decimal) *OrderProductUpdateOne {
-	if d != nil {
-		opuo.SetDeliveryCostPrice(*d)
-	}
+// AppendGroups appends dmg to the "groups" field.
+func (opuo *OrderProductUpdateOne) AppendGroups(dmg domain.SetMealGroups) *OrderProductUpdateOne {
+	opuo.mutation.AppendGroups(dmg)
 	return opuo
 }
 
-// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
-func (opuo *OrderProductUpdateOne) ClearDeliveryCostPrice() *OrderProductUpdateOne {
-	opuo.mutation.ClearDeliveryCostPrice()
-	return opuo
-}
-
-// SetSetMealGroups sets the "set_meal_groups" field.
-func (opuo *OrderProductUpdateOne) SetSetMealGroups(jm json.RawMessage) *OrderProductUpdateOne {
-	opuo.mutation.SetSetMealGroups(jm)
-	return opuo
-}
-
-// AppendSetMealGroups appends jm to the "set_meal_groups" field.
-func (opuo *OrderProductUpdateOne) AppendSetMealGroups(jm json.RawMessage) *OrderProductUpdateOne {
-	opuo.mutation.AppendSetMealGroups(jm)
-	return opuo
-}
-
-// ClearSetMealGroups clears the value of the "set_meal_groups" field.
-func (opuo *OrderProductUpdateOne) ClearSetMealGroups() *OrderProductUpdateOne {
-	opuo.mutation.ClearSetMealGroups()
+// ClearGroups clears the value of the "groups" field.
+func (opuo *OrderProductUpdateOne) ClearGroups() *OrderProductUpdateOne {
+	opuo.mutation.ClearGroups()
 	return opuo
 }
 
 // SetSpecRelations sets the "spec_relations" field.
-func (opuo *OrderProductUpdateOne) SetSpecRelations(jm json.RawMessage) *OrderProductUpdateOne {
-	opuo.mutation.SetSpecRelations(jm)
+func (opuo *OrderProductUpdateOne) SetSpecRelations(dsr domain.ProductSpecRelations) *OrderProductUpdateOne {
+	opuo.mutation.SetSpecRelations(dsr)
 	return opuo
 }
 
-// AppendSpecRelations appends jm to the "spec_relations" field.
-func (opuo *OrderProductUpdateOne) AppendSpecRelations(jm json.RawMessage) *OrderProductUpdateOne {
-	opuo.mutation.AppendSpecRelations(jm)
+// AppendSpecRelations appends dsr to the "spec_relations" field.
+func (opuo *OrderProductUpdateOne) AppendSpecRelations(dsr domain.ProductSpecRelations) *OrderProductUpdateOne {
+	opuo.mutation.AppendSpecRelations(dsr)
 	return opuo
 }
 
@@ -1713,14 +1554,14 @@ func (opuo *OrderProductUpdateOne) ClearSpecRelations() *OrderProductUpdateOne {
 }
 
 // SetAttrRelations sets the "attr_relations" field.
-func (opuo *OrderProductUpdateOne) SetAttrRelations(jm json.RawMessage) *OrderProductUpdateOne {
-	opuo.mutation.SetAttrRelations(jm)
+func (opuo *OrderProductUpdateOne) SetAttrRelations(dar domain.ProductAttrRelations) *OrderProductUpdateOne {
+	opuo.mutation.SetAttrRelations(dar)
 	return opuo
 }
 
-// AppendAttrRelations appends jm to the "attr_relations" field.
-func (opuo *OrderProductUpdateOne) AppendAttrRelations(jm json.RawMessage) *OrderProductUpdateOne {
-	opuo.mutation.AppendAttrRelations(jm)
+// AppendAttrRelations appends dar to the "attr_relations" field.
+func (opuo *OrderProductUpdateOne) AppendAttrRelations(dar domain.ProductAttrRelations) *OrderProductUpdateOne {
+	opuo.mutation.AppendAttrRelations(dar)
 	return opuo
 }
 
@@ -1818,11 +1659,6 @@ func (opuo *OrderProductUpdateOne) check() error {
 			return &ValidationError{Name: "product_type", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.product_type": %w`, err)}
 		}
 	}
-	if v, ok := opuo.mutation.SaleStatus(); ok {
-		if err := orderproduct.SaleStatusValidator(v); err != nil {
-			return &ValidationError{Name: "sale_status", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.sale_status": %w`, err)}
-		}
-	}
 	if v, ok := opuo.mutation.MainImage(); ok {
 		if err := orderproduct.MainImageValidator(v); err != nil {
 			return &ValidationError{Name: "main_image", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.main_image": %w`, err)}
@@ -1907,45 +1743,11 @@ func (opuo *OrderProductUpdateOne) sqlSave(ctx context.Context) (_node *OrderPro
 	if opuo.mutation.CategoryIDCleared() {
 		_spec.ClearField(orderproduct.FieldCategoryID, field.TypeUUID)
 	}
-	if value, ok := opuo.mutation.MenuID(); ok {
-		_spec.SetField(orderproduct.FieldMenuID, field.TypeUUID, value)
-	}
-	if opuo.mutation.MenuIDCleared() {
-		_spec.ClearField(orderproduct.FieldMenuID, field.TypeUUID)
-	}
 	if value, ok := opuo.mutation.UnitID(); ok {
 		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
 	}
 	if opuo.mutation.UnitIDCleared() {
 		_spec.ClearField(orderproduct.FieldUnitID, field.TypeUUID)
-	}
-	if value, ok := opuo.mutation.SupportTypes(); ok {
-		_spec.SetField(orderproduct.FieldSupportTypes, field.TypeJSON, value)
-	}
-	if value, ok := opuo.mutation.AppendedSupportTypes(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, orderproduct.FieldSupportTypes, value)
-		})
-	}
-	if opuo.mutation.SupportTypesCleared() {
-		_spec.ClearField(orderproduct.FieldSupportTypes, field.TypeJSON)
-	}
-	if value, ok := opuo.mutation.SaleStatus(); ok {
-		_spec.SetField(orderproduct.FieldSaleStatus, field.TypeEnum, value)
-	}
-	if opuo.mutation.SaleStatusCleared() {
-		_spec.ClearField(orderproduct.FieldSaleStatus, field.TypeEnum)
-	}
-	if value, ok := opuo.mutation.SaleChannels(); ok {
-		_spec.SetField(orderproduct.FieldSaleChannels, field.TypeJSON, value)
-	}
-	if value, ok := opuo.mutation.AppendedSaleChannels(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, orderproduct.FieldSaleChannels, value)
-		})
-	}
-	if opuo.mutation.SaleChannelsCleared() {
-		_spec.ClearField(orderproduct.FieldSaleChannels, field.TypeJSON)
 	}
 	if value, ok := opuo.mutation.MainImage(); ok {
 		_spec.SetField(orderproduct.FieldMainImage, field.TypeString, value)
@@ -1953,11 +1755,20 @@ func (opuo *OrderProductUpdateOne) sqlSave(ctx context.Context) (_node *OrderPro
 	if value, ok := opuo.mutation.Description(); ok {
 		_spec.SetField(orderproduct.FieldDescription, field.TypeString, value)
 	}
+	if value, ok := opuo.mutation.IsGift(); ok {
+		_spec.SetField(orderproduct.FieldIsGift, field.TypeBool, value)
+	}
 	if value, ok := opuo.mutation.Qty(); ok {
 		_spec.SetField(orderproduct.FieldQty, field.TypeInt, value)
 	}
 	if value, ok := opuo.mutation.AddedQty(); ok {
 		_spec.AddField(orderproduct.FieldQty, field.TypeInt, value)
+	}
+	if value, ok := opuo.mutation.GiftQty(); ok {
+		_spec.SetField(orderproduct.FieldGiftQty, field.TypeInt, value)
+	}
+	if value, ok := opuo.mutation.AddedGiftQty(); ok {
+		_spec.AddField(orderproduct.FieldGiftQty, field.TypeInt, value)
 	}
 	if value, ok := opuo.mutation.Subtotal(); ok {
 		_spec.SetField(orderproduct.FieldSubtotal, field.TypeOther, value)
@@ -2026,10 +1837,10 @@ func (opuo *OrderProductUpdateOne) sqlSave(ctx context.Context) (_node *OrderPro
 		_spec.ClearField(orderproduct.FieldRefundReason, field.TypeString)
 	}
 	if value, ok := opuo.mutation.RefundedBy(); ok {
-		_spec.SetField(orderproduct.FieldRefundedBy, field.TypeString, value)
+		_spec.SetField(orderproduct.FieldRefundedBy, field.TypeUUID, value)
 	}
 	if opuo.mutation.RefundedByCleared() {
-		_spec.ClearField(orderproduct.FieldRefundedBy, field.TypeString)
+		_spec.ClearField(orderproduct.FieldRefundedBy, field.TypeUUID)
 	}
 	if value, ok := opuo.mutation.RefundedAt(); ok {
 		_spec.SetField(orderproduct.FieldRefundedAt, field.TypeTime, value)
@@ -2043,28 +1854,22 @@ func (opuo *OrderProductUpdateOne) sqlSave(ctx context.Context) (_node *OrderPro
 	if opuo.mutation.NoteCleared() {
 		_spec.ClearField(orderproduct.FieldNote, field.TypeString)
 	}
-	if value, ok := opuo.mutation.EstimatedCostPrice(); ok {
-		_spec.SetField(orderproduct.FieldEstimatedCostPrice, field.TypeOther, value)
+	if value, ok := opuo.mutation.Price(); ok {
+		_spec.SetField(orderproduct.FieldPrice, field.TypeOther, value)
 	}
-	if opuo.mutation.EstimatedCostPriceCleared() {
-		_spec.ClearField(orderproduct.FieldEstimatedCostPrice, field.TypeOther)
+	if opuo.mutation.PriceCleared() {
+		_spec.ClearField(orderproduct.FieldPrice, field.TypeOther)
 	}
-	if value, ok := opuo.mutation.DeliveryCostPrice(); ok {
-		_spec.SetField(orderproduct.FieldDeliveryCostPrice, field.TypeOther, value)
+	if value, ok := opuo.mutation.Groups(); ok {
+		_spec.SetField(orderproduct.FieldGroups, field.TypeJSON, value)
 	}
-	if opuo.mutation.DeliveryCostPriceCleared() {
-		_spec.ClearField(orderproduct.FieldDeliveryCostPrice, field.TypeOther)
-	}
-	if value, ok := opuo.mutation.SetMealGroups(); ok {
-		_spec.SetField(orderproduct.FieldSetMealGroups, field.TypeJSON, value)
-	}
-	if value, ok := opuo.mutation.AppendedSetMealGroups(); ok {
+	if value, ok := opuo.mutation.AppendedGroups(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, orderproduct.FieldSetMealGroups, value)
+			sqljson.Append(u, orderproduct.FieldGroups, value)
 		})
 	}
-	if opuo.mutation.SetMealGroupsCleared() {
-		_spec.ClearField(orderproduct.FieldSetMealGroups, field.TypeJSON)
+	if opuo.mutation.GroupsCleared() {
+		_spec.ClearField(orderproduct.FieldGroups, field.TypeJSON)
 	}
 	if value, ok := opuo.mutation.SpecRelations(); ok {
 		_spec.SetField(orderproduct.FieldSpecRelations, field.TypeJSON, value)

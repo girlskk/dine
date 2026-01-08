@@ -936,6 +936,10 @@ func init() {
 	orderDescOrderNo := orderFields[4].Descriptor()
 	// order.OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
 	order.OrderNoValidator = orderDescOrderNo.Validators[0].(func(string) error)
+	// orderDescRemark is the schema descriptor for remark field.
+	orderDescRemark := orderFields[25].Descriptor()
+	// order.RemarkValidator is a validator for the "remark" field. It is called by the builders before save.
+	order.RemarkValidator = orderDescRemark.Validators[0].(func(string) error)
 	// orderDescID is the schema descriptor for id field.
 	orderDescID := orderMixinFields0[0].Descriptor()
 	// order.DefaultID holds the default value on creation for the id field.
@@ -980,23 +984,31 @@ func init() {
 	// orderproduct.ProductNameValidator is a validator for the "product_name" field. It is called by the builders before save.
 	orderproduct.ProductNameValidator = orderproductDescProductName.Validators[0].(func(string) error)
 	// orderproductDescMainImage is the schema descriptor for main_image field.
-	orderproductDescMainImage := orderproductFields[12].Descriptor()
+	orderproductDescMainImage := orderproductFields[8].Descriptor()
 	// orderproduct.DefaultMainImage holds the default value on creation for the main_image field.
 	orderproduct.DefaultMainImage = orderproductDescMainImage.Default.(string)
 	// orderproduct.MainImageValidator is a validator for the "main_image" field. It is called by the builders before save.
 	orderproduct.MainImageValidator = orderproductDescMainImage.Validators[0].(func(string) error)
 	// orderproductDescDescription is the schema descriptor for description field.
-	orderproductDescDescription := orderproductFields[13].Descriptor()
+	orderproductDescDescription := orderproductFields[9].Descriptor()
 	// orderproduct.DefaultDescription holds the default value on creation for the description field.
 	orderproduct.DefaultDescription = orderproductDescDescription.Default.(string)
 	// orderproduct.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	orderproduct.DescriptionValidator = orderproductDescDescription.Validators[0].(func(string) error)
+	// orderproductDescIsGift is the schema descriptor for is_gift field.
+	orderproductDescIsGift := orderproductFields[10].Descriptor()
+	// orderproduct.DefaultIsGift holds the default value on creation for the is_gift field.
+	orderproduct.DefaultIsGift = orderproductDescIsGift.Default.(bool)
 	// orderproductDescQty is the schema descriptor for qty field.
-	orderproductDescQty := orderproductFields[14].Descriptor()
+	orderproductDescQty := orderproductFields[11].Descriptor()
 	// orderproduct.DefaultQty holds the default value on creation for the qty field.
 	orderproduct.DefaultQty = orderproductDescQty.Default.(int)
+	// orderproductDescGiftQty is the schema descriptor for gift_qty field.
+	orderproductDescGiftQty := orderproductFields[12].Descriptor()
+	// orderproduct.DefaultGiftQty holds the default value on creation for the gift_qty field.
+	orderproduct.DefaultGiftQty = orderproductDescGiftQty.Default.(int)
 	// orderproductDescVoidQty is the schema descriptor for void_qty field.
-	orderproductDescVoidQty := orderproductFields[23].Descriptor()
+	orderproductDescVoidQty := orderproductFields[21].Descriptor()
 	// orderproduct.DefaultVoidQty holds the default value on creation for the void_qty field.
 	orderproduct.DefaultVoidQty = orderproductDescVoidQty.Default.(int)
 	// orderproductDescID is the schema descriptor for id field.

@@ -36,8 +36,6 @@ const (
 	FieldOrderNo = "order_no"
 	// FieldOrderType holds the string denoting the order_type field in the database.
 	FieldOrderType = "order_type"
-	// FieldRefund holds the string denoting the refund field in the database.
-	FieldRefund = "refund"
 	// FieldPlacedAt holds the string denoting the placed_at field in the database.
 	FieldPlacedAt = "placed_at"
 	// FieldPaidAt holds the string denoting the paid_at field in the database.
@@ -46,6 +44,8 @@ const (
 	FieldCompletedAt = "completed_at"
 	// FieldPlacedBy holds the string denoting the placed_by field in the database.
 	FieldPlacedBy = "placed_by"
+	// FieldPlacedByName holds the string denoting the placed_by_name field in the database.
+	FieldPlacedByName = "placed_by_name"
 	// FieldDiningMode holds the string denoting the dining_mode field in the database.
 	FieldDiningMode = "dining_mode"
 	// FieldOrderStatus holds the string denoting the order_status field in the database.
@@ -74,6 +74,8 @@ const (
 	FieldPayments = "payments"
 	// FieldAmount holds the string denoting the amount field in the database.
 	FieldAmount = "amount"
+	// FieldRemark holds the string denoting the remark field in the database.
+	FieldRemark = "remark"
 	// EdgeOrderProducts holds the string denoting the order_products edge name in mutations.
 	EdgeOrderProducts = "order_products"
 	// Table holds the table name of the order in the database.
@@ -99,11 +101,11 @@ var Columns = []string{
 	FieldShiftNo,
 	FieldOrderNo,
 	FieldOrderType,
-	FieldRefund,
 	FieldPlacedAt,
 	FieldPaidAt,
 	FieldCompletedAt,
 	FieldPlacedBy,
+	FieldPlacedByName,
 	FieldDiningMode,
 	FieldOrderStatus,
 	FieldPaymentStatus,
@@ -118,6 +120,7 @@ var Columns = []string{
 	FieldFees,
 	FieldPayments,
 	FieldAmount,
+	FieldRemark,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -150,6 +153,8 @@ var (
 	BusinessDateValidator func(string) error
 	// OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
 	OrderNoValidator func(string) error
+	// RemarkValidator is a validator for the "remark" field. It is called by the builders before save.
+	RemarkValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -287,6 +292,11 @@ func ByPlacedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPlacedBy, opts...).ToFunc()
 }
 
+// ByPlacedByName orders the results by the placed_by_name field.
+func ByPlacedByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPlacedByName, opts...).ToFunc()
+}
+
 // ByDiningMode orders the results by the dining_mode field.
 func ByDiningMode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDiningMode, opts...).ToFunc()
@@ -320,6 +330,11 @@ func ByGuestCount(opts ...sql.OrderTermOption) OrderOption {
 // ByChannel orders the results by the channel field.
 func ByChannel(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldChannel, opts...).ToFunc()
+}
+
+// ByRemark orders the results by the remark field.
+func ByRemark(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRemark, opts...).ToFunc()
 }
 
 // ByOrderProductsCount orders the results by order_products count.
