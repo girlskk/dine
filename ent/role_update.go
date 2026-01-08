@@ -10,7 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 )
@@ -84,6 +86,44 @@ func (ru *RoleUpdate) SetNillableEnable(b *bool) *RoleUpdate {
 	return ru
 }
 
+// SetLoginChannels sets the "login_channels" field.
+func (ru *RoleUpdate) SetLoginChannels(dc []domain.LoginChannel) *RoleUpdate {
+	ru.mutation.SetLoginChannels(dc)
+	return ru
+}
+
+// AppendLoginChannels appends dc to the "login_channels" field.
+func (ru *RoleUpdate) AppendLoginChannels(dc []domain.LoginChannel) *RoleUpdate {
+	ru.mutation.AppendLoginChannels(dc)
+	return ru
+}
+
+// ClearLoginChannels clears the value of the "login_channels" field.
+func (ru *RoleUpdate) ClearLoginChannels() *RoleUpdate {
+	ru.mutation.ClearLoginChannels()
+	return ru
+}
+
+// SetDataScope sets the "data_scope" field.
+func (ru *RoleUpdate) SetDataScope(ddst domain.RoleDataScopeType) *RoleUpdate {
+	ru.mutation.SetDataScope(ddst)
+	return ru
+}
+
+// SetNillableDataScope sets the "data_scope" field if the given value is not nil.
+func (ru *RoleUpdate) SetNillableDataScope(ddst *domain.RoleDataScopeType) *RoleUpdate {
+	if ddst != nil {
+		ru.SetDataScope(*ddst)
+	}
+	return ru
+}
+
+// ClearDataScope clears the value of the "data_scope" field.
+func (ru *RoleUpdate) ClearDataScope() *RoleUpdate {
+	ru.mutation.ClearDataScope()
+	return ru
+}
+
 // Mutation returns the RoleMutation object of the builder.
 func (ru *RoleUpdate) Mutation() *RoleMutation {
 	return ru.mutation
@@ -131,6 +171,16 @@ func (ru *RoleUpdate) defaults() error {
 	return nil
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ru *RoleUpdate) check() error {
+	if v, ok := ru.mutation.DataScope(); ok {
+		if err := role.DataScopeValidator(v); err != nil {
+			return &ValidationError{Name: "data_scope", err: fmt.Errorf(`ent: validator failed for field "Role.data_scope": %w`, err)}
+		}
+	}
+	return nil
+}
+
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (ru *RoleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleUpdate {
 	ru.modifiers = append(ru.modifiers, modifiers...)
@@ -138,6 +188,9 @@ func (ru *RoleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleUpdat
 }
 
 func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := ru.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	if ps := ru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -160,6 +213,23 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ru.mutation.Enable(); ok {
 		_spec.SetField(role.FieldEnable, field.TypeBool, value)
+	}
+	if value, ok := ru.mutation.LoginChannels(); ok {
+		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
+	}
+	if value, ok := ru.mutation.AppendedLoginChannels(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, role.FieldLoginChannels, value)
+		})
+	}
+	if ru.mutation.LoginChannelsCleared() {
+		_spec.ClearField(role.FieldLoginChannels, field.TypeJSON)
+	}
+	if value, ok := ru.mutation.DataScope(); ok {
+		_spec.SetField(role.FieldDataScope, field.TypeEnum, value)
+	}
+	if ru.mutation.DataScopeCleared() {
+		_spec.ClearField(role.FieldDataScope, field.TypeEnum)
 	}
 	_spec.AddModifiers(ru.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, ru.driver, _spec); err != nil {
@@ -238,6 +308,44 @@ func (ruo *RoleUpdateOne) SetNillableEnable(b *bool) *RoleUpdateOne {
 	return ruo
 }
 
+// SetLoginChannels sets the "login_channels" field.
+func (ruo *RoleUpdateOne) SetLoginChannels(dc []domain.LoginChannel) *RoleUpdateOne {
+	ruo.mutation.SetLoginChannels(dc)
+	return ruo
+}
+
+// AppendLoginChannels appends dc to the "login_channels" field.
+func (ruo *RoleUpdateOne) AppendLoginChannels(dc []domain.LoginChannel) *RoleUpdateOne {
+	ruo.mutation.AppendLoginChannels(dc)
+	return ruo
+}
+
+// ClearLoginChannels clears the value of the "login_channels" field.
+func (ruo *RoleUpdateOne) ClearLoginChannels() *RoleUpdateOne {
+	ruo.mutation.ClearLoginChannels()
+	return ruo
+}
+
+// SetDataScope sets the "data_scope" field.
+func (ruo *RoleUpdateOne) SetDataScope(ddst domain.RoleDataScopeType) *RoleUpdateOne {
+	ruo.mutation.SetDataScope(ddst)
+	return ruo
+}
+
+// SetNillableDataScope sets the "data_scope" field if the given value is not nil.
+func (ruo *RoleUpdateOne) SetNillableDataScope(ddst *domain.RoleDataScopeType) *RoleUpdateOne {
+	if ddst != nil {
+		ruo.SetDataScope(*ddst)
+	}
+	return ruo
+}
+
+// ClearDataScope clears the value of the "data_scope" field.
+func (ruo *RoleUpdateOne) ClearDataScope() *RoleUpdateOne {
+	ruo.mutation.ClearDataScope()
+	return ruo
+}
+
 // Mutation returns the RoleMutation object of the builder.
 func (ruo *RoleUpdateOne) Mutation() *RoleMutation {
 	return ruo.mutation
@@ -298,6 +406,16 @@ func (ruo *RoleUpdateOne) defaults() error {
 	return nil
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ruo *RoleUpdateOne) check() error {
+	if v, ok := ruo.mutation.DataScope(); ok {
+		if err := role.DataScopeValidator(v); err != nil {
+			return &ValidationError{Name: "data_scope", err: fmt.Errorf(`ent: validator failed for field "Role.data_scope": %w`, err)}
+		}
+	}
+	return nil
+}
+
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (ruo *RoleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleUpdateOne {
 	ruo.modifiers = append(ruo.modifiers, modifiers...)
@@ -305,6 +423,9 @@ func (ruo *RoleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *RoleU
 }
 
 func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) {
+	if err := ruo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	id, ok := ruo.mutation.ID()
 	if !ok {
@@ -344,6 +465,23 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 	}
 	if value, ok := ruo.mutation.Enable(); ok {
 		_spec.SetField(role.FieldEnable, field.TypeBool, value)
+	}
+	if value, ok := ruo.mutation.LoginChannels(); ok {
+		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
+	}
+	if value, ok := ruo.mutation.AppendedLoginChannels(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, role.FieldLoginChannels, value)
+		})
+	}
+	if ruo.mutation.LoginChannelsCleared() {
+		_spec.ClearField(role.FieldLoginChannels, field.TypeJSON)
+	}
+	if value, ok := ruo.mutation.DataScope(); ok {
+		_spec.SetField(role.FieldDataScope, field.TypeEnum, value)
+	}
+	if ruo.mutation.DataScopeCleared() {
+		_spec.ClearField(role.FieldDataScope, field.TypeEnum)
 	}
 	_spec.AddModifiers(ruo.modifiers...)
 	_node = &Role{config: ruo.config}

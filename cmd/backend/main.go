@@ -74,6 +74,26 @@ func main() {
 				sequence.NewDailySequence,
 				fx.As(new(domain.DailySequence)),
 			),
+			fx.Annotate(
+				sequence.NewBackendTaxSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_tax_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewBackendDepartmentSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_department_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewBackendRoleSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_role_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewBackendUserSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_user_seq"`),
+			),
 			oss.New,
 		),
 		dbfx.Module,

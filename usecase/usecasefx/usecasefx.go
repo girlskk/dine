@@ -10,6 +10,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/order"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/paymentmethod"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/product"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productspec"
@@ -17,6 +18,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/region"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/role"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/routermenu"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/taxfee"
@@ -122,6 +125,18 @@ var Module = fx.Module(
 		fx.Annotate(
 			paymentmethod.NewPaymentMethodInteractor,
 			fx.As(new(domain.PaymentMethodInteractor)),
+		),
+		fx.Annotate(
+			permission.NewPermissionInteractor,
+			fx.As(new(domain.PermissionInteractor)),
+		),
+		fx.Annotate(
+			routermenu.NewRouterMenuInteractor,
+			fx.As(new(domain.RouterMenuInteractor)),
+		),
+		fx.Annotate(
+			role.NewRoleInteractor,
+			fx.As(new(domain.RoleInteractor)),
 		),
 	),
 )

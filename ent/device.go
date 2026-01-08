@@ -56,6 +56,8 @@ type Device struct {
 	SortOrder int `json:"sort_order,omitempty"`
 	// 打印纸张尺寸
 	PaperSize domain.PaperSize `json:"paper_size,omitempty"`
+	// 设备连接类型
+	ConnectType domain.DeviceConnectType `json:"connect_type,omitempty"`
 	// 出品部门ID，可为空
 	StallID uuid.UUID `json:"stall_id,omitempty"`
 	// 订单来源，取自 order_channel，多选
@@ -131,7 +133,7 @@ func (*Device) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case device.FieldDeletedAt, device.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case device.FieldName, device.FieldDeviceType, device.FieldDeviceCode, device.FieldDeviceBrand, device.FieldDeviceModel, device.FieldLocation, device.FieldStatus, device.FieldIP, device.FieldPaperSize, device.FieldDeviceStallPrintType, device.FieldDeviceStallReceiptType:
+		case device.FieldName, device.FieldDeviceType, device.FieldDeviceCode, device.FieldDeviceBrand, device.FieldDeviceModel, device.FieldLocation, device.FieldStatus, device.FieldIP, device.FieldPaperSize, device.FieldConnectType, device.FieldDeviceStallPrintType, device.FieldDeviceStallReceiptType:
 			values[i] = new(sql.NullString)
 		case device.FieldCreatedAt, device.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -253,6 +255,12 @@ func (d *Device) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field paper_size", values[i])
 			} else if value.Valid {
 				d.PaperSize = domain.PaperSize(value.String)
+			}
+		case device.FieldConnectType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field connect_type", values[i])
+			} else if value.Valid {
+				d.ConnectType = domain.DeviceConnectType(value.String)
 			}
 		case device.FieldStallID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -392,6 +400,9 @@ func (d *Device) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("paper_size=")
 	builder.WriteString(fmt.Sprintf("%v", d.PaperSize))
+	builder.WriteString(", ")
+	builder.WriteString("connect_type=")
+	builder.WriteString(fmt.Sprintf("%v", d.ConnectType))
 	builder.WriteString(", ")
 	builder.WriteString("stall_id=")
 	builder.WriteString(fmt.Sprintf("%v", d.StallID))

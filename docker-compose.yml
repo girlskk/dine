@@ -61,7 +61,7 @@ services:
   #     mysql:
   #       condition: service_healthy
 
-  # backend:
+  # ackend:
   #   build:
   #     context: .
   #     dockerfile: Dockerfile.air
@@ -200,3 +200,4 @@ services:
 volumes:
   dbdata:
   redisdata:
+  dbdata1:

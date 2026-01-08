@@ -35,7 +35,7 @@ type CreateMerchantReq struct {
 	AdminPhoneNumber     string                      `json:"admin_phone_number" binding:"required,max=20"`   // 管理员手机号
 	PurchaseDuration     int                         `json:"purchase_duration" binding:"required"`           // 购买时长
 	PurchaseDurationUnit domain.PurchaseDurationUnit `json:"purchase_duration_unit" binding:"required"`      // 购买时长单位
-	BusinessTypeID       uuid.UUID                   `json:"business_type_id" binding:"required"`            // 业务类型
+	BusinessTypeCode     string                      `json:"business_type_code" binding:"required"`          // 业务类型
 	MerchantLogo         string                      `json:"merchant_logo" binding:"omitempty,max=500"`      // logo 图片地址
 	Description          string                      `json:"description" binding:"omitempty,max=255"`        // 商户描述(保留字段)
 	Status               domain.MerchantStatus       `json:"status" binding:"omitempty"`                     // 状态: 正常,停用,过期
@@ -79,7 +79,7 @@ type UpdateMerchantReq struct {
 	MerchantShortName string                `json:"merchant_short_name" binding:"omitempty,max=50"` // 商户简称
 	BrandName         string                `json:"brand_name" binding:"omitempty,max=50"`          // 品牌名称
 	AdminPhoneNumber  string                `json:"admin_phone_number" binding:"required,max=20"`   // 管理员手机号
-	BusinessTypeID    uuid.UUID             `json:"business_type_id" binding:"required"`            // 业务类型
+	BusinessTypeCode  string                `json:"business_type_code" binding:"required"`          // 业务类型
 	MerchantLogo      string                `json:"merchant_logo" binding:"omitempty,max=500"`      // logo 图片地址
 	Description       string                `json:"description" binding:"omitempty,max=255"`        // 商户描述(保留字段)
 	Status            domain.MerchantStatus `json:"status" binding:"omitempty"`                     // 状态: 正常,停用,过期
@@ -136,8 +136,8 @@ type MerchantRenewalReq struct {
 }
 
 type MerchantSimpleUpdateReq struct {
-	SimpleUpdateType domain.MerchantSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
-	Status           domain.MerchantStatus           `json:"status" binding:"omitempty"`                         // 状态: 正常,停用,过期
+	SimpleUpdateType domain.MerchantSimpleUpdateField `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
+	Status           domain.MerchantStatus            `json:"status" binding:"omitempty"`                         // 状态: 正常,停用,过期
 }
 
 type MerchantCount struct {

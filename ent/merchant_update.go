@@ -21,7 +21,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
@@ -197,16 +196,16 @@ func (mu *MerchantUpdate) ClearExpireUtc() *MerchantUpdate {
 	return mu
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (mu *MerchantUpdate) SetBusinessTypeID(u uuid.UUID) *MerchantUpdate {
-	mu.mutation.SetBusinessTypeID(u)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (mu *MerchantUpdate) SetBusinessTypeCode(s string) *MerchantUpdate {
+	mu.mutation.SetBusinessTypeCode(s)
 	return mu
 }
 
-// SetNillableBusinessTypeID sets the "business_type_id" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableBusinessTypeID(u *uuid.UUID) *MerchantUpdate {
-	if u != nil {
-		mu.SetBusinessTypeID(*u)
+// SetNillableBusinessTypeCode sets the "business_type_code" field if the given value is not nil.
+func (mu *MerchantUpdate) SetNillableBusinessTypeCode(s *string) *MerchantUpdate {
+	if s != nil {
+		mu.SetBusinessTypeCode(*s)
 	}
 	return mu
 }
@@ -397,17 +396,6 @@ func (mu *MerchantUpdate) SetNillableLat(s *string) *MerchantUpdate {
 func (mu *MerchantUpdate) ClearLat() *MerchantUpdate {
 	mu.mutation.ClearLat()
 	return mu
-}
-
-// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
-func (mu *MerchantUpdate) SetMerchantBusinessTypeID(id uuid.UUID) *MerchantUpdate {
-	mu.mutation.SetMerchantBusinessTypeID(id)
-	return mu
-}
-
-// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (mu *MerchantUpdate) SetMerchantBusinessType(m *MerchantBusinessType) *MerchantUpdate {
-	return mu.SetMerchantBusinessTypeID(m.ID)
 }
 
 // SetCountry sets the "country" edge to the Country entity.
@@ -613,12 +601,6 @@ func (mu *MerchantUpdate) AddStoreUsers(s ...*StoreUser) *MerchantUpdate {
 // Mutation returns the MerchantMutation object of the builder.
 func (mu *MerchantUpdate) Mutation() *MerchantMutation {
 	return mu.mutation
-}
-
-// ClearMerchantBusinessType clears the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (mu *MerchantUpdate) ClearMerchantBusinessType() *MerchantUpdate {
-	mu.mutation.ClearMerchantBusinessType()
-	return mu
 }
 
 // ClearCountry clears the "country" edge to the Country entity.
@@ -941,6 +923,11 @@ func (mu *MerchantUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (mu *MerchantUpdate) check() error {
+	if v, ok := mu.mutation.MerchantCode(); ok {
+		if err := merchant.MerchantCodeValidator(v); err != nil {
+			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
+		}
+	}
 	if v, ok := mu.mutation.MerchantName(); ok {
 		if err := merchant.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_name": %w`, err)}
@@ -954,6 +941,11 @@ func (mu *MerchantUpdate) check() error {
 	if v, ok := mu.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
+		}
+	}
+	if v, ok := mu.mutation.BrandName(); ok {
+		if err := merchant.BrandNameValidator(v); err != nil {
+			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if v, ok := mu.mutation.AdminPhoneNumber(); ok {
@@ -980,9 +972,6 @@ func (mu *MerchantUpdate) check() error {
 		if err := merchant.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Merchant.address": %w`, err)}
 		}
-	}
-	if mu.mutation.MerchantBusinessTypeCleared() && len(mu.mutation.MerchantBusinessTypeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Merchant.merchant_business_type"`)
 	}
 	return nil
 }
@@ -1047,6 +1036,9 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if mu.mutation.ExpireUtcCleared() {
 		_spec.ClearField(merchant.FieldExpireUtc, field.TypeTime)
 	}
+	if value, ok := mu.mutation.BusinessTypeCode(); ok {
+		_spec.SetField(merchant.FieldBusinessTypeCode, field.TypeString, value)
+	}
 	if value, ok := mu.mutation.MerchantLogo(); ok {
 		_spec.SetField(merchant.FieldMerchantLogo, field.TypeString, value)
 	}
@@ -1076,35 +1068,6 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if mu.mutation.LatCleared() {
 		_spec.ClearField(merchant.FieldLat, field.TypeString)
-	}
-	if mu.mutation.MerchantBusinessTypeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.MerchantBusinessTypeTable,
-			Columns: []string{merchant.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.MerchantBusinessTypeTable,
-			Columns: []string{merchant.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if mu.mutation.CountryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1933,16 +1896,16 @@ func (muo *MerchantUpdateOne) ClearExpireUtc() *MerchantUpdateOne {
 	return muo
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (muo *MerchantUpdateOne) SetBusinessTypeID(u uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.SetBusinessTypeID(u)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (muo *MerchantUpdateOne) SetBusinessTypeCode(s string) *MerchantUpdateOne {
+	muo.mutation.SetBusinessTypeCode(s)
 	return muo
 }
 
-// SetNillableBusinessTypeID sets the "business_type_id" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableBusinessTypeID(u *uuid.UUID) *MerchantUpdateOne {
-	if u != nil {
-		muo.SetBusinessTypeID(*u)
+// SetNillableBusinessTypeCode sets the "business_type_code" field if the given value is not nil.
+func (muo *MerchantUpdateOne) SetNillableBusinessTypeCode(s *string) *MerchantUpdateOne {
+	if s != nil {
+		muo.SetBusinessTypeCode(*s)
 	}
 	return muo
 }
@@ -2133,17 +2096,6 @@ func (muo *MerchantUpdateOne) SetNillableLat(s *string) *MerchantUpdateOne {
 func (muo *MerchantUpdateOne) ClearLat() *MerchantUpdateOne {
 	muo.mutation.ClearLat()
 	return muo
-}
-
-// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
-func (muo *MerchantUpdateOne) SetMerchantBusinessTypeID(id uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.SetMerchantBusinessTypeID(id)
-	return muo
-}
-
-// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (muo *MerchantUpdateOne) SetMerchantBusinessType(m *MerchantBusinessType) *MerchantUpdateOne {
-	return muo.SetMerchantBusinessTypeID(m.ID)
 }
 
 // SetCountry sets the "country" edge to the Country entity.
@@ -2349,12 +2301,6 @@ func (muo *MerchantUpdateOne) AddStoreUsers(s ...*StoreUser) *MerchantUpdateOne 
 // Mutation returns the MerchantMutation object of the builder.
 func (muo *MerchantUpdateOne) Mutation() *MerchantMutation {
 	return muo.mutation
-}
-
-// ClearMerchantBusinessType clears the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (muo *MerchantUpdateOne) ClearMerchantBusinessType() *MerchantUpdateOne {
-	muo.mutation.ClearMerchantBusinessType()
-	return muo
 }
 
 // ClearCountry clears the "country" edge to the Country entity.
@@ -2690,6 +2636,11 @@ func (muo *MerchantUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (muo *MerchantUpdateOne) check() error {
+	if v, ok := muo.mutation.MerchantCode(); ok {
+		if err := merchant.MerchantCodeValidator(v); err != nil {
+			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
+		}
+	}
 	if v, ok := muo.mutation.MerchantName(); ok {
 		if err := merchant.MerchantNameValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_name": %w`, err)}
@@ -2703,6 +2654,11 @@ func (muo *MerchantUpdateOne) check() error {
 	if v, ok := muo.mutation.MerchantType(); ok {
 		if err := merchant.MerchantTypeValidator(v); err != nil {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
+		}
+	}
+	if v, ok := muo.mutation.BrandName(); ok {
+		if err := merchant.BrandNameValidator(v); err != nil {
+			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
 		}
 	}
 	if v, ok := muo.mutation.AdminPhoneNumber(); ok {
@@ -2729,9 +2685,6 @@ func (muo *MerchantUpdateOne) check() error {
 		if err := merchant.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Merchant.address": %w`, err)}
 		}
-	}
-	if muo.mutation.MerchantBusinessTypeCleared() && len(muo.mutation.MerchantBusinessTypeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Merchant.merchant_business_type"`)
 	}
 	return nil
 }
@@ -2813,6 +2766,9 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	if muo.mutation.ExpireUtcCleared() {
 		_spec.ClearField(merchant.FieldExpireUtc, field.TypeTime)
 	}
+	if value, ok := muo.mutation.BusinessTypeCode(); ok {
+		_spec.SetField(merchant.FieldBusinessTypeCode, field.TypeString, value)
+	}
 	if value, ok := muo.mutation.MerchantLogo(); ok {
 		_spec.SetField(merchant.FieldMerchantLogo, field.TypeString, value)
 	}
@@ -2842,35 +2798,6 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	}
 	if muo.mutation.LatCleared() {
 		_spec.ClearField(merchant.FieldLat, field.TypeString)
-	}
-	if muo.mutation.MerchantBusinessTypeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.MerchantBusinessTypeTable,
-			Columns: []string{merchant.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.MerchantBusinessTypeTable,
-			Columns: []string{merchant.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if muo.mutation.CountryCleared() {
 		edge := &sqlgraph.EdgeSpec{

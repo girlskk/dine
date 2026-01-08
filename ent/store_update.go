@@ -21,7 +21,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
@@ -169,16 +168,16 @@ func (su *StoreUpdate) SetNillableBusinessModel(dm *domain.BusinessModel) *Store
 	return su
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (su *StoreUpdate) SetBusinessTypeID(u uuid.UUID) *StoreUpdate {
-	su.mutation.SetBusinessTypeID(u)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (su *StoreUpdate) SetBusinessTypeCode(s string) *StoreUpdate {
+	su.mutation.SetBusinessTypeCode(s)
 	return su
 }
 
-// SetNillableBusinessTypeID sets the "business_type_id" field if the given value is not nil.
-func (su *StoreUpdate) SetNillableBusinessTypeID(u *uuid.UUID) *StoreUpdate {
-	if u != nil {
-		su.SetBusinessTypeID(*u)
+// SetNillableBusinessTypeCode sets the "business_type_code" field if the given value is not nil.
+func (su *StoreUpdate) SetNillableBusinessTypeCode(s *string) *StoreUpdate {
+	if s != nil {
+		su.SetBusinessTypeCode(*s)
 	}
 	return su
 }
@@ -507,6 +506,12 @@ func (su *StoreUpdate) SetNillableAddress(s *string) *StoreUpdate {
 	return su
 }
 
+// ClearAddress clears the value of the "address" field.
+func (su *StoreUpdate) ClearAddress() *StoreUpdate {
+	su.mutation.ClearAddress()
+	return su
+}
+
 // SetLng sets the "lng" field.
 func (su *StoreUpdate) SetLng(s string) *StoreUpdate {
 	su.mutation.SetLng(s)
@@ -545,17 +550,6 @@ func (su *StoreUpdate) SetNillableLat(s *string) *StoreUpdate {
 func (su *StoreUpdate) ClearLat() *StoreUpdate {
 	su.mutation.ClearLat()
 	return su
-}
-
-// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
-func (su *StoreUpdate) SetMerchantBusinessTypeID(id uuid.UUID) *StoreUpdate {
-	su.mutation.SetMerchantBusinessTypeID(id)
-	return su
-}
-
-// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (su *StoreUpdate) SetMerchantBusinessType(m *MerchantBusinessType) *StoreUpdate {
-	return su.SetMerchantBusinessTypeID(m.ID)
 }
 
 // SetCountry sets the "country" edge to the Country entity.
@@ -716,12 +710,6 @@ func (su *StoreUpdate) AddRoles(r ...*Role) *StoreUpdate {
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
-}
-
-// ClearMerchantBusinessType clears the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (su *StoreUpdate) ClearMerchantBusinessType() *StoreUpdate {
-	su.mutation.ClearMerchantBusinessType()
-	return su
 }
 
 // ClearCountry clears the "country" edge to the Country entity.
@@ -1074,9 +1062,6 @@ func (su *StoreUpdate) check() error {
 	if su.mutation.MerchantCleared() && len(su.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
 	}
-	if su.mutation.MerchantBusinessTypeCleared() && len(su.mutation.MerchantBusinessTypeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
-	}
 	return nil
 }
 
@@ -1130,6 +1115,9 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
+	}
+	if value, ok := su.mutation.BusinessTypeCode(); ok {
+		_spec.SetField(store.FieldBusinessTypeCode, field.TypeString, value)
 	}
 	if value, ok := su.mutation.LocationNumber(); ok {
 		_spec.SetField(store.FieldLocationNumber, field.TypeString, value)
@@ -1215,6 +1203,9 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
 	}
+	if su.mutation.AddressCleared() {
+		_spec.ClearField(store.FieldAddress, field.TypeString)
+	}
 	if value, ok := su.mutation.Lng(); ok {
 		_spec.SetField(store.FieldLng, field.TypeString, value)
 	}
@@ -1226,35 +1217,6 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if su.mutation.LatCleared() {
 		_spec.ClearField(store.FieldLat, field.TypeString)
-	}
-	if su.mutation.MerchantBusinessTypeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.MerchantBusinessTypeTable,
-			Columns: []string{store.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.MerchantBusinessTypeTable,
-			Columns: []string{store.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if su.mutation.CountryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1922,16 +1884,16 @@ func (suo *StoreUpdateOne) SetNillableBusinessModel(dm *domain.BusinessModel) *S
 	return suo
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (suo *StoreUpdateOne) SetBusinessTypeID(u uuid.UUID) *StoreUpdateOne {
-	suo.mutation.SetBusinessTypeID(u)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (suo *StoreUpdateOne) SetBusinessTypeCode(s string) *StoreUpdateOne {
+	suo.mutation.SetBusinessTypeCode(s)
 	return suo
 }
 
-// SetNillableBusinessTypeID sets the "business_type_id" field if the given value is not nil.
-func (suo *StoreUpdateOne) SetNillableBusinessTypeID(u *uuid.UUID) *StoreUpdateOne {
-	if u != nil {
-		suo.SetBusinessTypeID(*u)
+// SetNillableBusinessTypeCode sets the "business_type_code" field if the given value is not nil.
+func (suo *StoreUpdateOne) SetNillableBusinessTypeCode(s *string) *StoreUpdateOne {
+	if s != nil {
+		suo.SetBusinessTypeCode(*s)
 	}
 	return suo
 }
@@ -2260,6 +2222,12 @@ func (suo *StoreUpdateOne) SetNillableAddress(s *string) *StoreUpdateOne {
 	return suo
 }
 
+// ClearAddress clears the value of the "address" field.
+func (suo *StoreUpdateOne) ClearAddress() *StoreUpdateOne {
+	suo.mutation.ClearAddress()
+	return suo
+}
+
 // SetLng sets the "lng" field.
 func (suo *StoreUpdateOne) SetLng(s string) *StoreUpdateOne {
 	suo.mutation.SetLng(s)
@@ -2298,17 +2266,6 @@ func (suo *StoreUpdateOne) SetNillableLat(s *string) *StoreUpdateOne {
 func (suo *StoreUpdateOne) ClearLat() *StoreUpdateOne {
 	suo.mutation.ClearLat()
 	return suo
-}
-
-// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
-func (suo *StoreUpdateOne) SetMerchantBusinessTypeID(id uuid.UUID) *StoreUpdateOne {
-	suo.mutation.SetMerchantBusinessTypeID(id)
-	return suo
-}
-
-// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (suo *StoreUpdateOne) SetMerchantBusinessType(m *MerchantBusinessType) *StoreUpdateOne {
-	return suo.SetMerchantBusinessTypeID(m.ID)
 }
 
 // SetCountry sets the "country" edge to the Country entity.
@@ -2469,12 +2426,6 @@ func (suo *StoreUpdateOne) AddRoles(r ...*Role) *StoreUpdateOne {
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
-}
-
-// ClearMerchantBusinessType clears the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (suo *StoreUpdateOne) ClearMerchantBusinessType() *StoreUpdateOne {
-	suo.mutation.ClearMerchantBusinessType()
-	return suo
 }
 
 // ClearCountry clears the "country" edge to the Country entity.
@@ -2840,9 +2791,6 @@ func (suo *StoreUpdateOne) check() error {
 	if suo.mutation.MerchantCleared() && len(suo.mutation.MerchantIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Store.merchant"`)
 	}
-	if suo.mutation.MerchantBusinessTypeCleared() && len(suo.mutation.MerchantBusinessTypeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Store.merchant_business_type"`)
-	}
 	return nil
 }
 
@@ -2913,6 +2861,9 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	}
 	if value, ok := suo.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
+	}
+	if value, ok := suo.mutation.BusinessTypeCode(); ok {
+		_spec.SetField(store.FieldBusinessTypeCode, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.LocationNumber(); ok {
 		_spec.SetField(store.FieldLocationNumber, field.TypeString, value)
@@ -2998,6 +2949,9 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	if value, ok := suo.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
 	}
+	if suo.mutation.AddressCleared() {
+		_spec.ClearField(store.FieldAddress, field.TypeString)
+	}
 	if value, ok := suo.mutation.Lng(); ok {
 		_spec.SetField(store.FieldLng, field.TypeString, value)
 	}
@@ -3009,35 +2963,6 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 	}
 	if suo.mutation.LatCleared() {
 		_spec.ClearField(store.FieldLat, field.TypeString)
-	}
-	if suo.mutation.MerchantBusinessTypeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.MerchantBusinessTypeTable,
-			Columns: []string{store.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.MerchantBusinessTypeTable,
-			Columns: []string{store.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if suo.mutation.CountryCleared() {
 		edge := &sqlgraph.EdgeSpec{

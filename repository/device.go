@@ -56,22 +56,26 @@ func (repo *DeviceRepository) Create(ctx context.Context, domainDevice *domain.D
 		SetDeviceType(domainDevice.DeviceType).
 		SetMerchantID(domainDevice.MerchantID).
 		SetStoreID(domainDevice.StoreID).
-		SetStallID(domainDevice.StallID).
 		SetStatus(domainDevice.Status).
 		SetLocation(domainDevice.Location).
-		SetOrderChannels(domainDevice.OrderChannels).
-		SetDiningWays(domainDevice.DiningWays).
 		SetEnabled(domainDevice.Enabled).
 		SetSortOrder(domainDevice.SortOrder).
 		SetDeviceCode(domainDevice.DeviceCode).
 		SetDeviceBrand(domainDevice.DeviceBrand).
-		SetDeviceModel(domainDevice.DeviceModel).
-		SetIP(domainDevice.IP).
-		SetPaperSize(domainDevice.PaperSize).
-		SetDeviceStallPrintType(domainDevice.DeviceStallPrintType).
-		SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType).
-		SetOpenCashDrawer(domainDevice.OpenCashDrawer)
-
+		SetDeviceModel(domainDevice.DeviceModel)
+	switch domainDevice.DeviceType {
+	case domain.DeviceTypePrinter:
+		builder = builder.SetIP(domainDevice.IP).
+			SetPaperSize(domainDevice.PaperSize).
+			SetConnectType(domainDevice.ConnectType).
+			SetStallID(domainDevice.StallID).
+			SetOrderChannels(domainDevice.OrderChannels).
+			SetDiningWays(domainDevice.DiningWays).
+			SetDeviceStallPrintType(domainDevice.DeviceStallPrintType).
+			SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType)
+	case domain.DeviceTypeCashier:
+		builder = builder.SetOpenCashDrawer(domainDevice.OpenCashDrawer)
+	}
 	created, err := builder.Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create device: %w", err)
@@ -95,20 +99,24 @@ func (repo *DeviceRepository) Update(ctx context.Context, domainDevice *domain.D
 		SetDeviceType(domainDevice.DeviceType).
 		SetStatus(domainDevice.Status).
 		SetLocation(domainDevice.Location).
-		SetOrderChannels(domainDevice.OrderChannels).
-		SetDiningWays(domainDevice.DiningWays).
 		SetEnabled(domainDevice.Enabled).
 		SetSortOrder(domainDevice.SortOrder).
-		SetOpenCashDrawer(domainDevice.OpenCashDrawer).
 		SetDeviceCode(domainDevice.DeviceCode).
-		SetStallID(domainDevice.StallID).
 		SetDeviceBrand(domainDevice.DeviceBrand).
-		SetDeviceModel(domainDevice.DeviceModel).
-		SetIP(domainDevice.IP).
-		SetPaperSize(domainDevice.PaperSize).
-		SetDeviceStallPrintType(domainDevice.DeviceStallPrintType).
-		SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType)
-
+		SetDeviceModel(domainDevice.DeviceModel)
+	switch domainDevice.DeviceType {
+	case domain.DeviceTypePrinter:
+		builder = builder.SetIP(domainDevice.IP).
+			SetPaperSize(domainDevice.PaperSize).
+			SetConnectType(domainDevice.ConnectType).
+			SetStallID(domainDevice.StallID).
+			SetOrderChannels(domainDevice.OrderChannels).
+			SetDiningWays(domainDevice.DiningWays).
+			SetDeviceStallPrintType(domainDevice.DeviceStallPrintType).
+			SetDeviceStallReceiptType(domainDevice.DeviceStallReceiptType)
+	case domain.DeviceTypeCashier:
+		builder = builder.SetOpenCashDrawer(domainDevice.OpenCashDrawer)
+	}
 	updated, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -254,6 +262,7 @@ func convertDeviceToDomain(es *ent.Device) (d *domain.Device) {
 		IP:                     es.IP,
 		Status:                 es.Status,
 		PaperSize:              es.PaperSize,
+		ConnectType:            es.ConnectType,
 		StallID:                es.StallID,
 		OrderChannels:          es.OrderChannels,
 		DiningWays:             es.DiningWays,

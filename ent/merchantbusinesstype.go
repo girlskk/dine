@@ -25,43 +25,13 @@ type MerchantBusinessType struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// 删除时间
 	DeletedAt int64 `json:"deleted_at,omitempty"`
+	// 商户 ID
+	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 业态类型编码（保留字段）
 	TypeCode string `json:"type_code,omitempty"`
 	// 业态类型名称
-	TypeName string `json:"type_name,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the MerchantBusinessTypeQuery when eager-loading is set.
-	Edges        MerchantBusinessTypeEdges `json:"edges"`
+	TypeName     string `json:"type_name,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// MerchantBusinessTypeEdges holds the relations/edges for other nodes in the graph.
-type MerchantBusinessTypeEdges struct {
-	// Merchants holds the value of the merchants edge.
-	Merchants []*Merchant `json:"merchants,omitempty"`
-	// Stores holds the value of the stores edge.
-	Stores []*Store `json:"stores,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// MerchantsOrErr returns the Merchants value or an error if the edge
-// was not loaded in eager-loading.
-func (e MerchantBusinessTypeEdges) MerchantsOrErr() ([]*Merchant, error) {
-	if e.loadedTypes[0] {
-		return e.Merchants, nil
-	}
-	return nil, &NotLoadedError{edge: "merchants"}
-}
-
-// StoresOrErr returns the Stores value or an error if the edge
-// was not loaded in eager-loading.
-func (e MerchantBusinessTypeEdges) StoresOrErr() ([]*Store, error) {
-	if e.loadedTypes[1] {
-		return e.Stores, nil
-	}
-	return nil, &NotLoadedError{edge: "stores"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -75,7 +45,7 @@ func (*MerchantBusinessType) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case merchantbusinesstype.FieldCreatedAt, merchantbusinesstype.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case merchantbusinesstype.FieldID:
+		case merchantbusinesstype.FieldID, merchantbusinesstype.FieldMerchantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -116,6 +86,12 @@ func (mbt *MerchantBusinessType) assignValues(columns []string, values []any) er
 			} else if value.Valid {
 				mbt.DeletedAt = value.Int64
 			}
+		case merchantbusinesstype.FieldMerchantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
+			} else if value != nil {
+				mbt.MerchantID = *value
+			}
 		case merchantbusinesstype.FieldTypeCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type_code", values[i])
@@ -139,16 +115,6 @@ func (mbt *MerchantBusinessType) assignValues(columns []string, values []any) er
 // This includes values selected through modifiers, order, etc.
 func (mbt *MerchantBusinessType) Value(name string) (ent.Value, error) {
 	return mbt.selectValues.Get(name)
-}
-
-// QueryMerchants queries the "merchants" edge of the MerchantBusinessType entity.
-func (mbt *MerchantBusinessType) QueryMerchants() *MerchantQuery {
-	return NewMerchantBusinessTypeClient(mbt.config).QueryMerchants(mbt)
-}
-
-// QueryStores queries the "stores" edge of the MerchantBusinessType entity.
-func (mbt *MerchantBusinessType) QueryStores() *StoreQuery {
-	return NewMerchantBusinessTypeClient(mbt.config).QueryStores(mbt)
 }
 
 // Update returns a builder for updating this MerchantBusinessType.
@@ -182,6 +148,9 @@ func (mbt *MerchantBusinessType) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", mbt.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("merchant_id=")
+	builder.WriteString(fmt.Sprintf("%v", mbt.MerchantID))
 	builder.WriteString(", ")
 	builder.WriteString("type_code=")
 	builder.WriteString(mbt.TypeCode)

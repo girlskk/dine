@@ -22,7 +22,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
@@ -174,9 +173,9 @@ func (mc *MerchantCreate) SetNillableExpireUtc(t *time.Time) *MerchantCreate {
 	return mc
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (mc *MerchantCreate) SetBusinessTypeID(u uuid.UUID) *MerchantCreate {
-	mc.mutation.SetBusinessTypeID(u)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (mc *MerchantCreate) SetBusinessTypeCode(s string) *MerchantCreate {
+	mc.mutation.SetBusinessTypeCode(s)
 	return mc
 }
 
@@ -330,17 +329,6 @@ func (mc *MerchantCreate) SetNillableID(u *uuid.UUID) *MerchantCreate {
 		mc.SetID(*u)
 	}
 	return mc
-}
-
-// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
-func (mc *MerchantCreate) SetMerchantBusinessTypeID(id uuid.UUID) *MerchantCreate {
-	mc.mutation.SetMerchantBusinessTypeID(id)
-	return mc
-}
-
-// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (mc *MerchantCreate) SetMerchantBusinessType(m *MerchantBusinessType) *MerchantCreate {
-	return mc.SetMerchantBusinessTypeID(m.ID)
 }
 
 // SetCountry sets the "country" edge to the Country entity.
@@ -659,6 +647,11 @@ func (mc *MerchantCreate) check() error {
 	if _, ok := mc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Merchant.deleted_at"`)}
 	}
+	if v, ok := mc.mutation.MerchantCode(); ok {
+		if err := merchant.MerchantCodeValidator(v); err != nil {
+			return &ValidationError{Name: "merchant_code", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_code": %w`, err)}
+		}
+	}
 	if _, ok := mc.mutation.MerchantName(); !ok {
 		return &ValidationError{Name: "merchant_name", err: errors.New(`ent: missing required field "Merchant.merchant_name"`)}
 	}
@@ -680,6 +673,11 @@ func (mc *MerchantCreate) check() error {
 			return &ValidationError{Name: "merchant_type", err: fmt.Errorf(`ent: validator failed for field "Merchant.merchant_type": %w`, err)}
 		}
 	}
+	if v, ok := mc.mutation.BrandName(); ok {
+		if err := merchant.BrandNameValidator(v); err != nil {
+			return &ValidationError{Name: "brand_name", err: fmt.Errorf(`ent: validator failed for field "Merchant.brand_name": %w`, err)}
+		}
+	}
 	if _, ok := mc.mutation.AdminPhoneNumber(); !ok {
 		return &ValidationError{Name: "admin_phone_number", err: errors.New(`ent: missing required field "Merchant.admin_phone_number"`)}
 	}
@@ -688,8 +686,8 @@ func (mc *MerchantCreate) check() error {
 			return &ValidationError{Name: "admin_phone_number", err: fmt.Errorf(`ent: validator failed for field "Merchant.admin_phone_number": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.BusinessTypeID(); !ok {
-		return &ValidationError{Name: "business_type_id", err: errors.New(`ent: missing required field "Merchant.business_type_id"`)}
+	if _, ok := mc.mutation.BusinessTypeCode(); !ok {
+		return &ValidationError{Name: "business_type_code", err: errors.New(`ent: missing required field "Merchant.business_type_code"`)}
 	}
 	if _, ok := mc.mutation.MerchantLogo(); !ok {
 		return &ValidationError{Name: "merchant_logo", err: errors.New(`ent: missing required field "Merchant.merchant_logo"`)}
@@ -719,9 +717,6 @@ func (mc *MerchantCreate) check() error {
 	}
 	if _, ok := mc.mutation.SuperAccount(); !ok {
 		return &ValidationError{Name: "super_account", err: errors.New(`ent: missing required field "Merchant.super_account"`)}
-	}
-	if len(mc.mutation.MerchantBusinessTypeIDs()) == 0 {
-		return &ValidationError{Name: "merchant_business_type", err: errors.New(`ent: missing required edge "Merchant.merchant_business_type"`)}
 	}
 	return nil
 }
@@ -799,6 +794,10 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 		_spec.SetField(merchant.FieldExpireUtc, field.TypeTime, value)
 		_node.ExpireUtc = &value
 	}
+	if value, ok := mc.mutation.BusinessTypeCode(); ok {
+		_spec.SetField(merchant.FieldBusinessTypeCode, field.TypeString, value)
+		_node.BusinessTypeCode = value
+	}
 	if value, ok := mc.mutation.MerchantLogo(); ok {
 		_spec.SetField(merchant.FieldMerchantLogo, field.TypeString, value)
 		_node.MerchantLogo = value
@@ -826,23 +825,6 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.SuperAccount(); ok {
 		_spec.SetField(merchant.FieldSuperAccount, field.TypeString, value)
 		_node.SuperAccount = value
-	}
-	if nodes := mc.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.MerchantBusinessTypeTable,
-			Columns: []string{merchant.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.BusinessTypeID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := mc.mutation.CountryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1294,15 +1276,15 @@ func (u *MerchantUpsert) ClearExpireUtc() *MerchantUpsert {
 	return u
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (u *MerchantUpsert) SetBusinessTypeID(v uuid.UUID) *MerchantUpsert {
-	u.Set(merchant.FieldBusinessTypeID, v)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (u *MerchantUpsert) SetBusinessTypeCode(v string) *MerchantUpsert {
+	u.Set(merchant.FieldBusinessTypeCode, v)
 	return u
 }
 
-// UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
-func (u *MerchantUpsert) UpdateBusinessTypeID() *MerchantUpsert {
-	u.SetExcluded(merchant.FieldBusinessTypeID)
+// UpdateBusinessTypeCode sets the "business_type_code" field to the value that was provided on create.
+func (u *MerchantUpsert) UpdateBusinessTypeCode() *MerchantUpsert {
+	u.SetExcluded(merchant.FieldBusinessTypeCode)
 	return u
 }
 
@@ -1689,17 +1671,17 @@ func (u *MerchantUpsertOne) ClearExpireUtc() *MerchantUpsertOne {
 	})
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (u *MerchantUpsertOne) SetBusinessTypeID(v uuid.UUID) *MerchantUpsertOne {
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (u *MerchantUpsertOne) SetBusinessTypeCode(v string) *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
-		s.SetBusinessTypeID(v)
+		s.SetBusinessTypeCode(v)
 	})
 }
 
-// UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
-func (u *MerchantUpsertOne) UpdateBusinessTypeID() *MerchantUpsertOne {
+// UpdateBusinessTypeCode sets the "business_type_code" field to the value that was provided on create.
+func (u *MerchantUpsertOne) UpdateBusinessTypeCode() *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
-		s.UpdateBusinessTypeID()
+		s.UpdateBusinessTypeCode()
 	})
 }
 
@@ -2281,17 +2263,17 @@ func (u *MerchantUpsertBulk) ClearExpireUtc() *MerchantUpsertBulk {
 	})
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (u *MerchantUpsertBulk) SetBusinessTypeID(v uuid.UUID) *MerchantUpsertBulk {
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (u *MerchantUpsertBulk) SetBusinessTypeCode(v string) *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
-		s.SetBusinessTypeID(v)
+		s.SetBusinessTypeCode(v)
 	})
 }
 
-// UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
-func (u *MerchantUpsertBulk) UpdateBusinessTypeID() *MerchantUpsertBulk {
+// UpdateBusinessTypeCode sets the "business_type_code" field to the value that was provided on create.
+func (u *MerchantUpsertBulk) UpdateBusinessTypeCode() *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
-		s.UpdateBusinessTypeID()
+		s.UpdateBusinessTypeCode()
 	})
 }
 

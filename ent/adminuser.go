@@ -10,7 +10,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 )
 
 // AdminUser is the model entity for the AdminUser schema.
@@ -30,8 +32,47 @@ type AdminUser struct {
 	// 密码哈希
 	HashedPassword string `json:"hashed_password,omitempty"`
 	// 昵称
-	Nickname     string `json:"nickname,omitempty"`
+	Nickname string `json:"nickname,omitempty"`
+	// 部门ID
+	DepartmentID uuid.UUID `json:"department_id,omitempty"`
+	// 编码
+	Code string `json:"code,omitempty"`
+	// 真实姓名
+	RealName string `json:"real_name,omitempty"`
+	// 性别
+	Gender domain.Gender `json:"gender,omitempty"`
+	// 电子邮箱
+	Email string `json:"email,omitempty"`
+	// 手机号
+	PhoneNumber string `json:"phone_number,omitempty"`
+	// 是否启用
+	Enabled bool `json:"enabled,omitempty"`
+	// 是否为超级管理员
+	IsSuperadmin bool `json:"is_superadmin,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AdminUserQuery when eager-loading is set.
+	Edges        AdminUserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// AdminUserEdges holds the relations/edges for other nodes in the graph.
+type AdminUserEdges struct {
+	// Department holds the value of the department edge.
+	Department *Department `json:"department,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// DepartmentOrErr returns the Department value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AdminUserEdges) DepartmentOrErr() (*Department, error) {
+	if e.Department != nil {
+		return e.Department, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: department.Label}
+	}
+	return nil, &NotLoadedError{edge: "department"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -39,13 +80,15 @@ func (*AdminUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case adminuser.FieldEnabled, adminuser.FieldIsSuperadmin:
+			values[i] = new(sql.NullBool)
 		case adminuser.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname:
+		case adminuser.FieldUsername, adminuser.FieldHashedPassword, adminuser.FieldNickname, adminuser.FieldCode, adminuser.FieldRealName, adminuser.FieldGender, adminuser.FieldEmail, adminuser.FieldPhoneNumber:
 			values[i] = new(sql.NullString)
 		case adminuser.FieldCreatedAt, adminuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case adminuser.FieldID:
+		case adminuser.FieldID, adminuser.FieldDepartmentID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -104,6 +147,54 @@ func (au *AdminUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				au.Nickname = value.String
 			}
+		case adminuser.FieldDepartmentID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field department_id", values[i])
+			} else if value != nil {
+				au.DepartmentID = *value
+			}
+		case adminuser.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				au.Code = value.String
+			}
+		case adminuser.FieldRealName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field real_name", values[i])
+			} else if value.Valid {
+				au.RealName = value.String
+			}
+		case adminuser.FieldGender:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gender", values[i])
+			} else if value.Valid {
+				au.Gender = domain.Gender(value.String)
+			}
+		case adminuser.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				au.Email = value.String
+			}
+		case adminuser.FieldPhoneNumber:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field phone_number", values[i])
+			} else if value.Valid {
+				au.PhoneNumber = value.String
+			}
+		case adminuser.FieldEnabled:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field enabled", values[i])
+			} else if value.Valid {
+				au.Enabled = value.Bool
+			}
+		case adminuser.FieldIsSuperadmin:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_superadmin", values[i])
+			} else if value.Valid {
+				au.IsSuperadmin = value.Bool
+			}
 		default:
 			au.selectValues.Set(columns[i], values[i])
 		}
@@ -115,6 +206,11 @@ func (au *AdminUser) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (au *AdminUser) Value(name string) (ent.Value, error) {
 	return au.selectValues.Get(name)
+}
+
+// QueryDepartment queries the "department" edge of the AdminUser entity.
+func (au *AdminUser) QueryDepartment() *DepartmentQuery {
+	return NewAdminUserClient(au.config).QueryDepartment(au)
 }
 
 // Update returns a builder for updating this AdminUser.
@@ -157,6 +253,30 @@ func (au *AdminUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(au.Nickname)
+	builder.WriteString(", ")
+	builder.WriteString("department_id=")
+	builder.WriteString(fmt.Sprintf("%v", au.DepartmentID))
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(au.Code)
+	builder.WriteString(", ")
+	builder.WriteString("real_name=")
+	builder.WriteString(au.RealName)
+	builder.WriteString(", ")
+	builder.WriteString("gender=")
+	builder.WriteString(fmt.Sprintf("%v", au.Gender))
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(au.Email)
+	builder.WriteString(", ")
+	builder.WriteString("phone_number=")
+	builder.WriteString(au.PhoneNumber)
+	builder.WriteString(", ")
+	builder.WriteString("enabled=")
+	builder.WriteString(fmt.Sprintf("%v", au.Enabled))
+	builder.WriteString(", ")
+	builder.WriteString("is_superadmin=")
+	builder.WriteString(fmt.Sprintf("%v", au.IsSuperadmin))
 	builder.WriteByte(')')
 	return builder.String()
 }

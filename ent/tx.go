@@ -46,6 +46,8 @@ type Tx struct {
 	OrderProduct *OrderProductClient
 	// PaymentMethod is the client for interacting with the PaymentMethod builders.
 	PaymentMethod *PaymentMethodClient
+	// Permission is the client for interacting with the Permission builders.
+	Permission *PermissionClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
@@ -70,6 +72,12 @@ type Tx struct {
 	RemarkCategory *RemarkCategoryClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// RoleMenu is the client for interacting with the RoleMenu builders.
+	RoleMenu *RoleMenuClient
+	// RolePermission is the client for interacting with the RolePermission builders.
+	RolePermission *RolePermissionClient
+	// RouterMenu is the client for interacting with the RouterMenu builders.
+	RouterMenu *RouterMenuClient
 	// SetMealDetail is the client for interacting with the SetMealDetail builders.
 	SetMealDetail *SetMealDetailClient
 	// SetMealGroup is the client for interacting with the SetMealGroup builders.
@@ -82,6 +90,8 @@ type Tx struct {
 	StoreUser *StoreUserClient
 	// TaxFee is the client for interacting with the TaxFee builders.
 	TaxFee *TaxFeeClient
+	// UserRole is the client for interacting with the UserRole builders.
+	UserRole *UserRoleClient
 
 	// lazily loaded.
 	client     *Client
@@ -230,6 +240,7 @@ func (tx *Tx) init() {
 	tx.Order = NewOrderClient(tx.config)
 	tx.OrderProduct = NewOrderProductClient(tx.config)
 	tx.PaymentMethod = NewPaymentMethodClient(tx.config)
+	tx.Permission = NewPermissionClient(tx.config)
 	tx.Product = NewProductClient(tx.config)
 	tx.ProductAttr = NewProductAttrClient(tx.config)
 	tx.ProductAttrItem = NewProductAttrItemClient(tx.config)
@@ -242,12 +253,16 @@ func (tx *Tx) init() {
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.RoleMenu = NewRoleMenuClient(tx.config)
+	tx.RolePermission = NewRolePermissionClient(tx.config)
+	tx.RouterMenu = NewRouterMenuClient(tx.config)
 	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
 	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
 	tx.StoreUser = NewStoreUserClient(tx.config)
 	tx.TaxFee = NewTaxFeeClient(tx.config)
+	tx.UserRole = NewUserRoleClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

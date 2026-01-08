@@ -22,7 +22,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
@@ -156,9 +155,9 @@ func (sc *StoreCreate) SetBusinessModel(dm domain.BusinessModel) *StoreCreate {
 	return sc
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (sc *StoreCreate) SetBusinessTypeID(u uuid.UUID) *StoreCreate {
-	sc.mutation.SetBusinessTypeID(u)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (sc *StoreCreate) SetBusinessTypeCode(s string) *StoreCreate {
+	sc.mutation.SetBusinessTypeCode(s)
 	return sc
 }
 
@@ -433,17 +432,6 @@ func (sc *StoreCreate) SetNillableID(u *uuid.UUID) *StoreCreate {
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (sc *StoreCreate) SetMerchant(m *Merchant) *StoreCreate {
 	return sc.SetMerchantID(m.ID)
-}
-
-// SetMerchantBusinessTypeID sets the "merchant_business_type" edge to the MerchantBusinessType entity by ID.
-func (sc *StoreCreate) SetMerchantBusinessTypeID(id uuid.UUID) *StoreCreate {
-	sc.mutation.SetMerchantBusinessTypeID(id)
-	return sc
-}
-
-// SetMerchantBusinessType sets the "merchant_business_type" edge to the MerchantBusinessType entity.
-func (sc *StoreCreate) SetMerchantBusinessType(m *MerchantBusinessType) *StoreCreate {
-	return sc.SetMerchantBusinessTypeID(m.ID)
 }
 
 // SetCountry sets the "country" edge to the Country entity.
@@ -781,8 +769,8 @@ func (sc *StoreCreate) check() error {
 			return &ValidationError{Name: "business_model", err: fmt.Errorf(`ent: validator failed for field "Store.business_model": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.BusinessTypeID(); !ok {
-		return &ValidationError{Name: "business_type_id", err: errors.New(`ent: missing required field "Store.business_type_id"`)}
+	if _, ok := sc.mutation.BusinessTypeCode(); !ok {
+		return &ValidationError{Name: "business_type_code", err: errors.New(`ent: missing required field "Store.business_type_code"`)}
 	}
 	if _, ok := sc.mutation.LocationNumber(); !ok {
 		return &ValidationError{Name: "location_number", err: errors.New(`ent: missing required field "Store.location_number"`)}
@@ -846,9 +834,6 @@ func (sc *StoreCreate) check() error {
 	if _, ok := sc.mutation.ShiftTimes(); !ok {
 		return &ValidationError{Name: "shift_times", err: errors.New(`ent: missing required field "Store.shift_times"`)}
 	}
-	if _, ok := sc.mutation.Address(); !ok {
-		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Store.address"`)}
-	}
 	if v, ok := sc.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -869,9 +854,6 @@ func (sc *StoreCreate) check() error {
 	}
 	if len(sc.mutation.MerchantIDs()) == 0 {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "Store.merchant"`)}
-	}
-	if len(sc.mutation.MerchantBusinessTypeIDs()) == 0 {
-		return &ValidationError{Name: "merchant_business_type", err: errors.New(`ent: missing required edge "Store.merchant_business_type"`)}
 	}
 	return nil
 }
@@ -944,6 +926,10 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.BusinessModel(); ok {
 		_spec.SetField(store.FieldBusinessModel, field.TypeEnum, value)
 		_node.BusinessModel = value
+	}
+	if value, ok := sc.mutation.BusinessTypeCode(); ok {
+		_spec.SetField(store.FieldBusinessTypeCode, field.TypeString, value)
+		_node.BusinessTypeCode = value
 	}
 	if value, ok := sc.mutation.LocationNumber(); ok {
 		_spec.SetField(store.FieldLocationNumber, field.TypeString, value)
@@ -1028,23 +1014,6 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.MerchantID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := sc.mutation.MerchantBusinessTypeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.MerchantBusinessTypeTable,
-			Columns: []string{store.MerchantBusinessTypeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchantbusinesstype.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.BusinessTypeID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.CountryIDs(); len(nodes) > 0 {
@@ -1425,15 +1394,15 @@ func (u *StoreUpsert) UpdateBusinessModel() *StoreUpsert {
 	return u
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (u *StoreUpsert) SetBusinessTypeID(v uuid.UUID) *StoreUpsert {
-	u.Set(store.FieldBusinessTypeID, v)
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (u *StoreUpsert) SetBusinessTypeCode(v string) *StoreUpsert {
+	u.Set(store.FieldBusinessTypeCode, v)
 	return u
 }
 
-// UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateBusinessTypeID() *StoreUpsert {
-	u.SetExcluded(store.FieldBusinessTypeID)
+// UpdateBusinessTypeCode sets the "business_type_code" field to the value that was provided on create.
+func (u *StoreUpsert) UpdateBusinessTypeCode() *StoreUpsert {
+	u.SetExcluded(store.FieldBusinessTypeCode)
 	return u
 }
 
@@ -1731,6 +1700,12 @@ func (u *StoreUpsert) UpdateAddress() *StoreUpsert {
 	return u
 }
 
+// ClearAddress clears the value of the "address" field.
+func (u *StoreUpsert) ClearAddress() *StoreUpsert {
+	u.SetNull(store.FieldAddress)
+	return u
+}
+
 // SetLng sets the "lng" field.
 func (u *StoreUpsert) SetLng(v string) *StoreUpsert {
 	u.Set(store.FieldLng, v)
@@ -1957,17 +1932,17 @@ func (u *StoreUpsertOne) UpdateBusinessModel() *StoreUpsertOne {
 	})
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (u *StoreUpsertOne) SetBusinessTypeID(v uuid.UUID) *StoreUpsertOne {
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (u *StoreUpsertOne) SetBusinessTypeCode(v string) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetBusinessTypeID(v)
+		s.SetBusinessTypeCode(v)
 	})
 }
 
-// UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateBusinessTypeID() *StoreUpsertOne {
+// UpdateBusinessTypeCode sets the "business_type_code" field to the value that was provided on create.
+func (u *StoreUpsertOne) UpdateBusinessTypeCode() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.UpdateBusinessTypeID()
+		s.UpdateBusinessTypeCode()
 	})
 }
 
@@ -2311,6 +2286,13 @@ func (u *StoreUpsertOne) SetAddress(v string) *StoreUpsertOne {
 func (u *StoreUpsertOne) UpdateAddress() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateAddress()
+	})
+}
+
+// ClearAddress clears the value of the "address" field.
+func (u *StoreUpsertOne) ClearAddress() *StoreUpsertOne {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearAddress()
 	})
 }
 
@@ -2713,17 +2695,17 @@ func (u *StoreUpsertBulk) UpdateBusinessModel() *StoreUpsertBulk {
 	})
 }
 
-// SetBusinessTypeID sets the "business_type_id" field.
-func (u *StoreUpsertBulk) SetBusinessTypeID(v uuid.UUID) *StoreUpsertBulk {
+// SetBusinessTypeCode sets the "business_type_code" field.
+func (u *StoreUpsertBulk) SetBusinessTypeCode(v string) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetBusinessTypeID(v)
+		s.SetBusinessTypeCode(v)
 	})
 }
 
-// UpdateBusinessTypeID sets the "business_type_id" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateBusinessTypeID() *StoreUpsertBulk {
+// UpdateBusinessTypeCode sets the "business_type_code" field to the value that was provided on create.
+func (u *StoreUpsertBulk) UpdateBusinessTypeCode() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.UpdateBusinessTypeID()
+		s.UpdateBusinessTypeCode()
 	})
 }
 
@@ -3067,6 +3049,13 @@ func (u *StoreUpsertBulk) SetAddress(v string) *StoreUpsertBulk {
 func (u *StoreUpsertBulk) UpdateAddress() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.UpdateAddress()
+	})
+}
+
+// ClearAddress clears the value of the "address" field.
+func (u *StoreUpsertBulk) ClearAddress() *StoreUpsertBulk {
+	return u.Update(func(s *StoreUpsert) {
+		s.ClearAddress()
 	})
 }
 

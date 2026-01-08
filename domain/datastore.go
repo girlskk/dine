@@ -35,6 +35,11 @@ type DataStore interface {
 	ProvinceRepo() ProvinceRepository
 	DepartmentRepo() DepartmentRepository
 	PaymentMethodRepo() PaymentMethodRepository
+	RoleRepo() RoleRepository
+	PermissionRepo() PermissionRepository
+	RouterMenuRepo() RouterMenuRepository
+	RoleMenuRepo() RoleMenuRepository
+	UserRoleRepo() UserRoleRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

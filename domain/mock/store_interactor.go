@@ -117,7 +117,7 @@ func (mr *MockStoreInteractorMockRecorder) GetStores(arg0, arg1, arg2 interface{
 }
 
 // StoreSimpleUpdate mocks base method.
-func (m *MockStoreInteractor) StoreSimpleUpdate(arg0 context.Context, arg1 domain.StoreSimpleUpdateType, arg2 *domain.UpdateStoreParams) error {
+func (m *MockStoreInteractor) StoreSimpleUpdate(arg0 context.Context, arg1 domain.StoreSimpleUpdateField, arg2 *domain.UpdateStoreParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StoreSimpleUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

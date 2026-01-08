@@ -97,9 +97,9 @@ func StoreCode(v string) predicate.Store {
 	return predicate.Store(sql.FieldEQ(FieldStoreCode, v))
 }
 
-// BusinessTypeID applies equality check predicate on the "business_type_id" field. It's identical to BusinessTypeIDEQ.
-func BusinessTypeID(v uuid.UUID) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldBusinessTypeID, v))
+// BusinessTypeCode applies equality check predicate on the "business_type_code" field. It's identical to BusinessTypeCodeEQ.
+func BusinessTypeCode(v string) predicate.Store {
+	return predicate.Store(sql.FieldEQ(FieldBusinessTypeCode, v))
 }
 
 // LocationNumber applies equality check predicate on the "location_number" field. It's identical to LocationNumberEQ.
@@ -672,24 +672,69 @@ func BusinessModelNotIn(vs ...domain.BusinessModel) predicate.Store {
 	return predicate.Store(sql.FieldNotIn(FieldBusinessModel, v...))
 }
 
-// BusinessTypeIDEQ applies the EQ predicate on the "business_type_id" field.
-func BusinessTypeIDEQ(v uuid.UUID) predicate.Store {
-	return predicate.Store(sql.FieldEQ(FieldBusinessTypeID, v))
+// BusinessTypeCodeEQ applies the EQ predicate on the "business_type_code" field.
+func BusinessTypeCodeEQ(v string) predicate.Store {
+	return predicate.Store(sql.FieldEQ(FieldBusinessTypeCode, v))
 }
 
-// BusinessTypeIDNEQ applies the NEQ predicate on the "business_type_id" field.
-func BusinessTypeIDNEQ(v uuid.UUID) predicate.Store {
-	return predicate.Store(sql.FieldNEQ(FieldBusinessTypeID, v))
+// BusinessTypeCodeNEQ applies the NEQ predicate on the "business_type_code" field.
+func BusinessTypeCodeNEQ(v string) predicate.Store {
+	return predicate.Store(sql.FieldNEQ(FieldBusinessTypeCode, v))
 }
 
-// BusinessTypeIDIn applies the In predicate on the "business_type_id" field.
-func BusinessTypeIDIn(vs ...uuid.UUID) predicate.Store {
-	return predicate.Store(sql.FieldIn(FieldBusinessTypeID, vs...))
+// BusinessTypeCodeIn applies the In predicate on the "business_type_code" field.
+func BusinessTypeCodeIn(vs ...string) predicate.Store {
+	return predicate.Store(sql.FieldIn(FieldBusinessTypeCode, vs...))
 }
 
-// BusinessTypeIDNotIn applies the NotIn predicate on the "business_type_id" field.
-func BusinessTypeIDNotIn(vs ...uuid.UUID) predicate.Store {
-	return predicate.Store(sql.FieldNotIn(FieldBusinessTypeID, vs...))
+// BusinessTypeCodeNotIn applies the NotIn predicate on the "business_type_code" field.
+func BusinessTypeCodeNotIn(vs ...string) predicate.Store {
+	return predicate.Store(sql.FieldNotIn(FieldBusinessTypeCode, vs...))
+}
+
+// BusinessTypeCodeGT applies the GT predicate on the "business_type_code" field.
+func BusinessTypeCodeGT(v string) predicate.Store {
+	return predicate.Store(sql.FieldGT(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeGTE applies the GTE predicate on the "business_type_code" field.
+func BusinessTypeCodeGTE(v string) predicate.Store {
+	return predicate.Store(sql.FieldGTE(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeLT applies the LT predicate on the "business_type_code" field.
+func BusinessTypeCodeLT(v string) predicate.Store {
+	return predicate.Store(sql.FieldLT(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeLTE applies the LTE predicate on the "business_type_code" field.
+func BusinessTypeCodeLTE(v string) predicate.Store {
+	return predicate.Store(sql.FieldLTE(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeContains applies the Contains predicate on the "business_type_code" field.
+func BusinessTypeCodeContains(v string) predicate.Store {
+	return predicate.Store(sql.FieldContains(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeHasPrefix applies the HasPrefix predicate on the "business_type_code" field.
+func BusinessTypeCodeHasPrefix(v string) predicate.Store {
+	return predicate.Store(sql.FieldHasPrefix(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeHasSuffix applies the HasSuffix predicate on the "business_type_code" field.
+func BusinessTypeCodeHasSuffix(v string) predicate.Store {
+	return predicate.Store(sql.FieldHasSuffix(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeEqualFold applies the EqualFold predicate on the "business_type_code" field.
+func BusinessTypeCodeEqualFold(v string) predicate.Store {
+	return predicate.Store(sql.FieldEqualFold(FieldBusinessTypeCode, v))
+}
+
+// BusinessTypeCodeContainsFold applies the ContainsFold predicate on the "business_type_code" field.
+func BusinessTypeCodeContainsFold(v string) predicate.Store {
+	return predicate.Store(sql.FieldContainsFold(FieldBusinessTypeCode, v))
 }
 
 // LocationNumberEQ applies the EQ predicate on the "location_number" field.
@@ -1607,6 +1652,16 @@ func AddressHasSuffix(v string) predicate.Store {
 	return predicate.Store(sql.FieldHasSuffix(FieldAddress, v))
 }
 
+// AddressIsNil applies the IsNil predicate on the "address" field.
+func AddressIsNil() predicate.Store {
+	return predicate.Store(sql.FieldIsNull(FieldAddress))
+}
+
+// AddressNotNil applies the NotNil predicate on the "address" field.
+func AddressNotNil() predicate.Store {
+	return predicate.Store(sql.FieldNotNull(FieldAddress))
+}
+
 // AddressEqualFold applies the EqualFold predicate on the "address" field.
 func AddressEqualFold(v string) predicate.Store {
 	return predicate.Store(sql.FieldEqualFold(FieldAddress, v))
@@ -1847,29 +1902,6 @@ func HasMerchant() predicate.Store {
 func HasMerchantWith(preds ...predicate.Merchant) predicate.Store {
 	return predicate.Store(func(s *sql.Selector) {
 		step := newMerchantStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasMerchantBusinessType applies the HasEdge predicate on the "merchant_business_type" edge.
-func HasMerchantBusinessType() predicate.Store {
-	return predicate.Store(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, MerchantBusinessTypeTable, MerchantBusinessTypeColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasMerchantBusinessTypeWith applies the HasEdge predicate on the "merchant_business_type" edge with a given conditions (other predicates).
-func HasMerchantBusinessTypeWith(preds ...predicate.MerchantBusinessType) predicate.Store {
-	return predicate.Store(func(s *sql.Selector) {
-		step := newMerchantBusinessTypeStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

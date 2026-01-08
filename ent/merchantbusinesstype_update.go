@@ -11,11 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // MerchantBusinessTypeUpdate is the builder for updating MerchantBusinessType entities.
@@ -87,81 +84,9 @@ func (mbtu *MerchantBusinessTypeUpdate) SetNillableTypeName(s *string) *Merchant
 	return mbtu
 }
 
-// AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
-func (mbtu *MerchantBusinessTypeUpdate) AddMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
-	mbtu.mutation.AddMerchantIDs(ids...)
-	return mbtu
-}
-
-// AddMerchants adds the "merchants" edges to the Merchant entity.
-func (mbtu *MerchantBusinessTypeUpdate) AddMerchants(m ...*Merchant) *MerchantBusinessTypeUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return mbtu.AddMerchantIDs(ids...)
-}
-
-// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
-func (mbtu *MerchantBusinessTypeUpdate) AddStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
-	mbtu.mutation.AddStoreIDs(ids...)
-	return mbtu
-}
-
-// AddStores adds the "stores" edges to the Store entity.
-func (mbtu *MerchantBusinessTypeUpdate) AddStores(s ...*Store) *MerchantBusinessTypeUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mbtu.AddStoreIDs(ids...)
-}
-
 // Mutation returns the MerchantBusinessTypeMutation object of the builder.
 func (mbtu *MerchantBusinessTypeUpdate) Mutation() *MerchantBusinessTypeMutation {
 	return mbtu.mutation
-}
-
-// ClearMerchants clears all "merchants" edges to the Merchant entity.
-func (mbtu *MerchantBusinessTypeUpdate) ClearMerchants() *MerchantBusinessTypeUpdate {
-	mbtu.mutation.ClearMerchants()
-	return mbtu
-}
-
-// RemoveMerchantIDs removes the "merchants" edge to Merchant entities by IDs.
-func (mbtu *MerchantBusinessTypeUpdate) RemoveMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
-	mbtu.mutation.RemoveMerchantIDs(ids...)
-	return mbtu
-}
-
-// RemoveMerchants removes "merchants" edges to Merchant entities.
-func (mbtu *MerchantBusinessTypeUpdate) RemoveMerchants(m ...*Merchant) *MerchantBusinessTypeUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return mbtu.RemoveMerchantIDs(ids...)
-}
-
-// ClearStores clears all "stores" edges to the Store entity.
-func (mbtu *MerchantBusinessTypeUpdate) ClearStores() *MerchantBusinessTypeUpdate {
-	mbtu.mutation.ClearStores()
-	return mbtu
-}
-
-// RemoveStoreIDs removes the "stores" edge to Store entities by IDs.
-func (mbtu *MerchantBusinessTypeUpdate) RemoveStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdate {
-	mbtu.mutation.RemoveStoreIDs(ids...)
-	return mbtu
-}
-
-// RemoveStores removes "stores" edges to Store entities.
-func (mbtu *MerchantBusinessTypeUpdate) RemoveStores(s ...*Store) *MerchantBusinessTypeUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mbtu.RemoveStoreIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -254,96 +179,6 @@ func (mbtu *MerchantBusinessTypeUpdate) sqlSave(ctx context.Context) (n int, err
 	if value, ok := mbtu.mutation.TypeName(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeName, field.TypeString, value)
 	}
-	if mbtu.mutation.MerchantsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.MerchantsTable,
-			Columns: []string{merchantbusinesstype.MerchantsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtu.mutation.RemovedMerchantsIDs(); len(nodes) > 0 && !mbtu.mutation.MerchantsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.MerchantsTable,
-			Columns: []string{merchantbusinesstype.MerchantsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtu.mutation.MerchantsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.MerchantsTable,
-			Columns: []string{merchantbusinesstype.MerchantsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if mbtu.mutation.StoresCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.StoresTable,
-			Columns: []string{merchantbusinesstype.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtu.mutation.RemovedStoresIDs(); len(nodes) > 0 && !mbtu.mutation.StoresCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.StoresTable,
-			Columns: []string{merchantbusinesstype.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtu.mutation.StoresIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.StoresTable,
-			Columns: []string{merchantbusinesstype.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	_spec.AddModifiers(mbtu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, mbtu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -421,81 +256,9 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) SetNillableTypeName(s *string) *Merc
 	return mbtuo
 }
 
-// AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
-func (mbtuo *MerchantBusinessTypeUpdateOne) AddMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
-	mbtuo.mutation.AddMerchantIDs(ids...)
-	return mbtuo
-}
-
-// AddMerchants adds the "merchants" edges to the Merchant entity.
-func (mbtuo *MerchantBusinessTypeUpdateOne) AddMerchants(m ...*Merchant) *MerchantBusinessTypeUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return mbtuo.AddMerchantIDs(ids...)
-}
-
-// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
-func (mbtuo *MerchantBusinessTypeUpdateOne) AddStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
-	mbtuo.mutation.AddStoreIDs(ids...)
-	return mbtuo
-}
-
-// AddStores adds the "stores" edges to the Store entity.
-func (mbtuo *MerchantBusinessTypeUpdateOne) AddStores(s ...*Store) *MerchantBusinessTypeUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mbtuo.AddStoreIDs(ids...)
-}
-
 // Mutation returns the MerchantBusinessTypeMutation object of the builder.
 func (mbtuo *MerchantBusinessTypeUpdateOne) Mutation() *MerchantBusinessTypeMutation {
 	return mbtuo.mutation
-}
-
-// ClearMerchants clears all "merchants" edges to the Merchant entity.
-func (mbtuo *MerchantBusinessTypeUpdateOne) ClearMerchants() *MerchantBusinessTypeUpdateOne {
-	mbtuo.mutation.ClearMerchants()
-	return mbtuo
-}
-
-// RemoveMerchantIDs removes the "merchants" edge to Merchant entities by IDs.
-func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
-	mbtuo.mutation.RemoveMerchantIDs(ids...)
-	return mbtuo
-}
-
-// RemoveMerchants removes "merchants" edges to Merchant entities.
-func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveMerchants(m ...*Merchant) *MerchantBusinessTypeUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return mbtuo.RemoveMerchantIDs(ids...)
-}
-
-// ClearStores clears all "stores" edges to the Store entity.
-func (mbtuo *MerchantBusinessTypeUpdateOne) ClearStores() *MerchantBusinessTypeUpdateOne {
-	mbtuo.mutation.ClearStores()
-	return mbtuo
-}
-
-// RemoveStoreIDs removes the "stores" edge to Store entities by IDs.
-func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeUpdateOne {
-	mbtuo.mutation.RemoveStoreIDs(ids...)
-	return mbtuo
-}
-
-// RemoveStores removes "stores" edges to Store entities.
-func (mbtuo *MerchantBusinessTypeUpdateOne) RemoveStores(s ...*Store) *MerchantBusinessTypeUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mbtuo.RemoveStoreIDs(ids...)
 }
 
 // Where appends a list predicates to the MerchantBusinessTypeUpdate builder.
@@ -617,96 +380,6 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) sqlSave(ctx context.Context) (_node 
 	}
 	if value, ok := mbtuo.mutation.TypeName(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeName, field.TypeString, value)
-	}
-	if mbtuo.mutation.MerchantsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.MerchantsTable,
-			Columns: []string{merchantbusinesstype.MerchantsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtuo.mutation.RemovedMerchantsIDs(); len(nodes) > 0 && !mbtuo.mutation.MerchantsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.MerchantsTable,
-			Columns: []string{merchantbusinesstype.MerchantsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtuo.mutation.MerchantsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.MerchantsTable,
-			Columns: []string{merchantbusinesstype.MerchantsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if mbtuo.mutation.StoresCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.StoresTable,
-			Columns: []string{merchantbusinesstype.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtuo.mutation.RemovedStoresIDs(); len(nodes) > 0 && !mbtuo.mutation.StoresCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.StoresTable,
-			Columns: []string{merchantbusinesstype.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mbtuo.mutation.StoresIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.StoresTable,
-			Columns: []string{merchantbusinesstype.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(mbtuo.modifiers...)
 	_node = &MerchantBusinessType{config: mbtuo.config}
