@@ -81,3 +81,53 @@ func (r RequestDate) ToPtrEndOfDay() *time.Time {
 	}
 	return lo.ToPtr(DayEnd(r.ToTime()))
 }
+
+const (
+	TimeLayoutShort = "2006-01-02"
+)
+
+func GetShortcutDate(timeType string, reqStartTime, reqEndTime string) (startTime, endTime string) {
+	switch timeType {
+	case "today":
+		startTime, endTime = GetToday()
+	case "yesterday": // 昨天
+		startTime = GetYesterday()
+		endTime = GetYesterday()
+	case "thisWeek": // 本周
+		startTime = GetThisWeekStartDate()
+		endTime = time.Now().Format(TimeLayoutShort)
+	case "prevWeek", "lastWeek": // 上周
+		startTime = GetLastWeekStartDate()
+		endTime = GetLastWeekEndDate()
+	case "thisMonth": // 本月
+		startTime = GetThisMonthStartDate()
+		endTime = time.Now().Format(TimeLayoutShort)
+	case "prevMonth", "lastMonth": // 上月
+		startTime = GetLastMonthStartDate()
+		endTime = GetLastMonthEndDate()
+	case "thisYear":
+		year, _, _ := time.Now().Date()
+		prevYear := time.Date(year, 1, 1, 0, 0, 0, 0, time.Local)
+		startTime = prevYear.Format(TimeLayoutShort)
+		endTime = prevYear.AddDate(1, 0, 0).Format(TimeLayoutShort)
+	case "prevYear":
+		year, _, _ := time.Now().Date()
+		prevYear := time.Date(year, 1, 1, 0, 0, 0, 0, time.Local)
+		startTime = prevYear.AddDate(-1, 0, 0).Format(TimeLayoutShort)
+		endTime = prevYear.Format(TimeLayoutShort)
+	case "custom": // 自定义
+		if len(reqStartTime) == 0 || len(reqEndTime) == 0 {
+			// 默认最近30天
+			subTime := time.Hour * 24 * 30
+			startTime = time.Now().Add(-subTime).Format(TimeLayoutShort)
+			endTime = time.Now().Format(TimeLayoutShort)
+		} else {
+			startTime = reqStartTime
+			endTime = reqEndTime
+		}
+	default:
+		startTime = GetLastWeekStartDate()
+		endTime = GetLastWeekEndDate()
+	}
+	return startTime, endTime
+}
