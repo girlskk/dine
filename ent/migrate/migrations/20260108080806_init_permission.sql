@@ -1,35 +1,57 @@
 -- Modify "admin_users" table
 ALTER TABLE `admin_users`
-ADD COLUMN `real_name` varchar(100) NOT NULL,
-ADD COLUMN `gender` enum ('male', 'female', 'other', 'unknown') NOT NULL,
-ADD COLUMN `email` varchar(100) NULL,
-ADD COLUMN `phone_number` varchar(20) NULL,
-ADD COLUMN `enabled` bool NOT NULL DEFAULT 0,
-ADD COLUMN `is_superadmin` bool NOT NULL DEFAULT 0;
-
--- Modify "backend_users" table
-ALTER TABLE `backend_users`
-DROP INDEX `backend_users_merchants_backend_users`;
-
--- Modify "backend_users" table
-ALTER TABLE `backend_users`
-DROP COLUMN `merchant_backend_users`,
+ADD COLUMN `code` varchar(255) NOT NULL,
 ADD COLUMN `real_name` varchar(100) NOT NULL,
 ADD COLUMN `gender` enum ('male', 'female', 'other', 'unknown') NOT NULL,
 ADD COLUMN `email` varchar(100) NULL,
 ADD COLUMN `phone_number` varchar(20) NULL,
 ADD COLUMN `enabled` bool NOT NULL DEFAULT 0,
 ADD COLUMN `is_superadmin` bool NOT NULL DEFAULT 0,
-ADD INDEX `backend_users_merchants_backend_users` (`merchant_id`);
+ADD COLUMN `department_id` char(36) NOT NULL,
+ADD INDEX `admin_users_departments_admin_users` (`department_id`);
+
+-- Modify "backend_users" table
+ALTER TABLE `backend_users`
+DROP INDEX `backend_users_merchants_backend_users`;
+
+-- Modify "backend_users" table
+ALTER TABLE `backend_users` MODIFY COLUMN `nickname` varchar(255) NULL,
+DROP COLUMN `merchant_backend_users`,
+ADD COLUMN `code` varchar(255) NOT NULL,
+ADD COLUMN `real_name` varchar(100) NOT NULL,
+ADD COLUMN `gender` enum ('male', 'female', 'other', 'unknown') NOT NULL,
+ADD COLUMN `email` varchar(100) NULL,
+ADD COLUMN `phone_number` varchar(20) NULL,
+ADD COLUMN `enabled` bool NOT NULL DEFAULT 0,
+ADD COLUMN `is_superadmin` bool NOT NULL DEFAULT 0,
+ADD COLUMN `department_id` char(36) NULL,
+ADD INDEX `backend_users_merchants_backend_users` (`merchant_id`),
+ADD INDEX `backend_users_departments_backend_users` (`department_id`);
+
+-- Modify "devices" table
+ALTER TABLE `devices`
+ADD COLUMN `connect_type` enum ('inside', 'outside') NULL;
+
+-- Modify "merchant_business_types" table
+ALTER TABLE `merchant_business_types`
+ADD COLUMN `merchant_id` char(36) NOT NULL,
+ADD UNIQUE INDEX `merchantbusinesstype_type_code_deleted_at` (`type_code`, `deleted_at`);
 
 -- Modify "merchants" table
 ALTER TABLE `merchants` MODIFY COLUMN `merchant_code` varchar(100) NULL DEFAULT "",
 MODIFY COLUMN `merchant_name` varchar(100) NOT NULL DEFAULT "",
 MODIFY COLUMN `merchant_short_name` varchar(100) NULL DEFAULT "",
-MODIFY COLUMN `brand_name` varchar(100) NULL DEFAULT "";
+MODIFY COLUMN `brand_name` varchar(100) NULL DEFAULT "",
+DROP COLUMN `business_type_id`,
+ADD COLUMN `business_type_code` varchar(255) NOT NULL;
+
+-- Modify "orders" table
+ALTER TABLE `orders`
+ADD COLUMN `remark` varchar(255) NULL;
 
 -- Modify "roles" table
 ALTER TABLE `roles`
+ADD COLUMN `login_channels` json NULL,
 ADD COLUMN `data_scope` enum (
   'all',
   'merchant',
@@ -40,19 +62,24 @@ ADD COLUMN `data_scope` enum (
 ) NULL DEFAULT "all";
 
 -- Modify "store_users" table
-ALTER TABLE `store_users`
+ALTER TABLE `store_users` MODIFY COLUMN `nickname` varchar(255) NULL,
+ADD COLUMN `code` varchar(255) NOT NULL,
 ADD COLUMN `real_name` varchar(100) NOT NULL,
 ADD COLUMN `gender` enum ('male', 'female', 'other', 'unknown') NOT NULL,
 ADD COLUMN `email` varchar(100) NULL,
 ADD COLUMN `phone_number` varchar(20) NULL,
 ADD COLUMN `enabled` bool NOT NULL DEFAULT 0,
-ADD COLUMN `is_superadmin` bool NOT NULL DEFAULT 0;
+ADD COLUMN `is_superadmin` bool NOT NULL DEFAULT 0,
+ADD COLUMN `department_id` char(36) NULL,
+ADD INDEX `store_users_departments_store_users` (`department_id`);
 
 -- Modify "stores" table
 ALTER TABLE `stores` MODIFY COLUMN `store_name` varchar(100) NOT NULL DEFAULT "",
 MODIFY COLUMN `store_short_name` varchar(100) NULL DEFAULT "",
 MODIFY COLUMN `contact_name` varchar(100) NULL DEFAULT "",
-MODIFY COLUMN `address` varchar(255) NULL DEFAULT "";
+MODIFY COLUMN `address` varchar(255) NULL DEFAULT "",
+DROP COLUMN `business_type_id`,
+ADD COLUMN `business_type_code` varchar(255) NOT NULL;
 
 -- Create "permissions" table
 CREATE TABLE `permissions` (
@@ -132,7 +159,8 @@ CREATE TABLE `router_menus` (
   `user_type` enum ('admin', 'backend', 'store') NOT NULL,
   `parent_id` char(36) NULL,
   `name` varchar(100) NOT NULL,
-  `path` varchar(255) NULL,
+  `path` varchar(255) NOT NULL,
+  `layer` bigint NOT NULL DEFAULT 1,
   `component` varchar(255) NULL,
   `icon` varchar(500) NULL,
   `sort` bigint NOT NULL DEFAULT 0,
