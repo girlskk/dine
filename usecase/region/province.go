@@ -12,18 +12,18 @@ import (
 var _ domain.ProvinceInteractor = (*ProvinceInteractor)(nil)
 
 type ProvinceInteractor struct {
-	ds domain.DataStore
+	DS domain.DataStore
 }
 
 func NewProvinceInteractor(ds domain.DataStore) *ProvinceInteractor {
-	return &ProvinceInteractor{ds: ds}
+	return &ProvinceInteractor{DS: ds}
 }
 
 func (interactor *ProvinceInteractor) GetProvinces(ctx context.Context, countryID uuid.UUID) (provinceList []*domain.Province, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProvinceInteractor.GetAllProvinces")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	provinceList, err = interactor.ds.ProvinceRepo().GetAll(ctx, countryID)
+	provinceList, err = interactor.DS.ProvinceRepo().GetAll(ctx, countryID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get provinces: %w", err)
 	}
@@ -34,7 +34,7 @@ func (interactor *ProvinceInteractor) GetProvince(ctx context.Context, id uuid.U
 	span, ctx := util.StartSpan(ctx, "usecase", "ProvinceInteractor.GetProvince")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	province, err = interactor.ds.ProvinceRepo().FindByID(ctx, id)
+	province, err = interactor.DS.ProvinceRepo().FindByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get province: %w", err)
 	}
@@ -46,7 +46,7 @@ func (interactor *ProvinceInteractor) CreateProvince(ctx context.Context, provin
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	province.ID = uuid.New()
-	err = interactor.ds.ProvinceRepo().Create(ctx, province)
+	err = interactor.DS.ProvinceRepo().Create(ctx, province)
 	if err != nil {
 		return fmt.Errorf("failed to create province: %w", err)
 	}
@@ -57,7 +57,7 @@ func (interactor *ProvinceInteractor) UpdateProvince(ctx context.Context, provin
 	span, ctx := util.StartSpan(ctx, "usecase", "ProvinceInteractor.UpdateProvince")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if err = interactor.ds.ProvinceRepo().Update(ctx, province); err != nil {
+	if err = interactor.DS.ProvinceRepo().Update(ctx, province); err != nil {
 		return fmt.Errorf("failed to update province: %w", err)
 	}
 	return nil
@@ -67,7 +67,7 @@ func (interactor *ProvinceInteractor) DeleteProvince(ctx context.Context, id uui
 	span, ctx := util.StartSpan(ctx, "usecase", "ProvinceInteractor.DeleteProvince")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if err = interactor.ds.ProvinceRepo().Delete(ctx, id); err != nil {
+	if err = interactor.DS.ProvinceRepo().Delete(ctx, id); err != nil {
 		return fmt.Errorf("failed to delete province: %w", err)
 	}
 	return nil
@@ -77,7 +77,7 @@ func (interactor *ProvinceInteractor) GetProvincesByFilter(ctx context.Context, 
 	span, ctx := util.StartSpan(ctx, "usecase", "ProvinceInteractor.GetProvincesByFilter")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	provinceList, err = interactor.ds.ProvinceRepo().GetByFilter(ctx, filter)
+	provinceList, err = interactor.DS.ProvinceRepo().GetByFilter(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get provinces by filter: %w", err)
 	}

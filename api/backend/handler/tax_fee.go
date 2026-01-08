@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -13,17 +14,23 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"go.uber.org/fx"
 )
 
 // TaxFeeHandler 费用管理-税费管理
-// No interface assertion needed here; handler delegates to interactor.
-
 type TaxFeeHandler struct {
 	TaxFeeInteractor domain.TaxFeeInteractor
+	taxSeq           domain.IncrSequence
 }
 
-func NewTaxFeeHandler(interactor domain.TaxFeeInteractor) *TaxFeeHandler {
-	return &TaxFeeHandler{TaxFeeInteractor: interactor}
+type TaxFeeHandlerParams struct {
+	fx.In
+	TaxFeeInteractor domain.TaxFeeInteractor
+	TaxSeq           domain.IncrSequence `name:"backend_tax_seq"`
+}
+
+func NewTaxFeeHandler(p TaxFeeHandlerParams) *TaxFeeHandler {
+	return &TaxFeeHandler{TaxFeeInteractor: p.TaxFeeInteractor, taxSeq: p.TaxSeq}
 }
 
 func (h *TaxFeeHandler) Routes(r gin.IRouter) {
@@ -46,9 +53,6 @@ func (h *TaxFeeHandler) Routes(r gin.IRouter) {
 //	@Produce	json
 //	@Param		data	body	types.TaxFeeCreateReq	true	"请求信息"
 //	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	409		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/tax_fee [post]
 func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -62,12 +66,17 @@ func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		taxCode, err := h.generateTaxCode(ctx)
+		if err != nil {
+			err = fmt.Errorf("failed to generate tax code: %w", err)
+			c.Error(err)
+			return
+		}
 		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.TaxFee{
 			Name:        req.Name,
 			TaxFeeType:  domain.TaxFeeTypeMerchant,
-			TaxCode:     "", // todo 统一规则生成,后续写
+			TaxCode:     taxCode,
 			TaxRateType: domain.TaxRateTypeUnified,
 			TaxRate:     req.TaxRate,
 			DefaultTax:  false,
@@ -102,9 +111,6 @@ func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 //	@Param		id		path	string					true	"税费ID"
 //	@Param		data	body	types.TaxFeeUpdateReq	true	"请求信息"
 //	@Success	200		"No Content"
-//	@Failure	400		{object}	response.Response
-//	@Failure	409		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/tax_fee/{id} [put]
 func (h *TaxFeeHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -161,8 +167,6 @@ func (h *TaxFeeHandler) Update() gin.HandlerFunc {
 //	@Param		id	path	string	true	"税费ID"
 //	@Success	200	"No Content"
 //	@Success	204	"No Content"
-//	@Failure	400	{object}	response.Response
-//	@Failure	500	{object}	response.Response
 //	@Router		/tax_fee/{id} [delete]
 func (h *TaxFeeHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -200,9 +204,6 @@ func (h *TaxFeeHandler) Delete() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		id	path		string	true	"税费ID"
 //	@Success	200	{object}	response.Response{data=domain.TaxFee}
-//	@Failure	400	{object}	response.Response
-//	@Failure	404	{object}	response.Response
-//	@Failure	500	{object}	response.Response
 //	@Router		/tax_fee/{id} [get]
 func (h *TaxFeeHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -245,8 +246,6 @@ func (h *TaxFeeHandler) Get() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		data	query		types.TaxFeeListReq	true	"出品部门列表查询参数"
 //	@Success	200		{object}	response.Response{data=types.TaxFeeListResp}
-//	@Failure	400		{object}	response.Response
-//	@Failure	500		{object}	response.Response
 //	@Router		/tax_fee [get]
 func (h *TaxFeeHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -293,9 +292,6 @@ func (h *TaxFeeHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"税费ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/tax_fee/{id}/enable [put]
 func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -311,7 +307,7 @@ func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 		}
 
 		fee := &domain.TaxFee{ID: id, DefaultTax: true}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateTypeDefault, fee); err != nil {
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -338,9 +334,6 @@ func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"税费ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/tax_fee/{id}/disable [put]
 func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -356,7 +349,7 @@ func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 		}
 
 		fee := &domain.TaxFee{ID: id, DefaultTax: false}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateTypeDefault, fee); err != nil {
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -372,4 +365,15 @@ func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
+}
+
+func (h *TaxFeeHandler) generateTaxCode(ctx context.Context) (string, error) {
+	if h.taxSeq == nil {
+		return "", fmt.Errorf("tax fee sequence not initialized")
+	}
+	seq, err := h.taxSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }

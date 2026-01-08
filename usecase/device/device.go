@@ -15,21 +15,24 @@ var _ domain.DeviceInteractor = (*DeviceInteractor)(nil)
 
 // DeviceInteractor implements device use cases.
 type DeviceInteractor struct {
-	ds domain.DataStore
+	DS domain.DataStore
 }
 
 func NewDeviceInteractor(ds domain.DataStore) *DeviceInteractor {
-	return &DeviceInteractor{ds: ds}
+	return &DeviceInteractor{DS: ds}
 }
 
-func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context, updateField domain.DeviceSimpleUpdateType, device *domain.Device) (err error) {
+func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context,
+	updateField domain.DeviceSimpleUpdateType,
+	device *domain.Device,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.DeviceSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	if device == nil {
 		return fmt.Errorf("device is nil")
 	}
-	oldDevice, err := interactor.ds.DeviceRepo().FindByID(ctx, device.ID)
+	oldDevice, err := interactor.DS.DeviceRepo().FindByID(ctx, device.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrDeviceNotExists)
@@ -47,7 +50,7 @@ func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context, upda
 		return domain.ParamsError(errors.New("unsupported update field"))
 	}
 
-	err = interactor.ds.DeviceRepo().Update(ctx, oldDevice)
+	err = interactor.DS.DeviceRepo().Update(ctx, oldDevice)
 	if err != nil {
 		return fmt.Errorf("failed to update device: %w", err)
 	}
@@ -65,7 +68,7 @@ func (interactor *DeviceInteractor) Create(ctx context.Context, domainDevice *do
 		return err
 	}
 	domainDevice.ID = uuid.New()
-	err = interactor.ds.DeviceRepo().Create(ctx, domainDevice)
+	err = interactor.DS.DeviceRepo().Create(ctx, domainDevice)
 	if err != nil {
 		return fmt.Errorf("failed to create device: %w", err)
 	}
@@ -81,7 +84,7 @@ func (interactor *DeviceInteractor) Update(ctx context.Context, domainDevice *do
 	if err = interactor.checkExists(ctx, domainDevice); err != nil {
 		return err
 	}
-	err = interactor.ds.DeviceRepo().Update(ctx, domainDevice)
+	err = interactor.DS.DeviceRepo().Update(ctx, domainDevice)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrDeviceNotExists)
@@ -94,7 +97,7 @@ func (interactor *DeviceInteractor) Update(ctx context.Context, domainDevice *do
 func (interactor *DeviceInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
-	err = interactor.ds.DeviceRepo().Delete(ctx, id)
+	err = interactor.DS.DeviceRepo().Delete(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete device: %w", err)
 	}
@@ -104,7 +107,7 @@ func (interactor *DeviceInteractor) Delete(ctx context.Context, id uuid.UUID) (e
 func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID) (domainDevice *domain.Device, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.GetDevice")
 	defer func() { util.SpanErrFinish(span, err) }()
-	domainDevice, err = interactor.ds.DeviceRepo().FindByID(ctx, id)
+	domainDevice, err = interactor.DS.DeviceRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrDeviceNotExists)
@@ -116,13 +119,17 @@ func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID)
 	return
 }
 
-func (interactor *DeviceInteractor) GetDevices(ctx context.Context, pager *upagination.Pagination, filter *domain.DeviceListFilter, orderBys ...domain.DeviceOrderBy) (domainDevices []*domain.Device, total int, err error) {
+func (interactor *DeviceInteractor) GetDevices(ctx context.Context,
+	pager *upagination.Pagination,
+	filter *domain.DeviceListFilter,
+	orderBys ...domain.DeviceOrderBy,
+) (domainDevices []*domain.Device, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.GetDevices")
 	defer func() { util.SpanErrFinish(span, err) }()
 	if filter == nil {
 		err = domain.ParamsError(errors.New("filter is required"))
 	}
-	domainDevices, total, err = interactor.ds.DeviceRepo().GetDevices(ctx, pager, filter, orderBys...)
+	domainDevices, total, err = interactor.DS.DeviceRepo().GetDevices(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get devices: %w", err)
 		return
@@ -131,7 +138,7 @@ func (interactor *DeviceInteractor) GetDevices(ctx context.Context, pager *upagi
 }
 
 func (interactor *DeviceInteractor) checkExists(ctx context.Context, domainDevice *domain.Device) (err error) {
-	exists, err := interactor.ds.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
+	exists, err := interactor.DS.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
 		MerchantID: domainDevice.MerchantID,
 		StoreID:    domainDevice.StoreID,
 		Name:       domainDevice.Name,
@@ -145,7 +152,7 @@ func (interactor *DeviceInteractor) checkExists(ctx context.Context, domainDevic
 	}
 
 	if domainDevice.DeviceCode != "" {
-		exists, err = interactor.ds.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
+		exists, err = interactor.DS.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
 			MerchantID: domainDevice.MerchantID,
 			StoreID:    domainDevice.StoreID,
 			DeviceCode: domainDevice.DeviceCode,

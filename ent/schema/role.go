@@ -21,6 +21,7 @@ func (Role) Fields() []ent.Field {
 		field.String("name").
 			Comment("名称"),
 		field.String("code").
+			NotEmpty().
 			Immutable().
 			Comment("编码"),
 		field.Enum("role_type").
@@ -38,6 +39,14 @@ func (Role) Fields() []ent.Field {
 			Optional().
 			Immutable().
 			Comment("所属门店 ID，若为空则表示为商户级部门"),
+		field.JSON("login_channels", []domain.LoginChannel{}).
+			Optional().
+			Comment("允许登录渠道，取自 login_channel，多选"),
+		field.Enum("data_scope").
+			Optional().
+			GoType(domain.RoleDataScopeType("")).
+			Default(string(domain.RoleDataScopeAll)).
+			Comment("数据权限范围(保留字段)"),
 	}
 }
 

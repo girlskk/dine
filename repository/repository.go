@@ -45,6 +45,11 @@ type Repository struct {
 	provinceRepo               *ProvinceRepository
 	departmentRepo             *DepartmentRepository
 	paymentMethodRepo          *PaymentMethodRepository
+	roleRepo                   *RoleRepository
+	permissionRepo             *PermissionRepository
+	routerMenuRepo             *RouterMenuRepository
+	roleMenuRepo               *RoleMenuRepository
+	userRoleRepo               *UserRoleRepository
 	profitDistributionRuleRepo *ProfitDistributionRuleRepository
 	profitDistributionBillRepo *ProfitDistributionBillRepository
 	paymentAccountRepo         *PaymentAccountRepository
@@ -389,6 +394,56 @@ func (repo *Repository) PaymentMethodRepo() domain.PaymentMethodRepository {
 		repo.paymentMethodRepo = NewPaymentMethodRepository(repo.client)
 	}
 	return repo.paymentMethodRepo
+}
+
+func (repo *Repository) RoleRepo() domain.RoleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.roleRepo == nil {
+		repo.roleRepo = NewRoleRepository(repo.client)
+	}
+	return repo.roleRepo
+}
+
+func (repo *Repository) PermissionRepo() domain.PermissionRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.permissionRepo == nil {
+		repo.permissionRepo = NewPermissionRepository(repo.client)
+	}
+	return repo.permissionRepo
+}
+
+func (repo *Repository) RouterMenuRepo() domain.RouterMenuRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.routerMenuRepo == nil {
+		repo.routerMenuRepo = NewRouterMenuRepository(repo.client)
+	}
+	return repo.routerMenuRepo
+}
+
+func (repo *Repository) RoleMenuRepo() domain.RoleMenuRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.roleMenuRepo == nil {
+		repo.roleMenuRepo = NewRoleMenuRepository(repo.client)
+	}
+	return repo.roleMenuRepo
+}
+
+func (repo *Repository) UserRoleRepo() domain.UserRoleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.userRoleRepo == nil {
+		repo.userRoleRepo = NewUserRoleRepository(repo.client)
+	}
+	return repo.userRoleRepo
 }
 
 func (repo *Repository) ProfitDistributionBillRepo() domain.ProfitDistributionBillRepository {

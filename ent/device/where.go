@@ -842,6 +842,46 @@ func PaperSizeNotNil() predicate.Device {
 	return predicate.Device(sql.FieldNotNull(FieldPaperSize))
 }
 
+// ConnectTypeEQ applies the EQ predicate on the "connect_type" field.
+func ConnectTypeEQ(v domain.DeviceConnectType) predicate.Device {
+	vc := v
+	return predicate.Device(sql.FieldEQ(FieldConnectType, vc))
+}
+
+// ConnectTypeNEQ applies the NEQ predicate on the "connect_type" field.
+func ConnectTypeNEQ(v domain.DeviceConnectType) predicate.Device {
+	vc := v
+	return predicate.Device(sql.FieldNEQ(FieldConnectType, vc))
+}
+
+// ConnectTypeIn applies the In predicate on the "connect_type" field.
+func ConnectTypeIn(vs ...domain.DeviceConnectType) predicate.Device {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Device(sql.FieldIn(FieldConnectType, v...))
+}
+
+// ConnectTypeNotIn applies the NotIn predicate on the "connect_type" field.
+func ConnectTypeNotIn(vs ...domain.DeviceConnectType) predicate.Device {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Device(sql.FieldNotIn(FieldConnectType, v...))
+}
+
+// ConnectTypeIsNil applies the IsNil predicate on the "connect_type" field.
+func ConnectTypeIsNil() predicate.Device {
+	return predicate.Device(sql.FieldIsNull(FieldConnectType))
+}
+
+// ConnectTypeNotNil applies the NotNil predicate on the "connect_type" field.
+func ConnectTypeNotNil() predicate.Device {
+	return predicate.Device(sql.FieldNotNull(FieldConnectType))
+}
+
 // StallIDEQ applies the EQ predicate on the "stall_id" field.
 func StallIDEQ(v uuid.UUID) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldStallID, v))

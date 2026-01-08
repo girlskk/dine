@@ -7,7 +7,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -22,30 +21,14 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldMerchantID holds the string denoting the merchant_id field in the database.
+	FieldMerchantID = "merchant_id"
 	// FieldTypeCode holds the string denoting the type_code field in the database.
 	FieldTypeCode = "type_code"
 	// FieldTypeName holds the string denoting the type_name field in the database.
 	FieldTypeName = "type_name"
-	// EdgeMerchants holds the string denoting the merchants edge name in mutations.
-	EdgeMerchants = "merchants"
-	// EdgeStores holds the string denoting the stores edge name in mutations.
-	EdgeStores = "stores"
 	// Table holds the table name of the merchantbusinesstype in the database.
 	Table = "merchant_business_types"
-	// MerchantsTable is the table that holds the merchants relation/edge.
-	MerchantsTable = "merchants"
-	// MerchantsInverseTable is the table name for the Merchant entity.
-	// It exists in this package in order to avoid circular dependency with the "merchant" package.
-	MerchantsInverseTable = "merchants"
-	// MerchantsColumn is the table column denoting the merchants relation/edge.
-	MerchantsColumn = "business_type_id"
-	// StoresTable is the table that holds the stores relation/edge.
-	StoresTable = "stores"
-	// StoresInverseTable is the table name for the Store entity.
-	// It exists in this package in order to avoid circular dependency with the "store" package.
-	StoresInverseTable = "stores"
-	// StoresColumn is the table column denoting the stores relation/edge.
-	StoresColumn = "business_type_id"
 )
 
 // Columns holds all SQL columns for merchantbusinesstype fields.
@@ -54,6 +37,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldMerchantID,
 	FieldTypeCode,
 	FieldTypeName,
 }
@@ -119,6 +103,11 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
+// ByMerchantID orders the results by the merchant_id field.
+func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
+}
+
 // ByTypeCode orders the results by the type_code field.
 func ByTypeCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTypeCode, opts...).ToFunc()
@@ -127,46 +116,4 @@ func ByTypeCode(opts ...sql.OrderTermOption) OrderOption {
 // ByTypeName orders the results by the type_name field.
 func ByTypeName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTypeName, opts...).ToFunc()
-}
-
-// ByMerchantsCount orders the results by merchants count.
-func ByMerchantsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newMerchantsStep(), opts...)
-	}
-}
-
-// ByMerchants orders the results by merchants terms.
-func ByMerchants(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMerchantsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByStoresCount orders the results by stores count.
-func ByStoresCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newStoresStep(), opts...)
-	}
-}
-
-// ByStores orders the results by stores terms.
-func ByStores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newStoresStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newMerchantsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MerchantsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, MerchantsTable, MerchantsColumn),
-	)
-}
-func newStoresStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(StoresInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, StoresTable, StoresColumn),
-	)
 }

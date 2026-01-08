@@ -41,7 +41,7 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetStoreCode(domainStore.StoreCode).
 		SetStatus(domainStore.Status).
 		SetBusinessModel(domainStore.BusinessModel).
-		SetBusinessTypeID(domainStore.BusinessTypeID).
+		SetBusinessTypeCode(domainStore.BusinessTypeCode).
 		SetLocationNumber(domainStore.LocationNumber).
 		SetContactName(domainStore.ContactName).
 		SetContactPhone(domainStore.ContactPhone).
@@ -93,7 +93,7 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		SetStoreCode(domainStore.StoreCode).
 		SetStatus(domainStore.Status).
 		SetBusinessModel(domainStore.BusinessModel).
-		SetBusinessTypeID(domainStore.BusinessTypeID).
+		SetBusinessTypeCode(domainStore.BusinessTypeCode).
 		SetLocationNumber(domainStore.LocationNumber).
 		SetContactName(domainStore.ContactName).
 		SetContactPhone(domainStore.ContactPhone).
@@ -159,7 +159,6 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 		WithProvince().
 		WithCity().
 		WithDistrict().
-		WithMerchantBusinessType().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -190,7 +189,6 @@ func (repo *StoreRepository) FindStoreMerchant(ctx context.Context, merchantID u
 		WithProvince().
 		WithCity().
 		WithDistrict().
-		WithMerchantBusinessType().
 		Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
@@ -339,7 +337,7 @@ func convertStore(es *ent.Store) *domain.Store {
 		StoreCode:               es.StoreCode,
 		Status:                  es.Status,
 		BusinessModel:           es.BusinessModel,
-		BusinessTypeID:          es.BusinessTypeID,
+		BusinessTypeCode:        es.BusinessTypeCode,
 		LocationNumber:          es.LocationNumber,
 		ContactName:             es.ContactName,
 		ContactPhone:            es.ContactPhone,
@@ -363,9 +361,6 @@ func convertStore(es *ent.Store) *domain.Store {
 		repoStore.MerchantName = es.Edges.Merchant.MerchantName
 	}
 
-	if es.Edges.MerchantBusinessType != nil {
-		repoStore.BusinessTypeName = es.Edges.MerchantBusinessType.TypeName
-	}
 	return repoStore
 }
 
@@ -399,8 +394,8 @@ func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *e
 	if filter.MerchantID != uuid.Nil {
 		query = query.Where(store.MerchantIDEQ(filter.MerchantID))
 	}
-	if filter.BusinessTypeID != uuid.Nil {
-		query = query.Where(store.BusinessTypeIDEQ(filter.BusinessTypeID))
+	if filter.BusinessTypeCode != "" {
+		query = query.Where(store.BusinessTypeCodeEQ(filter.BusinessTypeCode))
 	}
 	if filter.AdminPhoneNumber != "" {
 		query = query.Where(store.AdminPhoneNumberEQ(filter.AdminPhoneNumber))

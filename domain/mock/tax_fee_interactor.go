@@ -102,7 +102,7 @@ func (mr *MockTaxFeeInteractorMockRecorder) GetTaxFees(arg0, arg1, arg2 interfac
 }
 
 // TaxFeeSimpleUpdate mocks base method.
-func (m *MockTaxFeeInteractor) TaxFeeSimpleUpdate(arg0 context.Context, arg1 domain.TaxFeeSimpleUpdateType, arg2 *domain.TaxFee) error {
+func (m *MockTaxFeeInteractor) TaxFeeSimpleUpdate(arg0 context.Context, arg1 domain.TaxFeeSimpleUpdateField, arg2 *domain.TaxFee) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TaxFeeSimpleUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

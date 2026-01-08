@@ -40,6 +40,12 @@ const (
 	EdgeMerchant = "merchant"
 	// EdgeStore holds the string denoting the store edge name in mutations.
 	EdgeStore = "store"
+	// EdgeAdminUsers holds the string denoting the admin_users edge name in mutations.
+	EdgeAdminUsers = "admin_users"
+	// EdgeBackendUsers holds the string denoting the backend_users edge name in mutations.
+	EdgeBackendUsers = "backend_users"
+	// EdgeStoreUsers holds the string denoting the store_users edge name in mutations.
+	EdgeStoreUsers = "store_users"
 	// Table holds the table name of the department in the database.
 	Table = "departments"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -56,6 +62,27 @@ const (
 	StoreInverseTable = "stores"
 	// StoreColumn is the table column denoting the store relation/edge.
 	StoreColumn = "store_id"
+	// AdminUsersTable is the table that holds the admin_users relation/edge.
+	AdminUsersTable = "admin_users"
+	// AdminUsersInverseTable is the table name for the AdminUser entity.
+	// It exists in this package in order to avoid circular dependency with the "adminuser" package.
+	AdminUsersInverseTable = "admin_users"
+	// AdminUsersColumn is the table column denoting the admin_users relation/edge.
+	AdminUsersColumn = "department_id"
+	// BackendUsersTable is the table that holds the backend_users relation/edge.
+	BackendUsersTable = "backend_users"
+	// BackendUsersInverseTable is the table name for the BackendUser entity.
+	// It exists in this package in order to avoid circular dependency with the "backenduser" package.
+	BackendUsersInverseTable = "backend_users"
+	// BackendUsersColumn is the table column denoting the backend_users relation/edge.
+	BackendUsersColumn = "department_id"
+	// StoreUsersTable is the table that holds the store_users relation/edge.
+	StoreUsersTable = "store_users"
+	// StoreUsersInverseTable is the table name for the StoreUser entity.
+	// It exists in this package in order to avoid circular dependency with the "storeuser" package.
+	StoreUsersInverseTable = "store_users"
+	// StoreUsersColumn is the table column denoting the store_users relation/edge.
+	StoreUsersColumn = "department_id"
 )
 
 // Columns holds all SQL columns for department fields.
@@ -98,6 +125,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt int64
+	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	CodeValidator func(string) error
 	// DefaultEnable holds the default value on creation for the "enable" field.
 	DefaultEnable bool
 	// DefaultID holds the default value on creation for the "id" field.
@@ -180,6 +209,48 @@ func ByStoreField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newStoreStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByAdminUsersCount orders the results by admin_users count.
+func ByAdminUsersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAdminUsersStep(), opts...)
+	}
+}
+
+// ByAdminUsers orders the results by admin_users terms.
+func ByAdminUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAdminUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByBackendUsersCount orders the results by backend_users count.
+func ByBackendUsersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newBackendUsersStep(), opts...)
+	}
+}
+
+// ByBackendUsers orders the results by backend_users terms.
+func ByBackendUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBackendUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByStoreUsersCount orders the results by store_users count.
+func ByStoreUsersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStoreUsersStep(), opts...)
+	}
+}
+
+// ByStoreUsers orders the results by store_users terms.
+func ByStoreUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStoreUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -192,5 +263,26 @@ func newStoreStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(StoreInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, StoreTable, StoreColumn),
+	)
+}
+func newAdminUsersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AdminUsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AdminUsersTable, AdminUsersColumn),
+	)
+}
+func newBackendUsersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BackendUsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, BackendUsersTable, BackendUsersColumn),
+	)
+}
+func newStoreUsersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StoreUsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
 	)
 }

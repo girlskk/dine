@@ -113,3 +113,33 @@ other = "税费名称已存在"
 
 [BACKEND_USER_EXISTS]
 other = "后台用户已存在"
+
+[SUPER_USER_CANNOT_DELETE]
+other = "超级管理员用户不能被删除"
+
+[SUPER_USER_CANNOT_DISABLE]
+other = "超级管理员用户不能被禁用"
+
+[SUPER_USER_CANNOT_UPDATE]
+other = "超级管理员用户信息不能编辑"
+
+[USER_DISABLED]
+other = "用户已被禁用"
+
+[DEPARTMENT_DISABLED]
+other = "用户所属部门已被禁用"
+
+[ROLE_DISABLED]
+other = "用户所属角色已被禁用"
+
+[USER_ROLE_REQUIRED]
+other = "用户至少需要分配一个角色"
+
+[USER_DEPARTMENT_REQUIRED]
+other = "用户所属部门不能为空"
+
+[USER_ROLE_TYPE_MISMATCH]
+other = "用户角色类型不匹配"
+
+[USER_DEPARTMENT_TYPE_MISMATCH]
+other = "用户部门类型不匹配"

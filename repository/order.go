@@ -70,11 +70,6 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetOrderType(o.OrderType)
 	}
 
-	// Refund
-	if o.Refund.OriginOrderID != "" || o.Refund.OriginOrderNo != "" || o.Refund.Reason != "" {
-		builder = builder.SetRefund(o.Refund)
-	}
-
 	// 时间字段
 	if !o.PlacedAt.IsZero() {
 		builder = builder.SetPlacedAt(o.PlacedAt)
@@ -86,7 +81,7 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetCompletedAt(o.CompletedAt)
 	}
 
-	if o.PlacedBy != "" {
+	if o.PlacedBy != uuid.Nil {
 		builder = builder.SetPlacedBy(o.PlacedBy)
 	}
 	if o.OrderStatus != "" {
@@ -96,7 +91,7 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetPaymentStatus(o.PaymentStatus)
 	}
 
-	if o.TableID != "" {
+	if o.TableID != uuid.Nil {
 		builder = builder.SetTableID(o.TableID)
 	}
 	if o.TableName != "" {
@@ -109,10 +104,10 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 	if o.Store.ID != uuid.Nil {
 		builder = builder.SetStore(o.Store)
 	}
-	if o.Pos.PosID != "" {
+	if o.Pos.ID != uuid.Nil {
 		builder = builder.SetPos(o.Pos)
 	}
-	if o.Cashier.CashierID != "" {
+	if o.Cashier.CashierID != uuid.Nil {
 		builder = builder.SetCashier(o.Cashier)
 	}
 	if len(o.TaxRates) > 0 {
@@ -127,6 +122,11 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 
 	// Amount
 	builder = builder.SetAmount(o.Amount)
+
+	// Remark
+	if o.Remark != "" {
+		builder = builder.SetRemark(o.Remark)
+	}
 
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -174,11 +174,6 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetOrderType(o.OrderType)
 	}
 
-	// Refund
-	if o.Refund.OriginOrderID != "" || o.Refund.OriginOrderNo != "" || o.Refund.Reason != "" {
-		builder = builder.SetRefund(o.Refund)
-	}
-
 	if !o.PlacedAt.IsZero() {
 		builder = builder.SetPlacedAt(o.PlacedAt)
 	}
@@ -189,7 +184,7 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetCompletedAt(o.CompletedAt)
 	}
 
-	if o.PlacedBy != "" {
+	if o.PlacedBy != uuid.Nil {
 		builder = builder.SetPlacedBy(o.PlacedBy)
 	}
 	if o.DiningMode != "" {
@@ -205,7 +200,7 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetChannel(o.Channel)
 	}
 
-	if o.TableID != "" {
+	if o.TableID != uuid.Nil {
 		builder = builder.SetTableID(o.TableID)
 	}
 	if o.TableName != "" {
@@ -218,10 +213,10 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 	if o.Store.ID != uuid.Nil {
 		builder = builder.SetStore(o.Store)
 	}
-	if o.Pos.PosID != "" {
+	if o.Pos.ID != uuid.Nil {
 		builder = builder.SetPos(o.Pos)
 	}
-	if o.Cashier.CashierID != "" {
+	if o.Cashier.CashierID != uuid.Nil {
 		builder = builder.SetCashier(o.Cashier)
 	}
 	if len(o.TaxRates) > 0 {
@@ -236,6 +231,11 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 
 	// Amount
 	builder = builder.SetAmount(o.Amount)
+
+	// Remark
+	if o.Remark != "" {
+		builder = builder.SetRemark(o.Remark)
+	}
 
 	_, err = builder.Save(ctx)
 	if err != nil {
@@ -351,7 +351,8 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 		SetProductID(op.ProductID).
 		SetProductName(op.ProductName).
 		SetProductType(op.ProductType).
-		SetQty(op.Qty)
+		SetQty(op.Qty).
+		SetIsGift(op.IsGift)
 
 	if op.ID != uuid.Nil {
 		builder = builder.SetID(op.ID)
@@ -359,20 +360,8 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	if op.CategoryID != uuid.Nil {
 		builder = builder.SetCategoryID(op.CategoryID)
 	}
-	if op.MenuID != uuid.Nil {
-		builder = builder.SetMenuID(op.MenuID)
-	}
 	if op.UnitID != uuid.Nil {
 		builder = builder.SetUnitID(op.UnitID)
-	}
-	if len(op.SupportTypes) > 0 {
-		builder = builder.SetSupportTypes(op.SupportTypes)
-	}
-	if op.SaleStatus != "" {
-		builder = builder.SetSaleStatus(op.SaleStatus)
-	}
-	if len(op.SaleChannels) > 0 {
-		builder = builder.SetSaleChannels(op.SaleChannels)
 	}
 	if op.MainImage != "" {
 		builder = builder.SetMainImage(op.MainImage)
@@ -382,6 +371,9 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	}
 
 	// 金额字段
+	if !op.Price.IsZero() {
+		builder = builder.SetPrice(op.Price)
+	}
 	if !op.Subtotal.IsZero() {
 		builder = builder.SetSubtotal(op.Subtotal)
 	}
@@ -417,7 +409,7 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	if op.RefundReason != "" {
 		builder = builder.SetRefundReason(op.RefundReason)
 	}
-	if op.RefundedBy != "" {
+	if op.RefundedBy != uuid.Nil {
 		builder = builder.SetRefundedBy(op.RefundedBy)
 	}
 	if !op.RefundedAt.IsZero() {
@@ -429,14 +421,8 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	}
 
 	// 套餐信息
-	if !op.EstimatedCostPrice.IsZero() {
-		builder = builder.SetEstimatedCostPrice(op.EstimatedCostPrice)
-	}
-	if !op.DeliveryCostPrice.IsZero() {
-		builder = builder.SetDeliveryCostPrice(op.DeliveryCostPrice)
-	}
-	if len(op.SetMealGroups) > 0 {
-		builder = builder.SetSetMealGroups(op.SetMealGroups)
+	if len(op.Groups) > 0 {
+		builder = builder.SetGroups(op.Groups)
 	}
 	if len(op.SpecRelations) > 0 {
 		builder = builder.SetSpecRelations(op.SpecRelations)
@@ -498,7 +484,6 @@ func convertOrderToDomain(eo *ent.Order) *domain.Order {
 		OrderNo:      eo.OrderNo,
 
 		OrderType: eo.OrderType,
-		Refund:    eo.Refund,
 
 		PlacedAt:    placedAt,
 		PaidAt:      paidAt,
@@ -524,6 +509,8 @@ func convertOrderToDomain(eo *ent.Order) *domain.Order {
 		Payments: eo.Payments,
 		Amount:   eo.Amount,
 
+		Remark: eo.Remark,
+
 		OrderProducts: orderProducts,
 	}
 }
@@ -535,7 +522,7 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 	}
 
 	var subtotal, discountAmount, amountBeforeTax, taxRate, tax, amountAfterTax, total decimal.Decimal
-	var promotionDiscount, voidAmount, estimatedCostPrice, deliveryCostPrice decimal.Decimal
+	var promotionDiscount, voidAmount, price decimal.Decimal
 
 	if eop.Subtotal != nil {
 		subtotal = *eop.Subtotal
@@ -564,11 +551,8 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 	if eop.VoidAmount != nil {
 		voidAmount = *eop.VoidAmount
 	}
-	if eop.EstimatedCostPrice != nil {
-		estimatedCostPrice = *eop.EstimatedCostPrice
-	}
-	if eop.DeliveryCostPrice != nil {
-		deliveryCostPrice = *eop.DeliveryCostPrice
+	if eop.Price != nil {
+		price = *eop.Price
 	}
 
 	return domain.OrderProduct{
@@ -580,19 +564,17 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 		OrderItemID: eop.OrderItemID,
 		Index:       eop.Index,
 
-		ProductID:    eop.ProductID,
-		ProductName:  eop.ProductName,
-		ProductType:  eop.ProductType,
-		CategoryID:   eop.CategoryID,
-		MenuID:       eop.MenuID,
-		UnitID:       eop.UnitID,
-		SupportTypes: eop.SupportTypes,
-		SaleStatus:   eop.SaleStatus,
-		SaleChannels: eop.SaleChannels,
-		MainImage:    eop.MainImage,
-		Description:  eop.Description,
+		ProductID:   eop.ProductID,
+		ProductName: eop.ProductName,
+		ProductType: eop.ProductType,
+		CategoryID:  eop.CategoryID,
+		UnitID:      eop.UnitID,
+		MainImage:   eop.MainImage,
+		Description: eop.Description,
 
 		Qty:             eop.Qty,
+		IsGift:          eop.IsGift,
+		Price:           price,
 		Subtotal:        subtotal,
 		DiscountAmount:  discountAmount,
 		AmountBeforeTax: amountBeforeTax,
@@ -611,10 +593,8 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 
 		Note: eop.Note,
 
-		EstimatedCostPrice: estimatedCostPrice,
-		DeliveryCostPrice:  deliveryCostPrice,
-		SetMealGroups:      eop.SetMealGroups,
-		SpecRelations:      eop.SpecRelations,
-		AttrRelations:      eop.AttrRelations,
+		Groups:        eop.Groups,
+		SpecRelations: eop.SpecRelations,
+		AttrRelations: eop.AttrRelations,
 	}
 }

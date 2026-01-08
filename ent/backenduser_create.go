@@ -13,7 +13,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 )
 
 // BackendUserCreate is the builder for creating a BackendUser entity.
@@ -84,9 +87,105 @@ func (buc *BackendUserCreate) SetNickname(s string) *BackendUserCreate {
 	return buc
 }
 
+// SetNillableNickname sets the "nickname" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillableNickname(s *string) *BackendUserCreate {
+	if s != nil {
+		buc.SetNickname(*s)
+	}
+	return buc
+}
+
 // SetMerchantID sets the "merchant_id" field.
 func (buc *BackendUserCreate) SetMerchantID(u uuid.UUID) *BackendUserCreate {
 	buc.mutation.SetMerchantID(u)
+	return buc
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (buc *BackendUserCreate) SetDepartmentID(u uuid.UUID) *BackendUserCreate {
+	buc.mutation.SetDepartmentID(u)
+	return buc
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillableDepartmentID(u *uuid.UUID) *BackendUserCreate {
+	if u != nil {
+		buc.SetDepartmentID(*u)
+	}
+	return buc
+}
+
+// SetCode sets the "code" field.
+func (buc *BackendUserCreate) SetCode(s string) *BackendUserCreate {
+	buc.mutation.SetCode(s)
+	return buc
+}
+
+// SetRealName sets the "real_name" field.
+func (buc *BackendUserCreate) SetRealName(s string) *BackendUserCreate {
+	buc.mutation.SetRealName(s)
+	return buc
+}
+
+// SetGender sets the "gender" field.
+func (buc *BackendUserCreate) SetGender(d domain.Gender) *BackendUserCreate {
+	buc.mutation.SetGender(d)
+	return buc
+}
+
+// SetEmail sets the "email" field.
+func (buc *BackendUserCreate) SetEmail(s string) *BackendUserCreate {
+	buc.mutation.SetEmail(s)
+	return buc
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillableEmail(s *string) *BackendUserCreate {
+	if s != nil {
+		buc.SetEmail(*s)
+	}
+	return buc
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (buc *BackendUserCreate) SetPhoneNumber(s string) *BackendUserCreate {
+	buc.mutation.SetPhoneNumber(s)
+	return buc
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillablePhoneNumber(s *string) *BackendUserCreate {
+	if s != nil {
+		buc.SetPhoneNumber(*s)
+	}
+	return buc
+}
+
+// SetEnabled sets the "enabled" field.
+func (buc *BackendUserCreate) SetEnabled(b bool) *BackendUserCreate {
+	buc.mutation.SetEnabled(b)
+	return buc
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillableEnabled(b *bool) *BackendUserCreate {
+	if b != nil {
+		buc.SetEnabled(*b)
+	}
+	return buc
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (buc *BackendUserCreate) SetIsSuperadmin(b bool) *BackendUserCreate {
+	buc.mutation.SetIsSuperadmin(b)
+	return buc
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (buc *BackendUserCreate) SetNillableIsSuperadmin(b *bool) *BackendUserCreate {
+	if b != nil {
+		buc.SetIsSuperadmin(*b)
+	}
 	return buc
 }
 
@@ -102,6 +201,16 @@ func (buc *BackendUserCreate) SetNillableID(u *uuid.UUID) *BackendUserCreate {
 		buc.SetID(*u)
 	}
 	return buc
+}
+
+// SetMerchant sets the "merchant" edge to the Merchant entity.
+func (buc *BackendUserCreate) SetMerchant(m *Merchant) *BackendUserCreate {
+	return buc.SetMerchantID(m.ID)
+}
+
+// SetDepartment sets the "department" edge to the Department entity.
+func (buc *BackendUserCreate) SetDepartment(d *Department) *BackendUserCreate {
+	return buc.SetDepartmentID(d.ID)
 }
 
 // Mutation returns the BackendUserMutation object of the builder.
@@ -159,6 +268,14 @@ func (buc *BackendUserCreate) defaults() error {
 		v := backenduser.DefaultDeletedAt
 		buc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := buc.mutation.Enabled(); !ok {
+		v := backenduser.DefaultEnabled
+		buc.mutation.SetEnabled(v)
+	}
+	if _, ok := buc.mutation.IsSuperadmin(); !ok {
+		v := backenduser.DefaultIsSuperadmin
+		buc.mutation.SetIsSuperadmin(v)
+	}
 	if _, ok := buc.mutation.ID(); !ok {
 		if backenduser.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized backenduser.DefaultID (forgotten import ent/runtime?)")
@@ -196,11 +313,51 @@ func (buc *BackendUserCreate) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "BackendUser.hashed_password": %w`, err)}
 		}
 	}
-	if _, ok := buc.mutation.Nickname(); !ok {
-		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "BackendUser.nickname"`)}
-	}
 	if _, ok := buc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "BackendUser.merchant_id"`)}
+	}
+	if _, ok := buc.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "BackendUser.code"`)}
+	}
+	if v, ok := buc.mutation.Code(); ok {
+		if err := backenduser.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "BackendUser.code": %w`, err)}
+		}
+	}
+	if _, ok := buc.mutation.RealName(); !ok {
+		return &ValidationError{Name: "real_name", err: errors.New(`ent: missing required field "BackendUser.real_name"`)}
+	}
+	if v, ok := buc.mutation.RealName(); ok {
+		if err := backenduser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "BackendUser.real_name": %w`, err)}
+		}
+	}
+	if _, ok := buc.mutation.Gender(); !ok {
+		return &ValidationError{Name: "gender", err: errors.New(`ent: missing required field "BackendUser.gender"`)}
+	}
+	if v, ok := buc.mutation.Gender(); ok {
+		if err := backenduser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "BackendUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := buc.mutation.Email(); ok {
+		if err := backenduser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "BackendUser.email": %w`, err)}
+		}
+	}
+	if v, ok := buc.mutation.PhoneNumber(); ok {
+		if err := backenduser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "BackendUser.phone_number": %w`, err)}
+		}
+	}
+	if _, ok := buc.mutation.Enabled(); !ok {
+		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "BackendUser.enabled"`)}
+	}
+	if _, ok := buc.mutation.IsSuperadmin(); !ok {
+		return &ValidationError{Name: "is_superadmin", err: errors.New(`ent: missing required field "BackendUser.is_superadmin"`)}
+	}
+	if len(buc.mutation.MerchantIDs()) == 0 {
+		return &ValidationError{Name: "merchant", err: errors.New(`ent: missing required edge "BackendUser.merchant"`)}
 	}
 	return nil
 }
@@ -262,9 +419,67 @@ func (buc *BackendUserCreate) createSpec() (*BackendUser, *sqlgraph.CreateSpec) 
 		_spec.SetField(backenduser.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
 	}
-	if value, ok := buc.mutation.MerchantID(); ok {
-		_spec.SetField(backenduser.FieldMerchantID, field.TypeUUID, value)
-		_node.MerchantID = value
+	if value, ok := buc.mutation.Code(); ok {
+		_spec.SetField(backenduser.FieldCode, field.TypeString, value)
+		_node.Code = value
+	}
+	if value, ok := buc.mutation.RealName(); ok {
+		_spec.SetField(backenduser.FieldRealName, field.TypeString, value)
+		_node.RealName = value
+	}
+	if value, ok := buc.mutation.Gender(); ok {
+		_spec.SetField(backenduser.FieldGender, field.TypeEnum, value)
+		_node.Gender = value
+	}
+	if value, ok := buc.mutation.Email(); ok {
+		_spec.SetField(backenduser.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := buc.mutation.PhoneNumber(); ok {
+		_spec.SetField(backenduser.FieldPhoneNumber, field.TypeString, value)
+		_node.PhoneNumber = value
+	}
+	if value, ok := buc.mutation.Enabled(); ok {
+		_spec.SetField(backenduser.FieldEnabled, field.TypeBool, value)
+		_node.Enabled = value
+	}
+	if value, ok := buc.mutation.IsSuperadmin(); ok {
+		_spec.SetField(backenduser.FieldIsSuperadmin, field.TypeBool, value)
+		_node.IsSuperadmin = value
+	}
+	if nodes := buc.mutation.MerchantIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   backenduser.MerchantTable,
+			Columns: []string{backenduser.MerchantColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.MerchantID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := buc.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   backenduser.DepartmentTable,
+			Columns: []string{backenduser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DepartmentID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -384,6 +599,114 @@ func (u *BackendUserUpsert) UpdateNickname() *BackendUserUpsert {
 	return u
 }
 
+// ClearNickname clears the value of the "nickname" field.
+func (u *BackendUserUpsert) ClearNickname() *BackendUserUpsert {
+	u.SetNull(backenduser.FieldNickname)
+	return u
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (u *BackendUserUpsert) SetDepartmentID(v uuid.UUID) *BackendUserUpsert {
+	u.Set(backenduser.FieldDepartmentID, v)
+	return u
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdateDepartmentID() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldDepartmentID)
+	return u
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *BackendUserUpsert) ClearDepartmentID() *BackendUserUpsert {
+	u.SetNull(backenduser.FieldDepartmentID)
+	return u
+}
+
+// SetRealName sets the "real_name" field.
+func (u *BackendUserUpsert) SetRealName(v string) *BackendUserUpsert {
+	u.Set(backenduser.FieldRealName, v)
+	return u
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdateRealName() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldRealName)
+	return u
+}
+
+// SetGender sets the "gender" field.
+func (u *BackendUserUpsert) SetGender(v domain.Gender) *BackendUserUpsert {
+	u.Set(backenduser.FieldGender, v)
+	return u
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdateGender() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldGender)
+	return u
+}
+
+// SetEmail sets the "email" field.
+func (u *BackendUserUpsert) SetEmail(v string) *BackendUserUpsert {
+	u.Set(backenduser.FieldEmail, v)
+	return u
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdateEmail() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldEmail)
+	return u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *BackendUserUpsert) ClearEmail() *BackendUserUpsert {
+	u.SetNull(backenduser.FieldEmail)
+	return u
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *BackendUserUpsert) SetPhoneNumber(v string) *BackendUserUpsert {
+	u.Set(backenduser.FieldPhoneNumber, v)
+	return u
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdatePhoneNumber() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldPhoneNumber)
+	return u
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *BackendUserUpsert) ClearPhoneNumber() *BackendUserUpsert {
+	u.SetNull(backenduser.FieldPhoneNumber)
+	return u
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *BackendUserUpsert) SetEnabled(v bool) *BackendUserUpsert {
+	u.Set(backenduser.FieldEnabled, v)
+	return u
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdateEnabled() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldEnabled)
+	return u
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *BackendUserUpsert) SetIsSuperadmin(v bool) *BackendUserUpsert {
+	u.Set(backenduser.FieldIsSuperadmin, v)
+	return u
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *BackendUserUpsert) UpdateIsSuperadmin() *BackendUserUpsert {
+	u.SetExcluded(backenduser.FieldIsSuperadmin)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -406,6 +729,9 @@ func (u *BackendUserUpsertOne) UpdateNewValues() *BackendUserUpsertOne {
 		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(backenduser.FieldMerchantID)
+		}
+		if _, exists := u.create.mutation.Code(); exists {
+			s.SetIgnore(backenduser.FieldCode)
 		}
 	}))
 	return u
@@ -512,6 +838,132 @@ func (u *BackendUserUpsertOne) SetNickname(v string) *BackendUserUpsertOne {
 func (u *BackendUserUpsertOne) UpdateNickname() *BackendUserUpsertOne {
 	return u.Update(func(s *BackendUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// ClearNickname clears the value of the "nickname" field.
+func (u *BackendUserUpsertOne) ClearNickname() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearNickname()
+	})
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (u *BackendUserUpsertOne) SetDepartmentID(v uuid.UUID) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetDepartmentID(v)
+	})
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdateDepartmentID() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateDepartmentID()
+	})
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *BackendUserUpsertOne) ClearDepartmentID() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearDepartmentID()
+	})
+}
+
+// SetRealName sets the "real_name" field.
+func (u *BackendUserUpsertOne) SetRealName(v string) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetRealName(v)
+	})
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdateRealName() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateRealName()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *BackendUserUpsertOne) SetGender(v domain.Gender) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdateGender() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *BackendUserUpsertOne) SetEmail(v string) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdateEmail() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *BackendUserUpsertOne) ClearEmail() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *BackendUserUpsertOne) SetPhoneNumber(v string) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetPhoneNumber(v)
+	})
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdatePhoneNumber() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdatePhoneNumber()
+	})
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *BackendUserUpsertOne) ClearPhoneNumber() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearPhoneNumber()
+	})
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *BackendUserUpsertOne) SetEnabled(v bool) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetEnabled(v)
+	})
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdateEnabled() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateEnabled()
+	})
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *BackendUserUpsertOne) SetIsSuperadmin(v bool) *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetIsSuperadmin(v)
+	})
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *BackendUserUpsertOne) UpdateIsSuperadmin() *BackendUserUpsertOne {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateIsSuperadmin()
 	})
 }
 
@@ -704,6 +1156,9 @@ func (u *BackendUserUpsertBulk) UpdateNewValues() *BackendUserUpsertBulk {
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(backenduser.FieldMerchantID)
 			}
+			if _, exists := b.mutation.Code(); exists {
+				s.SetIgnore(backenduser.FieldCode)
+			}
 		}
 	}))
 	return u
@@ -810,6 +1265,132 @@ func (u *BackendUserUpsertBulk) SetNickname(v string) *BackendUserUpsertBulk {
 func (u *BackendUserUpsertBulk) UpdateNickname() *BackendUserUpsertBulk {
 	return u.Update(func(s *BackendUserUpsert) {
 		s.UpdateNickname()
+	})
+}
+
+// ClearNickname clears the value of the "nickname" field.
+func (u *BackendUserUpsertBulk) ClearNickname() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearNickname()
+	})
+}
+
+// SetDepartmentID sets the "department_id" field.
+func (u *BackendUserUpsertBulk) SetDepartmentID(v uuid.UUID) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetDepartmentID(v)
+	})
+}
+
+// UpdateDepartmentID sets the "department_id" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdateDepartmentID() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateDepartmentID()
+	})
+}
+
+// ClearDepartmentID clears the value of the "department_id" field.
+func (u *BackendUserUpsertBulk) ClearDepartmentID() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearDepartmentID()
+	})
+}
+
+// SetRealName sets the "real_name" field.
+func (u *BackendUserUpsertBulk) SetRealName(v string) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetRealName(v)
+	})
+}
+
+// UpdateRealName sets the "real_name" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdateRealName() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateRealName()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *BackendUserUpsertBulk) SetGender(v domain.Gender) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdateGender() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *BackendUserUpsertBulk) SetEmail(v string) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdateEmail() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *BackendUserUpsertBulk) ClearEmail() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (u *BackendUserUpsertBulk) SetPhoneNumber(v string) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetPhoneNumber(v)
+	})
+}
+
+// UpdatePhoneNumber sets the "phone_number" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdatePhoneNumber() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdatePhoneNumber()
+	})
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (u *BackendUserUpsertBulk) ClearPhoneNumber() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.ClearPhoneNumber()
+	})
+}
+
+// SetEnabled sets the "enabled" field.
+func (u *BackendUserUpsertBulk) SetEnabled(v bool) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetEnabled(v)
+	})
+}
+
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdateEnabled() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateEnabled()
+	})
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (u *BackendUserUpsertBulk) SetIsSuperadmin(v bool) *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.SetIsSuperadmin(v)
+	})
+}
+
+// UpdateIsSuperadmin sets the "is_superadmin" field to the value that was provided on create.
+func (u *BackendUserUpsertBulk) UpdateIsSuperadmin() *BackendUserUpsertBulk {
+	return u.Update(func(s *BackendUserUpsert) {
+		s.UpdateIsSuperadmin()
 	})
 }
 

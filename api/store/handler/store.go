@@ -43,9 +43,6 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 //	@Param			id		path	string					true	"门店ID"
 //	@Param			data	body	types.UpdateStoreReq	true	"更新门店请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/store [put]
 func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -70,7 +67,7 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			StoreCode:               req.StoreCode,
 			Status:                  req.Status,
 			BusinessModel:           req.BusinessModel,
-			BusinessTypeID:          req.BusinessTypeID,
+			BusinessTypeCode:        req.BusinessTypeCode,
 			LocationNumber:          req.LocationNumber,
 			ContactName:             req.ContactName,
 			ContactPhone:            req.ContactPhone,
@@ -81,7 +78,6 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			CashierDeskURL:          req.CashierDeskURL,
 			DiningEnvironmentURL:    req.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.FoodOperationLicenseURL,
-			LoginPassword:           req.LoginPassword,
 			BusinessHours:           req.BusinessHours,
 			DiningPeriods:           req.DiningPeriods,
 			ShiftTimes:              req.ShiftTimes,
@@ -121,9 +117,6 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"门店ID"
 //	@Success		200	{object}	response.Response{data=domain.Store}
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/store [get]
 func (h *StoreHandler) GetStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -156,9 +149,6 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/store/enable [put]
 func (h *StoreHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -170,7 +160,7 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 
 		updateParams := &domain.UpdateStoreParams{ID: user.StoreID, Status: domain.StoreStatusOpen}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateTypeStatus, updateParams); err != nil {
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -191,9 +181,6 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/store/disable [put]
 func (h *StoreHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -205,7 +192,7 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 
 		updateParams := &domain.UpdateStoreParams{ID: user.StoreID, Status: domain.StoreStatusClosed}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateTypeStatus, updateParams); err != nil {
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

@@ -43,9 +43,6 @@ func (h *RemarkCategoryHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.RemarkCategoryCreateReq	true	"请求信息"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/remark_category [post]
 func (h *RemarkCategoryHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -98,9 +95,6 @@ func (h *RemarkCategoryHandler) Create() gin.HandlerFunc {
 //	@Param			id		path	string							true	"备注分类ID"
 //	@Param			data	body	types.RemarkCategoryUpdateReq	true	"请求信息"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/remark_category/{id} [put]
 func (h *RemarkCategoryHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -157,9 +151,6 @@ func (h *RemarkCategoryHandler) Update() gin.HandlerFunc {
 //	@Description	删除备注分类
 //	@Param			id	path	string	true	"备注分类ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/remark_category/{id} [delete]
 func (h *RemarkCategoryHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -200,8 +191,6 @@ func (h *RemarkCategoryHandler) Delete() gin.HandlerFunc {
 //	@Description	获取备注分类列表
 //	@Param			data	query		types.RemarkCategoryListReq	true	"查询参数"
 //	@Success		200		{object}	response.Response{data=types.RemarkCategoryListResp}
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/remark_category [get]
 func (h *RemarkCategoryHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {

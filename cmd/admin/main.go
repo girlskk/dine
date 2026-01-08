@@ -18,10 +18,12 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing/tracingfx"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/domainservicefx"
 	"gitlab.jiguang.dev/pos-dine/dine/domain/eventbus/eventbusfx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ali/oss"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/sequence"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 	"gitlab.jiguang.dev/pos-dine/dine/repository/repositoryfx"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/usecasefx"
@@ -68,6 +70,21 @@ func main() {
 			fx.Annotate(
 				func() []string { return []string(configFiles) },
 				fx.ResultTags(`name:"config_files"`),
+			),
+			fx.Annotate(
+				sequence.NewAdminDepartmentSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"admin_department_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewAdminRoleSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"admin_role_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewAdminUserSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"admin_user_seq"`),
 			),
 			oss.New,
 		),

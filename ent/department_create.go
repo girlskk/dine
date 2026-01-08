@@ -14,9 +14,12 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // DepartmentCreate is the builder for creating a Department entity.
@@ -153,6 +156,51 @@ func (dc *DepartmentCreate) SetStore(s *Store) *DepartmentCreate {
 	return dc.SetStoreID(s.ID)
 }
 
+// AddAdminUserIDs adds the "admin_users" edge to the AdminUser entity by IDs.
+func (dc *DepartmentCreate) AddAdminUserIDs(ids ...uuid.UUID) *DepartmentCreate {
+	dc.mutation.AddAdminUserIDs(ids...)
+	return dc
+}
+
+// AddAdminUsers adds the "admin_users" edges to the AdminUser entity.
+func (dc *DepartmentCreate) AddAdminUsers(a ...*AdminUser) *DepartmentCreate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return dc.AddAdminUserIDs(ids...)
+}
+
+// AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
+func (dc *DepartmentCreate) AddBackendUserIDs(ids ...uuid.UUID) *DepartmentCreate {
+	dc.mutation.AddBackendUserIDs(ids...)
+	return dc
+}
+
+// AddBackendUsers adds the "backend_users" edges to the BackendUser entity.
+func (dc *DepartmentCreate) AddBackendUsers(b ...*BackendUser) *DepartmentCreate {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return dc.AddBackendUserIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (dc *DepartmentCreate) AddStoreUserIDs(ids ...uuid.UUID) *DepartmentCreate {
+	dc.mutation.AddStoreUserIDs(ids...)
+	return dc
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (dc *DepartmentCreate) AddStoreUsers(s ...*StoreUser) *DepartmentCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return dc.AddStoreUserIDs(ids...)
+}
+
 // Mutation returns the DepartmentMutation object of the builder.
 func (dc *DepartmentCreate) Mutation() *DepartmentMutation {
 	return dc.mutation
@@ -238,6 +286,11 @@ func (dc *DepartmentCreate) check() error {
 	}
 	if _, ok := dc.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Department.code"`)}
+	}
+	if v, ok := dc.mutation.Code(); ok {
+		if err := department.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Department.code": %w`, err)}
+		}
 	}
 	if _, ok := dc.mutation.DepartmentType(); !ok {
 		return &ValidationError{Name: "department_type", err: errors.New(`ent: missing required field "Department.department_type"`)}
@@ -346,6 +399,54 @@ func (dc *DepartmentCreate) createSpec() (*Department, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.StoreID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dc.mutation.AdminUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.AdminUsersTable,
+			Columns: []string{department.AdminUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dc.mutation.BackendUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.BackendUsersTable,
+			Columns: []string{department.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dc.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.StoreUsersTable,
+			Columns: []string{department.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
