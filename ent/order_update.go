@@ -122,26 +122,6 @@ func (ou *OrderUpdate) SetNillableOrderType(dt *domain.OrderType) *OrderUpdate {
 	return ou
 }
 
-// SetRefund sets the "refund" field.
-func (ou *OrderUpdate) SetRefund(dr domain.OrderRefund) *OrderUpdate {
-	ou.mutation.SetRefund(dr)
-	return ou
-}
-
-// SetNillableRefund sets the "refund" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableRefund(dr *domain.OrderRefund) *OrderUpdate {
-	if dr != nil {
-		ou.SetRefund(*dr)
-	}
-	return ou
-}
-
-// ClearRefund clears the value of the "refund" field.
-func (ou *OrderUpdate) ClearRefund() *OrderUpdate {
-	ou.mutation.ClearRefund()
-	return ou
-}
-
 // SetPlacedAt sets the "placed_at" field.
 func (ou *OrderUpdate) SetPlacedAt(t time.Time) *OrderUpdate {
 	ou.mutation.SetPlacedAt(t)
@@ -203,15 +183,15 @@ func (ou *OrderUpdate) ClearCompletedAt() *OrderUpdate {
 }
 
 // SetPlacedBy sets the "placed_by" field.
-func (ou *OrderUpdate) SetPlacedBy(s string) *OrderUpdate {
-	ou.mutation.SetPlacedBy(s)
+func (ou *OrderUpdate) SetPlacedBy(u uuid.UUID) *OrderUpdate {
+	ou.mutation.SetPlacedBy(u)
 	return ou
 }
 
 // SetNillablePlacedBy sets the "placed_by" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillablePlacedBy(s *string) *OrderUpdate {
-	if s != nil {
-		ou.SetPlacedBy(*s)
+func (ou *OrderUpdate) SetNillablePlacedBy(u *uuid.UUID) *OrderUpdate {
+	if u != nil {
+		ou.SetPlacedBy(*u)
 	}
 	return ou
 }
@@ -219,6 +199,26 @@ func (ou *OrderUpdate) SetNillablePlacedBy(s *string) *OrderUpdate {
 // ClearPlacedBy clears the value of the "placed_by" field.
 func (ou *OrderUpdate) ClearPlacedBy() *OrderUpdate {
 	ou.mutation.ClearPlacedBy()
+	return ou
+}
+
+// SetPlacedByName sets the "placed_by_name" field.
+func (ou *OrderUpdate) SetPlacedByName(s string) *OrderUpdate {
+	ou.mutation.SetPlacedByName(s)
+	return ou
+}
+
+// SetNillablePlacedByName sets the "placed_by_name" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillablePlacedByName(s *string) *OrderUpdate {
+	if s != nil {
+		ou.SetPlacedByName(*s)
+	}
+	return ou
+}
+
+// ClearPlacedByName clears the value of the "placed_by_name" field.
+func (ou *OrderUpdate) ClearPlacedByName() *OrderUpdate {
+	ou.mutation.ClearPlacedByName()
 	return ou
 }
 
@@ -265,15 +265,15 @@ func (ou *OrderUpdate) SetNillablePaymentStatus(ds *domain.PaymentStatus) *Order
 }
 
 // SetTableID sets the "table_id" field.
-func (ou *OrderUpdate) SetTableID(s string) *OrderUpdate {
-	ou.mutation.SetTableID(s)
+func (ou *OrderUpdate) SetTableID(u uuid.UUID) *OrderUpdate {
+	ou.mutation.SetTableID(u)
 	return ou
 }
 
 // SetNillableTableID sets the "table_id" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableTableID(s *string) *OrderUpdate {
-	if s != nil {
-		ou.SetTableID(*s)
+func (ou *OrderUpdate) SetNillableTableID(u *uuid.UUID) *OrderUpdate {
+	if u != nil {
+		ou.SetTableID(*u)
 	}
 	return ou
 }
@@ -455,6 +455,26 @@ func (ou *OrderUpdate) SetNillableAmount(da *domain.OrderAmount) *OrderUpdate {
 	return ou
 }
 
+// SetRemark sets the "remark" field.
+func (ou *OrderUpdate) SetRemark(s string) *OrderUpdate {
+	ou.mutation.SetRemark(s)
+	return ou
+}
+
+// SetNillableRemark sets the "remark" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableRemark(s *string) *OrderUpdate {
+	if s != nil {
+		ou.SetRemark(*s)
+	}
+	return ou
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (ou *OrderUpdate) ClearRemark() *OrderUpdate {
+	ou.mutation.ClearRemark()
+	return ou
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
 func (ou *OrderUpdate) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdate {
 	ou.mutation.AddOrderProductIDs(ids...)
@@ -575,6 +595,11 @@ func (ou *OrderUpdate) check() error {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
 		}
 	}
+	if v, ok := ou.mutation.Remark(); ok {
+		if err := order.RemarkValidator(v); err != nil {
+			return &ValidationError{Name: "remark", err: fmt.Errorf(`ent: validator failed for field "Order.remark": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -620,12 +645,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.OrderType(); ok {
 		_spec.SetField(order.FieldOrderType, field.TypeEnum, value)
 	}
-	if value, ok := ou.mutation.Refund(); ok {
-		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
-	}
-	if ou.mutation.RefundCleared() {
-		_spec.ClearField(order.FieldRefund, field.TypeJSON)
-	}
 	if value, ok := ou.mutation.PlacedAt(); ok {
 		_spec.SetField(order.FieldPlacedAt, field.TypeTime, value)
 	}
@@ -645,10 +664,16 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.ClearField(order.FieldCompletedAt, field.TypeTime)
 	}
 	if value, ok := ou.mutation.PlacedBy(); ok {
-		_spec.SetField(order.FieldPlacedBy, field.TypeString, value)
+		_spec.SetField(order.FieldPlacedBy, field.TypeUUID, value)
 	}
 	if ou.mutation.PlacedByCleared() {
-		_spec.ClearField(order.FieldPlacedBy, field.TypeString)
+		_spec.ClearField(order.FieldPlacedBy, field.TypeUUID)
+	}
+	if value, ok := ou.mutation.PlacedByName(); ok {
+		_spec.SetField(order.FieldPlacedByName, field.TypeString, value)
+	}
+	if ou.mutation.PlacedByNameCleared() {
+		_spec.ClearField(order.FieldPlacedByName, field.TypeString)
 	}
 	if value, ok := ou.mutation.DiningMode(); ok {
 		_spec.SetField(order.FieldDiningMode, field.TypeEnum, value)
@@ -660,10 +685,10 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
 	}
 	if value, ok := ou.mutation.TableID(); ok {
-		_spec.SetField(order.FieldTableID, field.TypeString, value)
+		_spec.SetField(order.FieldTableID, field.TypeUUID, value)
 	}
 	if ou.mutation.TableIDCleared() {
-		_spec.ClearField(order.FieldTableID, field.TypeString)
+		_spec.ClearField(order.FieldTableID, field.TypeUUID)
 	}
 	if value, ok := ou.mutation.TableName(); ok {
 		_spec.SetField(order.FieldTableName, field.TypeString, value)
@@ -727,6 +752,12 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
+	}
+	if value, ok := ou.mutation.Remark(); ok {
+		_spec.SetField(order.FieldRemark, field.TypeString, value)
+	}
+	if ou.mutation.RemarkCleared() {
+		_spec.ClearField(order.FieldRemark, field.TypeString)
 	}
 	if ou.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -884,26 +915,6 @@ func (ouo *OrderUpdateOne) SetNillableOrderType(dt *domain.OrderType) *OrderUpda
 	return ouo
 }
 
-// SetRefund sets the "refund" field.
-func (ouo *OrderUpdateOne) SetRefund(dr domain.OrderRefund) *OrderUpdateOne {
-	ouo.mutation.SetRefund(dr)
-	return ouo
-}
-
-// SetNillableRefund sets the "refund" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableRefund(dr *domain.OrderRefund) *OrderUpdateOne {
-	if dr != nil {
-		ouo.SetRefund(*dr)
-	}
-	return ouo
-}
-
-// ClearRefund clears the value of the "refund" field.
-func (ouo *OrderUpdateOne) ClearRefund() *OrderUpdateOne {
-	ouo.mutation.ClearRefund()
-	return ouo
-}
-
 // SetPlacedAt sets the "placed_at" field.
 func (ouo *OrderUpdateOne) SetPlacedAt(t time.Time) *OrderUpdateOne {
 	ouo.mutation.SetPlacedAt(t)
@@ -965,15 +976,15 @@ func (ouo *OrderUpdateOne) ClearCompletedAt() *OrderUpdateOne {
 }
 
 // SetPlacedBy sets the "placed_by" field.
-func (ouo *OrderUpdateOne) SetPlacedBy(s string) *OrderUpdateOne {
-	ouo.mutation.SetPlacedBy(s)
+func (ouo *OrderUpdateOne) SetPlacedBy(u uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.SetPlacedBy(u)
 	return ouo
 }
 
 // SetNillablePlacedBy sets the "placed_by" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillablePlacedBy(s *string) *OrderUpdateOne {
-	if s != nil {
-		ouo.SetPlacedBy(*s)
+func (ouo *OrderUpdateOne) SetNillablePlacedBy(u *uuid.UUID) *OrderUpdateOne {
+	if u != nil {
+		ouo.SetPlacedBy(*u)
 	}
 	return ouo
 }
@@ -981,6 +992,26 @@ func (ouo *OrderUpdateOne) SetNillablePlacedBy(s *string) *OrderUpdateOne {
 // ClearPlacedBy clears the value of the "placed_by" field.
 func (ouo *OrderUpdateOne) ClearPlacedBy() *OrderUpdateOne {
 	ouo.mutation.ClearPlacedBy()
+	return ouo
+}
+
+// SetPlacedByName sets the "placed_by_name" field.
+func (ouo *OrderUpdateOne) SetPlacedByName(s string) *OrderUpdateOne {
+	ouo.mutation.SetPlacedByName(s)
+	return ouo
+}
+
+// SetNillablePlacedByName sets the "placed_by_name" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillablePlacedByName(s *string) *OrderUpdateOne {
+	if s != nil {
+		ouo.SetPlacedByName(*s)
+	}
+	return ouo
+}
+
+// ClearPlacedByName clears the value of the "placed_by_name" field.
+func (ouo *OrderUpdateOne) ClearPlacedByName() *OrderUpdateOne {
+	ouo.mutation.ClearPlacedByName()
 	return ouo
 }
 
@@ -1027,15 +1058,15 @@ func (ouo *OrderUpdateOne) SetNillablePaymentStatus(ds *domain.PaymentStatus) *O
 }
 
 // SetTableID sets the "table_id" field.
-func (ouo *OrderUpdateOne) SetTableID(s string) *OrderUpdateOne {
-	ouo.mutation.SetTableID(s)
+func (ouo *OrderUpdateOne) SetTableID(u uuid.UUID) *OrderUpdateOne {
+	ouo.mutation.SetTableID(u)
 	return ouo
 }
 
 // SetNillableTableID sets the "table_id" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableTableID(s *string) *OrderUpdateOne {
-	if s != nil {
-		ouo.SetTableID(*s)
+func (ouo *OrderUpdateOne) SetNillableTableID(u *uuid.UUID) *OrderUpdateOne {
+	if u != nil {
+		ouo.SetTableID(*u)
 	}
 	return ouo
 }
@@ -1217,6 +1248,26 @@ func (ouo *OrderUpdateOne) SetNillableAmount(da *domain.OrderAmount) *OrderUpdat
 	return ouo
 }
 
+// SetRemark sets the "remark" field.
+func (ouo *OrderUpdateOne) SetRemark(s string) *OrderUpdateOne {
+	ouo.mutation.SetRemark(s)
+	return ouo
+}
+
+// SetNillableRemark sets the "remark" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableRemark(s *string) *OrderUpdateOne {
+	if s != nil {
+		ouo.SetRemark(*s)
+	}
+	return ouo
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (ouo *OrderUpdateOne) ClearRemark() *OrderUpdateOne {
+	ouo.mutation.ClearRemark()
+	return ouo
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
 func (ouo *OrderUpdateOne) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdateOne {
 	ouo.mutation.AddOrderProductIDs(ids...)
@@ -1350,6 +1401,11 @@ func (ouo *OrderUpdateOne) check() error {
 			return &ValidationError{Name: "channel", err: fmt.Errorf(`ent: validator failed for field "Order.channel": %w`, err)}
 		}
 	}
+	if v, ok := ouo.mutation.Remark(); ok {
+		if err := order.RemarkValidator(v); err != nil {
+			return &ValidationError{Name: "remark", err: fmt.Errorf(`ent: validator failed for field "Order.remark": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1412,12 +1468,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	if value, ok := ouo.mutation.OrderType(); ok {
 		_spec.SetField(order.FieldOrderType, field.TypeEnum, value)
 	}
-	if value, ok := ouo.mutation.Refund(); ok {
-		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
-	}
-	if ouo.mutation.RefundCleared() {
-		_spec.ClearField(order.FieldRefund, field.TypeJSON)
-	}
 	if value, ok := ouo.mutation.PlacedAt(); ok {
 		_spec.SetField(order.FieldPlacedAt, field.TypeTime, value)
 	}
@@ -1437,10 +1487,16 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 		_spec.ClearField(order.FieldCompletedAt, field.TypeTime)
 	}
 	if value, ok := ouo.mutation.PlacedBy(); ok {
-		_spec.SetField(order.FieldPlacedBy, field.TypeString, value)
+		_spec.SetField(order.FieldPlacedBy, field.TypeUUID, value)
 	}
 	if ouo.mutation.PlacedByCleared() {
-		_spec.ClearField(order.FieldPlacedBy, field.TypeString)
+		_spec.ClearField(order.FieldPlacedBy, field.TypeUUID)
+	}
+	if value, ok := ouo.mutation.PlacedByName(); ok {
+		_spec.SetField(order.FieldPlacedByName, field.TypeString, value)
+	}
+	if ouo.mutation.PlacedByNameCleared() {
+		_spec.ClearField(order.FieldPlacedByName, field.TypeString)
 	}
 	if value, ok := ouo.mutation.DiningMode(); ok {
 		_spec.SetField(order.FieldDiningMode, field.TypeEnum, value)
@@ -1452,10 +1508,10 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 		_spec.SetField(order.FieldPaymentStatus, field.TypeEnum, value)
 	}
 	if value, ok := ouo.mutation.TableID(); ok {
-		_spec.SetField(order.FieldTableID, field.TypeString, value)
+		_spec.SetField(order.FieldTableID, field.TypeUUID, value)
 	}
 	if ouo.mutation.TableIDCleared() {
-		_spec.ClearField(order.FieldTableID, field.TypeString)
+		_spec.ClearField(order.FieldTableID, field.TypeUUID)
 	}
 	if value, ok := ouo.mutation.TableName(); ok {
 		_spec.SetField(order.FieldTableName, field.TypeString, value)
@@ -1519,6 +1575,12 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if value, ok := ouo.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
+	}
+	if value, ok := ouo.mutation.Remark(); ok {
+		_spec.SetField(order.FieldRemark, field.TypeString, value)
+	}
+	if ouo.mutation.RemarkCleared() {
+		_spec.ClearField(order.FieldRemark, field.TypeString)
 	}
 	if ouo.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{

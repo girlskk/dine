@@ -120,20 +120,6 @@ func (oc *OrderCreate) SetNillableOrderType(dt *domain.OrderType) *OrderCreate {
 	return oc
 }
 
-// SetRefund sets the "refund" field.
-func (oc *OrderCreate) SetRefund(dr domain.OrderRefund) *OrderCreate {
-	oc.mutation.SetRefund(dr)
-	return oc
-}
-
-// SetNillableRefund sets the "refund" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableRefund(dr *domain.OrderRefund) *OrderCreate {
-	if dr != nil {
-		oc.SetRefund(*dr)
-	}
-	return oc
-}
-
 // SetPlacedAt sets the "placed_at" field.
 func (oc *OrderCreate) SetPlacedAt(t time.Time) *OrderCreate {
 	oc.mutation.SetPlacedAt(t)
@@ -177,15 +163,29 @@ func (oc *OrderCreate) SetNillableCompletedAt(t *time.Time) *OrderCreate {
 }
 
 // SetPlacedBy sets the "placed_by" field.
-func (oc *OrderCreate) SetPlacedBy(s string) *OrderCreate {
-	oc.mutation.SetPlacedBy(s)
+func (oc *OrderCreate) SetPlacedBy(u uuid.UUID) *OrderCreate {
+	oc.mutation.SetPlacedBy(u)
 	return oc
 }
 
 // SetNillablePlacedBy sets the "placed_by" field if the given value is not nil.
-func (oc *OrderCreate) SetNillablePlacedBy(s *string) *OrderCreate {
+func (oc *OrderCreate) SetNillablePlacedBy(u *uuid.UUID) *OrderCreate {
+	if u != nil {
+		oc.SetPlacedBy(*u)
+	}
+	return oc
+}
+
+// SetPlacedByName sets the "placed_by_name" field.
+func (oc *OrderCreate) SetPlacedByName(s string) *OrderCreate {
+	oc.mutation.SetPlacedByName(s)
+	return oc
+}
+
+// SetNillablePlacedByName sets the "placed_by_name" field if the given value is not nil.
+func (oc *OrderCreate) SetNillablePlacedByName(s *string) *OrderCreate {
 	if s != nil {
-		oc.SetPlacedBy(*s)
+		oc.SetPlacedByName(*s)
 	}
 	return oc
 }
@@ -233,15 +233,15 @@ func (oc *OrderCreate) SetNillablePaymentStatus(ds *domain.PaymentStatus) *Order
 }
 
 // SetTableID sets the "table_id" field.
-func (oc *OrderCreate) SetTableID(s string) *OrderCreate {
-	oc.mutation.SetTableID(s)
+func (oc *OrderCreate) SetTableID(u uuid.UUID) *OrderCreate {
+	oc.mutation.SetTableID(u)
 	return oc
 }
 
 // SetNillableTableID sets the "table_id" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableTableID(s *string) *OrderCreate {
-	if s != nil {
-		oc.SetTableID(*s)
+func (oc *OrderCreate) SetNillableTableID(u *uuid.UUID) *OrderCreate {
+	if u != nil {
+		oc.SetTableID(*u)
 	}
 	return oc
 }
@@ -327,6 +327,20 @@ func (oc *OrderCreate) SetPayments(dp []domain.OrderPayment) *OrderCreate {
 // SetAmount sets the "amount" field.
 func (oc *OrderCreate) SetAmount(da domain.OrderAmount) *OrderCreate {
 	oc.mutation.SetAmount(da)
+	return oc
+}
+
+// SetRemark sets the "remark" field.
+func (oc *OrderCreate) SetRemark(s string) *OrderCreate {
+	oc.mutation.SetRemark(s)
+	return oc
+}
+
+// SetNillableRemark sets the "remark" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableRemark(s *string) *OrderCreate {
+	if s != nil {
+		oc.SetRemark(*s)
+	}
 	return oc
 }
 
@@ -529,6 +543,11 @@ func (oc *OrderCreate) check() error {
 	if _, ok := oc.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Order.amount"`)}
 	}
+	if v, ok := oc.mutation.Remark(); ok {
+		if err := order.RemarkValidator(v); err != nil {
+			return &ValidationError{Name: "remark", err: fmt.Errorf(`ent: validator failed for field "Order.remark": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -601,10 +620,6 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldOrderType, field.TypeEnum, value)
 		_node.OrderType = value
 	}
-	if value, ok := oc.mutation.Refund(); ok {
-		_spec.SetField(order.FieldRefund, field.TypeJSON, value)
-		_node.Refund = value
-	}
 	if value, ok := oc.mutation.PlacedAt(); ok {
 		_spec.SetField(order.FieldPlacedAt, field.TypeTime, value)
 		_node.PlacedAt = &value
@@ -618,8 +633,12 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_node.CompletedAt = &value
 	}
 	if value, ok := oc.mutation.PlacedBy(); ok {
-		_spec.SetField(order.FieldPlacedBy, field.TypeString, value)
+		_spec.SetField(order.FieldPlacedBy, field.TypeUUID, value)
 		_node.PlacedBy = value
+	}
+	if value, ok := oc.mutation.PlacedByName(); ok {
+		_spec.SetField(order.FieldPlacedByName, field.TypeString, value)
+		_node.PlacedByName = value
 	}
 	if value, ok := oc.mutation.DiningMode(); ok {
 		_spec.SetField(order.FieldDiningMode, field.TypeEnum, value)
@@ -634,7 +653,7 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_node.PaymentStatus = value
 	}
 	if value, ok := oc.mutation.TableID(); ok {
-		_spec.SetField(order.FieldTableID, field.TypeString, value)
+		_spec.SetField(order.FieldTableID, field.TypeUUID, value)
 		_node.TableID = value
 	}
 	if value, ok := oc.mutation.TableName(); ok {
@@ -676,6 +695,10 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.Amount(); ok {
 		_spec.SetField(order.FieldAmount, field.TypeJSON, value)
 		_node.Amount = value
+	}
+	if value, ok := oc.mutation.Remark(); ok {
+		_spec.SetField(order.FieldRemark, field.TypeString, value)
+		_node.Remark = value
 	}
 	if nodes := oc.mutation.OrderProductsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -829,24 +852,6 @@ func (u *OrderUpsert) UpdateOrderType() *OrderUpsert {
 	return u
 }
 
-// SetRefund sets the "refund" field.
-func (u *OrderUpsert) SetRefund(v domain.OrderRefund) *OrderUpsert {
-	u.Set(order.FieldRefund, v)
-	return u
-}
-
-// UpdateRefund sets the "refund" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateRefund() *OrderUpsert {
-	u.SetExcluded(order.FieldRefund)
-	return u
-}
-
-// ClearRefund clears the value of the "refund" field.
-func (u *OrderUpsert) ClearRefund() *OrderUpsert {
-	u.SetNull(order.FieldRefund)
-	return u
-}
-
 // SetPlacedAt sets the "placed_at" field.
 func (u *OrderUpsert) SetPlacedAt(v time.Time) *OrderUpsert {
 	u.Set(order.FieldPlacedAt, v)
@@ -902,7 +907,7 @@ func (u *OrderUpsert) ClearCompletedAt() *OrderUpsert {
 }
 
 // SetPlacedBy sets the "placed_by" field.
-func (u *OrderUpsert) SetPlacedBy(v string) *OrderUpsert {
+func (u *OrderUpsert) SetPlacedBy(v uuid.UUID) *OrderUpsert {
 	u.Set(order.FieldPlacedBy, v)
 	return u
 }
@@ -916,6 +921,24 @@ func (u *OrderUpsert) UpdatePlacedBy() *OrderUpsert {
 // ClearPlacedBy clears the value of the "placed_by" field.
 func (u *OrderUpsert) ClearPlacedBy() *OrderUpsert {
 	u.SetNull(order.FieldPlacedBy)
+	return u
+}
+
+// SetPlacedByName sets the "placed_by_name" field.
+func (u *OrderUpsert) SetPlacedByName(v string) *OrderUpsert {
+	u.Set(order.FieldPlacedByName, v)
+	return u
+}
+
+// UpdatePlacedByName sets the "placed_by_name" field to the value that was provided on create.
+func (u *OrderUpsert) UpdatePlacedByName() *OrderUpsert {
+	u.SetExcluded(order.FieldPlacedByName)
+	return u
+}
+
+// ClearPlacedByName clears the value of the "placed_by_name" field.
+func (u *OrderUpsert) ClearPlacedByName() *OrderUpsert {
+	u.SetNull(order.FieldPlacedByName)
 	return u
 }
 
@@ -956,7 +979,7 @@ func (u *OrderUpsert) UpdatePaymentStatus() *OrderUpsert {
 }
 
 // SetTableID sets the "table_id" field.
-func (u *OrderUpsert) SetTableID(v string) *OrderUpsert {
+func (u *OrderUpsert) SetTableID(v uuid.UUID) *OrderUpsert {
 	u.Set(order.FieldTableID, v)
 	return u
 }
@@ -1129,6 +1152,24 @@ func (u *OrderUpsert) UpdateAmount() *OrderUpsert {
 	return u
 }
 
+// SetRemark sets the "remark" field.
+func (u *OrderUpsert) SetRemark(v string) *OrderUpsert {
+	u.Set(order.FieldRemark, v)
+	return u
+}
+
+// UpdateRemark sets the "remark" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateRemark() *OrderUpsert {
+	u.SetExcluded(order.FieldRemark)
+	return u
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (u *OrderUpsert) ClearRemark() *OrderUpsert {
+	u.SetNull(order.FieldRemark)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1284,27 +1325,6 @@ func (u *OrderUpsertOne) UpdateOrderType() *OrderUpsertOne {
 	})
 }
 
-// SetRefund sets the "refund" field.
-func (u *OrderUpsertOne) SetRefund(v domain.OrderRefund) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetRefund(v)
-	})
-}
-
-// UpdateRefund sets the "refund" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateRefund() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateRefund()
-	})
-}
-
-// ClearRefund clears the value of the "refund" field.
-func (u *OrderUpsertOne) ClearRefund() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearRefund()
-	})
-}
-
 // SetPlacedAt sets the "placed_at" field.
 func (u *OrderUpsertOne) SetPlacedAt(v time.Time) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
@@ -1369,7 +1389,7 @@ func (u *OrderUpsertOne) ClearCompletedAt() *OrderUpsertOne {
 }
 
 // SetPlacedBy sets the "placed_by" field.
-func (u *OrderUpsertOne) SetPlacedBy(v string) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetPlacedBy(v uuid.UUID) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPlacedBy(v)
 	})
@@ -1386,6 +1406,27 @@ func (u *OrderUpsertOne) UpdatePlacedBy() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearPlacedBy() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearPlacedBy()
+	})
+}
+
+// SetPlacedByName sets the "placed_by_name" field.
+func (u *OrderUpsertOne) SetPlacedByName(v string) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPlacedByName(v)
+	})
+}
+
+// UpdatePlacedByName sets the "placed_by_name" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdatePlacedByName() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePlacedByName()
+	})
+}
+
+// ClearPlacedByName clears the value of the "placed_by_name" field.
+func (u *OrderUpsertOne) ClearPlacedByName() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPlacedByName()
 	})
 }
 
@@ -1432,7 +1473,7 @@ func (u *OrderUpsertOne) UpdatePaymentStatus() *OrderUpsertOne {
 }
 
 // SetTableID sets the "table_id" field.
-func (u *OrderUpsertOne) SetTableID(v string) *OrderUpsertOne {
+func (u *OrderUpsertOne) SetTableID(v uuid.UUID) *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetTableID(v)
 	})
@@ -1631,6 +1672,27 @@ func (u *OrderUpsertOne) SetAmount(v domain.OrderAmount) *OrderUpsertOne {
 func (u *OrderUpsertOne) UpdateAmount() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateAmount()
+	})
+}
+
+// SetRemark sets the "remark" field.
+func (u *OrderUpsertOne) SetRemark(v string) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRemark(v)
+	})
+}
+
+// UpdateRemark sets the "remark" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateRemark() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRemark()
+	})
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (u *OrderUpsertOne) ClearRemark() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRemark()
 	})
 }
 
@@ -1956,27 +2018,6 @@ func (u *OrderUpsertBulk) UpdateOrderType() *OrderUpsertBulk {
 	})
 }
 
-// SetRefund sets the "refund" field.
-func (u *OrderUpsertBulk) SetRefund(v domain.OrderRefund) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetRefund(v)
-	})
-}
-
-// UpdateRefund sets the "refund" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateRefund() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateRefund()
-	})
-}
-
-// ClearRefund clears the value of the "refund" field.
-func (u *OrderUpsertBulk) ClearRefund() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.ClearRefund()
-	})
-}
-
 // SetPlacedAt sets the "placed_at" field.
 func (u *OrderUpsertBulk) SetPlacedAt(v time.Time) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
@@ -2041,7 +2082,7 @@ func (u *OrderUpsertBulk) ClearCompletedAt() *OrderUpsertBulk {
 }
 
 // SetPlacedBy sets the "placed_by" field.
-func (u *OrderUpsertBulk) SetPlacedBy(v string) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetPlacedBy(v uuid.UUID) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetPlacedBy(v)
 	})
@@ -2058,6 +2099,27 @@ func (u *OrderUpsertBulk) UpdatePlacedBy() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearPlacedBy() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearPlacedBy()
+	})
+}
+
+// SetPlacedByName sets the "placed_by_name" field.
+func (u *OrderUpsertBulk) SetPlacedByName(v string) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetPlacedByName(v)
+	})
+}
+
+// UpdatePlacedByName sets the "placed_by_name" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdatePlacedByName() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdatePlacedByName()
+	})
+}
+
+// ClearPlacedByName clears the value of the "placed_by_name" field.
+func (u *OrderUpsertBulk) ClearPlacedByName() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearPlacedByName()
 	})
 }
 
@@ -2104,7 +2166,7 @@ func (u *OrderUpsertBulk) UpdatePaymentStatus() *OrderUpsertBulk {
 }
 
 // SetTableID sets the "table_id" field.
-func (u *OrderUpsertBulk) SetTableID(v string) *OrderUpsertBulk {
+func (u *OrderUpsertBulk) SetTableID(v uuid.UUID) *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.SetTableID(v)
 	})
@@ -2303,6 +2365,27 @@ func (u *OrderUpsertBulk) SetAmount(v domain.OrderAmount) *OrderUpsertBulk {
 func (u *OrderUpsertBulk) UpdateAmount() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateAmount()
+	})
+}
+
+// SetRemark sets the "remark" field.
+func (u *OrderUpsertBulk) SetRemark(v string) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetRemark(v)
+	})
+}
+
+// UpdateRemark sets the "remark" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateRemark() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateRemark()
+	})
+}
+
+// ClearRemark clears the value of the "remark" field.
+func (u *OrderUpsertBulk) ClearRemark() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearRemark()
 	})
 }
 

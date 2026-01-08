@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -136,20 +135,6 @@ func (opc *OrderProductCreate) SetNillableCategoryID(u *uuid.UUID) *OrderProduct
 	return opc
 }
 
-// SetMenuID sets the "menu_id" field.
-func (opc *OrderProductCreate) SetMenuID(u uuid.UUID) *OrderProductCreate {
-	opc.mutation.SetMenuID(u)
-	return opc
-}
-
-// SetNillableMenuID sets the "menu_id" field if the given value is not nil.
-func (opc *OrderProductCreate) SetNillableMenuID(u *uuid.UUID) *OrderProductCreate {
-	if u != nil {
-		opc.SetMenuID(*u)
-	}
-	return opc
-}
-
 // SetUnitID sets the "unit_id" field.
 func (opc *OrderProductCreate) SetUnitID(u uuid.UUID) *OrderProductCreate {
 	opc.mutation.SetUnitID(u)
@@ -161,32 +146,6 @@ func (opc *OrderProductCreate) SetNillableUnitID(u *uuid.UUID) *OrderProductCrea
 	if u != nil {
 		opc.SetUnitID(*u)
 	}
-	return opc
-}
-
-// SetSupportTypes sets the "support_types" field.
-func (opc *OrderProductCreate) SetSupportTypes(dst []domain.ProductSupportType) *OrderProductCreate {
-	opc.mutation.SetSupportTypes(dst)
-	return opc
-}
-
-// SetSaleStatus sets the "sale_status" field.
-func (opc *OrderProductCreate) SetSaleStatus(dss domain.ProductSaleStatus) *OrderProductCreate {
-	opc.mutation.SetSaleStatus(dss)
-	return opc
-}
-
-// SetNillableSaleStatus sets the "sale_status" field if the given value is not nil.
-func (opc *OrderProductCreate) SetNillableSaleStatus(dss *domain.ProductSaleStatus) *OrderProductCreate {
-	if dss != nil {
-		opc.SetSaleStatus(*dss)
-	}
-	return opc
-}
-
-// SetSaleChannels sets the "sale_channels" field.
-func (opc *OrderProductCreate) SetSaleChannels(dc []domain.SaleChannel) *OrderProductCreate {
-	opc.mutation.SetSaleChannels(dc)
 	return opc
 }
 
@@ -218,6 +177,20 @@ func (opc *OrderProductCreate) SetNillableDescription(s *string) *OrderProductCr
 	return opc
 }
 
+// SetIsGift sets the "is_gift" field.
+func (opc *OrderProductCreate) SetIsGift(b bool) *OrderProductCreate {
+	opc.mutation.SetIsGift(b)
+	return opc
+}
+
+// SetNillableIsGift sets the "is_gift" field if the given value is not nil.
+func (opc *OrderProductCreate) SetNillableIsGift(b *bool) *OrderProductCreate {
+	if b != nil {
+		opc.SetIsGift(*b)
+	}
+	return opc
+}
+
 // SetQty sets the "qty" field.
 func (opc *OrderProductCreate) SetQty(i int) *OrderProductCreate {
 	opc.mutation.SetQty(i)
@@ -228,6 +201,20 @@ func (opc *OrderProductCreate) SetQty(i int) *OrderProductCreate {
 func (opc *OrderProductCreate) SetNillableQty(i *int) *OrderProductCreate {
 	if i != nil {
 		opc.SetQty(*i)
+	}
+	return opc
+}
+
+// SetGiftQty sets the "gift_qty" field.
+func (opc *OrderProductCreate) SetGiftQty(i int) *OrderProductCreate {
+	opc.mutation.SetGiftQty(i)
+	return opc
+}
+
+// SetNillableGiftQty sets the "gift_qty" field if the given value is not nil.
+func (opc *OrderProductCreate) SetNillableGiftQty(i *int) *OrderProductCreate {
+	if i != nil {
+		opc.SetGiftQty(*i)
 	}
 	return opc
 }
@@ -387,15 +374,15 @@ func (opc *OrderProductCreate) SetNillableRefundReason(s *string) *OrderProductC
 }
 
 // SetRefundedBy sets the "refunded_by" field.
-func (opc *OrderProductCreate) SetRefundedBy(s string) *OrderProductCreate {
-	opc.mutation.SetRefundedBy(s)
+func (opc *OrderProductCreate) SetRefundedBy(u uuid.UUID) *OrderProductCreate {
+	opc.mutation.SetRefundedBy(u)
 	return opc
 }
 
 // SetNillableRefundedBy sets the "refunded_by" field if the given value is not nil.
-func (opc *OrderProductCreate) SetNillableRefundedBy(s *string) *OrderProductCreate {
-	if s != nil {
-		opc.SetRefundedBy(*s)
+func (opc *OrderProductCreate) SetNillableRefundedBy(u *uuid.UUID) *OrderProductCreate {
+	if u != nil {
+		opc.SetRefundedBy(*u)
 	}
 	return opc
 }
@@ -428,49 +415,35 @@ func (opc *OrderProductCreate) SetNillableNote(s *string) *OrderProductCreate {
 	return opc
 }
 
-// SetEstimatedCostPrice sets the "estimated_cost_price" field.
-func (opc *OrderProductCreate) SetEstimatedCostPrice(d decimal.Decimal) *OrderProductCreate {
-	opc.mutation.SetEstimatedCostPrice(d)
+// SetPrice sets the "price" field.
+func (opc *OrderProductCreate) SetPrice(d decimal.Decimal) *OrderProductCreate {
+	opc.mutation.SetPrice(d)
 	return opc
 }
 
-// SetNillableEstimatedCostPrice sets the "estimated_cost_price" field if the given value is not nil.
-func (opc *OrderProductCreate) SetNillableEstimatedCostPrice(d *decimal.Decimal) *OrderProductCreate {
+// SetNillablePrice sets the "price" field if the given value is not nil.
+func (opc *OrderProductCreate) SetNillablePrice(d *decimal.Decimal) *OrderProductCreate {
 	if d != nil {
-		opc.SetEstimatedCostPrice(*d)
+		opc.SetPrice(*d)
 	}
 	return opc
 }
 
-// SetDeliveryCostPrice sets the "delivery_cost_price" field.
-func (opc *OrderProductCreate) SetDeliveryCostPrice(d decimal.Decimal) *OrderProductCreate {
-	opc.mutation.SetDeliveryCostPrice(d)
-	return opc
-}
-
-// SetNillableDeliveryCostPrice sets the "delivery_cost_price" field if the given value is not nil.
-func (opc *OrderProductCreate) SetNillableDeliveryCostPrice(d *decimal.Decimal) *OrderProductCreate {
-	if d != nil {
-		opc.SetDeliveryCostPrice(*d)
-	}
-	return opc
-}
-
-// SetSetMealGroups sets the "set_meal_groups" field.
-func (opc *OrderProductCreate) SetSetMealGroups(jm json.RawMessage) *OrderProductCreate {
-	opc.mutation.SetSetMealGroups(jm)
+// SetGroups sets the "groups" field.
+func (opc *OrderProductCreate) SetGroups(dmg domain.SetMealGroups) *OrderProductCreate {
+	opc.mutation.SetGroups(dmg)
 	return opc
 }
 
 // SetSpecRelations sets the "spec_relations" field.
-func (opc *OrderProductCreate) SetSpecRelations(jm json.RawMessage) *OrderProductCreate {
-	opc.mutation.SetSpecRelations(jm)
+func (opc *OrderProductCreate) SetSpecRelations(dsr domain.ProductSpecRelations) *OrderProductCreate {
+	opc.mutation.SetSpecRelations(dsr)
 	return opc
 }
 
 // SetAttrRelations sets the "attr_relations" field.
-func (opc *OrderProductCreate) SetAttrRelations(jm json.RawMessage) *OrderProductCreate {
-	opc.mutation.SetAttrRelations(jm)
+func (opc *OrderProductCreate) SetAttrRelations(dar domain.ProductAttrRelations) *OrderProductCreate {
+	opc.mutation.SetAttrRelations(dar)
 	return opc
 }
 
@@ -564,9 +537,17 @@ func (opc *OrderProductCreate) defaults() error {
 		v := orderproduct.DefaultDescription
 		opc.mutation.SetDescription(v)
 	}
+	if _, ok := opc.mutation.IsGift(); !ok {
+		v := orderproduct.DefaultIsGift
+		opc.mutation.SetIsGift(v)
+	}
 	if _, ok := opc.mutation.Qty(); !ok {
 		v := orderproduct.DefaultQty
 		opc.mutation.SetQty(v)
+	}
+	if _, ok := opc.mutation.GiftQty(); !ok {
+		v := orderproduct.DefaultGiftQty
+		opc.mutation.SetGiftQty(v)
 	}
 	if _, ok := opc.mutation.VoidQty(); !ok {
 		v := orderproduct.DefaultVoidQty
@@ -626,11 +607,6 @@ func (opc *OrderProductCreate) check() error {
 			return &ValidationError{Name: "product_type", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.product_type": %w`, err)}
 		}
 	}
-	if v, ok := opc.mutation.SaleStatus(); ok {
-		if err := orderproduct.SaleStatusValidator(v); err != nil {
-			return &ValidationError{Name: "sale_status", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.sale_status": %w`, err)}
-		}
-	}
 	if _, ok := opc.mutation.MainImage(); !ok {
 		return &ValidationError{Name: "main_image", err: errors.New(`ent: missing required field "OrderProduct.main_image"`)}
 	}
@@ -647,8 +623,14 @@ func (opc *OrderProductCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "OrderProduct.description": %w`, err)}
 		}
 	}
+	if _, ok := opc.mutation.IsGift(); !ok {
+		return &ValidationError{Name: "is_gift", err: errors.New(`ent: missing required field "OrderProduct.is_gift"`)}
+	}
 	if _, ok := opc.mutation.Qty(); !ok {
 		return &ValidationError{Name: "qty", err: errors.New(`ent: missing required field "OrderProduct.qty"`)}
+	}
+	if _, ok := opc.mutation.GiftQty(); !ok {
+		return &ValidationError{Name: "gift_qty", err: errors.New(`ent: missing required field "OrderProduct.gift_qty"`)}
 	}
 	if _, ok := opc.mutation.VoidQty(); !ok {
 		return &ValidationError{Name: "void_qty", err: errors.New(`ent: missing required field "OrderProduct.void_qty"`)}
@@ -728,25 +710,9 @@ func (opc *OrderProductCreate) createSpec() (*OrderProduct, *sqlgraph.CreateSpec
 		_spec.SetField(orderproduct.FieldCategoryID, field.TypeUUID, value)
 		_node.CategoryID = value
 	}
-	if value, ok := opc.mutation.MenuID(); ok {
-		_spec.SetField(orderproduct.FieldMenuID, field.TypeUUID, value)
-		_node.MenuID = value
-	}
 	if value, ok := opc.mutation.UnitID(); ok {
 		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
 		_node.UnitID = value
-	}
-	if value, ok := opc.mutation.SupportTypes(); ok {
-		_spec.SetField(orderproduct.FieldSupportTypes, field.TypeJSON, value)
-		_node.SupportTypes = value
-	}
-	if value, ok := opc.mutation.SaleStatus(); ok {
-		_spec.SetField(orderproduct.FieldSaleStatus, field.TypeEnum, value)
-		_node.SaleStatus = value
-	}
-	if value, ok := opc.mutation.SaleChannels(); ok {
-		_spec.SetField(orderproduct.FieldSaleChannels, field.TypeJSON, value)
-		_node.SaleChannels = value
 	}
 	if value, ok := opc.mutation.MainImage(); ok {
 		_spec.SetField(orderproduct.FieldMainImage, field.TypeString, value)
@@ -756,9 +722,17 @@ func (opc *OrderProductCreate) createSpec() (*OrderProduct, *sqlgraph.CreateSpec
 		_spec.SetField(orderproduct.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
+	if value, ok := opc.mutation.IsGift(); ok {
+		_spec.SetField(orderproduct.FieldIsGift, field.TypeBool, value)
+		_node.IsGift = value
+	}
 	if value, ok := opc.mutation.Qty(); ok {
 		_spec.SetField(orderproduct.FieldQty, field.TypeInt, value)
 		_node.Qty = value
+	}
+	if value, ok := opc.mutation.GiftQty(); ok {
+		_spec.SetField(orderproduct.FieldGiftQty, field.TypeInt, value)
+		_node.GiftQty = value
 	}
 	if value, ok := opc.mutation.Subtotal(); ok {
 		_spec.SetField(orderproduct.FieldSubtotal, field.TypeOther, value)
@@ -805,7 +779,7 @@ func (opc *OrderProductCreate) createSpec() (*OrderProduct, *sqlgraph.CreateSpec
 		_node.RefundReason = value
 	}
 	if value, ok := opc.mutation.RefundedBy(); ok {
-		_spec.SetField(orderproduct.FieldRefundedBy, field.TypeString, value)
+		_spec.SetField(orderproduct.FieldRefundedBy, field.TypeUUID, value)
 		_node.RefundedBy = value
 	}
 	if value, ok := opc.mutation.RefundedAt(); ok {
@@ -816,17 +790,13 @@ func (opc *OrderProductCreate) createSpec() (*OrderProduct, *sqlgraph.CreateSpec
 		_spec.SetField(orderproduct.FieldNote, field.TypeString, value)
 		_node.Note = value
 	}
-	if value, ok := opc.mutation.EstimatedCostPrice(); ok {
-		_spec.SetField(orderproduct.FieldEstimatedCostPrice, field.TypeOther, value)
-		_node.EstimatedCostPrice = &value
+	if value, ok := opc.mutation.Price(); ok {
+		_spec.SetField(orderproduct.FieldPrice, field.TypeOther, value)
+		_node.Price = &value
 	}
-	if value, ok := opc.mutation.DeliveryCostPrice(); ok {
-		_spec.SetField(orderproduct.FieldDeliveryCostPrice, field.TypeOther, value)
-		_node.DeliveryCostPrice = &value
-	}
-	if value, ok := opc.mutation.SetMealGroups(); ok {
-		_spec.SetField(orderproduct.FieldSetMealGroups, field.TypeJSON, value)
-		_node.SetMealGroups = value
+	if value, ok := opc.mutation.Groups(); ok {
+		_spec.SetField(orderproduct.FieldGroups, field.TypeJSON, value)
+		_node.Groups = value
 	}
 	if value, ok := opc.mutation.SpecRelations(); ok {
 		_spec.SetField(orderproduct.FieldSpecRelations, field.TypeJSON, value)
@@ -1031,24 +1001,6 @@ func (u *OrderProductUpsert) ClearCategoryID() *OrderProductUpsert {
 	return u
 }
 
-// SetMenuID sets the "menu_id" field.
-func (u *OrderProductUpsert) SetMenuID(v uuid.UUID) *OrderProductUpsert {
-	u.Set(orderproduct.FieldMenuID, v)
-	return u
-}
-
-// UpdateMenuID sets the "menu_id" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateMenuID() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldMenuID)
-	return u
-}
-
-// ClearMenuID clears the value of the "menu_id" field.
-func (u *OrderProductUpsert) ClearMenuID() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldMenuID)
-	return u
-}
-
 // SetUnitID sets the "unit_id" field.
 func (u *OrderProductUpsert) SetUnitID(v uuid.UUID) *OrderProductUpsert {
 	u.Set(orderproduct.FieldUnitID, v)
@@ -1064,60 +1016,6 @@ func (u *OrderProductUpsert) UpdateUnitID() *OrderProductUpsert {
 // ClearUnitID clears the value of the "unit_id" field.
 func (u *OrderProductUpsert) ClearUnitID() *OrderProductUpsert {
 	u.SetNull(orderproduct.FieldUnitID)
-	return u
-}
-
-// SetSupportTypes sets the "support_types" field.
-func (u *OrderProductUpsert) SetSupportTypes(v []domain.ProductSupportType) *OrderProductUpsert {
-	u.Set(orderproduct.FieldSupportTypes, v)
-	return u
-}
-
-// UpdateSupportTypes sets the "support_types" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateSupportTypes() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldSupportTypes)
-	return u
-}
-
-// ClearSupportTypes clears the value of the "support_types" field.
-func (u *OrderProductUpsert) ClearSupportTypes() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldSupportTypes)
-	return u
-}
-
-// SetSaleStatus sets the "sale_status" field.
-func (u *OrderProductUpsert) SetSaleStatus(v domain.ProductSaleStatus) *OrderProductUpsert {
-	u.Set(orderproduct.FieldSaleStatus, v)
-	return u
-}
-
-// UpdateSaleStatus sets the "sale_status" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateSaleStatus() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldSaleStatus)
-	return u
-}
-
-// ClearSaleStatus clears the value of the "sale_status" field.
-func (u *OrderProductUpsert) ClearSaleStatus() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldSaleStatus)
-	return u
-}
-
-// SetSaleChannels sets the "sale_channels" field.
-func (u *OrderProductUpsert) SetSaleChannels(v []domain.SaleChannel) *OrderProductUpsert {
-	u.Set(orderproduct.FieldSaleChannels, v)
-	return u
-}
-
-// UpdateSaleChannels sets the "sale_channels" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateSaleChannels() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldSaleChannels)
-	return u
-}
-
-// ClearSaleChannels clears the value of the "sale_channels" field.
-func (u *OrderProductUpsert) ClearSaleChannels() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldSaleChannels)
 	return u
 }
 
@@ -1145,6 +1043,18 @@ func (u *OrderProductUpsert) UpdateDescription() *OrderProductUpsert {
 	return u
 }
 
+// SetIsGift sets the "is_gift" field.
+func (u *OrderProductUpsert) SetIsGift(v bool) *OrderProductUpsert {
+	u.Set(orderproduct.FieldIsGift, v)
+	return u
+}
+
+// UpdateIsGift sets the "is_gift" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdateIsGift() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldIsGift)
+	return u
+}
+
 // SetQty sets the "qty" field.
 func (u *OrderProductUpsert) SetQty(v int) *OrderProductUpsert {
 	u.Set(orderproduct.FieldQty, v)
@@ -1160,6 +1070,24 @@ func (u *OrderProductUpsert) UpdateQty() *OrderProductUpsert {
 // AddQty adds v to the "qty" field.
 func (u *OrderProductUpsert) AddQty(v int) *OrderProductUpsert {
 	u.Add(orderproduct.FieldQty, v)
+	return u
+}
+
+// SetGiftQty sets the "gift_qty" field.
+func (u *OrderProductUpsert) SetGiftQty(v int) *OrderProductUpsert {
+	u.Set(orderproduct.FieldGiftQty, v)
+	return u
+}
+
+// UpdateGiftQty sets the "gift_qty" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdateGiftQty() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldGiftQty)
+	return u
+}
+
+// AddGiftQty adds v to the "gift_qty" field.
+func (u *OrderProductUpsert) AddGiftQty(v int) *OrderProductUpsert {
+	u.Add(orderproduct.FieldGiftQty, v)
 	return u
 }
 
@@ -1362,7 +1290,7 @@ func (u *OrderProductUpsert) ClearRefundReason() *OrderProductUpsert {
 }
 
 // SetRefundedBy sets the "refunded_by" field.
-func (u *OrderProductUpsert) SetRefundedBy(v string) *OrderProductUpsert {
+func (u *OrderProductUpsert) SetRefundedBy(v uuid.UUID) *OrderProductUpsert {
 	u.Set(orderproduct.FieldRefundedBy, v)
 	return u
 }
@@ -1415,62 +1343,44 @@ func (u *OrderProductUpsert) ClearNote() *OrderProductUpsert {
 	return u
 }
 
-// SetEstimatedCostPrice sets the "estimated_cost_price" field.
-func (u *OrderProductUpsert) SetEstimatedCostPrice(v decimal.Decimal) *OrderProductUpsert {
-	u.Set(orderproduct.FieldEstimatedCostPrice, v)
+// SetPrice sets the "price" field.
+func (u *OrderProductUpsert) SetPrice(v decimal.Decimal) *OrderProductUpsert {
+	u.Set(orderproduct.FieldPrice, v)
 	return u
 }
 
-// UpdateEstimatedCostPrice sets the "estimated_cost_price" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateEstimatedCostPrice() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldEstimatedCostPrice)
+// UpdatePrice sets the "price" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdatePrice() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldPrice)
 	return u
 }
 
-// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
-func (u *OrderProductUpsert) ClearEstimatedCostPrice() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldEstimatedCostPrice)
+// ClearPrice clears the value of the "price" field.
+func (u *OrderProductUpsert) ClearPrice() *OrderProductUpsert {
+	u.SetNull(orderproduct.FieldPrice)
 	return u
 }
 
-// SetDeliveryCostPrice sets the "delivery_cost_price" field.
-func (u *OrderProductUpsert) SetDeliveryCostPrice(v decimal.Decimal) *OrderProductUpsert {
-	u.Set(orderproduct.FieldDeliveryCostPrice, v)
+// SetGroups sets the "groups" field.
+func (u *OrderProductUpsert) SetGroups(v domain.SetMealGroups) *OrderProductUpsert {
+	u.Set(orderproduct.FieldGroups, v)
 	return u
 }
 
-// UpdateDeliveryCostPrice sets the "delivery_cost_price" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateDeliveryCostPrice() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldDeliveryCostPrice)
+// UpdateGroups sets the "groups" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdateGroups() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldGroups)
 	return u
 }
 
-// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
-func (u *OrderProductUpsert) ClearDeliveryCostPrice() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldDeliveryCostPrice)
-	return u
-}
-
-// SetSetMealGroups sets the "set_meal_groups" field.
-func (u *OrderProductUpsert) SetSetMealGroups(v json.RawMessage) *OrderProductUpsert {
-	u.Set(orderproduct.FieldSetMealGroups, v)
-	return u
-}
-
-// UpdateSetMealGroups sets the "set_meal_groups" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateSetMealGroups() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldSetMealGroups)
-	return u
-}
-
-// ClearSetMealGroups clears the value of the "set_meal_groups" field.
-func (u *OrderProductUpsert) ClearSetMealGroups() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldSetMealGroups)
+// ClearGroups clears the value of the "groups" field.
+func (u *OrderProductUpsert) ClearGroups() *OrderProductUpsert {
+	u.SetNull(orderproduct.FieldGroups)
 	return u
 }
 
 // SetSpecRelations sets the "spec_relations" field.
-func (u *OrderProductUpsert) SetSpecRelations(v json.RawMessage) *OrderProductUpsert {
+func (u *OrderProductUpsert) SetSpecRelations(v domain.ProductSpecRelations) *OrderProductUpsert {
 	u.Set(orderproduct.FieldSpecRelations, v)
 	return u
 }
@@ -1488,7 +1398,7 @@ func (u *OrderProductUpsert) ClearSpecRelations() *OrderProductUpsert {
 }
 
 // SetAttrRelations sets the "attr_relations" field.
-func (u *OrderProductUpsert) SetAttrRelations(v json.RawMessage) *OrderProductUpsert {
+func (u *OrderProductUpsert) SetAttrRelations(v domain.ProductAttrRelations) *OrderProductUpsert {
 	u.Set(orderproduct.FieldAttrRelations, v)
 	return u
 }
@@ -1703,27 +1613,6 @@ func (u *OrderProductUpsertOne) ClearCategoryID() *OrderProductUpsertOne {
 	})
 }
 
-// SetMenuID sets the "menu_id" field.
-func (u *OrderProductUpsertOne) SetMenuID(v uuid.UUID) *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetMenuID(v)
-	})
-}
-
-// UpdateMenuID sets the "menu_id" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateMenuID() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateMenuID()
-	})
-}
-
-// ClearMenuID clears the value of the "menu_id" field.
-func (u *OrderProductUpsertOne) ClearMenuID() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearMenuID()
-	})
-}
-
 // SetUnitID sets the "unit_id" field.
 func (u *OrderProductUpsertOne) SetUnitID(v uuid.UUID) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
@@ -1742,69 +1631,6 @@ func (u *OrderProductUpsertOne) UpdateUnitID() *OrderProductUpsertOne {
 func (u *OrderProductUpsertOne) ClearUnitID() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.ClearUnitID()
-	})
-}
-
-// SetSupportTypes sets the "support_types" field.
-func (u *OrderProductUpsertOne) SetSupportTypes(v []domain.ProductSupportType) *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSupportTypes(v)
-	})
-}
-
-// UpdateSupportTypes sets the "support_types" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateSupportTypes() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSupportTypes()
-	})
-}
-
-// ClearSupportTypes clears the value of the "support_types" field.
-func (u *OrderProductUpsertOne) ClearSupportTypes() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSupportTypes()
-	})
-}
-
-// SetSaleStatus sets the "sale_status" field.
-func (u *OrderProductUpsertOne) SetSaleStatus(v domain.ProductSaleStatus) *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSaleStatus(v)
-	})
-}
-
-// UpdateSaleStatus sets the "sale_status" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateSaleStatus() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSaleStatus()
-	})
-}
-
-// ClearSaleStatus clears the value of the "sale_status" field.
-func (u *OrderProductUpsertOne) ClearSaleStatus() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSaleStatus()
-	})
-}
-
-// SetSaleChannels sets the "sale_channels" field.
-func (u *OrderProductUpsertOne) SetSaleChannels(v []domain.SaleChannel) *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSaleChannels(v)
-	})
-}
-
-// UpdateSaleChannels sets the "sale_channels" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateSaleChannels() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSaleChannels()
-	})
-}
-
-// ClearSaleChannels clears the value of the "sale_channels" field.
-func (u *OrderProductUpsertOne) ClearSaleChannels() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSaleChannels()
 	})
 }
 
@@ -1836,6 +1662,20 @@ func (u *OrderProductUpsertOne) UpdateDescription() *OrderProductUpsertOne {
 	})
 }
 
+// SetIsGift sets the "is_gift" field.
+func (u *OrderProductUpsertOne) SetIsGift(v bool) *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetIsGift(v)
+	})
+}
+
+// UpdateIsGift sets the "is_gift" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdateIsGift() *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateIsGift()
+	})
+}
+
 // SetQty sets the "qty" field.
 func (u *OrderProductUpsertOne) SetQty(v int) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
@@ -1854,6 +1694,27 @@ func (u *OrderProductUpsertOne) AddQty(v int) *OrderProductUpsertOne {
 func (u *OrderProductUpsertOne) UpdateQty() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.UpdateQty()
+	})
+}
+
+// SetGiftQty sets the "gift_qty" field.
+func (u *OrderProductUpsertOne) SetGiftQty(v int) *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetGiftQty(v)
+	})
+}
+
+// AddGiftQty adds v to the "gift_qty" field.
+func (u *OrderProductUpsertOne) AddGiftQty(v int) *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.AddGiftQty(v)
+	})
+}
+
+// UpdateGiftQty sets the "gift_qty" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdateGiftQty() *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateGiftQty()
 	})
 }
 
@@ -2089,7 +1950,7 @@ func (u *OrderProductUpsertOne) ClearRefundReason() *OrderProductUpsertOne {
 }
 
 // SetRefundedBy sets the "refunded_by" field.
-func (u *OrderProductUpsertOne) SetRefundedBy(v string) *OrderProductUpsertOne {
+func (u *OrderProductUpsertOne) SetRefundedBy(v uuid.UUID) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.SetRefundedBy(v)
 	})
@@ -2151,71 +2012,50 @@ func (u *OrderProductUpsertOne) ClearNote() *OrderProductUpsertOne {
 	})
 }
 
-// SetEstimatedCostPrice sets the "estimated_cost_price" field.
-func (u *OrderProductUpsertOne) SetEstimatedCostPrice(v decimal.Decimal) *OrderProductUpsertOne {
+// SetPrice sets the "price" field.
+func (u *OrderProductUpsertOne) SetPrice(v decimal.Decimal) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetEstimatedCostPrice(v)
+		s.SetPrice(v)
 	})
 }
 
-// UpdateEstimatedCostPrice sets the "estimated_cost_price" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateEstimatedCostPrice() *OrderProductUpsertOne {
+// UpdatePrice sets the "price" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdatePrice() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateEstimatedCostPrice()
+		s.UpdatePrice()
 	})
 }
 
-// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
-func (u *OrderProductUpsertOne) ClearEstimatedCostPrice() *OrderProductUpsertOne {
+// ClearPrice clears the value of the "price" field.
+func (u *OrderProductUpsertOne) ClearPrice() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearEstimatedCostPrice()
+		s.ClearPrice()
 	})
 }
 
-// SetDeliveryCostPrice sets the "delivery_cost_price" field.
-func (u *OrderProductUpsertOne) SetDeliveryCostPrice(v decimal.Decimal) *OrderProductUpsertOne {
+// SetGroups sets the "groups" field.
+func (u *OrderProductUpsertOne) SetGroups(v domain.SetMealGroups) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetDeliveryCostPrice(v)
+		s.SetGroups(v)
 	})
 }
 
-// UpdateDeliveryCostPrice sets the "delivery_cost_price" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateDeliveryCostPrice() *OrderProductUpsertOne {
+// UpdateGroups sets the "groups" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdateGroups() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateDeliveryCostPrice()
+		s.UpdateGroups()
 	})
 }
 
-// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
-func (u *OrderProductUpsertOne) ClearDeliveryCostPrice() *OrderProductUpsertOne {
+// ClearGroups clears the value of the "groups" field.
+func (u *OrderProductUpsertOne) ClearGroups() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearDeliveryCostPrice()
-	})
-}
-
-// SetSetMealGroups sets the "set_meal_groups" field.
-func (u *OrderProductUpsertOne) SetSetMealGroups(v json.RawMessage) *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSetMealGroups(v)
-	})
-}
-
-// UpdateSetMealGroups sets the "set_meal_groups" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateSetMealGroups() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSetMealGroups()
-	})
-}
-
-// ClearSetMealGroups clears the value of the "set_meal_groups" field.
-func (u *OrderProductUpsertOne) ClearSetMealGroups() *OrderProductUpsertOne {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSetMealGroups()
+		s.ClearGroups()
 	})
 }
 
 // SetSpecRelations sets the "spec_relations" field.
-func (u *OrderProductUpsertOne) SetSpecRelations(v json.RawMessage) *OrderProductUpsertOne {
+func (u *OrderProductUpsertOne) SetSpecRelations(v domain.ProductSpecRelations) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.SetSpecRelations(v)
 	})
@@ -2236,7 +2076,7 @@ func (u *OrderProductUpsertOne) ClearSpecRelations() *OrderProductUpsertOne {
 }
 
 // SetAttrRelations sets the "attr_relations" field.
-func (u *OrderProductUpsertOne) SetAttrRelations(v json.RawMessage) *OrderProductUpsertOne {
+func (u *OrderProductUpsertOne) SetAttrRelations(v domain.ProductAttrRelations) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.SetAttrRelations(v)
 	})
@@ -2621,27 +2461,6 @@ func (u *OrderProductUpsertBulk) ClearCategoryID() *OrderProductUpsertBulk {
 	})
 }
 
-// SetMenuID sets the "menu_id" field.
-func (u *OrderProductUpsertBulk) SetMenuID(v uuid.UUID) *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetMenuID(v)
-	})
-}
-
-// UpdateMenuID sets the "menu_id" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateMenuID() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateMenuID()
-	})
-}
-
-// ClearMenuID clears the value of the "menu_id" field.
-func (u *OrderProductUpsertBulk) ClearMenuID() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearMenuID()
-	})
-}
-
 // SetUnitID sets the "unit_id" field.
 func (u *OrderProductUpsertBulk) SetUnitID(v uuid.UUID) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
@@ -2660,69 +2479,6 @@ func (u *OrderProductUpsertBulk) UpdateUnitID() *OrderProductUpsertBulk {
 func (u *OrderProductUpsertBulk) ClearUnitID() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.ClearUnitID()
-	})
-}
-
-// SetSupportTypes sets the "support_types" field.
-func (u *OrderProductUpsertBulk) SetSupportTypes(v []domain.ProductSupportType) *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSupportTypes(v)
-	})
-}
-
-// UpdateSupportTypes sets the "support_types" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateSupportTypes() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSupportTypes()
-	})
-}
-
-// ClearSupportTypes clears the value of the "support_types" field.
-func (u *OrderProductUpsertBulk) ClearSupportTypes() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSupportTypes()
-	})
-}
-
-// SetSaleStatus sets the "sale_status" field.
-func (u *OrderProductUpsertBulk) SetSaleStatus(v domain.ProductSaleStatus) *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSaleStatus(v)
-	})
-}
-
-// UpdateSaleStatus sets the "sale_status" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateSaleStatus() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSaleStatus()
-	})
-}
-
-// ClearSaleStatus clears the value of the "sale_status" field.
-func (u *OrderProductUpsertBulk) ClearSaleStatus() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSaleStatus()
-	})
-}
-
-// SetSaleChannels sets the "sale_channels" field.
-func (u *OrderProductUpsertBulk) SetSaleChannels(v []domain.SaleChannel) *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSaleChannels(v)
-	})
-}
-
-// UpdateSaleChannels sets the "sale_channels" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateSaleChannels() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSaleChannels()
-	})
-}
-
-// ClearSaleChannels clears the value of the "sale_channels" field.
-func (u *OrderProductUpsertBulk) ClearSaleChannels() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSaleChannels()
 	})
 }
 
@@ -2754,6 +2510,20 @@ func (u *OrderProductUpsertBulk) UpdateDescription() *OrderProductUpsertBulk {
 	})
 }
 
+// SetIsGift sets the "is_gift" field.
+func (u *OrderProductUpsertBulk) SetIsGift(v bool) *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetIsGift(v)
+	})
+}
+
+// UpdateIsGift sets the "is_gift" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdateIsGift() *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateIsGift()
+	})
+}
+
 // SetQty sets the "qty" field.
 func (u *OrderProductUpsertBulk) SetQty(v int) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
@@ -2772,6 +2542,27 @@ func (u *OrderProductUpsertBulk) AddQty(v int) *OrderProductUpsertBulk {
 func (u *OrderProductUpsertBulk) UpdateQty() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.UpdateQty()
+	})
+}
+
+// SetGiftQty sets the "gift_qty" field.
+func (u *OrderProductUpsertBulk) SetGiftQty(v int) *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetGiftQty(v)
+	})
+}
+
+// AddGiftQty adds v to the "gift_qty" field.
+func (u *OrderProductUpsertBulk) AddGiftQty(v int) *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.AddGiftQty(v)
+	})
+}
+
+// UpdateGiftQty sets the "gift_qty" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdateGiftQty() *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateGiftQty()
 	})
 }
 
@@ -3007,7 +2798,7 @@ func (u *OrderProductUpsertBulk) ClearRefundReason() *OrderProductUpsertBulk {
 }
 
 // SetRefundedBy sets the "refunded_by" field.
-func (u *OrderProductUpsertBulk) SetRefundedBy(v string) *OrderProductUpsertBulk {
+func (u *OrderProductUpsertBulk) SetRefundedBy(v uuid.UUID) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.SetRefundedBy(v)
 	})
@@ -3069,71 +2860,50 @@ func (u *OrderProductUpsertBulk) ClearNote() *OrderProductUpsertBulk {
 	})
 }
 
-// SetEstimatedCostPrice sets the "estimated_cost_price" field.
-func (u *OrderProductUpsertBulk) SetEstimatedCostPrice(v decimal.Decimal) *OrderProductUpsertBulk {
+// SetPrice sets the "price" field.
+func (u *OrderProductUpsertBulk) SetPrice(v decimal.Decimal) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetEstimatedCostPrice(v)
+		s.SetPrice(v)
 	})
 }
 
-// UpdateEstimatedCostPrice sets the "estimated_cost_price" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateEstimatedCostPrice() *OrderProductUpsertBulk {
+// UpdatePrice sets the "price" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdatePrice() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateEstimatedCostPrice()
+		s.UpdatePrice()
 	})
 }
 
-// ClearEstimatedCostPrice clears the value of the "estimated_cost_price" field.
-func (u *OrderProductUpsertBulk) ClearEstimatedCostPrice() *OrderProductUpsertBulk {
+// ClearPrice clears the value of the "price" field.
+func (u *OrderProductUpsertBulk) ClearPrice() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearEstimatedCostPrice()
+		s.ClearPrice()
 	})
 }
 
-// SetDeliveryCostPrice sets the "delivery_cost_price" field.
-func (u *OrderProductUpsertBulk) SetDeliveryCostPrice(v decimal.Decimal) *OrderProductUpsertBulk {
+// SetGroups sets the "groups" field.
+func (u *OrderProductUpsertBulk) SetGroups(v domain.SetMealGroups) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetDeliveryCostPrice(v)
+		s.SetGroups(v)
 	})
 }
 
-// UpdateDeliveryCostPrice sets the "delivery_cost_price" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateDeliveryCostPrice() *OrderProductUpsertBulk {
+// UpdateGroups sets the "groups" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdateGroups() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateDeliveryCostPrice()
+		s.UpdateGroups()
 	})
 }
 
-// ClearDeliveryCostPrice clears the value of the "delivery_cost_price" field.
-func (u *OrderProductUpsertBulk) ClearDeliveryCostPrice() *OrderProductUpsertBulk {
+// ClearGroups clears the value of the "groups" field.
+func (u *OrderProductUpsertBulk) ClearGroups() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearDeliveryCostPrice()
-	})
-}
-
-// SetSetMealGroups sets the "set_meal_groups" field.
-func (u *OrderProductUpsertBulk) SetSetMealGroups(v json.RawMessage) *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.SetSetMealGroups(v)
-	})
-}
-
-// UpdateSetMealGroups sets the "set_meal_groups" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateSetMealGroups() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateSetMealGroups()
-	})
-}
-
-// ClearSetMealGroups clears the value of the "set_meal_groups" field.
-func (u *OrderProductUpsertBulk) ClearSetMealGroups() *OrderProductUpsertBulk {
-	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearSetMealGroups()
+		s.ClearGroups()
 	})
 }
 
 // SetSpecRelations sets the "spec_relations" field.
-func (u *OrderProductUpsertBulk) SetSpecRelations(v json.RawMessage) *OrderProductUpsertBulk {
+func (u *OrderProductUpsertBulk) SetSpecRelations(v domain.ProductSpecRelations) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.SetSpecRelations(v)
 	})
@@ -3154,7 +2924,7 @@ func (u *OrderProductUpsertBulk) ClearSpecRelations() *OrderProductUpsertBulk {
 }
 
 // SetAttrRelations sets the "attr_relations" field.
-func (u *OrderProductUpsertBulk) SetAttrRelations(v json.RawMessage) *OrderProductUpsertBulk {
+func (u *OrderProductUpsertBulk) SetAttrRelations(v domain.ProductAttrRelations) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.SetAttrRelations(v)
 	})
