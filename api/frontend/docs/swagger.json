@@ -243,11 +243,183 @@
         }
     },
     "definitions": {
+        "domain.AdditionalCategory": {
+            "type": "string",
+            "enum": [
+                "service_fee",
+                "additional_fee",
+                "packing_fee"
+            ],
+            "x-enum-comments": {
+                "AdditionalCategoryAdditional": "附加费",
+                "AdditionalCategoryPacking": "打包费",
+                "AdditionalCategoryService": "服务费"
+            },
+            "x-enum-descriptions": [
+                "服务费",
+                "附加费",
+                "打包费"
+            ],
+            "x-enum-varnames": [
+                "AdditionalCategoryService",
+                "AdditionalCategoryAdditional",
+                "AdditionalCategoryPacking"
+            ]
+        },
+        "domain.AdditionalFee": {
+            "type": "object",
+            "properties": {
+                "charge_mode": {
+                    "description": "费用类型 percent 百分比，fixed 固定金额",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dining_ways": {
+                    "description": "就餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣场景",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费类别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_type": {
+                    "description": "附加费类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeType"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "fixed: 分; percent: BP",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "附加费名称",
+                    "type": "string"
+                },
+                "order_channels": {
+                    "description": "订单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.AdditionalFeeChargeMode": {
+            "type": "string",
+            "enum": [
+                "percent",
+                "fixed"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeChargeModeFixed": "固定金额",
+                "AdditionalFeeChargeModePercent": "百分比"
+            },
+            "x-enum-descriptions": [
+                "百分比",
+                "固定金额"
+            ],
+            "x-enum-varnames": [
+                "AdditionalFeeChargeModePercent",
+                "AdditionalFeeChargeModeFixed"
+            ]
+        },
+        "domain.AdditionalFeeDiscountScope": {
+            "type": "string",
+            "enum": [
+                "before_discount",
+                "after_discount"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeDiscountScopeAfter": "折后",
+                "AdditionalFeeDiscountScopeBefore": "折前"
+            },
+            "x-enum-descriptions": [
+                "折前",
+                "折后"
+            ],
+            "x-enum-varnames": [
+                "AdditionalFeeDiscountScopeBefore",
+                "AdditionalFeeDiscountScopeAfter"
+            ]
+        },
+        "domain.AdditionalFeeType": {
+            "type": "string",
+            "enum": [
+                "merchant",
+                "store"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeTypeMerchant": "商户",
+                "AdditionalFeeTypeStore": "门店"
+            },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
+            "x-enum-varnames": [
+                "AdditionalFeeTypeMerchant",
+                "AdditionalFeeTypeStore"
+            ]
+        },
         "domain.Category": {
             "type": "object",
             "properties": {
                 "children": {
-                    "description": "@TODO 关联信息",
+                    "description": "关联信息",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Category"
@@ -297,6 +469,14 @@
                     "description": "排序，值越小越靠前",
                     "type": "integer"
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "出品部门ID",
                     "type": "string"
@@ -304,6 +484,14 @@
                 "store_id": {
                     "description": "门店ID",
                     "type": "string"
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "税率ID",
@@ -345,6 +533,29 @@
                 "DiningModeDineIn"
             ]
         },
+        "domain.DiningWay": {
+            "type": "string",
+            "enum": [
+                "dine_in",
+                "take_out",
+                "delivery"
+            ],
+            "x-enum-comments": {
+                "DiningWayDelivery": "外送",
+                "DiningWayDineIn": "堂食",
+                "DiningWayTakeOut": "外带"
+            },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外送"
+            ],
+            "x-enum-varnames": [
+                "DiningWayDineIn",
+                "DiningWayTakeOut",
+                "DiningWayDelivery"
+            ]
+        },
         "domain.EffectiveDateType": {
             "type": "string",
             "enum": [
@@ -355,6 +566,10 @@
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
+            "x-enum-descriptions": [
+                "按天",
+                "自定义"
+            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -370,6 +585,10 @@
                 "FeeTypePackaging": "打包费",
                 "FeeTypeService": "服务费"
             },
+            "x-enum-descriptions": [
+                "服务费",
+                "打包费"
+            ],
             "x-enum-varnames": [
                 "FeeTypeService",
                 "FeeTypePackaging"
@@ -505,13 +724,9 @@
                         }
                     ]
                 },
-                "refund": {
-                    "description": "退款单信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderRefund"
-                        }
-                    ]
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
                 },
                 "shift_no": {
                     "description": "班次号",
@@ -615,6 +830,41 @@
                 }
             }
         },
+        "domain.OrderChannel": {
+            "type": "string",
+            "enum": [
+                "pos",
+                "self_order",
+                "mini_program",
+                "mobile_order",
+                "scan_order",
+                "third_delivery"
+            ],
+            "x-enum-comments": {
+                "OrderChannelMiniProgram": "小程序",
+                "OrderChannelMobileOrder": "手机点餐",
+                "OrderChannelPOS": "POS 端",
+                "OrderChannelScanOrder": "扫码点餐",
+                "OrderChannelSelfOrder": "自助点餐",
+                "OrderChannelThirdDelivery": "三方外卖"
+            },
+            "x-enum-descriptions": [
+                "POS 端",
+                "自助点餐",
+                "小程序",
+                "手机点餐",
+                "扫码点餐",
+                "三方外卖"
+            ],
+            "x-enum-varnames": [
+                "OrderChannelPOS",
+                "OrderChannelSelfOrder",
+                "OrderChannelMiniProgram",
+                "OrderChannelMobileOrder",
+                "OrderChannelScanOrder",
+                "OrderChannelThirdDelivery"
+            ]
+        },
         "domain.OrderFee": {
             "type": "object",
             "properties": {
@@ -679,7 +929,7 @@
                     "description": "支付方式",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.PaymentMethod"
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
                         }
                     ]
                 },
@@ -860,23 +1110,6 @@
                 }
             }
         },
-        "domain.OrderRefund": {
-            "type": "object",
-            "properties": {
-                "origin_order_id": {
-                    "description": "原正单订单ID",
-                    "type": "string"
-                },
-                "origin_order_no": {
-                    "description": "原正单订单号",
-                    "type": "string"
-                },
-                "reason": {
-                    "description": "退款说明",
-                    "type": "string"
-                }
-            }
-        },
         "domain.OrderStatus": {
             "type": "string",
             "enum": [
@@ -979,48 +1212,35 @@
                 "OrderTypePartialRefund"
             ]
         },
-        "domain.PackingFee": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "打包费ID",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "打包费名称",
-                    "type": "string"
-                },
-                "price": {
-                    "description": "打包费价格",
-                    "type": "number"
-                }
-            }
-        },
-        "domain.PaymentMethod": {
+        "domain.PaymentMethodPayType": {
             "type": "string",
             "enum": [
-                "CASH",
-                "ONLINE_PAYMENT",
-                "MEMBER_CARD",
-                "CUSTOM_COUPON",
-                "PARTNER_COUPON",
-                "BANK_CARD"
+                "other",
+                "cash",
+                "offline_card",
+                "custom_coupon",
+                "partner_coupon"
             ],
             "x-enum-comments": {
-                "PaymentMethodBankCard": "银行卡",
-                "PaymentMethodCash": "现金",
-                "PaymentMethodCustomCoupon": "自定义券",
-                "PaymentMethodMemberCard": "会员卡",
-                "PaymentMethodOnlinePayment": "在线支付",
-                "PaymentMethodPartnerCoupon": "三方合作券"
+                "PaymentMethodPayTypeCash": "现金",
+                "PaymentMethodPayTypeCustomCoupon": "自定义券",
+                "PaymentMethodPayTypeOfflineCard": "线下刷卡",
+                "PaymentMethodPayTypeOther": "其他",
+                "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
+            "x-enum-descriptions": [
+                "其他",
+                "现金",
+                "线下刷卡",
+                "自定义券",
+                "三方合作券"
+            ],
             "x-enum-varnames": [
-                "PaymentMethodCash",
-                "PaymentMethodOnlinePayment",
-                "PaymentMethodMemberCard",
-                "PaymentMethodCustomCoupon",
-                "PaymentMethodPartnerCoupon",
-                "PaymentMethodBankCard"
+                "PaymentMethodPayTypeOther",
+                "PaymentMethodPayTypeCash",
+                "PaymentMethodPayTypeOfflineCard",
+                "PaymentMethodPayTypeCustomCoupon",
+                "PaymentMethodPayTypePartnerCoupon"
             ]
         },
         "domain.PaymentStatus": {
@@ -1185,6 +1405,14 @@
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "指定出品部门ID",
                     "type": "string"
@@ -1206,6 +1434,14 @@
                     "items": {
                         "$ref": "#/definitions/domain.ProductTag"
                     }
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "指定税率ID",
@@ -1436,7 +1672,7 @@
                     "description": "打包费",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.PackingFee"
+                            "$ref": "#/definitions/domain.AdditionalFee"
                         }
                     ]
                 },
@@ -1588,6 +1824,10 @@
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
+            "x-enum-descriptions": [
+                "数量单位",
+                "重量单位"
+            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
@@ -1632,16 +1872,16 @@
                 "三方外卖"
             ],
             "x-enum-varnames": [
-                "PaymentMethodDisplayChannelPOS",
-                "PaymentMethodDisplayChannelMobileOrdering",
-                "PaymentMethodDisplayChannelScanOrdering",
-                "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery",
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",
                 "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery"
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -1749,6 +1989,10 @@
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
+            "x-enum-descriptions": [
+                "固定分组",
+                "可选套餐"
+            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -1759,6 +2003,192 @@
             "items": {
                 "$ref": "#/definitions/domain.SetMealGroup"
             }
+        },
+        "domain.Stall": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "使用状态",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "出品部门名称",
+                    "type": "string"
+                },
+                "print_type": {
+                    "description": "打印类型 ：receipt/label",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "stall_type": {
+                    "description": "system/brand/store",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallType"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StallPrintType": {
+            "type": "string",
+            "enum": [
+                "receipt",
+                "label"
+            ],
+            "x-enum-comments": {
+                "StallPrintTypeLabel": "标签",
+                "StallPrintTypeReceipt": "小票/收据"
+            },
+            "x-enum-descriptions": [
+                "小票/收据",
+                "标签"
+            ],
+            "x-enum-varnames": [
+                "StallPrintTypeReceipt",
+                "StallPrintTypeLabel"
+            ]
+        },
+        "domain.StallType": {
+            "type": "string",
+            "enum": [
+                "system",
+                "brand",
+                "store"
+            ],
+            "x-enum-comments": {
+                "StallTypeBrand": "品牌出品部门",
+                "StallTypeStore": "门店出品部门",
+                "StallTypeSystem": "系统出品部门"
+            },
+            "x-enum-descriptions": [
+                "系统出品部门",
+                "品牌出品部门",
+                "门店出品部门"
+            ],
+            "x-enum-varnames": [
+                "StallTypeSystem",
+                "StallTypeBrand",
+                "StallTypeStore"
+            ]
+        },
+        "domain.TaxFee": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "default_tax": {
+                    "description": "是否默认税费",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "税费名称",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "tax_code": {
+                    "description": "税费代码",
+                    "type": "string"
+                },
+                "tax_fee_type": {
+                    "description": "税费类型：商户/门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFeeType"
+                        }
+                    ]
+                },
+                "tax_rate": {
+                    "description": "税率，6% -\u003e 0.06",
+                    "type": "number"
+                },
+                "tax_rate_type": {
+                    "description": "税率类型：统一比例/自定义比例",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxRateType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TaxFeeType": {
+            "type": "string",
+            "enum": [
+                "merchant",
+                "store"
+            ],
+            "x-enum-comments": {
+                "TaxFeeTypeMerchant": "商户",
+                "TaxFeeTypeStore": "门店"
+            },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
+            "x-enum-varnames": [
+                "TaxFeeTypeMerchant",
+                "TaxFeeTypeStore"
+            ]
+        },
+        "domain.TaxRateType": {
+            "type": "string",
+            "enum": [
+                "unified",
+                "custom"
+            ],
+            "x-enum-comments": {
+                "TaxRateTypeCustom": "自定义比例",
+                "TaxRateTypeUnified": "统一比例"
+            },
+            "x-enum-descriptions": [
+                "统一比例",
+                "自定义比例"
+            ],
+            "x-enum-varnames": [
+                "TaxRateTypeUnified",
+                "TaxRateTypeCustom"
+            ]
         },
         "types.CreateOrderReq": {
             "type": "object",
@@ -1874,13 +2304,9 @@
                         }
                     ]
                 },
-                "refund": {
-                    "description": "退款单信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderRefund"
-                        }
-                    ]
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
                 },
                 "shift_no": {
                     "description": "班次号",
@@ -2045,13 +2471,9 @@
                         }
                     ]
                 },
-                "refund": {
-                    "description": "退款单信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderRefund"
-                        }
-                    ]
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
                 },
                 "shift_no": {
                     "description": "班次号",

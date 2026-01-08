@@ -271,6 +271,20 @@ func (mr *MockDataStoreMockRecorder) PaymentMethodRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaymentMethodRepo", reflect.TypeOf((*MockDataStore)(nil).PaymentMethodRepo))
 }
 
+// PermissionRepo mocks base method.
+func (m *MockDataStore) PermissionRepo() domain.PermissionRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PermissionRepo")
+	ret0, _ := ret[0].(domain.PermissionRepository)
+	return ret0
+}
+
+// PermissionRepo indicates an expected call of PermissionRepo.
+func (mr *MockDataStoreMockRecorder) PermissionRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PermissionRepo", reflect.TypeOf((*MockDataStore)(nil).PermissionRepo))
+}
+
 // ProductAttrRelRepo mocks base method.
 func (m *MockDataStore) ProductAttrRelRepo() domain.ProductAttrRelRepository {
 	m.ctrl.T.Helper()
@@ -439,6 +453,48 @@ func (mr *MockDataStoreMockRecorder) RemarkRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemarkRepo", reflect.TypeOf((*MockDataStore)(nil).RemarkRepo))
 }
 
+// RoleMenuRepo mocks base method.
+func (m *MockDataStore) RoleMenuRepo() domain.RoleMenuRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RoleMenuRepo")
+	ret0, _ := ret[0].(domain.RoleMenuRepository)
+	return ret0
+}
+
+// RoleMenuRepo indicates an expected call of RoleMenuRepo.
+func (mr *MockDataStoreMockRecorder) RoleMenuRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleMenuRepo", reflect.TypeOf((*MockDataStore)(nil).RoleMenuRepo))
+}
+
+// RoleRepo mocks base method.
+func (m *MockDataStore) RoleRepo() domain.RoleRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RoleRepo")
+	ret0, _ := ret[0].(domain.RoleRepository)
+	return ret0
+}
+
+// RoleRepo indicates an expected call of RoleRepo.
+func (mr *MockDataStoreMockRecorder) RoleRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleRepo", reflect.TypeOf((*MockDataStore)(nil).RoleRepo))
+}
+
+// RouterMenuRepo mocks base method.
+func (m *MockDataStore) RouterMenuRepo() domain.RouterMenuRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RouterMenuRepo")
+	ret0, _ := ret[0].(domain.RouterMenuRepository)
+	return ret0
+}
+
+// RouterMenuRepo indicates an expected call of RouterMenuRepo.
+func (mr *MockDataStoreMockRecorder) RouterMenuRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RouterMenuRepo", reflect.TypeOf((*MockDataStore)(nil).RouterMenuRepo))
+}
+
 // SetMealGroupRepo mocks base method.
 func (m *MockDataStore) SetMealGroupRepo() domain.SetMealGroupRepository {
 	m.ctrl.T.Helper()
@@ -521,4 +577,18 @@ func (m *MockDataStore) TaxFeeRepo() domain.TaxFeeRepository {
 func (mr *MockDataStoreMockRecorder) TaxFeeRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TaxFeeRepo", reflect.TypeOf((*MockDataStore)(nil).TaxFeeRepo))
+}
+
+// UserRoleRepo mocks base method.
+func (m *MockDataStore) UserRoleRepo() domain.UserRoleRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserRoleRepo")
+	ret0, _ := ret[0].(domain.UserRoleRepository)
+	return ret0
+}
+
+// UserRoleRepo indicates an expected call of UserRoleRepo.
+func (mr *MockDataStoreMockRecorder) UserRoleRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserRoleRepo", reflect.TypeOf((*MockDataStore)(nil).UserRoleRepo))
 }

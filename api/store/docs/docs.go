@@ -2415,6 +2415,12 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -2972,7 +2978,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -3292,6 +3298,10 @@ const docTemplate = `{
                 "DeviceConnectTypeInside": "内置",
                 "DeviceConnectTypeOutside": "外置"
             },
+            "x-enum-descriptions": [
+                "内置",
+                "外置"
+            ],
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
                 "DeviceConnectTypeOutside"
@@ -3469,6 +3479,12 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -3488,6 +3504,11 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -4586,6 +4607,14 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -4610,6 +4639,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -4655,16 +4689,16 @@ const docTemplate = `{
                 "三方外卖"
             ],
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -5255,27 +5289,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.AccountListResp": {
             "type": "object",

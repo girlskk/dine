@@ -34,6 +34,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
@@ -48,6 +49,9 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolepermission"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/routermenu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -55,6 +59,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
 // Client is the client that holds all ent builders.
@@ -98,6 +103,8 @@ type Client struct {
 	PaymentAccount *PaymentAccountClient
 	// PaymentMethod is the client for interacting with the PaymentMethod builders.
 	PaymentMethod *PaymentMethodClient
+	// Permission is the client for interacting with the Permission builders.
+	Permission *PermissionClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
 	// ProductAttr is the client for interacting with the ProductAttr builders.
@@ -126,6 +133,12 @@ type Client struct {
 	RemarkCategory *RemarkCategoryClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// RoleMenu is the client for interacting with the RoleMenu builders.
+	RoleMenu *RoleMenuClient
+	// RolePermission is the client for interacting with the RolePermission builders.
+	RolePermission *RolePermissionClient
+	// RouterMenu is the client for interacting with the RouterMenu builders.
+	RouterMenu *RouterMenuClient
 	// SetMealDetail is the client for interacting with the SetMealDetail builders.
 	SetMealDetail *SetMealDetailClient
 	// SetMealGroup is the client for interacting with the SetMealGroup builders.
@@ -140,6 +153,8 @@ type Client struct {
 	StoreUser *StoreUserClient
 	// TaxFee is the client for interacting with the TaxFee builders.
 	TaxFee *TaxFeeClient
+	// UserRole is the client for interacting with the UserRole builders.
+	UserRole *UserRoleClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -169,6 +184,7 @@ func (c *Client) init() {
 	c.OrderProduct = NewOrderProductClient(c.config)
 	c.PaymentAccount = NewPaymentAccountClient(c.config)
 	c.PaymentMethod = NewPaymentMethodClient(c.config)
+	c.Permission = NewPermissionClient(c.config)
 	c.Product = NewProductClient(c.config)
 	c.ProductAttr = NewProductAttrClient(c.config)
 	c.ProductAttrItem = NewProductAttrItemClient(c.config)
@@ -183,6 +199,9 @@ func (c *Client) init() {
 	c.Remark = NewRemarkClient(c.config)
 	c.RemarkCategory = NewRemarkCategoryClient(c.config)
 	c.Role = NewRoleClient(c.config)
+	c.RoleMenu = NewRoleMenuClient(c.config)
+	c.RolePermission = NewRolePermissionClient(c.config)
+	c.RouterMenu = NewRouterMenuClient(c.config)
 	c.SetMealDetail = NewSetMealDetailClient(c.config)
 	c.SetMealGroup = NewSetMealGroupClient(c.config)
 	c.Stall = NewStallClient(c.config)
@@ -190,6 +209,7 @@ func (c *Client) init() {
 	c.StorePaymentAccount = NewStorePaymentAccountClient(c.config)
 	c.StoreUser = NewStoreUserClient(c.config)
 	c.TaxFee = NewTaxFeeClient(c.config)
+	c.UserRole = NewUserRoleClient(c.config)
 }
 
 type (
@@ -300,6 +320,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		OrderProduct:           NewOrderProductClient(cfg),
 		PaymentAccount:         NewPaymentAccountClient(cfg),
 		PaymentMethod:          NewPaymentMethodClient(cfg),
+		Permission:             NewPermissionClient(cfg),
 		Product:                NewProductClient(cfg),
 		ProductAttr:            NewProductAttrClient(cfg),
 		ProductAttrItem:        NewProductAttrItemClient(cfg),
@@ -314,6 +335,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Remark:                 NewRemarkClient(cfg),
 		RemarkCategory:         NewRemarkCategoryClient(cfg),
 		Role:                   NewRoleClient(cfg),
+		RoleMenu:               NewRoleMenuClient(cfg),
+		RolePermission:         NewRolePermissionClient(cfg),
+		RouterMenu:             NewRouterMenuClient(cfg),
 		SetMealDetail:          NewSetMealDetailClient(cfg),
 		SetMealGroup:           NewSetMealGroupClient(cfg),
 		Stall:                  NewStallClient(cfg),
@@ -321,6 +345,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		StorePaymentAccount:    NewStorePaymentAccountClient(cfg),
 		StoreUser:              NewStoreUserClient(cfg),
 		TaxFee:                 NewTaxFeeClient(cfg),
+		UserRole:               NewUserRoleClient(cfg),
 	}, nil
 }
 
@@ -358,6 +383,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		OrderProduct:           NewOrderProductClient(cfg),
 		PaymentAccount:         NewPaymentAccountClient(cfg),
 		PaymentMethod:          NewPaymentMethodClient(cfg),
+		Permission:             NewPermissionClient(cfg),
 		Product:                NewProductClient(cfg),
 		ProductAttr:            NewProductAttrClient(cfg),
 		ProductAttrItem:        NewProductAttrItemClient(cfg),
@@ -372,6 +398,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Remark:                 NewRemarkClient(cfg),
 		RemarkCategory:         NewRemarkCategoryClient(cfg),
 		Role:                   NewRoleClient(cfg),
+		RoleMenu:               NewRoleMenuClient(cfg),
+		RolePermission:         NewRolePermissionClient(cfg),
+		RouterMenu:             NewRouterMenuClient(cfg),
 		SetMealDetail:          NewSetMealDetailClient(cfg),
 		SetMealGroup:           NewSetMealGroupClient(cfg),
 		Stall:                  NewStallClient(cfg),
@@ -379,6 +408,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		StorePaymentAccount:    NewStorePaymentAccountClient(cfg),
 		StoreUser:              NewStoreUserClient(cfg),
 		TaxFee:                 NewTaxFeeClient(cfg),
+		UserRole:               NewUserRoleClient(cfg),
 	}, nil
 }
 
@@ -411,11 +441,12 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
 		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
 		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentAccount, c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
-		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
-		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Province,
-		c.Remark, c.RemarkCategory, c.Role, c.SetMealDetail, c.SetMealGroup, c.Stall,
-		c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
+		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
+		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
+		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
+		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory, c.Role,
+		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
+		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -428,11 +459,12 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
 		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
 		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentAccount, c.PaymentMethod, c.Product, c.ProductAttr, c.ProductAttrItem,
-		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
-		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Province,
-		c.Remark, c.RemarkCategory, c.Role, c.SetMealDetail, c.SetMealGroup, c.Stall,
-		c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
+		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
+		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
+		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
+		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory, c.Role,
+		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
+		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -477,6 +509,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.PaymentAccount.mutate(ctx, m)
 	case *PaymentMethodMutation:
 		return c.PaymentMethod.mutate(ctx, m)
+	case *PermissionMutation:
+		return c.Permission.mutate(ctx, m)
 	case *ProductMutation:
 		return c.Product.mutate(ctx, m)
 	case *ProductAttrMutation:
@@ -505,6 +539,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.RemarkCategory.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
+	case *RoleMenuMutation:
+		return c.RoleMenu.mutate(ctx, m)
+	case *RolePermissionMutation:
+		return c.RolePermission.mutate(ctx, m)
+	case *RouterMenuMutation:
+		return c.RouterMenu.mutate(ctx, m)
 	case *SetMealDetailMutation:
 		return c.SetMealDetail.mutate(ctx, m)
 	case *SetMealGroupMutation:
@@ -519,6 +559,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.StoreUser.mutate(ctx, m)
 	case *TaxFeeMutation:
 		return c.TaxFee.mutate(ctx, m)
+	case *UserRoleMutation:
+		return c.UserRole.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -815,6 +857,22 @@ func (c *AdminUserClient) GetX(ctx context.Context, id uuid.UUID) *AdminUser {
 	return obj
 }
 
+// QueryDepartment queries the department edge of a AdminUser.
+func (c *AdminUserClient) QueryDepartment(au *AdminUser) *DepartmentQuery {
+	query := (&DepartmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := au.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adminuser.Table, adminuser.FieldID, id),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, adminuser.DepartmentTable, adminuser.DepartmentColumn),
+		)
+		fromV = sqlgraph.Neighbors(au.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AdminUserClient) Hooks() []Hook {
 	hooks := c.hooks.AdminUser
@@ -948,6 +1006,38 @@ func (c *BackendUserClient) GetX(ctx context.Context, id uuid.UUID) *BackendUser
 		panic(err)
 	}
 	return obj
+}
+
+// QueryMerchant queries the merchant edge of a BackendUser.
+func (c *BackendUserClient) QueryMerchant(bu *BackendUser) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(backenduser.Table, backenduser.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, backenduser.MerchantTable, backenduser.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(bu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDepartment queries the department edge of a BackendUser.
+func (c *BackendUserClient) QueryDepartment(bu *BackendUser) *DepartmentQuery {
+	query := (&DepartmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(backenduser.Table, backenduser.FieldID, id),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, backenduser.DepartmentTable, backenduser.DepartmentColumn),
+		)
+		fromV = sqlgraph.Neighbors(bu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1755,6 +1845,54 @@ func (c *DepartmentClient) QueryStore(d *Department) *StoreQuery {
 			sqlgraph.From(department.Table, department.FieldID, id),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, department.StoreTable, department.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAdminUsers queries the admin_users edge of a Department.
+func (c *DepartmentClient) QueryAdminUsers(d *Department) *AdminUserQuery {
+	query := (&AdminUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, id),
+			sqlgraph.To(adminuser.Table, adminuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.AdminUsersTable, department.AdminUsersColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBackendUsers queries the backend_users edge of a Department.
+func (c *DepartmentClient) QueryBackendUsers(d *Department) *BackendUserQuery {
+	query := (&BackendUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, id),
+			sqlgraph.To(backenduser.Table, backenduser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.BackendUsersTable, department.BackendUsersColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStoreUsers queries the store_users edge of a Department.
+func (c *DepartmentClient) QueryStoreUsers(d *Department) *StoreUserQuery {
+	query := (&StoreUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, id),
+			sqlgraph.To(storeuser.Table, storeuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.StoreUsersTable, department.StoreUsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
 		return fromV, nil
@@ -2629,22 +2767,6 @@ func (c *MerchantClient) GetX(ctx context.Context, id uuid.UUID) *Merchant {
 	return obj
 }
 
-// QueryMerchantBusinessType queries the merchant_business_type edge of a Merchant.
-func (c *MerchantClient) QueryMerchantBusinessType(m *Merchant) *MerchantBusinessTypeQuery {
-	query := (&MerchantBusinessTypeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.MerchantBusinessTypeTable, merchant.MerchantBusinessTypeColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryCountry queries the country edge of a Merchant.
 func (c *MerchantClient) QueryCountry(m *Merchant) *CountryQuery {
 	query := (&CountryClient{config: c.config}).Query()
@@ -3050,38 +3172,6 @@ func (c *MerchantBusinessTypeClient) GetX(ctx context.Context, id uuid.UUID) *Me
 		panic(err)
 	}
 	return obj
-}
-
-// QueryMerchants queries the merchants edge of a MerchantBusinessType.
-func (c *MerchantBusinessTypeClient) QueryMerchants(mbt *MerchantBusinessType) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mbt.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchantbusinesstype.Table, merchantbusinesstype.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchantbusinesstype.MerchantsTable, merchantbusinesstype.MerchantsColumn),
-		)
-		fromV = sqlgraph.Neighbors(mbt.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryStores queries the stores edge of a MerchantBusinessType.
-func (c *MerchantBusinessTypeClient) QueryStores(mbt *MerchantBusinessType) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mbt.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchantbusinesstype.Table, merchantbusinesstype.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchantbusinesstype.StoresTable, merchantbusinesstype.StoresColumn),
-		)
-		fromV = sqlgraph.Neighbors(mbt.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // Hooks returns the client hooks.
@@ -3847,6 +3937,157 @@ func (c *PaymentMethodClient) mutate(ctx context.Context, m *PaymentMethodMutati
 		return (&PaymentMethodDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown PaymentMethod mutation op: %q", m.Op())
+	}
+}
+
+// PermissionClient is a client for the Permission schema.
+type PermissionClient struct {
+	config
+}
+
+// NewPermissionClient returns a client for the Permission from the given config.
+func NewPermissionClient(c config) *PermissionClient {
+	return &PermissionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `permission.Hooks(f(g(h())))`.
+func (c *PermissionClient) Use(hooks ...Hook) {
+	c.hooks.Permission = append(c.hooks.Permission, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `permission.Intercept(f(g(h())))`.
+func (c *PermissionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Permission = append(c.inters.Permission, interceptors...)
+}
+
+// Create returns a builder for creating a Permission entity.
+func (c *PermissionClient) Create() *PermissionCreate {
+	mutation := newPermissionMutation(c.config, OpCreate)
+	return &PermissionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Permission entities.
+func (c *PermissionClient) CreateBulk(builders ...*PermissionCreate) *PermissionCreateBulk {
+	return &PermissionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PermissionClient) MapCreateBulk(slice any, setFunc func(*PermissionCreate, int)) *PermissionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PermissionCreateBulk{err: fmt.Errorf("calling to PermissionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PermissionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PermissionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Permission.
+func (c *PermissionClient) Update() *PermissionUpdate {
+	mutation := newPermissionMutation(c.config, OpUpdate)
+	return &PermissionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PermissionClient) UpdateOne(pe *Permission) *PermissionUpdateOne {
+	mutation := newPermissionMutation(c.config, OpUpdateOne, withPermission(pe))
+	return &PermissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PermissionClient) UpdateOneID(id uuid.UUID) *PermissionUpdateOne {
+	mutation := newPermissionMutation(c.config, OpUpdateOne, withPermissionID(id))
+	return &PermissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Permission.
+func (c *PermissionClient) Delete() *PermissionDelete {
+	mutation := newPermissionMutation(c.config, OpDelete)
+	return &PermissionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PermissionClient) DeleteOne(pe *Permission) *PermissionDeleteOne {
+	return c.DeleteOneID(pe.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PermissionClient) DeleteOneID(id uuid.UUID) *PermissionDeleteOne {
+	builder := c.Delete().Where(permission.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PermissionDeleteOne{builder}
+}
+
+// Query returns a query builder for Permission.
+func (c *PermissionClient) Query() *PermissionQuery {
+	return &PermissionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePermission},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Permission entity by its id.
+func (c *PermissionClient) Get(ctx context.Context, id uuid.UUID) (*Permission, error) {
+	return c.Query().Where(permission.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PermissionClient) GetX(ctx context.Context, id uuid.UUID) *Permission {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMenu queries the menu edge of a Permission.
+func (c *PermissionClient) QueryMenu(pe *Permission) *RouterMenuQuery {
+	query := (&RouterMenuClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pe.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(permission.Table, permission.FieldID, id),
+			sqlgraph.To(routermenu.Table, routermenu.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, permission.MenuTable, permission.MenuColumn),
+		)
+		fromV = sqlgraph.Neighbors(pe.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PermissionClient) Hooks() []Hook {
+	hooks := c.hooks.Permission
+	return append(hooks[:len(hooks):len(hooks)], permission.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *PermissionClient) Interceptors() []Interceptor {
+	inters := c.inters.Permission
+	return append(inters[:len(inters):len(inters)], permission.Interceptors[:]...)
+}
+
+func (c *PermissionClient) mutate(ctx context.Context, m *PermissionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PermissionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PermissionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PermissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PermissionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Permission mutation op: %q", m.Op())
 	}
 }
 
@@ -6348,6 +6589,427 @@ func (c *RoleClient) mutate(ctx context.Context, m *RoleMutation) (Value, error)
 	}
 }
 
+// RoleMenuClient is a client for the RoleMenu schema.
+type RoleMenuClient struct {
+	config
+}
+
+// NewRoleMenuClient returns a client for the RoleMenu from the given config.
+func NewRoleMenuClient(c config) *RoleMenuClient {
+	return &RoleMenuClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `rolemenu.Hooks(f(g(h())))`.
+func (c *RoleMenuClient) Use(hooks ...Hook) {
+	c.hooks.RoleMenu = append(c.hooks.RoleMenu, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `rolemenu.Intercept(f(g(h())))`.
+func (c *RoleMenuClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RoleMenu = append(c.inters.RoleMenu, interceptors...)
+}
+
+// Create returns a builder for creating a RoleMenu entity.
+func (c *RoleMenuClient) Create() *RoleMenuCreate {
+	mutation := newRoleMenuMutation(c.config, OpCreate)
+	return &RoleMenuCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RoleMenu entities.
+func (c *RoleMenuClient) CreateBulk(builders ...*RoleMenuCreate) *RoleMenuCreateBulk {
+	return &RoleMenuCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RoleMenuClient) MapCreateBulk(slice any, setFunc func(*RoleMenuCreate, int)) *RoleMenuCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RoleMenuCreateBulk{err: fmt.Errorf("calling to RoleMenuClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RoleMenuCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RoleMenuCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RoleMenu.
+func (c *RoleMenuClient) Update() *RoleMenuUpdate {
+	mutation := newRoleMenuMutation(c.config, OpUpdate)
+	return &RoleMenuUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RoleMenuClient) UpdateOne(rm *RoleMenu) *RoleMenuUpdateOne {
+	mutation := newRoleMenuMutation(c.config, OpUpdateOne, withRoleMenu(rm))
+	return &RoleMenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RoleMenuClient) UpdateOneID(id uuid.UUID) *RoleMenuUpdateOne {
+	mutation := newRoleMenuMutation(c.config, OpUpdateOne, withRoleMenuID(id))
+	return &RoleMenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RoleMenu.
+func (c *RoleMenuClient) Delete() *RoleMenuDelete {
+	mutation := newRoleMenuMutation(c.config, OpDelete)
+	return &RoleMenuDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RoleMenuClient) DeleteOne(rm *RoleMenu) *RoleMenuDeleteOne {
+	return c.DeleteOneID(rm.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RoleMenuClient) DeleteOneID(id uuid.UUID) *RoleMenuDeleteOne {
+	builder := c.Delete().Where(rolemenu.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RoleMenuDeleteOne{builder}
+}
+
+// Query returns a query builder for RoleMenu.
+func (c *RoleMenuClient) Query() *RoleMenuQuery {
+	return &RoleMenuQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRoleMenu},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RoleMenu entity by its id.
+func (c *RoleMenuClient) Get(ctx context.Context, id uuid.UUID) (*RoleMenu, error) {
+	return c.Query().Where(rolemenu.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RoleMenuClient) GetX(ctx context.Context, id uuid.UUID) *RoleMenu {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *RoleMenuClient) Hooks() []Hook {
+	hooks := c.hooks.RoleMenu
+	return append(hooks[:len(hooks):len(hooks)], rolemenu.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RoleMenuClient) Interceptors() []Interceptor {
+	inters := c.inters.RoleMenu
+	return append(inters[:len(inters):len(inters)], rolemenu.Interceptors[:]...)
+}
+
+func (c *RoleMenuClient) mutate(ctx context.Context, m *RoleMenuMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RoleMenuCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RoleMenuUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RoleMenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RoleMenuDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RoleMenu mutation op: %q", m.Op())
+	}
+}
+
+// RolePermissionClient is a client for the RolePermission schema.
+type RolePermissionClient struct {
+	config
+}
+
+// NewRolePermissionClient returns a client for the RolePermission from the given config.
+func NewRolePermissionClient(c config) *RolePermissionClient {
+	return &RolePermissionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `rolepermission.Hooks(f(g(h())))`.
+func (c *RolePermissionClient) Use(hooks ...Hook) {
+	c.hooks.RolePermission = append(c.hooks.RolePermission, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `rolepermission.Intercept(f(g(h())))`.
+func (c *RolePermissionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RolePermission = append(c.inters.RolePermission, interceptors...)
+}
+
+// Create returns a builder for creating a RolePermission entity.
+func (c *RolePermissionClient) Create() *RolePermissionCreate {
+	mutation := newRolePermissionMutation(c.config, OpCreate)
+	return &RolePermissionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RolePermission entities.
+func (c *RolePermissionClient) CreateBulk(builders ...*RolePermissionCreate) *RolePermissionCreateBulk {
+	return &RolePermissionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RolePermissionClient) MapCreateBulk(slice any, setFunc func(*RolePermissionCreate, int)) *RolePermissionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RolePermissionCreateBulk{err: fmt.Errorf("calling to RolePermissionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RolePermissionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RolePermissionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RolePermission.
+func (c *RolePermissionClient) Update() *RolePermissionUpdate {
+	mutation := newRolePermissionMutation(c.config, OpUpdate)
+	return &RolePermissionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RolePermissionClient) UpdateOne(rp *RolePermission) *RolePermissionUpdateOne {
+	mutation := newRolePermissionMutation(c.config, OpUpdateOne, withRolePermission(rp))
+	return &RolePermissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RolePermissionClient) UpdateOneID(id uuid.UUID) *RolePermissionUpdateOne {
+	mutation := newRolePermissionMutation(c.config, OpUpdateOne, withRolePermissionID(id))
+	return &RolePermissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RolePermission.
+func (c *RolePermissionClient) Delete() *RolePermissionDelete {
+	mutation := newRolePermissionMutation(c.config, OpDelete)
+	return &RolePermissionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RolePermissionClient) DeleteOne(rp *RolePermission) *RolePermissionDeleteOne {
+	return c.DeleteOneID(rp.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RolePermissionClient) DeleteOneID(id uuid.UUID) *RolePermissionDeleteOne {
+	builder := c.Delete().Where(rolepermission.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RolePermissionDeleteOne{builder}
+}
+
+// Query returns a query builder for RolePermission.
+func (c *RolePermissionClient) Query() *RolePermissionQuery {
+	return &RolePermissionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRolePermission},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RolePermission entity by its id.
+func (c *RolePermissionClient) Get(ctx context.Context, id uuid.UUID) (*RolePermission, error) {
+	return c.Query().Where(rolepermission.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RolePermissionClient) GetX(ctx context.Context, id uuid.UUID) *RolePermission {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *RolePermissionClient) Hooks() []Hook {
+	hooks := c.hooks.RolePermission
+	return append(hooks[:len(hooks):len(hooks)], rolepermission.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RolePermissionClient) Interceptors() []Interceptor {
+	inters := c.inters.RolePermission
+	return append(inters[:len(inters):len(inters)], rolepermission.Interceptors[:]...)
+}
+
+func (c *RolePermissionClient) mutate(ctx context.Context, m *RolePermissionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RolePermissionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RolePermissionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RolePermissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RolePermissionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RolePermission mutation op: %q", m.Op())
+	}
+}
+
+// RouterMenuClient is a client for the RouterMenu schema.
+type RouterMenuClient struct {
+	config
+}
+
+// NewRouterMenuClient returns a client for the RouterMenu from the given config.
+func NewRouterMenuClient(c config) *RouterMenuClient {
+	return &RouterMenuClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `routermenu.Hooks(f(g(h())))`.
+func (c *RouterMenuClient) Use(hooks ...Hook) {
+	c.hooks.RouterMenu = append(c.hooks.RouterMenu, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `routermenu.Intercept(f(g(h())))`.
+func (c *RouterMenuClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RouterMenu = append(c.inters.RouterMenu, interceptors...)
+}
+
+// Create returns a builder for creating a RouterMenu entity.
+func (c *RouterMenuClient) Create() *RouterMenuCreate {
+	mutation := newRouterMenuMutation(c.config, OpCreate)
+	return &RouterMenuCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RouterMenu entities.
+func (c *RouterMenuClient) CreateBulk(builders ...*RouterMenuCreate) *RouterMenuCreateBulk {
+	return &RouterMenuCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RouterMenuClient) MapCreateBulk(slice any, setFunc func(*RouterMenuCreate, int)) *RouterMenuCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RouterMenuCreateBulk{err: fmt.Errorf("calling to RouterMenuClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RouterMenuCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RouterMenuCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RouterMenu.
+func (c *RouterMenuClient) Update() *RouterMenuUpdate {
+	mutation := newRouterMenuMutation(c.config, OpUpdate)
+	return &RouterMenuUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RouterMenuClient) UpdateOne(rm *RouterMenu) *RouterMenuUpdateOne {
+	mutation := newRouterMenuMutation(c.config, OpUpdateOne, withRouterMenu(rm))
+	return &RouterMenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RouterMenuClient) UpdateOneID(id uuid.UUID) *RouterMenuUpdateOne {
+	mutation := newRouterMenuMutation(c.config, OpUpdateOne, withRouterMenuID(id))
+	return &RouterMenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RouterMenu.
+func (c *RouterMenuClient) Delete() *RouterMenuDelete {
+	mutation := newRouterMenuMutation(c.config, OpDelete)
+	return &RouterMenuDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RouterMenuClient) DeleteOne(rm *RouterMenu) *RouterMenuDeleteOne {
+	return c.DeleteOneID(rm.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RouterMenuClient) DeleteOneID(id uuid.UUID) *RouterMenuDeleteOne {
+	builder := c.Delete().Where(routermenu.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RouterMenuDeleteOne{builder}
+}
+
+// Query returns a query builder for RouterMenu.
+func (c *RouterMenuClient) Query() *RouterMenuQuery {
+	return &RouterMenuQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRouterMenu},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RouterMenu entity by its id.
+func (c *RouterMenuClient) Get(ctx context.Context, id uuid.UUID) (*RouterMenu, error) {
+	return c.Query().Where(routermenu.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RouterMenuClient) GetX(ctx context.Context, id uuid.UUID) *RouterMenu {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryPermissions queries the permissions edge of a RouterMenu.
+func (c *RouterMenuClient) QueryPermissions(rm *RouterMenu) *PermissionQuery {
+	query := (&PermissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := rm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(routermenu.Table, routermenu.FieldID, id),
+			sqlgraph.To(permission.Table, permission.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, routermenu.PermissionsTable, routermenu.PermissionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(rm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RouterMenuClient) Hooks() []Hook {
+	hooks := c.hooks.RouterMenu
+	return append(hooks[:len(hooks):len(hooks)], routermenu.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RouterMenuClient) Interceptors() []Interceptor {
+	inters := c.inters.RouterMenu
+	return append(inters[:len(inters):len(inters)], routermenu.Interceptors[:]...)
+}
+
+func (c *RouterMenuClient) mutate(ctx context.Context, m *RouterMenuMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RouterMenuCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RouterMenuUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RouterMenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RouterMenuDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RouterMenu mutation op: %q", m.Op())
+	}
+}
+
 // SetMealDetailClient is a client for the SetMealDetail schema.
 type SetMealDetailClient struct {
 	config
@@ -7021,22 +7683,6 @@ func (c *StoreClient) QueryMerchant(s *Store) *MerchantQuery {
 	return query
 }
 
-// QueryMerchantBusinessType queries the merchant_business_type edge of a Store.
-func (c *StoreClient) QueryMerchantBusinessType(s *Store) *MerchantBusinessTypeQuery {
-	query := (&MerchantBusinessTypeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, id),
-			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.MerchantBusinessTypeTable, store.MerchantBusinessTypeColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryCountry queries the country edge of a Store.
 func (c *StoreClient) QueryCountry(s *Store) *CountryQuery {
 	query := (&CountryClient{config: c.config}).Query()
@@ -7627,6 +8273,22 @@ func (c *StoreUserClient) QueryStore(su *StoreUser) *StoreQuery {
 	return query
 }
 
+// QueryDepartment queries the department edge of a StoreUser.
+func (c *StoreUserClient) QueryDepartment(su *StoreUser) *DepartmentQuery {
+	query := (&DepartmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := su.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storeuser.Table, storeuser.FieldID, id),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.DepartmentTable, storeuser.DepartmentColumn),
+		)
+		fromV = sqlgraph.Neighbors(su.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StoreUserClient) Hooks() []Hook {
 	hooks := c.hooks.StoreUser
@@ -7853,25 +8515,163 @@ func (c *TaxFeeClient) mutate(ctx context.Context, m *TaxFeeMutation) (Value, er
 	}
 }
 
+// UserRoleClient is a client for the UserRole schema.
+type UserRoleClient struct {
+	config
+}
+
+// NewUserRoleClient returns a client for the UserRole from the given config.
+func NewUserRoleClient(c config) *UserRoleClient {
+	return &UserRoleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `userrole.Hooks(f(g(h())))`.
+func (c *UserRoleClient) Use(hooks ...Hook) {
+	c.hooks.UserRole = append(c.hooks.UserRole, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `userrole.Intercept(f(g(h())))`.
+func (c *UserRoleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserRole = append(c.inters.UserRole, interceptors...)
+}
+
+// Create returns a builder for creating a UserRole entity.
+func (c *UserRoleClient) Create() *UserRoleCreate {
+	mutation := newUserRoleMutation(c.config, OpCreate)
+	return &UserRoleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserRole entities.
+func (c *UserRoleClient) CreateBulk(builders ...*UserRoleCreate) *UserRoleCreateBulk {
+	return &UserRoleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserRoleClient) MapCreateBulk(slice any, setFunc func(*UserRoleCreate, int)) *UserRoleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserRoleCreateBulk{err: fmt.Errorf("calling to UserRoleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserRoleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserRoleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserRole.
+func (c *UserRoleClient) Update() *UserRoleUpdate {
+	mutation := newUserRoleMutation(c.config, OpUpdate)
+	return &UserRoleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserRoleClient) UpdateOne(ur *UserRole) *UserRoleUpdateOne {
+	mutation := newUserRoleMutation(c.config, OpUpdateOne, withUserRole(ur))
+	return &UserRoleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserRoleClient) UpdateOneID(id uuid.UUID) *UserRoleUpdateOne {
+	mutation := newUserRoleMutation(c.config, OpUpdateOne, withUserRoleID(id))
+	return &UserRoleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserRole.
+func (c *UserRoleClient) Delete() *UserRoleDelete {
+	mutation := newUserRoleMutation(c.config, OpDelete)
+	return &UserRoleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserRoleClient) DeleteOne(ur *UserRole) *UserRoleDeleteOne {
+	return c.DeleteOneID(ur.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserRoleClient) DeleteOneID(id uuid.UUID) *UserRoleDeleteOne {
+	builder := c.Delete().Where(userrole.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserRoleDeleteOne{builder}
+}
+
+// Query returns a query builder for UserRole.
+func (c *UserRoleClient) Query() *UserRoleQuery {
+	return &UserRoleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserRole},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserRole entity by its id.
+func (c *UserRoleClient) Get(ctx context.Context, id uuid.UUID) (*UserRole, error) {
+	return c.Query().Where(userrole.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserRoleClient) GetX(ctx context.Context, id uuid.UUID) *UserRole {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *UserRoleClient) Hooks() []Hook {
+	hooks := c.hooks.UserRole
+	return append(hooks[:len(hooks):len(hooks)], userrole.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserRoleClient) Interceptors() []Interceptor {
+	inters := c.inters.UserRole
+	return append(inters[:len(inters):len(inters)], userrole.Interceptors[:]...)
+}
+
+func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserRoleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserRoleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserRoleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserRoleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UserRole mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
 		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod, Product,
-		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
-		ProductSpecRelation, ProductTag, ProductUnit, ProfitDistributionBill,
-		ProfitDistributionRule, Province, Remark, RemarkCategory, Role, SetMealDetail,
-		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee []ent.Hook
+		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
+		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
+		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
+		ProfitDistributionBill, ProfitDistributionRule, Province, Remark,
+		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
+		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
+		UserRole []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
 		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod, Product,
-		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
-		ProductSpecRelation, ProductTag, ProductUnit, ProfitDistributionBill,
-		ProfitDistributionRule, Province, Remark, RemarkCategory, Role, SetMealDetail,
-		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser,
-		TaxFee []ent.Interceptor
+		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
+		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
+		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
+		ProfitDistributionBill, ProfitDistributionRule, Province, Remark,
+		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
+		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
+		UserRole []ent.Interceptor
 	}
 )

@@ -30,6 +30,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
@@ -44,6 +45,9 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolepermission"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/routermenu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -51,6 +55,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -129,6 +134,7 @@ func checkColumn(table, column string) error {
 			orderproduct.Table:           orderproduct.ValidColumn,
 			paymentaccount.Table:         paymentaccount.ValidColumn,
 			paymentmethod.Table:          paymentmethod.ValidColumn,
+			permission.Table:             permission.ValidColumn,
 			product.Table:                product.ValidColumn,
 			productattr.Table:            productattr.ValidColumn,
 			productattritem.Table:        productattritem.ValidColumn,
@@ -143,6 +149,9 @@ func checkColumn(table, column string) error {
 			remark.Table:                 remark.ValidColumn,
 			remarkcategory.Table:         remarkcategory.ValidColumn,
 			role.Table:                   role.ValidColumn,
+			rolemenu.Table:               rolemenu.ValidColumn,
+			rolepermission.Table:         rolepermission.ValidColumn,
+			routermenu.Table:             routermenu.ValidColumn,
 			setmealdetail.Table:          setmealdetail.ValidColumn,
 			setmealgroup.Table:           setmealgroup.ValidColumn,
 			stall.Table:                  stall.ValidColumn,
@@ -150,6 +159,7 @@ func checkColumn(table, column string) error {
 			storepaymentaccount.Table:    storepaymentaccount.ValidColumn,
 			storeuser.Table:              storeuser.ValidColumn,
 			taxfee.Table:                 taxfee.ValidColumn,
+			userrole.Table:               userrole.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

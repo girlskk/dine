@@ -2,7 +2,7 @@
 RunMode = "dev"
 
 [HTTP]
-Port = "8080"
+Port = "8081"
 RequestTimeout = 15
 
 [Database]

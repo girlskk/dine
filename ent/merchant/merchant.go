@@ -38,8 +38,8 @@ const (
 	FieldAdminPhoneNumber = "admin_phone_number"
 	// FieldExpireUtc holds the string denoting the expire_utc field in the database.
 	FieldExpireUtc = "expire_utc"
-	// FieldBusinessTypeID holds the string denoting the business_type_id field in the database.
-	FieldBusinessTypeID = "business_type_id"
+	// FieldBusinessTypeCode holds the string denoting the business_type_code field in the database.
+	FieldBusinessTypeCode = "business_type_code"
 	// FieldMerchantLogo holds the string denoting the merchant_logo field in the database.
 	FieldMerchantLogo = "merchant_logo"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -62,8 +62,6 @@ const (
 	FieldLat = "lat"
 	// FieldSuperAccount holds the string denoting the super_account field in the database.
 	FieldSuperAccount = "super_account"
-	// EdgeMerchantBusinessType holds the string denoting the merchant_business_type edge name in mutations.
-	EdgeMerchantBusinessType = "merchant_business_type"
 	// EdgeCountry holds the string denoting the country edge name in mutations.
 	EdgeCountry = "country"
 	// EdgeProvince holds the string denoting the province edge name in mutations.
@@ -100,13 +98,6 @@ const (
 	EdgeProfitDistributionBills = "profit_distribution_bills"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
-	// MerchantBusinessTypeTable is the table that holds the merchant_business_type relation/edge.
-	MerchantBusinessTypeTable = "merchants"
-	// MerchantBusinessTypeInverseTable is the table name for the MerchantBusinessType entity.
-	// It exists in this package in order to avoid circular dependency with the "merchantbusinesstype" package.
-	MerchantBusinessTypeInverseTable = "merchant_business_types"
-	// MerchantBusinessTypeColumn is the table column denoting the merchant_business_type relation/edge.
-	MerchantBusinessTypeColumn = "business_type_id"
 	// CountryTable is the table that holds the country relation/edge.
 	CountryTable = "merchants"
 	// CountryInverseTable is the table name for the Country entity.
@@ -141,7 +132,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "backenduser" package.
 	BackendUsersInverseTable = "backend_users"
 	// BackendUsersColumn is the table column denoting the backend_users relation/edge.
-	BackendUsersColumn = "merchant_backend_users"
+	BackendUsersColumn = "merchant_id"
 	// StoresTable is the table that holds the stores relation/edge.
 	StoresTable = "stores"
 	// StoresInverseTable is the table name for the Store entity.
@@ -241,7 +232,7 @@ var Columns = []string{
 	FieldBrandName,
 	FieldAdminPhoneNumber,
 	FieldExpireUtc,
-	FieldBusinessTypeID,
+	FieldBusinessTypeCode,
 	FieldMerchantLogo,
 	FieldDescription,
 	FieldStatus,
@@ -283,6 +274,8 @@ var (
 	DefaultDeletedAt int64
 	// DefaultMerchantCode holds the default value on creation for the "merchant_code" field.
 	DefaultMerchantCode string
+	// MerchantCodeValidator is a validator for the "merchant_code" field. It is called by the builders before save.
+	MerchantCodeValidator func(string) error
 	// DefaultMerchantName holds the default value on creation for the "merchant_name" field.
 	DefaultMerchantName string
 	// MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
@@ -293,6 +286,8 @@ var (
 	MerchantShortNameValidator func(string) error
 	// DefaultBrandName holds the default value on creation for the "brand_name" field.
 	DefaultBrandName string
+	// BrandNameValidator is a validator for the "brand_name" field. It is called by the builders before save.
+	BrandNameValidator func(string) error
 	// DefaultAdminPhoneNumber holds the default value on creation for the "admin_phone_number" field.
 	DefaultAdminPhoneNumber string
 	// AdminPhoneNumberValidator is a validator for the "admin_phone_number" field. It is called by the builders before save.
@@ -395,9 +390,9 @@ func ByExpireUtc(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExpireUtc, opts...).ToFunc()
 }
 
-// ByBusinessTypeID orders the results by the business_type_id field.
-func ByBusinessTypeID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBusinessTypeID, opts...).ToFunc()
+// ByBusinessTypeCode orders the results by the business_type_code field.
+func ByBusinessTypeCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBusinessTypeCode, opts...).ToFunc()
 }
 
 // ByMerchantLogo orders the results by the merchant_logo field.
@@ -453,13 +448,6 @@ func ByLat(opts ...sql.OrderTermOption) OrderOption {
 // BySuperAccount orders the results by the super_account field.
 func BySuperAccount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSuperAccount, opts...).ToFunc()
-}
-
-// ByMerchantBusinessTypeField orders the results by merchant_business_type field.
-func ByMerchantBusinessTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMerchantBusinessTypeStep(), sql.OrderByField(field, opts...))
-	}
 }
 
 // ByCountryField orders the results by country field.
@@ -670,13 +658,6 @@ func ByProfitDistributionBills(term sql.OrderTerm, terms ...sql.OrderTerm) Order
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newProfitDistributionBillsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
-}
-func newMerchantBusinessTypeStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MerchantBusinessTypeInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, MerchantBusinessTypeTable, MerchantBusinessTypeColumn),
-	)
 }
 func newCountryStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

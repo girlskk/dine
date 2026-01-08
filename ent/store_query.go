@@ -22,7 +22,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
@@ -44,7 +43,6 @@ type StoreQuery struct {
 	inters                      []Interceptor
 	predicates                  []predicate.Store
 	withMerchant                *MerchantQuery
-	withMerchantBusinessType    *MerchantBusinessTypeQuery
 	withCountry                 *CountryQuery
 	withProvince                *ProvinceQuery
 	withCity                    *CityQuery
@@ -113,28 +111,6 @@ func (sq *StoreQuery) QueryMerchant() *MerchantQuery {
 			sqlgraph.From(store.Table, store.FieldID, selector),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, store.MerchantTable, store.MerchantColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryMerchantBusinessType chains the current query on the "merchant_business_type" edge.
-func (sq *StoreQuery) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
-	query := (&MerchantBusinessTypeClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, selector),
-			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.MerchantBusinessTypeTable, store.MerchantBusinessTypeColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -687,7 +663,6 @@ func (sq *StoreQuery) Clone() *StoreQuery {
 		inters:                      append([]Interceptor{}, sq.inters...),
 		predicates:                  append([]predicate.Store{}, sq.predicates...),
 		withMerchant:                sq.withMerchant.Clone(),
-		withMerchantBusinessType:    sq.withMerchantBusinessType.Clone(),
 		withCountry:                 sq.withCountry.Clone(),
 		withProvince:                sq.withProvince.Clone(),
 		withCity:                    sq.withCity.Clone(),
@@ -719,17 +694,6 @@ func (sq *StoreQuery) WithMerchant(opts ...func(*MerchantQuery)) *StoreQuery {
 		opt(query)
 	}
 	sq.withMerchant = query
-	return sq
-}
-
-// WithMerchantBusinessType tells the query-builder to eager-load the nodes that are connected to
-// the "merchant_business_type" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *StoreQuery) WithMerchantBusinessType(opts ...func(*MerchantBusinessTypeQuery)) *StoreQuery {
-	query := (&MerchantBusinessTypeClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withMerchantBusinessType = query
 	return sq
 }
 
@@ -987,9 +951,8 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	var (
 		nodes       = []*Store{}
 		_spec       = sq.querySpec()
-		loadedTypes = [18]bool{
+		loadedTypes = [17]bool{
 			sq.withMerchant != nil,
-			sq.withMerchantBusinessType != nil,
 			sq.withCountry != nil,
 			sq.withProvince != nil,
 			sq.withCity != nil,
@@ -1032,12 +995,6 @@ func (sq *StoreQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Store,
 	if query := sq.withMerchant; query != nil {
 		if err := sq.loadMerchant(ctx, query, nodes, nil,
 			func(n *Store, e *Merchant) { n.Edges.Merchant = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withMerchantBusinessType; query != nil {
-		if err := sq.loadMerchantBusinessType(ctx, query, nodes, nil,
-			func(n *Store, e *MerchantBusinessType) { n.Edges.MerchantBusinessType = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -1180,35 +1137,6 @@ func (sq *StoreQuery) loadMerchant(ctx context.Context, query *MerchantQuery, no
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "merchant_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (sq *StoreQuery) loadMerchantBusinessType(ctx context.Context, query *MerchantBusinessTypeQuery, nodes []*Store, init func(*Store), assign func(*Store, *MerchantBusinessType)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Store)
-	for i := range nodes {
-		fk := nodes[i].BusinessTypeID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(merchantbusinesstype.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "business_type_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -1785,9 +1713,6 @@ func (sq *StoreQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if sq.withMerchant != nil {
 			_spec.Node.AddColumnOnce(store.FieldMerchantID)
-		}
-		if sq.withMerchantBusinessType != nil {
-			_spec.Node.AddColumnOnce(store.FieldBusinessTypeID)
 		}
 		if sq.withCountry != nil {
 			_spec.Node.AddColumnOnce(store.FieldCountryID)

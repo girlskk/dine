@@ -22,7 +22,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
@@ -43,7 +42,6 @@ type MerchantQuery struct {
 	order                       []merchant.OrderOption
 	inters                      []Interceptor
 	predicates                  []predicate.Merchant
-	withMerchantBusinessType    *MerchantBusinessTypeQuery
 	withCountry                 *CountryQuery
 	withProvince                *ProvinceQuery
 	withCity                    *CityQuery
@@ -96,28 +94,6 @@ func (mq *MerchantQuery) Unique(unique bool) *MerchantQuery {
 func (mq *MerchantQuery) Order(o ...merchant.OrderOption) *MerchantQuery {
 	mq.order = append(mq.order, o...)
 	return mq
-}
-
-// QueryMerchantBusinessType chains the current query on the "merchant_business_type" edge.
-func (mq *MerchantQuery) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
-	query := (&MerchantBusinessTypeClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.MerchantBusinessTypeTable, merchant.MerchantBusinessTypeColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryCountry chains the current query on the "country" edge.
@@ -686,7 +662,6 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		order:                       append([]merchant.OrderOption{}, mq.order...),
 		inters:                      append([]Interceptor{}, mq.inters...),
 		predicates:                  append([]predicate.Merchant{}, mq.predicates...),
-		withMerchantBusinessType:    mq.withMerchantBusinessType.Clone(),
 		withCountry:                 mq.withCountry.Clone(),
 		withProvince:                mq.withProvince.Clone(),
 		withCity:                    mq.withCity.Clone(),
@@ -709,17 +684,6 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		path:      mq.path,
 		modifiers: append([]func(*sql.Selector){}, mq.modifiers...),
 	}
-}
-
-// WithMerchantBusinessType tells the query-builder to eager-load the nodes that are connected to
-// the "merchant_business_type" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithMerchantBusinessType(opts ...func(*MerchantBusinessTypeQuery)) *MerchantQuery {
-	query := (&MerchantBusinessTypeClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withMerchantBusinessType = query
-	return mq
 }
 
 // WithCountry tells the query-builder to eager-load the nodes that are connected to
@@ -987,8 +951,7 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [18]bool{
-			mq.withMerchantBusinessType != nil,
+		loadedTypes = [17]bool{
 			mq.withCountry != nil,
 			mq.withProvince != nil,
 			mq.withCity != nil,
@@ -1028,12 +991,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
-	}
-	if query := mq.withMerchantBusinessType; query != nil {
-		if err := mq.loadMerchantBusinessType(ctx, query, nodes, nil,
-			func(n *Merchant, e *MerchantBusinessType) { n.Edges.MerchantBusinessType = e }); err != nil {
-			return nil, err
-		}
 	}
 	if query := mq.withCountry; query != nil {
 		if err := mq.loadCountry(ctx, query, nodes, nil,
@@ -1155,35 +1112,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	return nodes, nil
 }
 
-func (mq *MerchantQuery) loadMerchantBusinessType(ctx context.Context, query *MerchantBusinessTypeQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *MerchantBusinessType)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Merchant)
-	for i := range nodes {
-		fk := nodes[i].BusinessTypeID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(merchantbusinesstype.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "business_type_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (mq *MerchantQuery) loadCountry(ctx context.Context, query *CountryQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Country)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Merchant)
@@ -1310,7 +1238,9 @@ func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUse
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(backenduser.FieldMerchantID)
+	}
 	query.Where(predicate.BackendUser(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.BackendUsersColumn), fks...))
 	}))
@@ -1319,13 +1249,10 @@ func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUse
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.merchant_backend_users
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "merchant_backend_users" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "merchant_backend_users" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -1719,9 +1646,6 @@ func (mq *MerchantQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != merchant.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if mq.withMerchantBusinessType != nil {
-			_spec.Node.AddColumnOnce(merchant.FieldBusinessTypeID)
 		}
 		if mq.withCountry != nil {
 			_spec.Node.AddColumnOnce(merchant.FieldCountryID)
