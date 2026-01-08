@@ -506,13 +506,9 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "refund": {
-                    "description": "退款单信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderRefund"
-                        }
-                    ]
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
                 },
                 "shift_no": {
                     "description": "班次号",
@@ -680,7 +676,7 @@ const docTemplate = `{
                     "description": "支付方式",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.PaymentMethod"
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
                         }
                     ]
                 },
@@ -721,6 +717,10 @@ const docTemplate = `{
                     "description": "税前金额",
                     "type": "number"
                 },
+                "attr_amount": {
+                    "description": "做法金额与赠送金额",
+                    "type": "number"
+                },
                 "attr_relations": {
                     "description": "口味做法信息",
                     "type": "array",
@@ -728,9 +728,13 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.ProductAttrRelation"
                     }
                 },
-                "category_id": {
-                    "description": "分类ID",
-                    "type": "string"
+                "category": {
+                    "description": "分类信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
                 },
                 "created_at": {
                     "type": "string"
@@ -741,6 +745,10 @@ const docTemplate = `{
                 },
                 "discount_amount": {
                     "description": "优惠金额",
+                    "type": "number"
+                },
+                "gift_amount": {
+                    "description": "赠送金额",
                     "type": "number"
                 },
                 "gift_qty": {
@@ -861,23 +869,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.OrderRefund": {
-            "type": "object",
-            "properties": {
-                "origin_order_id": {
-                    "description": "原正单订单ID",
-                    "type": "string"
-                },
-                "origin_order_no": {
-                    "description": "原正单订单号",
-                    "type": "string"
-                },
-                "reason": {
-                    "description": "退款说明",
-                    "type": "string"
-                }
-            }
-        },
         "domain.OrderStatus": {
             "type": "string",
             "enum": [
@@ -987,31 +978,28 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.PaymentMethod": {
+        "domain.PaymentMethodPayType": {
             "type": "string",
             "enum": [
-                "CASH",
-                "ONLINE_PAYMENT",
-                "MEMBER_CARD",
-                "CUSTOM_COUPON",
-                "PARTNER_COUPON",
-                "BANK_CARD"
+                "other",
+                "cash",
+                "offline_card",
+                "custom_coupon",
+                "partner_coupon"
             ],
             "x-enum-comments": {
-                "PaymentMethodBankCard": "银行卡",
-                "PaymentMethodCash": "现金",
-                "PaymentMethodCustomCoupon": "自定义券",
-                "PaymentMethodMemberCard": "会员卡",
-                "PaymentMethodOnlinePayment": "在线支付",
-                "PaymentMethodPartnerCoupon": "三方合作券"
+                "PaymentMethodPayTypeCash": "现金",
+                "PaymentMethodPayTypeCustomCoupon": "自定义券",
+                "PaymentMethodPayTypeOfflineCard": "线下刷卡",
+                "PaymentMethodPayTypeOther": "其他",
+                "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
             "x-enum-varnames": [
-                "PaymentMethodCash",
-                "PaymentMethodOnlinePayment",
-                "PaymentMethodMemberCard",
-                "PaymentMethodCustomCoupon",
-                "PaymentMethodPartnerCoupon",
-                "PaymentMethodBankCard"
+                "PaymentMethodPayTypeOther",
+                "PaymentMethodPayTypeCash",
+                "PaymentMethodPayTypeOfflineCard",
+                "PaymentMethodPayTypeCustomCoupon",
+                "PaymentMethodPayTypePartnerCoupon"
             ]
         },
         "domain.PaymentStatus": {
@@ -1592,16 +1580,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "PaymentMethodDisplayChannelPOS",
-                "PaymentMethodDisplayChannelMobileOrdering",
-                "PaymentMethodDisplayChannelScanOrdering",
-                "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery",
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",
                 "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery"
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -1834,13 +1822,9 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "refund": {
-                    "description": "退款单信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderRefund"
-                        }
-                    ]
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
                 },
                 "shift_no": {
                     "description": "班次号",
@@ -2005,13 +1989,9 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "refund": {
-                    "description": "退款单信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderRefund"
-                        }
-                    ]
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
                 },
                 "shift_no": {
                     "description": "班次号",

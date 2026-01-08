@@ -5,6 +5,7 @@ import (
 
 	"gitlab.jiguang.dev/pos-dine/dine/api/frontend"
 	"gitlab.jiguang.dev/pos-dine/dine/api/frontend/handler"
+	frontendmiddleware "gitlab.jiguang.dev/pos-dine/dine/api/frontend/middleware"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/middleware"
@@ -32,6 +33,7 @@ var Module = fx.Module(
 			fx.ResultTags(`group:"middlewares"`),
 		),
 		asMiddleware(middleware.NewLogger),
+		asMiddleware(frontendmiddleware.NewTenant),
 	),
 	// handler
 	fx.Provide(

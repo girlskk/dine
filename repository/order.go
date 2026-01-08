@@ -714,3 +714,131 @@ func (repo *OrderRepository) SalesReport(ctx context.Context, params domain.Orde
 	}
 	return res, total, nil
 }
+
+func (repo *OrderRepository) ProductSalesSummary(ctx context.Context, params domain.ProductSalesSummaryParams) (res []*domain.ProductSalesSummaryItem, total int, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "OrderRepository.ProductSalesSummary")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	type productSalesSummaryRow struct {
+		domain.ProductSalesSummaryItem
+		Total int `json:"total"`
+	}
+
+	// 构建订单条件
+	orderPredicates := []predicate.Order{
+		entorder.MerchantID(params.MerchantID),
+		entorder.OrderTypeEQ(domain.OrderTypeSale),
+		entorder.PaymentStatusEQ(domain.PaymentStatusPaid),
+	}
+	if len(params.StoreIDs) > 0 {
+		orderPredicates = append(orderPredicates, entorder.StoreIDIn(params.StoreIDs...))
+	}
+	if params.BusinessDateStart != "" {
+		orderPredicates = append(orderPredicates, entorder.BusinessDateGTE(params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		orderPredicates = append(orderPredicates, entorder.BusinessDateLTE(params.BusinessDateEnd))
+	}
+	if params.OrderChannel != "" {
+		orderPredicates = append(orderPredicates, entorder.ChannelEQ(params.OrderChannel))
+	}
+
+	// 构建商品条件
+	productPredicates := []predicate.OrderProduct{}
+	if params.ProductName != "" {
+		productPredicates = append(productPredicates, entorderproduct.ProductNameContains(params.ProductName))
+	}
+	if params.ProductType != "" {
+		productPredicates = append(productPredicates, entorderproduct.ProductTypeEQ(params.ProductType))
+	}
+
+	pageInfo := upagination.New(params.Page, params.Size)
+
+	// 分类过滤条件
+	categoryID := params.CategoryID.String()
+
+	var rows []productSalesSummaryRow
+	err = repo.Client.OrderProduct.Query().
+		Where(entorderproduct.HasOrderWith(orderPredicates...)).
+		Where(productPredicates...).
+		Modify(func(s *entsql.Selector) {
+			// 添加分类过滤条件（支持一级或二级分类匹配）
+			if params.CategoryID != uuid.Nil {
+				s.Where(entsql.P(func(b *entsql.Builder) {
+					b.WriteString("(JSON_UNQUOTE(JSON_EXTRACT(`category`, '$.id')) = ")
+					b.Arg(categoryID)
+					b.WriteString(" OR JSON_UNQUOTE(JSON_EXTRACT(`category`, '$.parent_id')) = ")
+					b.Arg(categoryID)
+					b.WriteString(")")
+				}))
+			}
+			s.Select(
+				s.C(entorderproduct.FieldProductID),
+				s.C(entorderproduct.FieldProductName),
+				s.C(entorderproduct.FieldProductType),
+			).
+				// 一级分类名称：如果有parent则取parent.name，否则取当前分类name（使用ANY_VALUE避免GROUP BY问题）
+				AppendSelectExprAs(entsql.Raw(`ANY_VALUE(CASE 
+					WHEN JSON_EXTRACT(category, '$.parent') IS NOT NULL
+					THEN COALESCE(JSON_UNQUOTE(JSON_EXTRACT(category, '$.parent.name')), '')
+					ELSE COALESCE(JSON_UNQUOTE(JSON_EXTRACT(category, '$.name')), '')
+				END)`), "category_name").
+				// 二级分类名称：如果有parent则取当前分类name，否则为空
+				AppendSelectExprAs(entsql.Raw(`ANY_VALUE(CASE 
+					WHEN JSON_EXTRACT(category, '$.parent') IS NOT NULL
+					THEN COALESCE(JSON_UNQUOTE(JSON_EXTRACT(category, '$.name')), '')
+					ELSE '' 
+				END)`), "category_name_2").
+				// 规格名称：从spec_relations中提取第一个规格名称
+				AppendSelectExprAs(entsql.Raw("ANY_VALUE(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(`spec_relations`, '$[0].spec_name')), ''))"), "spec_name").
+				// 销售数量
+				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`qty`), 0)"), "sales_qty").
+				// 销售金额（小计）
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`subtotal`), 0) * 100) / 100"), "sales_amount").
+				// 销售均价
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`subtotal`), 0) / NULLIF(SUM(`qty`), 0) * 100) / 100"), "avg_price").
+				// 商品应收金额（税后金额）
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`amount_after_tax`), 0) * 100) / 100"), "amount_due").
+				// 商品金额（小计）
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`subtotal`), 0) * 100) / 100"), "subtotal").
+				// 优惠金额
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`discount_amount`), 0) * 100) / 100"), "discount_amount").
+				// 赠送金额
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`gift_amount`), 0) * 100) / 100"), "gift_amount").
+				// 退款数量
+				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`void_qty`), 0)"), "refund_qty").
+				// 退款金额
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`void_amount`), 0) * 100) / 100"), "refund_amount").
+				// 赠送数量
+				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`gift_qty`), 0)"), "gift_qty").
+				// 做法金额
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`attr_amount`), 0) * 100) / 100"), "attr_amount").
+				// 分页总数
+				AppendSelectExprAs(entsql.Raw("COUNT(*) OVER()"), "total").
+				GroupBy(
+					s.C(entorderproduct.FieldProductID),
+					s.C(entorderproduct.FieldProductName),
+					s.C(entorderproduct.FieldProductType),
+				).
+				OrderBy(entsql.Desc("sales_amount")).
+				Limit(pageInfo.Size).
+				Offset(pageInfo.Offset())
+		}).
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query product sales summary: %w", err)
+	}
+
+	if len(rows) == 0 {
+		return []*domain.ProductSalesSummaryItem{}, 0, nil
+	}
+
+	total = rows[0].Total
+	res = make([]*domain.ProductSalesSummaryItem, len(rows))
+	for i := range rows {
+		res[i] = &rows[i].ProductSalesSummaryItem
+	}
+	return res, total, nil
+}

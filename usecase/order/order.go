@@ -106,3 +106,16 @@ func (interactor *OrderInteractor) SalesReport(ctx context.Context, params domai
 	}
 	return res, total, nil
 }
+
+func (interactor *OrderInteractor) ProductSalesSummary(ctx context.Context, params domain.ProductSalesSummaryParams) (res []*domain.ProductSalesSummaryItem, total int, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "OrderInteractor.ProductSalesSummary")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	res, total, err = interactor.DS.OrderRepo().ProductSalesSummary(ctx, params)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get product sales summary: %w", err)
+	}
+	return res, total, nil
+}
