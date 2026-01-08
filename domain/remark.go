@@ -40,7 +40,7 @@ type RemarkInteractor interface {
 	GetRemark(ctx context.Context, id uuid.UUID) (remark *Remark, err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
 	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
-	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateType, remark *Remark) (err error)
+	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateField, remark *Remark) (err error)
 }
 type RemarkType string // 备注归属方
 
@@ -78,10 +78,10 @@ func (RemarkScene) Values() []string {
 	}
 }
 
-type RemarkSimpleUpdateType string
+type RemarkSimpleUpdateField string
 
 const (
-	RemarkSimpleUpdateTypeEnabled RemarkSimpleUpdateType = "enabled"
+	RemarkSimpleUpdateFieldEnabled RemarkSimpleUpdateField = "enabled"
 )
 
 type RemarkOrderByType int

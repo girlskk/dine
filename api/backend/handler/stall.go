@@ -288,7 +288,7 @@ func (h *StallHandler) Enable() gin.HandlerFunc {
 		}
 
 		stall := &domain.Stall{ID: id, Enabled: true}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateTypeEnabled, stall); err != nil {
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -330,7 +330,7 @@ func (h *StallHandler) Disable() gin.HandlerFunc {
 		}
 
 		stall := &domain.Stall{ID: id, Enabled: false}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateTypeEnabled, stall); err != nil {
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

@@ -14,11 +14,11 @@ import (
 var _ domain.RoleInteractor = (*RoleInteractor)(nil)
 
 type RoleInteractor struct {
-	ds domain.DataStore
+	DS domain.DataStore
 }
 
 func NewRoleInteractor(ds domain.DataStore) *RoleInteractor {
-	return &RoleInteractor{ds: ds}
+	return &RoleInteractor{DS: ds}
 }
 
 func (interactor *RoleInteractor) CreateRole(ctx context.Context, params *domain.CreateRoleParams) (err error) {
@@ -45,7 +45,7 @@ func (interactor *RoleInteractor) CreateRole(ctx context.Context, params *domain
 		return err
 	}
 
-	if err = interactor.ds.RoleRepo().Create(ctx, role); err != nil {
+	if err = interactor.DS.RoleRepo().Create(ctx, role); err != nil {
 		return fmt.Errorf("failed to create role: %w", err)
 	}
 
@@ -60,7 +60,7 @@ func (interactor *RoleInteractor) UpdateRole(ctx context.Context, params *domain
 		return fmt.Errorf("params is nil")
 	}
 
-	old, err := interactor.ds.RoleRepo().FindByID(ctx, params.ID)
+	old, err := interactor.DS.RoleRepo().FindByID(ctx, params.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRoleNotExists)
@@ -84,7 +84,7 @@ func (interactor *RoleInteractor) UpdateRole(ctx context.Context, params *domain
 		return err
 	}
 
-	if err = interactor.ds.RoleRepo().Update(ctx, role); err != nil {
+	if err = interactor.DS.RoleRepo().Update(ctx, role); err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRoleNotExists)
 		}
@@ -94,17 +94,76 @@ func (interactor *RoleInteractor) UpdateRole(ctx context.Context, params *domain
 	return
 }
 
+func (interactor *RoleInteractor) SimpleUpdate(ctx context.Context, updateField domain.RoleSimpleUpdateField, params domain.RoleSimpleUpdateParams) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "RoleInteractor.SimpleUpdate")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		oldRole, err := ds.RoleRepo().FindByID(ctx, params.ID)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ParamsError(domain.ErrRoleNotExists)
+			}
+			return fmt.Errorf("failed to fetch role: %w", err)
+		}
+		switch updateField {
+		case domain.RoleSimpleUpdateFieldEnable:
+			if oldRole.Enable == params.Enable {
+				return nil
+			}
+			if !params.Enable {
+				userRoles, err := ds.UserRoleRepo().GetByRoleIDs(ctx, domain.UserType(oldRole.RoleType), params.ID)
+				if err != nil {
+					return err
+				}
+				if len(userRoles) > 0 {
+					return domain.ErrRoleAssignedCannotDisable
+				}
+			}
+			oldRole.Enable = params.Enable
+		default:
+			return fmt.Errorf("unsupported simple update field: %s", updateField)
+		}
+		err = ds.RoleRepo().Update(ctx, oldRole)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return
+}
+
 func (interactor *RoleInteractor) DeleteRole(ctx context.Context, id uuid.UUID) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RoleInteractor.DeleteRole")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if err = interactor.ds.RoleRepo().Delete(ctx, id); err != nil {
-		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrRoleNotExists)
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		oldRole, err := ds.RoleRepo().FindByID(ctx, id)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ParamsError(domain.ErrRoleNotExists)
+			}
+			return fmt.Errorf("failed to fetch role: %w", err)
 		}
-		return fmt.Errorf("failed to delete role: %w", err)
+		userRoles, err := ds.UserRoleRepo().GetByRoleIDs(ctx, domain.UserType(oldRole.RoleType), id)
+		if err != nil {
+			return err
+		}
+		if len(userRoles) > 0 {
+			return domain.ErrRoleAssignedCannotDelete
+		}
+		err = interactor.DS.RoleRepo().Delete(ctx, id)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ParamsError(domain.ErrRoleNotExists)
+			}
+			return fmt.Errorf("failed to delete role: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-
 	return
 }
 
@@ -112,7 +171,7 @@ func (interactor *RoleInteractor) GetRole(ctx context.Context, id uuid.UUID) (ro
 	span, ctx := util.StartSpan(ctx, "usecase", "RoleInteractor.GetRole")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	role, err = interactor.ds.RoleRepo().FindByID(ctx, id)
+	role, err = interactor.DS.RoleRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrRoleNotExists)
@@ -142,7 +201,7 @@ func (interactor *RoleInteractor) GetRoles(ctx context.Context,
 		return
 	}
 
-	roles, total, err = interactor.ds.RoleRepo().GetRoles(ctx, pager, filter, orderBys...)
+	roles, total, err = interactor.DS.RoleRepo().GetRoles(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get roles: %w", err)
 		return
@@ -156,7 +215,7 @@ func (interactor *RoleInteractor) checkExists(ctx context.Context, role *domain.
 		return fmt.Errorf("role is nil")
 	}
 
-	exists, existsErr := interactor.ds.RoleRepo().Exists(ctx, domain.RoleExistsParams{
+	exists, existsErr := interactor.DS.RoleRepo().Exists(ctx, domain.RoleExistsParams{
 		Name:       role.Name,
 		MerchantID: role.MerchantID,
 		StoreID:    role.StoreID,

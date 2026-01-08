@@ -18,8 +18,6 @@ import (
 )
 
 // TaxFeeHandler 费用管理-税费管理
-// No interface assertion needed here; handler delegates to interactor.
-
 type TaxFeeHandler struct {
 	TaxFeeInteractor domain.TaxFeeInteractor
 	taxSeq           domain.IncrSequence
@@ -309,7 +307,7 @@ func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 		}
 
 		fee := &domain.TaxFee{ID: id, DefaultTax: true}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateTypeDefault, fee); err != nil {
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -351,7 +349,7 @@ func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 		}
 
 		fee := &domain.TaxFee{ID: id, DefaultTax: false}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateTypeDefault, fee); err != nil {
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

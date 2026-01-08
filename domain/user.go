@@ -1,6 +1,16 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
+
+var (
+	ErrUserNotExists    = errors.New("用户不存在")
+	ErrUsernameExist    = errors.New("用户名已存在")
+	ErrUserRoleRequired = errors.New("管理员用户至少需要分配一个角色")
+)
 
 // User 通用用户接口，用于验证用户身份
 type User interface {

@@ -43,6 +43,8 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 func (h *UserHandler) NoAuths() []string {
@@ -197,7 +199,7 @@ func (h *UserHandler) Create() gin.HandlerFunc {
 		}
 
 		if err := h.UserInteractor.Create(ctx, createUser); err != nil {
-			if errors.Is(err, domain.ErrAdminUserUsernameExist) || errors.Is(err, domain.ErrBackendUserUsernameExist) {
+			if errors.Is(err, domain.ErrUsernameExist) {
 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
 				return
 			}
@@ -261,7 +263,7 @@ func (h *UserHandler) Update() gin.HandlerFunc {
 		}
 
 		if err := h.UserInteractor.Update(ctx, user); err != nil {
-			if errors.Is(err, domain.ErrBackendUserUsernameExist) || errors.Is(err, domain.ErrAdminUserUsernameExist) {
+			if errors.Is(err, domain.ErrUsernameExist) {
 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
 				return
 			}
@@ -407,4 +409,94 @@ func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return seq, nil
+}
+
+// Enable 启用后台用户
+//
+//	@Tags		用户管理
+//	@Summary	启用后台用户
+//	@Description	启用指定后台用户
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path	string	true	"用户ID"
+//	@Success	200	"No Content"
+//	@Router		/user/{id}/enable [put]
+func (h *UserHandler) Enable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		span, ctx := opentracing.StartSpanFromContext(ctx, "UserHandler.Enable")
+		defer span.Finish()
+		logger := logging.FromContext(ctx).Named("UserHandler.Enable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldEnable, domain.BackendUserSimpleUpdateParams{ID: id, Enabled: true})
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to enable backend user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用后台用户
+//
+//	@Tags		用户管理
+//	@Summary	禁用后台用户
+//	@Description	禁用指定后台用户
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path	string	true	"用户ID"
+//	@Success	200	"No Content"
+//	@Router		/user/{id}/disable [put]
+func (h *UserHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		span, ctx := opentracing.StartSpanFromContext(ctx, "UserHandler.Disable")
+		defer span.Finish()
+		logger := logging.FromContext(ctx).Named("UserHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldEnable, domain.BackendUserSimpleUpdateParams{ID: id, Enabled: false})
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to disable backend user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
 }

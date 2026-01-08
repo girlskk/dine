@@ -37,7 +37,14 @@ type RoleInteractor interface {
 	DeleteRole(ctx context.Context, id uuid.UUID) error
 	GetRole(ctx context.Context, id uuid.UUID) (*Role, error)
 	GetRoles(ctx context.Context, pager *upagination.Pagination, filter *RoleListFilter, orderBys ...RoleListOrderBy) ([]*Role, int, error)
+	SimpleUpdate(ctx context.Context, updateField RoleSimpleUpdateField, params RoleSimpleUpdateParams) error
 }
+
+type RoleSimpleUpdateField string
+
+const (
+	RoleSimpleUpdateFieldEnable RoleSimpleUpdateField = "enable"
+)
 
 type RoleDataScopeType string
 
@@ -70,7 +77,7 @@ const (
 )
 
 // RoleType 角色类型
-type RoleType string
+type RoleType UserType
 
 const (
 	RoleTypeAdmin   RoleType = "admin"
@@ -154,4 +161,9 @@ type RoleExistsParams struct {
 	ExcludeID  uuid.UUID `json:"exclude_id"`
 	MerchantID uuid.UUID `json:"merchant_id"`
 	StoreID    uuid.UUID `json:"store_id"`
+}
+
+type RoleSimpleUpdateParams struct {
+	ID     uuid.UUID `json:"id"`
+	Enable bool      `json:"enable"`
 }

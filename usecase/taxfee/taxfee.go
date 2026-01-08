@@ -15,11 +15,11 @@ import (
 var _ domain.TaxFeeInteractor = (*TaxFeeInteractor)(nil)
 
 type TaxFeeInteractor struct {
-	ds domain.DataStore
+	DS domain.DataStore
 }
 
 func NewTaxFeeInteractor(ds domain.DataStore) *TaxFeeInteractor {
-	return &TaxFeeInteractor{ds: ds}
+	return &TaxFeeInteractor{DS: ds}
 }
 
 func (interactor *TaxFeeInteractor) Create(ctx context.Context, fee *domain.TaxFee) (err error) {
@@ -35,7 +35,7 @@ func (interactor *TaxFeeInteractor) Create(ctx context.Context, fee *domain.TaxF
 	}
 
 	fee.ID = uuid.New()
-	if err = interactor.ds.TaxFeeRepo().Create(ctx, fee); err != nil {
+	if err = interactor.DS.TaxFeeRepo().Create(ctx, fee); err != nil {
 		return fmt.Errorf("failed to create tax fee: %w", err)
 	}
 	return nil
@@ -49,7 +49,7 @@ func (interactor *TaxFeeInteractor) Update(ctx context.Context, fee *domain.TaxF
 		return fmt.Errorf("tax fee is nil")
 	}
 
-	oldFee, err := interactor.ds.TaxFeeRepo().FindByID(ctx, fee.ID)
+	oldFee, err := interactor.DS.TaxFeeRepo().FindByID(ctx, fee.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrTaxFeeNotExists)
@@ -73,7 +73,7 @@ func (interactor *TaxFeeInteractor) Update(ctx context.Context, fee *domain.TaxF
 		return err
 	}
 
-	if err = interactor.ds.TaxFeeRepo().Update(ctx, updatedFee); err != nil {
+	if err = interactor.DS.TaxFeeRepo().Update(ctx, updatedFee); err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrTaxFeeNotExists)
 		}
@@ -86,7 +86,7 @@ func (interactor *TaxFeeInteractor) Delete(ctx context.Context, id uuid.UUID) (e
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	err = interactor.ds.TaxFeeRepo().Delete(ctx, id)
+	err = interactor.DS.TaxFeeRepo().Delete(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrTaxFeeNotExists)
@@ -100,7 +100,7 @@ func (interactor *TaxFeeInteractor) GetTaxFee(ctx context.Context, id uuid.UUID)
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.GetTaxFee")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	fee, err = interactor.ds.TaxFeeRepo().FindByID(ctx, id)
+	fee, err = interactor.DS.TaxFeeRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrTaxFeeNotExists)
@@ -129,7 +129,7 @@ func (interactor *TaxFeeInteractor) GetTaxFees(ctx context.Context,
 		return
 	}
 
-	fees, total, err = interactor.ds.TaxFeeRepo().GetTaxFees(ctx, pager, filter, orderBys...)
+	fees, total, err = interactor.DS.TaxFeeRepo().GetTaxFees(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get tax fees: %w", err)
 		return
@@ -138,7 +138,7 @@ func (interactor *TaxFeeInteractor) GetTaxFees(ctx context.Context,
 }
 
 func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
-	updateField domain.TaxFeeSimpleUpdateType,
+	updateField domain.TaxFeeSimpleUpdateField,
 	fee *domain.TaxFee,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.TaxFeeSimpleUpdate")
@@ -148,7 +148,7 @@ func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
 		return fmt.Errorf("tax fee is nil")
 	}
 
-	oldFee, err := interactor.ds.TaxFeeRepo().FindByID(ctx, fee.ID)
+	oldFee, err := interactor.DS.TaxFeeRepo().FindByID(ctx, fee.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrTaxFeeNotExists)
@@ -157,7 +157,7 @@ func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
 	}
 
 	switch updateField {
-	case domain.TaxFeeSimpleUpdateTypeDefault:
+	case domain.TaxFeeSimpleUpdateFieldDefault:
 		if oldFee.DefaultTax == fee.DefaultTax {
 			return nil
 		}
@@ -166,7 +166,7 @@ func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
 		return domain.ParamsError(errors.New("unsupported update field"))
 	}
 
-	if err = interactor.ds.TaxFeeRepo().Update(ctx, oldFee); err != nil {
+	if err = interactor.DS.TaxFeeRepo().Update(ctx, oldFee); err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrTaxFeeNotExists)
 		}
@@ -176,7 +176,7 @@ func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
 }
 
 func (interactor *TaxFeeInteractor) checkExists(ctx context.Context, fee *domain.TaxFee) (err error) {
-	exists, err := interactor.ds.TaxFeeRepo().Exists(ctx, domain.TaxFeeExistsParams{
+	exists, err := interactor.DS.TaxFeeRepo().Exists(ctx, domain.TaxFeeExistsParams{
 		MerchantID: fee.MerchantID,
 		StoreID:    fee.StoreID,
 		Name:       fee.Name,

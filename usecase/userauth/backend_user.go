@@ -20,13 +20,13 @@ var _ domain.BackendUserInteractor = (*BackendUserInteractor)(nil)
 
 type BackendUserInteractor struct {
 	AuthConfig domain.AuthConfig
-	DataStore  domain.DataStore
+	DS         domain.DataStore
 }
 
 func NewBackendUserInteractor(authConfig domain.AuthConfig, dataStore domain.DataStore) *BackendUserInteractor {
 	return &BackendUserInteractor{
 		AuthConfig: authConfig,
-		DataStore:  dataStore,
+		DS:         dataStore,
 	}
 }
 
@@ -36,7 +36,7 @@ func (interactor *BackendUserInteractor) Login(ctx context.Context, username, pa
 		util.SpanErrFinish(span, err)
 	}()
 
-	user, err := interactor.DataStore.BackendUserRepo().FindByUsername(ctx, username)
+	user, err := interactor.DS.BackendUserRepo().FindByUsername(ctx, username)
 	if err != nil {
 		return
 	}
@@ -87,7 +87,7 @@ func (interactor *BackendUserInteractor) Authenticate(ctx context.Context, token
 		return
 	}
 
-	user, err = interactor.DataStore.BackendUserRepo().Find(ctx, claims.ID)
+	user, err = interactor.DS.BackendUserRepo().Find(ctx, claims.ID)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			err = domain.ErrTokenInvalid
@@ -106,7 +106,7 @@ func (interactor *BackendUserInteractor) Create(ctx context.Context, user *domai
 		util.SpanErrFinish(span, err)
 	}()
 
-	return interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		exists, err := ds.AdminUserRepo().Exists(ctx, domain.AdminUserExistsParams{
 			Username: user.Username,
 		})
@@ -114,7 +114,7 @@ func (interactor *BackendUserInteractor) Create(ctx context.Context, user *domai
 			return err
 		}
 		if exists {
-			return domain.ErrAdminUserUsernameExist
+			return domain.ErrUsernameExist
 		}
 		user.ID = uuid.New()
 		err = ds.BackendUserRepo().Create(ctx, user)
@@ -137,9 +137,9 @@ func (interactor *BackendUserInteractor) Update(ctx context.Context, user *domai
 		util.SpanErrFinish(span, err)
 	}()
 	if len(user.RoleIDs) == 0 {
-		return domain.ErrBackendUserRoleRequired
+		return domain.ErrUserRoleRequired
 	}
-	return interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		exists, err := ds.BackendUserRepo().Exists(ctx, domain.BackendUserExistsParams{
 			Username:  user.Username,
 			ExcludeID: user.ID,
@@ -148,9 +148,9 @@ func (interactor *BackendUserInteractor) Update(ctx context.Context, user *domai
 			return err
 		}
 		if exists {
-			return domain.ErrBackendUserUsernameExist
+			return domain.ErrUsernameExist
 		}
-		userRole, err := interactor.DataStore.UserRoleRepo().FindOneByUser(ctx, user)
+		userRole, err := interactor.DS.UserRoleRepo().FindOneByUser(ctx, user)
 		if err != nil {
 			return err
 		}
@@ -176,7 +176,7 @@ func (interactor *BackendUserInteractor) Delete(ctx context.Context, id uuid.UUI
 		util.SpanErrFinish(span, err)
 	}()
 
-	return interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		err := ds.UserRoleRepo().DeleteByUsers(ctx, domain.UserTypeBackend, id)
 		if err != nil {
 			return err
@@ -195,7 +195,7 @@ func (interactor *BackendUserInteractor) GetUser(ctx context.Context, id uuid.UU
 		util.SpanErrFinish(span, err)
 	}()
 
-	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		user, err = ds.BackendUserRepo().Find(ctx, id)
 		if err != nil {
 			return err
@@ -219,11 +219,9 @@ func (interactor *BackendUserInteractor) GetUser(ctx context.Context, id uuid.UU
 
 func (interactor *BackendUserInteractor) GetUsers(ctx context.Context, pager *upagination.Pagination, filter *domain.BackendUserListFilter, orderBys ...domain.BackendUserOrderBy) (users []*domain.BackendUser, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "BackendUserInteractor.GetUsers")
-	defer func() {
-		util.SpanErrFinish(span, err)
-	}()
+	defer func() { util.SpanErrFinish(span, err) }()
 
-	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		users, total, err = ds.BackendUserRepo().GetUsers(ctx, pager, filter, orderBys...)
 		if err != nil {
 			return err
@@ -255,5 +253,39 @@ func (interactor *BackendUserInteractor) GetUsers(ctx context.Context, pager *up
 		return nil
 	})
 
+	return
+}
+
+// SimpleUpdate implements toggling simple fields for BackendUser (e.g., enabled)
+func (interactor *BackendUserInteractor) SimpleUpdate(ctx context.Context, updateField domain.BackendUserSimpleUpdateField, params domain.BackendUserSimpleUpdateParams) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "BackendUserInteractor.SimpleUpdate")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		user, err := ds.BackendUserRepo().Find(ctx, params.ID)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ParamsError(domain.ErrUserNotExists)
+			}
+			return err
+		}
+		switch updateField {
+		case domain.BackendUserSimpleUpdateFieldEnable:
+			if user.Enabled == params.Enabled {
+				return nil
+			}
+			user.Enabled = params.Enabled
+		default:
+			return domain.ParamsError(fmt.Errorf("unsupported update field: %v", updateField))
+		}
+		err = interactor.DS.BackendUserRepo().Update(ctx, user)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return
+	}
 	return
 }

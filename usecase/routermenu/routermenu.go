@@ -14,11 +14,11 @@ import (
 var _ domain.RouterMenuInteractor = (*RouterMenuInteractor)(nil)
 
 type RouterMenuInteractor struct {
-	ds domain.DataStore
+	DS domain.DataStore
 }
 
 func NewRouterMenuInteractor(ds domain.DataStore) *RouterMenuInteractor {
-	return &RouterMenuInteractor{ds: ds}
+	return &RouterMenuInteractor{DS: ds}
 }
 
 func (interactor *RouterMenuInteractor) CreateRouterMenu(ctx context.Context, params *domain.CreateRouterMenuParams) (err error) {
@@ -47,13 +47,13 @@ func (interactor *RouterMenuInteractor) CreateRouterMenu(ctx context.Context, pa
 	}
 
 	if params.ParentID != uuid.Nil {
-		parent, err := interactor.ds.RouterMenuRepo().FindByID(ctx, params.ParentID)
+		parent, err := interactor.DS.RouterMenuRepo().FindByID(ctx, params.ParentID)
 		if err != nil {
 			return fmt.Errorf("failed to fetch parent router menu: %w", err)
 		}
 		menu.Layer = parent.Layer + 1
 	}
-	if err = interactor.ds.RouterMenuRepo().Create(ctx, menu); err != nil {
+	if err = interactor.DS.RouterMenuRepo().Create(ctx, menu); err != nil {
 		return fmt.Errorf("failed to create router menu: %w", err)
 	}
 
@@ -68,7 +68,7 @@ func (interactor *RouterMenuInteractor) UpdateRouterMenu(ctx context.Context, pa
 		return fmt.Errorf("params is nil")
 	}
 
-	old, err := interactor.ds.RouterMenuRepo().FindByID(ctx, params.ID)
+	old, err := interactor.DS.RouterMenuRepo().FindByID(ctx, params.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRouterMenuNotExists)
@@ -94,14 +94,14 @@ func (interactor *RouterMenuInteractor) UpdateRouterMenu(ctx context.Context, pa
 	}
 
 	if params.ParentID != uuid.Nil {
-		parent, err := interactor.ds.RouterMenuRepo().FindByID(ctx, params.ParentID)
+		parent, err := interactor.DS.RouterMenuRepo().FindByID(ctx, params.ParentID)
 		if err != nil {
 			return fmt.Errorf("failed to fetch parent router menu: %w", err)
 		}
 		menu.Layer = parent.Layer + 1
 	}
 
-	if err = interactor.ds.RouterMenuRepo().Update(ctx, menu); err != nil {
+	if err = interactor.DS.RouterMenuRepo().Update(ctx, menu); err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRouterMenuNotExists)
 		}
@@ -115,7 +115,7 @@ func (interactor *RouterMenuInteractor) DeleteRouterMenu(ctx context.Context, id
 	span, ctx := util.StartSpan(ctx, "usecase", "RouterMenuInteractor.DeleteRouterMenu")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if err = interactor.ds.RouterMenuRepo().Delete(ctx, id); err != nil {
+	if err = interactor.DS.RouterMenuRepo().Delete(ctx, id); err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRouterMenuNotExists)
 		}
@@ -129,7 +129,7 @@ func (interactor *RouterMenuInteractor) GetRouterMenu(ctx context.Context, id uu
 	span, ctx := util.StartSpan(ctx, "usecase", "RouterMenuInteractor.GetRouterMenu")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	menu, err = interactor.ds.RouterMenuRepo().FindByID(ctx, id)
+	menu, err = interactor.DS.RouterMenuRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrRouterMenuNotExists)
@@ -159,7 +159,7 @@ func (interactor *RouterMenuInteractor) GetRouterMenus(ctx context.Context,
 		return
 	}
 
-	menus, total, err = interactor.ds.RouterMenuRepo().GetRouterMenus(ctx, pager, filter, orderBys...)
+	menus, total, err = interactor.DS.RouterMenuRepo().GetRouterMenus(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get router menus: %w", err)
 		return
@@ -173,7 +173,7 @@ func (interactor *RouterMenuInteractor) checkExists(ctx context.Context, menu *d
 		return fmt.Errorf("router menu is nil")
 	}
 
-	exists, existsErr := interactor.ds.RouterMenuRepo().Exists(ctx, domain.RouterMenuExistsParams{
+	exists, existsErr := interactor.DS.RouterMenuRepo().Exists(ctx, domain.RouterMenuExistsParams{
 		ParentID:  menu.ParentID,
 		Name:      menu.Name,
 		ExcludeID: menu.ID,

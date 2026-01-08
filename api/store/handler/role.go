@@ -313,8 +313,11 @@ func (h *RoleHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		params := &domain.UpdateRoleParams{ID: id, Enable: true}
-		if err := h.Interactor.UpdateRole(ctx, params); err != nil {
+		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnable, domain.RoleSimpleUpdateParams{
+			ID:     id,
+			Enable: true,
+		})
+		if err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -356,8 +359,11 @@ func (h *RoleHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		params := &domain.UpdateRoleParams{ID: id, Enable: false}
-		if err := h.Interactor.UpdateRole(ctx, params); err != nil {
+		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnable, domain.RoleSimpleUpdateParams{
+			ID:     id,
+			Enable: false,
+		})
+		if err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

@@ -38,13 +38,13 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.POST("/login", h.Login())
 	r.POST("/logout", h.Logout())
 	r.POST("/info", h.Info())
-
-	// Admin user CRUD/list
 	r.POST("", h.Create())
 	r.PUT("/:id", h.Update())
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
+	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/disable", h.Disable())
 }
 
 func (h *UserHandler) NoAuths() []string {
@@ -197,11 +197,11 @@ func (h *UserHandler) Create() gin.HandlerFunc {
 			return
 		}
 		if err := h.UserInteractor.Create(ctx, createUser); err != nil {
-			if errors.Is(err, domain.ErrAdminUserUsernameExist) {
+			if errors.Is(err, domain.ErrUsernameExist) {
 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
 				return
 			}
-			if errors.Is(err, domain.ErrBackendUserRoleRequired) {
+			if errors.Is(err, domain.ErrUserRoleRequired) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
 			}
@@ -265,11 +265,11 @@ func (h *UserHandler) Update() gin.HandlerFunc {
 		}
 
 		if err := h.UserInteractor.Update(ctx, user); err != nil {
-			if errors.Is(err, domain.ErrAdminUserUsernameExist) {
+			if errors.Is(err, domain.ErrUsernameExist) {
 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
 				return
 			}
-			if errors.Is(err, domain.ErrBackendUserRoleRequired) {
+			if errors.Is(err, domain.ErrUserRoleRequired) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
 			}
@@ -405,6 +405,98 @@ func (h *UserHandler) List() gin.HandlerFunc {
 		}
 
 		response.Ok(c, types.AdminUserListResp{Users: users, Total: total})
+	}
+}
+
+// Enable 启用管理员用户
+//
+//	@Tags		用户管理
+//	@Summary	启用管理员用户
+//	@Description	启用指定管理员用户
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path	string	true	"管理员用户ID"
+//	@Success	200	"No Content"
+//	@Router		/user/{id}/enable [put]
+func (h *UserHandler) Enable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Enable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnable, domain.AdminUserSimpleUpdateParams{
+			ID:      id,
+			Enabled: true,
+		})
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to enable admin user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// Disable 禁用管理员用户
+//
+//	@Tags		用户管理
+//	@Summary	禁用管理员用户
+//	@Description	禁用指定管理员用户
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path	string	true	"管理员用户ID"
+//	@Success	200	"No Content"
+//	@Router		/user/{id}/disable [put]
+func (h *UserHandler) Disable() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.Disable")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnable, domain.AdminUserSimpleUpdateParams{
+			ID:      id,
+			Enabled: false,
+		})
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			err = fmt.Errorf("failed to disable admin user: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
 	}
 }
 

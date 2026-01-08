@@ -2,17 +2,11 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
-)
-
-var (
-	ErrBackendUserNotExists     = errors.New("用户不存在")
-	ErrBackendUserUsernameExist = errors.New("用户名已存在")
 )
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/backend_user_repository.go -package=mock . BackendUserRepository
@@ -37,6 +31,7 @@ type BackendUserInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetUser(ctx context.Context, id uuid.UUID) (*BackendUser, error)
 	GetUsers(ctx context.Context, pager *upagination.Pagination, filter *BackendUserListFilter, orderBys ...BackendUserOrderBy) (users []*BackendUser, total int, err error)
+	SimpleUpdate(ctx context.Context, updateField BackendUserSimpleUpdateField, params BackendUserSimpleUpdateParams) error
 }
 
 type BackendUser struct {
@@ -155,4 +150,16 @@ func NewBackendUserOrderByCreatedAt(desc bool) BackendUserOrderBy {
 type BackendUserExistsParams struct {
 	Username  string
 	ExcludeID uuid.UUID
+}
+
+// BackendUserSimpleUpdateField Simple update types for backend user
+type BackendUserSimpleUpdateField string
+
+const (
+	BackendUserSimpleUpdateFieldEnable BackendUserSimpleUpdateField = "enable"
+)
+
+type BackendUserSimpleUpdateParams struct {
+	ID      uuid.UUID `json:"id"`
+	Enabled bool      `json:"enabled"`
 }

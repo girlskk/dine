@@ -25,12 +25,12 @@ type StoreUserInteractor interface {
 	Login(ctx context.Context, username string, password string) (token string, expAt time.Time, err error)
 	Logout(ctx context.Context) error
 	Authenticate(ctx context.Context, token string) (user *StoreUser, err error)
-
 	Create(ctx context.Context, user *StoreUser) error
 	Update(ctx context.Context, user *StoreUser) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetUser(ctx context.Context, id uuid.UUID) (*StoreUser, error)
 	GetUsers(ctx context.Context, pager *upagination.Pagination, filter *StoreUserListFilter, orderBys ...StoreUserOrderBy) (users []*StoreUser, total int, err error)
+	SimpleUpdate(ctx context.Context, updateField StoreUserSimpleUpdateField, params StoreUserSimpleUpdateParams) error
 }
 
 type StoreUser struct {
@@ -144,4 +144,16 @@ type StoreUserListFilter struct {
 type StoreUserExistsParams struct {
 	Username  string
 	ExcludeID uuid.UUID
+}
+
+// StoreUserSimpleUpdateField Simple update types for store user
+type StoreUserSimpleUpdateField string
+
+const (
+	StoreUserSimpleUpdateFieldEnable StoreUserSimpleUpdateField = "enable"
+)
+
+type StoreUserSimpleUpdateParams struct {
+	ID      uuid.UUID `json:"id"`
+	Enabled bool      `json:"enabled"`
 }

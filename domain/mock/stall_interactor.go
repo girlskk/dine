@@ -102,7 +102,7 @@ func (mr *MockStallInteractorMockRecorder) GetStalls(arg0, arg1, arg2 interface{
 }
 
 // StallSimpleUpdate mocks base method.
-func (m *MockStallInteractor) StallSimpleUpdate(arg0 context.Context, arg1 domain.StallSimpleUpdateType, arg2 *domain.Stall) error {
+func (m *MockStallInteractor) StallSimpleUpdate(arg0 context.Context, arg1 domain.StallSimpleUpdateField, arg2 *domain.Stall) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StallSimpleUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

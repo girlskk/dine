@@ -15,11 +15,11 @@ import (
 var _ domain.AdditionalFeeInteractor = (*AdditionalFeeInteractor)(nil)
 
 type AdditionalFeeInteractor struct {
-	ds domain.DataStore
+	DS domain.DataStore
 }
 
 func NewAdditionalFeeInteractor(ds domain.DataStore) *AdditionalFeeInteractor {
-	return &AdditionalFeeInteractor{ds: ds}
+	return &AdditionalFeeInteractor{DS: ds}
 }
 
 func (interactor *AdditionalFeeInteractor) Create(ctx context.Context, fee *domain.AdditionalFee) (err error) {
@@ -35,7 +35,7 @@ func (interactor *AdditionalFeeInteractor) Create(ctx context.Context, fee *doma
 	}
 
 	fee.ID = uuid.New()
-	err = interactor.ds.AdditionalFeeRepo().Create(ctx, fee)
+	err = interactor.DS.AdditionalFeeRepo().Create(ctx, fee)
 	if err != nil {
 		return fmt.Errorf("failed to create additional fee: %w", err)
 	}
@@ -51,7 +51,7 @@ func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *doma
 		return fmt.Errorf("additional fee is nil")
 	}
 
-	oldFee, err := interactor.ds.AdditionalFeeRepo().FindByID(ctx, fee.ID)
+	oldFee, err := interactor.DS.AdditionalFeeRepo().FindByID(ctx, fee.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrAdditionalFeeNotExists)
@@ -81,7 +81,7 @@ func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *doma
 		return err
 	}
 
-	if err = interactor.ds.AdditionalFeeRepo().Update(ctx, updatedFee); err != nil {
+	if err = interactor.DS.AdditionalFeeRepo().Update(ctx, updatedFee); err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrAdditionalFeeNotExists)
 		}
@@ -94,7 +94,7 @@ func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *doma
 func (interactor *AdditionalFeeInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
-	err = interactor.ds.AdditionalFeeRepo().Delete(ctx, id)
+	err = interactor.DS.AdditionalFeeRepo().Delete(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrAdditionalFeeNotExists)
@@ -109,7 +109,7 @@ func (interactor *AdditionalFeeInteractor) GetAdditionalFee(ctx context.Context,
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.GetAdditionalFee")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	fee, err = interactor.ds.AdditionalFeeRepo().FindByID(ctx, id)
+	fee, err = interactor.DS.AdditionalFeeRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrAdditionalFeeNotExists)
@@ -139,7 +139,7 @@ func (interactor *AdditionalFeeInteractor) GetAdditionalFees(ctx context.Context
 		return
 	}
 
-	fees, total, err = interactor.ds.AdditionalFeeRepo().GetAdditionalFees(ctx, pager, filter, orderBys...)
+	fees, total, err = interactor.DS.AdditionalFeeRepo().GetAdditionalFees(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get additional fees: %w", err)
 		return
@@ -159,7 +159,7 @@ func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context
 		return fmt.Errorf("additional fee is nil")
 	}
 
-	oldFee, err := interactor.ds.AdditionalFeeRepo().FindByID(ctx, fee.ID)
+	oldFee, err := interactor.DS.AdditionalFeeRepo().FindByID(ctx, fee.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrAdditionalFeeNotExists)
@@ -177,7 +177,7 @@ func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context
 		return domain.ParamsError(errors.New("unsupported update field"))
 	}
 
-	err = interactor.ds.AdditionalFeeRepo().Update(ctx, oldFee)
+	err = interactor.DS.AdditionalFeeRepo().Update(ctx, oldFee)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrAdditionalFeeNotExists)
@@ -189,7 +189,7 @@ func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context
 }
 
 func (interactor *AdditionalFeeInteractor) checkExists(ctx context.Context, fee *domain.AdditionalFee) (err error) {
-	exists, err := interactor.ds.AdditionalFeeRepo().Exists(ctx, domain.AdditionalFeeExistsParams{
+	exists, err := interactor.DS.AdditionalFeeRepo().Exists(ctx, domain.AdditionalFeeExistsParams{
 		MerchantID: fee.MerchantID,
 		StoreID:    fee.StoreID,
 		Name:       fee.Name,

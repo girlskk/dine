@@ -12,9 +12,6 @@ import (
 
 var (
 	ErrMismatchedHashAndPassword = errors.New("mismatched hash and password")
-	ErrAdminUserNotExists        = errors.New("管理员用户不存在")
-	ErrAdminUserUsernameExist    = errors.New("用户名已存在")
-	ErrBackendUserRoleRequired   = errors.New("管理员用户至少需要分配一个角色")
 )
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/admin_user_repository.go -package=mock . AdminUserRepository
@@ -39,6 +36,7 @@ type AdminUserInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetUser(ctx context.Context, id uuid.UUID) (*AdminUser, error)
 	GetUsers(ctx context.Context, pager *upagination.Pagination, filter *AdminUserListFilter, orderBys ...AdminUserOrderBy) (users []*AdminUser, total int, err error)
+	SimpleUpdate(ctx context.Context, updateField AdminUserSimpleUpdateField, params AdminUserSimpleUpdateParams) error
 }
 
 type AdminUser struct {
@@ -155,4 +153,16 @@ type AdminUserExistsParams struct {
 	Username  string    `json:"username"`
 	Code      string    `json:"code"`
 	ExcludeID uuid.UUID `json:"exclude_id"`
+}
+
+// Add simple update types for admin user
+type AdminUserSimpleUpdateField string
+
+const (
+	AdminUserSimpleUpdateFieldEnable AdminUserSimpleUpdateField = "enable"
+)
+
+type AdminUserSimpleUpdateParams struct {
+	ID      uuid.UUID `json:"id"`
+	Enabled bool      `json:"enabled"`
 }

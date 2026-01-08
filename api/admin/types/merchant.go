@@ -136,8 +136,8 @@ type MerchantRenewalReq struct {
 }
 
 type MerchantSimpleUpdateReq struct {
-	SimpleUpdateType domain.MerchantSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
-	Status           domain.MerchantStatus           `json:"status" binding:"omitempty"`                         // 状态: 正常,停用,过期
+	SimpleUpdateType domain.MerchantSimpleUpdateField `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
+	Status           domain.MerchantStatus            `json:"status" binding:"omitempty"`                         // 状态: 正常,停用,过期
 }
 
 type MerchantCount struct {

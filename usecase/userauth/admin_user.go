@@ -113,7 +113,7 @@ func (interactor *AdminUserInteractor) Create(ctx context.Context, user *domain.
 			return err
 		}
 		if exists {
-			return domain.ErrAdminUserUsernameExist
+			return domain.ErrUsernameExist
 		}
 		user.ID = uuid.New()
 		err = ds.AdminUserRepo().Create(ctx, user)
@@ -135,7 +135,7 @@ func (interactor *AdminUserInteractor) Update(ctx context.Context, user *domain.
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	if len(user.RoleIDs) == 0 {
-		return domain.ErrBackendUserRoleRequired
+		return domain.ErrUserRoleRequired
 	}
 	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		exists, err := ds.AdminUserRepo().Exists(ctx, domain.AdminUserExistsParams{
@@ -146,7 +146,7 @@ func (interactor *AdminUserInteractor) Update(ctx context.Context, user *domain.
 			return err
 		}
 		if exists {
-			return domain.ErrAdminUserUsernameExist
+			return domain.ErrUsernameExist
 		}
 		userRole, err := ds.UserRoleRepo().FindOneByUser(ctx, user)
 		if err != nil {
@@ -247,5 +247,39 @@ func (interactor *AdminUserInteractor) GetUsers(ctx context.Context, pager *upag
 		return nil
 	})
 
+	return
+}
+
+// SimpleUpdate implements toggling simple fields for AdminUser (e.g., enabled)
+func (interactor *AdminUserInteractor) SimpleUpdate(ctx context.Context, updateField domain.AdminUserSimpleUpdateField, params domain.AdminUserSimpleUpdateParams) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "AdminUserInteractor.SimpleUpdate")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		user, err := ds.AdminUserRepo().Find(ctx, params.ID)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ParamsError(domain.ErrUserNotExists)
+			}
+			return err
+		}
+		switch updateField {
+		case domain.AdminUserSimpleUpdateFieldEnable:
+			if user.Enabled == params.Enabled {
+				return nil
+			}
+			user.Enabled = params.Enabled
+		default:
+			return domain.ParamsError(fmt.Errorf("unsupported update field: %v", updateField))
+		}
+		err = interactor.DS.AdminUserRepo().Update(ctx, user)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return
+	}
 	return
 }

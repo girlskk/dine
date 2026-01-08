@@ -40,7 +40,7 @@ type MerchantInteractor interface {
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
 	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
-	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateType, domainMerchant *Merchant) (err error)
+	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateField, domainMerchant *Merchant) (err error)
 }
 type MerchantListOrderByType int
 
@@ -123,10 +123,10 @@ func (s MerchantStatus) ToString() string {
 	}
 }
 
-type MerchantSimpleUpdateType string
+type MerchantSimpleUpdateField string
 
 const (
-	MerchantSimpleUpdateTypeStatus MerchantSimpleUpdateType = "status" // 状态
+	MerchantSimpleUpdateTypeStatus MerchantSimpleUpdateField = "status" // 状态
 )
 
 type Merchant struct {

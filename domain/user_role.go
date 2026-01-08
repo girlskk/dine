@@ -10,8 +10,10 @@ import (
 )
 
 var (
-	ErrUserRoleNotExists = errors.New("用户角色关系不存在")
-	ErrUserRoleExists    = errors.New("用户角色关系已存在")
+	ErrUserRoleNotExists         = errors.New("用户角色关系不存在")
+	ErrUserRoleExists            = errors.New("用户角色关系已存在")
+	ErrRoleAssignedCannotDisable = errors.New("角色已分配用户，无法禁用")
+	ErrRoleAssignedCannotDelete  = errors.New("角色已分配用户，无法删除")
 )
 
 // UserRoleRepository 用户角色关系仓储接口

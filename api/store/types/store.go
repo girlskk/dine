@@ -65,6 +65,6 @@ type StoreListResp struct {
 }
 
 type StoreSimpleUpdateReq struct {
-	SimpleUpdateType domain.StoreSimpleUpdateType `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
-	Status           domain.StoreStatus           `json:"status" binding:"required"`                          // 营业/停业
+	SimpleUpdateType domain.StoreSimpleUpdateField `json:"simple_update_type" binding:"required,oneof=status"` // 简单更新类型
+	Status           domain.StoreStatus            `json:"status" binding:"required"`                          // 营业/停业
 }

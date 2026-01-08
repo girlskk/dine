@@ -9,7 +9,10 @@ import (
 	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -161,6 +164,44 @@ func (repo *DepartmentRepository) Exists(ctx context.Context, params domain.Depa
 	if err != nil {
 		return false, fmt.Errorf("failed to check department existence: %w", err)
 	}
+	return
+}
+
+// CheckUserInDepartment checks if there are any users associated with the given department ID.
+func (repo *DepartmentRepository) CheckUserInDepartment(ctx context.Context, departmentID uuid.UUID) (exists bool, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "DepartmentRepository.CheckUserInDepartment")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	ed, err := repo.Client.Department.Get(ctx, departmentID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(domain.ErrDepartmentNotExists)
+			return
+		}
+		return
+	}
+
+	switch ed.DepartmentType {
+	case domain.DepartmentAdmin:
+		exists, err = repo.Client.AdminUser.Query().Where(adminuser.DepartmentIDEQ(departmentID)).Exist(ctx)
+		if err != nil {
+			return false, fmt.Errorf("failed to check admin users in department: %w", err)
+		}
+	case domain.DepartmentBackend:
+		exists, err = repo.Client.BackendUser.Query().Where(backenduser.DepartmentIDEQ(departmentID)).Exist(ctx)
+		if err != nil {
+			return false, fmt.Errorf("failed to check backend users in department: %w", err)
+		}
+	case domain.DepartmentStore:
+		exists, err = repo.Client.StoreUser.Query().Where(storeuser.DepartmentIDEQ(departmentID)).Exist(ctx)
+		if err != nil {
+			return false, fmt.Errorf("failed to check store users in department: %w", err)
+		}
+	default:
+		err = fmt.Errorf("unknown department type: %s", ed.DepartmentType)
+		return
+	}
+
 	return
 }
 

@@ -47,7 +47,7 @@ type StoreInteractor interface {
 	GetStore(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
 	GetStoreByMerchantID(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
-	StoreSimpleUpdate(ctx context.Context, updateField StoreSimpleUpdateType, domainUStoreParams *UpdateStoreParams) (err error)
+	StoreSimpleUpdate(ctx context.Context, updateField StoreSimpleUpdateField, domainUStoreParams *UpdateStoreParams) (err error)
 }
 
 type StoreListOrderByType int
@@ -127,10 +127,10 @@ func (b BusinessModel) ToString() string {
 	}
 }
 
-type StoreSimpleUpdateType string
+type StoreSimpleUpdateField string
 
 const (
-	StoreSimpleUpdateTypeStatus StoreSimpleUpdateType = "status" // 状态更新
+	StoreSimpleUpdateFieldStatus StoreSimpleUpdateField = "status" // 状态更新
 )
 
 type Store struct {

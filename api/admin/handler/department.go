@@ -317,8 +317,8 @@ func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		dept := &domain.UpdateDepartmentParams{ID: id, Enable: true}
-		if err := h.Interactor.UpdateDepartment(ctx, dept); err != nil {
+		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnable, domain.DepartmentSimpleUpdateParams{ID: id, Enable: true})
+		if err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -360,8 +360,8 @@ func (h *DepartmentHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		dept := &domain.UpdateDepartmentParams{ID: id, Enable: false}
-		if err := h.Interactor.UpdateDepartment(ctx, dept); err != nil {
+		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnable, domain.DepartmentSimpleUpdateParams{ID: id, Enable: false})
+		if err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

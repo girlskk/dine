@@ -17,7 +17,7 @@ import (
 var _ domain.MerchantInteractor = (*MerchantInteractor)(nil)
 
 type MerchantInteractor struct {
-	DataStore domain.DataStore
+	DS domain.DataStore
 }
 
 func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domainCMerchant *domain.CreateMerchantParams) (err error) {
@@ -53,7 +53,7 @@ func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domain
 	return
 }
 func (interactor *MerchantInteractor) loginUserExists(ctx context.Context, loginUser string) (exists bool, err error) {
-	return interactor.DataStore.BackendUserRepo().Exists(ctx, domain.BackendUserExistsParams{
+	return interactor.DS.BackendUserRepo().Exists(ctx, domain.BackendUserExistsParams{
 		Username: loginUser,
 	})
 }
@@ -78,7 +78,7 @@ func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context
 		return err
 	}
 
-	storeInteractor := store.NewStoreInteractor(interactor.DataStore)
+	storeInteractor := store.NewStoreInteractor(interactor.DS)
 	domainStore, err := storeInteractor.CheckCreateStoreFields(ctx, domainCStore)
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 		util.SpanErrFinish(span, err)
 	}()
 
-	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		var err error
 		merchantID := uuid.New()
 		err = ds.BackendUserRepo().Create(ctx, &domain.BackendUser{
@@ -205,7 +205,7 @@ func (interactor *MerchantInteractor) UpdateMerchantAndStore(ctx context.Context
 		return err
 	}
 
-	storeInteractor := store.NewStoreInteractor(interactor.DataStore)
+	storeInteractor := store.NewStoreInteractor(interactor.DS)
 	domainStore, err := storeInteractor.CheckUpdateStoreFields(ctx, domainUStore)
 	if err != nil {
 		return err
@@ -219,7 +219,7 @@ func (interactor *MerchantInteractor) UpdateMerchantAndStore(ctx context.Context
 }
 
 func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context,
-	updateField domain.MerchantSimpleUpdateType,
+	updateField domain.MerchantSimpleUpdateField,
 	domainMerchant *domain.Merchant,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.MerchantSimpleUpdate")
@@ -230,7 +230,7 @@ func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context,
 	if domainMerchant == nil {
 		return domain.ParamsError(errors.New("domainMerchant is required"))
 	}
-	merchant, err := interactor.DataStore.MerchantRepo().FindByID(ctx, domainMerchant.ID)
+	merchant, err := interactor.DS.MerchantRepo().FindByID(ctx, domainMerchant.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrMerchantNotExists)
@@ -249,7 +249,7 @@ func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context,
 		return domain.ParamsError(fmt.Errorf("unsupported update field: %v", updateField))
 	}
 
-	return interactor.DataStore.MerchantRepo().Update(ctx, merchant)
+	return interactor.DS.MerchantRepo().Update(ctx, merchant)
 }
 
 func (interactor *MerchantInteractor) updateMerchant(ctx context.Context, domainMerchant *domain.Merchant, domainStore *domain.Store) (err error) {
@@ -258,7 +258,7 @@ func (interactor *MerchantInteractor) updateMerchant(ctx context.Context, domain
 		util.SpanErrFinish(span, err)
 	}()
 
-	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		var err error
 		err = ds.MerchantRepo().Update(ctx, domainMerchant)
 		if err != nil {
@@ -299,14 +299,14 @@ func (interactor *MerchantInteractor) DeleteMerchant(ctx context.Context, id uui
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	_, err = interactor.DataStore.MerchantRepo().FindByID(ctx, id)
+	_, err = interactor.DS.MerchantRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrMerchantNotExists)
 		}
 		return
 	}
-	err = interactor.DataStore.MerchantRepo().Delete(ctx, id)
+	err = interactor.DS.MerchantRepo().Delete(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("failed to delete merchant: %w", err)
 		return
@@ -320,7 +320,7 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 		util.SpanErrFinish(span, err)
 	}()
 
-	domainMerchant, err = interactor.DataStore.MerchantRepo().FindByID(ctx, id)
+	domainMerchant, err = interactor.DS.MerchantRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return nil, domain.ParamsError(domain.ErrMerchantNotExists)
@@ -328,7 +328,7 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 		return nil, err
 	}
 
-	if bt, err := interactor.DataStore.MerchantBusinessTypeRepo().FindByCode(ctx, domainMerchant.BusinessTypeCode); err == nil {
+	if bt, err := interactor.DS.MerchantBusinessTypeRepo().FindByCode(ctx, domainMerchant.BusinessTypeCode); err == nil {
 		domainMerchant.BusinessTypeName = bt.TypeName
 	}
 	return domainMerchant, nil
@@ -344,7 +344,7 @@ func (interactor *MerchantInteractor) GetMerchants(ctx context.Context,
 		util.SpanErrFinish(span, err)
 	}()
 
-	domainMerchants, total, err = interactor.DataStore.MerchantRepo().GetMerchants(ctx, pager, filter, orderBys...)
+	domainMerchants, total, err = interactor.DS.MerchantRepo().GetMerchants(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get merchants: %w", err)
 		return
@@ -356,7 +356,7 @@ func (interactor *MerchantInteractor) GetMerchants(ctx context.Context,
 	if len(merchantIds) == 0 {
 		return
 	}
-	merchantStoreCounts, err := interactor.DataStore.StoreRepo().CountStoresByMerchantID(ctx, merchantIds)
+	merchantStoreCounts, err := interactor.DS.StoreRepo().CountStoresByMerchantID(ctx, merchantIds)
 	if err != nil {
 		err = fmt.Errorf("failed to count stores by merchant ids: %w", err)
 		return
@@ -379,7 +379,7 @@ func (interactor *MerchantInteractor) CountMerchant(ctx context.Context) (mercha
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	merchantCount, err = interactor.DataStore.MerchantRepo().CountMerchant(ctx)
+	merchantCount, err = interactor.DS.MerchantRepo().CountMerchant(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to count merchants: %w", err)
 		return
@@ -394,7 +394,7 @@ func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merch
 		util.SpanErrFinish(span, err)
 	}()
 
-	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		var err error
 		merchantRenewal.ID = uuid.New()
 		err = ds.MerchantRenewalRepo().Create(ctx, merchantRenewal)
@@ -456,7 +456,7 @@ func (interactor *MerchantInteractor) CheckCreateMerchantFields(ctx context.Cont
 func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Context,
 	domainUMerchant *domain.UpdateMerchantParams,
 ) (domainMerchant *domain.Merchant, err error) {
-	oldMerchant, err := interactor.DataStore.MerchantRepo().FindByID(ctx, domainUMerchant.ID)
+	oldMerchant, err := interactor.DS.MerchantRepo().FindByID(ctx, domainUMerchant.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrMerchantNotExists)
@@ -490,7 +490,7 @@ func (interactor *MerchantInteractor) CheckUpdateMerchantFields(ctx context.Cont
 
 func (interactor *MerchantInteractor) exists(ctx context.Context, domainMerchant *domain.Merchant) (err error) {
 	// 商户名称唯一性校验（update排除自身）
-	exists, err := interactor.DataStore.MerchantRepo().ExistMerchant(ctx, &domain.MerchantExistsParams{
+	exists, err := interactor.DS.MerchantRepo().ExistMerchant(ctx, &domain.MerchantExistsParams{
 		MerchantName: domainMerchant.MerchantName,
 		ExcludeID:    domainMerchant.ID,
 	})
@@ -507,6 +507,6 @@ func (interactor *MerchantInteractor) exists(ctx context.Context, domainMerchant
 
 func NewMerchantInteractor(dataStore domain.DataStore) *MerchantInteractor {
 	return &MerchantInteractor{
-		DataStore: dataStore,
+		DS: dataStore,
 	}
 }

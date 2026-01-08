@@ -296,7 +296,7 @@ func (h *RemarkHandler) Enable() gin.HandlerFunc {
 		}
 
 		remark := &domain.Remark{ID: id, Enabled: true}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateTypeEnabled, remark); err != nil {
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -338,7 +338,7 @@ func (h *RemarkHandler) Disable() gin.HandlerFunc {
 		}
 
 		remark := &domain.Remark{ID: id, Enabled: false}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateTypeEnabled, remark); err != nil {
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

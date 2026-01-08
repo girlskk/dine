@@ -16,7 +16,7 @@ import (
 var _ domain.StoreInteractor = (*StoreInteractor)(nil)
 
 type StoreInteractor struct {
-	DataStore domain.DataStore
+	DS domain.DataStore
 }
 
 func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore *domain.CreateStoreParams) (err error) {
@@ -30,7 +30,7 @@ func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore
 		return
 	}
 
-	err = interactor.DataStore.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		var err error
 
 		storeID := uuid.New()
@@ -74,7 +74,7 @@ func (interactor *StoreInteractor) UpdateStore(ctx context.Context, domainUStore
 	if err != nil {
 		return
 	}
-	err = interactor.DataStore.StoreRepo().Update(ctx, domainStore)
+	err = interactor.DS.StoreRepo().Update(ctx, domainStore)
 	if err != nil {
 		err = fmt.Errorf("failed to update store: %w", err)
 		return
@@ -88,7 +88,7 @@ func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id uuid.UUID
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	_, err = interactor.DataStore.StoreRepo().FindByID(ctx, id)
+	_, err = interactor.DS.StoreRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrStoreNotExists)
@@ -97,7 +97,7 @@ func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id uuid.UUID
 		return
 	}
 
-	err = interactor.DataStore.StoreRepo().Delete(ctx, id)
+	err = interactor.DS.StoreRepo().Delete(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("failed to delete store: %w", err)
 		return
@@ -111,7 +111,7 @@ func (interactor *StoreInteractor) GetStore(ctx context.Context, id uuid.UUID) (
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	domainStore, err = interactor.DataStore.StoreRepo().FindByID(ctx, id)
+	domainStore, err = interactor.DS.StoreRepo().FindByID(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("failed to get store: %w", err)
 		return
@@ -126,13 +126,13 @@ func (interactor *StoreInteractor) GetStoreByMerchantID(ctx context.Context, mer
 		util.SpanErrFinish(span, err)
 	}()
 
-	domainStore, err = interactor.DataStore.StoreRepo().FindStoreMerchant(ctx, merchantID)
+	domainStore, err = interactor.DS.StoreRepo().FindStoreMerchant(ctx, merchantID)
 	if err != nil {
 		err = fmt.Errorf("failed to get store by merchant id: %w", err)
 		return
 	}
 
-	if bt, err := interactor.DataStore.MerchantBusinessTypeRepo().FindByCode(ctx, domainStore.BusinessTypeCode); err == nil {
+	if bt, err := interactor.DS.MerchantBusinessTypeRepo().FindByCode(ctx, domainStore.BusinessTypeCode); err == nil {
 		domainStore.BusinessTypeName = bt.TypeName
 	}
 	return domainStore, nil
@@ -147,7 +147,7 @@ func (interactor *StoreInteractor) GetStores(ctx context.Context,
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	domainStores, total, err = interactor.DataStore.StoreRepo().GetStores(ctx, pager, filter, orderBys...)
+	domainStores, total, err = interactor.DS.StoreRepo().GetStores(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get stores: %w", err)
 		return
@@ -156,7 +156,7 @@ func (interactor *StoreInteractor) GetStores(ctx context.Context,
 }
 
 func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,
-	updateField domain.StoreSimpleUpdateType,
+	updateField domain.StoreSimpleUpdateField,
 	domainUStoreParams *domain.UpdateStoreParams,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.StoreSimpleUpdate")
@@ -168,7 +168,7 @@ func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,
 		return domain.ParamsError(errors.New("domainUStoreParams is required"))
 	}
 
-	domainStore, err := interactor.DataStore.StoreRepo().FindByID(ctx, domainUStoreParams.ID)
+	domainStore, err := interactor.DS.StoreRepo().FindByID(ctx, domainUStoreParams.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrStoreNotExists)
@@ -178,7 +178,7 @@ func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,
 	}
 
 	switch updateField {
-	case domain.StoreSimpleUpdateTypeStatus:
+	case domain.StoreSimpleUpdateFieldStatus:
 		if domainStore.Status == domainUStoreParams.Status {
 			return
 		}
@@ -187,7 +187,7 @@ func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,
 		return domain.ParamsError(fmt.Errorf("unsupported update field: %v", updateField))
 	}
 
-	err = interactor.DataStore.StoreRepo().Update(ctx, domainStore)
+	err = interactor.DS.StoreRepo().Update(ctx, domainStore)
 	if err != nil {
 		err = fmt.Errorf("failed to update store: %w", err)
 		return
@@ -251,7 +251,7 @@ func (interactor *StoreInteractor) CheckUpdateStoreFields(ctx context.Context,
 		util.SpanErrFinish(span, err)
 	}()
 
-	oldStore, err := interactor.DataStore.StoreRepo().FindByID(ctx, domainUStore.ID)
+	oldStore, err := interactor.DS.StoreRepo().FindByID(ctx, domainUStore.ID)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ParamsError(domain.ErrStoreNotExists)
@@ -391,7 +391,7 @@ func validateShiftTimes(shifts []domain.ShiftTime) error {
 }
 
 func (interactor *StoreInteractor) checkNameExists(ctx context.Context, domainStore *domain.Store) (err error) {
-	exists, err := interactor.DataStore.StoreRepo().ExistsStore(ctx, &domain.ExistsStoreParams{
+	exists, err := interactor.DS.StoreRepo().ExistsStore(ctx, &domain.ExistsStoreParams{
 		MerchantID: domainStore.MerchantID,
 		StoreName:  domainStore.StoreName,
 		ExcludeID:  domainStore.ID,
@@ -408,6 +408,6 @@ func (interactor *StoreInteractor) checkNameExists(ctx context.Context, domainSt
 
 func NewStoreInteractor(dataStore domain.DataStore) *StoreInteractor {
 	return &StoreInteractor{
-		DataStore: dataStore,
+		DS: dataStore,
 	}
 }
