@@ -8,14 +8,14 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Category) (err error) {
+func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Category, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "CategoryInteractor.CreateRoot")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		// Check if the category name already exists
+		// 分类名称唯一性检查
 		exists, err := ds.CategoryRepo().Exists(ctx, domain.CategoryExistsParams{
 			MerchantID: category.MerchantID,
 			StoreID:    category.StoreID,
@@ -28,43 +28,24 @@ func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Ca
 		if exists {
 			return domain.ErrCategoryNameExists
 		}
-
-		// check tax rate id
-		if category.TaxRateID != uuid.Nil {
-			// @TODO
-			// exists, err := ds.TaxRateRepo().Exists(ctx, domain.TaxRateExistsParams{
-			// 	MerchantID: category.MerchantID,
-			// 	ID:         category.TaxRateID,
-			// })
-			// if err != nil {
-			// 	return err
-			// }
-			// if !exists {
-			// 	return domain.ParamsErrorf(domain.ErrTaxRateNotExists)
-			// }
+		// 检查税率是否有效
+		err = i.checkTaxRate(ctx, ds, category, user)
+		if err != nil {
+			return err
+		}
+		// 检查出品部门是否有效
+		err = i.checkStall(ctx, ds, category, user)
+		if err != nil {
+			return err
 		}
 
-		if category.StallID != uuid.Nil {
-			// @TODO
-			// exists, err := ds.StallRepo().Exists(ctx, domain.StallExistsParams{
-			// 	MerchantID: category.MerchantID,
-			// 	ID:         category.StallID,
-			// })
-			// if err != nil {
-			// 	return err
-			// }
-			// if !exists {
-			// 	return domain.ParamsErrorf(domain.ErrStallNotExists)
-			// }
-		}
-
-		// create root category
+		// 创建一级分类
 		err = ds.CategoryRepo().Create(ctx, category)
 		if err != nil {
 			return err
 		}
 
-		// create children categories
+		// 创建子分类
 		if len(category.Childrens) > 0 {
 			err = ds.CategoryRepo().CreateBulk(ctx, category.Childrens)
 			if err != nil {
@@ -75,7 +56,7 @@ func (i *CategoryInteractor) CreateRoot(ctx context.Context, category *domain.Ca
 	})
 }
 
-func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.Category) (err error) {
+func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.Category, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "CategoryInteractor.CreateChild")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -101,9 +82,15 @@ func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.C
 			return domain.ParamsError(domain.ErrCategoryParentHasProducts)
 		}
 
-		// 4. 验证同一父分类下名称唯一性
+		// 4. 验证父分类是否属于当前用户可操作
+		if !domain.VerifyOwnerShip(user, parentCategory.MerchantID, parentCategory.StoreID) {
+			return domain.ParamsError(domain.ErrCategoryParentNotExists)
+		}
+
+		// 5. 验证同一父分类下名称唯一性
 		exists, err := ds.CategoryRepo().Exists(ctx, domain.CategoryExistsParams{
 			MerchantID: category.MerchantID,
+			StoreID:    category.StoreID,
 			Name:       category.Name,
 			ParentID:   category.ParentID,
 			IsRoot:     false,
@@ -126,33 +113,15 @@ func (i *CategoryInteractor) CreateChild(ctx context.Context, category *domain.C
 			category.StallID = uuid.Nil
 		}
 
-		// 6. 验证税率ID和出品部门ID的有效性（如果提供了）
-		if category.TaxRateID != uuid.Nil {
-			// @TODO: 验证税率ID是否存在且可用
-			// exists, err := ds.TaxRateRepo().Exists(ctx, domain.TaxRateExistsParams{
-			// 	MerchantID: category.MerchantID,
-			// 	ID:         category.TaxRateID,
-			// })
-			// if err != nil {
-			// 	return err
-			// }
-			// if !exists {
-			// 	return domain.ParamsError(domain.ErrTaxRateNotExists)
-			// }
+		// 检查税率是否有效
+		err = i.checkTaxRate(ctx, ds, category, user)
+		if err != nil {
+			return err
 		}
-
-		if category.StallID != uuid.Nil {
-			// @TODO: 验证出品部门ID是否存在且可用
-			// exists, err := ds.StallRepo().Exists(ctx, domain.StallExistsParams{
-			// 	MerchantID: category.MerchantID,
-			// 	ID:         category.StallID,
-			// })
-			// if err != nil {
-			// 	return err
-			// }
-			// if !exists {
-			// 	return domain.ParamsError(domain.ErrStallNotExists)
-			// }
+		// 检查出品部门是否有效
+		err = i.checkStall(ctx, ds, category, user)
+		if err != nil {
+			return err
 		}
 
 		// 创建二级分类

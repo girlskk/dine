@@ -154,6 +154,11 @@ type Merchant struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type MerchantSimple struct {
+	ID           uuid.UUID `json:"id"`
+	MerchantName string    `json:"merchant_name"` // 商户名称
+}
+
 type Address struct {
 	CountryID    uuid.UUID `json:"country_id"`    // 国家/地区 ID
 	ProvinceID   uuid.UUID `json:"province_id"`   // 省份 ID

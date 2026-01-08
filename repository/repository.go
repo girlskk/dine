@@ -13,43 +13,47 @@ import (
 var _ domain.DataStore = (*Repository)(nil)
 
 type Repository struct {
-	transactionActive        bool
-	hooks                    []func()
-	mu                       sync.Mutex
-	client                   *ent.Client
-	adminUserRepo            *AdminUserRepository
-	storeUserRepo            *StoreUserRepository
-	categoryRepo             *CategoryRepository
-	backendUserRepo          *BackendUserRepository
-	productUnitRepo          *ProductUnitRepository
-	productSpecRepo          *ProductSpecRepository
-	productTagRepo           *ProductTagRepository
-	productAttrRepo          *ProductAttrRepository
-	productRepo              *ProductRepository
-	productAttrRelRepo       *ProductAttrRelRepository
-	productSpecRelRepo       *ProductSpecRelRepository
-	setMealGroupRepo         *SetMealGroupRepository
-	merchantRepo             *MerchantRepository
-	storeRepo                *StoreRepository
-	merchantRenewalRepo      *MerchantRenewalRepository
-	merchantBusinessTypeRepo *MerchantBusinessTypeRepository
-	remarkRepo               *RemarkRepository
-	remarkCategoryRepo       *RemarkCategoryRepository
-	orderRepo                *OrderRepository
-	menuRepo                 *MenuRepository
-	stallRepo                *StallRepository
-	additionalFeeRepo        *AdditionalFeeRepository
-	taxFeeRepo               *TaxFeeRepository
-	deviceRepo               *DeviceRepository
-	countryRepo              *CountryRepository
-	provinceRepo             *ProvinceRepository
-	departmentRepo           *DepartmentRepository
-	paymentMethodRepo        *PaymentMethodRepository
-	roleRepo                 *RoleRepository
-	permissionRepo           *PermissionRepository
-	routerMenuRepo           *RouterMenuRepository
-	roleMenuRepo             *RoleMenuRepository
-	userRoleRepo             *UserRoleRepository
+	transactionActive          bool
+	hooks                      []func()
+	mu                         sync.Mutex
+	client                     *ent.Client
+	adminUserRepo              *AdminUserRepository
+	storeUserRepo              *StoreUserRepository
+	categoryRepo               *CategoryRepository
+	backendUserRepo            *BackendUserRepository
+	productUnitRepo            *ProductUnitRepository
+	productSpecRepo            *ProductSpecRepository
+	productTagRepo             *ProductTagRepository
+	productAttrRepo            *ProductAttrRepository
+	productRepo                *ProductRepository
+	productAttrRelRepo         *ProductAttrRelRepository
+	productSpecRelRepo         *ProductSpecRelRepository
+	setMealGroupRepo           *SetMealGroupRepository
+	merchantRepo               *MerchantRepository
+	storeRepo                  *StoreRepository
+	merchantRenewalRepo        *MerchantRenewalRepository
+	merchantBusinessTypeRepo   *MerchantBusinessTypeRepository
+	remarkRepo                 *RemarkRepository
+	remarkCategoryRepo         *RemarkCategoryRepository
+	orderRepo                  *OrderRepository
+	menuRepo                   *MenuRepository
+	stallRepo                  *StallRepository
+	additionalFeeRepo          *AdditionalFeeRepository
+	taxFeeRepo                 *TaxFeeRepository
+	deviceRepo                 *DeviceRepository
+	countryRepo                *CountryRepository
+	provinceRepo               *ProvinceRepository
+	departmentRepo             *DepartmentRepository
+	paymentMethodRepo          *PaymentMethodRepository
+	roleRepo                   *RoleRepository
+	permissionRepo             *PermissionRepository
+	routerMenuRepo             *RouterMenuRepository
+	roleMenuRepo               *RoleMenuRepository
+	userRoleRepo               *UserRoleRepository
+	profitDistributionRuleRepo *ProfitDistributionRuleRepository
+	profitDistributionBillRepo *ProfitDistributionBillRepository
+	paymentAccountRepo         *PaymentAccountRepository
+	storePaymentAccountRepo    *StorePaymentAccountRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -304,6 +308,15 @@ func (repo *Repository) StoreUserRepo() domain.StoreUserRepository {
 	return repo.storeUserRepo
 }
 
+func (repo *Repository) ProfitDistributionRuleRepo() domain.ProfitDistributionRuleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.profitDistributionRuleRepo == nil {
+		repo.profitDistributionRuleRepo = NewProfitDistributionRuleRepository(repo.client)
+	}
+	return repo.profitDistributionRuleRepo
+}
+
 func (repo *Repository) StallRepo() domain.StallRepository {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -431,4 +444,31 @@ func (repo *Repository) UserRoleRepo() domain.UserRoleRepository {
 		repo.userRoleRepo = NewUserRoleRepository(repo.client)
 	}
 	return repo.userRoleRepo
+}
+
+func (repo *Repository) ProfitDistributionBillRepo() domain.ProfitDistributionBillRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.profitDistributionBillRepo == nil {
+		repo.profitDistributionBillRepo = NewProfitDistributionBillRepository(repo.client)
+	}
+	return repo.profitDistributionBillRepo
+}
+
+func (repo *Repository) PaymentAccountRepo() domain.PaymentAccountRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.paymentAccountRepo == nil {
+		repo.paymentAccountRepo = NewPaymentAccountRepository(repo.client)
+	}
+	return repo.paymentAccountRepo
+}
+
+func (repo *Repository) StorePaymentAccountRepo() domain.StorePaymentAccountRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.storePaymentAccountRepo == nil {
+		repo.storePaymentAccountRepo = NewStorePaymentAccountRepository(repo.client)
+	}
+	return repo.storePaymentAccountRepo
 }

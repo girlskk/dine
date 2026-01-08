@@ -110,6 +110,12 @@ const (
 	EdgeDepartments = "departments"
 	// EdgeRoles holds the string denoting the roles edge name in mutations.
 	EdgeRoles = "roles"
+	// EdgeProfitDistributionRules holds the string denoting the profit_distribution_rules edge name in mutations.
+	EdgeProfitDistributionRules = "profit_distribution_rules"
+	// EdgeProfitDistributionBills holds the string denoting the profit_distribution_bills edge name in mutations.
+	EdgeProfitDistributionBills = "profit_distribution_bills"
+	// EdgeStorePaymentAccounts holds the string denoting the store_payment_accounts edge name in mutations.
+	EdgeStorePaymentAccounts = "store_payment_accounts"
 	// Table holds the table name of the store in the database.
 	Table = "stores"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -208,6 +214,25 @@ const (
 	RolesInverseTable = "roles"
 	// RolesColumn is the table column denoting the roles relation/edge.
 	RolesColumn = "store_id"
+	// ProfitDistributionRulesTable is the table that holds the profit_distribution_rules relation/edge. The primary key declared below.
+	ProfitDistributionRulesTable = "profit_distribution_rule_store_relations"
+	// ProfitDistributionRulesInverseTable is the table name for the ProfitDistributionRule entity.
+	// It exists in this package in order to avoid circular dependency with the "profitdistributionrule" package.
+	ProfitDistributionRulesInverseTable = "profit_distribution_rules"
+	// ProfitDistributionBillsTable is the table that holds the profit_distribution_bills relation/edge.
+	ProfitDistributionBillsTable = "profit_distribution_bills"
+	// ProfitDistributionBillsInverseTable is the table name for the ProfitDistributionBill entity.
+	// It exists in this package in order to avoid circular dependency with the "profitdistributionbill" package.
+	ProfitDistributionBillsInverseTable = "profit_distribution_bills"
+	// ProfitDistributionBillsColumn is the table column denoting the profit_distribution_bills relation/edge.
+	ProfitDistributionBillsColumn = "store_id"
+	// StorePaymentAccountsTable is the table that holds the store_payment_accounts relation/edge.
+	StorePaymentAccountsTable = "store_payment_accounts"
+	// StorePaymentAccountsInverseTable is the table name for the StorePaymentAccount entity.
+	// It exists in this package in order to avoid circular dependency with the "storepaymentaccount" package.
+	StorePaymentAccountsInverseTable = "store_payment_accounts"
+	// StorePaymentAccountsColumn is the table column denoting the store_payment_accounts relation/edge.
+	StorePaymentAccountsColumn = "store_id"
 )
 
 // Columns holds all SQL columns for store fields.
@@ -251,6 +276,9 @@ var (
 	// MenusPrimaryKey and MenusColumn2 are the table columns denoting the
 	// primary key for the menus relation (M2M).
 	MenusPrimaryKey = []string{"menu_id", "store_id"}
+	// ProfitDistributionRulesPrimaryKey and ProfitDistributionRulesColumn2 are the table columns denoting the
+	// primary key for the profit_distribution_rules relation (M2M).
+	ProfitDistributionRulesPrimaryKey = []string{"profit_distribution_rule_id", "store_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -680,6 +708,48 @@ func ByRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRolesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByProfitDistributionRulesCount orders the results by profit_distribution_rules count.
+func ByProfitDistributionRulesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProfitDistributionRulesStep(), opts...)
+	}
+}
+
+// ByProfitDistributionRules orders the results by profit_distribution_rules terms.
+func ByProfitDistributionRules(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProfitDistributionRulesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByProfitDistributionBillsCount orders the results by profit_distribution_bills count.
+func ByProfitDistributionBillsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProfitDistributionBillsStep(), opts...)
+	}
+}
+
+// ByProfitDistributionBills orders the results by profit_distribution_bills terms.
+func ByProfitDistributionBills(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProfitDistributionBillsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByStorePaymentAccountsCount orders the results by store_payment_accounts count.
+func ByStorePaymentAccountsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStorePaymentAccountsStep(), opts...)
+	}
+}
+
+// ByStorePaymentAccounts orders the results by store_payment_accounts terms.
+func ByStorePaymentAccounts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStorePaymentAccountsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -776,5 +846,26 @@ func newRolesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RolesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RolesTable, RolesColumn),
+	)
+}
+func newProfitDistributionRulesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProfitDistributionRulesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, ProfitDistributionRulesTable, ProfitDistributionRulesPrimaryKey...),
+	)
+}
+func newProfitDistributionBillsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProfitDistributionBillsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProfitDistributionBillsTable, ProfitDistributionBillsColumn),
+	)
+}
+func newStorePaymentAccountsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StorePaymentAccountsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StorePaymentAccountsTable, StorePaymentAccountsColumn),
 	)
 }

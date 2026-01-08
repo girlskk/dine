@@ -14,8 +14,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
@@ -181,6 +183,36 @@ func (sc *StallCreate) AddDevices(d ...*Device) *StallCreate {
 		ids[i] = d[i].ID
 	}
 	return sc.AddDeviceIDs(ids...)
+}
+
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (sc *StallCreate) AddCategoryIDs(ids ...uuid.UUID) *StallCreate {
+	sc.mutation.AddCategoryIDs(ids...)
+	return sc
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (sc *StallCreate) AddCategories(c ...*Category) *StallCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return sc.AddCategoryIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (sc *StallCreate) AddProductIDs(ids ...uuid.UUID) *StallCreate {
+	sc.mutation.AddProductIDs(ids...)
+	return sc
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (sc *StallCreate) AddProducts(p ...*Product) *StallCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return sc.AddProductIDs(ids...)
 }
 
 // Mutation returns the StallMutation object of the builder.
@@ -408,6 +440,38 @@ func (sc *StallCreate) createSpec() (*Stall, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.CategoriesTable,
+			Columns: []string{stall.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   stall.ProductsTable,
+			Columns: []string{stall.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

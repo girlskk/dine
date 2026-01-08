@@ -1006,6 +1006,10 @@ const docTemplate = `{
                             "MerchantTypeBrand": "品牌商户",
                             "MerchantTypeStore": "门店商户"
                         },
+                        "x-enum-descriptions": [
+                            "品牌商户",
+                            "门店商户"
+                        ],
                         "x-enum-varnames": [
                             "MerchantTypeBrand",
                             "MerchantTypeStore"
@@ -1044,6 +1048,11 @@ const docTemplate = `{
                             "MerchantStatusDisabled": "已禁用",
                             "MerchantStatusExpired": "已过期"
                         },
+                        "x-enum-descriptions": [
+                            "已激活",
+                            "已过期",
+                            "已禁用"
+                        ],
                         "x-enum-varnames": [
                             "MerchantStatusActive",
                             "MerchantStatusExpired",
@@ -1405,6 +1414,10 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
+                        "x-enum-descriptions": [
+                            "直营",
+                            "加盟"
+                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -1463,6 +1476,10 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
+                        "x-enum-descriptions": [
+                            "营业",
+                            "停业"
+                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -1847,6 +1864,12 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -2353,7 +2376,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -2368,6 +2391,10 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
+            "x-enum-descriptions": [
+                "直营",
+                "加盟"
+            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -2463,6 +2490,12 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -2482,6 +2515,11 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -2622,6 +2660,11 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
+            "x-enum-descriptions": [
+                "已激活",
+                "已过期",
+                "已禁用"
+            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -2638,6 +2681,10 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
+            "x-enum-descriptions": [
+                "品牌商户",
+                "门店商户"
+            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -2647,15 +2694,23 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "merchant",
-                "store"
+                "store",
+                "product"
             ],
             "x-enum-comments": {
                 "ObjectStorageSceneMerchant": "商户",
+                "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店",
+                "商品"
+            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
-                "ObjectStorageSceneStore"
+                "ObjectStorageSceneStore",
+                "ObjectStorageSceneProduct"
             ]
         },
         "domain.Province": {
@@ -2689,6 +2744,12 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
+            "x-enum-descriptions": [
+                "日",
+                "月",
+                "年",
+                "周"
+            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -2771,6 +2832,14 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -2795,6 +2864,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -3021,6 +3095,10 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
+            "x-enum-descriptions": [
+                "营业",
+                "停业"
+            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -3041,6 +3119,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -3055,27 +3138,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.Address": {
             "type": "object",
@@ -3832,10 +3894,11 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "scene": {
-                    "description": "业务场景，store：门店相关 merchant: 商户相关",
+                    "description": "业务场景，store：门店相关 merchant: 商户相关 product: 商品相关",
                     "enum": [
                         "store",
-                        "merchant"
+                        "merchant",
+                        "product"
                     ],
                     "allOf": [
                         {

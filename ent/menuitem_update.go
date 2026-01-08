@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/shopspring/decimal"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -55,20 +54,6 @@ func (miu *MenuItemUpdate) SetNillableDeletedAt(i *int64) *MenuItemUpdate {
 // AddDeletedAt adds i to the "deleted_at" field.
 func (miu *MenuItemUpdate) AddDeletedAt(i int64) *MenuItemUpdate {
 	miu.mutation.AddDeletedAt(i)
-	return miu
-}
-
-// SetSaleRule sets the "sale_rule" field.
-func (miu *MenuItemUpdate) SetSaleRule(disr domain.MenuItemSaleRule) *MenuItemUpdate {
-	miu.mutation.SetSaleRule(disr)
-	return miu
-}
-
-// SetNillableSaleRule sets the "sale_rule" field if the given value is not nil.
-func (miu *MenuItemUpdate) SetNillableSaleRule(disr *domain.MenuItemSaleRule) *MenuItemUpdate {
-	if disr != nil {
-		miu.SetSaleRule(*disr)
-	}
 	return miu
 }
 
@@ -161,11 +146,6 @@ func (miu *MenuItemUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (miu *MenuItemUpdate) check() error {
-	if v, ok := miu.mutation.SaleRule(); ok {
-		if err := menuitem.SaleRuleValidator(v); err != nil {
-			return &ValidationError{Name: "sale_rule", err: fmt.Errorf(`ent: validator failed for field "MenuItem.sale_rule": %w`, err)}
-		}
-	}
 	if miu.mutation.MenuCleared() && len(miu.mutation.MenuIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "MenuItem.menu"`)
 	}
@@ -201,9 +181,6 @@ func (miu *MenuItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := miu.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(menuitem.FieldDeletedAt, field.TypeInt64, value)
-	}
-	if value, ok := miu.mutation.SaleRule(); ok {
-		_spec.SetField(menuitem.FieldSaleRule, field.TypeEnum, value)
 	}
 	if value, ok := miu.mutation.BasePrice(); ok {
 		_spec.SetField(menuitem.FieldBasePrice, field.TypeOther, value)
@@ -263,20 +240,6 @@ func (miuo *MenuItemUpdateOne) SetNillableDeletedAt(i *int64) *MenuItemUpdateOne
 // AddDeletedAt adds i to the "deleted_at" field.
 func (miuo *MenuItemUpdateOne) AddDeletedAt(i int64) *MenuItemUpdateOne {
 	miuo.mutation.AddDeletedAt(i)
-	return miuo
-}
-
-// SetSaleRule sets the "sale_rule" field.
-func (miuo *MenuItemUpdateOne) SetSaleRule(disr domain.MenuItemSaleRule) *MenuItemUpdateOne {
-	miuo.mutation.SetSaleRule(disr)
-	return miuo
-}
-
-// SetNillableSaleRule sets the "sale_rule" field if the given value is not nil.
-func (miuo *MenuItemUpdateOne) SetNillableSaleRule(disr *domain.MenuItemSaleRule) *MenuItemUpdateOne {
-	if disr != nil {
-		miuo.SetSaleRule(*disr)
-	}
 	return miuo
 }
 
@@ -382,11 +345,6 @@ func (miuo *MenuItemUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (miuo *MenuItemUpdateOne) check() error {
-	if v, ok := miuo.mutation.SaleRule(); ok {
-		if err := menuitem.SaleRuleValidator(v); err != nil {
-			return &ValidationError{Name: "sale_rule", err: fmt.Errorf(`ent: validator failed for field "MenuItem.sale_rule": %w`, err)}
-		}
-	}
 	if miuo.mutation.MenuCleared() && len(miuo.mutation.MenuIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "MenuItem.menu"`)
 	}
@@ -439,9 +397,6 @@ func (miuo *MenuItemUpdateOne) sqlSave(ctx context.Context) (_node *MenuItem, er
 	}
 	if value, ok := miuo.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(menuitem.FieldDeletedAt, field.TypeInt64, value)
-	}
-	if value, ok := miuo.mutation.SaleRule(); ok {
-		_spec.SetField(menuitem.FieldSaleRule, field.TypeEnum, value)
 	}
 	if value, ok := miuo.mutation.BasePrice(); ok {
 		_spec.SetField(menuitem.FieldBasePrice, field.TypeOther, value)

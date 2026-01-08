@@ -126,9 +126,15 @@ type StoreEdges struct {
 	Departments []*Department `json:"departments,omitempty"`
 	// Roles holds the value of the roles edge.
 	Roles []*Role `json:"roles,omitempty"`
+	// 关联的分账方案
+	ProfitDistributionRules []*ProfitDistributionRule `json:"profit_distribution_rules,omitempty"`
+	// 关联的分账账单
+	ProfitDistributionBills []*ProfitDistributionBill `json:"profit_distribution_bills,omitempty"`
+	// 关联的门店收款账户
+	StorePaymentAccounts []*StorePaymentAccount `json:"store_payment_accounts,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [14]bool
+	loadedTypes [17]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -265,6 +271,33 @@ func (e StoreEdges) RolesOrErr() ([]*Role, error) {
 		return e.Roles, nil
 	}
 	return nil, &NotLoadedError{edge: "roles"}
+}
+
+// ProfitDistributionRulesOrErr returns the ProfitDistributionRules value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) ProfitDistributionRulesOrErr() ([]*ProfitDistributionRule, error) {
+	if e.loadedTypes[14] {
+		return e.ProfitDistributionRules, nil
+	}
+	return nil, &NotLoadedError{edge: "profit_distribution_rules"}
+}
+
+// ProfitDistributionBillsOrErr returns the ProfitDistributionBills value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) ProfitDistributionBillsOrErr() ([]*ProfitDistributionBill, error) {
+	if e.loadedTypes[15] {
+		return e.ProfitDistributionBills, nil
+	}
+	return nil, &NotLoadedError{edge: "profit_distribution_bills"}
+}
+
+// StorePaymentAccountsOrErr returns the StorePaymentAccounts value or an error if the edge
+// was not loaded in eager-loading.
+func (e StoreEdges) StorePaymentAccountsOrErr() ([]*StorePaymentAccount, error) {
+	if e.loadedTypes[16] {
+		return e.StorePaymentAccounts, nil
+	}
+	return nil, &NotLoadedError{edge: "store_payment_accounts"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -582,6 +615,21 @@ func (s *Store) QueryDepartments() *DepartmentQuery {
 // QueryRoles queries the "roles" edge of the Store entity.
 func (s *Store) QueryRoles() *RoleQuery {
 	return NewStoreClient(s.config).QueryRoles(s)
+}
+
+// QueryProfitDistributionRules queries the "profit_distribution_rules" edge of the Store entity.
+func (s *Store) QueryProfitDistributionRules() *ProfitDistributionRuleQuery {
+	return NewStoreClient(s.config).QueryProfitDistributionRules(s)
+}
+
+// QueryProfitDistributionBills queries the "profit_distribution_bills" edge of the Store entity.
+func (s *Store) QueryProfitDistributionBills() *ProfitDistributionBillQuery {
+	return NewStoreClient(s.config).QueryProfitDistributionBills(s)
+}
+
+// QueryStorePaymentAccounts queries the "store_payment_accounts" edge of the Store entity.
+func (s *Store) QueryStorePaymentAccounts() *StorePaymentAccountQuery {
+	return NewStoreClient(s.config).QueryStorePaymentAccounts(s)
 }
 
 // Update returns a builder for updating this Store.

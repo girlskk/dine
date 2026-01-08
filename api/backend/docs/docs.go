@@ -1237,6 +1237,194 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment/account": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "查询收款账户列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "rm"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "PaymentChannelRM": "Revenue Monster"
+                        },
+                        "x-enum-descriptions": [
+                            "Revenue Monster"
+                        ],
+                        "x-enum-varnames": [
+                            "PaymentChannelRM"
+                        ],
+                        "description": "支付渠道（可选）",
+                        "name": "channel",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间结束（可选）",
+                        "name": "created_at_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间开始（可选）",
+                        "name": "created_at_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "支付商户名称（可选，模糊匹配）",
+                        "name": "merchant_name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentAccountSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "创建收款账户",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentAccountCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/account/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "更新收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentAccountUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "删除收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/account/{id}/default": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "更新收款账户默认状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/payment/method": {
             "get": {
                 "security": [
@@ -1385,6 +1573,134 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/store-account": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "查询门店收款账户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "创建时间结束（可选）",
+                        "name": "created_at_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间开始（可选）",
+                        "name": "created_at_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "品牌商支付商户名称（可选，模糊匹配）",
+                        "name": "merchant_name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "门店ID列表（可选，多选）",
+                        "name": "store_ids",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StorePaymentAccountSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "创建门店收款账户",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StorePaymentAccountCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/store-account/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "更新门店收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StorePaymentAccountUpdateReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -1834,35 +2150,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/product/distribute": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "商品管理"
-                ],
-                "summary": "下发商品到门店",
-                "parameters": [
-                    {
-                        "description": "请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.ProductDistributeReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     }
                 }
             }
@@ -2517,6 +2804,319 @@ const docTemplate = `{
                 }
             }
         },
+        "/profit/distribution/bill": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "查询分账账单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账单结束日期",
+                        "name": "bill_end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "账单开始日期",
+                        "name": "bill_start_date",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "unpaid",
+                            "paid"
+                        ],
+                        "type": "string",
+                        "description": "分账状态（可选）",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "门店ID列表（可选，多选）",
+                        "name": "store_ids",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillSearchRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/profit/distribution/bill/{id}/pay": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "打款分账账单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账账单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "打款信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionBillPayReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "查询分账方案列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "enabled",
+                            "disabled"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "ProfitDistributionRuleStatusDisabled": "禁用",
+                            "ProfitDistributionRuleStatusEnabled": "启用"
+                        },
+                        "x-enum-descriptions": [
+                            "启用",
+                            "禁用"
+                        ],
+                        "x-enum-varnames": [
+                            "ProfitDistributionRuleStatusEnabled",
+                            "ProfitDistributionRuleStatusDisabled"
+                        ],
+                        "description": "状态筛选（可选）",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "创建分账方案",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionRuleCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "获取分账方案详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionRule"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "更新分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionRuleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}/disable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "禁用分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}/enable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "启用分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/region/countries": {
             "get": {
                 "security": [
@@ -3032,6 +3632,10 @@ const docTemplate = `{
                             "DeviceTypeCashier": "收银机",
                             "DeviceTypePrinter": "打印机"
                         },
+                        "x-enum-descriptions": [
+                            "收银机",
+                            "打印机"
+                        ],
                         "x-enum-varnames": [
                             "DeviceTypeCashier",
                             "DeviceTypePrinter"
@@ -3068,6 +3672,10 @@ const docTemplate = `{
                             "DeviceStatusOffline": "离线",
                             "DeviceStatusOnline": "在线"
                         },
+                        "x-enum-descriptions": [
+                            "在线",
+                            "离线"
+                        ],
                         "x-enum-varnames": [
                             "DeviceStatusOnline",
                             "DeviceStatusOffline"
@@ -3355,6 +3963,10 @@ const docTemplate = `{
                             "StallPrintTypeLabel": "标签",
                             "StallPrintTypeReceipt": "小票/收据"
                         },
+                        "x-enum-descriptions": [
+                            "小票/收据",
+                            "标签"
+                        ],
                         "x-enum-varnames": [
                             "StallPrintTypeReceipt",
                             "StallPrintTypeLabel"
@@ -3669,6 +4281,10 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
+                        "x-enum-descriptions": [
+                            "直营",
+                            "加盟"
+                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -3727,6 +4343,10 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
+                        "x-enum-descriptions": [
+                            "营业",
+                            "停业"
+                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -3760,6 +4380,33 @@ const docTemplate = `{
                                 }
                             ]
                         }
+                    }
+                }
+            }
+        },
+        "/store/payment/account/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "删除门店收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -4274,6 +4921,12 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -4631,6 +5284,11 @@ const docTemplate = `{
                 "AdditionalCategoryPacking": "打包费",
                 "AdditionalCategoryService": "服务费"
             },
+            "x-enum-descriptions": [
+                "服务费",
+                "附加费",
+                "打包费"
+            ],
             "x-enum-varnames": [
                 "AdditionalCategoryService",
                 "AdditionalCategoryAdditional",
@@ -4739,6 +5397,10 @@ const docTemplate = `{
                 "AdditionalFeeChargeModeFixed": "固定金额",
                 "AdditionalFeeChargeModePercent": "百分比"
             },
+            "x-enum-descriptions": [
+                "百分比",
+                "固定金额"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeChargeModePercent",
                 "AdditionalFeeChargeModeFixed"
@@ -4754,6 +5416,10 @@ const docTemplate = `{
                 "AdditionalFeeDiscountScopeAfter": "折后",
                 "AdditionalFeeDiscountScopeBefore": "折前"
             },
+            "x-enum-descriptions": [
+                "折前",
+                "折后"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeDiscountScopeBefore",
                 "AdditionalFeeDiscountScopeAfter"
@@ -4769,6 +5435,10 @@ const docTemplate = `{
                 "AdditionalFeeTypeMerchant": "商户",
                 "AdditionalFeeTypeStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeTypeMerchant",
                 "AdditionalFeeTypeStore"
@@ -4955,6 +5625,10 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
+            "x-enum-descriptions": [
+                "直营",
+                "加盟"
+            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -4964,7 +5638,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "children": {
-                    "description": "@TODO 关联信息",
+                    "description": "关联信息",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Category"
@@ -5014,6 +5688,14 @@ const docTemplate = `{
                     "description": "排序，值越小越靠前",
                     "type": "integer"
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "出品部门ID",
                     "type": "string"
@@ -5021,6 +5703,14 @@ const docTemplate = `{
                 "store_id": {
                     "description": "门店ID",
                     "type": "string"
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "税率ID",
@@ -5240,6 +5930,10 @@ const docTemplate = `{
                 "DeviceConnectTypeInside": "内置",
                 "DeviceConnectTypeOutside": "外置"
             },
+            "x-enum-descriptions": [
+                "内置",
+                "外置"
+            ],
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
                 "DeviceConnectTypeOutside"
@@ -5255,6 +5949,10 @@ const docTemplate = `{
                 "DeviceLocationBackKitchen": "后厨",
                 "DeviceLocationFrontHall": "前厅"
             },
+            "x-enum-descriptions": [
+                "前厅",
+                "后厨"
+            ],
             "x-enum-varnames": [
                 "DeviceLocationFrontHall",
                 "DeviceLocationBackKitchen"
@@ -5272,6 +5970,11 @@ const docTemplate = `{
                 "DeviceStallPrintTypeCombined": "总单",
                 "DeviceStallPrintTypeSeparate": "分单"
             },
+            "x-enum-descriptions": [
+                "全部打印 总单+分单",
+                "总单",
+                "分单"
+            ],
             "x-enum-varnames": [
                 "DeviceStallPrintTypeAll",
                 "DeviceStallPrintTypeCombined",
@@ -5288,6 +5991,10 @@ const docTemplate = `{
                 "DeviceStallReceiptTypeAll": "全部打印",
                 "DeviceStallReceiptTypeExclude": "剔除部门商户"
             },
+            "x-enum-descriptions": [
+                "全部打印",
+                "剔除部门商户"
+            ],
             "x-enum-varnames": [
                 "DeviceStallReceiptTypeAll",
                 "DeviceStallReceiptTypeExclude"
@@ -5303,6 +6010,10 @@ const docTemplate = `{
                 "DeviceStatusOffline": "离线",
                 "DeviceStatusOnline": "在线"
             },
+            "x-enum-descriptions": [
+                "在线",
+                "离线"
+            ],
             "x-enum-varnames": [
                 "DeviceStatusOnline",
                 "DeviceStatusOffline"
@@ -5318,6 +6029,10 @@ const docTemplate = `{
                 "DeviceTypeCashier": "收银机",
                 "DeviceTypePrinter": "打印机"
             },
+            "x-enum-descriptions": [
+                "收银机",
+                "打印机"
+            ],
             "x-enum-varnames": [
                 "DeviceTypeCashier",
                 "DeviceTypePrinter"
@@ -5352,6 +6067,11 @@ const docTemplate = `{
                 "DiningWayDineIn": "堂食",
                 "DiningWayTakeOut": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外送"
+            ],
             "x-enum-varnames": [
                 "DiningWayDineIn",
                 "DiningWayTakeOut",
@@ -5368,6 +6088,10 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
+            "x-enum-descriptions": [
+                "按天",
+                "自定义"
+            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -5387,6 +6111,12 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -5406,6 +6136,11 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -5418,14 +6153,6 @@ const docTemplate = `{
                 "created_at": {
                     "description": "创建时间",
                     "type": "string"
-                },
-                "distribution_rule": {
-                    "description": "下发规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
                 },
                 "id": {
                     "description": "菜单ID",
@@ -5454,6 +6181,10 @@ const docTemplate = `{
                     "description": "适用门店数量",
                     "type": "integer"
                 },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
                 "stores": {
                     "description": "关联信息",
                     "type": "array",
@@ -5466,21 +6197,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuDistributionRule": {
-            "type": "string",
-            "enum": [
-                "override",
-                "keep"
-            ],
-            "x-enum-comments": {
-                "MenuDistributionRuleKeep": "对同名菜品不做修改",
-                "MenuDistributionRuleOverride": "新增并覆盖同名菜品"
-            },
-            "x-enum-varnames": [
-                "MenuDistributionRuleOverride",
-                "MenuDistributionRuleKeep"
-            ]
         },
         "domain.MenuItem": {
             "type": "object",
@@ -5517,34 +6233,11 @@ const docTemplate = `{
                     "description": "菜品ID",
                     "type": "string"
                 },
-                "sale_rule": {
-                    "description": "下发售卖规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
                 "updated_at": {
                     "description": "更新时间",
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuItemSaleRule": {
-            "type": "string",
-            "enum": [
-                "keep_brand_status",
-                "keep_store_status"
-            ],
-            "x-enum-comments": {
-                "MenuItemSaleRuleKeepBrandStatus": "保留品牌状态",
-                "MenuItemSaleRuleKeepStoreStatus": "保留门店状态"
-            },
-            "x-enum-varnames": [
-                "MenuItemSaleRuleKeepBrandStatus",
-                "MenuItemSaleRuleKeepStoreStatus"
-            ]
         },
         "domain.MenuSearchRes": {
             "type": "object",
@@ -5675,6 +6368,18 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.MerchantSimple": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "商户名称",
+                    "type": "string"
+                }
+            }
+        },
         "domain.MerchantStatus": {
             "type": "string",
             "enum": [
@@ -5687,6 +6392,11 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
+            "x-enum-descriptions": [
+                "已激活",
+                "已过期",
+                "已禁用"
+            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -5703,6 +6413,10 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
+            "x-enum-descriptions": [
+                "品牌商户",
+                "门店商户"
+            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -5712,15 +6426,23 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "merchant",
-                "store"
+                "store",
+                "product"
             ],
             "x-enum-comments": {
                 "ObjectStorageSceneMerchant": "商户",
+                "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店",
+                "商品"
+            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
-                "ObjectStorageSceneStore"
+                "ObjectStorageSceneStore",
+                "ObjectStorageSceneProduct"
             ]
         },
         "domain.OrderChannel": {
@@ -5741,6 +6463,14 @@ const docTemplate = `{
                 "OrderChannelSelfOrder": "自助点餐",
                 "OrderChannelThirdDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS 端",
+                "自助点餐",
+                "小程序",
+                "手机点餐",
+                "扫码点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
                 "OrderChannelPOS",
                 "OrderChannelSelfOrder",
@@ -5749,23 +6479,6 @@ const docTemplate = `{
                 "OrderChannelScanOrder",
                 "OrderChannelThirdDelivery"
             ]
-        },
-        "domain.PackingFee": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "打包费ID",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "打包费名称",
-                    "type": "string"
-                },
-                "price": {
-                    "description": "打包费价格",
-                    "type": "number"
-                }
-            }
         },
         "domain.PaperSize": {
             "type": "string",
@@ -5776,6 +6489,85 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "PaperSize58mm",
                 "PaperSize80mm"
+            ]
+        },
+        "domain.PaymentAccount": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "description": "支付渠道",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "收款账户ID",
+                    "type": "string"
+                },
+                "is_default": {
+                    "description": "是否默认",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "支付商户名称",
+                    "type": "string"
+                },
+                "merchant_number": {
+                    "description": "支付商户号",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.PaymentAccountSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.PaymentAccount"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.PaymentChannel": {
+            "type": "string",
+            "enum": [
+                "rm"
+            ],
+            "x-enum-comments": {
+                "PaymentChannelRM": "Revenue Monster"
+            },
+            "x-enum-descriptions": [
+                "Revenue Monster"
+            ],
+            "x-enum-varnames": [
+                "PaymentChannelRM"
             ]
         },
         "domain.PaymentMethod": {
@@ -5855,6 +6647,10 @@ const docTemplate = `{
                 "PaymentMethodAccountingRuleDiscount": "计入优惠",
                 "PaymentMethodAccountingRuleIncome": "计入实收"
             },
+            "x-enum-descriptions": [
+                "计入实收",
+                "计入优惠"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodAccountingRuleIncome",
                 "PaymentMethodAccountingRuleDiscount"
@@ -5870,6 +6666,10 @@ const docTemplate = `{
                 "PaymentMethodInvoiceRuleActualAmount": "按实收金额",
                 "PaymentMethodInvoiceRuleNotInvoice": "不开发票"
             },
+            "x-enum-descriptions": [
+                "不开发票",
+                "按实收金额"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodInvoiceRuleNotInvoice",
                 "PaymentMethodInvoiceRuleActualAmount"
@@ -5891,6 +6691,13 @@ const docTemplate = `{
                 "PaymentMethodPayTypeOther": "其他",
                 "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
+            "x-enum-descriptions": [
+                "其他",
+                "现金",
+                "线下刷卡",
+                "自定义券",
+                "三方合作券"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodPayTypeOther",
                 "PaymentMethodPayTypeCash",
@@ -6056,6 +6863,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "指定出品部门ID",
                     "type": "string"
@@ -6077,6 +6892,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductTag"
                     }
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "指定税率ID",
@@ -6251,6 +7074,10 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
+            "x-enum-descriptions": [
+                "在售",
+                "停售"
+            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -6359,7 +7186,7 @@ const docTemplate = `{
                     "description": "打包费",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.PackingFee"
+                            "$ref": "#/definitions/domain.AdditionalFee"
                         }
                     ]
                 },
@@ -6420,6 +7247,11 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外卖"
+            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -6492,6 +7324,10 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
+            "x-enum-descriptions": [
+                "普通商品",
+                "套餐商品"
+            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -6571,9 +7407,282 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
+            "x-enum-descriptions": [
+                "数量单位",
+                "重量单位"
+            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
+            ]
+        },
+        "domain.ProfitDistributionBill": {
+            "type": "object",
+            "properties": {
+                "bill_date": {
+                    "description": "账单日期",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "end_date": {
+                    "description": "账单周期：结束日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账账单ID",
+                    "type": "string"
+                },
+                "merchant": {
+                    "description": "关联数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.MerchantSimple"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "no": {
+                    "description": "分账账单编号",
+                    "type": "string"
+                },
+                "payment_amount": {
+                    "description": "打款金额（令吉）",
+                    "type": "number"
+                },
+                "receivable_amount": {
+                    "description": "应收金额（令吉）",
+                    "type": "number"
+                },
+                "rule_snapshot": {
+                    "description": "分账方案快照",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSnapshot"
+                        }
+                    ]
+                },
+                "start_date": {
+                    "description": "账单周期：开始日期",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "分账状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillStatus"
+                        }
+                    ]
+                },
+                "store": {
+                    "description": "门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionBill"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillStatus": {
+            "type": "string",
+            "enum": [
+                "unpaid",
+                "paid"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionBillStatusPaid": "已打款",
+                "ProfitDistributionBillStatusUnpaid": "未打款"
+            },
+            "x-enum-descriptions": [
+                "未打款",
+                "已打款"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionBillStatusUnpaid",
+                "ProfitDistributionBillStatusPaid"
+            ]
+        },
+        "domain.ProfitDistributionRule": {
+            "type": "object",
+            "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号",
+                    "type": "integer"
+                },
+                "billing_cycle": {
+                    "description": "账单生成周期",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "effective_date": {
+                    "description": "方案生效日期",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例（0-1，单位：小数）",
+                    "type": "number"
+                },
+                "status": {
+                    "description": "状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleStatus"
+                        }
+                    ]
+                },
+                "store_count": {
+                    "description": "关联门店数量",
+                    "type": "integer"
+                },
+                "stores": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoreSimple"
+                    }
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleBillingCycle": {
+            "type": "string",
+            "enum": [
+                "daily",
+                "monthly"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionRuleBillingCycleDaily": "按日",
+                "ProfitDistributionRuleBillingCycleMonthly": "按月"
+            },
+            "x-enum-descriptions": [
+                "按日",
+                "按月"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionRuleBillingCycleDaily",
+                "ProfitDistributionRuleBillingCycleMonthly"
+            ]
+        },
+        "domain.ProfitDistributionRuleSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionRule"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleSnapshot": {
+            "type": "object",
+            "properties": {
+                "rule_id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "rule_name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例",
+                    "type": "number"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleStatus": {
+            "type": "string",
+            "enum": [
+                "enabled",
+                "disabled"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionRuleStatusDisabled": "禁用",
+                "ProfitDistributionRuleStatusEnabled": "启用"
+            },
+            "x-enum-descriptions": [
+                "启用",
+                "禁用"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionRuleStatusEnabled",
+                "ProfitDistributionRuleStatusDisabled"
             ]
         },
         "domain.Province": {
@@ -6607,6 +7716,12 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
+            "x-enum-descriptions": [
+                "日",
+                "月",
+                "年",
+                "周"
+            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -6726,6 +7841,15 @@ const docTemplate = `{
                 "RemarkSceneRefundReject": "拒绝退款",
                 "RemarkSceneWholeOrder": "整单备注"
             },
+            "x-enum-descriptions": [
+                "整单备注",
+                "单品备注",
+                "退菜原因",
+                "优惠原因",
+                "赠菜原��",
+                "反结账原因",
+                "拒绝退款"
+            ],
             "x-enum-varnames": [
                 "RemarkSceneWholeOrder",
                 "RemarkSceneItem",
@@ -6748,6 +7872,11 @@ const docTemplate = `{
                 "RemarkTypeStore": "门店备注",
                 "RemarkTypeSystem": "系统备注"
             },
+            "x-enum-descriptions": [
+                "系统备注",
+                "商户备注",
+                "门店备注"
+            ],
             "x-enum-varnames": [
                 "RemarkTypeSystem",
                 "RemarkTypeBrand",
@@ -6829,6 +7958,14 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -6853,6 +7990,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -6885,17 +8027,29 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖",
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -7003,6 +8157,10 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
+            "x-enum-descriptions": [
+                "固定分组",
+                "可选套餐"
+            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -7087,6 +8245,10 @@ const docTemplate = `{
                 "StallPrintTypeLabel": "标签",
                 "StallPrintTypeReceipt": "小票/收据"
             },
+            "x-enum-descriptions": [
+                "小票/收据",
+                "标签"
+            ],
             "x-enum-varnames": [
                 "StallPrintTypeReceipt",
                 "StallPrintTypeLabel"
@@ -7104,6 +8266,11 @@ const docTemplate = `{
                 "StallTypeStore": "门店出品部门",
                 "StallTypeSystem": "系统出品部门"
             },
+            "x-enum-descriptions": [
+                "系统出品部门",
+                "品牌出品部门",
+                "门店出品部门"
+            ],
             "x-enum-varnames": [
                 "StallTypeSystem",
                 "StallTypeBrand",
@@ -7249,6 +8416,78 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.StorePaymentAccount": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "门店收款账户ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "merchant_number": {
+                    "description": "支付商户号",
+                    "type": "string"
+                },
+                "payment_account": {
+                    "description": "品牌商收款账户",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentAccount"
+                        }
+                    ]
+                },
+                "payment_account_id": {
+                    "description": "品牌商收款账户ID",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "关联信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StorePaymentAccountSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StorePaymentAccount"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.StoreSimple": {
             "type": "object",
             "properties": {
@@ -7271,6 +8510,10 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
+            "x-enum-descriptions": [
+                "营业",
+                "停业"
+            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -7340,6 +8583,10 @@ const docTemplate = `{
                 "TaxFeeTypeMerchant": "商户",
                 "TaxFeeTypeStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
             "x-enum-varnames": [
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
@@ -7355,6 +8602,10 @@ const docTemplate = `{
                 "TaxRateTypeCustom": "自定义比例",
                 "TaxRateTypeUnified": "统一比例"
             },
+            "x-enum-descriptions": [
+                "统一比例",
+                "自定义比例"
+            ],
             "x-enum-varnames": [
                 "TaxRateTypeUnified",
                 "TaxRateTypeCustom"
@@ -8365,24 +9616,11 @@ const docTemplate = `{
         "types.MenuCreateReq": {
             "type": "object",
             "required": [
-                "distribution_rule",
                 "items",
                 "name",
                 "store_ids"
             ],
             "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "items": {
                     "description": "菜品列表（必选，至少一个）",
                     "type": "array",
@@ -8409,8 +9647,7 @@ const docTemplate = `{
         "types.MenuItemReq": {
             "type": "object",
             "required": [
-                "product_id",
-                "sale_rule"
+                "product_id"
             ],
             "properties": {
                 "base_price": {
@@ -8424,42 +9661,17 @@ const docTemplate = `{
                 "product_id": {
                     "description": "菜品ID（必选）",
                     "type": "string"
-                },
-                "sale_rule": {
-                    "description": "下发售卖规则（必选）",
-                    "enum": [
-                        "keep_brand_status",
-                        "keep_store_status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
                 }
             }
         },
         "types.MenuUpdateReq": {
             "type": "object",
             "required": [
-                "distribution_rule",
                 "items",
                 "name",
                 "store_ids"
             ],
             "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "items": {
                     "description": "菜品列表（必选，至少一个）",
                     "type": "array",
@@ -8591,6 +9803,68 @@ const docTemplate = `{
                 },
                 "x_oss_signature_version": {
                     "type": "string"
+                }
+            }
+        },
+        "types.PaymentAccountCreateReq": {
+            "type": "object",
+            "required": [
+                "channel",
+                "merchant_name",
+                "merchant_number"
+            ],
+            "properties": {
+                "channel": {
+                    "description": "支付渠道（必选）",
+                    "enum": [
+                        "rm"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "merchant_name": {
+                    "description": "支付商户名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.PaymentAccountUpdateReq": {
+            "type": "object",
+            "required": [
+                "channel",
+                "merchant_name",
+                "merchant_number"
+            ],
+            "properties": {
+                "channel": {
+                    "description": "支付渠道（必选）",
+                    "enum": [
+                        "rm"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "merchant_name": {
+                    "description": "支付商户名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },
@@ -9003,52 +10277,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.ProductDistributeReq": {
-            "type": "object",
-            "required": [
-                "distribution_rule",
-                "product_id",
-                "store_ids"
-            ],
-            "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
-                "product_id": {
-                    "description": "商品ID（必选）",
-                    "type": "string"
-                },
-                "sale_rule": {
-                    "description": "下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）",
-                    "enum": [
-                        "keep_brand_status",
-                        "keep_store_status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
-                "store_ids": {
-                    "description": "门店ID列表（必选，多选）",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "types.ProductSpecCreateReq": {
             "type": "object",
             "required": [
@@ -9335,6 +10563,130 @@ const docTemplate = `{
                 "unit_id": {
                     "description": "属性关联",
                     "type": "string"
+                }
+            }
+        },
+        "types.ProfitDistributionBillPayReq": {
+            "type": "object",
+            "required": [
+                "payment_amount"
+            ],
+            "properties": {
+                "payment_amount": {
+                    "description": "打款金额（必选，单位：令吉）",
+                    "type": "number"
+                }
+            }
+        },
+        "types.ProfitDistributionRuleCreateReq": {
+            "type": "object",
+            "required": [
+                "billing_cycle",
+                "effective_date",
+                "expiry_date",
+                "name",
+                "split_ratio",
+                "store_ids"
+            ],
+            "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号（必选）",
+                    "type": "integer",
+                    "maximum": 28,
+                    "minimum": 1
+                },
+                "billing_cycle": {
+                    "description": "账单生成周期（必选）",
+                    "enum": [
+                        "daily",
+                        "monthly"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "effective_date": {
+                    "description": "方案生效日期（必选）",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期（必选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "split_ratio": {
+                    "description": "分账比例（必选，0-1之间）",
+                    "type": "number"
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.ProfitDistributionRuleUpdateReq": {
+            "type": "object",
+            "required": [
+                "billing_cycle",
+                "effective_date",
+                "expiry_date",
+                "name",
+                "split_ratio",
+                "store_ids"
+            ],
+            "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号（必选）",
+                    "type": "integer",
+                    "maximum": 28,
+                    "minimum": 1
+                },
+                "billing_cycle": {
+                    "description": "账单生成周期（必选）",
+                    "enum": [
+                        "daily",
+                        "monthly"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "effective_date": {
+                    "description": "方案生效日期（必选）",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期（必选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "split_ratio": {
+                    "description": "分账比例（必选，0-1之间）",
+                    "type": "number"
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -9721,13 +11073,6 @@ const docTemplate = `{
                     "description": "是否默认（必选，每个套餐组中只能有一个默认项）",
                     "type": "boolean"
                 },
-                "optional_product_ids": {
-                    "description": "备选商品ID列表（可选，多选）",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "product_id": {
                     "description": "商品ID（必选）",
                     "type": "string"
@@ -10023,6 +11368,42 @@ const docTemplate = `{
                 "total": {
                     "description": "总数",
                     "type": "integer"
+                }
+            }
+        },
+        "types.StorePaymentAccountCreateReq": {
+            "type": "object",
+            "required": [
+                "merchant_number",
+                "payment_account_id",
+                "store_id"
+            ],
+            "properties": {
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "payment_account_id": {
+                    "description": "品牌商收款账户ID（必选）",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店ID（必选）",
+                    "type": "string"
+                }
+            }
+        },
+        "types.StorePaymentAccountUpdateReq": {
+            "type": "object",
+            "required": [
+                "merchant_number"
+            ],
+            "properties": {
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },

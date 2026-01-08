@@ -71,17 +71,18 @@ func convertProductSpecRelationToDomain(er *ent.ProductSpecRelation) *domain.Pro
 	}
 
 	relation := &domain.ProductSpecRelation{
-		ID:           er.ID,
-		ProductID:    er.ProductID,
-		SpecID:       er.SpecID,
-		BasePrice:    er.BasePrice,
-		PackingFeeID: er.PackingFeeID,
-		Barcode:      er.Barcode,
-		IsDefault:    er.IsDefault,
-		CreatedAt:    er.CreatedAt,
-		UpdatedAt:    er.UpdatedAt,
+		ID:        er.ID,
+		ProductID: er.ProductID,
+		SpecID:    er.SpecID,
+		BasePrice: er.BasePrice,
+		Barcode:   er.Barcode,
+		IsDefault: er.IsDefault,
+		CreatedAt: er.CreatedAt,
+		UpdatedAt: er.UpdatedAt,
 	}
-
+	if er.PackingFeeID != nil {
+		relation.PackingFeeID = *er.PackingFeeID
+	}
 	if er.MemberPrice != nil {
 		relation.MemberPrice = er.MemberPrice
 	}
@@ -99,9 +100,11 @@ func convertProductSpecRelationToDomain(er *ent.ProductSpecRelation) *domain.Pro
 	}
 
 	// 关联信息
+	if er.Edges.PackingFee != nil {
+		relation.PackingFee = convertAdditionalFeeToDomain(er.Edges.PackingFee)
+	}
 	if er.Edges.Spec != nil {
 		relation.SpecName = er.Edges.Spec.Name
 	}
-
 	return relation
 }

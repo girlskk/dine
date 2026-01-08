@@ -23,6 +23,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
@@ -33,6 +34,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
@@ -45,6 +48,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
@@ -640,8 +644,12 @@ func init() {
 	menuDescDeletedAt := menuMixinFields2[0].Descriptor()
 	// menu.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	menu.DefaultDeletedAt = menuDescDeletedAt.Default.(int64)
+	// menuDescStoreID is the schema descriptor for store_id field.
+	menuDescStoreID := menuFields[1].Descriptor()
+	// menu.DefaultStoreID holds the default value on creation for the store_id field.
+	menu.DefaultStoreID = menuDescStoreID.Default.(func() uuid.UUID)
 	// menuDescName is the schema descriptor for name field.
-	menuDescName := menuFields[1].Descriptor()
+	menuDescName := menuFields[2].Descriptor()
 	// menu.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	menu.NameValidator = func() func(string) error {
 		validators := menuDescName.Validators
@@ -1076,6 +1084,77 @@ func init() {
 	orderproductDescID := orderproductMixinFields0[0].Descriptor()
 	// orderproduct.DefaultID holds the default value on creation for the id field.
 	orderproduct.DefaultID = orderproductDescID.Default.(func() uuid.UUID)
+	paymentaccountMixin := schema.PaymentAccount{}.Mixin()
+	paymentaccountMixinHooks2 := paymentaccountMixin[2].Hooks()
+	paymentaccount.Hooks[0] = paymentaccountMixinHooks2[0]
+	paymentaccountMixinInters2 := paymentaccountMixin[2].Interceptors()
+	paymentaccount.Interceptors[0] = paymentaccountMixinInters2[0]
+	paymentaccountMixinFields0 := paymentaccountMixin[0].Fields()
+	_ = paymentaccountMixinFields0
+	paymentaccountMixinFields1 := paymentaccountMixin[1].Fields()
+	_ = paymentaccountMixinFields1
+	paymentaccountMixinFields2 := paymentaccountMixin[2].Fields()
+	_ = paymentaccountMixinFields2
+	paymentaccountFields := schema.PaymentAccount{}.Fields()
+	_ = paymentaccountFields
+	// paymentaccountDescCreatedAt is the schema descriptor for created_at field.
+	paymentaccountDescCreatedAt := paymentaccountMixinFields1[0].Descriptor()
+	// paymentaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	paymentaccount.DefaultCreatedAt = paymentaccountDescCreatedAt.Default.(func() time.Time)
+	// paymentaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	paymentaccountDescUpdatedAt := paymentaccountMixinFields1[1].Descriptor()
+	// paymentaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	paymentaccount.DefaultUpdatedAt = paymentaccountDescUpdatedAt.Default.(func() time.Time)
+	// paymentaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	paymentaccount.UpdateDefaultUpdatedAt = paymentaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// paymentaccountDescDeletedAt is the schema descriptor for deleted_at field.
+	paymentaccountDescDeletedAt := paymentaccountMixinFields2[0].Descriptor()
+	// paymentaccount.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	paymentaccount.DefaultDeletedAt = paymentaccountDescDeletedAt.Default.(int64)
+	// paymentaccountDescMerchantNumber is the schema descriptor for merchant_number field.
+	paymentaccountDescMerchantNumber := paymentaccountFields[2].Descriptor()
+	// paymentaccount.MerchantNumberValidator is a validator for the "merchant_number" field. It is called by the builders before save.
+	paymentaccount.MerchantNumberValidator = func() func(string) error {
+		validators := paymentaccountDescMerchantNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_number string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// paymentaccountDescMerchantName is the schema descriptor for merchant_name field.
+	paymentaccountDescMerchantName := paymentaccountFields[3].Descriptor()
+	// paymentaccount.MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
+	paymentaccount.MerchantNameValidator = func() func(string) error {
+		validators := paymentaccountDescMerchantName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_name string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// paymentaccountDescIsDefault is the schema descriptor for is_default field.
+	paymentaccountDescIsDefault := paymentaccountFields[4].Descriptor()
+	// paymentaccount.DefaultIsDefault holds the default value on creation for the is_default field.
+	paymentaccount.DefaultIsDefault = paymentaccountDescIsDefault.Default.(bool)
+	// paymentaccountDescID is the schema descriptor for id field.
+	paymentaccountDescID := paymentaccountMixinFields0[0].Descriptor()
+	// paymentaccount.DefaultID holds the default value on creation for the id field.
+	paymentaccount.DefaultID = paymentaccountDescID.Default.(func() uuid.UUID)
 	paymentmethodMixin := schema.PaymentMethod{}.Mixin()
 	paymentmethodMixinHooks2 := paymentmethodMixin[2].Hooks()
 	paymentmethod.Hooks[0] = paymentmethodMixinHooks2[0]
@@ -1698,6 +1777,112 @@ func init() {
 	productunitDescID := productunitMixinFields0[0].Descriptor()
 	// productunit.DefaultID holds the default value on creation for the id field.
 	productunit.DefaultID = productunitDescID.Default.(func() uuid.UUID)
+	profitdistributionbillMixin := schema.ProfitDistributionBill{}.Mixin()
+	profitdistributionbillMixinHooks2 := profitdistributionbillMixin[2].Hooks()
+	profitdistributionbill.Hooks[0] = profitdistributionbillMixinHooks2[0]
+	profitdistributionbillMixinInters2 := profitdistributionbillMixin[2].Interceptors()
+	profitdistributionbill.Interceptors[0] = profitdistributionbillMixinInters2[0]
+	profitdistributionbillMixinFields0 := profitdistributionbillMixin[0].Fields()
+	_ = profitdistributionbillMixinFields0
+	profitdistributionbillMixinFields1 := profitdistributionbillMixin[1].Fields()
+	_ = profitdistributionbillMixinFields1
+	profitdistributionbillMixinFields2 := profitdistributionbillMixin[2].Fields()
+	_ = profitdistributionbillMixinFields2
+	profitdistributionbillFields := schema.ProfitDistributionBill{}.Fields()
+	_ = profitdistributionbillFields
+	// profitdistributionbillDescCreatedAt is the schema descriptor for created_at field.
+	profitdistributionbillDescCreatedAt := profitdistributionbillMixinFields1[0].Descriptor()
+	// profitdistributionbill.DefaultCreatedAt holds the default value on creation for the created_at field.
+	profitdistributionbill.DefaultCreatedAt = profitdistributionbillDescCreatedAt.Default.(func() time.Time)
+	// profitdistributionbillDescUpdatedAt is the schema descriptor for updated_at field.
+	profitdistributionbillDescUpdatedAt := profitdistributionbillMixinFields1[1].Descriptor()
+	// profitdistributionbill.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	profitdistributionbill.DefaultUpdatedAt = profitdistributionbillDescUpdatedAt.Default.(func() time.Time)
+	// profitdistributionbill.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	profitdistributionbill.UpdateDefaultUpdatedAt = profitdistributionbillDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// profitdistributionbillDescDeletedAt is the schema descriptor for deleted_at field.
+	profitdistributionbillDescDeletedAt := profitdistributionbillMixinFields2[0].Descriptor()
+	// profitdistributionbill.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	profitdistributionbill.DefaultDeletedAt = profitdistributionbillDescDeletedAt.Default.(int64)
+	// profitdistributionbillDescNo is the schema descriptor for no field.
+	profitdistributionbillDescNo := profitdistributionbillFields[0].Descriptor()
+	// profitdistributionbill.NoValidator is a validator for the "no" field. It is called by the builders before save.
+	profitdistributionbill.NoValidator = func() func(string) error {
+		validators := profitdistributionbillDescNo.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(no string) error {
+			for _, fn := range fns {
+				if err := fn(no); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profitdistributionbillDescID is the schema descriptor for id field.
+	profitdistributionbillDescID := profitdistributionbillMixinFields0[0].Descriptor()
+	// profitdistributionbill.DefaultID holds the default value on creation for the id field.
+	profitdistributionbill.DefaultID = profitdistributionbillDescID.Default.(func() uuid.UUID)
+	profitdistributionruleMixin := schema.ProfitDistributionRule{}.Mixin()
+	profitdistributionruleMixinHooks2 := profitdistributionruleMixin[2].Hooks()
+	profitdistributionrule.Hooks[0] = profitdistributionruleMixinHooks2[0]
+	profitdistributionruleMixinInters2 := profitdistributionruleMixin[2].Interceptors()
+	profitdistributionrule.Interceptors[0] = profitdistributionruleMixinInters2[0]
+	profitdistributionruleMixinFields0 := profitdistributionruleMixin[0].Fields()
+	_ = profitdistributionruleMixinFields0
+	profitdistributionruleMixinFields1 := profitdistributionruleMixin[1].Fields()
+	_ = profitdistributionruleMixinFields1
+	profitdistributionruleMixinFields2 := profitdistributionruleMixin[2].Fields()
+	_ = profitdistributionruleMixinFields2
+	profitdistributionruleFields := schema.ProfitDistributionRule{}.Fields()
+	_ = profitdistributionruleFields
+	// profitdistributionruleDescCreatedAt is the schema descriptor for created_at field.
+	profitdistributionruleDescCreatedAt := profitdistributionruleMixinFields1[0].Descriptor()
+	// profitdistributionrule.DefaultCreatedAt holds the default value on creation for the created_at field.
+	profitdistributionrule.DefaultCreatedAt = profitdistributionruleDescCreatedAt.Default.(func() time.Time)
+	// profitdistributionruleDescUpdatedAt is the schema descriptor for updated_at field.
+	profitdistributionruleDescUpdatedAt := profitdistributionruleMixinFields1[1].Descriptor()
+	// profitdistributionrule.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	profitdistributionrule.DefaultUpdatedAt = profitdistributionruleDescUpdatedAt.Default.(func() time.Time)
+	// profitdistributionrule.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	profitdistributionrule.UpdateDefaultUpdatedAt = profitdistributionruleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// profitdistributionruleDescDeletedAt is the schema descriptor for deleted_at field.
+	profitdistributionruleDescDeletedAt := profitdistributionruleMixinFields2[0].Descriptor()
+	// profitdistributionrule.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	profitdistributionrule.DefaultDeletedAt = profitdistributionruleDescDeletedAt.Default.(int64)
+	// profitdistributionruleDescName is the schema descriptor for name field.
+	profitdistributionruleDescName := profitdistributionruleFields[1].Descriptor()
+	// profitdistributionrule.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	profitdistributionrule.NameValidator = func() func(string) error {
+		validators := profitdistributionruleDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profitdistributionruleDescBillGenerationDay is the schema descriptor for bill_generation_day field.
+	profitdistributionruleDescBillGenerationDay := profitdistributionruleFields[6].Descriptor()
+	// profitdistributionrule.DefaultBillGenerationDay holds the default value on creation for the bill_generation_day field.
+	profitdistributionrule.DefaultBillGenerationDay = profitdistributionruleDescBillGenerationDay.Default.(int)
+	// profitdistributionruleDescStoreCount is the schema descriptor for store_count field.
+	profitdistributionruleDescStoreCount := profitdistributionruleFields[8].Descriptor()
+	// profitdistributionrule.DefaultStoreCount holds the default value on creation for the store_count field.
+	profitdistributionrule.DefaultStoreCount = profitdistributionruleDescStoreCount.Default.(int)
+	// profitdistributionruleDescID is the schema descriptor for id field.
+	profitdistributionruleDescID := profitdistributionruleMixinFields0[0].Descriptor()
+	// profitdistributionrule.DefaultID holds the default value on creation for the id field.
+	profitdistributionrule.DefaultID = profitdistributionruleDescID.Default.(func() uuid.UUID)
 	provinceMixin := schema.Province{}.Mixin()
 	provinceMixinHooks2 := provinceMixin[2].Hooks()
 	province.Hooks[0] = provinceMixinHooks2[0]
@@ -2357,6 +2542,55 @@ func init() {
 	storeDescID := storeMixinFields0[0].Descriptor()
 	// store.DefaultID holds the default value on creation for the id field.
 	store.DefaultID = storeDescID.Default.(func() uuid.UUID)
+	storepaymentaccountMixin := schema.StorePaymentAccount{}.Mixin()
+	storepaymentaccountMixinHooks2 := storepaymentaccountMixin[2].Hooks()
+	storepaymentaccount.Hooks[0] = storepaymentaccountMixinHooks2[0]
+	storepaymentaccountMixinInters2 := storepaymentaccountMixin[2].Interceptors()
+	storepaymentaccount.Interceptors[0] = storepaymentaccountMixinInters2[0]
+	storepaymentaccountMixinFields0 := storepaymentaccountMixin[0].Fields()
+	_ = storepaymentaccountMixinFields0
+	storepaymentaccountMixinFields1 := storepaymentaccountMixin[1].Fields()
+	_ = storepaymentaccountMixinFields1
+	storepaymentaccountMixinFields2 := storepaymentaccountMixin[2].Fields()
+	_ = storepaymentaccountMixinFields2
+	storepaymentaccountFields := schema.StorePaymentAccount{}.Fields()
+	_ = storepaymentaccountFields
+	// storepaymentaccountDescCreatedAt is the schema descriptor for created_at field.
+	storepaymentaccountDescCreatedAt := storepaymentaccountMixinFields1[0].Descriptor()
+	// storepaymentaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	storepaymentaccount.DefaultCreatedAt = storepaymentaccountDescCreatedAt.Default.(func() time.Time)
+	// storepaymentaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	storepaymentaccountDescUpdatedAt := storepaymentaccountMixinFields1[1].Descriptor()
+	// storepaymentaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	storepaymentaccount.DefaultUpdatedAt = storepaymentaccountDescUpdatedAt.Default.(func() time.Time)
+	// storepaymentaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	storepaymentaccount.UpdateDefaultUpdatedAt = storepaymentaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// storepaymentaccountDescDeletedAt is the schema descriptor for deleted_at field.
+	storepaymentaccountDescDeletedAt := storepaymentaccountMixinFields2[0].Descriptor()
+	// storepaymentaccount.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	storepaymentaccount.DefaultDeletedAt = storepaymentaccountDescDeletedAt.Default.(int64)
+	// storepaymentaccountDescMerchantNumber is the schema descriptor for merchant_number field.
+	storepaymentaccountDescMerchantNumber := storepaymentaccountFields[3].Descriptor()
+	// storepaymentaccount.MerchantNumberValidator is a validator for the "merchant_number" field. It is called by the builders before save.
+	storepaymentaccount.MerchantNumberValidator = func() func(string) error {
+		validators := storepaymentaccountDescMerchantNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_number string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storepaymentaccountDescID is the schema descriptor for id field.
+	storepaymentaccountDescID := storepaymentaccountMixinFields0[0].Descriptor()
+	// storepaymentaccount.DefaultID holds the default value on creation for the id field.
+	storepaymentaccount.DefaultID = storepaymentaccountDescID.Default.(func() uuid.UUID)
 	storeuserMixin := schema.StoreUser{}.Mixin()
 	storeuserMixinHooks1 := storeuserMixin[1].Hooks()
 	storeuser.Hooks[0] = storeuserMixinHooks1[0]

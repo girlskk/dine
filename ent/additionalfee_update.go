@@ -12,10 +12,12 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 )
 
 // AdditionalFeeUpdate is the builder for updating AdditionalFee entities.
@@ -216,9 +218,45 @@ func (afu *AdditionalFeeUpdate) AddSortOrder(i int) *AdditionalFeeUpdate {
 	return afu
 }
 
+// AddProductSpecIDs adds the "product_specs" edge to the ProductSpecRelation entity by IDs.
+func (afu *AdditionalFeeUpdate) AddProductSpecIDs(ids ...uuid.UUID) *AdditionalFeeUpdate {
+	afu.mutation.AddProductSpecIDs(ids...)
+	return afu
+}
+
+// AddProductSpecs adds the "product_specs" edges to the ProductSpecRelation entity.
+func (afu *AdditionalFeeUpdate) AddProductSpecs(p ...*ProductSpecRelation) *AdditionalFeeUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return afu.AddProductSpecIDs(ids...)
+}
+
 // Mutation returns the AdditionalFeeMutation object of the builder.
 func (afu *AdditionalFeeUpdate) Mutation() *AdditionalFeeMutation {
 	return afu.mutation
+}
+
+// ClearProductSpecs clears all "product_specs" edges to the ProductSpecRelation entity.
+func (afu *AdditionalFeeUpdate) ClearProductSpecs() *AdditionalFeeUpdate {
+	afu.mutation.ClearProductSpecs()
+	return afu
+}
+
+// RemoveProductSpecIDs removes the "product_specs" edge to ProductSpecRelation entities by IDs.
+func (afu *AdditionalFeeUpdate) RemoveProductSpecIDs(ids ...uuid.UUID) *AdditionalFeeUpdate {
+	afu.mutation.RemoveProductSpecIDs(ids...)
+	return afu
+}
+
+// RemoveProductSpecs removes "product_specs" edges to ProductSpecRelation entities.
+func (afu *AdditionalFeeUpdate) RemoveProductSpecs(p ...*ProductSpecRelation) *AdditionalFeeUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return afu.RemoveProductSpecIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -360,6 +398,51 @@ func (afu *AdditionalFeeUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	}
 	if value, ok := afu.mutation.AddedSortOrder(); ok {
 		_spec.AddField(additionalfee.FieldSortOrder, field.TypeInt, value)
+	}
+	if afu.mutation.ProductSpecsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   additionalfee.ProductSpecsTable,
+			Columns: []string{additionalfee.ProductSpecsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productspecrelation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := afu.mutation.RemovedProductSpecsIDs(); len(nodes) > 0 && !afu.mutation.ProductSpecsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   additionalfee.ProductSpecsTable,
+			Columns: []string{additionalfee.ProductSpecsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productspecrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := afu.mutation.ProductSpecsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   additionalfee.ProductSpecsTable,
+			Columns: []string{additionalfee.ProductSpecsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productspecrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(afu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, afu.driver, _spec); err != nil {
@@ -567,9 +650,45 @@ func (afuo *AdditionalFeeUpdateOne) AddSortOrder(i int) *AdditionalFeeUpdateOne 
 	return afuo
 }
 
+// AddProductSpecIDs adds the "product_specs" edge to the ProductSpecRelation entity by IDs.
+func (afuo *AdditionalFeeUpdateOne) AddProductSpecIDs(ids ...uuid.UUID) *AdditionalFeeUpdateOne {
+	afuo.mutation.AddProductSpecIDs(ids...)
+	return afuo
+}
+
+// AddProductSpecs adds the "product_specs" edges to the ProductSpecRelation entity.
+func (afuo *AdditionalFeeUpdateOne) AddProductSpecs(p ...*ProductSpecRelation) *AdditionalFeeUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return afuo.AddProductSpecIDs(ids...)
+}
+
 // Mutation returns the AdditionalFeeMutation object of the builder.
 func (afuo *AdditionalFeeUpdateOne) Mutation() *AdditionalFeeMutation {
 	return afuo.mutation
+}
+
+// ClearProductSpecs clears all "product_specs" edges to the ProductSpecRelation entity.
+func (afuo *AdditionalFeeUpdateOne) ClearProductSpecs() *AdditionalFeeUpdateOne {
+	afuo.mutation.ClearProductSpecs()
+	return afuo
+}
+
+// RemoveProductSpecIDs removes the "product_specs" edge to ProductSpecRelation entities by IDs.
+func (afuo *AdditionalFeeUpdateOne) RemoveProductSpecIDs(ids ...uuid.UUID) *AdditionalFeeUpdateOne {
+	afuo.mutation.RemoveProductSpecIDs(ids...)
+	return afuo
+}
+
+// RemoveProductSpecs removes "product_specs" edges to ProductSpecRelation entities.
+func (afuo *AdditionalFeeUpdateOne) RemoveProductSpecs(p ...*ProductSpecRelation) *AdditionalFeeUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return afuo.RemoveProductSpecIDs(ids...)
 }
 
 // Where appends a list predicates to the AdditionalFeeUpdate builder.
@@ -741,6 +860,51 @@ func (afuo *AdditionalFeeUpdateOne) sqlSave(ctx context.Context) (_node *Additio
 	}
 	if value, ok := afuo.mutation.AddedSortOrder(); ok {
 		_spec.AddField(additionalfee.FieldSortOrder, field.TypeInt, value)
+	}
+	if afuo.mutation.ProductSpecsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   additionalfee.ProductSpecsTable,
+			Columns: []string{additionalfee.ProductSpecsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productspecrelation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := afuo.mutation.RemovedProductSpecsIDs(); len(nodes) > 0 && !afuo.mutation.ProductSpecsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   additionalfee.ProductSpecsTable,
+			Columns: []string{additionalfee.ProductSpecsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productspecrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := afuo.mutation.ProductSpecsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   additionalfee.ProductSpecsTable,
+			Columns: []string{additionalfee.ProductSpecsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productspecrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(afuo.modifiers...)
 	_node = &AdditionalFee{config: afuo.config}

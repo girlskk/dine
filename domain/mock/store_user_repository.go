@@ -11,6 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
+	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockStoreUserRepository is a mock of StoreUserRepository interface.
@@ -50,8 +51,22 @@ func (mr *MockStoreUserRepositoryMockRecorder) Create(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockStoreUserRepository)(nil).Create), arg0, arg1)
 }
 
+// Delete mocks base method.
+func (m *MockStoreUserRepository) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockStoreUserRepositoryMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStoreUserRepository)(nil).Delete), arg0, arg1)
+}
+
 // Exists mocks base method.
-func (m *MockStoreUserRepository) Exists(arg0 context.Context, arg1 string) (bool, error) {
+func (m *MockStoreUserRepository) Exists(arg0 context.Context, arg1 domain.StoreUserExistsParams) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Exists", arg0, arg1)
 	ret0, _ := ret[0].(bool)
@@ -93,6 +108,27 @@ func (m *MockStoreUserRepository) FindByUsername(arg0 context.Context, arg1 stri
 func (mr *MockStoreUserRepositoryMockRecorder) FindByUsername(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUsername", reflect.TypeOf((*MockStoreUserRepository)(nil).FindByUsername), arg0, arg1)
+}
+
+// GetUsers mocks base method.
+func (m *MockStoreUserRepository) GetUsers(arg0 context.Context, arg1 *upagination.Pagination, arg2 *domain.StoreUserListFilter, arg3 ...domain.StoreUserOrderBy) ([]*domain.StoreUser, int, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetUsers", varargs...)
+	ret0, _ := ret[0].([]*domain.StoreUser)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockStoreUserRepositoryMockRecorder) GetUsers(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockStoreUserRepository)(nil).GetUsers), varargs...)
 }
 
 // Update mocks base method.

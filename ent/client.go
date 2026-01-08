@@ -32,6 +32,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
@@ -42,6 +43,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
@@ -53,6 +56,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
@@ -95,6 +99,8 @@ type Client struct {
 	Order *OrderClient
 	// OrderProduct is the client for interacting with the OrderProduct builders.
 	OrderProduct *OrderProductClient
+	// PaymentAccount is the client for interacting with the PaymentAccount builders.
+	PaymentAccount *PaymentAccountClient
 	// PaymentMethod is the client for interacting with the PaymentMethod builders.
 	PaymentMethod *PaymentMethodClient
 	// Permission is the client for interacting with the Permission builders.
@@ -115,6 +121,10 @@ type Client struct {
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
 	ProductUnit *ProductUnitClient
+	// ProfitDistributionBill is the client for interacting with the ProfitDistributionBill builders.
+	ProfitDistributionBill *ProfitDistributionBillClient
+	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
+	ProfitDistributionRule *ProfitDistributionRuleClient
 	// Province is the client for interacting with the Province builders.
 	Province *ProvinceClient
 	// Remark is the client for interacting with the Remark builders.
@@ -137,6 +147,8 @@ type Client struct {
 	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
+	// StorePaymentAccount is the client for interacting with the StorePaymentAccount builders.
+	StorePaymentAccount *StorePaymentAccountClient
 	// StoreUser is the client for interacting with the StoreUser builders.
 	StoreUser *StoreUserClient
 	// TaxFee is the client for interacting with the TaxFee builders.
@@ -170,6 +182,7 @@ func (c *Client) init() {
 	c.MerchantRenewal = NewMerchantRenewalClient(c.config)
 	c.Order = NewOrderClient(c.config)
 	c.OrderProduct = NewOrderProductClient(c.config)
+	c.PaymentAccount = NewPaymentAccountClient(c.config)
 	c.PaymentMethod = NewPaymentMethodClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.Product = NewProductClient(c.config)
@@ -180,6 +193,8 @@ func (c *Client) init() {
 	c.ProductSpecRelation = NewProductSpecRelationClient(c.config)
 	c.ProductTag = NewProductTagClient(c.config)
 	c.ProductUnit = NewProductUnitClient(c.config)
+	c.ProfitDistributionBill = NewProfitDistributionBillClient(c.config)
+	c.ProfitDistributionRule = NewProfitDistributionRuleClient(c.config)
 	c.Province = NewProvinceClient(c.config)
 	c.Remark = NewRemarkClient(c.config)
 	c.RemarkCategory = NewRemarkCategoryClient(c.config)
@@ -191,6 +206,7 @@ func (c *Client) init() {
 	c.SetMealGroup = NewSetMealGroupClient(c.config)
 	c.Stall = NewStallClient(c.config)
 	c.Store = NewStoreClient(c.config)
+	c.StorePaymentAccount = NewStorePaymentAccountClient(c.config)
 	c.StoreUser = NewStoreUserClient(c.config)
 	c.TaxFee = NewTaxFeeClient(c.config)
 	c.UserRole = NewUserRoleClient(c.config)
@@ -284,48 +300,52 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                  ctx,
-		config:               cfg,
-		AdditionalFee:        NewAdditionalFeeClient(cfg),
-		AdminUser:            NewAdminUserClient(cfg),
-		BackendUser:          NewBackendUserClient(cfg),
-		Category:             NewCategoryClient(cfg),
-		City:                 NewCityClient(cfg),
-		Country:              NewCountryClient(cfg),
-		Department:           NewDepartmentClient(cfg),
-		Device:               NewDeviceClient(cfg),
-		District:             NewDistrictClient(cfg),
-		Menu:                 NewMenuClient(cfg),
-		MenuItem:             NewMenuItemClient(cfg),
-		Merchant:             NewMerchantClient(cfg),
-		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
-		MerchantRenewal:      NewMerchantRenewalClient(cfg),
-		Order:                NewOrderClient(cfg),
-		OrderProduct:         NewOrderProductClient(cfg),
-		PaymentMethod:        NewPaymentMethodClient(cfg),
-		Permission:           NewPermissionClient(cfg),
-		Product:              NewProductClient(cfg),
-		ProductAttr:          NewProductAttrClient(cfg),
-		ProductAttrItem:      NewProductAttrItemClient(cfg),
-		ProductAttrRelation:  NewProductAttrRelationClient(cfg),
-		ProductSpec:          NewProductSpecClient(cfg),
-		ProductSpecRelation:  NewProductSpecRelationClient(cfg),
-		ProductTag:           NewProductTagClient(cfg),
-		ProductUnit:          NewProductUnitClient(cfg),
-		Province:             NewProvinceClient(cfg),
-		Remark:               NewRemarkClient(cfg),
-		RemarkCategory:       NewRemarkCategoryClient(cfg),
-		Role:                 NewRoleClient(cfg),
-		RoleMenu:             NewRoleMenuClient(cfg),
-		RolePermission:       NewRolePermissionClient(cfg),
-		RouterMenu:           NewRouterMenuClient(cfg),
-		SetMealDetail:        NewSetMealDetailClient(cfg),
-		SetMealGroup:         NewSetMealGroupClient(cfg),
-		Stall:                NewStallClient(cfg),
-		Store:                NewStoreClient(cfg),
-		StoreUser:            NewStoreUserClient(cfg),
-		TaxFee:               NewTaxFeeClient(cfg),
-		UserRole:             NewUserRoleClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		AdditionalFee:          NewAdditionalFeeClient(cfg),
+		AdminUser:              NewAdminUserClient(cfg),
+		BackendUser:            NewBackendUserClient(cfg),
+		Category:               NewCategoryClient(cfg),
+		City:                   NewCityClient(cfg),
+		Country:                NewCountryClient(cfg),
+		Department:             NewDepartmentClient(cfg),
+		Device:                 NewDeviceClient(cfg),
+		District:               NewDistrictClient(cfg),
+		Menu:                   NewMenuClient(cfg),
+		MenuItem:               NewMenuItemClient(cfg),
+		Merchant:               NewMerchantClient(cfg),
+		MerchantBusinessType:   NewMerchantBusinessTypeClient(cfg),
+		MerchantRenewal:        NewMerchantRenewalClient(cfg),
+		Order:                  NewOrderClient(cfg),
+		OrderProduct:           NewOrderProductClient(cfg),
+		PaymentAccount:         NewPaymentAccountClient(cfg),
+		PaymentMethod:          NewPaymentMethodClient(cfg),
+		Permission:             NewPermissionClient(cfg),
+		Product:                NewProductClient(cfg),
+		ProductAttr:            NewProductAttrClient(cfg),
+		ProductAttrItem:        NewProductAttrItemClient(cfg),
+		ProductAttrRelation:    NewProductAttrRelationClient(cfg),
+		ProductSpec:            NewProductSpecClient(cfg),
+		ProductSpecRelation:    NewProductSpecRelationClient(cfg),
+		ProductTag:             NewProductTagClient(cfg),
+		ProductUnit:            NewProductUnitClient(cfg),
+		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
+		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
+		Province:               NewProvinceClient(cfg),
+		Remark:                 NewRemarkClient(cfg),
+		RemarkCategory:         NewRemarkCategoryClient(cfg),
+		Role:                   NewRoleClient(cfg),
+		RoleMenu:               NewRoleMenuClient(cfg),
+		RolePermission:         NewRolePermissionClient(cfg),
+		RouterMenu:             NewRouterMenuClient(cfg),
+		SetMealDetail:          NewSetMealDetailClient(cfg),
+		SetMealGroup:           NewSetMealGroupClient(cfg),
+		Stall:                  NewStallClient(cfg),
+		Store:                  NewStoreClient(cfg),
+		StorePaymentAccount:    NewStorePaymentAccountClient(cfg),
+		StoreUser:              NewStoreUserClient(cfg),
+		TaxFee:                 NewTaxFeeClient(cfg),
+		UserRole:               NewUserRoleClient(cfg),
 	}, nil
 }
 
@@ -343,48 +363,52 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                  ctx,
-		config:               cfg,
-		AdditionalFee:        NewAdditionalFeeClient(cfg),
-		AdminUser:            NewAdminUserClient(cfg),
-		BackendUser:          NewBackendUserClient(cfg),
-		Category:             NewCategoryClient(cfg),
-		City:                 NewCityClient(cfg),
-		Country:              NewCountryClient(cfg),
-		Department:           NewDepartmentClient(cfg),
-		Device:               NewDeviceClient(cfg),
-		District:             NewDistrictClient(cfg),
-		Menu:                 NewMenuClient(cfg),
-		MenuItem:             NewMenuItemClient(cfg),
-		Merchant:             NewMerchantClient(cfg),
-		MerchantBusinessType: NewMerchantBusinessTypeClient(cfg),
-		MerchantRenewal:      NewMerchantRenewalClient(cfg),
-		Order:                NewOrderClient(cfg),
-		OrderProduct:         NewOrderProductClient(cfg),
-		PaymentMethod:        NewPaymentMethodClient(cfg),
-		Permission:           NewPermissionClient(cfg),
-		Product:              NewProductClient(cfg),
-		ProductAttr:          NewProductAttrClient(cfg),
-		ProductAttrItem:      NewProductAttrItemClient(cfg),
-		ProductAttrRelation:  NewProductAttrRelationClient(cfg),
-		ProductSpec:          NewProductSpecClient(cfg),
-		ProductSpecRelation:  NewProductSpecRelationClient(cfg),
-		ProductTag:           NewProductTagClient(cfg),
-		ProductUnit:          NewProductUnitClient(cfg),
-		Province:             NewProvinceClient(cfg),
-		Remark:               NewRemarkClient(cfg),
-		RemarkCategory:       NewRemarkCategoryClient(cfg),
-		Role:                 NewRoleClient(cfg),
-		RoleMenu:             NewRoleMenuClient(cfg),
-		RolePermission:       NewRolePermissionClient(cfg),
-		RouterMenu:           NewRouterMenuClient(cfg),
-		SetMealDetail:        NewSetMealDetailClient(cfg),
-		SetMealGroup:         NewSetMealGroupClient(cfg),
-		Stall:                NewStallClient(cfg),
-		Store:                NewStoreClient(cfg),
-		StoreUser:            NewStoreUserClient(cfg),
-		TaxFee:               NewTaxFeeClient(cfg),
-		UserRole:             NewUserRoleClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		AdditionalFee:          NewAdditionalFeeClient(cfg),
+		AdminUser:              NewAdminUserClient(cfg),
+		BackendUser:            NewBackendUserClient(cfg),
+		Category:               NewCategoryClient(cfg),
+		City:                   NewCityClient(cfg),
+		Country:                NewCountryClient(cfg),
+		Department:             NewDepartmentClient(cfg),
+		Device:                 NewDeviceClient(cfg),
+		District:               NewDistrictClient(cfg),
+		Menu:                   NewMenuClient(cfg),
+		MenuItem:               NewMenuItemClient(cfg),
+		Merchant:               NewMerchantClient(cfg),
+		MerchantBusinessType:   NewMerchantBusinessTypeClient(cfg),
+		MerchantRenewal:        NewMerchantRenewalClient(cfg),
+		Order:                  NewOrderClient(cfg),
+		OrderProduct:           NewOrderProductClient(cfg),
+		PaymentAccount:         NewPaymentAccountClient(cfg),
+		PaymentMethod:          NewPaymentMethodClient(cfg),
+		Permission:             NewPermissionClient(cfg),
+		Product:                NewProductClient(cfg),
+		ProductAttr:            NewProductAttrClient(cfg),
+		ProductAttrItem:        NewProductAttrItemClient(cfg),
+		ProductAttrRelation:    NewProductAttrRelationClient(cfg),
+		ProductSpec:            NewProductSpecClient(cfg),
+		ProductSpecRelation:    NewProductSpecRelationClient(cfg),
+		ProductTag:             NewProductTagClient(cfg),
+		ProductUnit:            NewProductUnitClient(cfg),
+		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
+		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
+		Province:               NewProvinceClient(cfg),
+		Remark:                 NewRemarkClient(cfg),
+		RemarkCategory:         NewRemarkCategoryClient(cfg),
+		Role:                   NewRoleClient(cfg),
+		RoleMenu:               NewRoleMenuClient(cfg),
+		RolePermission:         NewRolePermissionClient(cfg),
+		RouterMenu:             NewRouterMenuClient(cfg),
+		SetMealDetail:          NewSetMealDetailClient(cfg),
+		SetMealGroup:           NewSetMealGroupClient(cfg),
+		Stall:                  NewStallClient(cfg),
+		Store:                  NewStoreClient(cfg),
+		StorePaymentAccount:    NewStorePaymentAccountClient(cfg),
+		StoreUser:              NewStoreUserClient(cfg),
+		TaxFee:                 NewTaxFeeClient(cfg),
+		UserRole:               NewUserRoleClient(cfg),
 	}, nil
 }
 
@@ -417,11 +441,12 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
 		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
 		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentMethod, c.Permission, c.Product, c.ProductAttr, c.ProductAttrItem,
-		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
-		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.Role, c.RoleMenu,
-		c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup, c.Stall,
-		c.Store, c.StoreUser, c.TaxFee, c.UserRole,
+		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
+		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
+		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
+		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory, c.Role,
+		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
+		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -434,11 +459,12 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
 		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
 		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentMethod, c.Permission, c.Product, c.ProductAttr, c.ProductAttrItem,
-		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
-		c.ProductUnit, c.Province, c.Remark, c.RemarkCategory, c.Role, c.RoleMenu,
-		c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup, c.Stall,
-		c.Store, c.StoreUser, c.TaxFee, c.UserRole,
+		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
+		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
+		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
+		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory, c.Role,
+		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
+		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -479,6 +505,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Order.mutate(ctx, m)
 	case *OrderProductMutation:
 		return c.OrderProduct.mutate(ctx, m)
+	case *PaymentAccountMutation:
+		return c.PaymentAccount.mutate(ctx, m)
 	case *PaymentMethodMutation:
 		return c.PaymentMethod.mutate(ctx, m)
 	case *PermissionMutation:
@@ -499,6 +527,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ProductTag.mutate(ctx, m)
 	case *ProductUnitMutation:
 		return c.ProductUnit.mutate(ctx, m)
+	case *ProfitDistributionBillMutation:
+		return c.ProfitDistributionBill.mutate(ctx, m)
+	case *ProfitDistributionRuleMutation:
+		return c.ProfitDistributionRule.mutate(ctx, m)
 	case *ProvinceMutation:
 		return c.Province.mutate(ctx, m)
 	case *RemarkMutation:
@@ -521,6 +553,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Stall.mutate(ctx, m)
 	case *StoreMutation:
 		return c.Store.mutate(ctx, m)
+	case *StorePaymentAccountMutation:
+		return c.StorePaymentAccount.mutate(ctx, m)
 	case *StoreUserMutation:
 		return c.StoreUser.mutate(ctx, m)
 	case *TaxFeeMutation:
@@ -665,6 +699,22 @@ func (c *AdditionalFeeClient) QueryStore(af *AdditionalFee) *StoreQuery {
 			sqlgraph.From(additionalfee.Table, additionalfee.FieldID, id),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, additionalfee.StoreTable, additionalfee.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(af.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProductSpecs queries the product_specs edge of a AdditionalFee.
+func (c *AdditionalFeeClient) QueryProductSpecs(af *AdditionalFee) *ProductSpecRelationQuery {
+	query := (&ProductSpecRelationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := af.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(additionalfee.Table, additionalfee.FieldID, id),
+			sqlgraph.To(productspecrelation.Table, productspecrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, additionalfee.ProductSpecsTable, additionalfee.ProductSpecsColumn),
 		)
 		fromV = sqlgraph.Neighbors(af.driver.Dialect(), step)
 		return fromV, nil
@@ -1166,6 +1216,38 @@ func (c *CategoryClient) QueryProducts(ca *Category) *ProductQuery {
 			sqlgraph.From(category.Table, category.FieldID, id),
 			sqlgraph.To(product.Table, product.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, category.ProductsTable, category.ProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ca.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTaxRate queries the tax_rate edge of a Category.
+func (c *CategoryClient) QueryTaxRate(ca *Category) *TaxFeeQuery {
+	query := (&TaxFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ca.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, id),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, category.TaxRateTable, category.TaxRateColumn),
+		)
+		fromV = sqlgraph.Neighbors(ca.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStall queries the stall edge of a Category.
+func (c *CategoryClient) QueryStall(ca *Category) *StallQuery {
+	query := (&StallClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ca.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, id),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, category.StallTable, category.StallColumn),
 		)
 		fromV = sqlgraph.Neighbors(ca.driver.Dialect(), step)
 		return fromV, nil
@@ -2941,6 +3023,22 @@ func (c *MerchantClient) QueryStoreUsers(m *Merchant) *StoreUserQuery {
 	return query
 }
 
+// QueryProfitDistributionBills queries the profit_distribution_bills edge of a Merchant.
+func (c *MerchantClient) QueryProfitDistributionBills(m *Merchant) *ProfitDistributionBillQuery {
+	query := (&ProfitDistributionBillClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, id),
+			sqlgraph.To(profitdistributionbill.Table, profitdistributionbill.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.ProfitDistributionBillsTable, merchant.ProfitDistributionBillsColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *MerchantClient) Hooks() []Hook {
 	hooks := c.hooks.Merchant
@@ -3556,6 +3654,157 @@ func (c *OrderProductClient) mutate(ctx context.Context, m *OrderProductMutation
 	}
 }
 
+// PaymentAccountClient is a client for the PaymentAccount schema.
+type PaymentAccountClient struct {
+	config
+}
+
+// NewPaymentAccountClient returns a client for the PaymentAccount from the given config.
+func NewPaymentAccountClient(c config) *PaymentAccountClient {
+	return &PaymentAccountClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `paymentaccount.Hooks(f(g(h())))`.
+func (c *PaymentAccountClient) Use(hooks ...Hook) {
+	c.hooks.PaymentAccount = append(c.hooks.PaymentAccount, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `paymentaccount.Intercept(f(g(h())))`.
+func (c *PaymentAccountClient) Intercept(interceptors ...Interceptor) {
+	c.inters.PaymentAccount = append(c.inters.PaymentAccount, interceptors...)
+}
+
+// Create returns a builder for creating a PaymentAccount entity.
+func (c *PaymentAccountClient) Create() *PaymentAccountCreate {
+	mutation := newPaymentAccountMutation(c.config, OpCreate)
+	return &PaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of PaymentAccount entities.
+func (c *PaymentAccountClient) CreateBulk(builders ...*PaymentAccountCreate) *PaymentAccountCreateBulk {
+	return &PaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PaymentAccountClient) MapCreateBulk(slice any, setFunc func(*PaymentAccountCreate, int)) *PaymentAccountCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PaymentAccountCreateBulk{err: fmt.Errorf("calling to PaymentAccountClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PaymentAccountCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for PaymentAccount.
+func (c *PaymentAccountClient) Update() *PaymentAccountUpdate {
+	mutation := newPaymentAccountMutation(c.config, OpUpdate)
+	return &PaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PaymentAccountClient) UpdateOne(pa *PaymentAccount) *PaymentAccountUpdateOne {
+	mutation := newPaymentAccountMutation(c.config, OpUpdateOne, withPaymentAccount(pa))
+	return &PaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PaymentAccountClient) UpdateOneID(id uuid.UUID) *PaymentAccountUpdateOne {
+	mutation := newPaymentAccountMutation(c.config, OpUpdateOne, withPaymentAccountID(id))
+	return &PaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for PaymentAccount.
+func (c *PaymentAccountClient) Delete() *PaymentAccountDelete {
+	mutation := newPaymentAccountMutation(c.config, OpDelete)
+	return &PaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PaymentAccountClient) DeleteOne(pa *PaymentAccount) *PaymentAccountDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PaymentAccountClient) DeleteOneID(id uuid.UUID) *PaymentAccountDeleteOne {
+	builder := c.Delete().Where(paymentaccount.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PaymentAccountDeleteOne{builder}
+}
+
+// Query returns a query builder for PaymentAccount.
+func (c *PaymentAccountClient) Query() *PaymentAccountQuery {
+	return &PaymentAccountQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePaymentAccount},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a PaymentAccount entity by its id.
+func (c *PaymentAccountClient) Get(ctx context.Context, id uuid.UUID) (*PaymentAccount, error) {
+	return c.Query().Where(paymentaccount.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PaymentAccountClient) GetX(ctx context.Context, id uuid.UUID) *PaymentAccount {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryStorePaymentAccounts queries the store_payment_accounts edge of a PaymentAccount.
+func (c *PaymentAccountClient) QueryStorePaymentAccounts(pa *PaymentAccount) *StorePaymentAccountQuery {
+	query := (&StorePaymentAccountClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(paymentaccount.Table, paymentaccount.FieldID, id),
+			sqlgraph.To(storepaymentaccount.Table, storepaymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, paymentaccount.StorePaymentAccountsTable, paymentaccount.StorePaymentAccountsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PaymentAccountClient) Hooks() []Hook {
+	hooks := c.hooks.PaymentAccount
+	return append(hooks[:len(hooks):len(hooks)], paymentaccount.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *PaymentAccountClient) Interceptors() []Interceptor {
+	inters := c.inters.PaymentAccount
+	return append(inters[:len(inters):len(inters)], paymentaccount.Interceptors[:]...)
+}
+
+func (c *PaymentAccountClient) mutate(ctx context.Context, m *PaymentAccountMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown PaymentAccount mutation op: %q", m.Op())
+	}
+}
+
 // PaymentMethodClient is a client for the PaymentMethod schema.
 type PaymentMethodClient struct {
 	config
@@ -3975,6 +4224,38 @@ func (c *ProductClient) QueryUnit(pr *Product) *ProductUnitQuery {
 			sqlgraph.From(product.Table, product.FieldID, id),
 			sqlgraph.To(productunit.Table, productunit.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, product.UnitTable, product.UnitColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTaxRate queries the tax_rate edge of a Product.
+func (c *ProductClient) QueryTaxRate(pr *Product) *TaxFeeQuery {
+	query := (&TaxFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.TaxRateTable, product.TaxRateColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStall queries the stall edge of a Product.
+func (c *ProductClient) QueryStall(pr *Product) *StallQuery {
+	query := (&StallClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.StallTable, product.StallColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -4913,6 +5194,22 @@ func (c *ProductSpecRelationClient) QuerySpec(psr *ProductSpecRelation) *Product
 	return query
 }
 
+// QueryPackingFee queries the packing_fee edge of a ProductSpecRelation.
+func (c *ProductSpecRelationClient) QueryPackingFee(psr *ProductSpecRelation) *AdditionalFeeQuery {
+	query := (&AdditionalFeeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := psr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productspecrelation.Table, productspecrelation.FieldID, id),
+			sqlgraph.To(additionalfee.Table, additionalfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productspecrelation.PackingFeeTable, productspecrelation.PackingFeeColumn),
+		)
+		fromV = sqlgraph.Neighbors(psr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ProductSpecRelationClient) Hooks() []Hook {
 	hooks := c.hooks.ProductSpecRelation
@@ -5239,6 +5536,324 @@ func (c *ProductUnitClient) mutate(ctx context.Context, m *ProductUnitMutation) 
 		return (&ProductUnitDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown ProductUnit mutation op: %q", m.Op())
+	}
+}
+
+// ProfitDistributionBillClient is a client for the ProfitDistributionBill schema.
+type ProfitDistributionBillClient struct {
+	config
+}
+
+// NewProfitDistributionBillClient returns a client for the ProfitDistributionBill from the given config.
+func NewProfitDistributionBillClient(c config) *ProfitDistributionBillClient {
+	return &ProfitDistributionBillClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `profitdistributionbill.Hooks(f(g(h())))`.
+func (c *ProfitDistributionBillClient) Use(hooks ...Hook) {
+	c.hooks.ProfitDistributionBill = append(c.hooks.ProfitDistributionBill, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `profitdistributionbill.Intercept(f(g(h())))`.
+func (c *ProfitDistributionBillClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProfitDistributionBill = append(c.inters.ProfitDistributionBill, interceptors...)
+}
+
+// Create returns a builder for creating a ProfitDistributionBill entity.
+func (c *ProfitDistributionBillClient) Create() *ProfitDistributionBillCreate {
+	mutation := newProfitDistributionBillMutation(c.config, OpCreate)
+	return &ProfitDistributionBillCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProfitDistributionBill entities.
+func (c *ProfitDistributionBillClient) CreateBulk(builders ...*ProfitDistributionBillCreate) *ProfitDistributionBillCreateBulk {
+	return &ProfitDistributionBillCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProfitDistributionBillClient) MapCreateBulk(slice any, setFunc func(*ProfitDistributionBillCreate, int)) *ProfitDistributionBillCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProfitDistributionBillCreateBulk{err: fmt.Errorf("calling to ProfitDistributionBillClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProfitDistributionBillCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProfitDistributionBillCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) Update() *ProfitDistributionBillUpdate {
+	mutation := newProfitDistributionBillMutation(c.config, OpUpdate)
+	return &ProfitDistributionBillUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProfitDistributionBillClient) UpdateOne(pdb *ProfitDistributionBill) *ProfitDistributionBillUpdateOne {
+	mutation := newProfitDistributionBillMutation(c.config, OpUpdateOne, withProfitDistributionBill(pdb))
+	return &ProfitDistributionBillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProfitDistributionBillClient) UpdateOneID(id uuid.UUID) *ProfitDistributionBillUpdateOne {
+	mutation := newProfitDistributionBillMutation(c.config, OpUpdateOne, withProfitDistributionBillID(id))
+	return &ProfitDistributionBillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) Delete() *ProfitDistributionBillDelete {
+	mutation := newProfitDistributionBillMutation(c.config, OpDelete)
+	return &ProfitDistributionBillDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProfitDistributionBillClient) DeleteOne(pdb *ProfitDistributionBill) *ProfitDistributionBillDeleteOne {
+	return c.DeleteOneID(pdb.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProfitDistributionBillClient) DeleteOneID(id uuid.UUID) *ProfitDistributionBillDeleteOne {
+	builder := c.Delete().Where(profitdistributionbill.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProfitDistributionBillDeleteOne{builder}
+}
+
+// Query returns a query builder for ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) Query() *ProfitDistributionBillQuery {
+	return &ProfitDistributionBillQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProfitDistributionBill},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProfitDistributionBill entity by its id.
+func (c *ProfitDistributionBillClient) Get(ctx context.Context, id uuid.UUID) (*ProfitDistributionBill, error) {
+	return c.Query().Where(profitdistributionbill.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProfitDistributionBillClient) GetX(ctx context.Context, id uuid.UUID) *ProfitDistributionBill {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMerchant queries the merchant edge of a ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) QueryMerchant(pdb *ProfitDistributionBill) *MerchantQuery {
+	query := (&MerchantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pdb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionbill.Table, profitdistributionbill.FieldID, id),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, profitdistributionbill.MerchantTable, profitdistributionbill.MerchantColumn),
+		)
+		fromV = sqlgraph.Neighbors(pdb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStore queries the store edge of a ProfitDistributionBill.
+func (c *ProfitDistributionBillClient) QueryStore(pdb *ProfitDistributionBill) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pdb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionbill.Table, profitdistributionbill.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, profitdistributionbill.StoreTable, profitdistributionbill.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(pdb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProfitDistributionBillClient) Hooks() []Hook {
+	hooks := c.hooks.ProfitDistributionBill
+	return append(hooks[:len(hooks):len(hooks)], profitdistributionbill.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProfitDistributionBillClient) Interceptors() []Interceptor {
+	inters := c.inters.ProfitDistributionBill
+	return append(inters[:len(inters):len(inters)], profitdistributionbill.Interceptors[:]...)
+}
+
+func (c *ProfitDistributionBillClient) mutate(ctx context.Context, m *ProfitDistributionBillMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProfitDistributionBillCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProfitDistributionBillUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProfitDistributionBillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProfitDistributionBillDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProfitDistributionBill mutation op: %q", m.Op())
+	}
+}
+
+// ProfitDistributionRuleClient is a client for the ProfitDistributionRule schema.
+type ProfitDistributionRuleClient struct {
+	config
+}
+
+// NewProfitDistributionRuleClient returns a client for the ProfitDistributionRule from the given config.
+func NewProfitDistributionRuleClient(c config) *ProfitDistributionRuleClient {
+	return &ProfitDistributionRuleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `profitdistributionrule.Hooks(f(g(h())))`.
+func (c *ProfitDistributionRuleClient) Use(hooks ...Hook) {
+	c.hooks.ProfitDistributionRule = append(c.hooks.ProfitDistributionRule, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `profitdistributionrule.Intercept(f(g(h())))`.
+func (c *ProfitDistributionRuleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProfitDistributionRule = append(c.inters.ProfitDistributionRule, interceptors...)
+}
+
+// Create returns a builder for creating a ProfitDistributionRule entity.
+func (c *ProfitDistributionRuleClient) Create() *ProfitDistributionRuleCreate {
+	mutation := newProfitDistributionRuleMutation(c.config, OpCreate)
+	return &ProfitDistributionRuleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProfitDistributionRule entities.
+func (c *ProfitDistributionRuleClient) CreateBulk(builders ...*ProfitDistributionRuleCreate) *ProfitDistributionRuleCreateBulk {
+	return &ProfitDistributionRuleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProfitDistributionRuleClient) MapCreateBulk(slice any, setFunc func(*ProfitDistributionRuleCreate, int)) *ProfitDistributionRuleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProfitDistributionRuleCreateBulk{err: fmt.Errorf("calling to ProfitDistributionRuleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProfitDistributionRuleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProfitDistributionRuleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) Update() *ProfitDistributionRuleUpdate {
+	mutation := newProfitDistributionRuleMutation(c.config, OpUpdate)
+	return &ProfitDistributionRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProfitDistributionRuleClient) UpdateOne(pdr *ProfitDistributionRule) *ProfitDistributionRuleUpdateOne {
+	mutation := newProfitDistributionRuleMutation(c.config, OpUpdateOne, withProfitDistributionRule(pdr))
+	return &ProfitDistributionRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProfitDistributionRuleClient) UpdateOneID(id uuid.UUID) *ProfitDistributionRuleUpdateOne {
+	mutation := newProfitDistributionRuleMutation(c.config, OpUpdateOne, withProfitDistributionRuleID(id))
+	return &ProfitDistributionRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) Delete() *ProfitDistributionRuleDelete {
+	mutation := newProfitDistributionRuleMutation(c.config, OpDelete)
+	return &ProfitDistributionRuleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProfitDistributionRuleClient) DeleteOne(pdr *ProfitDistributionRule) *ProfitDistributionRuleDeleteOne {
+	return c.DeleteOneID(pdr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProfitDistributionRuleClient) DeleteOneID(id uuid.UUID) *ProfitDistributionRuleDeleteOne {
+	builder := c.Delete().Where(profitdistributionrule.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProfitDistributionRuleDeleteOne{builder}
+}
+
+// Query returns a query builder for ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) Query() *ProfitDistributionRuleQuery {
+	return &ProfitDistributionRuleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProfitDistributionRule},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProfitDistributionRule entity by its id.
+func (c *ProfitDistributionRuleClient) Get(ctx context.Context, id uuid.UUID) (*ProfitDistributionRule, error) {
+	return c.Query().Where(profitdistributionrule.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProfitDistributionRuleClient) GetX(ctx context.Context, id uuid.UUID) *ProfitDistributionRule {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryStores queries the stores edge of a ProfitDistributionRule.
+func (c *ProfitDistributionRuleClient) QueryStores(pdr *ProfitDistributionRule) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pdr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(profitdistributionrule.Table, profitdistributionrule.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, profitdistributionrule.StoresTable, profitdistributionrule.StoresPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pdr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProfitDistributionRuleClient) Hooks() []Hook {
+	hooks := c.hooks.ProfitDistributionRule
+	return append(hooks[:len(hooks):len(hooks)], profitdistributionrule.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProfitDistributionRuleClient) Interceptors() []Interceptor {
+	inters := c.inters.ProfitDistributionRule
+	return append(inters[:len(inters):len(inters)], profitdistributionrule.Interceptors[:]...)
+}
+
+func (c *ProfitDistributionRuleClient) mutate(ctx context.Context, m *ProfitDistributionRuleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProfitDistributionRuleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProfitDistributionRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProfitDistributionRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProfitDistributionRuleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProfitDistributionRule mutation op: %q", m.Op())
 	}
 }
 
@@ -6885,6 +7500,38 @@ func (c *StallClient) QueryDevices(s *Stall) *DeviceQuery {
 	return query
 }
 
+// QueryCategories queries the categories edge of a Stall.
+func (c *StallClient) QueryCategories(s *Stall) *CategoryQuery {
+	query := (&CategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(stall.Table, stall.FieldID, id),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, stall.CategoriesTable, stall.CategoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProducts queries the products edge of a Stall.
+func (c *StallClient) QueryProducts(s *Stall) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(stall.Table, stall.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, stall.ProductsTable, stall.ProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StallClient) Hooks() []Hook {
 	hooks := c.hooks.Stall
@@ -7244,6 +7891,54 @@ func (c *StoreClient) QueryRoles(s *Store) *RoleQuery {
 	return query
 }
 
+// QueryProfitDistributionRules queries the profit_distribution_rules edge of a Store.
+func (c *StoreClient) QueryProfitDistributionRules(s *Store) *ProfitDistributionRuleQuery {
+	query := (&ProfitDistributionRuleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(profitdistributionrule.Table, profitdistributionrule.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, store.ProfitDistributionRulesTable, store.ProfitDistributionRulesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProfitDistributionBills queries the profit_distribution_bills edge of a Store.
+func (c *StoreClient) QueryProfitDistributionBills(s *Store) *ProfitDistributionBillQuery {
+	query := (&ProfitDistributionBillClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(profitdistributionbill.Table, profitdistributionbill.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.ProfitDistributionBillsTable, store.ProfitDistributionBillsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStorePaymentAccounts queries the store_payment_accounts edge of a Store.
+func (c *StoreClient) QueryStorePaymentAccounts(s *Store) *StorePaymentAccountQuery {
+	query := (&StorePaymentAccountClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(store.Table, store.FieldID, id),
+			sqlgraph.To(storepaymentaccount.Table, storepaymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, store.StorePaymentAccountsTable, store.StorePaymentAccountsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StoreClient) Hooks() []Hook {
 	hooks := c.hooks.Store
@@ -7268,6 +7963,173 @@ func (c *StoreClient) mutate(ctx context.Context, m *StoreMutation) (Value, erro
 		return (&StoreDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Store mutation op: %q", m.Op())
+	}
+}
+
+// StorePaymentAccountClient is a client for the StorePaymentAccount schema.
+type StorePaymentAccountClient struct {
+	config
+}
+
+// NewStorePaymentAccountClient returns a client for the StorePaymentAccount from the given config.
+func NewStorePaymentAccountClient(c config) *StorePaymentAccountClient {
+	return &StorePaymentAccountClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `storepaymentaccount.Hooks(f(g(h())))`.
+func (c *StorePaymentAccountClient) Use(hooks ...Hook) {
+	c.hooks.StorePaymentAccount = append(c.hooks.StorePaymentAccount, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `storepaymentaccount.Intercept(f(g(h())))`.
+func (c *StorePaymentAccountClient) Intercept(interceptors ...Interceptor) {
+	c.inters.StorePaymentAccount = append(c.inters.StorePaymentAccount, interceptors...)
+}
+
+// Create returns a builder for creating a StorePaymentAccount entity.
+func (c *StorePaymentAccountClient) Create() *StorePaymentAccountCreate {
+	mutation := newStorePaymentAccountMutation(c.config, OpCreate)
+	return &StorePaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of StorePaymentAccount entities.
+func (c *StorePaymentAccountClient) CreateBulk(builders ...*StorePaymentAccountCreate) *StorePaymentAccountCreateBulk {
+	return &StorePaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *StorePaymentAccountClient) MapCreateBulk(slice any, setFunc func(*StorePaymentAccountCreate, int)) *StorePaymentAccountCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &StorePaymentAccountCreateBulk{err: fmt.Errorf("calling to StorePaymentAccountClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*StorePaymentAccountCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &StorePaymentAccountCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for StorePaymentAccount.
+func (c *StorePaymentAccountClient) Update() *StorePaymentAccountUpdate {
+	mutation := newStorePaymentAccountMutation(c.config, OpUpdate)
+	return &StorePaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *StorePaymentAccountClient) UpdateOne(spa *StorePaymentAccount) *StorePaymentAccountUpdateOne {
+	mutation := newStorePaymentAccountMutation(c.config, OpUpdateOne, withStorePaymentAccount(spa))
+	return &StorePaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *StorePaymentAccountClient) UpdateOneID(id uuid.UUID) *StorePaymentAccountUpdateOne {
+	mutation := newStorePaymentAccountMutation(c.config, OpUpdateOne, withStorePaymentAccountID(id))
+	return &StorePaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for StorePaymentAccount.
+func (c *StorePaymentAccountClient) Delete() *StorePaymentAccountDelete {
+	mutation := newStorePaymentAccountMutation(c.config, OpDelete)
+	return &StorePaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *StorePaymentAccountClient) DeleteOne(spa *StorePaymentAccount) *StorePaymentAccountDeleteOne {
+	return c.DeleteOneID(spa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *StorePaymentAccountClient) DeleteOneID(id uuid.UUID) *StorePaymentAccountDeleteOne {
+	builder := c.Delete().Where(storepaymentaccount.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &StorePaymentAccountDeleteOne{builder}
+}
+
+// Query returns a query builder for StorePaymentAccount.
+func (c *StorePaymentAccountClient) Query() *StorePaymentAccountQuery {
+	return &StorePaymentAccountQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeStorePaymentAccount},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a StorePaymentAccount entity by its id.
+func (c *StorePaymentAccountClient) Get(ctx context.Context, id uuid.UUID) (*StorePaymentAccount, error) {
+	return c.Query().Where(storepaymentaccount.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *StorePaymentAccountClient) GetX(ctx context.Context, id uuid.UUID) *StorePaymentAccount {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryStore queries the store edge of a StorePaymentAccount.
+func (c *StorePaymentAccountClient) QueryStore(spa *StorePaymentAccount) *StoreQuery {
+	query := (&StoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := spa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storepaymentaccount.Table, storepaymentaccount.FieldID, id),
+			sqlgraph.To(store.Table, store.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storepaymentaccount.StoreTable, storepaymentaccount.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(spa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPaymentAccount queries the payment_account edge of a StorePaymentAccount.
+func (c *StorePaymentAccountClient) QueryPaymentAccount(spa *StorePaymentAccount) *PaymentAccountQuery {
+	query := (&PaymentAccountClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := spa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storepaymentaccount.Table, storepaymentaccount.FieldID, id),
+			sqlgraph.To(paymentaccount.Table, paymentaccount.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storepaymentaccount.PaymentAccountTable, storepaymentaccount.PaymentAccountColumn),
+		)
+		fromV = sqlgraph.Neighbors(spa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *StorePaymentAccountClient) Hooks() []Hook {
+	hooks := c.hooks.StorePaymentAccount
+	return append(hooks[:len(hooks):len(hooks)], storepaymentaccount.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *StorePaymentAccountClient) Interceptors() []Interceptor {
+	inters := c.inters.StorePaymentAccount
+	return append(inters[:len(inters):len(inters)], storepaymentaccount.Interceptors[:]...)
+}
+
+func (c *StorePaymentAccountClient) mutate(ctx context.Context, m *StorePaymentAccountMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StorePaymentAccountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StorePaymentAccountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StorePaymentAccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StorePaymentAccountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown StorePaymentAccount mutation op: %q", m.Op())
 	}
 }
 
@@ -7594,6 +8456,38 @@ func (c *TaxFeeClient) QueryStore(tf *TaxFee) *StoreQuery {
 	return query
 }
 
+// QueryCategories queries the categories edge of a TaxFee.
+func (c *TaxFeeClient) QueryCategories(tf *TaxFee) *CategoryQuery {
+	query := (&CategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(taxfee.Table, taxfee.FieldID, id),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, taxfee.CategoriesTable, taxfee.CategoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProducts queries the products edge of a TaxFee.
+func (c *TaxFeeClient) QueryProducts(tf *TaxFee) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(taxfee.Table, taxfee.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, taxfee.ProductsTable, taxfee.ProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TaxFeeClient) Hooks() []Hook {
 	hooks := c.hooks.TaxFee
@@ -7761,19 +8655,23 @@ type (
 	hooks struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
 		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentMethod, Permission, Product,
-		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
-		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
-		Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail, SetMealGroup, Stall,
-		Store, StoreUser, TaxFee, UserRole []ent.Hook
+		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
+		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
+		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
+		ProfitDistributionBill, ProfitDistributionRule, Province, Remark,
+		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
+		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
+		UserRole []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
 		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentMethod, Permission, Product,
-		ProductAttr, ProductAttrItem, ProductAttrRelation, ProductSpec,
-		ProductSpecRelation, ProductTag, ProductUnit, Province, Remark, RemarkCategory,
-		Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail, SetMealGroup, Stall,
-		Store, StoreUser, TaxFee, UserRole []ent.Interceptor
+		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
+		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
+		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
+		ProfitDistributionBill, ProfitDistributionRule, Province, Remark,
+		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
+		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
+		UserRole []ent.Interceptor
 	}
 )

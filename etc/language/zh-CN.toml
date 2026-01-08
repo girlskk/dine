@@ -57,6 +57,9 @@ other = "商品口味做法有子项，不能删除"
 [PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS]
 other = "商品口味做法项有商品，不能删除"
 
+[PRODUCT_BELONG_TO_SET_MEAL]
+other = "商品属于套餐组，不能停售或删除"
+
 [MERCHANT_NAME_EXISTS]
 other = "商户名称已存在"
 

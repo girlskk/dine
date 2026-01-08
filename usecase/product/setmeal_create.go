@@ -8,7 +8,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
-func (i *ProductInteractor) CreateSetMeal(ctx context.Context, product *domain.Product) (err error) {
+func (i *ProductInteractor) CreateSetMeal(ctx context.Context, product *domain.Product, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.CreateSetMeal")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -19,7 +19,7 @@ func (i *ProductInteractor) CreateSetMeal(ctx context.Context, product *domain.P
 	}
 
 	err = i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		if err = validateProductBusinessRules(ctx, ds, product, uuid.Nil); err != nil {
+		if err = i.validateProductBusinessRules(ctx, ds, product, user, uuid.Nil); err != nil {
 			return err
 		}
 

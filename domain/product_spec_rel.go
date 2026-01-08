@@ -31,15 +31,8 @@ type ProductSpecRelation struct {
 	UpdatedAt          time.Time        `json:"updated_at"`           // 更新时间
 
 	// 关联信息
-	SpecName   string      `json:"spec_name"`   // 规格名称
-	PackingFee *PackingFee `json:"packing_fee"` // 打包费
-}
-
-// @TODO 关联信息
-type PackingFee struct {
-	ID    uuid.UUID       `json:"id"`    // 打包费ID
-	Name  string          `json:"name"`  // 打包费名称
-	Price decimal.Decimal `json:"price"` // 打包费价格
+	SpecName   string         `json:"spec_name"`             // 规格名称
+	PackingFee *AdditionalFee `json:"packing_fee,omitempty"` // 打包费
 }
 
 type ProductSpecRelations []*ProductSpecRelation

@@ -10,7 +10,9 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
+	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockBackendUserInteractor is a mock of BackendUserInteractor interface.
@@ -51,6 +53,70 @@ func (mr *MockBackendUserInteractorMockRecorder) Authenticate(arg0, arg1 interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authenticate", reflect.TypeOf((*MockBackendUserInteractor)(nil).Authenticate), arg0, arg1)
 }
 
+// Create mocks base method.
+func (m *MockBackendUserInteractor) Create(arg0 context.Context, arg1 *domain.BackendUser) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockBackendUserInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockBackendUserInteractor)(nil).Create), arg0, arg1)
+}
+
+// Delete mocks base method.
+func (m *MockBackendUserInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockBackendUserInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockBackendUserInteractor)(nil).Delete), arg0, arg1)
+}
+
+// GetUser mocks base method.
+func (m *MockBackendUserInteractor) GetUser(arg0 context.Context, arg1 uuid.UUID) (*domain.BackendUser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUser", arg0, arg1)
+	ret0, _ := ret[0].(*domain.BackendUser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockBackendUserInteractorMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockBackendUserInteractor)(nil).GetUser), arg0, arg1)
+}
+
+// GetUsers mocks base method.
+func (m *MockBackendUserInteractor) GetUsers(arg0 context.Context, arg1 *upagination.Pagination, arg2 *domain.BackendUserListFilter, arg3 ...domain.BackendUserOrderBy) ([]*domain.BackendUser, int, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetUsers", varargs...)
+	ret0, _ := ret[0].([]*domain.BackendUser)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockBackendUserInteractorMockRecorder) GetUsers(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockBackendUserInteractor)(nil).GetUsers), varargs...)
+}
+
 // Login mocks base method.
 func (m *MockBackendUserInteractor) Login(arg0 context.Context, arg1, arg2 string) (string, time.Time, error) {
 	m.ctrl.T.Helper()
@@ -79,4 +145,32 @@ func (m *MockBackendUserInteractor) Logout(arg0 context.Context) error {
 func (mr *MockBackendUserInteractorMockRecorder) Logout(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logout", reflect.TypeOf((*MockBackendUserInteractor)(nil).Logout), arg0)
+}
+
+// SimpleUpdate mocks base method.
+func (m *MockBackendUserInteractor) SimpleUpdate(arg0 context.Context, arg1 domain.BackendUserSimpleUpdateField, arg2 domain.BackendUserSimpleUpdateParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SimpleUpdate", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SimpleUpdate indicates an expected call of SimpleUpdate.
+func (mr *MockBackendUserInteractorMockRecorder) SimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SimpleUpdate", reflect.TypeOf((*MockBackendUserInteractor)(nil).SimpleUpdate), arg0, arg1, arg2)
+}
+
+// Update mocks base method.
+func (m *MockBackendUserInteractor) Update(arg0 context.Context, arg1 *domain.BackendUser) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockBackendUserInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockBackendUserInteractor)(nil).Update), arg0, arg1)
 }

@@ -54,6 +54,9 @@ type Order func(*sql.Selector)
 // OrderProduct is the predicate function for orderproduct builders.
 type OrderProduct func(*sql.Selector)
 
+// PaymentAccount is the predicate function for paymentaccount builders.
+type PaymentAccount func(*sql.Selector)
+
 // PaymentMethod is the predicate function for paymentmethod builders.
 type PaymentMethod func(*sql.Selector)
 
@@ -83,6 +86,12 @@ type ProductTag func(*sql.Selector)
 
 // ProductUnit is the predicate function for productunit builders.
 type ProductUnit func(*sql.Selector)
+
+// ProfitDistributionBill is the predicate function for profitdistributionbill builders.
+type ProfitDistributionBill func(*sql.Selector)
+
+// ProfitDistributionRule is the predicate function for profitdistributionrule builders.
+type ProfitDistributionRule func(*sql.Selector)
 
 // Province is the predicate function for province builders.
 type Province func(*sql.Selector)
@@ -116,6 +125,9 @@ type Stall func(*sql.Selector)
 
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)
+
+// StorePaymentAccount is the predicate function for storepaymentaccount builders.
+type StorePaymentAccount func(*sql.Selector)
 
 // StoreUser is the predicate function for storeuser builders.
 type StoreUser func(*sql.Selector)

@@ -49,6 +49,8 @@ const (
 	EdgeProduct = "product"
 	// EdgeSpec holds the string denoting the spec edge name in mutations.
 	EdgeSpec = "spec"
+	// EdgePackingFee holds the string denoting the packing_fee edge name in mutations.
+	EdgePackingFee = "packing_fee"
 	// Table holds the table name of the productspecrelation in the database.
 	Table = "product_spec_relations"
 	// ProductTable is the table that holds the product relation/edge.
@@ -65,6 +67,13 @@ const (
 	SpecInverseTable = "product_specs"
 	// SpecColumn is the table column denoting the spec relation/edge.
 	SpecColumn = "spec_id"
+	// PackingFeeTable is the table that holds the packing_fee relation/edge.
+	PackingFeeTable = "product_spec_relations"
+	// PackingFeeInverseTable is the table name for the AdditionalFee entity.
+	// It exists in this package in order to avoid circular dependency with the "additionalfee" package.
+	PackingFeeInverseTable = "additional_fees"
+	// PackingFeeColumn is the table column denoting the packing_fee relation/edge.
+	PackingFeeColumn = "packing_fee_id"
 )
 
 // Columns holds all SQL columns for productspecrelation fields.
@@ -215,6 +224,13 @@ func BySpecField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSpecStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByPackingFeeField orders the results by packing_fee field.
+func ByPackingFeeField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPackingFeeStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newProductStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -227,5 +243,12 @@ func newSpecStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SpecInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, SpecTable, SpecColumn),
+	)
+}
+func newPackingFeeStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PackingFeeInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, PackingFeeTable, PackingFeeColumn),
 	)
 }

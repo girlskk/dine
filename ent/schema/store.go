@@ -173,6 +173,9 @@ func (Store) Edges() []ent.Edge {
 		edge.From("menus", Menu.Type).Ref("stores").Comment("关联的菜单"),
 		edge.To("departments", Department.Type),
 		edge.To("roles", Role.Type),
+		edge.From("profit_distribution_rules", ProfitDistributionRule.Type).Ref("stores").Comment("关联的分账方案"),
+		edge.To("profit_distribution_bills", ProfitDistributionBill.Type).Comment("关联的分账账单"),
+		edge.To("store_payment_accounts", StorePaymentAccount.Type).Comment("关联的门店收款账户"),
 	}
 }
 

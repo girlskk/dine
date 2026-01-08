@@ -93,7 +93,7 @@ func (h *CategoryHandler) CreateRoot() gin.HandlerFunc {
 			}
 		}
 
-		err := h.CategoryInteractor.CreateRoot(ctx, category)
+		err := h.CategoryInteractor.CreateRoot(ctx, category, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrCategoryNameExists) {
@@ -176,7 +176,7 @@ func (h *CategoryHandler) CreateChild() gin.HandlerFunc {
 			category.InheritStall = false
 		}
 
-		err = h.CategoryInteractor.CreateChild(ctx, category)
+		err = h.CategoryInteractor.CreateChild(ctx, category, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrCategoryNameExists) {
