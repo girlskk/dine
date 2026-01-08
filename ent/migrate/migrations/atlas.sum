@@ -1,4 +1,4 @@
-h1:icmyQ/o9t4S+Y+FjLyw+wg9/zZ1E/e+rfJNJVW8w1lw=
+h1:PAAvb0PR00o5HlX9JCFwCTpfkn+ZxhfFtmjvz0UKuNQ=
 20251223111733_init.sql h1:BZGETBAzpuxIl67b1Kkw/yckxcI0V4VIcznVzEx4Vuw=
 20251224025141_add_merchant_table.sql h1:qLFX5sh/Ofo6UTFK3VgOfKL6HFML+OIi7XoezN8i3Ww=
 20251224035249_init_product_table.sql h1:Kifmbf/JbBNlguTgcR1nja3dObJ2A0qjkg9yFM+C7AY=
@@ -8,3 +8,4 @@ h1:icmyQ/o9t4S+Y+FjLyw+wg9/zZ1E/e+rfJNJVW8w1lw=
 20260106035604_add_payment_methods.sql h1:NP4TH0fzFqi3fiARNm5Gv/8LFhLzp8LS4+QYbS3/u9c=
 20260106080414_order_product.sql h1:ccvmelzgYQgJ5Fce9drI9WEpP8ayq6VaaWK4N6u88TQ=
 20260107062531_update_order.sql h1:/eEZpaNVIylNnm4MSnwAwHxuj6sjIWNbbbnBsNMEW0k=
+20260108073406_update_payment_method.sql h1:hl1UnfahMlv5UgXvHR65aFHr4FkDoJ9f8/v7zIkErd4=
