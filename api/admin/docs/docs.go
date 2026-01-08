@@ -2126,6 +2126,74 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "禁用指定管理员用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "禁用管理员用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "管理员用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "启用指定管理员用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "启用管理员用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "管理员用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -2578,31 +2646,16 @@ const docTemplate = `{
         "domain.ObjectStorageScene": {
             "type": "string",
             "enum": [
-                "store",
-                "product",
-                "order/list_export",
-                "reconciliation/list_export",
-                "reconciliation/detail_export",
-                "point_settlement/list_export",
-                "point_settlement/detail_export"
+                "merchant",
+                "store"
             ],
             "x-enum-comments": {
-                "ObjectStorageSceneOrderListExport": "订单列表导出",
-                "ObjectStorageScenePointSettlementDetailExport": "积分结算单明细导出",
-                "ObjectStorageScenePointSettlementListExport": "积分结算单导出",
-                "ObjectStorageSceneProduct": "商品",
-                "ObjectStorageSceneReconciliationDetailExport": "财务对账单明细导出",
-                "ObjectStorageSceneReconciliationListExport": "财务对账单导出",
+                "ObjectStorageSceneMerchant": "商户",
                 "ObjectStorageSceneStore": "门店"
             },
             "x-enum-varnames": [
-                "ObjectStorageSceneStore",
-                "ObjectStorageSceneProduct",
-                "ObjectStorageSceneOrderListExport",
-                "ObjectStorageSceneReconciliationListExport",
-                "ObjectStorageSceneReconciliationDetailExport",
-                "ObjectStorageScenePointSettlementListExport",
-                "ObjectStorageScenePointSettlementDetailExport"
+                "ObjectStorageSceneMerchant",
+                "ObjectStorageSceneStore"
             ]
         },
         "domain.Province": {
@@ -2732,8 +2785,16 @@ const docTemplate = `{
             "enum": [
                 "admin",
                 "backend",
+                "store",
+                "admin",
+                "backend",
                 "store"
             ],
+            "x-enum-comments": {
+                "UserTypeAdmin": "admin表用户",
+                "UserTypeBackend": "backend用户",
+                "UserTypeStore": "store用户"
+            },
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -2970,6 +3031,9 @@ const docTemplate = `{
             "enum": [
                 "admin",
                 "backend",
+                "store",
+                "admin",
+                "backend",
                 "store"
             ],
             "x-enum-comments": {
@@ -2978,9 +3042,9 @@ const docTemplate = `{
                 "UserTypeStore": "store用户"
             },
             "x-enum-varnames": [
-                "UserTypeAdmin",
-                "UserTypeBackend",
-                "UserTypeStore"
+                "RoleTypeAdmin",
+                "RoleTypeBackend",
+                "RoleTypeStore"
             ]
         },
         "response.Response": {
@@ -3001,23 +3065,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -3782,10 +3832,10 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "scene": {
-                    "description": "业务场景，store：门店相关 product: 商品相关",
+                    "description": "业务场景，store：门店相关 merchant: 商户相关",
                     "enum": [
                         "store",
-                        "product"
+                        "merchant"
                     ],
                     "allOf": [
                         {

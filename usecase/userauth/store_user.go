@@ -43,7 +43,9 @@ func (interactor *StoreUserInteractor) Login(ctx context.Context, username, pass
 	if err = user.CheckPassword(password); err != nil {
 		return
 	}
-
+	if !user.Enabled {
+		err = domain.ErrUserDisabled
+	}
 	expAt = time.Now().Add(time.Duration(interactor.AuthConfig.Expire) * time.Second)
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, AuthToken{
 		ID: user.ID,
@@ -105,6 +107,7 @@ func (interactor *StoreUserInteractor) Create(ctx context.Context, user *domain.
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		// check username exists
 		exists, err := ds.StoreUserRepo().Exists(ctx, domain.StoreUserExistsParams{
 			Username: user.Username,
 		})
@@ -114,6 +117,36 @@ func (interactor *StoreUserInteractor) Create(ctx context.Context, user *domain.
 		if exists {
 			return fmt.Errorf("%w", domain.ErrUsernameExist)
 		}
+
+		// check department assigned
+		if user.DepartmentID == uuid.Nil {
+			return domain.ErrUserDepartmentRequired
+		}
+		department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
+		if err != nil {
+			return err
+		}
+		if !department.Enable {
+			return domain.ErrDepartmentDisabled
+		}
+		if string(department.DepartmentType) != string(domain.UserTypeStore) {
+			return domain.ErrUserDepartmentTypeMismatch
+		}
+		// check role assigned
+		if len(user.RoleIDs) == 0 {
+			return domain.ErrUserRoleRequired
+		}
+		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
+		if err != nil {
+			return err
+		}
+		if !role.Enable {
+			return domain.ErrRoleDisabled
+		}
+		if string(role.RoleType) != string(domain.UserTypeStore) {
+			return domain.ErrUserRoleTypeMismatch
+		}
+
 		user.ID = uuid.New()
 		err = ds.StoreUserRepo().Create(ctx, user)
 		if err != nil {
@@ -148,15 +181,61 @@ func (interactor *StoreUserInteractor) Update(ctx context.Context, user *domain.
 			return domain.ErrUsernameExist
 		}
 
-		userRole, err := ds.UserRoleRepo().FindOneByUser(ctx, user)
+		oldUser, err := ds.StoreUserRepo().Find(ctx, user.ID)
 		if err != nil {
 			return err
 		}
-		err = ds.StoreUserRepo().Update(ctx, user)
+		if oldUser.IsSuperAdmin {
+			return domain.ErrSuperUserCannotUpdate
+		}
+		// check department assigned
+		if user.DepartmentID == uuid.Nil {
+			return domain.ErrUserDepartmentRequired
+		}
+		if user.DepartmentID != oldUser.DepartmentID {
+			department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
+			if err != nil {
+				return err
+			}
+			if !department.Enable {
+				return domain.ErrDepartmentDisabled
+			}
+			if string(department.DepartmentType) != string(domain.UserTypeStore) {
+				return domain.ErrUserDepartmentTypeMismatch
+			}
+		}
+		// check role assigned
+		if len(user.RoleIDs) == 0 {
+			return domain.ErrUserRoleRequired
+		}
+		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
+		if err != nil {
+			return err
+		}
+		if !role.Enable {
+			return domain.ErrRoleDisabled
+		}
+		if string(role.RoleType) != string(domain.UserTypeStore) {
+			return domain.ErrUserRoleTypeMismatch
+		}
+		oldUser.Username = user.Username
+		oldUser.Nickname = user.Nickname
+		oldUser.DepartmentID = user.DepartmentID
+		oldUser.RealName = user.RealName
+		oldUser.Gender = user.Gender
+		oldUser.Email = user.Email
+		oldUser.PhoneNumber = user.PhoneNumber
+		oldUser.Enabled = user.Enabled
+		oldUser.RoleIDs = user.RoleIDs
+		err = ds.StoreUserRepo().Update(ctx, oldUser)
 		if err != nil {
 			return err
 		}
 
+		userRole, err := ds.UserRoleRepo().FindOneByUser(ctx, user)
+		if err != nil {
+			return err
+		}
 		if userRole.RoleID != user.RoleIDs[0] {
 			userRole.RoleID = user.RoleIDs[0]
 			err = ds.UserRoleRepo().Update(ctx, userRole)
@@ -173,7 +252,15 @@ func (interactor *StoreUserInteractor) Delete(ctx context.Context, id uuid.UUID)
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		err := ds.UserRoleRepo().DeleteByUsers(ctx, domain.UserTypeStore, id)
+		user, err := ds.StoreUserRepo().Find(ctx, id)
+		if err != nil {
+			return err
+		}
+		if user.IsSuperAdmin {
+			return domain.ErrSuperUserCannotDelete
+		}
+
+		err = ds.UserRoleRepo().DeleteByUsers(ctx, domain.UserTypeStore, id)
 		if err != nil {
 			return err
 		}
@@ -267,6 +354,9 @@ func (interactor *StoreUserInteractor) SimpleUpdate(ctx context.Context, updateF
 		case domain.StoreUserSimpleUpdateFieldEnable:
 			if user.Enabled == params.Enabled {
 				return nil
+			}
+			if !params.Enabled {
+				return domain.ErrSuperUserCannotDisable
 			}
 			user.Enabled = params.Enabled
 		default:

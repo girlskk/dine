@@ -117,7 +117,7 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 func (h *UserHandler) Logout() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("UserHandler.Login")
+		logger := logging.FromContext(ctx).Named("UserHandler.Logout")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -197,16 +197,7 @@ func (h *UserHandler) Create() gin.HandlerFunc {
 			return
 		}
 		if err := h.UserInteractor.Create(ctx, createUser); err != nil {
-			if errors.Is(err, domain.ErrUsernameExist) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if errors.Is(err, domain.ErrUserRoleRequired) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create admin user: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -265,20 +256,7 @@ func (h *UserHandler) Update() gin.HandlerFunc {
 		}
 
 		if err := h.UserInteractor.Update(ctx, user); err != nil {
-			if errors.Is(err, domain.ErrUsernameExist) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if errors.Is(err, domain.ErrUserRoleRequired) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to update admin user: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -311,12 +289,7 @@ func (h *UserHandler) Delete() gin.HandlerFunc {
 		}
 
 		if err := h.UserInteractor.Delete(ctx, id); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete admin user: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -350,12 +323,7 @@ func (h *UserHandler) Get() gin.HandlerFunc {
 
 		user, err := h.UserInteractor.GetUser(ctx, id)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to get admin user: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -410,15 +378,15 @@ func (h *UserHandler) List() gin.HandlerFunc {
 
 // Enable 启用管理员用户
 //
-//	@Tags		用户管理
-//	@Summary	启用管理员用户
+//	@Tags			用户管理
+//	@Summary		启用管理员用户
 //	@Description	启用指定管理员用户
-//	@Security	BearerAuth
-//	@Accept		json
-//	@Produce	json
-//	@Param		id	path	string	true	"管理员用户ID"
-//	@Success	200	"No Content"
-//	@Router		/user/{id}/enable [put]
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"管理员用户ID"
+//	@Success		200	"No Content"
+//	@Router			/user/{id}/enable [put]
 func (h *UserHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -437,16 +405,7 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			Enabled: true,
 		})
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to enable admin user: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -456,15 +415,15 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 
 // Disable 禁用管理员用户
 //
-//	@Tags		用户管理
-//	@Summary	禁用管理员用户
+//	@Tags			用户管理
+//	@Summary		禁用管理员用户
 //	@Description	禁用指定管理员用户
-//	@Security	BearerAuth
-//	@Accept		json
-//	@Produce	json
-//	@Param		id	path	string	true	"管理员用户ID"
-//	@Success	200	"No Content"
-//	@Router		/user/{id}/disable [put]
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"管理员用户ID"
+//	@Success		200	"No Content"
+//	@Router			/user/{id}/disable [put]
 func (h *UserHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -483,16 +442,7 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			Enabled: false,
 		})
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to disable admin user: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -506,4 +456,39 @@ func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return seq, nil
+}
+
+func (h *UserHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrUserNotExists):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case errors.Is(err, domain.ErrUsernameExist):
+		return errorx.New(http.StatusConflict, errcode.Conflict, err)
+	case errors.Is(err, domain.ErrSuperUserCannotDelete):
+		return errorx.New(http.StatusBadRequest, errcode.SuperUserCannotDelete, err)
+	case errors.Is(err, domain.ErrSuperUserCannotDisable):
+		return errorx.New(http.StatusBadRequest, errcode.SuperUserCannotDisable, err)
+	case errors.Is(err, domain.ErrSuperUserCannotUpdate):
+		return errorx.New(http.StatusBadRequest, errcode.SuperUserCannotUpdate, err)
+	case errors.Is(err, domain.ErrUserDisabled):
+		return errorx.New(http.StatusBadRequest, errcode.UserDisabled, err)
+	case errors.Is(err, domain.ErrDepartmentDisabled):
+		return errorx.New(http.StatusBadRequest, errcode.DepartmentDisabled, err)
+	case errors.Is(err, domain.ErrRoleDisabled):
+		return errorx.New(http.StatusBadRequest, errcode.RoleDisabled, err)
+	case errors.Is(err, domain.ErrUserRoleRequired):
+		return errorx.New(http.StatusBadRequest, errcode.UserRoleRequired, err)
+	case errors.Is(err, domain.ErrUserDepartmentRequired):
+		return errorx.New(http.StatusBadRequest, errcode.UserDepartmentRequired, err)
+	case errors.Is(err, domain.ErrUserRoleTypeMismatch):
+		return errorx.New(http.StatusBadRequest, errcode.UserRoleTypeMismatch, err)
+	case errors.Is(err, domain.ErrUserDepartmentTypeMismatch):
+		return errorx.New(http.StatusBadRequest, errcode.UserDepartmentTypeMismatch, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return err
+	}
 }

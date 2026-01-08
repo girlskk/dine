@@ -78,7 +78,7 @@ func (h *AdditionalFeeHandler) Create() gin.HandlerFunc {
 
 		if err := h.AdditionalFeeInteractor.Create(ctx, fee); err != nil {
 			if errors.Is(err, domain.ErrAdditionalFeeNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.RemarkNameExists, err))
+				c.Error(errorx.New(http.StatusConflict, errcode.AdditionalNameExists, err))
 				return
 			}
 			if domain.IsParamsError(err) {
@@ -142,7 +142,7 @@ func (h *AdditionalFeeHandler) Update() gin.HandlerFunc {
 
 		if err := h.AdditionalFeeInteractor.Update(ctx, fee); err != nil {
 			if errors.Is(err, domain.ErrAdditionalFeeNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.RemarkNameExists, err))
+				c.Error(errorx.New(http.StatusConflict, errcode.AdditionalNameExists, err))
 				return
 			}
 			if domain.IsParamsError(err) {

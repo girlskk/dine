@@ -314,30 +314,15 @@ definitions:
     - MerchantTypeStore
   domain.ObjectStorageScene:
     enum:
+    - merchant
     - store
-    - product
-    - order/list_export
-    - reconciliation/list_export
-    - reconciliation/detail_export
-    - point_settlement/list_export
-    - point_settlement/detail_export
     type: string
     x-enum-comments:
-      ObjectStorageSceneOrderListExport: 订单列表导出
-      ObjectStorageScenePointSettlementDetailExport: 积分结算单明细导出
-      ObjectStorageScenePointSettlementListExport: 积分结算单导出
-      ObjectStorageSceneProduct: 商品
-      ObjectStorageSceneReconciliationDetailExport: 财务对账单明细导出
-      ObjectStorageSceneReconciliationListExport: 财务对账单导出
+      ObjectStorageSceneMerchant: 商户
       ObjectStorageSceneStore: 门店
     x-enum-varnames:
+    - ObjectStorageSceneMerchant
     - ObjectStorageSceneStore
-    - ObjectStorageSceneProduct
-    - ObjectStorageSceneOrderListExport
-    - ObjectStorageSceneReconciliationListExport
-    - ObjectStorageSceneReconciliationDetailExport
-    - ObjectStorageScenePointSettlementListExport
-    - ObjectStorageScenePointSettlementDetailExport
   domain.Province:
     properties:
       country_id:
@@ -431,7 +416,14 @@ definitions:
     - admin
     - backend
     - store
+    - admin
+    - backend
+    - store
     type: string
+    x-enum-comments:
+      UserTypeAdmin: admin表用户
+      UserTypeBackend: backend用户
+      UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeBackend
@@ -597,15 +589,18 @@ definitions:
     - admin
     - backend
     - store
+    - admin
+    - backend
+    - store
     type: string
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
       UserTypeStore: store用户
     x-enum-varnames:
-    - UserTypeAdmin
-    - UserTypeBackend
-    - UserTypeStore
+    - RoleTypeAdmin
+    - RoleTypeBackend
+    - RoleTypeStore
   response.Response:
     properties:
       code:
@@ -621,22 +616,8 @@ definitions:
     - 4
     - 5
     - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     type: integer
     x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -1177,10 +1158,10 @@ definitions:
       scene:
         allOf:
         - $ref: '#/definitions/domain.ObjectStorageScene'
-        description: '业务场景，store：门店相关 product: 商品相关'
+        description: '业务场景，store：门店相关 merchant: 商户相关'
         enum:
         - store
-        - product
+        - merchant
     required:
     - filename
     - scene
@@ -2812,6 +2793,48 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新管理员用户
+      tags:
+      - 用户管理
+  /user/{id}/disable:
+    put:
+      consumes:
+      - application/json
+      description: 禁用指定管理员用户
+      parameters:
+      - description: 管理员用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用管理员用户
+      tags:
+      - 用户管理
+  /user/{id}/enable:
+    put:
+      consumes:
+      - application/json
+      description: 启用指定管理员用户
+      parameters:
+      - description: 管理员用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用管理员用户
       tags:
       - 用户管理
   /user/info:

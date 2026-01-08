@@ -1072,7 +1072,14 @@ definitions:
     - admin
     - backend
     - store
+    - admin
+    - backend
+    - store
     type: string
+    x-enum-comments:
+      UserTypeAdmin: admin表用户
+      UserTypeBackend: backend用户
+      UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeBackend
@@ -1102,16 +1109,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -1391,22 +1398,8 @@ definitions:
     - 4
     - 5
     - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     type: integer
     x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -4157,6 +4150,48 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新门店用户
+      tags:
+      - 用户管理
+  /user/{id}/disable:
+    put:
+      consumes:
+      - application/json
+      description: 禁用指定门店用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用门店用户
+      tags:
+      - 用户管理
+  /user/{id}/enable:
+    put:
+      consumes:
+      - application/json
+      description: 启用指定门店用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用门店用户
       tags:
       - 用户管理
   /user/info:

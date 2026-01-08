@@ -4548,6 +4548,74 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "禁用指定后台用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "禁用后台用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "启用指定后台用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "启用后台用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -4872,7 +4940,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -5643,31 +5711,16 @@ const docTemplate = `{
         "domain.ObjectStorageScene": {
             "type": "string",
             "enum": [
-                "store",
-                "product",
-                "order/list_export",
-                "reconciliation/list_export",
-                "reconciliation/detail_export",
-                "point_settlement/list_export",
-                "point_settlement/detail_export"
+                "merchant",
+                "store"
             ],
             "x-enum-comments": {
-                "ObjectStorageSceneOrderListExport": "订单列表导出",
-                "ObjectStorageScenePointSettlementDetailExport": "积分结算单明细导出",
-                "ObjectStorageScenePointSettlementListExport": "积分结算单导出",
-                "ObjectStorageSceneProduct": "商品",
-                "ObjectStorageSceneReconciliationDetailExport": "财务对账单明细导出",
-                "ObjectStorageSceneReconciliationListExport": "财务对账单导出",
+                "ObjectStorageSceneMerchant": "商户",
                 "ObjectStorageSceneStore": "门店"
             },
             "x-enum-varnames": [
-                "ObjectStorageSceneStore",
-                "ObjectStorageSceneProduct",
-                "ObjectStorageSceneOrderListExport",
-                "ObjectStorageSceneReconciliationListExport",
-                "ObjectStorageSceneReconciliationDetailExport",
-                "ObjectStorageScenePointSettlementListExport",
-                "ObjectStorageScenePointSettlementDetailExport"
+                "ObjectStorageSceneMerchant",
+                "ObjectStorageSceneStore"
             ]
         },
         "domain.OrderChannel": {
@@ -6790,8 +6843,16 @@ const docTemplate = `{
             "enum": [
                 "admin",
                 "backend",
+                "store",
+                "admin",
+                "backend",
                 "store"
             ],
+            "x-enum-comments": {
+                "UserTypeAdmin": "admin表用户",
+                "UserTypeBackend": "backend用户",
+                "UserTypeStore": "store用户"
+            },
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -7307,6 +7368,27 @@ const docTemplate = `{
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.AccountListResp": {
             "type": "object",
@@ -8536,11 +8618,7 @@ const docTemplate = `{
                 },
                 "cash_drawer_status": {
                     "description": "开钱箱状态",
-                    "type": "boolean",
-                    "enum": [
-                        true,
-                        false
-                    ]
+                    "type": "boolean"
                 },
                 "display_channels": {
                     "description": "收银终端显示渠道（可选，可多选）",
@@ -8588,11 +8666,7 @@ const docTemplate = `{
                 },
                 "status": {
                     "description": "启用/停用状态",
-                    "type": "boolean",
-                    "enum": [
-                        true,
-                        false
-                    ]
+                    "type": "boolean"
                 }
             }
         },

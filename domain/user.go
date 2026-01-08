@@ -7,9 +7,18 @@ import (
 )
 
 var (
-	ErrUserNotExists    = errors.New("用户不存在")
-	ErrUsernameExist    = errors.New("用户名已存在")
-	ErrUserRoleRequired = errors.New("管理员用户至少需要分配一个角色")
+	ErrUserNotExists              = errors.New("用户不存在")
+	ErrUsernameExist              = errors.New("用户名已存在")
+	ErrSuperUserCannotDelete      = errors.New("超级管理员无法删除")
+	ErrSuperUserCannotDisable     = errors.New("超级管理员不能被禁用")
+	ErrSuperUserCannotUpdate      = errors.New("超级管理员不能编辑")
+	ErrUserDisabled               = errors.New("用户已被禁用")
+	ErrDepartmentDisabled         = errors.New("用户所属部门已被禁用")
+	ErrRoleDisabled               = errors.New("用户所属角色已被禁用")
+	ErrUserRoleRequired           = errors.New("用户至少需要分配一个角色")
+	ErrUserDepartmentRequired     = errors.New("用户所属部门不能为空")
+	ErrUserRoleTypeMismatch       = errors.New("用户角色类型不匹配")
+	ErrUserDepartmentTypeMismatch = errors.New("用户部门类型不匹配")
 )
 
 // User 通用用户接口，用于验证用户身份
