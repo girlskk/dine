@@ -14,6 +14,8 @@ type ObjectStorageScene string
 const (
 	ObjectStorageSceneMerchant ObjectStorageScene = "merchant" // 商户
 	ObjectStorageSceneStore    ObjectStorageScene = "store"    // 门店
+	ObjectStorageSceneProduct  ObjectStorageScene = "product"  // 商品
+
 )
 
 type ObjectStorageOption struct {
