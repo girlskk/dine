@@ -41,16 +41,16 @@ type Params struct {
 	Handlers    []ugin.Handler    `group:"handlers"`
 }
 
-//	@title			门店后台 API
-//	@version		1.0
-//	@description	供门店后台调用.
+// @title 门店后台 API
+// @version 1.0
+// @description 供门店后台调用.
 
-//	@securityDefinitions.apikey	BearerAuth
-//	@in							header
-//	@name						Authorization
-//	@description				Type "Bearer" followed by a space and the JWT token.
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and the JWT token.
 
-//	@BasePath	/api/v1
+// @BasePath /api/v1
 func New(p Params) (*gin.Engine, error) {
 	e := gin.New()
 
