@@ -699,6 +699,144 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/product-sales-summary": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "数据分析"
+                ],
+                "summary": "商品销售汇总表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "订单来源",
+                        "name": "order_channel",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品分类ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品名称（模糊搜索）",
+                        "name": "product_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品类型：normal/set_meal",
+                        "name": "product_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductSalesSummaryResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/sales-report": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "数据分析"
+                ],
+                "summary": "销售汇总表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "品牌商ID",
+                        "name": "merchant_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/types.SalesReportResp"
+                        }
+                    }
+                }
+            }
+        },
         "/product": {
             "get": {
                 "security": [
@@ -1949,10 +2087,6 @@ const docTemplate = `{
                             "DeviceTypeCashier": "收银机",
                             "DeviceTypePrinter": "打印机"
                         },
-                        "x-enum-descriptions": [
-                            "收银机",
-                            "打印机"
-                        ],
                         "x-enum-varnames": [
                             "DeviceTypeCashier",
                             "DeviceTypePrinter"
@@ -1989,10 +2123,6 @@ const docTemplate = `{
                             "DeviceStatusOffline": "离线",
                             "DeviceStatusOnline": "在线"
                         },
-                        "x-enum-descriptions": [
-                            "在线",
-                            "离线"
-                        ],
                         "x-enum-varnames": [
                             "DeviceStatusOnline",
                             "DeviceStatusOffline"
@@ -2415,12 +2545,6 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
-                        "x-enum-descriptions": [
-                            "男性",
-                            "女性",
-                            "其他",
-                            "未知"
-                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -2742,11 +2866,6 @@ const docTemplate = `{
                 "AdditionalCategoryPacking": "打包费",
                 "AdditionalCategoryService": "服务费"
             },
-            "x-enum-descriptions": [
-                "服务费",
-                "附加费",
-                "打包费"
-            ],
             "x-enum-varnames": [
                 "AdditionalCategoryService",
                 "AdditionalCategoryAdditional",
@@ -2855,10 +2974,6 @@ const docTemplate = `{
                 "AdditionalFeeChargeModeFixed": "固定金额",
                 "AdditionalFeeChargeModePercent": "百分比"
             },
-            "x-enum-descriptions": [
-                "百分比",
-                "固定金额"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeChargeModePercent",
                 "AdditionalFeeChargeModeFixed"
@@ -2874,10 +2989,6 @@ const docTemplate = `{
                 "AdditionalFeeDiscountScopeAfter": "折后",
                 "AdditionalFeeDiscountScopeBefore": "折前"
             },
-            "x-enum-descriptions": [
-                "折前",
-                "折后"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeDiscountScopeBefore",
                 "AdditionalFeeDiscountScopeAfter"
@@ -2893,10 +3004,6 @@ const docTemplate = `{
                 "AdditionalFeeTypeMerchant": "商户",
                 "AdditionalFeeTypeStore": "门店"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeTypeMerchant",
                 "AdditionalFeeTypeStore"
@@ -2978,7 +3085,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -2993,10 +3100,6 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
-            "x-enum-descriptions": [
-                "直营",
-                "加盟"
-            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -3298,10 +3401,6 @@ const docTemplate = `{
                 "DeviceConnectTypeInside": "内置",
                 "DeviceConnectTypeOutside": "外置"
             },
-            "x-enum-descriptions": [
-                "内置",
-                "外置"
-            ],
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
                 "DeviceConnectTypeOutside"
@@ -3317,10 +3416,6 @@ const docTemplate = `{
                 "DeviceLocationBackKitchen": "后厨",
                 "DeviceLocationFrontHall": "前厅"
             },
-            "x-enum-descriptions": [
-                "前厅",
-                "后厨"
-            ],
             "x-enum-varnames": [
                 "DeviceLocationFrontHall",
                 "DeviceLocationBackKitchen"
@@ -3338,11 +3433,6 @@ const docTemplate = `{
                 "DeviceStallPrintTypeCombined": "总单",
                 "DeviceStallPrintTypeSeparate": "分单"
             },
-            "x-enum-descriptions": [
-                "全部打印 总单+分单",
-                "总单",
-                "分单"
-            ],
             "x-enum-varnames": [
                 "DeviceStallPrintTypeAll",
                 "DeviceStallPrintTypeCombined",
@@ -3359,10 +3449,6 @@ const docTemplate = `{
                 "DeviceStallReceiptTypeAll": "全部打印",
                 "DeviceStallReceiptTypeExclude": "剔除部门商户"
             },
-            "x-enum-descriptions": [
-                "全部打印",
-                "剔除部门商户"
-            ],
             "x-enum-varnames": [
                 "DeviceStallReceiptTypeAll",
                 "DeviceStallReceiptTypeExclude"
@@ -3378,10 +3464,6 @@ const docTemplate = `{
                 "DeviceStatusOffline": "离线",
                 "DeviceStatusOnline": "在线"
             },
-            "x-enum-descriptions": [
-                "在线",
-                "离线"
-            ],
             "x-enum-varnames": [
                 "DeviceStatusOnline",
                 "DeviceStatusOffline"
@@ -3397,10 +3479,6 @@ const docTemplate = `{
                 "DeviceTypeCashier": "收银机",
                 "DeviceTypePrinter": "打印机"
             },
-            "x-enum-descriptions": [
-                "收银机",
-                "打印机"
-            ],
             "x-enum-varnames": [
                 "DeviceTypeCashier",
                 "DeviceTypePrinter"
@@ -3435,11 +3513,6 @@ const docTemplate = `{
                 "DiningWayDineIn": "堂食",
                 "DiningWayTakeOut": "外带"
             },
-            "x-enum-descriptions": [
-                "堂食",
-                "外带",
-                "外送"
-            ],
             "x-enum-varnames": [
                 "DiningWayDineIn",
                 "DiningWayTakeOut",
@@ -3456,10 +3529,6 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
-            "x-enum-descriptions": [
-                "按天",
-                "自定义"
-            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -3479,12 +3548,6 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
-            "x-enum-descriptions": [
-                "男性",
-                "女性",
-                "其他",
-                "未知"
-            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -3504,11 +3567,6 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
-            "x-enum-descriptions": [
-                "pos",
-                "移动点餐",
-                "门店管理后台"
-            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -3660,14 +3718,6 @@ const docTemplate = `{
                 "OrderChannelSelfOrder": "自助点餐",
                 "OrderChannelThirdDelivery": "三方外卖"
             },
-            "x-enum-descriptions": [
-                "POS 端",
-                "自助点餐",
-                "小程序",
-                "手机点餐",
-                "扫码点餐",
-                "三方外卖"
-            ],
             "x-enum-varnames": [
                 "OrderChannelPOS",
                 "OrderChannelSelfOrder",
@@ -3676,6 +3726,75 @@ const docTemplate = `{
                 "OrderChannelScanOrder",
                 "OrderChannelThirdDelivery"
             ]
+        },
+        "domain.OrderSalesReportItem": {
+            "type": "object",
+            "properties": {
+                "amount_due": {
+                    "description": "应收金额",
+                    "type": "number"
+                },
+                "amount_paid": {
+                    "description": "实收金额",
+                    "type": "number"
+                },
+                "amount_paid_per_guest": {
+                    "description": "人均实收",
+                    "type": "number"
+                },
+                "business_date": {
+                    "description": "营业日",
+                    "type": "string"
+                },
+                "cash_amount": {
+                    "description": "现金金额",
+                    "type": "number"
+                },
+                "change_amount": {
+                    "description": "零钱实收",
+                    "type": "number"
+                },
+                "discount_total": {
+                    "description": "优惠金额",
+                    "type": "number"
+                },
+                "fee_total": {
+                    "description": "附加费金额",
+                    "type": "number"
+                },
+                "guest_count": {
+                    "description": "用餐人数",
+                    "type": "integer"
+                },
+                "net_amount": {
+                    "description": "净收金额（实收-退款）",
+                    "type": "number"
+                },
+                "order_count": {
+                    "description": "单量",
+                    "type": "integer"
+                },
+                "refund_amount": {
+                    "description": "退款金额",
+                    "type": "number"
+                },
+                "refund_count": {
+                    "description": "退款单数",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "store_name": {
+                    "description": "门店名称",
+                    "type": "string"
+                },
+                "third_party_amount": {
+                    "description": "三方支付金额",
+                    "type": "number"
+                }
+            }
         },
         "domain.PaperSize": {
             "type": "string",
@@ -4033,14 +4152,87 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
-            "x-enum-descriptions": [
-                "在售",
-                "停售"
-            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
             ]
+        },
+        "domain.ProductSalesSummaryItem": {
+            "type": "object",
+            "properties": {
+                "amount_due": {
+                    "description": "商品应收金额",
+                    "type": "number"
+                },
+                "attr_amount": {
+                    "description": "做法金额",
+                    "type": "number"
+                },
+                "avg_price": {
+                    "description": "销售均价",
+                    "type": "number"
+                },
+                "category_name": {
+                    "description": "一级分类名称",
+                    "type": "string"
+                },
+                "category_name_2": {
+                    "description": "二级分类名称",
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "description": "优惠金额",
+                    "type": "number"
+                },
+                "gift_amount": {
+                    "description": "赠送金额",
+                    "type": "number"
+                },
+                "gift_qty": {
+                    "description": "赠送数量",
+                    "type": "integer"
+                },
+                "product_id": {
+                    "description": "商品ID",
+                    "type": "string"
+                },
+                "product_name": {
+                    "description": "商品名称",
+                    "type": "string"
+                },
+                "product_type": {
+                    "description": "商品类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductType"
+                        }
+                    ]
+                },
+                "refund_amount": {
+                    "description": "退款金额",
+                    "type": "number"
+                },
+                "refund_qty": {
+                    "description": "退款数量",
+                    "type": "integer"
+                },
+                "sales_amount": {
+                    "description": "销售金额",
+                    "type": "number"
+                },
+                "sales_qty": {
+                    "description": "销售数量",
+                    "type": "integer"
+                },
+                "spec_name": {
+                    "description": "规格名称",
+                    "type": "string"
+                },
+                "subtotal": {
+                    "description": "商品金额（小计）",
+                    "type": "number"
+                }
+            }
         },
         "domain.ProductSearchRes": {
             "type": "object",
@@ -4206,11 +4398,6 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
-            "x-enum-descriptions": [
-                "堂食",
-                "外带",
-                "外卖"
-            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -4283,10 +4470,6 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
-            "x-enum-descriptions": [
-                "普通商品",
-                "套餐商品"
-            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -4366,10 +4549,6 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
-            "x-enum-descriptions": [
-                "数量单位",
-                "重量单位"
-            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
@@ -4489,10 +4668,6 @@ const docTemplate = `{
                 "ProfitDistributionBillStatusPaid": "已打款",
                 "ProfitDistributionBillStatusUnpaid": "未打款"
             },
-            "x-enum-descriptions": [
-                "未打款",
-                "已打款"
-            ],
             "x-enum-varnames": [
                 "ProfitDistributionBillStatusUnpaid",
                 "ProfitDistributionBillStatusPaid"
@@ -4607,14 +4782,6 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
-            "x-enum-descriptions": [
-                "全部数据权限",
-                "品牌商数据权限",
-                "门店数据权限",
-                "部门数据权限",
-                "仅本人数据权限",
-                "自定义数据权限"
-            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -4639,11 +4806,6 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
-            "x-enum-descriptions": [
-                "admin表用户",
-                "backend用户",
-                "store用户"
-            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -4676,18 +4838,6 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
-            "x-enum-descriptions": [
-                "POS",
-                "移动点餐",
-                "扫码点餐",
-                "自助点餐",
-                "三方外卖",
-                "POS",
-                "移动点餐",
-                "扫码点餐",
-                "自助点餐",
-                "三方外卖"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
@@ -4806,10 +4956,6 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
-            "x-enum-descriptions": [
-                "固定分组",
-                "可选套餐"
-            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -4894,10 +5040,6 @@ const docTemplate = `{
                 "StallPrintTypeLabel": "标签",
                 "StallPrintTypeReceipt": "小票/收据"
             },
-            "x-enum-descriptions": [
-                "小票/收据",
-                "标签"
-            ],
             "x-enum-varnames": [
                 "StallPrintTypeReceipt",
                 "StallPrintTypeLabel"
@@ -4915,11 +5057,6 @@ const docTemplate = `{
                 "StallTypeStore": "门店出品部门",
                 "StallTypeSystem": "系统出品部门"
             },
-            "x-enum-descriptions": [
-                "系统出品部门",
-                "品牌出品部门",
-                "门店出品部门"
-            ],
             "x-enum-varnames": [
                 "StallTypeSystem",
                 "StallTypeBrand",
@@ -5087,10 +5224,6 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
-            "x-enum-descriptions": [
-                "营业",
-                "停业"
-            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -5253,10 +5386,6 @@ const docTemplate = `{
                 "TaxFeeTypeMerchant": "商户",
                 "TaxFeeTypeStore": "门店"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店"
-            ],
             "x-enum-varnames": [
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
@@ -5272,10 +5401,6 @@ const docTemplate = `{
                 "TaxRateTypeCustom": "自定义比例",
                 "TaxRateTypeUnified": "统一比例"
             },
-            "x-enum-descriptions": [
-                "统一比例",
-                "自定义比例"
-            ],
             "x-enum-varnames": [
                 "TaxRateTypeUnified",
                 "TaxRateTypeCustom"
@@ -5289,6 +5414,41 @@ const docTemplate = `{
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.AccountListResp": {
             "type": "object",
@@ -6096,6 +6256,26 @@ const docTemplate = `{
                 }
             }
         },
+        "types.ProductSalesSummaryResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "汇总数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSalesSummaryItem"
+                    }
+                },
+                "pagination": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/upagination.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
         "types.ProductSpecCreateReq": {
             "type": "object",
             "required": [
@@ -6451,6 +6631,26 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "maxLength": 50
+                }
+            }
+        },
+        "types.SalesReportResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "报表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderSalesReportItem"
+                    }
+                },
+                "pagination": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/upagination.Pagination"
+                        }
+                    ]
                 }
             }
         },
@@ -7110,6 +7310,23 @@ const docTemplate = `{
                     "description": "统一社会信用代码",
                     "type": "string",
                     "maxLength": 255
+                }
+            }
+        },
+        "upagination.Pagination": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
                 }
             }
         }

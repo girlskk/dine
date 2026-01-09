@@ -340,6 +340,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
 		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
 		Province:               NewProvinceClient(cfg),
+		RefundOrder:            NewRefundOrderClient(cfg),
+		RefundOrderProduct:     NewRefundOrderProductClient(cfg),
 		Remark:                 NewRemarkClient(cfg),
 		RemarkCategory:         NewRemarkCategoryClient(cfg),
 		Role:                   NewRoleClient(cfg),
@@ -354,8 +356,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		StoreUser:              NewStoreUserClient(cfg),
 		TaxFee:                 NewTaxFeeClient(cfg),
 		UserRole:               NewUserRoleClient(cfg),
-		RefundOrder:            NewRefundOrderClient(cfg),
-		RefundOrderProduct:     NewRefundOrderProductClient(cfg),
 	}, nil
 }
 
@@ -456,9 +456,10 @@ func (c *Client) Use(hooks ...Hook) {
 		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
 		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
 		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
-		c.ProfitDistributionRule, c.Province, c.RefundOrder, c.RefundOrderProduct, c.Remark, c.RemarkCategory, c.Role,
-		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
-		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
+		c.ProfitDistributionRule, c.Province, c.RefundOrder, c.RefundOrderProduct,
+		c.Remark, c.RemarkCategory, c.Role, c.RoleMenu, c.RolePermission, c.RouterMenu,
+		c.SetMealDetail, c.SetMealGroup, c.Stall, c.Store, c.StorePaymentAccount,
+		c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -474,9 +475,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
 		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
 		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
-		c.ProfitDistributionRule, c.Province, c.RefundOrder, c.RefundOrderProduct, c.Remark, c.RemarkCategory, c.Role,
-		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
-		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
+		c.ProfitDistributionRule, c.Province, c.RefundOrder, c.RefundOrderProduct,
+		c.Remark, c.RemarkCategory, c.Role, c.RoleMenu, c.RolePermission, c.RouterMenu,
+		c.SetMealDetail, c.SetMealGroup, c.Stall, c.Store, c.StorePaymentAccount,
+		c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -8976,10 +8978,10 @@ type (
 		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
 		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
 		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
-		ProfitDistributionBill, ProfitDistributionRule, Province, RefundOrder, RefundOrderProduct, Remark,
-		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
-		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
-		UserRole []ent.Hook
+		ProfitDistributionBill, ProfitDistributionRule, Province, RefundOrder,
+		RefundOrderProduct, Remark, RemarkCategory, Role, RoleMenu, RolePermission,
+		RouterMenu, SetMealDetail, SetMealGroup, Stall, Store, StorePaymentAccount,
+		StoreUser, TaxFee, UserRole []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
@@ -8987,9 +8989,9 @@ type (
 		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
 		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
 		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
-		ProfitDistributionBill, ProfitDistributionRule, Province, RefundOrder, RefundOrderProduct, Remark,
-		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
-		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
-		UserRole []ent.Interceptor
+		ProfitDistributionBill, ProfitDistributionRule, Province, RefundOrder,
+		RefundOrderProduct, Remark, RemarkCategory, Role, RoleMenu, RolePermission,
+		RouterMenu, SetMealDetail, SetMealGroup, Stall, Store, StorePaymentAccount,
+		StoreUser, TaxFee, UserRole []ent.Interceptor
 	}
 )
