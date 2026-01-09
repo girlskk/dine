@@ -11,6 +11,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
@@ -190,6 +191,33 @@ func (f TraverseBackendUser) Traverse(ctx context.Context, q ent.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.BackendUserQuery", q)
+}
+
+// The BusinessConfigFunc type is an adapter to allow the use of ordinary function as a Querier.
+type BusinessConfigFunc func(context.Context, *ent.BusinessConfigQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f BusinessConfigFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.BusinessConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.BusinessConfigQuery", q)
+}
+
+// The TraverseBusinessConfig type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseBusinessConfig func(context.Context, *ent.BusinessConfigQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseBusinessConfig) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseBusinessConfig) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.BusinessConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.BusinessConfigQuery", q)
 }
 
 // The CategoryFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -1308,6 +1336,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.AdminUserQuery, predicate.AdminUser, adminuser.OrderOption]{typ: ent.TypeAdminUser, tq: q}, nil
 	case *ent.BackendUserQuery:
 		return &query[*ent.BackendUserQuery, predicate.BackendUser, backenduser.OrderOption]{typ: ent.TypeBackendUser, tq: q}, nil
+	case *ent.BusinessConfigQuery:
+		return &query[*ent.BusinessConfigQuery, predicate.BusinessConfig, businessconfig.OrderOption]{typ: ent.TypeBusinessConfig, tq: q}, nil
 	case *ent.CategoryQuery:
 		return &query[*ent.CategoryQuery, predicate.Category, category.OrderOption]{typ: ent.TypeCategory, tq: q}, nil
 	case *ent.CityQuery:

@@ -100,7 +100,7 @@ func (i *PaymentMethodInteractor) PagedListBySearch(
 	page *upagination.Pagination,
 	params domain.PaymentMethodSearchParams,
 ) (res *domain.PaymentMethodSearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "PaymentMethodInteractor.PagedListBySearch")
+	span, ctx := util.StartSpan(ctx, "usecase", "PaymentMethodInteractor.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

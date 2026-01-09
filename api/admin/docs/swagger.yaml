@@ -120,9 +120,6 @@ definitions:
     x-enum-comments:
       BusinessModelDirect: 直营
       BusinessModelFranchisee: 加盟
-    x-enum-descriptions:
-    - 直营
-    - 加盟
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
@@ -190,11 +187,6 @@ definitions:
       GenderMale: 男性
       GenderOther: 其他
       GenderUnknown: 未知
-    x-enum-descriptions:
-    - 男性
-    - 女性
-    - 其他
-    - 未知
     x-enum-varnames:
     - GenderMale
     - GenderFemale
@@ -210,10 +202,6 @@ definitions:
       LoginChannelMobile: 移动点餐
       LoginChannelPos: pos
       LoginChannelStore: 门店管理后台
-    x-enum-descriptions:
-    - pos
-    - 移动点餐
-    - 门店管理后台
     x-enum-varnames:
     - LoginChannelPos
     - LoginChannelMobile
@@ -309,10 +297,6 @@ definitions:
       MerchantStatusActive: 已激活
       MerchantStatusDisabled: 已禁用
       MerchantStatusExpired: 已过期
-    x-enum-descriptions:
-    - 已激活
-    - 已过期
-    - 已禁用
     x-enum-varnames:
     - MerchantStatusActive
     - MerchantStatusExpired
@@ -325,9 +309,6 @@ definitions:
     x-enum-comments:
       MerchantTypeBrand: 品牌商户
       MerchantTypeStore: 门店商户
-    x-enum-descriptions:
-    - 品牌商户
-    - 门店商户
     x-enum-varnames:
     - MerchantTypeBrand
     - MerchantTypeStore
@@ -341,10 +322,6 @@ definitions:
       ObjectStorageSceneMerchant: 商户
       ObjectStorageSceneProduct: 商品
       ObjectStorageSceneStore: 门店
-    x-enum-descriptions:
-    - 商户
-    - 门店
-    - 商品
     x-enum-varnames:
     - ObjectStorageSceneMerchant
     - ObjectStorageSceneStore
@@ -372,11 +349,6 @@ definitions:
       PurchaseDurationUnitMonth: 月
       PurchaseDurationUnitWeek: 周
       PurchaseDurationUnitYear: 年
-    x-enum-descriptions:
-    - 日
-    - 月
-    - 年
-    - 周
     x-enum-varnames:
     - PurchaseDurationUnitDay
     - PurchaseDurationUnitMonth
@@ -435,13 +407,6 @@ definitions:
       RoleDataScopeMerchant: 品牌商数据权限
       RoleDataScopeSelf: 仅本人数据权限
       RoleDataScopeStore: 门店数据权限
-    x-enum-descriptions:
-    - 全部数据权限
-    - 品牌商数据权限
-    - 门店数据权限
-    - 部门数据权限
-    - 仅本人数据权限
-    - 自定义数据权限
     x-enum-varnames:
     - RoleDataScopeAll
     - RoleDataScopeMerchant
@@ -462,10 +427,6 @@ definitions:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
       UserTypeStore: store用户
-    x-enum-descriptions:
-    - admin表用户
-    - backend用户
-    - store用户
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeBackend
@@ -623,9 +584,6 @@ definitions:
     x-enum-comments:
       StoreStatusClosed: 停业
       StoreStatusOpen: 营业
-    x-enum-descriptions:
-    - 营业
-    - 停业
     x-enum-varnames:
     - StoreStatusOpen
     - StoreStatusClosed
@@ -642,10 +600,6 @@ definitions:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
       UserTypeStore: store用户
-    x-enum-descriptions:
-    - admin表用户
-    - backend用户
-    - store用户
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeBackend
@@ -2286,9 +2240,6 @@ paths:
         x-enum-comments:
           MerchantTypeBrand: 品牌商户
           MerchantTypeStore: 门店商户
-        x-enum-descriptions:
-        - 品牌商户
-        - 门店商户
         x-enum-varnames:
         - MerchantTypeBrand
         - MerchantTypeStore
@@ -2316,10 +2267,6 @@ paths:
           MerchantStatusActive: 已激活
           MerchantStatusDisabled: 已禁用
           MerchantStatusExpired: 已过期
-        x-enum-descriptions:
-        - 已激活
-        - 已过期
-        - 已禁用
         x-enum-varnames:
         - MerchantStatusActive
         - MerchantStatusExpired
@@ -2566,9 +2513,6 @@ paths:
         x-enum-comments:
           BusinessModelDirect: 直营
           BusinessModelFranchisee: 加盟
-        x-enum-descriptions:
-        - 直营
-        - 加盟
         x-enum-varnames:
         - BusinessModelDirect
         - BusinessModelFranchisee
@@ -2610,9 +2554,6 @@ paths:
         x-enum-comments:
           StoreStatusClosed: 停业
           StoreStatusOpen: 营业
-        x-enum-descriptions:
-        - 营业
-        - 停业
         x-enum-varnames:
         - StoreStatusOpen
         - StoreStatusClosed
@@ -2731,11 +2672,6 @@ paths:
           GenderMale: 男性
           GenderOther: 其他
           GenderUnknown: 未知
-        x-enum-descriptions:
-        - 男性
-        - 女性
-        - 其他
-        - 未知
         x-enum-varnames:
         - GenderMale
         - GenderFemale

@@ -130,7 +130,7 @@ func (repo *PaymentMethodRepository) PagedListBySearch(
 	page *upagination.Pagination,
 	params domain.PaymentMethodSearchParams,
 ) (res *domain.PaymentMethodSearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "PaymentMethodRepository.PagedListBySearch")
+	span, ctx := util.StartSpan(ctx, "repository", "PaymentMethodRepository.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

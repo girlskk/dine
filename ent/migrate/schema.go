@@ -166,6 +166,48 @@ var (
 			},
 		},
 	}
+	// BusinessConfigsColumns holds the columns for the "business_configs" table.
+	BusinessConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "source_config_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "group", Type: field.TypeEnum, Nullable: true, Enums: []string{"print"}},
+		{Name: "name", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(100)"}},
+		{Name: "config_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"string", "int", "uint", "datetime", "date"}},
+		{Name: "key", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(100)"}},
+		{Name: "value", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(500)"}},
+		{Name: "sort", Type: field.TypeInt32, Default: 0, SchemaType: map[string]string{"mysql": "int"}},
+		{Name: "tip", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(500)"}},
+		{Name: "is_default", Type: field.TypeBool, Default: true},
+		{Name: "status", Type: field.TypeBool, Default: true},
+	}
+	// BusinessConfigsTable holds the schema information for the "business_configs" table.
+	BusinessConfigsTable = &schema.Table{
+		Name:       "business_configs",
+		Columns:    BusinessConfigsColumns,
+		PrimaryKey: []*schema.Column{BusinessConfigsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "businessconfig_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{BusinessConfigsColumns[3]},
+			},
+			{
+				Name:    "businessconfig_group",
+				Unique:  false,
+				Columns: []*schema.Column{BusinessConfigsColumns[7]},
+			},
+			{
+				Name:    "businessconfig_key",
+				Unique:  false,
+				Columns: []*schema.Column{BusinessConfigsColumns[10]},
+			},
+		},
+	}
 	// CategoriesColumns holds the columns for the "categories" table.
 	CategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -654,7 +696,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "type_code", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "type_name", Type: field.TypeString, Size: 50, Default: ""},
 	}
@@ -2318,6 +2360,7 @@ var (
 		AdditionalFeesTable,
 		AdminUsersTable,
 		BackendUsersTable,
+		BusinessConfigsTable,
 		CategoriesTable,
 		CitiesTable,
 		CountriesTable,

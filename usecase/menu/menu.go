@@ -123,7 +123,7 @@ func (i *MenuInteractor) PagedListBySearch(
 	page *upagination.Pagination,
 	params domain.MenuSearchParams,
 ) (res *domain.MenuSearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "MenuInteractor.PagedListBySearch")
+	span, ctx := util.StartSpan(ctx, "usecase", "MenuInteractor.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

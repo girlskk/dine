@@ -15,6 +15,9 @@ type AdminUser func(*sql.Selector)
 // BackendUser is the predicate function for backenduser builders.
 type BackendUser func(*sql.Selector)
 
+// BusinessConfig is the predicate function for businessconfig builders.
+type BusinessConfig func(*sql.Selector)
+
 // Category is the predicate function for category builders.
 type Category func(*sql.Selector)
 
