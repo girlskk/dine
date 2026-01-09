@@ -30,6 +30,14 @@ type User interface {
 	GetUserType() UserType
 }
 
+// VerifyOwnerShip 验证资源是否属于当前用户可操作
+func VerifyOwnerShip(user User, merchantID, storeID uuid.UUID) bool {
+	if user.GetMerchantID() != merchantID || user.GetStoreID() != storeID {
+		return false
+	}
+	return true
+}
+
 // 性别
 type Gender string
 

@@ -127,6 +127,16 @@ func TestRequestDate(t *testing.T) {
 	})
 }
 
+func TestLastMonthStart(t *testing.T) {
+	lastMonthStart := LastMonthStart(time.Now())
+	t.Log(lastMonthStart)
+}
+
+func TestLastMonthEnd(t *testing.T) {
+	lastMonthEnd := LastMonthEnd(time.Now())
+	t.Log(lastMonthEnd)
+}
+
 func TestGetShortcutDateDeterministic(t *testing.T) {
 	// fix now to 2024-03-03 (Sunday)
 	fixed := time.Date(2024, 3, 3, 10, 15, 0, 0, time.Local)

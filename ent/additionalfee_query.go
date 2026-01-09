@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -16,19 +17,21 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // AdditionalFeeQuery is the builder for querying AdditionalFee entities.
 type AdditionalFeeQuery struct {
 	config
-	ctx          *QueryContext
-	order        []additionalfee.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.AdditionalFee
-	withMerchant *MerchantQuery
-	withStore    *StoreQuery
-	modifiers    []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []additionalfee.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.AdditionalFee
+	withMerchant     *MerchantQuery
+	withStore        *StoreQuery
+	withProductSpecs *ProductSpecRelationQuery
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +105,28 @@ func (afq *AdditionalFeeQuery) QueryStore() *StoreQuery {
 			sqlgraph.From(additionalfee.Table, additionalfee.FieldID, selector),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, additionalfee.StoreTable, additionalfee.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(afq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProductSpecs chains the current query on the "product_specs" edge.
+func (afq *AdditionalFeeQuery) QueryProductSpecs() *ProductSpecRelationQuery {
+	query := (&ProductSpecRelationClient{config: afq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := afq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := afq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(additionalfee.Table, additionalfee.FieldID, selector),
+			sqlgraph.To(productspecrelation.Table, productspecrelation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, additionalfee.ProductSpecsTable, additionalfee.ProductSpecsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(afq.driver.Dialect(), step)
 		return fromU, nil
@@ -296,13 +321,14 @@ func (afq *AdditionalFeeQuery) Clone() *AdditionalFeeQuery {
 		return nil
 	}
 	return &AdditionalFeeQuery{
-		config:       afq.config,
-		ctx:          afq.ctx.Clone(),
-		order:        append([]additionalfee.OrderOption{}, afq.order...),
-		inters:       append([]Interceptor{}, afq.inters...),
-		predicates:   append([]predicate.AdditionalFee{}, afq.predicates...),
-		withMerchant: afq.withMerchant.Clone(),
-		withStore:    afq.withStore.Clone(),
+		config:           afq.config,
+		ctx:              afq.ctx.Clone(),
+		order:            append([]additionalfee.OrderOption{}, afq.order...),
+		inters:           append([]Interceptor{}, afq.inters...),
+		predicates:       append([]predicate.AdditionalFee{}, afq.predicates...),
+		withMerchant:     afq.withMerchant.Clone(),
+		withStore:        afq.withStore.Clone(),
+		withProductSpecs: afq.withProductSpecs.Clone(),
 		// clone intermediate query.
 		sql:       afq.sql.Clone(),
 		path:      afq.path,
@@ -329,6 +355,17 @@ func (afq *AdditionalFeeQuery) WithStore(opts ...func(*StoreQuery)) *AdditionalF
 		opt(query)
 	}
 	afq.withStore = query
+	return afq
+}
+
+// WithProductSpecs tells the query-builder to eager-load the nodes that are connected to
+// the "product_specs" edge. The optional arguments are used to configure the query builder of the edge.
+func (afq *AdditionalFeeQuery) WithProductSpecs(opts ...func(*ProductSpecRelationQuery)) *AdditionalFeeQuery {
+	query := (&ProductSpecRelationClient{config: afq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	afq.withProductSpecs = query
 	return afq
 }
 
@@ -410,9 +447,10 @@ func (afq *AdditionalFeeQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	var (
 		nodes       = []*AdditionalFee{}
 		_spec       = afq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			afq.withMerchant != nil,
 			afq.withStore != nil,
+			afq.withProductSpecs != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +483,13 @@ func (afq *AdditionalFeeQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	if query := afq.withStore; query != nil {
 		if err := afq.loadStore(ctx, query, nodes, nil,
 			func(n *AdditionalFee, e *Store) { n.Edges.Store = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := afq.withProductSpecs; query != nil {
+		if err := afq.loadProductSpecs(ctx, query, nodes,
+			func(n *AdditionalFee) { n.Edges.ProductSpecs = []*ProductSpecRelation{} },
+			func(n *AdditionalFee, e *ProductSpecRelation) { n.Edges.ProductSpecs = append(n.Edges.ProductSpecs, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -506,6 +551,39 @@ func (afq *AdditionalFeeQuery) loadStore(ctx context.Context, query *StoreQuery,
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (afq *AdditionalFeeQuery) loadProductSpecs(ctx context.Context, query *ProductSpecRelationQuery, nodes []*AdditionalFee, init func(*AdditionalFee), assign func(*AdditionalFee, *ProductSpecRelation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*AdditionalFee)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(productspecrelation.FieldPackingFeeID)
+	}
+	query.Where(predicate.ProductSpecRelation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(additionalfee.ProductSpecsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.PackingFeeID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "packing_fee_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "packing_fee_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

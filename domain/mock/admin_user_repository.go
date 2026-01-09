@@ -11,6 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
+	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockAdminUserRepository is a mock of AdminUserRepository interface.
@@ -64,6 +65,21 @@ func (mr *MockAdminUserRepositoryMockRecorder) Delete(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockAdminUserRepository)(nil).Delete), arg0, arg1)
 }
 
+// Exists mocks base method.
+func (m *MockAdminUserRepository) Exists(arg0 context.Context, arg1 domain.AdminUserExistsParams) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Exists", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Exists indicates an expected call of Exists.
+func (mr *MockAdminUserRepositoryMockRecorder) Exists(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockAdminUserRepository)(nil).Exists), arg0, arg1)
+}
+
 // Find mocks base method.
 func (m *MockAdminUserRepository) Find(arg0 context.Context, arg1 uuid.UUID) (*domain.AdminUser, error) {
 	m.ctrl.T.Helper()
@@ -92,6 +108,27 @@ func (m *MockAdminUserRepository) FindByUsername(arg0 context.Context, arg1 stri
 func (mr *MockAdminUserRepositoryMockRecorder) FindByUsername(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUsername", reflect.TypeOf((*MockAdminUserRepository)(nil).FindByUsername), arg0, arg1)
+}
+
+// GetUsers mocks base method.
+func (m *MockAdminUserRepository) GetUsers(arg0 context.Context, arg1 *upagination.Pagination, arg2 *domain.AdminUserListFilter, arg3 ...domain.AdminUserOrderBy) ([]*domain.AdminUser, int, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetUsers", varargs...)
+	ret0, _ := ret[0].([]*domain.AdminUser)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockAdminUserRepositoryMockRecorder) GetUsers(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockAdminUserRepository)(nil).GetUsers), varargs...)
 }
 
 // Update mocks base method.

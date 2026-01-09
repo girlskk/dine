@@ -33,6 +33,7 @@ func (i *CategoryInteractor) Update(ctx context.Context, category *domain.Catego
 		if category.Name != existingCategory.Name {
 			exists, err := ds.CategoryRepo().Exists(ctx, domain.CategoryExistsParams{
 				MerchantID: existingCategory.MerchantID,
+				StoreID:    existingCategory.StoreID,
 				Name:       category.Name,
 				ParentID:   existingCategory.ParentID,
 				IsRoot:     existingCategory.IsRoot(),
@@ -67,41 +68,20 @@ func (i *CategoryInteractor) Update(ctx context.Context, category *domain.Catego
 			existingCategory.InheritStall = false
 		}
 
-		// 5. 验证税率ID和出品部门ID的有效性（如果提供了）
-		if existingCategory.TaxRateID != uuid.Nil {
-			// @TODO: 验证税率ID是否存在且可用
-			// exists, err := ds.TaxRateRepo().Exists(ctx, domain.TaxRateExistsParams{
-			// 	MerchantID: existingCategory.MerchantID,
-			// 	ID:         existingCategory.TaxRateID,
-			// })
-			// if err != nil {
-			// 	return err
-			// }
-			// if !exists {
-			// 	return domain.ParamsError(domain.ErrTaxRateNotExists)
-			// }
+		// 5. 验证税率ID和出品部门ID的有效性
+		err = i.checkTaxRate(ctx, ds, existingCategory, user)
+		if err != nil {
+			return err
 		}
-
-		if existingCategory.StallID != uuid.Nil {
-			// @TODO: 验证出品部门ID是否存在且可用
-			// exists, err := ds.StallRepo().Exists(ctx, domain.StallExistsParams{
-			// 	MerchantID: existingCategory.MerchantID,
-			// 	ID:         existingCategory.StallID,
-			// })
-			// if err != nil {
-			// 	return err
-			// }
-			// if !exists {
-			// 	return domain.ParamsError(domain.ErrStallNotExists)
-			// }
+		err = i.checkStall(ctx, ds, existingCategory, user)
+		if err != nil {
+			return err
 		}
-
 		// 6. 执行更新操作
 		err = ds.CategoryRepo().Update(ctx, existingCategory)
 		if err != nil {
 			return err
 		}
-
 		return nil
 	})
 }

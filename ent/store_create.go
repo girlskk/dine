@@ -22,11 +22,14 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -587,6 +590,51 @@ func (sc *StoreCreate) AddRoles(r ...*Role) *StoreCreate {
 		ids[i] = r[i].ID
 	}
 	return sc.AddRoleIDs(ids...)
+}
+
+// AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
+func (sc *StoreCreate) AddProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddProfitDistributionRuleIDs(ids...)
+	return sc
+}
+
+// AddProfitDistributionRules adds the "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (sc *StoreCreate) AddProfitDistributionRules(p ...*ProfitDistributionRule) *StoreCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return sc.AddProfitDistributionRuleIDs(ids...)
+}
+
+// AddProfitDistributionBillIDs adds the "profit_distribution_bills" edge to the ProfitDistributionBill entity by IDs.
+func (sc *StoreCreate) AddProfitDistributionBillIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddProfitDistributionBillIDs(ids...)
+	return sc
+}
+
+// AddProfitDistributionBills adds the "profit_distribution_bills" edges to the ProfitDistributionBill entity.
+func (sc *StoreCreate) AddProfitDistributionBills(p ...*ProfitDistributionBill) *StoreCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return sc.AddProfitDistributionBillIDs(ids...)
+}
+
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (sc *StoreCreate) AddStorePaymentAccountIDs(ids ...uuid.UUID) *StoreCreate {
+	sc.mutation.AddStorePaymentAccountIDs(ids...)
+	return sc
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (sc *StoreCreate) AddStorePaymentAccounts(s ...*StorePaymentAccount) *StoreCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddStorePaymentAccountIDs(ids...)
 }
 
 // Mutation returns the StoreMutation object of the builder.
@@ -1221,6 +1269,54 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.ProfitDistributionRulesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.ProfitDistributionBillsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

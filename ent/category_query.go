@@ -17,6 +17,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // CategoryQuery is the builder for querying Category entities.
@@ -29,6 +31,9 @@ type CategoryQuery struct {
 	withChildren *CategoryQuery
 	withParent   *CategoryQuery
 	withProducts *ProductQuery
+	withTaxRate  *TaxFeeQuery
+	withStall    *StallQuery
+	withFKs      bool
 	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -125,6 +130,50 @@ func (cq *CategoryQuery) QueryProducts() *ProductQuery {
 			sqlgraph.From(category.Table, category.FieldID, selector),
 			sqlgraph.To(product.Table, product.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, category.ProductsTable, category.ProductsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTaxRate chains the current query on the "tax_rate" edge.
+func (cq *CategoryQuery) QueryTaxRate() *TaxFeeQuery {
+	query := (&TaxFeeClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, selector),
+			sqlgraph.To(taxfee.Table, taxfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, category.TaxRateTable, category.TaxRateColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStall chains the current query on the "stall" edge.
+func (cq *CategoryQuery) QueryStall() *StallQuery {
+	query := (&StallClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, selector),
+			sqlgraph.To(stall.Table, stall.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, category.StallTable, category.StallColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -327,6 +376,8 @@ func (cq *CategoryQuery) Clone() *CategoryQuery {
 		withChildren: cq.withChildren.Clone(),
 		withParent:   cq.withParent.Clone(),
 		withProducts: cq.withProducts.Clone(),
+		withTaxRate:  cq.withTaxRate.Clone(),
+		withStall:    cq.withStall.Clone(),
 		// clone intermediate query.
 		sql:       cq.sql.Clone(),
 		path:      cq.path,
@@ -364,6 +415,28 @@ func (cq *CategoryQuery) WithProducts(opts ...func(*ProductQuery)) *CategoryQuer
 		opt(query)
 	}
 	cq.withProducts = query
+	return cq
+}
+
+// WithTaxRate tells the query-builder to eager-load the nodes that are connected to
+// the "tax_rate" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CategoryQuery) WithTaxRate(opts ...func(*TaxFeeQuery)) *CategoryQuery {
+	query := (&TaxFeeClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withTaxRate = query
+	return cq
+}
+
+// WithStall tells the query-builder to eager-load the nodes that are connected to
+// the "stall" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CategoryQuery) WithStall(opts ...func(*StallQuery)) *CategoryQuery {
+	query := (&StallClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withStall = query
 	return cq
 }
 
@@ -444,13 +517,19 @@ func (cq *CategoryQuery) prepareQuery(ctx context.Context) error {
 func (cq *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Category, error) {
 	var (
 		nodes       = []*Category{}
+		withFKs     = cq.withFKs
 		_spec       = cq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [5]bool{
 			cq.withChildren != nil,
 			cq.withParent != nil,
 			cq.withProducts != nil,
+			cq.withTaxRate != nil,
+			cq.withStall != nil,
 		}
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, category.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Category).scanValues(nil, columns)
 	}
@@ -492,6 +571,18 @@ func (cq *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 			return nil, err
 		}
 	}
+	if query := cq.withTaxRate; query != nil {
+		if err := cq.loadTaxRate(ctx, query, nodes, nil,
+			func(n *Category, e *TaxFee) { n.Edges.TaxRate = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withStall; query != nil {
+		if err := cq.loadStall(ctx, query, nodes, nil,
+			func(n *Category, e *Stall) { n.Edges.Stall = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -505,6 +596,7 @@ func (cq *CategoryQuery) loadChildren(ctx context.Context, query *CategoryQuery,
 			init(nodes[i])
 		}
 	}
+	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(category.FieldParentID)
 	}
@@ -584,6 +676,64 @@ func (cq *CategoryQuery) loadProducts(ctx context.Context, query *ProductQuery, 
 	}
 	return nil
 }
+func (cq *CategoryQuery) loadTaxRate(ctx context.Context, query *TaxFeeQuery, nodes []*Category, init func(*Category), assign func(*Category, *TaxFee)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Category)
+	for i := range nodes {
+		fk := nodes[i].TaxRateID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(taxfee.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "tax_rate_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (cq *CategoryQuery) loadStall(ctx context.Context, query *StallQuery, nodes []*Category, init func(*Category), assign func(*Category, *Stall)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Category)
+	for i := range nodes {
+		fk := nodes[i].StallID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(stall.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "stall_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (cq *CategoryQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := cq.querySpec()
@@ -615,6 +765,12 @@ func (cq *CategoryQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if cq.withParent != nil {
 			_spec.Node.AddColumnOnce(category.FieldParentID)
+		}
+		if cq.withTaxRate != nil {
+			_spec.Node.AddColumnOnce(category.FieldTaxRateID)
+		}
+		if cq.withStall != nil {
+			_spec.Node.AddColumnOnce(category.FieldStallID)
 		}
 	}
 	if ps := cq.predicates; len(ps) > 0 {

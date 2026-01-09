@@ -1,4 +1,124 @@
+basePath: /api/v1
 definitions:
+  domain.AdditionalCategory:
+    enum:
+    - service_fee
+    - additional_fee
+    - packing_fee
+    type: string
+    x-enum-comments:
+      AdditionalCategoryAdditional: 附加费
+      AdditionalCategoryPacking: 打包费
+      AdditionalCategoryService: 服务费
+    x-enum-descriptions:
+    - 服务费
+    - 附加费
+    - 打包费
+    x-enum-varnames:
+    - AdditionalCategoryService
+    - AdditionalCategoryAdditional
+    - AdditionalCategoryPacking
+  domain.AdditionalFee:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 费用类型 percent 百分比，fixed 固定金额
+      created_at:
+        type: string
+      dining_ways:
+        description: 就餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣场景
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费类别
+      fee_type:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeType'
+        description: 附加费类型
+      fee_value:
+        description: 'fixed: 分; percent: BP'
+        type: number
+      id:
+        type: string
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      merchant_id:
+        description: 品牌商 ID
+        type: string
+      name:
+        description: 附加费名称
+        type: string
+      order_channels:
+        description: 订单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序
+        type: integer
+      store_id:
+        description: 门店 ID
+        type: string
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  domain.AdditionalFeeChargeMode:
+    enum:
+    - percent
+    - fixed
+    type: string
+    x-enum-comments:
+      AdditionalFeeChargeModeFixed: 固定金额
+      AdditionalFeeChargeModePercent: 百分比
+    x-enum-descriptions:
+    - 百分比
+    - 固定金额
+    x-enum-varnames:
+    - AdditionalFeeChargeModePercent
+    - AdditionalFeeChargeModeFixed
+  domain.AdditionalFeeDiscountScope:
+    enum:
+    - before_discount
+    - after_discount
+    type: string
+    x-enum-comments:
+      AdditionalFeeDiscountScopeAfter: 折后
+      AdditionalFeeDiscountScopeBefore: 折前
+    x-enum-descriptions:
+    - 折前
+    - 折后
+    x-enum-varnames:
+    - AdditionalFeeDiscountScopeBefore
+    - AdditionalFeeDiscountScopeAfter
+  domain.AdditionalFeeType:
+    enum:
+    - merchant
+    - store
+    type: string
+    x-enum-comments:
+      AdditionalFeeTypeMerchant: 商户
+      AdditionalFeeTypeStore: 门店
+    x-enum-descriptions:
+    - 商户
+    - 门店
+    x-enum-varnames:
+    - AdditionalFeeTypeMerchant
+    - AdditionalFeeTypeStore
   domain.Address:
     properties:
       address:
@@ -54,7 +174,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -65,13 +185,16 @@ definitions:
     x-enum-comments:
       BusinessModelDirect: 直营
       BusinessModelFranchisee: 加盟
+    x-enum-descriptions:
+    - 直营
+    - 加盟
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
   domain.Category:
     properties:
       children:
-        description: '@TODO 关联信息'
+        description: 关联信息
         items:
           $ref: '#/definitions/domain.Category'
         type: array
@@ -106,12 +229,20 @@ definitions:
       sort_order:
         description: 排序，值越小越靠前
         type: integer
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 出品部门ID
         type: string
       store_id:
         description: 门店ID
         type: string
+      tax_rate:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFee'
+        description: 税率
       tax_rate_id:
         description: 税率ID
         type: string
@@ -256,6 +387,9 @@ definitions:
     x-enum-comments:
       DeviceConnectTypeInside: 内置
       DeviceConnectTypeOutside: 外置
+    x-enum-descriptions:
+    - 内置
+    - 外置
     x-enum-varnames:
     - DeviceConnectTypeInside
     - DeviceConnectTypeOutside
@@ -267,6 +401,9 @@ definitions:
     x-enum-comments:
       DeviceLocationBackKitchen: 后厨
       DeviceLocationFrontHall: 前厅
+    x-enum-descriptions:
+    - 前厅
+    - 后厨
     x-enum-varnames:
     - DeviceLocationFrontHall
     - DeviceLocationBackKitchen
@@ -280,6 +417,10 @@ definitions:
       DeviceStallPrintTypeAll: 全部打印 总单+分单
       DeviceStallPrintTypeCombined: 总单
       DeviceStallPrintTypeSeparate: 分单
+    x-enum-descriptions:
+    - 全部打印 总单+分单
+    - 总单
+    - 分单
     x-enum-varnames:
     - DeviceStallPrintTypeAll
     - DeviceStallPrintTypeCombined
@@ -292,6 +433,9 @@ definitions:
     x-enum-comments:
       DeviceStallReceiptTypeAll: 全部打印
       DeviceStallReceiptTypeExclude: 剔除部门商户
+    x-enum-descriptions:
+    - 全部打印
+    - 剔除部门商户
     x-enum-varnames:
     - DeviceStallReceiptTypeAll
     - DeviceStallReceiptTypeExclude
@@ -303,6 +447,9 @@ definitions:
     x-enum-comments:
       DeviceStatusOffline: 离线
       DeviceStatusOnline: 在线
+    x-enum-descriptions:
+    - 在线
+    - 离线
     x-enum-varnames:
     - DeviceStatusOnline
     - DeviceStatusOffline
@@ -314,6 +461,9 @@ definitions:
     x-enum-comments:
       DeviceTypeCashier: 收银机
       DeviceTypePrinter: 打印机
+    x-enum-descriptions:
+    - 收银机
+    - 打印机
     x-enum-varnames:
     - DeviceTypeCashier
     - DeviceTypePrinter
@@ -339,6 +489,10 @@ definitions:
       DiningWayDelivery: 外送
       DiningWayDineIn: 堂食
       DiningWayTakeOut: 外带
+    x-enum-descriptions:
+    - 堂食
+    - 外带
+    - 外送
     x-enum-varnames:
     - DiningWayDineIn
     - DiningWayTakeOut
@@ -351,6 +505,9 @@ definitions:
     x-enum-comments:
       EffectiveDateTypeCustom: 自定义
       EffectiveDateTypeDaily: 按天
+    x-enum-descriptions:
+    - 按天
+    - 自定义
     x-enum-varnames:
     - EffectiveDateTypeDaily
     - EffectiveDateTypeCustom
@@ -366,6 +523,11 @@ definitions:
       GenderMale: 男性
       GenderOther: 其他
       GenderUnknown: 未知
+    x-enum-descriptions:
+    - 男性
+    - 女性
+    - 其他
+    - 未知
     x-enum-varnames:
     - GenderMale
     - GenderFemale
@@ -381,6 +543,10 @@ definitions:
       LoginChannelMobile: 移动点餐
       LoginChannelPos: pos
       LoginChannelStore: 门店管理后台
+    x-enum-descriptions:
+    - pos
+    - 移动点餐
+    - 门店管理后台
     x-enum-varnames:
     - LoginChannelPos
     - LoginChannelMobile
@@ -390,10 +556,6 @@ definitions:
       created_at:
         description: 创建时间
         type: string
-      distribution_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuDistributionRule'
-        description: 下发规则
       id:
         description: 菜单ID
         type: string
@@ -414,6 +576,9 @@ definitions:
       store_count:
         description: 适用门店数量
         type: integer
+      store_id:
+        description: 门店ID
+        type: string
       stores:
         description: 关联信息
         items:
@@ -423,17 +588,6 @@ definitions:
         description: 更新时间
         type: string
     type: object
-  domain.MenuDistributionRule:
-    enum:
-    - override
-    - keep
-    type: string
-    x-enum-comments:
-      MenuDistributionRuleKeep: 对同名菜品不做修改
-      MenuDistributionRuleOverride: 新增并覆盖同名菜品
-    x-enum-varnames:
-    - MenuDistributionRuleOverride
-    - MenuDistributionRuleKeep
   domain.MenuItem:
     properties:
       base_price:
@@ -458,25 +612,10 @@ definitions:
       product_id:
         description: 菜品ID
         type: string
-      sale_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuItemSaleRule'
-        description: 下发售卖规则
       updated_at:
         description: 更新时间
         type: string
     type: object
-  domain.MenuItemSaleRule:
-    enum:
-    - keep_brand_status
-    - keep_store_status
-    type: string
-    x-enum-comments:
-      MenuItemSaleRuleKeepBrandStatus: 保留品牌状态
-      MenuItemSaleRuleKeepStoreStatus: 保留门店状态
-    x-enum-varnames:
-    - MenuItemSaleRuleKeepBrandStatus
-    - MenuItemSaleRuleKeepStoreStatus
   domain.MenuSearchRes:
     properties:
       items:
@@ -493,20 +632,14 @@ definitions:
         description: 总页数
         type: integer
     type: object
-  domain.ObjectStorageScene:
-    enum:
-    - merchant
-    - store
-    - product
-    type: string
-    x-enum-comments:
-      ObjectStorageSceneMerchant: 商户
-      ObjectStorageSceneProduct: 商品
-      ObjectStorageSceneStore: 门店
-    x-enum-varnames:
-    - ObjectStorageSceneMerchant
-    - ObjectStorageSceneStore
-    - ObjectStorageSceneProduct
+  domain.MerchantSimple:
+    properties:
+      id:
+        type: string
+      merchant_name:
+        description: 商户名称
+        type: string
+    type: object
   domain.OrderChannel:
     enum:
     - pos
@@ -523,6 +656,13 @@ definitions:
       OrderChannelScanOrder: 扫码点餐
       OrderChannelSelfOrder: 自助点餐
       OrderChannelThirdDelivery: 三方外卖
+    x-enum-descriptions:
+    - POS 端
+    - 自助点餐
+    - 小程序
+    - 手机点餐
+    - 扫码点餐
+    - 三方外卖
     x-enum-varnames:
     - OrderChannelPOS
     - OrderChannelSelfOrder
@@ -530,18 +670,6 @@ definitions:
     - OrderChannelMobileOrder
     - OrderChannelScanOrder
     - OrderChannelThirdDelivery
-  domain.PackingFee:
-    properties:
-      id:
-        description: 打包费ID
-        type: string
-      name:
-        description: 打包费名称
-        type: string
-      price:
-        description: 打包费价格
-        type: number
-    type: object
   domain.PaperSize:
     enum:
     - 58mm
@@ -643,6 +771,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 指定出品部门ID
         type: string
@@ -659,6 +791,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductTag'
         type: array
+      tax_rate:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFee'
+        description: 税率
       tax_rate_id:
         description: 指定税率ID
         type: string
@@ -778,6 +914,9 @@ definitions:
     x-enum-comments:
       ProductSaleStatusOffSale: 停售
       ProductSaleStatusOnSale: 在售
+    x-enum-descriptions:
+    - 在售
+    - 停售
     x-enum-varnames:
     - ProductSaleStatusOnSale
     - ProductSaleStatusOffSale
@@ -855,7 +994,7 @@ definitions:
         type: number
       packing_fee:
         allOf:
-        - $ref: '#/definitions/domain.PackingFee'
+        - $ref: '#/definitions/domain.AdditionalFee'
         description: 打包费
       packing_fee_id:
         description: 打包费ID（引用费用配置）
@@ -899,6 +1038,10 @@ definitions:
       ProductSupportTypeDelivery: 外卖
       ProductSupportTypeDine: 堂食
       ProductSupportTypeTakeaway: 外带
+    x-enum-descriptions:
+    - 堂食
+    - 外带
+    - 外卖
     x-enum-varnames:
     - ProductSupportTypeDine
     - ProductSupportTypeTakeaway
@@ -951,6 +1094,9 @@ definitions:
     x-enum-comments:
       ProductTypeNormal: 普通商品
       ProductTypeSetMeal: 套餐商品
+    x-enum-descriptions:
+    - 普通商品
+    - 套餐商品
     x-enum-varnames:
     - ProductTypeNormal
     - ProductTypeSetMeal
@@ -1006,9 +1152,106 @@ definitions:
     x-enum-comments:
       ProductUnitTypeQuantity: 数量单位
       ProductUnitTypeWeight: 重量单位
+    x-enum-descriptions:
+    - 数量单位
+    - 重量单位
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.ProfitDistributionBill:
+    properties:
+      bill_date:
+        description: 账单日期
+        type: string
+      created_at:
+        description: 创建时间
+        type: string
+      end_date:
+        description: 账单周期：结束日期
+        type: string
+      id:
+        description: 分账账单ID
+        type: string
+      merchant:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantSimple'
+        description: 关联数据
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      "no":
+        description: 分账账单编号
+        type: string
+      payment_amount:
+        description: 打款金额（令吉）
+        type: number
+      receivable_amount:
+        description: 应收金额（令吉）
+        type: number
+      rule_snapshot:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionRuleSnapshot'
+        description: 分账方案快照
+      start_date:
+        description: 账单周期：开始日期
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionBillStatus'
+        description: 分账状态
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.StoreSimple'
+        description: 门店
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProfitDistributionBillSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProfitDistributionBill'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
+  domain.ProfitDistributionBillStatus:
+    enum:
+    - unpaid
+    - paid
+    type: string
+    x-enum-comments:
+      ProfitDistributionBillStatusPaid: 已打款
+      ProfitDistributionBillStatusUnpaid: 未打款
+    x-enum-descriptions:
+    - 未打款
+    - 已打款
+    x-enum-varnames:
+    - ProfitDistributionBillStatusUnpaid
+    - ProfitDistributionBillStatusPaid
+  domain.ProfitDistributionRuleSnapshot:
+    properties:
+      rule_id:
+        description: 分账方案ID
+        type: string
+      rule_name:
+        description: 分账方案名称
+        type: string
+      split_ratio:
+        description: 分账比例
+        type: number
+    type: object
   domain.Province:
     properties:
       country_id:
@@ -1073,6 +1316,13 @@ definitions:
       RoleDataScopeMerchant: 品牌商数据权限
       RoleDataScopeSelf: 仅本人数据权限
       RoleDataScopeStore: 门店数据权限
+    x-enum-descriptions:
+    - 全部数据权限
+    - 品牌商数据权限
+    - 门店数据权限
+    - 部门数据权限
+    - 仅本人数据权限
+    - 自定义数据权限
     x-enum-varnames:
     - RoleDataScopeAll
     - RoleDataScopeMerchant
@@ -1093,6 +1343,10 @@ definitions:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
       UserTypeStore: store用户
+    x-enum-descriptions:
+    - admin表用户
+    - backend用户
+    - store用户
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeBackend
@@ -1121,17 +1375,28 @@ definitions:
       SaleChannelScanOrdering: 扫码点餐
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
+    x-enum-descriptions:
+    - POS
+    - 移动点餐
+    - 扫码点餐
+    - 自助点餐
+    - 三方外卖
+    - POS
+    - 移动点餐
+    - 扫码点餐
+    - 自助点餐
+    - 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -1205,6 +1470,9 @@ definitions:
     x-enum-comments:
       SetMealGroupSelectionTypeFixed: 固定分组
       SetMealGroupSelectionTypeOptional: 可选套餐
+    x-enum-descriptions:
+    - 固定分组
+    - 可选套餐
     x-enum-varnames:
     - SetMealGroupSelectionTypeFixed
     - SetMealGroupSelectionTypeOptional
@@ -1220,6 +1488,72 @@ definitions:
         description: 开始时间，格式 HH:MM:SS
         type: string
     type: object
+  domain.Stall:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      enabled:
+        description: 使用状态
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 商户 ID
+        type: string
+      name:
+        description: 出品部门名称
+        type: string
+      print_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallPrintType'
+        description: 打印类型 ：receipt/label
+      sort_order:
+        description: 排序
+        type: integer
+      stall_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallType'
+        description: system/brand/store
+      store_id:
+        description: 门店 ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.StallPrintType:
+    enum:
+    - receipt
+    - label
+    type: string
+    x-enum-comments:
+      StallPrintTypeLabel: 标签
+      StallPrintTypeReceipt: 小票/收据
+    x-enum-descriptions:
+    - 小票/收据
+    - 标签
+    x-enum-varnames:
+    - StallPrintTypeReceipt
+    - StallPrintTypeLabel
+  domain.StallType:
+    enum:
+    - system
+    - brand
+    - store
+    type: string
+    x-enum-comments:
+      StallTypeBrand: 品牌出品部门
+      StallTypeStore: 门店出品部门
+      StallTypeSystem: 系统出品部门
+    x-enum-descriptions:
+    - 系统出品部门
+    - 品牌出品部门
+    - 门店出品部门
+    x-enum-varnames:
+    - StallTypeSystem
+    - StallTypeBrand
+    - StallTypeStore
   domain.Store:
     properties:
       address:
@@ -1332,6 +1666,9 @@ definitions:
     x-enum-comments:
       StoreStatusClosed: 停业
       StoreStatusOpen: 营业
+    x-enum-descriptions:
+    - 营业
+    - 停业
     x-enum-varnames:
     - StoreStatusOpen
     - StoreStatusClosed
@@ -1396,174 +1733,76 @@ definitions:
       username:
         type: string
     type: object
-  errcode.ErrCode:
+  domain.TaxFee:
+    properties:
+      created_at:
+        type: string
+      default_tax:
+        description: 是否默认税费
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 品牌商 ID
+        type: string
+      name:
+        description: 税费名称
+        type: string
+      store_id:
+        description: 门店 ID
+        type: string
+      tax_code:
+        description: 税费代码
+        type: string
+      tax_fee_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFeeType'
+        description: 税费类型：商户/门店
+      tax_rate:
+        description: 税率，6% -> 0.06
+        type: number
+      tax_rate_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxRateType'
+        description: 税率类型：统一比例/自定义比例
+      updated_at:
+        type: string
+    type: object
+  domain.TaxFeeType:
     enum:
-    - SUCCESS
-    - INVALID_PARAMS
-    - BAD_REQUEST
-    - UNAUTHORIZED
-    - FORBIDDEN
-    - NOT_FOUND
-    - CONFLICT
-    - INTERNAL_ERROR
-    - UNKNOWN_ERROR
-    - CATEGORY_NAME_EXISTS
-    - CATEGORY_DELETE_HAS_CHILDREN
-    - CATEGORY_DELETE_HAS_PRODUCTS
-    - PRODUCT_UNIT_NAME_EXISTS
-    - PRODUCT_UNIT_DELETE_HAS_PRODUCTS
-    - PRODUCT_SPEC_NAME_EXISTS
-    - PRODUCT_SPEC_DELETE_HAS_PRODUCTS
-    - PRODUCT_TAG_NAME_EXISTS
-    - PRODUCT_TAG_DELETE_HAS_PRODUCTS
-    - PRODUCT_ATTR_NAME_EXISTS
-    - PRODUCT_ATTR_DELETE_HAS_ITEMS
-    - PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS
-    - PRODUCT_NAME_EXISTS
-    - MERCHANT_NAME_EXISTS
-    - STORE_NAME_EXISTS
-    - STORE_BUSINESS_HOURS_CONFLICT
-    - STORE_BUSINESS_HOURS_TIME_INVALID
-    - STORE_DINING_PERIOD_CONFLICT
-    - STORE_DINING_PERIOD_TIME_INVALID
-    - STORE_DINING_PERIOD_NAME_EXISTS
-    - STORE_SHIFT_TIME_CONFLICT
-    - STORE_SHIFT_TIME_TIME_INVALID
-    - STORE_SHIFT_TIME_NAME_EXISTS
-    - REMARK_NAME_EXISTS
-    - REMARK_DELETE_SYSTEM
-    - REMARK_CATEGORY_NAME_EXISTS
-    - STALL_NAME_EXISTS
-    - DEVICE_NAME_EXISTS
-    - DEVICE_CODE_EXISTS
-    - TAX_FEE_NAME_EXISTS
-    - ADDITIONAL_NAME_EXISTS
-    - USER_NOT_FOUND
-    - USER_NAME_EXISTS
-    - USER_EXISTS
-    - SUPER_USER_CANNOT_DELETE
-    - SUPER_USER_CANNOT_DISABLE
-    - SUPER_USER_CANNOT_UPDATE
-    - USER_DISABLED
-    - DEPARTMENT_DISABLED
-    - ROLE_DISABLED
-    - USER_ROLE_REQUIRED
-    - USER_DEPARTMENT_REQUIRED
-    - USER_ROLE_TYPE_MISMATCH
-    - USER_DEPARTMENT_TYPE_MISMATCH
-    - TIME_FORMAT_INVALID
+    - merchant
+    - store
     type: string
     x-enum-comments:
-      AdditionalNameExists: 附加费费名称已存在
-      BadRequest: 请求错误
-      CategoryDeleteHasChildren: 商品分类有子分类
-      CategoryDeleteHasProducts: 商品分类有商品
-      CategoryNameExists: 商品分类名称已存在
-      Conflict: 资源冲突
-      DepartmentDisabled: 用户所属部门已被禁用
-      DeviceCodeExists: 设备编号已存在
-      DeviceNameExists: 设备名称已存在
-      Forbidden: 禁止访问
-      InternalError: 系统内部错误
-      InvalidParams: 参数错误
-      MerchantNameExists: 商户名称已存在
-      NotFound: 资源不存在
-      ProductAttrDeleteHasItems: 商品口味做法有子项
-      ProductAttrItemDeleteHasProducts: 商品口味做法项有商品
-      ProductAttrNameExists: 商品口味做法名称已存在
-      ProductNameExists: 商品名称已存在
-      ProductSpecDeleteHasProducts: 商品规格有商品
-      ProductSpecNameExists: 商品规格名称已存在
-      ProductTagDeleteHasProducts: 商品标签有商品
-      ProductTagNameExists: 商品标签名称已存在
-      ProductUnitDeleteHasProducts: 商品单位有商品
-      ProductUnitNameExists: 商品单位名称已存在
-      RemarkCategoryNameExists: 备注分类名称已存在
-      RemarkDeleteSystem: 不能删除系统内置备注
-      RemarkNameExists: 备注名称已存在
-      RoleDisabled: 用户所属角色已被禁用
-      StallNameExists: 出品部门名称已存在
-      StoreBusinessHoursConflict: 门店营业时间冲突
-      StoreBusinessHoursTimeInvalid: 门店营业时间无效,开始时间不能晚于结束时间
-      StoreDiningPeriodConflict: 门店用餐时段时间冲突
-      StoreDiningPeriodNameExists: 门店用餐时段名称已存在
-      StoreDiningPeriodTimeInvalid: 门店用餐时段时间无效,开始时间不能晚于结束时间
-      StoreNameExists: 门店名称已存在
-      StoreShiftTimeConflict: 门店班次时间冲突
-      StoreShiftTimeNameExists: 门店班次名称已存在
-      StoreShiftTimeTimeInvalid: 门店班次时间无效,开始时间不能晚于结束时间
-      Success: Success 表示成功
-      SuperUserCannotDelete: 超级管理员用户不能被删除
-      SuperUserCannotDisable: 超级管理员用户不能被禁用
-      SuperUserCannotUpdate: 超级管理员用户不能被修改
-      TaxFeeNameExists: 税费名称已存在
-      TimeFormatInvalid: 时间格式错误
-      Unauthorized: 未授权（认证失败、token无效等）
-      UnknownError: 未知错误
-      UserDepartmentRequired: 用户所属部门不能为空
-      UserDepartmentTypeMismatch: 用户部门类型不匹配
-      UserDisabled: 用户已被禁用
-      UserExists: 用户已存在
-      UserNameExists: 用户账号已存在
-      UserNotFound: 用户不存在
-      UserRoleRequired: 用户至少需要分配一个角色
-      UserRoleTypeMismatch: 用户角色类型不匹配
+      TaxFeeTypeMerchant: 商户
+      TaxFeeTypeStore: 门店
+    x-enum-descriptions:
+    - 商户
+    - 门店
     x-enum-varnames:
-    - Success
-    - InvalidParams
-    - BadRequest
-    - Unauthorized
-    - Forbidden
-    - NotFound
-    - Conflict
-    - InternalError
-    - UnknownError
-    - CategoryNameExists
-    - CategoryDeleteHasChildren
-    - CategoryDeleteHasProducts
-    - ProductUnitNameExists
-    - ProductUnitDeleteHasProducts
-    - ProductSpecNameExists
-    - ProductSpecDeleteHasProducts
-    - ProductTagNameExists
-    - ProductTagDeleteHasProducts
-    - ProductAttrNameExists
-    - ProductAttrDeleteHasItems
-    - ProductAttrItemDeleteHasProducts
-    - ProductNameExists
-    - MerchantNameExists
-    - StoreNameExists
-    - StoreBusinessHoursConflict
-    - StoreBusinessHoursTimeInvalid
-    - StoreDiningPeriodConflict
-    - StoreDiningPeriodTimeInvalid
-    - StoreDiningPeriodNameExists
-    - StoreShiftTimeConflict
-    - StoreShiftTimeTimeInvalid
-    - StoreShiftTimeNameExists
-    - RemarkNameExists
-    - RemarkDeleteSystem
-    - RemarkCategoryNameExists
-    - StallNameExists
-    - DeviceNameExists
-    - DeviceCodeExists
-    - TaxFeeNameExists
-    - AdditionalNameExists
-    - UserNotFound
-    - UserNameExists
-    - UserExists
-    - SuperUserCannotDelete
-    - SuperUserCannotDisable
-    - SuperUserCannotUpdate
-    - UserDisabled
-    - DepartmentDisabled
-    - RoleDisabled
-    - UserRoleRequired
-    - UserDepartmentRequired
-    - UserRoleTypeMismatch
-    - UserDepartmentTypeMismatch
-    - TimeFormatInvalid
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.AccountListResp:
+    - TaxFeeTypeMerchant
+    - TaxFeeTypeStore
+  domain.TaxRateType:
+    enum:
+    - unified
+    - custom
+    type: string
+    x-enum-comments:
+      TaxRateTypeCustom: 自定义比例
+      TaxRateTypeUnified: 统一比例
+    x-enum-descriptions:
+    - 统一比例
+    - 自定义比例
+    x-enum-varnames:
+    - TaxRateTypeUnified
+    - TaxRateTypeCustom
+  response.Response:
+    properties:
+      code:
+        type: string
+      data: {}
+    type: object
+  types.AccountListResp:
     properties:
       total:
         type: integer
@@ -1572,7 +1811,7 @@ definitions:
           $ref: '#/definitions/domain.StoreUser'
         type: array
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.Address:
+  types.Address:
     properties:
       address:
         description: 详细地址
@@ -1611,7 +1850,7 @@ definitions:
         description: 省份名称
         type: string
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateChildReq:
+  types.CategoryCreateChildReq:
     properties:
       inherit_stall:
         description: 是否继承父分类的出品部门ID
@@ -1632,7 +1871,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateRootReq:
+  types.CategoryCreateRootReq:
     properties:
       children_names:
         description: 子分类名称列表
@@ -1652,7 +1891,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryReorderReq:
+  types.CategoryReorderReq:
     properties:
       category_ids:
         description: 按新顺序排列的分类ID列表
@@ -1666,14 +1905,14 @@ definitions:
     required:
     - category_ids
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.CountryListResp:
+  types.CountryListResp:
     properties:
       countries:
         items:
           $ref: '#/definitions/domain.Country'
         type: array
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentCreateReq:
+  types.DepartmentCreateReq:
     properties:
       enable:
         type: boolean
@@ -1682,7 +1921,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentListResp:
+  types.DepartmentListResp:
     properties:
       departments:
         items:
@@ -1691,7 +1930,7 @@ definitions:
       total:
         type: integer
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentUpdateReq:
+  types.DepartmentUpdateReq:
     properties:
       enable:
         type: boolean
@@ -1700,13 +1939,13 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCashier:
+  types.DeviceCashier:
     properties:
       open_cash_drawer:
         description: 开启钱箱
         type: boolean
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCreateReq:
+  types.DeviceCreateReq:
     properties:
       device_brand:
         description: 设备品牌
@@ -1714,7 +1953,7 @@ definitions:
         type: string
       device_cashier:
         allOf:
-        - $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCashier'
+        - $ref: '#/definitions/types.DeviceCashier'
         description: 收银机设备配置
       device_code:
         description: 设备编号
@@ -1726,7 +1965,7 @@ definitions:
         type: string
       device_print:
         allOf:
-        - $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DevicePrint'
+        - $ref: '#/definitions/types.DevicePrint'
         description: 打印机设备配置
       device_type:
         allOf:
@@ -1759,7 +1998,7 @@ definitions:
     - location
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceListResp:
+  types.DeviceListResp:
     properties:
       devices:
         description: 设备列表
@@ -1770,7 +2009,7 @@ definitions:
         description: 总数
         type: integer
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DevicePrint:
+  types.DevicePrint:
     properties:
       connect_type:
         allOf:
@@ -1828,7 +2067,7 @@ definitions:
     - paper_size
     - stall_id
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceUpdateReq:
+  types.DeviceUpdateReq:
     properties:
       device_brand:
         description: 设备品牌
@@ -1836,7 +2075,7 @@ definitions:
         type: string
       device_cashier:
         allOf:
-        - $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCashier'
+        - $ref: '#/definitions/types.DeviceCashier'
         description: 收银机设备配置
       device_code:
         description: 设备编号
@@ -1848,7 +2087,7 @@ definitions:
         type: string
       device_print:
         allOf:
-        - $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DevicePrint'
+        - $ref: '#/definitions/types.DevicePrint'
         description: 打印机设备配置
       device_type:
         allOf:
@@ -1880,7 +2119,7 @@ definitions:
     - location
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginReq:
+  types.LoginReq:
     properties:
       password:
         type: string
@@ -1890,14 +2129,60 @@ definitions:
     - password
     - username
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginResp:
+  types.LoginResp:
     properties:
       expire:
         type: integer
       token:
         type: string
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrCreateReq:
+  types.MenuCreateReq:
+    properties:
+      items:
+        description: 菜品列表（必选，至少一个）
+        items:
+          $ref: '#/definitions/types.MenuItemReq'
+        minItems: 1
+        type: array
+      name:
+        description: 菜单名称（必选）
+        maxLength: 255
+        type: string
+    required:
+    - items
+    - name
+    type: object
+  types.MenuItemReq:
+    properties:
+      base_price:
+        description: 基础价（可选，单位：分）
+        type: number
+      member_price:
+        description: 会员价（可选，单位：分）
+        type: number
+      product_id:
+        description: 菜品ID（必选）
+        type: string
+    required:
+    - product_id
+    type: object
+  types.MenuUpdateReq:
+    properties:
+      items:
+        description: 菜品列表（必选，至少一个）
+        items:
+          $ref: '#/definitions/types.MenuItemReq'
+        minItems: 1
+        type: array
+      name:
+        description: 菜单名称（必选）
+        maxLength: 255
+        type: string
+    required:
+    - items
+    - name
+    type: object
+  types.ProductAttrCreateReq:
     properties:
       channels:
         description: 售卖渠道列表（必选，可多选）
@@ -1908,7 +2193,7 @@ definitions:
       items:
         description: 口味做法项列表（可选）
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrItemReq'
+          $ref: '#/definitions/types.ProductAttrItemReq'
         type: array
       name:
         description: 口味做法名称
@@ -1918,7 +2203,7 @@ definitions:
     - channels
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrItemReq:
+  types.ProductAttrItemReq:
     properties:
       base_price:
         description: 基础加价（单位：分）
@@ -1937,7 +2222,7 @@ definitions:
     - base_price
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrRelationReq:
+  types.ProductAttrRelationReq:
     properties:
       attr_id:
         description: 口味做法ID（必选）
@@ -1952,7 +2237,7 @@ definitions:
     - attr_id
     - attr_item_id
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrUpdateReq:
+  types.ProductAttrUpdateReq:
     properties:
       channels:
         description: 售卖渠道列表（必选，可多选）
@@ -1963,7 +2248,7 @@ definitions:
       items:
         description: 口味做法项列表（可选，用于新增、修改、删除）
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrItemReq'
+          $ref: '#/definitions/types.ProductAttrItemReq'
         type: array
       name:
         description: 口味做法名称
@@ -1973,7 +2258,7 @@ definitions:
     - channels
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductCreateReq:
+  types.ProductCreateReq:
     properties:
       add_sale_quantity:
         description: 加售份数（必选）
@@ -1982,7 +2267,7 @@ definitions:
       attr_relations:
         description: 商品口味做法关联列表（可选）
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrRelationReq'
+          $ref: '#/definitions/types.ProductAttrRelationReq'
         type: array
       category_id:
         description: 分类ID（必选）
@@ -2046,7 +2331,7 @@ definitions:
       spec_relations:
         description: 关联信息
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq'
+          $ref: '#/definitions/types.ProductSpecRelationReq'
         minItems: 1
         type: array
       stall_id:
@@ -2077,7 +2362,7 @@ definitions:
     - spec_relations
     - unit_id
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecCreateReq:
+  types.ProductSpecCreateReq:
     properties:
       name:
         description: 规格名称
@@ -2086,7 +2371,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq:
+  types.ProductSpecRelationReq:
     properties:
       barcode:
         description: 条形码（可选）
@@ -2122,7 +2407,7 @@ definitions:
     - base_price
     - spec_id
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecUpdateReq:
+  types.ProductSpecUpdateReq:
     properties:
       name:
         description: 规格名称
@@ -2131,7 +2416,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagCreateReq:
+  types.ProductTagCreateReq:
     properties:
       name:
         description: 标签名称
@@ -2140,7 +2425,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagUpdateReq:
+  types.ProductTagUpdateReq:
     properties:
       name:
         description: 标签名称
@@ -2149,7 +2434,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitCreateReq:
+  types.ProductUnitCreateReq:
     properties:
       name:
         description: 单位名称
@@ -2165,7 +2450,7 @@ definitions:
     - name
     - type
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitUpdateReq:
+  types.ProductUnitUpdateReq:
     properties:
       name:
         description: 单位名称
@@ -2181,7 +2466,7 @@ definitions:
     - name
     - type
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUpdateReq:
+  types.ProductUpdateReq:
     properties:
       add_sale_quantity:
         description: 加售份数（必选）
@@ -2190,7 +2475,7 @@ definitions:
       attr_relations:
         description: 商品口味做法关联列表（可选）
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrRelationReq'
+          $ref: '#/definitions/types.ProductAttrRelationReq'
         type: array
       category_id:
         description: 分类ID（必选）
@@ -2254,7 +2539,7 @@ definitions:
       spec_relations:
         description: 关联信息
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq'
+          $ref: '#/definitions/types.ProductSpecRelationReq'
         minItems: 1
         type: array
       stall_id:
@@ -2285,14 +2570,14 @@ definitions:
     - spec_relations
     - unit_id
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProvinceListResp:
+  types.ProvinceListResp:
     properties:
       provinces:
         items:
           $ref: '#/definitions/domain.Province'
         type: array
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleCreateReq:
+  types.RoleCreateReq:
     properties:
       enable:
         type: boolean
@@ -2307,7 +2592,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleListResp:
+  types.RoleListResp:
     properties:
       roles:
         items:
@@ -2316,7 +2601,7 @@ definitions:
       total:
         type: integer
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleUpdateReq:
+  types.RoleUpdateReq:
     properties:
       enable:
         type: boolean
@@ -2331,7 +2616,7 @@ definitions:
     required:
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealCreateReq:
+  types.SetMealCreateReq:
     properties:
       add_sale_quantity:
         description: 加售份数（必选）
@@ -2370,7 +2655,7 @@ definitions:
       groups:
         description: 套餐组（必选，至少一个）
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealGroupReq'
+          $ref: '#/definitions/types.SetMealGroupReq'
         minItems: 1
         type: array
       inherit_stall:
@@ -2414,7 +2699,7 @@ definitions:
       spec_relations:
         description: 关联信息
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq'
+          $ref: '#/definitions/types.ProductSpecRelationReq'
         minItems: 1
         type: array
       stall_id:
@@ -2447,7 +2732,7 @@ definitions:
     - spec_relations
     - unit_id
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealDetailReq:
+  types.SetMealDetailReq:
     properties:
       is_default:
         description: 是否默认（必选，每个套餐组中只能有一个默认项）
@@ -2468,12 +2753,12 @@ definitions:
     - product_id
     - quantity
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealGroupReq:
+  types.SetMealGroupReq:
     properties:
       details:
         description: 套餐组详情列表（必选，至少一个）
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealDetailReq'
+          $ref: '#/definitions/types.SetMealDetailReq'
         minItems: 1
         type: array
       name:
@@ -2488,7 +2773,7 @@ definitions:
     - details
     - name
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealUpdateReq:
+  types.SetMealUpdateReq:
     properties:
       add_sale_quantity:
         description: 加售份数（必选）
@@ -2527,7 +2812,7 @@ definitions:
       groups:
         description: 套餐组（必选，至少一个）
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealGroupReq'
+          $ref: '#/definitions/types.SetMealGroupReq'
         minItems: 1
         type: array
       inherit_stall:
@@ -2571,7 +2856,7 @@ definitions:
       spec_relations:
         description: 关联信息
         items:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq'
+          $ref: '#/definitions/types.ProductSpecRelationReq'
         minItems: 1
         type: array
       stall_id:
@@ -2604,7 +2889,93 @@ definitions:
     - spec_relations
     - unit_id
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateCategoryReq:
+  types.StoreUserCreateReq:
+    properties:
+      department_id:
+        description: 所属部门ID
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 用户登陆密码
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 用户姓名
+        type: string
+      role_ids:
+        description: 角色ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      username:
+        description: 用户登陆账号
+        type: string
+    required:
+    - department_id
+    - password
+    - real_name
+    - role_ids
+    - username
+    type: object
+  types.StoreUserUpdateReq:
+    properties:
+      department_id:
+        description: 所属部门ID
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 用户登陆密码
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 用户姓名
+        type: string
+      role_ids:
+        description: 角色ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      username:
+        description: 用户登陆账号
+        type: string
+    required:
+    - department_id
+    - password
+    - real_name
+    - role_ids
+    - username
+    type: object
+  types.UpdateCategoryReq:
     properties:
       inherit_stall:
         description: 是否继承父分类的出品部门ID（仅子分类有效）
@@ -2623,11 +2994,11 @@ definitions:
         description: 税率ID
         type: string
     type: object
-  gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateStoreReq:
+  types.UpdateStoreReq:
     properties:
       address:
         allOf:
-        - $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.Address'
+        - $ref: '#/definitions/types.Address'
         description: 地址
       admin_phone_number:
         description: 管理员手机号
@@ -2723,160 +3094,11 @@ definitions:
     - status
     - store_name
     type: object
-  response.Response:
-    properties:
-      code:
-        $ref: '#/definitions/errcode.ErrCode'
-      data: {}
-    type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-  types.OssTokenReq:
-    properties:
-      filename:
-        description: 文件名
-        type: string
-      for_download:
-        description: 是否用于下载
-        type: boolean
-      scene:
-        allOf:
-        - $ref: '#/definitions/domain.ObjectStorageScene'
-        description: '业务场景，store：门店相关 product: 商品相关'
-        enum:
-        - store
-        - product
-    required:
-    - filename
-    - scene
-    type: object
-  types.OssTokenResp:
-    properties:
-      content_disposition:
-        type: string
-      dir:
-        type: string
-      host:
-        type: string
-      key:
-        type: string
-      policy:
-        type: string
-      security_token:
-        type: string
-      signature:
-        type: string
-      x_oss_credential:
-        type: string
-      x_oss_date:
-        type: string
-      x_oss_signature_version:
-        type: string
-    type: object
-  types.StoreUserCreateReq:
-    properties:
-      department_id:
-        description: 所属部门ID
-        type: string
-      email:
-        description: 电子邮箱
-        type: string
-      enabled:
-        description: 是否启用
-        type: boolean
-      gender:
-        allOf:
-        - $ref: '#/definitions/domain.Gender'
-        description: 性别
-      nickname:
-        description: 昵称
-        type: string
-      password:
-        description: 用户登陆密码
-        type: string
-      phone_number:
-        description: 手机号
-        type: string
-      real_name:
-        description: 用户姓名
-        type: string
-      role_ids:
-        description: 角色ID列表
-        items:
-          type: string
-        minItems: 1
-        type: array
-      username:
-        description: 用户登陆账号
-        type: string
-    required:
-    - department_id
-    - password
-    - real_name
-    - role_ids
-    - username
-    type: object
-  types.StoreUserUpdateReq:
-    properties:
-      department_id:
-        description: 所属部门ID
-        type: string
-      email:
-        description: 电子邮箱
-        type: string
-      enabled:
-        description: 是否启用
-        type: boolean
-      gender:
-        allOf:
-        - $ref: '#/definitions/domain.Gender'
-        description: 性别
-      nickname:
-        description: 昵称
-        type: string
-      password:
-        description: 用户登陆密码
-        type: string
-      phone_number:
-        description: 手机号
-        type: string
-      real_name:
-        description: 用户姓名
-        type: string
-      role_ids:
-        description: 角色ID列表
-        items:
-          type: string
-        minItems: 1
-        type: array
-      username:
-        description: 用户登陆账号
-        type: string
-    required:
-    - department_id
-    - password
-    - real_name
-    - role_ids
-    - username
-    type: object
 info:
   contact: {}
+  description: 供门店后台调用.
+  title: 门店后台 API
+  version: "1.0"
 paths:
   /common/department:
     get:
@@ -2907,7 +3129,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentListResp'
+            $ref: '#/definitions/types.DepartmentListResp'
       security:
       - BearerAuth: []
       summary: 部门列表
@@ -2923,7 +3145,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentCreateReq'
+          $ref: '#/definitions/types.DepartmentCreateReq'
       produces:
       - application/json
       responses:
@@ -2992,7 +3214,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentUpdateReq'
+          $ref: '#/definitions/types.DepartmentUpdateReq'
       produces:
       - application/json
       responses:
@@ -3071,7 +3293,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleListResp'
+            $ref: '#/definitions/types.RoleListResp'
       security:
       - BearerAuth: []
       summary: 角色列表
@@ -3087,7 +3309,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleCreateReq'
+          $ref: '#/definitions/types.RoleCreateReq'
       produces:
       - application/json
       responses:
@@ -3152,7 +3374,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleUpdateReq'
+          $ref: '#/definitions/types.RoleUpdateReq'
       produces:
       - application/json
       responses:
@@ -3230,7 +3452,38 @@ paths:
       summary: 查询菜单列表
       tags:
       - 菜单管理
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.MenuCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建菜单
+      tags:
+      - 菜单管理
   /menu/{id}:
+    delete:
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除菜单
+      tags:
+      - 菜单管理
     get:
       parameters:
       - description: 菜单ID
@@ -3248,29 +3501,27 @@ paths:
       summary: 获取菜单详情
       tags:
       - 菜单管理
-  /oss/token:
-    post:
-      consumes:
-      - application/json
+    put:
       parameters:
-      - description: 请求参数
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/types.OssTokenReq'
-      produces:
-      - application/json
+          $ref: '#/definitions/types.MenuUpdateReq'
       responses:
         "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/types.OssTokenResp'
+          description: OK
       security:
       - BearerAuth: []
-      summary: 获取OSS Token
+      summary: 更新菜单
       tags:
-      - 阿里OSS
+      - 菜单管理
   /product:
     get:
       parameters:
@@ -3336,7 +3587,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductCreateReq'
+          $ref: '#/definitions/types.ProductCreateReq'
       responses:
         "200":
           description: OK
@@ -3390,7 +3641,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUpdateReq'
+          $ref: '#/definitions/types.ProductUpdateReq'
       responses:
         "200":
           description: OK
@@ -3452,7 +3703,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrCreateReq'
+          $ref: '#/definitions/types.ProductAttrCreateReq'
       responses:
         "200":
           description: OK
@@ -3489,7 +3740,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrUpdateReq'
+          $ref: '#/definitions/types.ProductAttrUpdateReq'
       responses:
         "200":
           description: OK
@@ -3537,7 +3788,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateRootReq'
+          $ref: '#/definitions/types.CategoryCreateRootReq'
       responses:
         "200":
           description: OK
@@ -3578,7 +3829,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateChildReq'
+          $ref: '#/definitions/types.CategoryCreateChildReq'
       responses:
         "200":
           description: OK
@@ -3601,7 +3852,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateCategoryReq'
+          $ref: '#/definitions/types.UpdateCategoryReq'
       produces:
       - application/json
       responses:
@@ -3620,7 +3871,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryReorderReq'
+          $ref: '#/definitions/types.CategoryReorderReq'
       responses:
         "200":
           description: OK
@@ -3637,7 +3888,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealCreateReq'
+          $ref: '#/definitions/types.SetMealCreateReq'
       responses:
         "200":
           description: OK
@@ -3659,7 +3910,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealUpdateReq'
+          $ref: '#/definitions/types.SetMealUpdateReq'
       responses:
         "200":
           description: OK
@@ -3703,7 +3954,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecCreateReq'
+          $ref: '#/definitions/types.ProductSpecCreateReq'
       responses:
         "200":
           description: OK
@@ -3746,7 +3997,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecUpdateReq'
+          $ref: '#/definitions/types.ProductSpecUpdateReq'
       produces:
       - application/json
       responses:
@@ -3792,7 +4043,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagCreateReq'
+          $ref: '#/definitions/types.ProductTagCreateReq'
       responses:
         "200":
           description: OK
@@ -3835,7 +4086,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagUpdateReq'
+          $ref: '#/definitions/types.ProductTagUpdateReq'
       produces:
       - application/json
       responses:
@@ -3888,7 +4139,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitCreateReq'
+          $ref: '#/definitions/types.ProductUnitCreateReq'
       responses:
         "200":
           description: OK
@@ -3931,7 +4182,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitUpdateReq'
+          $ref: '#/definitions/types.ProductUnitUpdateReq'
       produces:
       - application/json
       responses:
@@ -3942,6 +4193,44 @@ paths:
       summary: 更新商品单位
       tags:
       - 商品单位
+  /profit/distribution/bill:
+    get:
+      parameters:
+      - description: 账单结束日期
+        in: query
+        name: bill_end_date
+        type: string
+      - description: 账单开始日期
+        in: query
+        name: bill_start_date
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      - description: 分账状态（可选）
+        enum:
+        - pending
+        - paid
+        in: query
+        name: status
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProfitDistributionBillSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询分账账单列表
+      tags:
+      - 分账账单
   /region/countries:
     get:
       responses:
@@ -3952,7 +4241,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CountryListResp'
+                  $ref: '#/definitions/types.CountryListResp'
               type: object
       security:
       - BearerAuth: []
@@ -3974,7 +4263,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProvinceListResp'
+                  $ref: '#/definitions/types.ProvinceListResp'
               type: object
       security:
       - BearerAuth: []
@@ -3995,6 +4284,9 @@ paths:
         x-enum-comments:
           DeviceTypeCashier: 收银机
           DeviceTypePrinter: 打印机
+        x-enum-descriptions:
+        - 收银机
+        - 打印机
         x-enum-varnames:
         - DeviceTypeCashier
         - DeviceTypePrinter
@@ -4020,6 +4312,9 @@ paths:
         x-enum-comments:
           DeviceStatusOffline: 离线
           DeviceStatusOnline: 在线
+        x-enum-descriptions:
+        - 在线
+        - 离线
         x-enum-varnames:
         - DeviceStatusOnline
         - DeviceStatusOffline
@@ -4031,7 +4326,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceListResp'
+                  $ref: '#/definitions/types.DeviceListResp'
               type: object
       security:
       - BearerAuth: []
@@ -4048,7 +4343,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCreateReq'
+          $ref: '#/definitions/types.DeviceCreateReq'
       produces:
       - application/json
       responses:
@@ -4116,7 +4411,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceUpdateReq'
+          $ref: '#/definitions/types.DeviceUpdateReq'
       produces:
       - application/json
       responses:
@@ -4208,7 +4503,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateStoreReq'
+          $ref: '#/definitions/types.UpdateStoreReq'
       produces:
       - application/json
       responses:
@@ -4273,6 +4568,11 @@ paths:
           GenderMale: 男性
           GenderOther: 其他
           GenderUnknown: 未知
+        x-enum-descriptions:
+        - 男性
+        - 女性
+        - 其他
+        - 未知
         x-enum-varnames:
         - GenderMale
         - GenderFemale
@@ -4298,7 +4598,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.AccountListResp'
+            $ref: '#/definitions/types.AccountListResp'
       security:
       - BearerAuth: []
       summary: 门店用户列表
@@ -4453,14 +4753,14 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginReq'
+          $ref: '#/definitions/types.LoginReq'
       produces:
       - application/json
       responses:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginResp'
+            $ref: '#/definitions/types.LoginResp'
   /user/logout:
     post:
       produces:
@@ -4468,4 +4768,10 @@ paths:
       responses:
         "200":
           description: No Content
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

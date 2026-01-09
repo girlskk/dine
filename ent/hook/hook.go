@@ -201,6 +201,18 @@ func (f OrderProductFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderProductMutation", m)
 }
 
+// The PaymentAccountFunc type is an adapter to allow the use of ordinary
+// function as PaymentAccount mutator.
+type PaymentAccountFunc func(context.Context, *ent.PaymentAccountMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PaymentAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PaymentAccountMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PaymentAccountMutation", m)
+}
+
 // The PaymentMethodFunc type is an adapter to allow the use of ordinary
 // function as PaymentMethod mutator.
 type PaymentMethodFunc func(context.Context, *ent.PaymentMethodMutation) (ent.Value, error)
@@ -319,6 +331,30 @@ func (f ProductUnitFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductUnitMutation", m)
+}
+
+// The ProfitDistributionBillFunc type is an adapter to allow the use of ordinary
+// function as ProfitDistributionBill mutator.
+type ProfitDistributionBillFunc func(context.Context, *ent.ProfitDistributionBillMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProfitDistributionBillFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProfitDistributionBillMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProfitDistributionBillMutation", m)
+}
+
+// The ProfitDistributionRuleFunc type is an adapter to allow the use of ordinary
+// function as ProfitDistributionRule mutator.
+type ProfitDistributionRuleFunc func(context.Context, *ent.ProfitDistributionRuleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProfitDistributionRuleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProfitDistributionRuleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProfitDistributionRuleMutation", m)
 }
 
 // The ProvinceFunc type is an adapter to allow the use of ordinary
@@ -451,6 +487,18 @@ func (f StoreFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StoreMutation", m)
+}
+
+// The StorePaymentAccountFunc type is an adapter to allow the use of ordinary
+// function as StorePaymentAccount mutator.
+type StorePaymentAccountFunc func(context.Context, *ent.StorePaymentAccountMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f StorePaymentAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.StorePaymentAccountMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StorePaymentAccountMutation", m)
 }
 
 // The StoreUserFunc type is an adapter to allow the use of ordinary

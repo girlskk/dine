@@ -37,31 +37,31 @@ func (m *MockCategoryInteractor) EXPECT() *MockCategoryInteractorMockRecorder {
 }
 
 // CreateChild mocks base method.
-func (m *MockCategoryInteractor) CreateChild(arg0 context.Context, arg1 *domain.Category) error {
+func (m *MockCategoryInteractor) CreateChild(arg0 context.Context, arg1 *domain.Category, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateChild", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateChild", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateChild indicates an expected call of CreateChild.
-func (mr *MockCategoryInteractorMockRecorder) CreateChild(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockCategoryInteractorMockRecorder) CreateChild(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChild", reflect.TypeOf((*MockCategoryInteractor)(nil).CreateChild), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChild", reflect.TypeOf((*MockCategoryInteractor)(nil).CreateChild), arg0, arg1, arg2)
 }
 
 // CreateRoot mocks base method.
-func (m *MockCategoryInteractor) CreateRoot(arg0 context.Context, arg1 *domain.Category) error {
+func (m *MockCategoryInteractor) CreateRoot(arg0 context.Context, arg1 *domain.Category, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateRoot", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateRoot", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateRoot indicates an expected call of CreateRoot.
-func (mr *MockCategoryInteractorMockRecorder) CreateRoot(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockCategoryInteractorMockRecorder) CreateRoot(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRoot", reflect.TypeOf((*MockCategoryInteractor)(nil).CreateRoot), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRoot", reflect.TypeOf((*MockCategoryInteractor)(nil).CreateRoot), arg0, arg1, arg2)
 }
 
 // Delete mocks base method.

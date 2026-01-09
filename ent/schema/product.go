@@ -98,6 +98,9 @@ func (Product) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("category", Category.Type).Ref("products").Field("category_id").Required().Unique().Comment("所属分类"),
 		edge.From("unit", ProductUnit.Type).Ref("products").Field("unit_id").Required().Unique().Comment("所属单位"),
+		edge.From("tax_rate", TaxFee.Type).Ref("products").Field("tax_rate_id").Unique().Comment("所属税率"),
+		edge.From("stall", Stall.Type).Ref("products").Field("stall_id").Unique().Comment("所属出品部门"),
+
 		// 商品标签 Many2Many
 		edge.To("tags", ProductTag.Type).
 			StorageKey(edge.Table("product_tag_relations"), edge.Columns("product_id", "tag_id")).

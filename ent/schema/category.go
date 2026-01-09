@@ -63,5 +63,13 @@ func (Category) Edges() []ent.Edge {
 			Field("parent_id"),
 
 		edge.To("products", Product.Type).Comment("关联的商品"),
+
+		edge.To("tax_rate", TaxFee.Type).
+			Unique().
+			Field("tax_rate_id").Comment("税率"),
+
+		edge.To("stall", Stall.Type).
+			Unique().
+			Field("stall_id").Comment("出品部门"),
 	}
 }

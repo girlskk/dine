@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -224,6 +225,21 @@ func (afc *AdditionalFeeCreate) SetMerchant(m *Merchant) *AdditionalFeeCreate {
 // SetStore sets the "store" edge to the Store entity.
 func (afc *AdditionalFeeCreate) SetStore(s *Store) *AdditionalFeeCreate {
 	return afc.SetStoreID(s.ID)
+}
+
+// AddProductSpecIDs adds the "product_specs" edge to the ProductSpecRelation entity by IDs.
+func (afc *AdditionalFeeCreate) AddProductSpecIDs(ids ...uuid.UUID) *AdditionalFeeCreate {
+	afc.mutation.AddProductSpecIDs(ids...)
+	return afc
+}
+
+// AddProductSpecs adds the "product_specs" edges to the ProductSpecRelation entity.
+func (afc *AdditionalFeeCreate) AddProductSpecs(p ...*ProductSpecRelation) *AdditionalFeeCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return afc.AddProductSpecIDs(ids...)
 }
 
 // Mutation returns the AdditionalFeeMutation object of the builder.
@@ -507,6 +523,22 @@ func (afc *AdditionalFeeCreate) createSpec() (*AdditionalFee, *sqlgraph.CreateSp
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.StoreID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := afc.mutation.ProductSpecsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   additionalfee.ProductSpecsTable,
+			Columns: []string{additionalfee.ProductSpecsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(productspecrelation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

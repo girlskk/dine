@@ -66,7 +66,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentListResp"
+                            "$ref": "#/definitions/types.DepartmentListResp"
                         }
                     }
                 }
@@ -95,7 +95,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentCreateReq"
+                            "$ref": "#/definitions/types.DepartmentCreateReq"
                         }
                     }
                 ],
@@ -173,7 +173,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentUpdateReq"
+                            "$ref": "#/definitions/types.DepartmentUpdateReq"
                         }
                     }
                 ],
@@ -330,7 +330,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleListResp"
+                            "$ref": "#/definitions/types.RoleListResp"
                         }
                     }
                 }
@@ -359,7 +359,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleCreateReq"
+                            "$ref": "#/definitions/types.RoleCreateReq"
                         }
                     }
                 ],
@@ -434,7 +434,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleUpdateReq"
+                            "$ref": "#/definitions/types.RoleUpdateReq"
                         }
                     }
                 ],
@@ -581,6 +581,33 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "创建菜单",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.MenuCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
         "/menu/{id}": {
@@ -611,42 +638,63 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/oss/token": {
-            "post": {
+            },
+            "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "阿里OSS"
+                    "菜单管理"
                 ],
-                "summary": "获取OSS Token",
+                "summary": "更新菜单",
                 "parameters": [
                     {
-                        "description": "请求参数",
+                        "type": "string",
+                        "description": "菜单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/types.OssTokenReq"
+                            "$ref": "#/definitions/types.MenuUpdateReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/types.OssTokenResp"
-                        }
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "删除菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "菜单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -755,7 +803,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductCreateReq"
+                            "$ref": "#/definitions/types.ProductCreateReq"
                         }
                     }
                 ],
@@ -806,7 +854,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrCreateReq"
+                            "$ref": "#/definitions/types.ProductAttrCreateReq"
                         }
                     }
                 ],
@@ -869,7 +917,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrUpdateReq"
+                            "$ref": "#/definitions/types.ProductAttrUpdateReq"
                         }
                     }
                 ],
@@ -948,7 +996,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateRootReq"
+                            "$ref": "#/definitions/types.CategoryCreateRootReq"
                         }
                     }
                 ],
@@ -977,7 +1025,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryReorderReq"
+                            "$ref": "#/definitions/types.CategoryReorderReq"
                         }
                     }
                 ],
@@ -1019,7 +1067,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateCategoryReq"
+                            "$ref": "#/definitions/types.UpdateCategoryReq"
                         }
                     }
                 ],
@@ -1053,7 +1101,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateChildReq"
+                            "$ref": "#/definitions/types.CategoryCreateChildReq"
                         }
                     }
                 ],
@@ -1113,7 +1161,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealCreateReq"
+                            "$ref": "#/definitions/types.SetMealCreateReq"
                         }
                     }
                 ],
@@ -1149,7 +1197,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealUpdateReq"
+                            "$ref": "#/definitions/types.SetMealUpdateReq"
                         }
                     }
                 ],
@@ -1220,7 +1268,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecCreateReq"
+                            "$ref": "#/definitions/types.ProductSpecCreateReq"
                         }
                     }
                 ],
@@ -1262,7 +1310,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecUpdateReq"
+                            "$ref": "#/definitions/types.ProductSpecUpdateReq"
                         }
                     }
                 ],
@@ -1364,7 +1412,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagCreateReq"
+                            "$ref": "#/definitions/types.ProductTagCreateReq"
                         }
                     }
                 ],
@@ -1406,7 +1454,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagUpdateReq"
+                            "$ref": "#/definitions/types.ProductTagUpdateReq"
                         }
                     }
                 ],
@@ -1518,7 +1566,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitCreateReq"
+                            "$ref": "#/definitions/types.ProductUnitCreateReq"
                         }
                     }
                 ],
@@ -1560,7 +1608,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitUpdateReq"
+                            "$ref": "#/definitions/types.ProductUnitUpdateReq"
                         }
                     }
                 ],
@@ -1655,7 +1703,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUpdateReq"
+                            "$ref": "#/definitions/types.ProductUpdateReq"
                         }
                     }
                 ],
@@ -1745,6 +1793,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/profit/distribution/bill": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "查询分账账单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账单结束日期",
+                        "name": "bill_end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "账单开始日期",
+                        "name": "bill_start_date",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "pending",
+                            "paid"
+                        ],
+                        "type": "string",
+                        "description": "分账状态（可选）",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillSearchRes"
+                        }
+                    }
+                }
+            }
+        },
         "/region/countries": {
             "get": {
                 "security": [
@@ -1768,7 +1875,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.CountryListResp"
+                                            "$ref": "#/definitions/types.CountryListResp"
                                         }
                                     }
                                 }
@@ -1809,7 +1916,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProvinceListResp"
+                                            "$ref": "#/definitions/types.ProvinceListResp"
                                         }
                                     }
                                 }
@@ -1842,6 +1949,10 @@ const docTemplate = `{
                             "DeviceTypeCashier": "收银机",
                             "DeviceTypePrinter": "打印机"
                         },
+                        "x-enum-descriptions": [
+                            "收银机",
+                            "打印机"
+                        ],
                         "x-enum-varnames": [
                             "DeviceTypeCashier",
                             "DeviceTypePrinter"
@@ -1878,6 +1989,10 @@ const docTemplate = `{
                             "DeviceStatusOffline": "离线",
                             "DeviceStatusOnline": "在线"
                         },
+                        "x-enum-descriptions": [
+                            "在线",
+                            "离线"
+                        ],
                         "x-enum-varnames": [
                             "DeviceStatusOnline",
                             "DeviceStatusOffline"
@@ -1899,7 +2014,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceListResp"
+                                            "$ref": "#/definitions/types.DeviceListResp"
                                         }
                                     }
                                 }
@@ -1932,7 +2047,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCreateReq"
+                            "$ref": "#/definitions/types.DeviceCreateReq"
                         }
                     }
                 ],
@@ -2016,7 +2131,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceUpdateReq"
+                            "$ref": "#/definitions/types.DeviceUpdateReq"
                         }
                     }
                 ],
@@ -2197,7 +2312,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateStoreReq"
+                            "$ref": "#/definitions/types.UpdateStoreReq"
                         }
                     }
                 ],
@@ -2300,6 +2415,12 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -2336,7 +2457,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.AccountListResp"
+                            "$ref": "#/definitions/types.AccountListResp"
                         }
                     }
                 }
@@ -2403,7 +2524,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginReq"
+                            "$ref": "#/definitions/types.LoginReq"
                         }
                     }
                 ],
@@ -2411,7 +2532,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginResp"
+                            "$ref": "#/definitions/types.LoginResp"
                         }
                     }
                 }
@@ -2609,6 +2730,178 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.AdditionalCategory": {
+            "type": "string",
+            "enum": [
+                "service_fee",
+                "additional_fee",
+                "packing_fee"
+            ],
+            "x-enum-comments": {
+                "AdditionalCategoryAdditional": "附加费",
+                "AdditionalCategoryPacking": "打包费",
+                "AdditionalCategoryService": "服务费"
+            },
+            "x-enum-descriptions": [
+                "服务费",
+                "附加费",
+                "打包费"
+            ],
+            "x-enum-varnames": [
+                "AdditionalCategoryService",
+                "AdditionalCategoryAdditional",
+                "AdditionalCategoryPacking"
+            ]
+        },
+        "domain.AdditionalFee": {
+            "type": "object",
+            "properties": {
+                "charge_mode": {
+                    "description": "费用类型 percent 百分比，fixed 固定金额",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dining_ways": {
+                    "description": "就餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣场景",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费类别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_type": {
+                    "description": "附加费类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeType"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "fixed: 分; percent: BP",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "附加费名称",
+                    "type": "string"
+                },
+                "order_channels": {
+                    "description": "订单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.AdditionalFeeChargeMode": {
+            "type": "string",
+            "enum": [
+                "percent",
+                "fixed"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeChargeModeFixed": "固定金额",
+                "AdditionalFeeChargeModePercent": "百分比"
+            },
+            "x-enum-descriptions": [
+                "百分比",
+                "固定金额"
+            ],
+            "x-enum-varnames": [
+                "AdditionalFeeChargeModePercent",
+                "AdditionalFeeChargeModeFixed"
+            ]
+        },
+        "domain.AdditionalFeeDiscountScope": {
+            "type": "string",
+            "enum": [
+                "before_discount",
+                "after_discount"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeDiscountScopeAfter": "折后",
+                "AdditionalFeeDiscountScopeBefore": "折前"
+            },
+            "x-enum-descriptions": [
+                "折前",
+                "折后"
+            ],
+            "x-enum-varnames": [
+                "AdditionalFeeDiscountScopeBefore",
+                "AdditionalFeeDiscountScopeAfter"
+            ]
+        },
+        "domain.AdditionalFeeType": {
+            "type": "string",
+            "enum": [
+                "merchant",
+                "store"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeTypeMerchant": "商户",
+                "AdditionalFeeTypeStore": "门店"
+            },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
+            "x-enum-varnames": [
+                "AdditionalFeeTypeMerchant",
+                "AdditionalFeeTypeStore"
+            ]
+        },
         "domain.Address": {
             "type": "object",
             "properties": {
@@ -2685,7 +2978,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -2700,6 +2993,10 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
+            "x-enum-descriptions": [
+                "直营",
+                "加盟"
+            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -2709,7 +3006,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "children": {
-                    "description": "@TODO 关联信息",
+                    "description": "关联信息",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Category"
@@ -2759,6 +3056,14 @@ const docTemplate = `{
                     "description": "排序，值越小越靠前",
                     "type": "integer"
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "出品部门ID",
                     "type": "string"
@@ -2766,6 +3071,14 @@ const docTemplate = `{
                 "store_id": {
                     "description": "门店ID",
                     "type": "string"
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "税率ID",
@@ -2985,6 +3298,10 @@ const docTemplate = `{
                 "DeviceConnectTypeInside": "内置",
                 "DeviceConnectTypeOutside": "外置"
             },
+            "x-enum-descriptions": [
+                "内置",
+                "外置"
+            ],
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
                 "DeviceConnectTypeOutside"
@@ -3000,6 +3317,10 @@ const docTemplate = `{
                 "DeviceLocationBackKitchen": "后厨",
                 "DeviceLocationFrontHall": "前厅"
             },
+            "x-enum-descriptions": [
+                "前厅",
+                "后厨"
+            ],
             "x-enum-varnames": [
                 "DeviceLocationFrontHall",
                 "DeviceLocationBackKitchen"
@@ -3017,6 +3338,11 @@ const docTemplate = `{
                 "DeviceStallPrintTypeCombined": "总单",
                 "DeviceStallPrintTypeSeparate": "分单"
             },
+            "x-enum-descriptions": [
+                "全部打印 总单+分单",
+                "总单",
+                "分单"
+            ],
             "x-enum-varnames": [
                 "DeviceStallPrintTypeAll",
                 "DeviceStallPrintTypeCombined",
@@ -3033,6 +3359,10 @@ const docTemplate = `{
                 "DeviceStallReceiptTypeAll": "全部打印",
                 "DeviceStallReceiptTypeExclude": "剔除部门商户"
             },
+            "x-enum-descriptions": [
+                "全部打印",
+                "剔除部门商户"
+            ],
             "x-enum-varnames": [
                 "DeviceStallReceiptTypeAll",
                 "DeviceStallReceiptTypeExclude"
@@ -3048,6 +3378,10 @@ const docTemplate = `{
                 "DeviceStatusOffline": "离线",
                 "DeviceStatusOnline": "在线"
             },
+            "x-enum-descriptions": [
+                "在线",
+                "离线"
+            ],
             "x-enum-varnames": [
                 "DeviceStatusOnline",
                 "DeviceStatusOffline"
@@ -3063,6 +3397,10 @@ const docTemplate = `{
                 "DeviceTypeCashier": "收银机",
                 "DeviceTypePrinter": "打印机"
             },
+            "x-enum-descriptions": [
+                "收银机",
+                "打印机"
+            ],
             "x-enum-varnames": [
                 "DeviceTypeCashier",
                 "DeviceTypePrinter"
@@ -3097,6 +3435,11 @@ const docTemplate = `{
                 "DiningWayDineIn": "堂食",
                 "DiningWayTakeOut": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外送"
+            ],
             "x-enum-varnames": [
                 "DiningWayDineIn",
                 "DiningWayTakeOut",
@@ -3113,6 +3456,10 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
+            "x-enum-descriptions": [
+                "按天",
+                "自定义"
+            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -3132,6 +3479,12 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -3151,6 +3504,11 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -3163,14 +3521,6 @@ const docTemplate = `{
                 "created_at": {
                     "description": "创建时间",
                     "type": "string"
-                },
-                "distribution_rule": {
-                    "description": "下发规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
                 },
                 "id": {
                     "description": "菜单ID",
@@ -3199,6 +3549,10 @@ const docTemplate = `{
                     "description": "适用门店数量",
                     "type": "integer"
                 },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
                 "stores": {
                     "description": "关联信息",
                     "type": "array",
@@ -3211,21 +3565,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuDistributionRule": {
-            "type": "string",
-            "enum": [
-                "override",
-                "keep"
-            ],
-            "x-enum-comments": {
-                "MenuDistributionRuleKeep": "对同名菜品不做修改",
-                "MenuDistributionRuleOverride": "新增并覆盖同名菜品"
-            },
-            "x-enum-varnames": [
-                "MenuDistributionRuleOverride",
-                "MenuDistributionRuleKeep"
-            ]
         },
         "domain.MenuItem": {
             "type": "object",
@@ -3262,34 +3601,11 @@ const docTemplate = `{
                     "description": "菜品ID",
                     "type": "string"
                 },
-                "sale_rule": {
-                    "description": "下发售卖规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
                 "updated_at": {
                     "description": "更新时间",
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuItemSaleRule": {
-            "type": "string",
-            "enum": [
-                "keep_brand_status",
-                "keep_store_status"
-            ],
-            "x-enum-comments": {
-                "MenuItemSaleRuleKeepBrandStatus": "保留品牌状态",
-                "MenuItemSaleRuleKeepStoreStatus": "保留门店状态"
-            },
-            "x-enum-varnames": [
-                "MenuItemSaleRuleKeepBrandStatus",
-                "MenuItemSaleRuleKeepStoreStatus"
-            ]
         },
         "domain.MenuSearchRes": {
             "type": "object",
@@ -3314,23 +3630,17 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.ObjectStorageScene": {
-            "type": "string",
-            "enum": [
-                "merchant",
-                "store",
-                "product"
-            ],
-            "x-enum-comments": {
-                "ObjectStorageSceneMerchant": "商户",
-                "ObjectStorageSceneProduct": "商品",
-                "ObjectStorageSceneStore": "门店"
-            },
-            "x-enum-varnames": [
-                "ObjectStorageSceneMerchant",
-                "ObjectStorageSceneStore",
-                "ObjectStorageSceneProduct"
-            ]
+        "domain.MerchantSimple": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "商户名称",
+                    "type": "string"
+                }
+            }
         },
         "domain.OrderChannel": {
             "type": "string",
@@ -3350,6 +3660,14 @@ const docTemplate = `{
                 "OrderChannelSelfOrder": "自助点餐",
                 "OrderChannelThirdDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS 端",
+                "自助点餐",
+                "小程序",
+                "手机点餐",
+                "扫码点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
                 "OrderChannelPOS",
                 "OrderChannelSelfOrder",
@@ -3358,23 +3676,6 @@ const docTemplate = `{
                 "OrderChannelScanOrder",
                 "OrderChannelThirdDelivery"
             ]
-        },
-        "domain.PackingFee": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "打包费ID",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "打包费名称",
-                    "type": "string"
-                },
-                "price": {
-                    "description": "打包费价格",
-                    "type": "number"
-                }
-            }
         },
         "domain.PaperSize": {
             "type": "string",
@@ -3521,6 +3822,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "指定出品部门ID",
                     "type": "string"
@@ -3542,6 +3851,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductTag"
                     }
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "指定税率ID",
@@ -3716,6 +4033,10 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
+            "x-enum-descriptions": [
+                "在售",
+                "停售"
+            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -3824,7 +4145,7 @@ const docTemplate = `{
                     "description": "打包费",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.PackingFee"
+                            "$ref": "#/definitions/domain.AdditionalFee"
                         }
                     ]
                 },
@@ -3885,6 +4206,11 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外卖"
+            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -3957,6 +4283,10 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
+            "x-enum-descriptions": [
+                "普通商品",
+                "套餐商品"
+            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -4036,10 +4366,154 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
+            "x-enum-descriptions": [
+                "数量单位",
+                "重量单位"
+            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
             ]
+        },
+        "domain.ProfitDistributionBill": {
+            "type": "object",
+            "properties": {
+                "bill_date": {
+                    "description": "账单日期",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "end_date": {
+                    "description": "账单周期：结束日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账账单ID",
+                    "type": "string"
+                },
+                "merchant": {
+                    "description": "关联数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.MerchantSimple"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "no": {
+                    "description": "分账账单编号",
+                    "type": "string"
+                },
+                "payment_amount": {
+                    "description": "打款金额（令吉）",
+                    "type": "number"
+                },
+                "receivable_amount": {
+                    "description": "应收金额（令吉）",
+                    "type": "number"
+                },
+                "rule_snapshot": {
+                    "description": "分账方案快照",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSnapshot"
+                        }
+                    ]
+                },
+                "start_date": {
+                    "description": "账单周期：开始日期",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "分账状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillStatus"
+                        }
+                    ]
+                },
+                "store": {
+                    "description": "门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionBill"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillStatus": {
+            "type": "string",
+            "enum": [
+                "unpaid",
+                "paid"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionBillStatusPaid": "已打款",
+                "ProfitDistributionBillStatusUnpaid": "未打款"
+            },
+            "x-enum-descriptions": [
+                "未打款",
+                "已打款"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionBillStatusUnpaid",
+                "ProfitDistributionBillStatusPaid"
+            ]
+        },
+        "domain.ProfitDistributionRuleSnapshot": {
+            "type": "object",
+            "properties": {
+                "rule_id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "rule_name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例",
+                    "type": "number"
+                }
+            }
         },
         "domain.Province": {
             "type": "object",
@@ -4133,6 +4607,14 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -4157,6 +4639,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -4189,17 +4676,29 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖",
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -4307,6 +4806,10 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
+            "x-enum-descriptions": [
+                "固定分组",
+                "可选套餐"
+            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -4328,6 +4831,100 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "domain.Stall": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "使用状态",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "出品部门名称",
+                    "type": "string"
+                },
+                "print_type": {
+                    "description": "打印类型 ：receipt/label",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "stall_type": {
+                    "description": "system/brand/store",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallType"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StallPrintType": {
+            "type": "string",
+            "enum": [
+                "receipt",
+                "label"
+            ],
+            "x-enum-comments": {
+                "StallPrintTypeLabel": "标签",
+                "StallPrintTypeReceipt": "小票/收据"
+            },
+            "x-enum-descriptions": [
+                "小票/收据",
+                "标签"
+            ],
+            "x-enum-varnames": [
+                "StallPrintTypeReceipt",
+                "StallPrintTypeLabel"
+            ]
+        },
+        "domain.StallType": {
+            "type": "string",
+            "enum": [
+                "system",
+                "brand",
+                "store"
+            ],
+            "x-enum-comments": {
+                "StallTypeBrand": "品牌出品部门",
+                "StallTypeStore": "门店出品部门",
+                "StallTypeSystem": "系统出品部门"
+            },
+            "x-enum-descriptions": [
+                "系统出品部门",
+                "品牌出品部门",
+                "门店出品部门"
+            ],
+            "x-enum-varnames": [
+                "StallTypeSystem",
+                "StallTypeBrand",
+                "StallTypeStore"
+            ]
         },
         "domain.Store": {
             "type": "object",
@@ -4490,6 +5087,10 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
+            "x-enum-descriptions": [
+                "营业",
+                "停业"
+            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -4588,178 +5189,108 @@ const docTemplate = `{
                 }
             }
         },
-        "errcode.ErrCode": {
+        "domain.TaxFee": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "default_tax": {
+                    "description": "是否默认税费",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "税费名称",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "tax_code": {
+                    "description": "税费代码",
+                    "type": "string"
+                },
+                "tax_fee_type": {
+                    "description": "税费类型：商户/门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFeeType"
+                        }
+                    ]
+                },
+                "tax_rate": {
+                    "description": "税率，6% -\u003e 0.06",
+                    "type": "number"
+                },
+                "tax_rate_type": {
+                    "description": "税率类型：统一比例/自定义比例",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxRateType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TaxFeeType": {
             "type": "string",
             "enum": [
-                "SUCCESS",
-                "INVALID_PARAMS",
-                "BAD_REQUEST",
-                "UNAUTHORIZED",
-                "FORBIDDEN",
-                "NOT_FOUND",
-                "CONFLICT",
-                "INTERNAL_ERROR",
-                "UNKNOWN_ERROR",
-                "CATEGORY_NAME_EXISTS",
-                "CATEGORY_DELETE_HAS_CHILDREN",
-                "CATEGORY_DELETE_HAS_PRODUCTS",
-                "PRODUCT_UNIT_NAME_EXISTS",
-                "PRODUCT_UNIT_DELETE_HAS_PRODUCTS",
-                "PRODUCT_SPEC_NAME_EXISTS",
-                "PRODUCT_SPEC_DELETE_HAS_PRODUCTS",
-                "PRODUCT_TAG_NAME_EXISTS",
-                "PRODUCT_TAG_DELETE_HAS_PRODUCTS",
-                "PRODUCT_ATTR_NAME_EXISTS",
-                "PRODUCT_ATTR_DELETE_HAS_ITEMS",
-                "PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS",
-                "PRODUCT_NAME_EXISTS",
-                "MERCHANT_NAME_EXISTS",
-                "STORE_NAME_EXISTS",
-                "STORE_BUSINESS_HOURS_CONFLICT",
-                "STORE_BUSINESS_HOURS_TIME_INVALID",
-                "STORE_DINING_PERIOD_CONFLICT",
-                "STORE_DINING_PERIOD_TIME_INVALID",
-                "STORE_DINING_PERIOD_NAME_EXISTS",
-                "STORE_SHIFT_TIME_CONFLICT",
-                "STORE_SHIFT_TIME_TIME_INVALID",
-                "STORE_SHIFT_TIME_NAME_EXISTS",
-                "REMARK_NAME_EXISTS",
-                "REMARK_DELETE_SYSTEM",
-                "REMARK_CATEGORY_NAME_EXISTS",
-                "STALL_NAME_EXISTS",
-                "DEVICE_NAME_EXISTS",
-                "DEVICE_CODE_EXISTS",
-                "TAX_FEE_NAME_EXISTS",
-                "ADDITIONAL_NAME_EXISTS",
-                "USER_NOT_FOUND",
-                "USER_NAME_EXISTS",
-                "USER_EXISTS",
-                "SUPER_USER_CANNOT_DELETE",
-                "SUPER_USER_CANNOT_DISABLE",
-                "SUPER_USER_CANNOT_UPDATE",
-                "USER_DISABLED",
-                "DEPARTMENT_DISABLED",
-                "ROLE_DISABLED",
-                "USER_ROLE_REQUIRED",
-                "USER_DEPARTMENT_REQUIRED",
-                "USER_ROLE_TYPE_MISMATCH",
-                "USER_DEPARTMENT_TYPE_MISMATCH",
-                "TIME_FORMAT_INVALID"
+                "merchant",
+                "store"
             ],
             "x-enum-comments": {
-                "AdditionalNameExists": "附加费费名称已存在",
-                "BadRequest": "请求错误",
-                "CategoryDeleteHasChildren": "商品分类有子分类",
-                "CategoryDeleteHasProducts": "商品分类有商品",
-                "CategoryNameExists": "商品分类名称已存在",
-                "Conflict": "资源冲突",
-                "DepartmentDisabled": "用户所属部门已被禁用",
-                "DeviceCodeExists": "设备编号已存在",
-                "DeviceNameExists": "设备名称已存在",
-                "Forbidden": "禁止访问",
-                "InternalError": "系统内部错误",
-                "InvalidParams": "参数错误",
-                "MerchantNameExists": "商户名称已存在",
-                "NotFound": "资源不存在",
-                "ProductAttrDeleteHasItems": "商品口味做法有子项",
-                "ProductAttrItemDeleteHasProducts": "商品口味做法项有商品",
-                "ProductAttrNameExists": "商品口味做法名称已存在",
-                "ProductNameExists": "商品名称已存在",
-                "ProductSpecDeleteHasProducts": "商品规格有商品",
-                "ProductSpecNameExists": "商品规格名称已存在",
-                "ProductTagDeleteHasProducts": "商品标签有商品",
-                "ProductTagNameExists": "商品标签名称已存在",
-                "ProductUnitDeleteHasProducts": "商品单位有商品",
-                "ProductUnitNameExists": "商品单位名称已存在",
-                "RemarkCategoryNameExists": "备注分类名称已存在",
-                "RemarkDeleteSystem": "不能删除系统内置备注",
-                "RemarkNameExists": "备注名称已存在",
-                "RoleDisabled": "用户所属角色已被禁用",
-                "StallNameExists": "出品部门名称已存在",
-                "StoreBusinessHoursConflict": "门店营业时间冲突",
-                "StoreBusinessHoursTimeInvalid": "门店营业时间无效,开始时间不能晚于结束时间",
-                "StoreDiningPeriodConflict": "门店用餐时段时间冲突",
-                "StoreDiningPeriodNameExists": "门店用餐时段名称已存在",
-                "StoreDiningPeriodTimeInvalid": "门店用餐时段时间无效,开始时间不能晚于结束时间",
-                "StoreNameExists": "门店名称已存在",
-                "StoreShiftTimeConflict": "门店班次时间冲突",
-                "StoreShiftTimeNameExists": "门店班次名称已存在",
-                "StoreShiftTimeTimeInvalid": "门店班次时间无效,开始时间不能晚于结束时间",
-                "Success": "Success 表示成功",
-                "SuperUserCannotDelete": "超级管理员用户不能被删除",
-                "SuperUserCannotDisable": "超级管理员用户不能被禁用",
-                "SuperUserCannotUpdate": "超级管理员用户不能被修改",
-                "TaxFeeNameExists": "税费名称已存在",
-                "TimeFormatInvalid": "时间格式错误",
-                "Unauthorized": "未授权（认证失败、token无效等）",
-                "UnknownError": "未知错误",
-                "UserDepartmentRequired": "用户所属部门不能为空",
-                "UserDepartmentTypeMismatch": "用户部门类型不匹配",
-                "UserDisabled": "用户已被禁用",
-                "UserExists": "用户已存在",
-                "UserNameExists": "用户账号已存在",
-                "UserNotFound": "用户不存在",
-                "UserRoleRequired": "用户至少需要分配一个角色",
-                "UserRoleTypeMismatch": "用户角色类型不匹配"
+                "TaxFeeTypeMerchant": "商户",
+                "TaxFeeTypeStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
             "x-enum-varnames": [
-                "Success",
-                "InvalidParams",
-                "BadRequest",
-                "Unauthorized",
-                "Forbidden",
-                "NotFound",
-                "Conflict",
-                "InternalError",
-                "UnknownError",
-                "CategoryNameExists",
-                "CategoryDeleteHasChildren",
-                "CategoryDeleteHasProducts",
-                "ProductUnitNameExists",
-                "ProductUnitDeleteHasProducts",
-                "ProductSpecNameExists",
-                "ProductSpecDeleteHasProducts",
-                "ProductTagNameExists",
-                "ProductTagDeleteHasProducts",
-                "ProductAttrNameExists",
-                "ProductAttrDeleteHasItems",
-                "ProductAttrItemDeleteHasProducts",
-                "ProductNameExists",
-                "MerchantNameExists",
-                "StoreNameExists",
-                "StoreBusinessHoursConflict",
-                "StoreBusinessHoursTimeInvalid",
-                "StoreDiningPeriodConflict",
-                "StoreDiningPeriodTimeInvalid",
-                "StoreDiningPeriodNameExists",
-                "StoreShiftTimeConflict",
-                "StoreShiftTimeTimeInvalid",
-                "StoreShiftTimeNameExists",
-                "RemarkNameExists",
-                "RemarkDeleteSystem",
-                "RemarkCategoryNameExists",
-                "StallNameExists",
-                "DeviceNameExists",
-                "DeviceCodeExists",
-                "TaxFeeNameExists",
-                "AdditionalNameExists",
-                "UserNotFound",
-                "UserNameExists",
-                "UserExists",
-                "SuperUserCannotDelete",
-                "SuperUserCannotDisable",
-                "SuperUserCannotUpdate",
-                "UserDisabled",
-                "DepartmentDisabled",
-                "RoleDisabled",
-                "UserRoleRequired",
-                "UserDepartmentRequired",
-                "UserRoleTypeMismatch",
-                "UserDepartmentTypeMismatch",
-                "TimeFormatInvalid"
+                "TaxFeeTypeMerchant",
+                "TaxFeeTypeStore"
             ]
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.AccountListResp": {
+        "domain.TaxRateType": {
+            "type": "string",
+            "enum": [
+                "unified",
+                "custom"
+            ],
+            "x-enum-comments": {
+                "TaxRateTypeCustom": "自定义比例",
+                "TaxRateTypeUnified": "统一比例"
+            },
+            "x-enum-descriptions": [
+                "统一比例",
+                "自定义比例"
+            ],
+            "x-enum-varnames": [
+                "TaxRateTypeUnified",
+                "TaxRateTypeCustom"
+            ]
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {}
+            }
+        },
+        "types.AccountListResp": {
             "type": "object",
             "properties": {
                 "total": {
@@ -4773,7 +5304,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.Address": {
+        "types.Address": {
             "type": "object",
             "properties": {
                 "address": {
@@ -4825,7 +5356,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateChildReq": {
+        "types.CategoryCreateChildReq": {
             "type": "object",
             "required": [
                 "name"
@@ -4854,7 +5385,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryCreateRootReq": {
+        "types.CategoryCreateRootReq": {
             "type": "object",
             "required": [
                 "name"
@@ -4882,7 +5413,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.CategoryReorderReq": {
+        "types.CategoryReorderReq": {
             "type": "object",
             "required": [
                 "category_ids"
@@ -4902,7 +5433,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.CountryListResp": {
+        "types.CountryListResp": {
             "type": "object",
             "properties": {
                 "countries": {
@@ -4913,7 +5444,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentCreateReq": {
+        "types.DepartmentCreateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -4927,7 +5458,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentListResp": {
+        "types.DepartmentListResp": {
             "type": "object",
             "properties": {
                 "departments": {
@@ -4941,7 +5472,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DepartmentUpdateReq": {
+        "types.DepartmentUpdateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -4955,7 +5486,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCashier": {
+        "types.DeviceCashier": {
             "type": "object",
             "properties": {
                 "open_cash_drawer": {
@@ -4964,7 +5495,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCreateReq": {
+        "types.DeviceCreateReq": {
             "type": "object",
             "required": [
                 "device_code",
@@ -4982,7 +5513,7 @@ const docTemplate = `{
                     "description": "收银机设备配置",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCashier"
+                            "$ref": "#/definitions/types.DeviceCashier"
                         }
                     ]
                 },
@@ -5000,7 +5531,7 @@ const docTemplate = `{
                     "description": "打印机设备配置",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DevicePrint"
+                            "$ref": "#/definitions/types.DevicePrint"
                         }
                     ]
                 },
@@ -5044,7 +5575,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceListResp": {
+        "types.DeviceListResp": {
             "type": "object",
             "properties": {
                 "devices": {
@@ -5060,7 +5591,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DevicePrint": {
+        "types.DevicePrint": {
             "type": "object",
             "required": [
                 "connect_type",
@@ -5147,7 +5678,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceUpdateReq": {
+        "types.DeviceUpdateReq": {
             "type": "object",
             "required": [
                 "device_type",
@@ -5164,7 +5695,7 @@ const docTemplate = `{
                     "description": "收银机设备配置",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DeviceCashier"
+                            "$ref": "#/definitions/types.DeviceCashier"
                         }
                     ]
                 },
@@ -5182,7 +5713,7 @@ const docTemplate = `{
                     "description": "打印机设备配置",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.DevicePrint"
+                            "$ref": "#/definitions/types.DevicePrint"
                         }
                     ]
                 },
@@ -5226,7 +5757,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginReq": {
+        "types.LoginReq": {
             "type": "object",
             "required": [
                 "password",
@@ -5241,7 +5772,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.LoginResp": {
+        "types.LoginResp": {
             "type": "object",
             "properties": {
                 "expire": {
@@ -5252,7 +5783,71 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrCreateReq": {
+        "types.MenuCreateReq": {
+            "type": "object",
+            "required": [
+                "items",
+                "name"
+            ],
+            "properties": {
+                "items": {
+                    "description": "菜品列表（必选，至少一个）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.MenuItemReq"
+                    }
+                },
+                "name": {
+                    "description": "菜单名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.MenuItemReq": {
+            "type": "object",
+            "required": [
+                "product_id"
+            ],
+            "properties": {
+                "base_price": {
+                    "description": "基础价（可选，单位：分）",
+                    "type": "number"
+                },
+                "member_price": {
+                    "description": "会员价（可选，单位：分）",
+                    "type": "number"
+                },
+                "product_id": {
+                    "description": "菜品ID（必选）",
+                    "type": "string"
+                }
+            }
+        },
+        "types.MenuUpdateReq": {
+            "type": "object",
+            "required": [
+                "items",
+                "name"
+            ],
+            "properties": {
+                "items": {
+                    "description": "菜品列表（必选，至少一个）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.MenuItemReq"
+                    }
+                },
+                "name": {
+                    "description": "菜单名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.ProductAttrCreateReq": {
             "type": "object",
             "required": [
                 "channels",
@@ -5271,7 +5866,7 @@ const docTemplate = `{
                     "description": "口味做法项列表（可选）",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrItemReq"
+                        "$ref": "#/definitions/types.ProductAttrItemReq"
                     }
                 },
                 "name": {
@@ -5281,7 +5876,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrItemReq": {
+        "types.ProductAttrItemReq": {
             "type": "object",
             "required": [
                 "base_price",
@@ -5307,7 +5902,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrRelationReq": {
+        "types.ProductAttrRelationReq": {
             "type": "object",
             "required": [
                 "attr_id",
@@ -5328,7 +5923,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrUpdateReq": {
+        "types.ProductAttrUpdateReq": {
             "type": "object",
             "required": [
                 "channels",
@@ -5347,7 +5942,7 @@ const docTemplate = `{
                     "description": "口味做法项列表（可选，用于新增、修改、删除）",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrItemReq"
+                        "$ref": "#/definitions/types.ProductAttrItemReq"
                     }
                 },
                 "name": {
@@ -5357,7 +5952,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductCreateReq": {
+        "types.ProductCreateReq": {
             "type": "object",
             "required": [
                 "add_sale_quantity",
@@ -5378,7 +5973,7 @@ const docTemplate = `{
                     "description": "商品口味做法关联列表（可选）",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrRelationReq"
+                        "$ref": "#/definitions/types.ProductAttrRelationReq"
                     }
                 },
                 "category_id": {
@@ -5470,7 +6065,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq"
+                        "$ref": "#/definitions/types.ProductSpecRelationReq"
                     }
                 },
                 "stall_id": {
@@ -5501,7 +6096,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecCreateReq": {
+        "types.ProductSpecCreateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -5514,7 +6109,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq": {
+        "types.ProductSpecRelationReq": {
             "type": "object",
             "required": [
                 "base_price",
@@ -5563,7 +6158,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecUpdateReq": {
+        "types.ProductSpecUpdateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -5576,7 +6171,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagCreateReq": {
+        "types.ProductTagCreateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -5589,7 +6184,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductTagUpdateReq": {
+        "types.ProductTagUpdateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -5602,7 +6197,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitCreateReq": {
+        "types.ProductUnitCreateReq": {
             "type": "object",
             "required": [
                 "name",
@@ -5624,7 +6219,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUnitUpdateReq": {
+        "types.ProductUnitUpdateReq": {
             "type": "object",
             "required": [
                 "name",
@@ -5646,7 +6241,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductUpdateReq": {
+        "types.ProductUpdateReq": {
             "type": "object",
             "required": [
                 "add_sale_quantity",
@@ -5667,7 +6262,7 @@ const docTemplate = `{
                     "description": "商品口味做法关联列表（可选）",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductAttrRelationReq"
+                        "$ref": "#/definitions/types.ProductAttrRelationReq"
                     }
                 },
                 "category_id": {
@@ -5759,7 +6354,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq"
+                        "$ref": "#/definitions/types.ProductSpecRelationReq"
                     }
                 },
                 "stall_id": {
@@ -5790,7 +6385,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProvinceListResp": {
+        "types.ProvinceListResp": {
             "type": "object",
             "properties": {
                 "provinces": {
@@ -5801,7 +6396,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleCreateReq": {
+        "types.RoleCreateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -5823,7 +6418,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleListResp": {
+        "types.RoleListResp": {
             "type": "object",
             "properties": {
                 "roles": {
@@ -5837,7 +6432,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.RoleUpdateReq": {
+        "types.RoleUpdateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -5859,7 +6454,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealCreateReq": {
+        "types.SetMealCreateReq": {
             "type": "object",
             "required": [
                 "add_sale_quantity",
@@ -5926,7 +6521,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealGroupReq"
+                        "$ref": "#/definitions/types.SetMealGroupReq"
                     }
                 },
                 "inherit_stall": {
@@ -5987,7 +6582,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq"
+                        "$ref": "#/definitions/types.ProductSpecRelationReq"
                     }
                 },
                 "stall_id": {
@@ -6018,7 +6613,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealDetailReq": {
+        "types.SetMealDetailReq": {
             "type": "object",
             "required": [
                 "product_id",
@@ -6047,7 +6642,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealGroupReq": {
+        "types.SetMealGroupReq": {
             "type": "object",
             "required": [
                 "details",
@@ -6059,7 +6654,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealDetailReq"
+                        "$ref": "#/definitions/types.SetMealDetailReq"
                     }
                 },
                 "name": {
@@ -6077,7 +6672,7 @@ const docTemplate = `{
                 }
             }
         },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealUpdateReq": {
+        "types.SetMealUpdateReq": {
             "type": "object",
             "required": [
                 "add_sale_quantity",
@@ -6144,7 +6739,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.SetMealGroupReq"
+                        "$ref": "#/definitions/types.SetMealGroupReq"
                     }
                 },
                 "inherit_stall": {
@@ -6205,7 +6800,7 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.ProductSpecRelationReq"
+                        "$ref": "#/definitions/types.ProductSpecRelationReq"
                     }
                 },
                 "stall_id": {
@@ -6232,262 +6827,6 @@ const docTemplate = `{
                 },
                 "unit_id": {
                     "description": "属性关联",
-                    "type": "string"
-                }
-            }
-        },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateCategoryReq": {
-            "type": "object",
-            "properties": {
-                "inherit_stall": {
-                    "description": "是否继承父分类的出品部门ID（仅子分类有效）",
-                    "type": "boolean"
-                },
-                "inherit_tax_rate": {
-                    "description": "是否继承父分类的税率ID（仅子分类有效）",
-                    "type": "boolean"
-                },
-                "name": {
-                    "description": "分类名称",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "stall_id": {
-                    "description": "出品部门ID",
-                    "type": "string"
-                },
-                "tax_rate_id": {
-                    "description": "税率ID",
-                    "type": "string"
-                }
-            }
-        },
-        "gitlab_jiguang_dev_pos-dine_dine_api_store_types.UpdateStoreReq": {
-            "type": "object",
-            "required": [
-                "address",
-                "admin_phone_number",
-                "business_hours",
-                "business_model",
-                "business_type_code",
-                "dining_periods",
-                "location_number",
-                "shift_times",
-                "status",
-                "store_name"
-            ],
-            "properties": {
-                "address": {
-                    "description": "地址",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/gitlab_jiguang_dev_pos-dine_dine_api_store_types.Address"
-                        }
-                    ]
-                },
-                "admin_phone_number": {
-                    "description": "管理员手机号",
-                    "type": "string",
-                    "maxLength": 20
-                },
-                "business_hours": {
-                    "description": "营业时间段",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.BusinessHours"
-                    }
-                },
-                "business_license_url": {
-                    "description": "营业执照图片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "business_model": {
-                    "description": "直营/加盟",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.BusinessModel"
-                        }
-                    ]
-                },
-                "business_type_code": {
-                    "description": "业态类型",
-                    "type": "string"
-                },
-                "cashier_desk_url": {
-                    "description": "收银台照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "contact_name": {
-                    "description": "联系人",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "contact_phone": {
-                    "description": "联系电话",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "dining_environment_url": {
-                    "description": "就餐环境照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "dining_periods": {
-                    "description": "就餐时段",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.DiningPeriod"
-                    }
-                },
-                "food_operation_license_url": {
-                    "description": "食品经营许可证照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "location_number": {
-                    "description": "门店位置编号",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "shift_times": {
-                    "description": "班次时间",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ShiftTime"
-                    }
-                },
-                "status": {
-                    "description": "营业/停业",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.StoreStatus"
-                        }
-                    ]
-                },
-                "store_code": {
-                    "description": "门店编码(保留字段)",
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "store_logo": {
-                    "description": "logo 图片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "store_name": {
-                    "description": "门店名称,长度不超过30个字",
-                    "type": "string",
-                    "maxLength": 30
-                },
-                "store_short_name": {
-                    "description": "门店简称",
-                    "type": "string",
-                    "maxLength": 30
-                },
-                "storefront_url": {
-                    "description": "门店门头照片地址",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "unified_social_credit_code": {
-                    "description": "统一社会信用代码",
-                    "type": "string",
-                    "maxLength": 255
-                }
-            }
-        },
-        "response.Response": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "$ref": "#/definitions/errcode.ErrCode"
-                },
-                "data": {}
-            }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
-        },
-        "types.OssTokenReq": {
-            "type": "object",
-            "required": [
-                "filename",
-                "scene"
-            ],
-            "properties": {
-                "filename": {
-                    "description": "文件名",
-                    "type": "string"
-                },
-                "for_download": {
-                    "description": "是否用于下载",
-                    "type": "boolean"
-                },
-                "scene": {
-                    "description": "业务场景，store：门店相关 product: 商品相关",
-                    "enum": [
-                        "store",
-                        "product"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.ObjectStorageScene"
-                        }
-                    ]
-                }
-            }
-        },
-        "types.OssTokenResp": {
-            "type": "object",
-            "properties": {
-                "content_disposition": {
-                    "type": "string"
-                },
-                "dir": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "policy": {
-                    "type": "string"
-                },
-                "security_token": {
-                    "type": "string"
-                },
-                "signature": {
-                    "type": "string"
-                },
-                "x_oss_credential": {
-                    "type": "string"
-                },
-                "x_oss_date": {
-                    "type": "string"
-                },
-                "x_oss_signature_version": {
                     "type": "string"
                 }
             }
@@ -6611,18 +6950,188 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "types.UpdateCategoryReq": {
+            "type": "object",
+            "properties": {
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID（仅子分类有效）",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID（仅子分类有效）",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.UpdateStoreReq": {
+            "type": "object",
+            "required": [
+                "address",
+                "admin_phone_number",
+                "business_hours",
+                "business_model",
+                "business_type_code",
+                "dining_periods",
+                "location_number",
+                "shift_times",
+                "status",
+                "store_name"
+            ],
+            "properties": {
+                "address": {
+                    "description": "地址",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.Address"
+                        }
+                    ]
+                },
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "business_model": {
+                    "description": "直营/加盟",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessModel"
+                        }
+                    ]
+                },
+                "business_type_code": {
+                    "description": "业态类型",
+                    "type": "string"
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
+                },
+                "status": {
+                    "description": "营业/停业",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and the JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
-	BasePath:         "",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "门店后台 API",
+	Description:      "供门店后台调用.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

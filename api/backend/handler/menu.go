@@ -66,10 +66,9 @@ func (h *MenuHandler) Create() gin.HandlerFunc {
 
 		// 构建 domain.Menu
 		menu := &domain.Menu{
-			ID:               uuid.New(),
-			MerchantID:       user.MerchantID,
-			Name:             req.Name,
-			DistributionRule: req.DistributionRule,
+			ID:         uuid.New(),
+			MerchantID: user.MerchantID,
+			Name:       req.Name,
 			Stores: lo.Map(req.StoreIDs, func(storeID uuid.UUID, _ int) *domain.StoreSimple {
 				return &domain.StoreSimple{
 					ID: storeID,
@@ -91,13 +90,12 @@ func (h *MenuHandler) Create() gin.HandlerFunc {
 			menu.Items = append(menu.Items, &domain.MenuItem{
 				ID:          uuid.New(),
 				ProductID:   itemReq.ProductID,
-				SaleRule:    itemReq.SaleRule,
 				BasePrice:   itemReq.BasePrice,
 				MemberPrice: itemReq.MemberPrice,
 			})
 		}
 
-		err := h.MenuInteractor.Create(ctx, menu)
+		err := h.MenuInteractor.Create(ctx, menu, user)
 		if err != nil {
 			if errors.Is(err, domain.ErrMenuNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
@@ -151,10 +149,9 @@ func (h *MenuHandler) Update() gin.HandlerFunc {
 
 		// 构建 domain.Menu
 		menu := &domain.Menu{
-			ID:               menuID,
-			MerchantID:       user.MerchantID,
-			Name:             req.Name,
-			DistributionRule: req.DistributionRule,
+			ID:         menuID,
+			MerchantID: user.MerchantID,
+			Name:       req.Name,
 			Stores: lo.Map(req.StoreIDs, func(storeID uuid.UUID, _ int) *domain.StoreSimple {
 				return &domain.StoreSimple{
 					ID: storeID,
@@ -176,7 +173,6 @@ func (h *MenuHandler) Update() gin.HandlerFunc {
 			menu.Items = append(menu.Items, &domain.MenuItem{
 				ID:          uuid.New(),
 				ProductID:   itemReq.ProductID,
-				SaleRule:    itemReq.SaleRule,
 				BasePrice:   itemReq.BasePrice,
 				MemberPrice: itemReq.MemberPrice,
 			})
@@ -306,8 +302,9 @@ func (h *MenuHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		params := domain.MenuSearchParams{
-			MerchantID: user.MerchantID,
-			Name:       req.Name,
+			MerchantID:   user.MerchantID,
+			Name:         req.Name,
+			OnlyMerchant: true,
 		}
 
 		res, err := h.MenuInteractor.PagedListBySearch(ctx, page, params)

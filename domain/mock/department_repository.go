@@ -37,6 +37,21 @@ func (m *MockDepartmentRepository) EXPECT() *MockDepartmentRepositoryMockRecorde
 	return m.recorder
 }
 
+// CheckUserInDepartment mocks base method.
+func (m *MockDepartmentRepository) CheckUserInDepartment(arg0 context.Context, arg1 uuid.UUID) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserInDepartment", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserInDepartment indicates an expected call of CheckUserInDepartment.
+func (mr *MockDepartmentRepositoryMockRecorder) CheckUserInDepartment(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserInDepartment", reflect.TypeOf((*MockDepartmentRepository)(nil).CheckUserInDepartment), arg0, arg1)
+}
+
 // Create mocks base method.
 func (m *MockDepartmentRepository) Create(arg0 context.Context, arg1 *domain.Department) error {
 	m.ctrl.T.Helper()

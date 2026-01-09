@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -75,23 +74,23 @@ func (mc *MenuCreate) SetMerchantID(u uuid.UUID) *MenuCreate {
 	return mc
 }
 
+// SetStoreID sets the "store_id" field.
+func (mc *MenuCreate) SetStoreID(u uuid.UUID) *MenuCreate {
+	mc.mutation.SetStoreID(u)
+	return mc
+}
+
+// SetNillableStoreID sets the "store_id" field if the given value is not nil.
+func (mc *MenuCreate) SetNillableStoreID(u *uuid.UUID) *MenuCreate {
+	if u != nil {
+		mc.SetStoreID(*u)
+	}
+	return mc
+}
+
 // SetName sets the "name" field.
 func (mc *MenuCreate) SetName(s string) *MenuCreate {
 	mc.mutation.SetName(s)
-	return mc
-}
-
-// SetDistributionRule sets the "distribution_rule" field.
-func (mc *MenuCreate) SetDistributionRule(ddr domain.MenuDistributionRule) *MenuCreate {
-	mc.mutation.SetDistributionRule(ddr)
-	return mc
-}
-
-// SetNillableDistributionRule sets the "distribution_rule" field if the given value is not nil.
-func (mc *MenuCreate) SetNillableDistributionRule(ddr *domain.MenuDistributionRule) *MenuCreate {
-	if ddr != nil {
-		mc.SetDistributionRule(*ddr)
-	}
 	return mc
 }
 
@@ -222,9 +221,12 @@ func (mc *MenuCreate) defaults() error {
 		v := menu.DefaultDeletedAt
 		mc.mutation.SetDeletedAt(v)
 	}
-	if _, ok := mc.mutation.DistributionRule(); !ok {
-		v := menu.DefaultDistributionRule
-		mc.mutation.SetDistributionRule(v)
+	if _, ok := mc.mutation.StoreID(); !ok {
+		if menu.DefaultStoreID == nil {
+			return fmt.Errorf("ent: uninitialized menu.DefaultStoreID (forgotten import ent/runtime?)")
+		}
+		v := menu.DefaultStoreID()
+		mc.mutation.SetStoreID(v)
 	}
 	if _, ok := mc.mutation.StoreCount(); !ok {
 		v := menu.DefaultStoreCount
@@ -258,20 +260,15 @@ func (mc *MenuCreate) check() error {
 	if _, ok := mc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "Menu.merchant_id"`)}
 	}
+	if _, ok := mc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "Menu.store_id"`)}
+	}
 	if _, ok := mc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Menu.name"`)}
 	}
 	if v, ok := mc.mutation.Name(); ok {
 		if err := menu.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Menu.name": %w`, err)}
-		}
-	}
-	if _, ok := mc.mutation.DistributionRule(); !ok {
-		return &ValidationError{Name: "distribution_rule", err: errors.New(`ent: missing required field "Menu.distribution_rule"`)}
-	}
-	if v, ok := mc.mutation.DistributionRule(); ok {
-		if err := menu.DistributionRuleValidator(v); err != nil {
-			return &ValidationError{Name: "distribution_rule", err: fmt.Errorf(`ent: validator failed for field "Menu.distribution_rule": %w`, err)}
 		}
 	}
 	if _, ok := mc.mutation.StoreCount(); !ok {
@@ -332,13 +329,13 @@ func (mc *MenuCreate) createSpec() (*Menu, *sqlgraph.CreateSpec) {
 		_spec.SetField(menu.FieldMerchantID, field.TypeUUID, value)
 		_node.MerchantID = value
 	}
+	if value, ok := mc.mutation.StoreID(); ok {
+		_spec.SetField(menu.FieldStoreID, field.TypeUUID, value)
+		_node.StoreID = value
+	}
 	if value, ok := mc.mutation.Name(); ok {
 		_spec.SetField(menu.FieldName, field.TypeString, value)
 		_node.Name = value
-	}
-	if value, ok := mc.mutation.DistributionRule(); ok {
-		_spec.SetField(menu.FieldDistributionRule, field.TypeEnum, value)
-		_node.DistributionRule = value
 	}
 	if value, ok := mc.mutation.StoreCount(); ok {
 		_spec.SetField(menu.FieldStoreCount, field.TypeInt, value)
@@ -474,18 +471,6 @@ func (u *MenuUpsert) UpdateName() *MenuUpsert {
 	return u
 }
 
-// SetDistributionRule sets the "distribution_rule" field.
-func (u *MenuUpsert) SetDistributionRule(v domain.MenuDistributionRule) *MenuUpsert {
-	u.Set(menu.FieldDistributionRule, v)
-	return u
-}
-
-// UpdateDistributionRule sets the "distribution_rule" field to the value that was provided on create.
-func (u *MenuUpsert) UpdateDistributionRule() *MenuUpsert {
-	u.SetExcluded(menu.FieldDistributionRule)
-	return u
-}
-
 // SetStoreCount sets the "store_count" field.
 func (u *MenuUpsert) SetStoreCount(v int) *MenuUpsert {
 	u.Set(menu.FieldStoreCount, v)
@@ -544,6 +529,9 @@ func (u *MenuUpsertOne) UpdateNewValues() *MenuUpsertOne {
 		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(menu.FieldMerchantID)
+		}
+		if _, exists := u.create.mutation.StoreID(); exists {
+			s.SetIgnore(menu.FieldStoreID)
 		}
 	}))
 	return u
@@ -622,20 +610,6 @@ func (u *MenuUpsertOne) SetName(v string) *MenuUpsertOne {
 func (u *MenuUpsertOne) UpdateName() *MenuUpsertOne {
 	return u.Update(func(s *MenuUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetDistributionRule sets the "distribution_rule" field.
-func (u *MenuUpsertOne) SetDistributionRule(v domain.MenuDistributionRule) *MenuUpsertOne {
-	return u.Update(func(s *MenuUpsert) {
-		s.SetDistributionRule(v)
-	})
-}
-
-// UpdateDistributionRule sets the "distribution_rule" field to the value that was provided on create.
-func (u *MenuUpsertOne) UpdateDistributionRule() *MenuUpsertOne {
-	return u.Update(func(s *MenuUpsert) {
-		s.UpdateDistributionRule()
 	})
 }
 
@@ -870,6 +844,9 @@ func (u *MenuUpsertBulk) UpdateNewValues() *MenuUpsertBulk {
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(menu.FieldMerchantID)
 			}
+			if _, exists := b.mutation.StoreID(); exists {
+				s.SetIgnore(menu.FieldStoreID)
+			}
 		}
 	}))
 	return u
@@ -948,20 +925,6 @@ func (u *MenuUpsertBulk) SetName(v string) *MenuUpsertBulk {
 func (u *MenuUpsertBulk) UpdateName() *MenuUpsertBulk {
 	return u.Update(func(s *MenuUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetDistributionRule sets the "distribution_rule" field.
-func (u *MenuUpsertBulk) SetDistributionRule(v domain.MenuDistributionRule) *MenuUpsertBulk {
-	return u.Update(func(s *MenuUpsert) {
-		s.SetDistributionRule(v)
-	})
-}
-
-// UpdateDistributionRule sets the "distribution_rule" field to the value that was provided on create.
-func (u *MenuUpsertBulk) UpdateDistributionRule() *MenuUpsertBulk {
-	return u.Update(func(s *MenuUpsert) {
-		s.UpdateDistributionRule()
 	})
 }
 

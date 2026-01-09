@@ -44,6 +44,8 @@ type Tx struct {
 	Order *OrderClient
 	// OrderProduct is the client for interacting with the OrderProduct builders.
 	OrderProduct *OrderProductClient
+	// PaymentAccount is the client for interacting with the PaymentAccount builders.
+	PaymentAccount *PaymentAccountClient
 	// PaymentMethod is the client for interacting with the PaymentMethod builders.
 	PaymentMethod *PaymentMethodClient
 	// Permission is the client for interacting with the Permission builders.
@@ -64,6 +66,10 @@ type Tx struct {
 	ProductTag *ProductTagClient
 	// ProductUnit is the client for interacting with the ProductUnit builders.
 	ProductUnit *ProductUnitClient
+	// ProfitDistributionBill is the client for interacting with the ProfitDistributionBill builders.
+	ProfitDistributionBill *ProfitDistributionBillClient
+	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
+	ProfitDistributionRule *ProfitDistributionRuleClient
 	// Province is the client for interacting with the Province builders.
 	Province *ProvinceClient
 	// Remark is the client for interacting with the Remark builders.
@@ -86,6 +92,8 @@ type Tx struct {
 	Stall *StallClient
 	// Store is the client for interacting with the Store builders.
 	Store *StoreClient
+	// StorePaymentAccount is the client for interacting with the StorePaymentAccount builders.
+	StorePaymentAccount *StorePaymentAccountClient
 	// StoreUser is the client for interacting with the StoreUser builders.
 	StoreUser *StoreUserClient
 	// TaxFee is the client for interacting with the TaxFee builders.
@@ -239,6 +247,7 @@ func (tx *Tx) init() {
 	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
 	tx.Order = NewOrderClient(tx.config)
 	tx.OrderProduct = NewOrderProductClient(tx.config)
+	tx.PaymentAccount = NewPaymentAccountClient(tx.config)
 	tx.PaymentMethod = NewPaymentMethodClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Product = NewProductClient(tx.config)
@@ -249,6 +258,8 @@ func (tx *Tx) init() {
 	tx.ProductSpecRelation = NewProductSpecRelationClient(tx.config)
 	tx.ProductTag = NewProductTagClient(tx.config)
 	tx.ProductUnit = NewProductUnitClient(tx.config)
+	tx.ProfitDistributionBill = NewProfitDistributionBillClient(tx.config)
+	tx.ProfitDistributionRule = NewProfitDistributionRuleClient(tx.config)
 	tx.Province = NewProvinceClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
@@ -260,6 +271,7 @@ func (tx *Tx) init() {
 	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
 	tx.Stall = NewStallClient(tx.config)
 	tx.Store = NewStoreClient(tx.config)
+	tx.StorePaymentAccount = NewStorePaymentAccountClient(tx.config)
 	tx.StoreUser = NewStoreUserClient(tx.config)
 	tx.TaxFee = NewTaxFeeClient(tx.config)
 	tx.UserRole = NewUserRoleClient(tx.config)

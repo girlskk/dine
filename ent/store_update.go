@@ -22,11 +22,14 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -707,6 +710,51 @@ func (su *StoreUpdate) AddRoles(r ...*Role) *StoreUpdate {
 	return su.AddRoleIDs(ids...)
 }
 
+// AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
+func (su *StoreUpdate) AddProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddProfitDistributionRuleIDs(ids...)
+	return su
+}
+
+// AddProfitDistributionRules adds the "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (su *StoreUpdate) AddProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.AddProfitDistributionRuleIDs(ids...)
+}
+
+// AddProfitDistributionBillIDs adds the "profit_distribution_bills" edge to the ProfitDistributionBill entity by IDs.
+func (su *StoreUpdate) AddProfitDistributionBillIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddProfitDistributionBillIDs(ids...)
+	return su
+}
+
+// AddProfitDistributionBills adds the "profit_distribution_bills" edges to the ProfitDistributionBill entity.
+func (su *StoreUpdate) AddProfitDistributionBills(p ...*ProfitDistributionBill) *StoreUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.AddProfitDistributionBillIDs(ids...)
+}
+
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (su *StoreUpdate) AddStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.AddStorePaymentAccountIDs(ids...)
+	return su
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (su *StoreUpdate) AddStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddStorePaymentAccountIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (su *StoreUpdate) Mutation() *StoreMutation {
 	return su.mutation
@@ -923,6 +971,69 @@ func (su *StoreUpdate) RemoveRoles(r ...*Role) *StoreUpdate {
 		ids[i] = r[i].ID
 	}
 	return su.RemoveRoleIDs(ids...)
+}
+
+// ClearProfitDistributionRules clears all "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (su *StoreUpdate) ClearProfitDistributionRules() *StoreUpdate {
+	su.mutation.ClearProfitDistributionRules()
+	return su
+}
+
+// RemoveProfitDistributionRuleIDs removes the "profit_distribution_rules" edge to ProfitDistributionRule entities by IDs.
+func (su *StoreUpdate) RemoveProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveProfitDistributionRuleIDs(ids...)
+	return su
+}
+
+// RemoveProfitDistributionRules removes "profit_distribution_rules" edges to ProfitDistributionRule entities.
+func (su *StoreUpdate) RemoveProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.RemoveProfitDistributionRuleIDs(ids...)
+}
+
+// ClearProfitDistributionBills clears all "profit_distribution_bills" edges to the ProfitDistributionBill entity.
+func (su *StoreUpdate) ClearProfitDistributionBills() *StoreUpdate {
+	su.mutation.ClearProfitDistributionBills()
+	return su
+}
+
+// RemoveProfitDistributionBillIDs removes the "profit_distribution_bills" edge to ProfitDistributionBill entities by IDs.
+func (su *StoreUpdate) RemoveProfitDistributionBillIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveProfitDistributionBillIDs(ids...)
+	return su
+}
+
+// RemoveProfitDistributionBills removes "profit_distribution_bills" edges to ProfitDistributionBill entities.
+func (su *StoreUpdate) RemoveProfitDistributionBills(p ...*ProfitDistributionBill) *StoreUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return su.RemoveProfitDistributionBillIDs(ids...)
+}
+
+// ClearStorePaymentAccounts clears all "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (su *StoreUpdate) ClearStorePaymentAccounts() *StoreUpdate {
+	su.mutation.ClearStorePaymentAccounts()
+	return su
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to StorePaymentAccount entities by IDs.
+func (su *StoreUpdate) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdate {
+	su.mutation.RemoveStorePaymentAccountIDs(ids...)
+	return su
+}
+
+// RemoveStorePaymentAccounts removes "store_payment_accounts" edges to StorePaymentAccount entities.
+func (su *StoreUpdate) RemoveStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveStorePaymentAccountIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1739,6 +1850,141 @@ func (su *StoreUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedProfitDistributionRulesIDs(); len(nodes) > 0 && !su.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ProfitDistributionRulesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.ProfitDistributionBillsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedProfitDistributionBillsIDs(); len(nodes) > 0 && !su.mutation.ProfitDistributionBillsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ProfitDistributionBillsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedStorePaymentAccountsIDs(); len(nodes) > 0 && !su.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(su.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -2423,6 +2669,51 @@ func (suo *StoreUpdateOne) AddRoles(r ...*Role) *StoreUpdateOne {
 	return suo.AddRoleIDs(ids...)
 }
 
+// AddProfitDistributionRuleIDs adds the "profit_distribution_rules" edge to the ProfitDistributionRule entity by IDs.
+func (suo *StoreUpdateOne) AddProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddProfitDistributionRuleIDs(ids...)
+	return suo
+}
+
+// AddProfitDistributionRules adds the "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (suo *StoreUpdateOne) AddProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.AddProfitDistributionRuleIDs(ids...)
+}
+
+// AddProfitDistributionBillIDs adds the "profit_distribution_bills" edge to the ProfitDistributionBill entity by IDs.
+func (suo *StoreUpdateOne) AddProfitDistributionBillIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddProfitDistributionBillIDs(ids...)
+	return suo
+}
+
+// AddProfitDistributionBills adds the "profit_distribution_bills" edges to the ProfitDistributionBill entity.
+func (suo *StoreUpdateOne) AddProfitDistributionBills(p ...*ProfitDistributionBill) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.AddProfitDistributionBillIDs(ids...)
+}
+
+// AddStorePaymentAccountIDs adds the "store_payment_accounts" edge to the StorePaymentAccount entity by IDs.
+func (suo *StoreUpdateOne) AddStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.AddStorePaymentAccountIDs(ids...)
+	return suo
+}
+
+// AddStorePaymentAccounts adds the "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (suo *StoreUpdateOne) AddStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddStorePaymentAccountIDs(ids...)
+}
+
 // Mutation returns the StoreMutation object of the builder.
 func (suo *StoreUpdateOne) Mutation() *StoreMutation {
 	return suo.mutation
@@ -2639,6 +2930,69 @@ func (suo *StoreUpdateOne) RemoveRoles(r ...*Role) *StoreUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return suo.RemoveRoleIDs(ids...)
+}
+
+// ClearProfitDistributionRules clears all "profit_distribution_rules" edges to the ProfitDistributionRule entity.
+func (suo *StoreUpdateOne) ClearProfitDistributionRules() *StoreUpdateOne {
+	suo.mutation.ClearProfitDistributionRules()
+	return suo
+}
+
+// RemoveProfitDistributionRuleIDs removes the "profit_distribution_rules" edge to ProfitDistributionRule entities by IDs.
+func (suo *StoreUpdateOne) RemoveProfitDistributionRuleIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveProfitDistributionRuleIDs(ids...)
+	return suo
+}
+
+// RemoveProfitDistributionRules removes "profit_distribution_rules" edges to ProfitDistributionRule entities.
+func (suo *StoreUpdateOne) RemoveProfitDistributionRules(p ...*ProfitDistributionRule) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.RemoveProfitDistributionRuleIDs(ids...)
+}
+
+// ClearProfitDistributionBills clears all "profit_distribution_bills" edges to the ProfitDistributionBill entity.
+func (suo *StoreUpdateOne) ClearProfitDistributionBills() *StoreUpdateOne {
+	suo.mutation.ClearProfitDistributionBills()
+	return suo
+}
+
+// RemoveProfitDistributionBillIDs removes the "profit_distribution_bills" edge to ProfitDistributionBill entities by IDs.
+func (suo *StoreUpdateOne) RemoveProfitDistributionBillIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveProfitDistributionBillIDs(ids...)
+	return suo
+}
+
+// RemoveProfitDistributionBills removes "profit_distribution_bills" edges to ProfitDistributionBill entities.
+func (suo *StoreUpdateOne) RemoveProfitDistributionBills(p ...*ProfitDistributionBill) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return suo.RemoveProfitDistributionBillIDs(ids...)
+}
+
+// ClearStorePaymentAccounts clears all "store_payment_accounts" edges to the StorePaymentAccount entity.
+func (suo *StoreUpdateOne) ClearStorePaymentAccounts() *StoreUpdateOne {
+	suo.mutation.ClearStorePaymentAccounts()
+	return suo
+}
+
+// RemoveStorePaymentAccountIDs removes the "store_payment_accounts" edge to StorePaymentAccount entities by IDs.
+func (suo *StoreUpdateOne) RemoveStorePaymentAccountIDs(ids ...uuid.UUID) *StoreUpdateOne {
+	suo.mutation.RemoveStorePaymentAccountIDs(ids...)
+	return suo
+}
+
+// RemoveStorePaymentAccounts removes "store_payment_accounts" edges to StorePaymentAccount entities.
+func (suo *StoreUpdateOne) RemoveStorePaymentAccounts(s ...*StorePaymentAccount) *StoreUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveStorePaymentAccountIDs(ids...)
 }
 
 // Where appends a list predicates to the StoreUpdate builder.
@@ -3478,6 +3832,141 @@ func (suo *StoreUpdateOne) sqlSave(ctx context.Context) (_node *Store, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedProfitDistributionRulesIDs(); len(nodes) > 0 && !suo.mutation.ProfitDistributionRulesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ProfitDistributionRulesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   store.ProfitDistributionRulesTable,
+			Columns: store.ProfitDistributionRulesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionrule.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.ProfitDistributionBillsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedProfitDistributionBillsIDs(); len(nodes) > 0 && !suo.mutation.ProfitDistributionBillsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ProfitDistributionBillsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.ProfitDistributionBillsTable,
+			Columns: []string{store.ProfitDistributionBillsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(profitdistributionbill.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedStorePaymentAccountsIDs(); len(nodes) > 0 && !suo.mutation.StorePaymentAccountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.StorePaymentAccountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   store.StorePaymentAccountsTable,
+			Columns: []string{store.StorePaymentAccountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storepaymentaccount.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
