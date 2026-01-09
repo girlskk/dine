@@ -65,6 +65,7 @@ var Module = fx.Module(
 		asHandler(handler.NewPaymentMethodHandler),
 		asHandler(handler.NewRoleHandler),
 		asHandler(handler.NewDepartmentHandler),
+		asHandler(handler.NewOssHandler),
 	),
 )
 

@@ -251,13 +251,29 @@ func (h *RemarkHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.RemarkListFilter{
-			CategoryID: req.CategoryID,
 			MerchantID: user.MerchantID,
-			StoreID:    req.StoreID,
 			Enabled:    req.Enabled,
 			RemarkType: domain.RemarkTypeBrand,
 		}
+		// parse CategoryID if provided
+		if req.CategoryID != "" {
+			pid, err := uuid.Parse(req.CategoryID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.CategoryID = pid
+		}
 
+		// parse StoreID if provided
+		if req.StoreID != "" {
+			pid, err := uuid.Parse(req.StoreID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.StoreID = pid
+		}
 		remarks, total, err := h.RemarkInteractor.GetRemarks(ctx, pager, filter, domain.NewRemarkOrderByCreatedAt(true))
 		if err != nil {
 			err = fmt.Errorf("failed to get remarks: %w", err)

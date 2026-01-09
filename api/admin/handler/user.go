@@ -45,6 +45,7 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.GET("", h.List())
 	r.PUT("/:id/enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
+	r.PUT("/:id/reset_password", h.ResetPassword())
 }
 
 func (h *UserHandler) NoAuths() []string {
@@ -365,6 +366,16 @@ func (h *UserHandler) List() gin.HandlerFunc {
 			Enabled:     req.Enabled,
 		}
 
+		// parse RoleID if provided (parsed but not applied to filter here)
+		if req.RoleID != "" {
+			rid, err := uuid.Parse(req.RoleID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.RoleID = rid
+		}
+
 		users, total, err := h.UserInteractor.GetUsers(ctx, pager, filter, domain.NewAdminUserOrderByCreatedAt(true))
 		if err != nil {
 			err = fmt.Errorf("failed to get admin users: %w", err)
@@ -450,6 +461,49 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 	}
 }
 
+// ResetPassword 重置密码
+//
+//	@Tags			用户管理
+//	@Security		BearerAuth
+//	@Summary		重置用户密码
+//	@Description	重置用户密码
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string					true	"用户ID"
+//	@Param			data	body	types.ResetPasswordReq	true	"重置密码请求"
+//	@Success		200		"No Content"
+//	@Router			/user/{id}/reset_password [put]
+func (h *UserHandler) ResetPassword() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("UserHandler.ResetPassword")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		var req types.ResetPasswordReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldPassword, domain.AdminUserSimpleUpdateParams{
+			ID:       id,
+			Password: req.NewPassword,
+		})
+		if err != nil {
+			c.Error(h.checkErr(err))
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
 func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
 	seq, err := h.UserSeq.Next(ctx)
 	if err != nil {
@@ -484,6 +538,8 @@ func (h *UserHandler) checkErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.UserRoleTypeMismatch, err)
 	case errors.Is(err, domain.ErrUserDepartmentTypeMismatch):
 		return errorx.New(http.StatusBadRequest, errcode.UserDepartmentTypeMismatch, err)
+	case errors.Is(err, domain.ErrPasswordCannotBeEmpty):
+		return errorx.New(http.StatusBadRequest, errcode.PasswordCannotBeEmpty, err)
 	case domain.IsNotFound(err):
 		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
 	case domain.IsParamsError(err):

@@ -109,7 +109,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -316,13 +316,16 @@ definitions:
     enum:
     - merchant
     - store
+    - product
     type: string
     x-enum-comments:
       ObjectStorageSceneMerchant: 商户
+      ObjectStorageSceneProduct: 商品
       ObjectStorageSceneStore: 门店
     x-enum-varnames:
     - ObjectStorageSceneMerchant
     - ObjectStorageSceneStore
+    - ObjectStorageSceneProduct
   domain.Province:
     properties:
       country_id:
@@ -607,24 +610,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.Address:
     properties:
       address:
@@ -1158,10 +1143,11 @@ definitions:
       scene:
         allOf:
         - $ref: '#/definitions/domain.ObjectStorageScene'
-        description: '业务场景，store：门店相关 merchant: 商户相关'
+        description: '业务场景，store：门店相关 merchant: 商户相关 product: 商品相关'
         enum:
         - store
         - merchant
+        - product
     required:
     - filename
     - scene
@@ -1195,6 +1181,13 @@ definitions:
         items:
           $ref: '#/definitions/domain.Province'
         type: array
+    type: object
+  types.ResetPasswordReq:
+    properties:
+      new_password:
+        type: string
+    required:
+    - new_password
     type: object
   types.RoleCreateReq:
     properties:
@@ -1896,7 +1889,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: 父级菜单ID
+      - description: 父级菜单ID (as string, parsed in handler)
         in: query
         name: parent_id
         type: string
@@ -2225,10 +2218,12 @@ paths:
         in: query
         name: admin_phone_number
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_gte
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_lte
         type: string
       - description: 商户名称
@@ -2252,7 +2247,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: 省份 ID
+      - description: 省份 ID (as string, parsed in handler)
         in: query
         name: province_id
         type: string
@@ -2525,13 +2520,15 @@ paths:
         in: query
         name: business_type_code
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_gte
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_lte
         type: string
-      - description: 商户 ID
+      - description: 商户 ID (as string, parsed in handler)
         in: query
         name: merchant_id
         type: string
@@ -2539,7 +2536,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: 省份 ID
+      - description: 省份 ID (as string, parsed in handler)
         in: query
         name: province_id
         type: string
@@ -2649,16 +2646,20 @@ paths:
       - application/json
       description: 查询管理员用户列表
       parameters:
-      - in: query
+      - description: 编号
+        in: query
         name: code
         type: string
-      - in: query
+      - description: 电子邮箱
+        in: query
         name: email
         type: string
-      - in: query
+      - description: 是否启用
+        in: query
         name: enabled
         type: boolean
-      - enum:
+      - description: 性别
+        enum:
         - male
         - female
         - other
@@ -2680,13 +2681,16 @@ paths:
         in: query
         name: page
         type: integer
-      - in: query
+      - description: 手机号
+        in: query
         name: phone_number
         type: string
-      - in: query
+      - description: 真实姓名
+        in: query
         name: real_name
         type: string
-      - in: query
+      - description: 角色ID
+        in: query
         name: role_id
         type: string
       - description: 每页数量
@@ -2835,6 +2839,33 @@ paths:
       security:
       - BearerAuth: []
       summary: 启用管理员用户
+      tags:
+      - 用户管理
+  /user/{id}/reset_password:
+    put:
+      consumes:
+      - application/json
+      description: 重置用户密码
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 重置密码请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 重置用户密码
       tags:
       - 用户管理
   /user/info:

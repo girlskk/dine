@@ -120,6 +120,7 @@ type AdminUserListFilter struct {
 	Email       string      `json:"email"`
 	PhoneNumber string      `json:"phone_number"`
 	Enabled     *bool       `json:"enabled"`
+	RoleID      uuid.UUID   `json:"role_id"`
 }
 
 type AdminUserOrderByType int
@@ -159,10 +160,12 @@ type AdminUserExistsParams struct {
 type AdminUserSimpleUpdateField string
 
 const (
-	AdminUserSimpleUpdateFieldEnable AdminUserSimpleUpdateField = "enable"
+	AdminUserSimpleUpdateFieldEnable   AdminUserSimpleUpdateField = "enable"   // 启用/禁用
+	AdminUserSimpleUpdateFieldPassword AdminUserSimpleUpdateField = "password" // 密码
 )
 
 type AdminUserSimpleUpdateParams struct {
-	ID      uuid.UUID `json:"id"`
-	Enabled bool      `json:"enabled"`
+	ID       uuid.UUID `json:"id"`
+	Enabled  bool      `json:"enabled"`
+	Password string    `json:"password"`
 }

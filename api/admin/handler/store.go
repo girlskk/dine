@@ -13,6 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 // StoreHandler handles store related routes.
@@ -278,24 +279,48 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.StoreListFilter{
 			StoreName:        req.StoreName,
-			MerchantID:       req.MerchantID,
 			BusinessTypeCode: req.BusinessTypeCode,
 			AdminPhoneNumber: req.AdminPhoneNumber,
 			Status:           req.Status,
 			BusinessModel:    req.BusinessModel,
-			CreatedAtGte:     &req.CreatedAtGte,
-			CreatedAtLte:     &req.CreatedAtLte,
-			ProvinceID:       req.ProvinceID,
 		}
-		if req.CreatedAtGte.IsZero() {
-			filter.CreatedAtGte = nil
+
+		// parse MerchantID if provided
+		if req.MerchantID != "" {
+			mid, err := uuid.Parse(req.MerchantID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.MerchantID = mid
 		}
-		if req.CreatedAtLte.IsZero() {
-			filter.CreatedAtLte = nil
+
+		// parse ProvinceID if provided
+		if req.ProvinceID != "" {
+			pid, err := uuid.Parse(req.ProvinceID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.ProvinceID = pid
+		}
+
+		if req.CreatedAtGte != "" || req.CreatedAtLte != "" {
+			var err error
+			startTime, endTime := util.GetShortcutDate("custom", req.CreatedAtGte, req.CreatedAtLte)
+			filter.CreatedAtGte, err = util.ParseDateToPtr(startTime)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtGte: %w", err)))
+				return
+			}
+			filter.CreatedAtLte, err = util.ParseDateToPtr(endTime)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtLte: %w", err)))
+				return
+			}
 		}
 
 		stores, total, err := h.StoreInteractor.GetStores(ctx, pager, filter)

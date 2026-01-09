@@ -19,6 +19,7 @@ var (
 	ErrUserDepartmentRequired     = errors.New("用户所属部门不能为空")
 	ErrUserRoleTypeMismatch       = errors.New("用户角色类型不匹配")
 	ErrUserDepartmentTypeMismatch = errors.New("用户部门类型不匹配")
+	ErrPasswordCannotBeEmpty      = errors.New("密码不能为空")
 )
 
 // User 通用用户接口，用于验证用户身份

@@ -17,6 +17,11 @@ func DayEnd(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, t.Location())
 }
 
+// nowFunc is a package-level function that returns the current time. It is
+// set to time.Now by default but can be overridden in tests to make outputs
+// deterministic.
+var nowFunc = time.Now
+
 type RequestDate time.Time
 
 func (r *RequestDate) UnmarshalJSON(data []byte) error {
@@ -86,6 +91,14 @@ const (
 	TimeLayoutShort = "2006-01-02"
 )
 
+func ParseDateToPtr(dateStr string) (*time.Time, error) {
+	t, err := time.ParseInLocation(TimeLayoutShort, dateStr, time.Local)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
 func GetShortcutDate(timeType string, reqStartTime, reqEndTime string) (startTime, endTime string) {
 	switch timeType {
 	case "today":
@@ -95,23 +108,23 @@ func GetShortcutDate(timeType string, reqStartTime, reqEndTime string) (startTim
 		endTime = GetYesterday()
 	case "thisWeek": // 本周
 		startTime = GetThisWeekStartDate()
-		endTime = time.Now().Format(TimeLayoutShort)
+		endTime = nowFunc().Format(TimeLayoutShort)
 	case "prevWeek", "lastWeek": // 上周
 		startTime = GetLastWeekStartDate()
 		endTime = GetLastWeekEndDate()
 	case "thisMonth": // 本月
 		startTime = GetThisMonthStartDate()
-		endTime = time.Now().Format(TimeLayoutShort)
+		endTime = nowFunc().Format(TimeLayoutShort)
 	case "prevMonth", "lastMonth": // 上月
 		startTime = GetLastMonthStartDate()
 		endTime = GetLastMonthEndDate()
 	case "thisYear":
-		year, _, _ := time.Now().Date()
+		year, _, _ := nowFunc().Date()
 		prevYear := time.Date(year, 1, 1, 0, 0, 0, 0, time.Local)
 		startTime = prevYear.Format(TimeLayoutShort)
 		endTime = prevYear.AddDate(1, 0, 0).Format(TimeLayoutShort)
 	case "prevYear":
-		year, _, _ := time.Now().Date()
+		year, _, _ := nowFunc().Date()
 		prevYear := time.Date(year, 1, 1, 0, 0, 0, 0, time.Local)
 		startTime = prevYear.AddDate(-1, 0, 0).Format(TimeLayoutShort)
 		endTime = prevYear.Format(TimeLayoutShort)
@@ -119,8 +132,8 @@ func GetShortcutDate(timeType string, reqStartTime, reqEndTime string) (startTim
 		if len(reqStartTime) == 0 || len(reqEndTime) == 0 {
 			// 默认最近30天
 			subTime := time.Hour * 24 * 30
-			startTime = time.Now().Add(-subTime).Format(TimeLayoutShort)
-			endTime = time.Now().Format(TimeLayoutShort)
+			startTime = nowFunc().Add(-subTime).Format(TimeLayoutShort)
+			endTime = nowFunc().Format(TimeLayoutShort)
 		} else {
 			startTime = reqStartTime
 			endTime = reqEndTime
@@ -130,4 +143,69 @@ func GetShortcutDate(timeType string, reqStartTime, reqEndTime string) (startTim
 		endTime = GetLastWeekEndDate()
 	}
 	return startTime, endTime
+}
+
+// GetToday returns start and end date strings for today (both the same date).
+func GetToday() (string, string) {
+	t := nowFunc()
+	s := t.Format(TimeLayoutShort)
+	return s, s
+}
+
+// GetYesterday returns the date string for yesterday.
+func GetYesterday() string {
+	return nowFunc().AddDate(0, 0, -1).Format(TimeLayoutShort)
+}
+
+// GetThisWeekStartDate returns the date string for the start of the current week.
+// Week starts on Monday.
+func GetThisWeekStartDate() string {
+	now := nowFunc()
+	weekday := int(now.Weekday())
+	// Convert so Monday = 0, Sunday = 6
+	offset := (weekday + 6) % 7
+	start := now.AddDate(0, 0, -offset)
+	return start.Format(TimeLayoutShort)
+}
+
+// GetLastWeekStartDate returns the date string for the start (Monday) of last week.
+func GetLastWeekStartDate() string {
+	now := nowFunc()
+	weekday := int(now.Weekday())
+	offset := (weekday + 6) % 7
+	start := now.AddDate(0, 0, -offset-7)
+	return start.Format(TimeLayoutShort)
+}
+
+// GetLastWeekEndDate returns the date string for the end (Sunday) of last week.
+func GetLastWeekEndDate() string {
+	now := nowFunc()
+	weekday := int(now.Weekday())
+	offset := (weekday + 6) % 7
+	start := now.AddDate(0, 0, -offset-7)
+	end := start.AddDate(0, 0, 6)
+	return end.Format(TimeLayoutShort)
+}
+
+// GetThisMonthStartDate returns the date string for the first day of the current month.
+func GetThisMonthStartDate() string {
+	now := nowFunc()
+	start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
+	return start.Format(TimeLayoutShort)
+}
+
+// GetLastMonthStartDate returns the date string for the first day of the previous month.
+func GetLastMonthStartDate() string {
+	now := nowFunc()
+	firstOfThisMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
+	start := firstOfThisMonth.AddDate(0, -1, 0)
+	return start.Format(TimeLayoutShort)
+}
+
+// GetLastMonthEndDate returns the date string for the last day of the previous month.
+func GetLastMonthEndDate() string {
+	now := nowFunc()
+	firstOfThisMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
+	end := firstOfThisMonth.AddDate(0, 0, -1)
+	return end.Format(TimeLayoutShort)
 }

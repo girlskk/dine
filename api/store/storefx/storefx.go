@@ -58,6 +58,7 @@ var Module = fx.Module(
 		asHandler(handler.NewDeviceHandler),
 		asHandler(handler.NewRoleHandler),
 		asHandler(handler.NewDepartmentHandler),
+		asHandler(handler.NewOssHandler),
 	),
 )
 

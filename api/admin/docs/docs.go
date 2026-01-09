@@ -584,7 +584,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "父级菜单ID",
+                        "description": "父级菜单ID (as string, parsed in handler)",
                         "name": "parent_id",
                         "in": "query"
                     },
@@ -982,11 +982,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_gte",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_lte",
                         "in": "query"
                     },
@@ -1022,7 +1024,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "省份 ID",
+                        "description": "省份 ID (as string, parsed in handler)",
                         "name": "province_id",
                         "in": "query"
                     },
@@ -1421,17 +1423,19 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_gte",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_lte",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "商户 ID",
+                        "description": "商户 ID (as string, parsed in handler)",
                         "name": "merchant_id",
                         "in": "query"
                     },
@@ -1443,7 +1447,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "省份 ID",
+                        "description": "省份 ID (as string, parsed in handler)",
                         "name": "province_id",
                         "in": "query"
                     },
@@ -1820,16 +1824,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "编号",
                         "name": "code",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "电子邮箱",
                         "name": "email",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
+                        "description": "是否启用",
                         "name": "enabled",
                         "in": "query"
                     },
@@ -1853,6 +1860,7 @@ const docTemplate = `{
                             "GenderOther",
                             "GenderUnknown"
                         ],
+                        "description": "性别",
                         "name": "gender",
                         "in": "query"
                     },
@@ -1864,16 +1872,19 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "手机号",
                         "name": "phone_number",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "真实姓名",
                         "name": "real_name",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "角色ID",
                         "name": "role_id",
                         "in": "query"
                     },
@@ -2194,6 +2205,49 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/{id}/reset_password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "重置用户密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "重置用户密码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "重置密码请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ResetPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -2353,7 +2407,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -2647,15 +2701,18 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "merchant",
-                "store"
+                "store",
+                "product"
             ],
             "x-enum-comments": {
                 "ObjectStorageSceneMerchant": "商户",
+                "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
-                "ObjectStorageSceneStore"
+                "ObjectStorageSceneStore",
+                "ObjectStorageSceneProduct"
             ]
         },
         "domain.Province": {
@@ -3055,27 +3112,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.Address": {
             "type": "object",
@@ -3832,10 +3868,11 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "scene": {
-                    "description": "业务场景，store：门店相关 merchant: 商户相关",
+                    "description": "业务场景，store：门店相关 merchant: 商户相关 product: 商品相关",
                     "enum": [
                         "store",
-                        "merchant"
+                        "merchant",
+                        "product"
                     ],
                     "allOf": [
                         {
@@ -3888,6 +3925,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.Province"
                     }
+                }
+            }
+        },
+        "types.ResetPasswordReq": {
+            "type": "object",
+            "required": [
+                "new_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
                 }
             }
         },

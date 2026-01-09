@@ -140,6 +140,7 @@ type StoreUserListFilter struct {
 	Enabled     *bool       `json:"enabled"`      // 是否启用
 	MerchantID  uuid.UUID   `json:"merchant_id"`  // 品牌商ID
 	StoreID     uuid.UUID   `json:"store_id"`     // 门店ID
+	RoleID      uuid.UUID   `json:"role_id"`      // 角色ID
 }
 type StoreUserExistsParams struct {
 	Username  string
@@ -150,10 +151,12 @@ type StoreUserExistsParams struct {
 type StoreUserSimpleUpdateField string
 
 const (
-	StoreUserSimpleUpdateFieldEnable StoreUserSimpleUpdateField = "enable"
+	StoreUserSimpleUpdateFieldEnable   StoreUserSimpleUpdateField = "enable"
+	StoreUserSimpleUpdateFieldPassword StoreUserSimpleUpdateField = "password"
 )
 
 type StoreUserSimpleUpdateParams struct {
-	ID      uuid.UUID `json:"id"`
-	Enabled bool      `json:"enabled"`
+	ID       uuid.UUID `json:"id"`
+	Enabled  bool      `json:"enabled"`
+	Password string    `json:"password"`
 }
