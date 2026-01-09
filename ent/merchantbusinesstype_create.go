@@ -13,9 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // MerchantBusinessTypeCreate is the builder for creating a MerchantBusinessType entity.
@@ -68,6 +66,12 @@ func (mbtc *MerchantBusinessTypeCreate) SetNillableDeletedAt(i *int64) *Merchant
 	return mbtc
 }
 
+// SetMerchantID sets the "merchant_id" field.
+func (mbtc *MerchantBusinessTypeCreate) SetMerchantID(u uuid.UUID) *MerchantBusinessTypeCreate {
+	mbtc.mutation.SetMerchantID(u)
+	return mbtc
+}
+
 // SetTypeCode sets the "type_code" field.
 func (mbtc *MerchantBusinessTypeCreate) SetTypeCode(s string) *MerchantBusinessTypeCreate {
 	mbtc.mutation.SetTypeCode(s)
@@ -108,36 +112,6 @@ func (mbtc *MerchantBusinessTypeCreate) SetNillableID(u *uuid.UUID) *MerchantBus
 		mbtc.SetID(*u)
 	}
 	return mbtc
-}
-
-// AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
-func (mbtc *MerchantBusinessTypeCreate) AddMerchantIDs(ids ...uuid.UUID) *MerchantBusinessTypeCreate {
-	mbtc.mutation.AddMerchantIDs(ids...)
-	return mbtc
-}
-
-// AddMerchants adds the "merchants" edges to the Merchant entity.
-func (mbtc *MerchantBusinessTypeCreate) AddMerchants(m ...*Merchant) *MerchantBusinessTypeCreate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return mbtc.AddMerchantIDs(ids...)
-}
-
-// AddStoreIDs adds the "stores" edge to the Store entity by IDs.
-func (mbtc *MerchantBusinessTypeCreate) AddStoreIDs(ids ...uuid.UUID) *MerchantBusinessTypeCreate {
-	mbtc.mutation.AddStoreIDs(ids...)
-	return mbtc
-}
-
-// AddStores adds the "stores" edges to the Store entity.
-func (mbtc *MerchantBusinessTypeCreate) AddStores(s ...*Store) *MerchantBusinessTypeCreate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mbtc.AddStoreIDs(ids...)
 }
 
 // Mutation returns the MerchantBusinessTypeMutation object of the builder.
@@ -224,6 +198,9 @@ func (mbtc *MerchantBusinessTypeCreate) check() error {
 	if _, ok := mbtc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "MerchantBusinessType.deleted_at"`)}
 	}
+	if _, ok := mbtc.mutation.MerchantID(); !ok {
+		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "MerchantBusinessType.merchant_id"`)}
+	}
 	if _, ok := mbtc.mutation.TypeCode(); !ok {
 		return &ValidationError{Name: "type_code", err: errors.New(`ent: missing required field "MerchantBusinessType.type_code"`)}
 	}
@@ -288,6 +265,10 @@ func (mbtc *MerchantBusinessTypeCreate) createSpec() (*MerchantBusinessType, *sq
 		_spec.SetField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
 		_node.DeletedAt = value
 	}
+	if value, ok := mbtc.mutation.MerchantID(); ok {
+		_spec.SetField(merchantbusinesstype.FieldMerchantID, field.TypeUUID, value)
+		_node.MerchantID = value
+	}
 	if value, ok := mbtc.mutation.TypeCode(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeCode, field.TypeString, value)
 		_node.TypeCode = value
@@ -295,38 +276,6 @@ func (mbtc *MerchantBusinessTypeCreate) createSpec() (*MerchantBusinessType, *sq
 	if value, ok := mbtc.mutation.TypeName(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeName, field.TypeString, value)
 		_node.TypeName = value
-	}
-	if nodes := mbtc.mutation.MerchantsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.MerchantsTable,
-			Columns: []string{merchantbusinesstype.MerchantsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := mbtc.mutation.StoresIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchantbusinesstype.StoresTable,
-			Columns: []string{merchantbusinesstype.StoresColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(store.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -453,6 +402,9 @@ func (u *MerchantBusinessTypeUpsertOne) UpdateNewValues() *MerchantBusinessTypeU
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(merchantbusinesstype.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.MerchantID(); exists {
+			s.SetIgnore(merchantbusinesstype.FieldMerchantID)
 		}
 	}))
 	return u
@@ -733,6 +685,9 @@ func (u *MerchantBusinessTypeUpsertBulk) UpdateNewValues() *MerchantBusinessType
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(merchantbusinesstype.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.MerchantID(); exists {
+				s.SetIgnore(merchantbusinesstype.FieldMerchantID)
 			}
 		}
 	}))

@@ -165,7 +165,7 @@ func (h *ProductHandler) Create() gin.HandlerFunc {
 			}
 		}
 
-		err := h.ProductInteractor.Create(ctx, product)
+		err := h.ProductInteractor.Create(ctx, product, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
@@ -321,7 +321,7 @@ func (h *ProductHandler) CreateSetMeal() gin.HandlerFunc {
 		}
 		product.Groups = groups
 
-		err := h.ProductInteractor.CreateSetMeal(ctx, product)
+		err := h.ProductInteractor.CreateSetMeal(ctx, product, user)
 
 		if err != nil {
 			if errors.Is(err, domain.ErrProductNameExists) {
@@ -363,23 +363,32 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		page := upagination.New(req.Page, req.Size)
 		user := domain.FromStoreUserContext(ctx)
 
-		startAt, err := time.Parse(time.DateOnly, req.StartAt)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-		endAt, err := time.Parse(time.DateOnly, req.EndAt)
-		if err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
+		params := domain.ProductSearchParams{
+			MerchantID:   user.MerchantID,
+			StoreID:      user.StoreID,
+			OnlyMerchant: true,
+			Name:         req.Name,
+			StartAt:      nil,
+			EndAt:        nil,
 		}
 
-		params := domain.ProductSearchParams{
-			MerchantID: user.MerchantID,
-			StoreID:    user.StoreID,
-			Name:       req.Name,
-			StartAt:    &startAt,
-			EndAt:      &endAt,
+		var startAt, endAt time.Time
+		var err error
+		if req.StartAt != "" {
+			startAt, err = time.Parse(time.DateOnly, req.StartAt)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.StartAt = &startAt
+		}
+		if req.EndAt != "" {
+			endAt, err = time.Parse(time.DateOnly, req.EndAt)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			params.EndAt = &endAt
 		}
 
 		// 转换UUID
@@ -766,6 +775,10 @@ func (h *ProductHandler) Delete() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductInteractor.Delete(ctx, productID, user)
 		if err != nil {
+			if errors.Is(err, domain.ErrProductBelongToSetMeal) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductBelongToSetMeal, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
@@ -805,6 +818,10 @@ func (h *ProductHandler) OffSale() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 		err = h.ProductInteractor.OffSale(ctx, productID, user)
 		if err != nil {
+			if errors.Is(err, domain.ErrProductBelongToSetMeal) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.ProductBelongToSetMeal, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return

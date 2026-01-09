@@ -634,6 +634,29 @@ func HasStoreWith(preds ...predicate.Store) predicate.AdditionalFee {
 	})
 }
 
+// HasProductSpecs applies the HasEdge predicate on the "product_specs" edge.
+func HasProductSpecs() predicate.AdditionalFee {
+	return predicate.AdditionalFee(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ProductSpecsTable, ProductSpecsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProductSpecsWith applies the HasEdge predicate on the "product_specs" edge with a given conditions (other predicates).
+func HasProductSpecsWith(preds ...predicate.ProductSpecRelation) predicate.AdditionalFee {
+	return predicate.AdditionalFee(func(s *sql.Selector) {
+		step := newProductSpecsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.AdditionalFee) predicate.AdditionalFee {
 	return predicate.AdditionalFee(sql.AndPredicates(predicates...))

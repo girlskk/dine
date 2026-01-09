@@ -36,6 +36,21 @@ func (m *MockSetMealGroupRepository) EXPECT() *MockSetMealGroupRepositoryMockRec
 	return m.recorder
 }
 
+// CheckProductBelongToSetMeal mocks base method.
+func (m *MockSetMealGroupRepository) CheckProductBelongToSetMeal(arg0 context.Context, arg1 uuid.UUID) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckProductBelongToSetMeal", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckProductBelongToSetMeal indicates an expected call of CheckProductBelongToSetMeal.
+func (mr *MockSetMealGroupRepositoryMockRecorder) CheckProductBelongToSetMeal(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckProductBelongToSetMeal", reflect.TypeOf((*MockSetMealGroupRepository)(nil).CheckProductBelongToSetMeal), arg0, arg1)
+}
+
 // CreateDetails mocks base method.
 func (m *MockSetMealGroupRepository) CreateDetails(arg0 context.Context, arg1 []*domain.SetMealDetail) error {
 	m.ctrl.T.Helper()

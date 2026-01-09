@@ -12,13 +12,9 @@ import (
 type ObjectStorageScene string
 
 const (
-	ObjectStorageSceneStore                       ObjectStorageScene = "store"                          // 门店
-	ObjectStorageSceneProduct                     ObjectStorageScene = "product"                        // 商品
-	ObjectStorageSceneOrderListExport             ObjectStorageScene = "order/list_export"              // 订单列表导出
-	ObjectStorageSceneReconciliationListExport    ObjectStorageScene = "reconciliation/list_export"     // 财务对账单导出
-	ObjectStorageSceneReconciliationDetailExport  ObjectStorageScene = "reconciliation/detail_export"   // 财务对账单明细导出
-	ObjectStorageScenePointSettlementListExport   ObjectStorageScene = "point_settlement/list_export"   // 积分结算单导出
-	ObjectStorageScenePointSettlementDetailExport ObjectStorageScene = "point_settlement/detail_export" // 积分结算单明细导出
+	ObjectStorageSceneMerchant ObjectStorageScene = "merchant" // 商户
+	ObjectStorageSceneStore    ObjectStorageScene = "store"    // 门店
+	ObjectStorageSceneProduct  ObjectStorageScene = "product"  // 商品
 )
 
 type ObjectStorageOption struct {

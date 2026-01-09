@@ -14,7 +14,7 @@ import (
 var _ domain.RemarkCategoryInteractor = (*RemarkCategoryInteractor)(nil)
 
 type RemarkCategoryInteractor struct {
-	DataStore domain.DataStore
+	DS domain.DataStore
 }
 
 func (interactor *RemarkCategoryInteractor) Create(ctx context.Context, remarkCategory *domain.RemarkCategory) (err error) {
@@ -30,7 +30,7 @@ func (interactor *RemarkCategoryInteractor) Create(ctx context.Context, remarkCa
 	}
 
 	remarkCategory.ID = uuid.New()
-	err = interactor.DataStore.RemarkCategoryRepo().Create(ctx, remarkCategory)
+	err = interactor.DS.RemarkCategoryRepo().Create(ctx, remarkCategory)
 	if err != nil {
 		err = fmt.Errorf("failed to create remark category: %w", err)
 		return
@@ -49,7 +49,7 @@ func (interactor *RemarkCategoryInteractor) Update(ctx context.Context, remarkCa
 	if err = interactor.checkExists(ctx, remarkCategory); err != nil {
 		return
 	}
-	err = interactor.DataStore.RemarkCategoryRepo().Update(ctx, remarkCategory)
+	err = interactor.DS.RemarkCategoryRepo().Update(ctx, remarkCategory)
 	if err != nil {
 		err = fmt.Errorf("failed to update remark category: %w", err)
 		return
@@ -61,7 +61,7 @@ func (interactor *RemarkCategoryInteractor) Delete(ctx context.Context, id uuid.
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkCategoryInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	_, err = interactor.DataStore.RemarkCategoryRepo().FindByID(ctx, id)
+	_, err = interactor.DS.RemarkCategoryRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return domain.ParamsError(domain.ErrRemarkCategoryNotExists)
@@ -69,7 +69,7 @@ func (interactor *RemarkCategoryInteractor) Delete(ctx context.Context, id uuid.
 		err = fmt.Errorf("failed to fetch remark category: %w", err)
 		return
 	}
-	err = interactor.DataStore.RemarkCategoryRepo().Delete(ctx, id)
+	err = interactor.DS.RemarkCategoryRepo().Delete(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("failed to delete remark category: %w", err)
 		return
@@ -77,13 +77,15 @@ func (interactor *RemarkCategoryInteractor) Delete(ctx context.Context, id uuid.
 	return
 }
 
-func (interactor *RemarkCategoryInteractor) GetRemarkCategories(ctx context.Context, filter *domain.RemarkCategoryListFilter) (remarkCategories domain.RemarkCategories, err error) {
+func (interactor *RemarkCategoryInteractor) GetRemarkCategories(ctx context.Context,
+	filter *domain.RemarkCategoryListFilter,
+) (remarkCategories domain.RemarkCategories, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkCategoryInteractor.GetRemarkCategories")
 	defer func() { util.SpanErrFinish(span, err) }()
 	if filter == nil {
 		filter = &domain.RemarkCategoryListFilter{}
 	}
-	remarkCategories, err = interactor.DataStore.RemarkCategoryRepo().GetRemarkCategories(ctx, filter)
+	remarkCategories, err = interactor.DS.RemarkCategoryRepo().GetRemarkCategories(ctx, filter)
 	if err != nil {
 		err = fmt.Errorf("failed to list remark categories: %w", err)
 		return
@@ -91,7 +93,7 @@ func (interactor *RemarkCategoryInteractor) GetRemarkCategories(ctx context.Cont
 	categoriesIds := lo.Map(remarkCategories, func(item *domain.RemarkCategory, _ int) uuid.UUID {
 		return item.ID
 	})
-	countRemark, err := interactor.DataStore.RemarkRepo().CountRemarkByCategories(ctx, domain.CountRemarkParams{
+	countRemark, err := interactor.DS.RemarkRepo().CountRemarkByCategories(ctx, domain.CountRemarkParams{
 		CategoryIDs: categoriesIds,
 		MerchantID:  filter.MerchantID,
 		StoreID:     filter.StoreID,
@@ -121,7 +123,7 @@ func (interactor *RemarkCategoryInteractor) checkExists(ctx context.Context, rem
 		ExcludeID:  remarkCategory.ID,
 	}
 	var exists bool
-	exists, err = interactor.DataStore.RemarkCategoryRepo().Exists(ctx, params)
+	exists, err = interactor.DS.RemarkCategoryRepo().Exists(ctx, params)
 	if err != nil {
 		err = fmt.Errorf("failed to check remark category exists: %w", err)
 		return
@@ -135,6 +137,6 @@ func (interactor *RemarkCategoryInteractor) checkExists(ctx context.Context, rem
 
 func NewRemarkCategoryInteractor(dataStore domain.DataStore) *RemarkCategoryInteractor {
 	return &RemarkCategoryInteractor{
-		DataStore: dataStore,
+		DS: dataStore,
 	}
 }

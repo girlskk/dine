@@ -179,10 +179,13 @@ func validateProductParams(product *domain.Product) (err error) {
 }
 
 // validateProductBusinessRules 校验商品业务规则
-func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, product *domain.Product, excludeID uuid.UUID) error {
-	// 1. 验证商品名称在当前商户下是否唯一
+func (i *ProductInteractor) validateProductBusinessRules(ctx context.Context, ds domain.DataStore,
+	product *domain.Product, user domain.User, excludeID uuid.UUID,
+) error {
+	// 1. 验证商品名称在当前商户/门店下是否唯一
 	exists, err := ds.ProductRepo().Exists(ctx, domain.ProductExistsParams{
 		MerchantID: product.MerchantID,
+		StoreID:    product.StoreID,
 		Name:       product.Name,
 		ExcludeID:  excludeID,
 	})
@@ -201,8 +204,8 @@ func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, prod
 		}
 		return err
 	}
-	// 验证分类是否属于当前商户
-	if category.MerchantID != product.MerchantID {
+	// 验证分类是否属于当前商户/门店
+	if !domain.VerifyOwnerShip(user, category.MerchantID, category.StoreID) {
 		return domain.ParamsError(domain.ErrProductCategoryInvalid)
 	}
 
@@ -214,16 +217,23 @@ func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, prod
 		}
 		return err
 	}
-	// 验证单位是否属于当前商户
-	if unit.MerchantID != product.MerchantID {
+	// 验证单位是否属于当前商户/门店
+	if !domain.VerifyOwnerShip(user, unit.MerchantID, unit.StoreID) {
 		return domain.ParamsError(domain.ErrProductUnitInvalid)
 	}
 
-	// 4. 验证规格关联
+	// 4. 验证规格关联和打包费是否有效
 	if len(product.SpecRelations) > 0 {
-		specIDs := lo.Map(product.SpecRelations, func(specRel *domain.ProductSpecRelation, _ int) uuid.UUID {
-			return specRel.SpecID
-		})
+		specIDs := make([]uuid.UUID, 0, len(product.SpecRelations))
+		packingFeeIDs := make([]uuid.UUID, 0, len(product.SpecRelations))
+		for _, specRel := range product.SpecRelations {
+			specIDs = append(specIDs, specRel.SpecID)
+			packingFeeIDs = append(packingFeeIDs, specRel.PackingFeeID)
+		}
+		specIDs = lo.Uniq(specIDs)
+		packingFeeIDs = lo.Uniq(packingFeeIDs)
+
+		// 验证规格
 		specs, err := ds.ProductSpecRepo().ListByIDs(ctx, specIDs)
 		if err != nil {
 			return err
@@ -232,8 +242,24 @@ func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, prod
 			return domain.ParamsError(domain.ErrProductSpecInvalid)
 		}
 		for _, spec := range specs {
-			if spec.MerchantID != product.MerchantID {
+			if !domain.VerifyOwnerShip(user, spec.MerchantID, spec.StoreID) {
 				return domain.ParamsError(domain.ErrProductSpecInvalid)
+			}
+		}
+		// 验证打包费
+		packingFees, err := ds.AdditionalFeeRepo().ListByIDs(ctx, packingFeeIDs)
+		if err != nil {
+			return err
+		}
+		if len(packingFees) != len(packingFeeIDs) {
+			return domain.ParamsErrorf("打包费不存在")
+		}
+		for _, packingFee := range packingFees {
+			if !domain.VerifyOwnerShip(user, packingFee.MerchantID, packingFee.StoreID) {
+				return domain.ParamsErrorf("打包费不存在")
+			}
+			if packingFee.FeeCategory != domain.AdditionalCategoryPacking {
+				return domain.ParamsErrorf("打包费类型错误")
 			}
 		}
 	}
@@ -274,24 +300,28 @@ func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, prod
 			return domain.ParamsError(domain.ErrProductTagInvalid)
 		}
 		for _, tag := range tags {
-			if tag.MerchantID != product.MerchantID {
+			if !domain.VerifyOwnerShip(user, tag.MerchantID, tag.StoreID) {
 				return domain.ParamsError(domain.ErrProductTagInvalid)
 			}
 		}
 	}
 
 	// 7. 验证税率和出品部门（如果指定）
-	if !product.InheritTaxRate && product.TaxRateID != uuid.Nil {
-		// @TODO: 需要实现税率配置的验证逻辑
-		// 这里暂时跳过，后续需要添加税率配置的 Repository
+	if !product.InheritTaxRate {
+		err = i.checkTaxRate(ctx, ds, user, product.TaxRateID)
+		if err != nil {
+			return err
+		}
+	}
+	// 8. 验证出品部门是否有效
+	if !product.InheritStall {
+		err = i.checkStall(ctx, ds, user, product.StallID)
+		if err != nil {
+			return err
+		}
 	}
 
-	if !product.InheritStall && product.StallID != uuid.Nil {
-		// @TODO: 需要实现出品部门配置的验证逻辑
-		// 这里暂时跳过，后续需要添加出品部门配置的 Repository
-	}
-
-	// 8. 验证套餐组详情中的商品是否存在且有效
+	// 9. 验证套餐组详情中的商品是否存在且有效
 	if len(product.Groups) > 0 {
 		productIDs := make([]uuid.UUID, 0)
 		for _, group := range product.Groups {
@@ -308,7 +338,7 @@ func validateProductBusinessRules(ctx context.Context, ds domain.DataStore, prod
 			return domain.ParamsError(domain.ErrSetMealGroupDetailInvalid)
 		}
 		for _, setmealProduct := range setmealProducts {
-			if setmealProduct.MerchantID != product.MerchantID {
+			if !domain.VerifyOwnerShip(user, setmealProduct.MerchantID, setmealProduct.StoreID) {
 				return domain.ParamsError(domain.ErrSetMealGroupDetailInvalid)
 			}
 			if setmealProduct.Type != domain.ProductTypeNormal {
@@ -356,8 +386,49 @@ func (i *ProductInteractor) GetDetail(ctx context.Context, id uuid.UUID, user do
 }
 
 func verifyProductOwnership(user domain.User, product *domain.Product) error {
-	if user.GetMerchantID() != product.MerchantID || user.GetStoreID() != product.StoreID {
+	if !domain.VerifyOwnerShip(user, product.MerchantID, product.StoreID) {
 		return domain.ParamsError(domain.ErrProductNotExists)
+	}
+	return nil
+}
+
+// 检查税率是否有效
+func (i *ProductInteractor) checkTaxRate(ctx context.Context, ds domain.DataStore,
+	user domain.User, taxRateID uuid.UUID,
+) error {
+	if taxRateID == uuid.Nil {
+		return nil
+	}
+	taxRate, err := ds.TaxFeeRepo().FindByID(ctx, taxRateID)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrTaxFeeNotExists)
+		}
+		return err
+	}
+	if !domain.VerifyOwnerShip(user, taxRate.MerchantID, taxRate.StoreID) {
+		return domain.ParamsError(domain.ErrTaxFeeNotExists)
+	}
+	return nil
+}
+
+// 检查出品部门是否有效
+func (i *ProductInteractor) checkStall(ctx context.Context, ds domain.DataStore,
+	user domain.User, stallID uuid.UUID,
+) error {
+	if stallID == uuid.Nil {
+		return nil
+	}
+	stall, err := ds.StallRepo().FindByID(ctx, stallID)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrStallNotExists)
+		}
+		return err
+	}
+
+	if !domain.VerifyOwnerShip(user, stall.MerchantID, stall.StoreID) {
+		return domain.ParamsError(domain.ErrStallNotExists)
 	}
 	return nil
 }

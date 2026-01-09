@@ -74,6 +74,26 @@ func main() {
 				sequence.NewDailySequence,
 				fx.As(new(domain.DailySequence)),
 			),
+			fx.Annotate(
+				sequence.NewStoreTaxSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"store_tax_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewStoreDepartmentSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"store_department_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewStoreRoleSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"store_role_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewStoreUserSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"store_user_seq"`),
+			),
 			oss.New,
 		),
 		dbfx.Module,

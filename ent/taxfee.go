@@ -57,9 +57,13 @@ type TaxFeeEdges struct {
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// Store holds the value of the store edge.
 	Store *Store `json:"store,omitempty"`
+	// 关联的分类
+	Categories []*Category `json:"categories,omitempty"`
+	// 关联的商品
+	Products []*Product `json:"products,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -82,6 +86,24 @@ func (e TaxFeeEdges) StoreOrErr() (*Store, error) {
 		return nil, &NotFoundError{label: store.Label}
 	}
 	return nil, &NotLoadedError{edge: "store"}
+}
+
+// CategoriesOrErr returns the Categories value or an error if the edge
+// was not loaded in eager-loading.
+func (e TaxFeeEdges) CategoriesOrErr() ([]*Category, error) {
+	if e.loadedTypes[2] {
+		return e.Categories, nil
+	}
+	return nil, &NotLoadedError{edge: "categories"}
+}
+
+// ProductsOrErr returns the Products value or an error if the edge
+// was not loaded in eager-loading.
+func (e TaxFeeEdges) ProductsOrErr() ([]*Product, error) {
+	if e.loadedTypes[3] {
+		return e.Products, nil
+	}
+	return nil, &NotLoadedError{edge: "products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -209,6 +231,16 @@ func (tf *TaxFee) QueryMerchant() *MerchantQuery {
 // QueryStore queries the "store" edge of the TaxFee entity.
 func (tf *TaxFee) QueryStore() *StoreQuery {
 	return NewTaxFeeClient(tf.config).QueryStore(tf)
+}
+
+// QueryCategories queries the "categories" edge of the TaxFee entity.
+func (tf *TaxFee) QueryCategories() *CategoryQuery {
+	return NewTaxFeeClient(tf.config).QueryCategories(tf)
+}
+
+// QueryProducts queries the "products" edge of the TaxFee entity.
+func (tf *TaxFee) QueryProducts() *ProductQuery {
+	return NewTaxFeeClient(tf.config).QueryProducts(tf)
 }
 
 // Update returns a builder for updating this TaxFee.

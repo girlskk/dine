@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 )
@@ -103,6 +104,12 @@ func (psru *ProductSpecRelationUpdate) SetNillablePackingFeeID(u *uuid.UUID) *Pr
 	if u != nil {
 		psru.SetPackingFeeID(*u)
 	}
+	return psru
+}
+
+// ClearPackingFeeID clears the value of the "packing_fee_id" field.
+func (psru *ProductSpecRelationUpdate) ClearPackingFeeID() *ProductSpecRelationUpdate {
+	psru.mutation.ClearPackingFeeID()
 	return psru
 }
 
@@ -214,9 +221,20 @@ func (psru *ProductSpecRelationUpdate) SetNillableIsDefault(b *bool) *ProductSpe
 	return psru
 }
 
+// SetPackingFee sets the "packing_fee" edge to the AdditionalFee entity.
+func (psru *ProductSpecRelationUpdate) SetPackingFee(a *AdditionalFee) *ProductSpecRelationUpdate {
+	return psru.SetPackingFeeID(a.ID)
+}
+
 // Mutation returns the ProductSpecRelationMutation object of the builder.
 func (psru *ProductSpecRelationUpdate) Mutation() *ProductSpecRelationMutation {
 	return psru.mutation
+}
+
+// ClearPackingFee clears the "packing_fee" edge to the AdditionalFee entity.
+func (psru *ProductSpecRelationUpdate) ClearPackingFee() *ProductSpecRelationUpdate {
+	psru.mutation.ClearPackingFee()
+	return psru
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -313,9 +331,6 @@ func (psru *ProductSpecRelationUpdate) sqlSave(ctx context.Context) (n int, err 
 	if psru.mutation.MemberPriceCleared() {
 		_spec.ClearField(productspecrelation.FieldMemberPrice, field.TypeOther)
 	}
-	if value, ok := psru.mutation.PackingFeeID(); ok {
-		_spec.SetField(productspecrelation.FieldPackingFeeID, field.TypeUUID, value)
-	}
 	if value, ok := psru.mutation.EstimatedCostPrice(); ok {
 		_spec.SetField(productspecrelation.FieldEstimatedCostPrice, field.TypeOther, value)
 	}
@@ -345,6 +360,35 @@ func (psru *ProductSpecRelationUpdate) sqlSave(ctx context.Context) (n int, err 
 	}
 	if value, ok := psru.mutation.IsDefault(); ok {
 		_spec.SetField(productspecrelation.FieldIsDefault, field.TypeBool, value)
+	}
+	if psru.mutation.PackingFeeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   productspecrelation.PackingFeeTable,
+			Columns: []string{productspecrelation.PackingFeeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := psru.mutation.PackingFeeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   productspecrelation.PackingFeeTable,
+			Columns: []string{productspecrelation.PackingFeeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(psru.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, psru.driver, _spec); err != nil {
@@ -440,6 +484,12 @@ func (psruo *ProductSpecRelationUpdateOne) SetNillablePackingFeeID(u *uuid.UUID)
 	if u != nil {
 		psruo.SetPackingFeeID(*u)
 	}
+	return psruo
+}
+
+// ClearPackingFeeID clears the value of the "packing_fee_id" field.
+func (psruo *ProductSpecRelationUpdateOne) ClearPackingFeeID() *ProductSpecRelationUpdateOne {
+	psruo.mutation.ClearPackingFeeID()
 	return psruo
 }
 
@@ -551,9 +601,20 @@ func (psruo *ProductSpecRelationUpdateOne) SetNillableIsDefault(b *bool) *Produc
 	return psruo
 }
 
+// SetPackingFee sets the "packing_fee" edge to the AdditionalFee entity.
+func (psruo *ProductSpecRelationUpdateOne) SetPackingFee(a *AdditionalFee) *ProductSpecRelationUpdateOne {
+	return psruo.SetPackingFeeID(a.ID)
+}
+
 // Mutation returns the ProductSpecRelationMutation object of the builder.
 func (psruo *ProductSpecRelationUpdateOne) Mutation() *ProductSpecRelationMutation {
 	return psruo.mutation
+}
+
+// ClearPackingFee clears the "packing_fee" edge to the AdditionalFee entity.
+func (psruo *ProductSpecRelationUpdateOne) ClearPackingFee() *ProductSpecRelationUpdateOne {
+	psruo.mutation.ClearPackingFee()
+	return psruo
 }
 
 // Where appends a list predicates to the ProductSpecRelationUpdate builder.
@@ -680,9 +741,6 @@ func (psruo *ProductSpecRelationUpdateOne) sqlSave(ctx context.Context) (_node *
 	if psruo.mutation.MemberPriceCleared() {
 		_spec.ClearField(productspecrelation.FieldMemberPrice, field.TypeOther)
 	}
-	if value, ok := psruo.mutation.PackingFeeID(); ok {
-		_spec.SetField(productspecrelation.FieldPackingFeeID, field.TypeUUID, value)
-	}
 	if value, ok := psruo.mutation.EstimatedCostPrice(); ok {
 		_spec.SetField(productspecrelation.FieldEstimatedCostPrice, field.TypeOther, value)
 	}
@@ -712,6 +770,35 @@ func (psruo *ProductSpecRelationUpdateOne) sqlSave(ctx context.Context) (_node *
 	}
 	if value, ok := psruo.mutation.IsDefault(); ok {
 		_spec.SetField(productspecrelation.FieldIsDefault, field.TypeBool, value)
+	}
+	if psruo.mutation.PackingFeeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   productspecrelation.PackingFeeTable,
+			Columns: []string{productspecrelation.PackingFeeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := psruo.mutation.PackingFeeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   productspecrelation.PackingFeeTable,
+			Columns: []string{productspecrelation.PackingFeeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(psruo.modifiers...)
 	_node = &ProductSpecRelation{config: psruo.config}

@@ -44,6 +44,9 @@ var (
 	ErrProductStallNotExists       = errors.New("指定出品部门不存在")
 	ErrProductPackingFeeNotExists  = errors.New("打包费配置不存在")
 
+	// 商品套餐相关错误
+	ErrProductBelongToSetMeal = errors.New("商品属于套餐组，不能停售或删除")
+
 	// 商品下发相关错误
 	ErrProductDistributeStoreInvalid = errors.New("门店无效，必须属于当前品牌商")
 )
@@ -71,8 +74,8 @@ type ProductRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/product_interactor.go -package=mock . ProductInteractor
 type ProductInteractor interface {
-	Create(ctx context.Context, product *Product) error
-	CreateSetMeal(ctx context.Context, product *Product) error
+	Create(ctx context.Context, product *Product, user User) error
+	CreateSetMeal(ctx context.Context, product *Product, user User) error
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
 	Update(ctx context.Context, product *Product, user User) error
 	UpdateSetMeal(ctx context.Context, product *Product, user User) error
@@ -223,6 +226,8 @@ type Product struct {
 	Groups        SetMealGroups        `json:"groups,omitempty"`         // 套餐组列表
 	Category      *Category            `json:"category,omitempty"`       // 分类
 	Unit          *ProductUnit         `json:"unit,omitempty"`           // 单位
+	TaxRate       *TaxFee              `json:"tax_rate,omitempty"`       // 税率
+	Stall         *Stall               `json:"stall,omitempty"`          // 出品部门
 }
 
 // Products 商品集合
@@ -262,9 +267,7 @@ type ProductSearchRes struct {
 
 // ProductDistributeParams 商品下发参数
 type ProductDistributeParams struct {
-	ProductID        uuid.UUID            // 商品ID（必选）
-	MerchantID       uuid.UUID            // 品牌商ID
-	StoreIDs         []uuid.UUID          // 门店ID列表（必选，多选）
-	DistributionRule MenuDistributionRule // 下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
-	SaleRule         MenuItemSaleRule     // 下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
+	ProductID  uuid.UUID   // 商品ID（必选）
+	MerchantID uuid.UUID   // 品牌商ID
+	StoreIDs   []uuid.UUID // 门店ID列表（必选，多选）
 }

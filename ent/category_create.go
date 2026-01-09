@@ -15,6 +15,8 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // CategoryCreate is the builder for creating a Category entity.
@@ -240,6 +242,16 @@ func (cc *CategoryCreate) AddProducts(p ...*Product) *CategoryCreate {
 	return cc.AddProductIDs(ids...)
 }
 
+// SetTaxRate sets the "tax_rate" edge to the TaxFee entity.
+func (cc *CategoryCreate) SetTaxRate(t *TaxFee) *CategoryCreate {
+	return cc.SetTaxRateID(t.ID)
+}
+
+// SetStall sets the "stall" edge to the Stall entity.
+func (cc *CategoryCreate) SetStall(s *Stall) *CategoryCreate {
+	return cc.SetStallID(s.ID)
+}
+
 // Mutation returns the CategoryMutation object of the builder.
 func (cc *CategoryCreate) Mutation() *CategoryMutation {
 	return cc.mutation
@@ -442,17 +454,9 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 		_spec.SetField(category.FieldInheritTaxRate, field.TypeBool, value)
 		_node.InheritTaxRate = value
 	}
-	if value, ok := cc.mutation.TaxRateID(); ok {
-		_spec.SetField(category.FieldTaxRateID, field.TypeUUID, value)
-		_node.TaxRateID = value
-	}
 	if value, ok := cc.mutation.InheritStall(); ok {
 		_spec.SetField(category.FieldInheritStall, field.TypeBool, value)
 		_node.InheritStall = value
-	}
-	if value, ok := cc.mutation.StallID(); ok {
-		_spec.SetField(category.FieldStallID, field.TypeUUID, value)
-		_node.StallID = value
 	}
 	if value, ok := cc.mutation.ProductCount(); ok {
 		_spec.SetField(category.FieldProductCount, field.TypeInt, value)
@@ -509,6 +513,40 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.TaxRateIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.TaxRateTable,
+			Columns: []string{category.TaxRateColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TaxRateID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.StallIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   category.StallTable,
+			Columns: []string{category.StallColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.StallID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

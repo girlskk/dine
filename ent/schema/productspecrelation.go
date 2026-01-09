@@ -44,7 +44,7 @@ func (ProductSpecRelation) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("会员价（可选，单位：分）"),
-		field.UUID("packing_fee_id", uuid.UUID{}).Comment("打包费ID（引用费用配置）"),
+		field.UUID("packing_fee_id", uuid.UUID{}).Optional().Nillable().Comment("打包费ID（引用费用配置）"),
 		field.Other("estimated_cost_price", decimal.Decimal{}).
 			SchemaType(map[string]string{
 				dialect.MySQL:  "DECIMAL(10,2)",
@@ -86,6 +86,8 @@ func (ProductSpecRelation) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("product_id"),
 		index.Fields("spec_id"),
+		// 唯一索引：同一个商品和规格的组合，在未删除时只能有一条记录
+		index.Fields("product_id", "spec_id", "deleted_at").Unique(),
 	}
 }
 
@@ -106,5 +108,10 @@ func (ProductSpecRelation) Edges() []ent.Edge {
 			Required().
 			Unique().
 			Comment("所属规格"),
+		edge.From("packing_fee", AdditionalFee.Type).
+			Ref("product_specs").
+			Field("packing_fee_id").
+			Unique().
+			Comment("所属打包费"),
 	}
 }

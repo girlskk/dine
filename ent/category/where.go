@@ -436,26 +436,6 @@ func TaxRateIDNotIn(vs ...uuid.UUID) predicate.Category {
 	return predicate.Category(sql.FieldNotIn(FieldTaxRateID, vs...))
 }
 
-// TaxRateIDGT applies the GT predicate on the "tax_rate_id" field.
-func TaxRateIDGT(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldGT(FieldTaxRateID, v))
-}
-
-// TaxRateIDGTE applies the GTE predicate on the "tax_rate_id" field.
-func TaxRateIDGTE(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldGTE(FieldTaxRateID, v))
-}
-
-// TaxRateIDLT applies the LT predicate on the "tax_rate_id" field.
-func TaxRateIDLT(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldLT(FieldTaxRateID, v))
-}
-
-// TaxRateIDLTE applies the LTE predicate on the "tax_rate_id" field.
-func TaxRateIDLTE(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldLTE(FieldTaxRateID, v))
-}
-
 // TaxRateIDIsNil applies the IsNil predicate on the "tax_rate_id" field.
 func TaxRateIDIsNil() predicate.Category {
 	return predicate.Category(sql.FieldIsNull(FieldTaxRateID))
@@ -494,26 +474,6 @@ func StallIDIn(vs ...uuid.UUID) predicate.Category {
 // StallIDNotIn applies the NotIn predicate on the "stall_id" field.
 func StallIDNotIn(vs ...uuid.UUID) predicate.Category {
 	return predicate.Category(sql.FieldNotIn(FieldStallID, vs...))
-}
-
-// StallIDGT applies the GT predicate on the "stall_id" field.
-func StallIDGT(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldGT(FieldStallID, v))
-}
-
-// StallIDGTE applies the GTE predicate on the "stall_id" field.
-func StallIDGTE(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldGTE(FieldStallID, v))
-}
-
-// StallIDLT applies the LT predicate on the "stall_id" field.
-func StallIDLT(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldLT(FieldStallID, v))
-}
-
-// StallIDLTE applies the LTE predicate on the "stall_id" field.
-func StallIDLTE(v uuid.UUID) predicate.Category {
-	return predicate.Category(sql.FieldLTE(FieldStallID, v))
 }
 
 // StallIDIsNil applies the IsNil predicate on the "stall_id" field.
@@ -667,6 +627,52 @@ func HasProducts() predicate.Category {
 func HasProductsWith(preds ...predicate.Product) predicate.Category {
 	return predicate.Category(func(s *sql.Selector) {
 		step := newProductsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTaxRate applies the HasEdge predicate on the "tax_rate" edge.
+func HasTaxRate() predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, TaxRateTable, TaxRateColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTaxRateWith applies the HasEdge predicate on the "tax_rate" edge with a given conditions (other predicates).
+func HasTaxRateWith(preds ...predicate.TaxFee) predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := newTaxRateStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasStall applies the HasEdge predicate on the "stall" edge.
+func HasStall() predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, StallTable, StallColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStallWith applies the HasEdge predicate on the "stall" edge with a given conditions (other predicates).
+func HasStallWith(preds ...predicate.Stall) predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := newStallStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

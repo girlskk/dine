@@ -29,7 +29,18 @@ func (i *ProductInteractor) Delete(ctx context.Context, id uuid.UUID, user domai
 			return err
 		}
 
-		// 3. 删除商品
+		// 3. 如果是普通商品，则需要验证商品是否有关联的套餐组
+		if product.Type == domain.ProductTypeNormal {
+			belongToSetMeal, err := ds.SetMealGroupRepo().CheckProductBelongToSetMeal(ctx, product.ID)
+			if err != nil {
+				return err
+			}
+			if belongToSetMeal {
+				return domain.ErrProductBelongToSetMeal
+			}
+		}
+
+		// 4. 删除商品
 		err = ds.ProductRepo().Delete(ctx, id)
 		if err != nil {
 			return err

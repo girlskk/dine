@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
@@ -33,8 +32,6 @@ type MenuItem struct {
 	MenuID uuid.UUID `json:"menu_id,omitempty"`
 	// 菜品ID（外键，引用普通商品）
 	ProductID uuid.UUID `json:"product_id,omitempty"`
-	// 下发售卖规则：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
-	SaleRule domain.MenuItemSaleRule `json:"sale_rule,omitempty"`
 	// 基础价（可选，单位：令吉）
 	BasePrice *decimal.Decimal `json:"base_price,omitempty"`
 	// 会员价（可选，单位：令吉）
@@ -87,8 +84,6 @@ func (*MenuItem) scanValues(columns []string) ([]any, error) {
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
 		case menuitem.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case menuitem.FieldSaleRule:
-			values[i] = new(sql.NullString)
 		case menuitem.FieldCreatedAt, menuitem.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case menuitem.FieldID, menuitem.FieldMenuID, menuitem.FieldProductID:
@@ -143,12 +138,6 @@ func (mi *MenuItem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field product_id", values[i])
 			} else if value != nil {
 				mi.ProductID = *value
-			}
-		case menuitem.FieldSaleRule:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field sale_rule", values[i])
-			} else if value.Valid {
-				mi.SaleRule = domain.MenuItemSaleRule(value.String)
 			}
 		case menuitem.FieldBasePrice:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -224,9 +213,6 @@ func (mi *MenuItem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("product_id=")
 	builder.WriteString(fmt.Sprintf("%v", mi.ProductID))
-	builder.WriteString(", ")
-	builder.WriteString("sale_rule=")
-	builder.WriteString(fmt.Sprintf("%v", mi.SaleRule))
 	builder.WriteString(", ")
 	if v := mi.BasePrice; v != nil {
 		builder.WriteString("base_price=")

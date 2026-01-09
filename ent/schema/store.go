@@ -29,12 +29,12 @@ func (Store) Fields() []ent.Field {
 		field.String("store_name").
 			NotEmpty().
 			Default("").
-			MaxLen(30).
+			MaxLen(100).
 			Comment("门店名称,长度不超过30个字"),
 		field.String("store_short_name").
 			Optional().
 			Default("").
-			MaxLen(30).
+			MaxLen(100).
 			Comment("门店简称"),
 		field.String("store_code").
 			Optional().
@@ -46,7 +46,7 @@ func (Store) Fields() []ent.Field {
 		field.Enum("business_model").
 			GoType(domain.BusinessModel("")).
 			Comment("经营模式：直营 加盟"),
-		field.UUID("business_type_id", uuid.UUID{}).
+		field.String("business_type_code").
 			Comment("业态类型"),
 		field.String("location_number").
 			NotEmpty().
@@ -55,7 +55,7 @@ func (Store) Fields() []ent.Field {
 		field.String("contact_name").
 			Optional().
 			Default("").
-			MaxLen(20).
+			MaxLen(100).
 			Comment("联系人"),
 		field.String("contact_phone").
 			Optional().
@@ -117,7 +117,7 @@ func (Store) Fields() []ent.Field {
 			Optional().
 			Comment("区县 id"),
 		field.String("address").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(255).
 			Comment("详细地址"),
@@ -147,12 +147,6 @@ func (Store) Edges() []ent.Edge {
 			Unique().
 			Immutable().
 			Required(),
-		// 业态类型
-		edge.From("merchant_business_type", MerchantBusinessType.Type).
-			Ref("stores").
-			Field("business_type_id").
-			Unique().
-			Required(),
 		// 地区关联（绑定已有外键字段）
 		edge.From("country", Country.Type).
 			Ref("stores").
@@ -179,6 +173,9 @@ func (Store) Edges() []ent.Edge {
 		edge.From("menus", Menu.Type).Ref("stores").Comment("关联的菜单"),
 		edge.To("departments", Department.Type),
 		edge.To("roles", Role.Type),
+		edge.From("profit_distribution_rules", ProfitDistributionRule.Type).Ref("stores").Comment("关联的分账方案"),
+		edge.To("profit_distribution_bills", ProfitDistributionBill.Type).Comment("关联的分账账单"),
+		edge.To("store_payment_accounts", StorePaymentAccount.Type).Comment("关联的门店收款账户"),
 	}
 }
 

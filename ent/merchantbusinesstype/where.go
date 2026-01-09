@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
@@ -69,6 +68,11 @@ func UpdatedAt(v time.Time) predicate.MerchantBusinessType {
 // DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
 func DeletedAt(v int64) predicate.MerchantBusinessType {
 	return predicate.MerchantBusinessType(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
+func MerchantID(v uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldEQ(FieldMerchantID, v))
 }
 
 // TypeCode applies equality check predicate on the "type_code" field. It's identical to TypeCodeEQ.
@@ -201,6 +205,46 @@ func DeletedAtLTE(v int64) predicate.MerchantBusinessType {
 	return predicate.MerchantBusinessType(sql.FieldLTE(FieldDeletedAt, v))
 }
 
+// MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
+func MerchantIDEQ(v uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldEQ(FieldMerchantID, v))
+}
+
+// MerchantIDNEQ applies the NEQ predicate on the "merchant_id" field.
+func MerchantIDNEQ(v uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldNEQ(FieldMerchantID, v))
+}
+
+// MerchantIDIn applies the In predicate on the "merchant_id" field.
+func MerchantIDIn(vs ...uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldIn(FieldMerchantID, vs...))
+}
+
+// MerchantIDNotIn applies the NotIn predicate on the "merchant_id" field.
+func MerchantIDNotIn(vs ...uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldNotIn(FieldMerchantID, vs...))
+}
+
+// MerchantIDGT applies the GT predicate on the "merchant_id" field.
+func MerchantIDGT(v uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldGT(FieldMerchantID, v))
+}
+
+// MerchantIDGTE applies the GTE predicate on the "merchant_id" field.
+func MerchantIDGTE(v uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldGTE(FieldMerchantID, v))
+}
+
+// MerchantIDLT applies the LT predicate on the "merchant_id" field.
+func MerchantIDLT(v uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldLT(FieldMerchantID, v))
+}
+
+// MerchantIDLTE applies the LTE predicate on the "merchant_id" field.
+func MerchantIDLTE(v uuid.UUID) predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldLTE(FieldMerchantID, v))
+}
+
 // TypeCodeEQ applies the EQ predicate on the "type_code" field.
 func TypeCodeEQ(v string) predicate.MerchantBusinessType {
 	return predicate.MerchantBusinessType(sql.FieldEQ(FieldTypeCode, v))
@@ -329,52 +373,6 @@ func TypeNameEqualFold(v string) predicate.MerchantBusinessType {
 // TypeNameContainsFold applies the ContainsFold predicate on the "type_name" field.
 func TypeNameContainsFold(v string) predicate.MerchantBusinessType {
 	return predicate.MerchantBusinessType(sql.FieldContainsFold(FieldTypeName, v))
-}
-
-// HasMerchants applies the HasEdge predicate on the "merchants" edge.
-func HasMerchants() predicate.MerchantBusinessType {
-	return predicate.MerchantBusinessType(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, MerchantsTable, MerchantsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasMerchantsWith applies the HasEdge predicate on the "merchants" edge with a given conditions (other predicates).
-func HasMerchantsWith(preds ...predicate.Merchant) predicate.MerchantBusinessType {
-	return predicate.MerchantBusinessType(func(s *sql.Selector) {
-		step := newMerchantsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasStores applies the HasEdge predicate on the "stores" edge.
-func HasStores() predicate.MerchantBusinessType {
-	return predicate.MerchantBusinessType(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, StoresTable, StoresColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasStoresWith applies the HasEdge predicate on the "stores" edge with a given conditions (other predicates).
-func HasStoresWith(preds ...predicate.Store) predicate.MerchantBusinessType {
-	return predicate.MerchantBusinessType(func(s *sql.Selector) {
-		step := newStoresStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

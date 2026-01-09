@@ -397,24 +397,14 @@ func PackingFeeIDNotIn(vs ...uuid.UUID) predicate.ProductSpecRelation {
 	return predicate.ProductSpecRelation(sql.FieldNotIn(FieldPackingFeeID, vs...))
 }
 
-// PackingFeeIDGT applies the GT predicate on the "packing_fee_id" field.
-func PackingFeeIDGT(v uuid.UUID) predicate.ProductSpecRelation {
-	return predicate.ProductSpecRelation(sql.FieldGT(FieldPackingFeeID, v))
+// PackingFeeIDIsNil applies the IsNil predicate on the "packing_fee_id" field.
+func PackingFeeIDIsNil() predicate.ProductSpecRelation {
+	return predicate.ProductSpecRelation(sql.FieldIsNull(FieldPackingFeeID))
 }
 
-// PackingFeeIDGTE applies the GTE predicate on the "packing_fee_id" field.
-func PackingFeeIDGTE(v uuid.UUID) predicate.ProductSpecRelation {
-	return predicate.ProductSpecRelation(sql.FieldGTE(FieldPackingFeeID, v))
-}
-
-// PackingFeeIDLT applies the LT predicate on the "packing_fee_id" field.
-func PackingFeeIDLT(v uuid.UUID) predicate.ProductSpecRelation {
-	return predicate.ProductSpecRelation(sql.FieldLT(FieldPackingFeeID, v))
-}
-
-// PackingFeeIDLTE applies the LTE predicate on the "packing_fee_id" field.
-func PackingFeeIDLTE(v uuid.UUID) predicate.ProductSpecRelation {
-	return predicate.ProductSpecRelation(sql.FieldLTE(FieldPackingFeeID, v))
+// PackingFeeIDNotNil applies the NotNil predicate on the "packing_fee_id" field.
+func PackingFeeIDNotNil() predicate.ProductSpecRelation {
+	return predicate.ProductSpecRelation(sql.FieldNotNull(FieldPackingFeeID))
 }
 
 // EstimatedCostPriceEQ applies the EQ predicate on the "estimated_cost_price" field.
@@ -730,6 +720,29 @@ func HasSpec() predicate.ProductSpecRelation {
 func HasSpecWith(preds ...predicate.ProductSpec) predicate.ProductSpecRelation {
 	return predicate.ProductSpecRelation(func(s *sql.Selector) {
 		step := newSpecStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasPackingFee applies the HasEdge predicate on the "packing_fee" edge.
+func HasPackingFee() predicate.ProductSpecRelation {
+	return predicate.ProductSpecRelation(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, PackingFeeTable, PackingFeeColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPackingFeeWith applies the HasEdge predicate on the "packing_fee" edge with a given conditions (other predicates).
+func HasPackingFeeWith(preds ...predicate.AdditionalFee) predicate.ProductSpecRelation {
+	return predicate.ProductSpecRelation(func(s *sql.Selector) {
+		step := newPackingFeeStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

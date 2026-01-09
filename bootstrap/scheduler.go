@@ -7,6 +7,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ali/oss"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/huifu"
+	"gitlab.jiguang.dev/pos-dine/dine/scheduler/periodic"
 	"go.uber.org/fx"
 )
 
@@ -18,6 +19,8 @@ type SchedulerConfig struct {
 	Redis    rdb.Config
 	Oss      oss.Config
 	Huifu    huifu.MerchSysConfig
+
+	ProfitDistribution periodic.ProfitDistributionConfig
 }
 
 func NewSchedulerConfig(files []string) (cfg SchedulerConfig, err error) {

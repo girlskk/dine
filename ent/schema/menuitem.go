@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
@@ -30,10 +29,6 @@ func (MenuItem) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("menu_id", uuid.UUID{}).Immutable().Comment("菜单ID（外键）"),
 		field.UUID("product_id", uuid.UUID{}).Immutable().Comment("菜品ID（外键，引用普通商品）"),
-		field.Enum("sale_rule").
-			GoType(domain.MenuItemSaleRule("")).
-			Default(string(domain.MenuItemSaleRuleKeepBrandStatus)).
-			Comment("下发售卖规则：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）"),
 		field.Other("base_price", decimal.Decimal{}).
 			SchemaType(map[string]string{
 				dialect.MySQL:  "DECIMAL(19,4)",

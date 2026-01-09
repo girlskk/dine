@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	ErrDepartmentNotExists  = errors.New("部门不存在")
-	ErrDepartmentNameExists = errors.New("部门名称已存在")
-	ErrDepartmentCodeExists = errors.New("部门编码已存在")
+	ErrDepartmentNotExists            = errors.New("部门不存在")
+	ErrDepartmentNameExists           = errors.New("部门名称已存在")
+	ErrDepartmentCodeExists           = errors.New("部门编码已存在")
+	ErrDepartmentHasUsersCannotDelete = errors.New("部门下存在用户，无法删除")
 )
 
 // DepartmentRepository 部门仓储接口
@@ -25,6 +26,7 @@ type DepartmentRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	Exists(ctx context.Context, params DepartmentExistsParams) (exists bool, err error)
 	GetDepartments(ctx context.Context, pager *upagination.Pagination, filter *DepartmentListFilter, orderBys ...DepartmentListOrderBy) (departments []*Department, total int, err error)
+	CheckUserInDepartment(ctx context.Context, departmentID uuid.UUID) (exists bool, err error)
 }
 
 // DepartmentInteractor 部门用例接口
@@ -36,18 +38,19 @@ type DepartmentInteractor interface {
 	DeleteDepartment(ctx context.Context, id uuid.UUID) (err error)
 	GetDepartment(ctx context.Context, id uuid.UUID) (department *Department, err error)
 	GetDepartments(ctx context.Context, pager *upagination.Pagination, filter *DepartmentListFilter, orderBys ...DepartmentListOrderBy) (departments []*Department, total int, err error)
+	SimpleUpdate(ctx context.Context, updateField DepartmentSimpleUpdateField, params DepartmentSimpleUpdateParams) error
 }
 
 type DepartmentType string
 
 const (
-	DepartmentTypeAdmin DepartmentType = "admin"
-	DepartmentBackend   DepartmentType = "backend"
-	DepartmentStore     DepartmentType = "store"
+	DepartmentAdmin   DepartmentType = "admin"
+	DepartmentBackend DepartmentType = "backend"
+	DepartmentStore   DepartmentType = "store"
 )
 
 func (DepartmentType) Values() []string {
-	return []string{string(DepartmentTypeAdmin), string(DepartmentBackend), string(DepartmentStore)}
+	return []string{string(DepartmentAdmin), string(DepartmentBackend), string(DepartmentStore)}
 }
 
 type DepartmentListOrderByType int
@@ -116,4 +119,16 @@ type DepartmentExistsParams struct {
 	ExcludeID  uuid.UUID `json:"exclude_id"`
 	MerchantID uuid.UUID `json:"merchant_id"`
 	StoreID    uuid.UUID `json:"store_id"`
+}
+
+// DepartmentSimpleUpdateField Simple update types for department
+type DepartmentSimpleUpdateField string
+
+const (
+	DepartmentSimpleUpdateFieldEnable DepartmentSimpleUpdateField = "enable"
+)
+
+type DepartmentSimpleUpdateParams struct {
+	ID     uuid.UUID `json:"id"`
+	Enable bool      `json:"enable"`
 }

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -13,22 +14,28 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // DepartmentQuery is the builder for querying Department entities.
 type DepartmentQuery struct {
 	config
-	ctx          *QueryContext
-	order        []department.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Department
-	withMerchant *MerchantQuery
-	withStore    *StoreQuery
-	modifiers    []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []department.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Department
+	withMerchant     *MerchantQuery
+	withStore        *StoreQuery
+	withAdminUsers   *AdminUserQuery
+	withBackendUsers *BackendUserQuery
+	withStoreUsers   *StoreUserQuery
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +109,72 @@ func (dq *DepartmentQuery) QueryStore() *StoreQuery {
 			sqlgraph.From(department.Table, department.FieldID, selector),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, department.StoreTable, department.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAdminUsers chains the current query on the "admin_users" edge.
+func (dq *DepartmentQuery) QueryAdminUsers() *AdminUserQuery {
+	query := (&AdminUserClient{config: dq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, selector),
+			sqlgraph.To(adminuser.Table, adminuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.AdminUsersTable, department.AdminUsersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryBackendUsers chains the current query on the "backend_users" edge.
+func (dq *DepartmentQuery) QueryBackendUsers() *BackendUserQuery {
+	query := (&BackendUserClient{config: dq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, selector),
+			sqlgraph.To(backenduser.Table, backenduser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.BackendUsersTable, department.BackendUsersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStoreUsers chains the current query on the "store_users" edge.
+func (dq *DepartmentQuery) QueryStoreUsers() *StoreUserQuery {
+	query := (&StoreUserClient{config: dq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(department.Table, department.FieldID, selector),
+			sqlgraph.To(storeuser.Table, storeuser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, department.StoreUsersTable, department.StoreUsersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(dq.driver.Dialect(), step)
 		return fromU, nil
@@ -296,13 +369,16 @@ func (dq *DepartmentQuery) Clone() *DepartmentQuery {
 		return nil
 	}
 	return &DepartmentQuery{
-		config:       dq.config,
-		ctx:          dq.ctx.Clone(),
-		order:        append([]department.OrderOption{}, dq.order...),
-		inters:       append([]Interceptor{}, dq.inters...),
-		predicates:   append([]predicate.Department{}, dq.predicates...),
-		withMerchant: dq.withMerchant.Clone(),
-		withStore:    dq.withStore.Clone(),
+		config:           dq.config,
+		ctx:              dq.ctx.Clone(),
+		order:            append([]department.OrderOption{}, dq.order...),
+		inters:           append([]Interceptor{}, dq.inters...),
+		predicates:       append([]predicate.Department{}, dq.predicates...),
+		withMerchant:     dq.withMerchant.Clone(),
+		withStore:        dq.withStore.Clone(),
+		withAdminUsers:   dq.withAdminUsers.Clone(),
+		withBackendUsers: dq.withBackendUsers.Clone(),
+		withStoreUsers:   dq.withStoreUsers.Clone(),
 		// clone intermediate query.
 		sql:       dq.sql.Clone(),
 		path:      dq.path,
@@ -329,6 +405,39 @@ func (dq *DepartmentQuery) WithStore(opts ...func(*StoreQuery)) *DepartmentQuery
 		opt(query)
 	}
 	dq.withStore = query
+	return dq
+}
+
+// WithAdminUsers tells the query-builder to eager-load the nodes that are connected to
+// the "admin_users" edge. The optional arguments are used to configure the query builder of the edge.
+func (dq *DepartmentQuery) WithAdminUsers(opts ...func(*AdminUserQuery)) *DepartmentQuery {
+	query := (&AdminUserClient{config: dq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dq.withAdminUsers = query
+	return dq
+}
+
+// WithBackendUsers tells the query-builder to eager-load the nodes that are connected to
+// the "backend_users" edge. The optional arguments are used to configure the query builder of the edge.
+func (dq *DepartmentQuery) WithBackendUsers(opts ...func(*BackendUserQuery)) *DepartmentQuery {
+	query := (&BackendUserClient{config: dq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dq.withBackendUsers = query
+	return dq
+}
+
+// WithStoreUsers tells the query-builder to eager-load the nodes that are connected to
+// the "store_users" edge. The optional arguments are used to configure the query builder of the edge.
+func (dq *DepartmentQuery) WithStoreUsers(opts ...func(*StoreUserQuery)) *DepartmentQuery {
+	query := (&StoreUserClient{config: dq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dq.withStoreUsers = query
 	return dq
 }
 
@@ -410,9 +519,12 @@ func (dq *DepartmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 	var (
 		nodes       = []*Department{}
 		_spec       = dq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [5]bool{
 			dq.withMerchant != nil,
 			dq.withStore != nil,
+			dq.withAdminUsers != nil,
+			dq.withBackendUsers != nil,
+			dq.withStoreUsers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +557,27 @@ func (dq *DepartmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 	if query := dq.withStore; query != nil {
 		if err := dq.loadStore(ctx, query, nodes, nil,
 			func(n *Department, e *Store) { n.Edges.Store = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := dq.withAdminUsers; query != nil {
+		if err := dq.loadAdminUsers(ctx, query, nodes,
+			func(n *Department) { n.Edges.AdminUsers = []*AdminUser{} },
+			func(n *Department, e *AdminUser) { n.Edges.AdminUsers = append(n.Edges.AdminUsers, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := dq.withBackendUsers; query != nil {
+		if err := dq.loadBackendUsers(ctx, query, nodes,
+			func(n *Department) { n.Edges.BackendUsers = []*BackendUser{} },
+			func(n *Department, e *BackendUser) { n.Edges.BackendUsers = append(n.Edges.BackendUsers, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := dq.withStoreUsers; query != nil {
+		if err := dq.loadStoreUsers(ctx, query, nodes,
+			func(n *Department) { n.Edges.StoreUsers = []*StoreUser{} },
+			func(n *Department, e *StoreUser) { n.Edges.StoreUsers = append(n.Edges.StoreUsers, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -506,6 +639,96 @@ func (dq *DepartmentQuery) loadStore(ctx context.Context, query *StoreQuery, nod
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (dq *DepartmentQuery) loadAdminUsers(ctx context.Context, query *AdminUserQuery, nodes []*Department, init func(*Department), assign func(*Department, *AdminUser)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Department)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(adminuser.FieldDepartmentID)
+	}
+	query.Where(predicate.AdminUser(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(department.AdminUsersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DepartmentID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "department_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (dq *DepartmentQuery) loadBackendUsers(ctx context.Context, query *BackendUserQuery, nodes []*Department, init func(*Department), assign func(*Department, *BackendUser)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Department)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(backenduser.FieldDepartmentID)
+	}
+	query.Where(predicate.BackendUser(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(department.BackendUsersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DepartmentID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "department_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (dq *DepartmentQuery) loadStoreUsers(ctx context.Context, query *StoreUserQuery, nodes []*Department, init func(*Department), assign func(*Department, *StoreUser)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Department)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(storeuser.FieldDepartmentID)
+	}
+	query.Where(predicate.StoreUser(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(department.StoreUsersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DepartmentID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "department_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

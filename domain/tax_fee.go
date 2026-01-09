@@ -36,7 +36,7 @@ type TaxFeeInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetTaxFee(ctx context.Context, id uuid.UUID) (fee *TaxFee, err error)
 	GetTaxFees(ctx context.Context, pager *upagination.Pagination, filter *TaxFeeListFilter, orderBys ...TaxFeeOrderBy) (fees []*TaxFee, total int, err error)
-	TaxFeeSimpleUpdate(ctx context.Context, updateField TaxFeeSimpleUpdateType, fee *TaxFee) (err error)
+	TaxFeeSimpleUpdate(ctx context.Context, updateField TaxFeeSimpleUpdateField, fee *TaxFee) (err error)
 }
 type TaxFeeType string
 
@@ -60,11 +60,11 @@ func (TaxRateType) Values() []string {
 	return []string{string(TaxRateTypeUnified), string(TaxRateTypeCustom)}
 }
 
-// TaxFeeSimpleUpdateType 简单更新字段
-type TaxFeeSimpleUpdateType string
+// TaxFeeSimpleUpdateField 简单更新字段
+type TaxFeeSimpleUpdateField string
 
 const (
-	TaxFeeSimpleUpdateTypeDefault TaxFeeSimpleUpdateType = "default_tax"
+	TaxFeeSimpleUpdateFieldDefault TaxFeeSimpleUpdateField = "default_tax"
 )
 
 type TaxFeeOrderByType int

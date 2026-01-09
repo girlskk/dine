@@ -101,6 +101,20 @@ func (mr *MockRoleInteractorMockRecorder) GetRoles(arg0, arg1, arg2 interface{},
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoles", reflect.TypeOf((*MockRoleInteractor)(nil).GetRoles), varargs...)
 }
 
+// SimpleUpdate mocks base method.
+func (m *MockRoleInteractor) SimpleUpdate(arg0 context.Context, arg1 domain.RoleSimpleUpdateField, arg2 domain.RoleSimpleUpdateParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SimpleUpdate", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SimpleUpdate indicates an expected call of SimpleUpdate.
+func (mr *MockRoleInteractorMockRecorder) SimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SimpleUpdate", reflect.TypeOf((*MockRoleInteractor)(nil).SimpleUpdate), arg0, arg1, arg2)
+}
+
 // UpdateRole mocks base method.
 func (m *MockRoleInteractor) UpdateRole(arg0 context.Context, arg1 *domain.UpdateRoleParams) error {
 	m.ctrl.T.Helper()

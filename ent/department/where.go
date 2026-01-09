@@ -493,6 +493,75 @@ func HasStoreWith(preds ...predicate.Store) predicate.Department {
 	})
 }
 
+// HasAdminUsers applies the HasEdge predicate on the "admin_users" edge.
+func HasAdminUsers() predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AdminUsersTable, AdminUsersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAdminUsersWith applies the HasEdge predicate on the "admin_users" edge with a given conditions (other predicates).
+func HasAdminUsersWith(preds ...predicate.AdminUser) predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := newAdminUsersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasBackendUsers applies the HasEdge predicate on the "backend_users" edge.
+func HasBackendUsers() predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, BackendUsersTable, BackendUsersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBackendUsersWith applies the HasEdge predicate on the "backend_users" edge with a given conditions (other predicates).
+func HasBackendUsersWith(preds ...predicate.BackendUser) predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := newBackendUsersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasStoreUsers applies the HasEdge predicate on the "store_users" edge.
+func HasStoreUsers() predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StoreUsersTable, StoreUsersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStoreUsersWith applies the HasEdge predicate on the "store_users" edge with a given conditions (other predicates).
+func HasStoreUsersWith(preds ...predicate.StoreUser) predicate.Department {
+	return predicate.Department(func(s *sql.Selector) {
+		step := newStoreUsersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Department) predicate.Department {
 	return predicate.Department(sql.AndPredicates(predicates...))

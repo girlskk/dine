@@ -56,6 +56,8 @@ const (
 	EdgeMerchant = "merchant"
 	// EdgeStore holds the string denoting the store edge name in mutations.
 	EdgeStore = "store"
+	// EdgeProductSpecs holds the string denoting the product_specs edge name in mutations.
+	EdgeProductSpecs = "product_specs"
 	// Table holds the table name of the additionalfee in the database.
 	Table = "additional_fees"
 	// MerchantTable is the table that holds the merchant relation/edge.
@@ -72,6 +74,13 @@ const (
 	StoreInverseTable = "stores"
 	// StoreColumn is the table column denoting the store relation/edge.
 	StoreColumn = "store_id"
+	// ProductSpecsTable is the table that holds the product_specs relation/edge.
+	ProductSpecsTable = "product_spec_relations"
+	// ProductSpecsInverseTable is the table name for the ProductSpecRelation entity.
+	// It exists in this package in order to avoid circular dependency with the "productspecrelation" package.
+	ProductSpecsInverseTable = "product_spec_relations"
+	// ProductSpecsColumn is the table column denoting the product_specs relation/edge.
+	ProductSpecsColumn = "packing_fee_id"
 )
 
 // Columns holds all SQL columns for additionalfee fields.
@@ -272,6 +281,20 @@ func ByStoreField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newStoreStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByProductSpecsCount orders the results by product_specs count.
+func ByProductSpecsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProductSpecsStep(), opts...)
+	}
+}
+
+// ByProductSpecs orders the results by product_specs terms.
+func ByProductSpecs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProductSpecsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -284,5 +307,12 @@ func newStoreStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(StoreInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, StoreTable, StoreColumn),
+	)
+}
+func newProductSpecsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProductSpecsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProductSpecsTable, ProductSpecsColumn),
 	)
 }

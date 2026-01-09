@@ -42,7 +42,8 @@ const (
 	ProductAttrItemDeleteHasProducts ErrCode = "PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS" // 商品口味做法项有商品
 
 	// 商品
-	ProductNameExists ErrCode = "PRODUCT_NAME_EXISTS" // 商品名称已存在
+	ProductNameExists      ErrCode = "PRODUCT_NAME_EXISTS"        // 商品名称已存在
+	ProductBelongToSetMeal ErrCode = "PRODUCT_BELONG_TO_SET_MEAL" // 商品属于套餐组，不能停售或删除
 
 	MerchantNameExists            ErrCode = "MERCHANT_NAME_EXISTS"              // 商户名称已存在
 	StoreNameExists               ErrCode = "STORE_NAME_EXISTS"                 // 门店名称已存在
@@ -62,4 +63,16 @@ const (
 	DeviceCodeExists              ErrCode = "DEVICE_CODE_EXISTS"                // 设备编号已存在
 	TaxFeeNameExists              ErrCode = "TAX_FEE_NAME_EXISTS"               // 税费名称已存在
 	BackendUserExists             ErrCode = "BACKEND_USER_EXISTS"               // 后台用户已存在
+	AdditionalNameExists          ErrCode = "ADDITIONAL_NAME_EXISTS"            // 附加费费名称已存在
+
+	SuperUserCannotDelete      ErrCode = "SUPER_USER_CANNOT_DELETE"      // 超级管理员用户不能被删除
+	SuperUserCannotDisable     ErrCode = "SUPER_USER_CANNOT_DISABLE"     // 超级管理员用户不能被禁用
+	SuperUserCannotUpdate      ErrCode = "SUPER_USER_CANNOT_UPDATE"      // 超级管理员用户不能被修改
+	UserDisabled               ErrCode = "USER_DISABLED"                 // 用户已被禁用
+	DepartmentDisabled         ErrCode = "DEPARTMENT_DISABLED"           // 用户所属部门已被禁用
+	RoleDisabled               ErrCode = "ROLE_DISABLED"                 // 用户所属角色已被禁用
+	UserRoleRequired           ErrCode = "USER_ROLE_REQUIRED"            // 用户至少需要分配一个角色
+	UserDepartmentRequired     ErrCode = "USER_DEPARTMENT_REQUIRED"      // 用户所属部门不能为空
+	UserRoleTypeMismatch       ErrCode = "USER_ROLE_TYPE_MISMATCH"       // 用户角色类型不匹配
+	UserDepartmentTypeMismatch ErrCode = "USER_DEPARTMENT_TYPE_MISMATCH" // 用户部门类型不匹配
 )

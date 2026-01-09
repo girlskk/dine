@@ -21,16 +21,17 @@ func (Merchant) Fields() []ent.Field {
 		field.String("merchant_code").
 			Optional().
 			Default("").
+			MaxLen(100).
 			Comment("商户编号(保留字段)"),
 		field.String("merchant_name").
 			NotEmpty().
 			Default("").
-			MaxLen(50).
+			MaxLen(100).
 			Comment("商户名称,最长不得超过50个字"),
 		field.String("merchant_short_name").
 			Optional().
 			Default("").
-			MaxLen(50).
+			MaxLen(100).
 			Comment("商户简称"),
 		field.Enum("merchant_type").
 			GoType(domain.MerchantType("")).
@@ -38,6 +39,7 @@ func (Merchant) Fields() []ent.Field {
 		field.String("brand_name").
 			Optional().
 			Default("").
+			MaxLen(100).
 			Comment("品牌名称"),
 		field.String("admin_phone_number").
 			NotEmpty().
@@ -48,8 +50,8 @@ func (Merchant) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("UTC 时区的过期时间"),
-		field.UUID("business_type_id", uuid.UUID{}).
-			Comment("业务类型"),
+		field.String("business_type_code").
+			Comment("业态类型"),
 		field.String("merchant_logo").
 			Default("").
 			MaxLen(500).
@@ -98,12 +100,6 @@ func (Merchant) Fields() []ent.Field {
 // Edges of the Merchant.
 func (Merchant) Edges() []ent.Edge {
 	return []ent.Edge{
-		// 业态类型
-		edge.From("merchant_business_type", MerchantBusinessType.Type).
-			Ref("merchants").
-			Field("business_type_id").
-			Unique().
-			Required(),
 		// 地区关联（绑定已有外键字段）
 		edge.From("country", Country.Type).
 			Ref("merchants").
@@ -133,6 +129,7 @@ func (Merchant) Edges() []ent.Edge {
 		edge.To("departments", Department.Type),
 		edge.To("roles", Role.Type),
 		edge.To("store_users", StoreUser.Type),
+		edge.To("profit_distribution_bills", ProfitDistributionBill.Type).Comment("关联的分账账单"),
 	}
 }
 

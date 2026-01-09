@@ -257,6 +257,26 @@ func (du *DeviceUpdate) ClearPaperSize() *DeviceUpdate {
 	return du
 }
 
+// SetConnectType sets the "connect_type" field.
+func (du *DeviceUpdate) SetConnectType(dct domain.DeviceConnectType) *DeviceUpdate {
+	du.mutation.SetConnectType(dct)
+	return du
+}
+
+// SetNillableConnectType sets the "connect_type" field if the given value is not nil.
+func (du *DeviceUpdate) SetNillableConnectType(dct *domain.DeviceConnectType) *DeviceUpdate {
+	if dct != nil {
+		du.SetConnectType(*dct)
+	}
+	return du
+}
+
+// ClearConnectType clears the value of the "connect_type" field.
+func (du *DeviceUpdate) ClearConnectType() *DeviceUpdate {
+	du.mutation.ClearConnectType()
+	return du
+}
+
 // SetStallID sets the "stall_id" field.
 func (du *DeviceUpdate) SetStallID(u uuid.UUID) *DeviceUpdate {
 	du.mutation.SetStallID(u)
@@ -468,6 +488,11 @@ func (du *DeviceUpdate) check() error {
 			return &ValidationError{Name: "paper_size", err: fmt.Errorf(`ent: validator failed for field "Device.paper_size": %w`, err)}
 		}
 	}
+	if v, ok := du.mutation.ConnectType(); ok {
+		if err := device.ConnectTypeValidator(v); err != nil {
+			return &ValidationError{Name: "connect_type", err: fmt.Errorf(`ent: validator failed for field "Device.connect_type": %w`, err)}
+		}
+	}
 	if v, ok := du.mutation.DeviceStallPrintType(); ok {
 		if err := device.DeviceStallPrintTypeValidator(v); err != nil {
 			return &ValidationError{Name: "device_stall_print_type", err: fmt.Errorf(`ent: validator failed for field "Device.device_stall_print_type": %w`, err)}
@@ -567,6 +592,12 @@ func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if du.mutation.PaperSizeCleared() {
 		_spec.ClearField(device.FieldPaperSize, field.TypeEnum)
+	}
+	if value, ok := du.mutation.ConnectType(); ok {
+		_spec.SetField(device.FieldConnectType, field.TypeEnum, value)
+	}
+	if du.mutation.ConnectTypeCleared() {
+		_spec.ClearField(device.FieldConnectType, field.TypeEnum)
 	}
 	if value, ok := du.mutation.OrderChannels(); ok {
 		_spec.SetField(device.FieldOrderChannels, field.TypeJSON, value)
@@ -883,6 +914,26 @@ func (duo *DeviceUpdateOne) ClearPaperSize() *DeviceUpdateOne {
 	return duo
 }
 
+// SetConnectType sets the "connect_type" field.
+func (duo *DeviceUpdateOne) SetConnectType(dct domain.DeviceConnectType) *DeviceUpdateOne {
+	duo.mutation.SetConnectType(dct)
+	return duo
+}
+
+// SetNillableConnectType sets the "connect_type" field if the given value is not nil.
+func (duo *DeviceUpdateOne) SetNillableConnectType(dct *domain.DeviceConnectType) *DeviceUpdateOne {
+	if dct != nil {
+		duo.SetConnectType(*dct)
+	}
+	return duo
+}
+
+// ClearConnectType clears the value of the "connect_type" field.
+func (duo *DeviceUpdateOne) ClearConnectType() *DeviceUpdateOne {
+	duo.mutation.ClearConnectType()
+	return duo
+}
+
 // SetStallID sets the "stall_id" field.
 func (duo *DeviceUpdateOne) SetStallID(u uuid.UUID) *DeviceUpdateOne {
 	duo.mutation.SetStallID(u)
@@ -1107,6 +1158,11 @@ func (duo *DeviceUpdateOne) check() error {
 			return &ValidationError{Name: "paper_size", err: fmt.Errorf(`ent: validator failed for field "Device.paper_size": %w`, err)}
 		}
 	}
+	if v, ok := duo.mutation.ConnectType(); ok {
+		if err := device.ConnectTypeValidator(v); err != nil {
+			return &ValidationError{Name: "connect_type", err: fmt.Errorf(`ent: validator failed for field "Device.connect_type": %w`, err)}
+		}
+	}
 	if v, ok := duo.mutation.DeviceStallPrintType(); ok {
 		if err := device.DeviceStallPrintTypeValidator(v); err != nil {
 			return &ValidationError{Name: "device_stall_print_type", err: fmt.Errorf(`ent: validator failed for field "Device.device_stall_print_type": %w`, err)}
@@ -1223,6 +1279,12 @@ func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err err
 	}
 	if duo.mutation.PaperSizeCleared() {
 		_spec.ClearField(device.FieldPaperSize, field.TypeEnum)
+	}
+	if value, ok := duo.mutation.ConnectType(); ok {
+		_spec.SetField(device.FieldConnectType, field.TypeEnum, value)
+	}
+	if duo.mutation.ConnectTypeCleared() {
+		_spec.ClearField(device.FieldConnectType, field.TypeEnum)
 	}
 	if value, ok := duo.mutation.OrderChannels(); ok {
 		_spec.SetField(device.FieldOrderChannels, field.TypeJSON, value)

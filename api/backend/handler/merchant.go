@@ -47,9 +47,6 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 //	@Param			id		path	string					true	"商户ID"
 //	@Param			data	body	types.UpdateMerchantReq	true	"更新品牌商户请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/merchant/brand [put]
 func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -73,7 +70,7 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			MerchantShortName: req.MerchantShortName,
 			BrandName:         req.BrandName,
 			AdminPhoneNumber:  req.AdminPhoneNumber,
-			BusinessTypeID:    req.BusinessTypeID,
+			BusinessTypeCode:  req.BusinessTypeCode,
 			MerchantLogo:      req.MerchantLogo,
 			Description:       req.Description,
 		}
@@ -116,9 +113,6 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 //	@Param			id		path	string							true	"商户ID"
 //	@Param			data	body	types.UpdateStoreMerchantReq	true	"更新门店商户请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/merchant/store [put]
 func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -136,13 +130,13 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		address := &domain.Address{
-			CountryID:  req.Store.Address.CountryID,
-			ProvinceID: req.Store.Address.ProvinceID,
-			CityID:     req.Store.Address.CityID,
-			DistrictID: req.Store.Address.DistrictID,
-			Address:    req.Store.Address.Address,
-			Lng:        req.Store.Address.Lng,
-			Lat:        req.Store.Address.Lat,
+			CountryID:  req.Merchant.Address.CountryID,
+			ProvinceID: req.Merchant.Address.ProvinceID,
+			CityID:     req.Merchant.Address.CityID,
+			DistrictID: req.Merchant.Address.DistrictID,
+			Address:    req.Merchant.Address.Address,
+			Lng:        req.Merchant.Address.Lng,
+			Lat:        req.Merchant.Address.Lat,
 		}
 		updateMerchant := &domain.UpdateMerchantParams{
 			ID:                user.MerchantID,
@@ -151,7 +145,7 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			MerchantShortName: req.Merchant.MerchantShortName,
 			BrandName:         req.Merchant.BrandName,
 			AdminPhoneNumber:  req.Merchant.AdminPhoneNumber,
-			BusinessTypeID:    req.Merchant.BusinessTypeID,
+			BusinessTypeCode:  req.Merchant.BusinessTypeCode,
 			MerchantLogo:      req.Merchant.MerchantLogo,
 			Description:       req.Merchant.Description,
 			Address:           address, // 门店商户的地址使用门店的地址
@@ -174,8 +168,8 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			StoreShortName:          req.Store.StoreShortName,
 			StoreCode:               req.Store.StoreCode,
 			Status:                  req.Store.Status,
-			BusinessModel:           req.Store.BusinessModel,
-			BusinessTypeID:          req.Store.BusinessTypeID,
+			BusinessModel:           domain.BusinessModelDirect,
+			BusinessTypeCode:        req.Merchant.BusinessTypeCode,
 			LocationNumber:          req.Store.LocationNumber,
 			ContactName:             req.Store.ContactName,
 			ContactPhone:            req.Store.ContactPhone,
@@ -186,7 +180,6 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			CashierDeskURL:          req.Store.CashierDeskURL,
 			DiningEnvironmentURL:    req.Store.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.Store.FoodOperationLicenseURL,
-			LoginPassword:           req.Store.LoginPassword,
 			BusinessHours:           req.Store.BusinessHours,
 			DiningPeriods:           req.Store.DiningPeriods,
 			ShiftTimes:              req.Store.ShiftTimes,
@@ -217,9 +210,6 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"商户ID"
 //	@Success		200	{object}	response.Response{data=types.MerchantInfoResp}
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/merchant [get]
 func (h *MerchantHandler) GetMerchant() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -271,9 +261,6 @@ func (h *MerchantHandler) GetMerchant() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			data	body	types.MerchantRenewalReq	true	"商户续期请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		404		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/merchant/renewal [post]
 func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -319,9 +306,6 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/merchant/enable [put]
 func (h *MerchantHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -356,9 +340,6 @@ func (h *MerchantHandler) Enable() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/merchant/disable [put]
 func (h *MerchantHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {

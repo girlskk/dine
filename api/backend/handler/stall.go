@@ -44,9 +44,6 @@ func (h *StallHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.StallCreateReq	true	"请求信息"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/restaurant/stall [post]
 func (h *StallHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -100,9 +97,6 @@ func (h *StallHandler) Create() gin.HandlerFunc {
 //	@Param			id		path	string					true	"出品部门ID"
 //	@Param			data	body	types.StallUpdateReq	true	"请求信息"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/restaurant/stall/{id} [put]
 func (h *StallHandler) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -158,9 +152,6 @@ func (h *StallHandler) Update() gin.HandlerFunc {
 //	@Param			id	path	string	true	"出品部门ID"
 //	@Success		200	"No Content"
 //	@Success		204	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/stall/{id} [delete]
 func (h *StallHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -201,9 +192,6 @@ func (h *StallHandler) Delete() gin.HandlerFunc {
 //	@Description	根据出品部门ID获取详情
 //	@Param			id	path		string	true	"出品部门ID"
 //	@Success		200	{object}	response.Response{data=domain.Stall}
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/stall/{id} [get]
 func (h *StallHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -241,8 +229,6 @@ func (h *StallHandler) Get() gin.HandlerFunc {
 //	@Description	分页查询出品部门列表
 //	@Param			data	query		types.StallListReq	true	"出品部门列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.StallListResp}
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/restaurant/stall [get]
 func (h *StallHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -287,9 +273,6 @@ func (h *StallHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"出品部门ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/stall/{id}/enable [put]
 func (h *StallHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -305,7 +288,7 @@ func (h *StallHandler) Enable() gin.HandlerFunc {
 		}
 
 		stall := &domain.Stall{ID: id, Enabled: true}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateTypeEnabled, stall); err != nil {
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -332,9 +315,6 @@ func (h *StallHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"出品部门ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/restaurant/stall/{id}/disable [put]
 func (h *StallHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -350,7 +330,7 @@ func (h *StallHandler) Disable() gin.HandlerFunc {
 		}
 
 		stall := &domain.Stall{ID: id, Enabled: false}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateTypeEnabled, stall); err != nil {
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

@@ -83,6 +83,7 @@ func (AdditionalFee) Edges() []ent.Edge {
 			Field("store_id").
 			Unique().
 			Immutable(),
+		edge.To("product_specs", ProductSpecRelation.Type).Comment("商品规格关联"),
 	}
 }
 

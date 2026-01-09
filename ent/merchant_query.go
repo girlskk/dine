@@ -22,9 +22,9 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
@@ -38,28 +38,28 @@ import (
 // MerchantQuery is the builder for querying Merchant entities.
 type MerchantQuery struct {
 	config
-	ctx                      *QueryContext
-	order                    []merchant.OrderOption
-	inters                   []Interceptor
-	predicates               []predicate.Merchant
-	withMerchantBusinessType *MerchantBusinessTypeQuery
-	withCountry              *CountryQuery
-	withProvince             *ProvinceQuery
-	withCity                 *CityQuery
-	withDistrict             *DistrictQuery
-	withBackendUsers         *BackendUserQuery
-	withStores               *StoreQuery
-	withMerchantRenewals     *MerchantRenewalQuery
-	withRemarkCategories     *RemarkCategoryQuery
-	withRemarks              *RemarkQuery
-	withStalls               *StallQuery
-	withAdditionalFees       *AdditionalFeeQuery
-	withTaxFees              *TaxFeeQuery
-	withDevices              *DeviceQuery
-	withDepartments          *DepartmentQuery
-	withRoles                *RoleQuery
-	withStoreUsers           *StoreUserQuery
-	modifiers                []func(*sql.Selector)
+	ctx                         *QueryContext
+	order                       []merchant.OrderOption
+	inters                      []Interceptor
+	predicates                  []predicate.Merchant
+	withCountry                 *CountryQuery
+	withProvince                *ProvinceQuery
+	withCity                    *CityQuery
+	withDistrict                *DistrictQuery
+	withBackendUsers            *BackendUserQuery
+	withStores                  *StoreQuery
+	withMerchantRenewals        *MerchantRenewalQuery
+	withRemarkCategories        *RemarkCategoryQuery
+	withRemarks                 *RemarkQuery
+	withStalls                  *StallQuery
+	withAdditionalFees          *AdditionalFeeQuery
+	withTaxFees                 *TaxFeeQuery
+	withDevices                 *DeviceQuery
+	withDepartments             *DepartmentQuery
+	withRoles                   *RoleQuery
+	withStoreUsers              *StoreUserQuery
+	withProfitDistributionBills *ProfitDistributionBillQuery
+	modifiers                   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -94,28 +94,6 @@ func (mq *MerchantQuery) Unique(unique bool) *MerchantQuery {
 func (mq *MerchantQuery) Order(o ...merchant.OrderOption) *MerchantQuery {
 	mq.order = append(mq.order, o...)
 	return mq
-}
-
-// QueryMerchantBusinessType chains the current query on the "merchant_business_type" edge.
-func (mq *MerchantQuery) QueryMerchantBusinessType() *MerchantBusinessTypeQuery {
-	query := (&MerchantBusinessTypeClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(merchantbusinesstype.Table, merchantbusinesstype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.MerchantBusinessTypeTable, merchant.MerchantBusinessTypeColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryCountry chains the current query on the "country" edge.
@@ -470,6 +448,28 @@ func (mq *MerchantQuery) QueryStoreUsers() *StoreUserQuery {
 	return query
 }
 
+// QueryProfitDistributionBills chains the current query on the "profit_distribution_bills" edge.
+func (mq *MerchantQuery) QueryProfitDistributionBills() *ProfitDistributionBillQuery {
+	query := (&ProfitDistributionBillClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
+			sqlgraph.To(profitdistributionbill.Table, profitdistributionbill.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.ProfitDistributionBillsTable, merchant.ProfitDistributionBillsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Merchant entity from the query.
 // Returns a *NotFoundError when no Merchant was found.
 func (mq *MerchantQuery) First(ctx context.Context) (*Merchant, error) {
@@ -657,44 +657,33 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		return nil
 	}
 	return &MerchantQuery{
-		config:                   mq.config,
-		ctx:                      mq.ctx.Clone(),
-		order:                    append([]merchant.OrderOption{}, mq.order...),
-		inters:                   append([]Interceptor{}, mq.inters...),
-		predicates:               append([]predicate.Merchant{}, mq.predicates...),
-		withMerchantBusinessType: mq.withMerchantBusinessType.Clone(),
-		withCountry:              mq.withCountry.Clone(),
-		withProvince:             mq.withProvince.Clone(),
-		withCity:                 mq.withCity.Clone(),
-		withDistrict:             mq.withDistrict.Clone(),
-		withBackendUsers:         mq.withBackendUsers.Clone(),
-		withStores:               mq.withStores.Clone(),
-		withMerchantRenewals:     mq.withMerchantRenewals.Clone(),
-		withRemarkCategories:     mq.withRemarkCategories.Clone(),
-		withRemarks:              mq.withRemarks.Clone(),
-		withStalls:               mq.withStalls.Clone(),
-		withAdditionalFees:       mq.withAdditionalFees.Clone(),
-		withTaxFees:              mq.withTaxFees.Clone(),
-		withDevices:              mq.withDevices.Clone(),
-		withDepartments:          mq.withDepartments.Clone(),
-		withRoles:                mq.withRoles.Clone(),
-		withStoreUsers:           mq.withStoreUsers.Clone(),
+		config:                      mq.config,
+		ctx:                         mq.ctx.Clone(),
+		order:                       append([]merchant.OrderOption{}, mq.order...),
+		inters:                      append([]Interceptor{}, mq.inters...),
+		predicates:                  append([]predicate.Merchant{}, mq.predicates...),
+		withCountry:                 mq.withCountry.Clone(),
+		withProvince:                mq.withProvince.Clone(),
+		withCity:                    mq.withCity.Clone(),
+		withDistrict:                mq.withDistrict.Clone(),
+		withBackendUsers:            mq.withBackendUsers.Clone(),
+		withStores:                  mq.withStores.Clone(),
+		withMerchantRenewals:        mq.withMerchantRenewals.Clone(),
+		withRemarkCategories:        mq.withRemarkCategories.Clone(),
+		withRemarks:                 mq.withRemarks.Clone(),
+		withStalls:                  mq.withStalls.Clone(),
+		withAdditionalFees:          mq.withAdditionalFees.Clone(),
+		withTaxFees:                 mq.withTaxFees.Clone(),
+		withDevices:                 mq.withDevices.Clone(),
+		withDepartments:             mq.withDepartments.Clone(),
+		withRoles:                   mq.withRoles.Clone(),
+		withStoreUsers:              mq.withStoreUsers.Clone(),
+		withProfitDistributionBills: mq.withProfitDistributionBills.Clone(),
 		// clone intermediate query.
 		sql:       mq.sql.Clone(),
 		path:      mq.path,
 		modifiers: append([]func(*sql.Selector){}, mq.modifiers...),
 	}
-}
-
-// WithMerchantBusinessType tells the query-builder to eager-load the nodes that are connected to
-// the "merchant_business_type" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithMerchantBusinessType(opts ...func(*MerchantBusinessTypeQuery)) *MerchantQuery {
-	query := (&MerchantBusinessTypeClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withMerchantBusinessType = query
-	return mq
 }
 
 // WithCountry tells the query-builder to eager-load the nodes that are connected to
@@ -873,6 +862,17 @@ func (mq *MerchantQuery) WithStoreUsers(opts ...func(*StoreUserQuery)) *Merchant
 	return mq
 }
 
+// WithProfitDistributionBills tells the query-builder to eager-load the nodes that are connected to
+// the "profit_distribution_bills" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MerchantQuery) WithProfitDistributionBills(opts ...func(*ProfitDistributionBillQuery)) *MerchantQuery {
+	query := (&ProfitDistributionBillClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withProfitDistributionBills = query
+	return mq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -952,7 +952,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
 		loadedTypes = [17]bool{
-			mq.withMerchantBusinessType != nil,
 			mq.withCountry != nil,
 			mq.withProvince != nil,
 			mq.withCity != nil,
@@ -969,6 +968,7 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			mq.withDepartments != nil,
 			mq.withRoles != nil,
 			mq.withStoreUsers != nil,
+			mq.withProfitDistributionBills != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -991,12 +991,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
-	}
-	if query := mq.withMerchantBusinessType; query != nil {
-		if err := mq.loadMerchantBusinessType(ctx, query, nodes, nil,
-			func(n *Merchant, e *MerchantBusinessType) { n.Edges.MerchantBusinessType = e }); err != nil {
-			return nil, err
-		}
 	}
 	if query := mq.withCountry; query != nil {
 		if err := mq.loadCountry(ctx, query, nodes, nil,
@@ -1106,38 +1100,18 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 			return nil, err
 		}
 	}
+	if query := mq.withProfitDistributionBills; query != nil {
+		if err := mq.loadProfitDistributionBills(ctx, query, nodes,
+			func(n *Merchant) { n.Edges.ProfitDistributionBills = []*ProfitDistributionBill{} },
+			func(n *Merchant, e *ProfitDistributionBill) {
+				n.Edges.ProfitDistributionBills = append(n.Edges.ProfitDistributionBills, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (mq *MerchantQuery) loadMerchantBusinessType(ctx context.Context, query *MerchantBusinessTypeQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *MerchantBusinessType)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Merchant)
-	for i := range nodes {
-		fk := nodes[i].BusinessTypeID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(merchantbusinesstype.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "business_type_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (mq *MerchantQuery) loadCountry(ctx context.Context, query *CountryQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Country)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Merchant)
@@ -1264,7 +1238,9 @@ func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUse
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(backenduser.FieldMerchantID)
+	}
 	query.Where(predicate.BackendUser(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.BackendUsersColumn), fks...))
 	}))
@@ -1273,13 +1249,10 @@ func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUse
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.merchant_backend_users
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "merchant_backend_users" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "merchant_backend_users" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -1615,6 +1588,36 @@ func (mq *MerchantQuery) loadStoreUsers(ctx context.Context, query *StoreUserQue
 	}
 	return nil
 }
+func (mq *MerchantQuery) loadProfitDistributionBills(ctx context.Context, query *ProfitDistributionBillQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *ProfitDistributionBill)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Merchant)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(profitdistributionbill.FieldMerchantID)
+	}
+	query.Where(predicate.ProfitDistributionBill(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(merchant.ProfitDistributionBillsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MerchantID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (mq *MerchantQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
@@ -1643,9 +1646,6 @@ func (mq *MerchantQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != merchant.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if mq.withMerchantBusinessType != nil {
-			_spec.Node.AddColumnOnce(merchant.FieldBusinessTypeID)
 		}
 		if mq.withCountry != nil {
 			_spec.Node.AddColumnOnce(merchant.FieldCountryID)

@@ -58,6 +58,9 @@ other = "Product attr has items, cannot delete"
 [PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS]
 other = "Product attr item has products, cannot delete"
 
+[PRODUCT_BELONG_TO_SET_MEAL]
+other = "Product belongs to set meal, cannot off sale or delete"
+
 [MERCHANT_NAME_EXISTS]
 other = "Merchant name already exists"
 
@@ -111,3 +114,33 @@ other = "Tax fee name already exists"
 
 [BACKEND_USER_EXISTS]
 other = "Backend user already exists"
+
+[SUPER_USER_CANNOT_DELETE]
+other = "Super administrator user cannot be deleted"
+
+[SUPER_USER_CANNOT_DISABLE]
+other = "Super administrator user cannot be disabled"
+
+[SUPER_USER_CANNOT_UPDATE]
+other = "Super administrator user cannot be updated"
+
+[USER_DISABLED]
+other = "User has been disabled"
+
+[DEPARTMENT_DISABLED]
+other = "User's department has been disabled"
+
+[ROLE_DISABLED]
+other = "User's role has been disabled"
+
+[USER_ROLE_REQUIRED]
+other = "User must be assigned at least one role"
+
+[USER_DEPARTMENT_REQUIRED]
+other = "User's department cannot be empty"
+
+[USER_ROLE_TYPE_MISMATCH]
+other = "User role type mismatch"
+
+[USER_DEPARTMENT_TYPE_MISMATCH]
+other = "User department type mismatch"

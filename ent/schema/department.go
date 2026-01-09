@@ -21,6 +21,7 @@ func (Department) Fields() []ent.Field {
 		field.String("name").
 			Comment("名称"),
 		field.String("code").
+			NotEmpty().
 			Immutable().
 			Comment("编码"),
 		field.Enum("department_type").
@@ -54,6 +55,9 @@ func (Department) Edges() []ent.Edge {
 			Field("store_id").
 			Immutable().
 			Unique(),
+		edge.To("admin_users", AdminUser.Type),
+		edge.To("backend_users", BackendUser.Type),
+		edge.To("store_users", StoreUser.Type),
 	}
 }
 

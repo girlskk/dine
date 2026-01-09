@@ -10,7 +10,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 )
 
@@ -28,10 +27,10 @@ type Menu struct {
 	DeletedAt int64 `json:"deleted_at,omitempty"`
 	// 品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
+	// 门店ID
+	StoreID uuid.UUID `json:"store_id,omitempty"`
 	// 菜单名称
 	Name string `json:"name,omitempty"`
-	// 下发规则：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
-	DistributionRule domain.MenuDistributionRule `json:"distribution_rule,omitempty"`
 	// 适用门店数量
 	StoreCount int `json:"store_count,omitempty"`
 	// 菜单项数量
@@ -78,11 +77,11 @@ func (*Menu) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case menu.FieldDeletedAt, menu.FieldStoreCount, menu.FieldItemCount:
 			values[i] = new(sql.NullInt64)
-		case menu.FieldName, menu.FieldDistributionRule:
+		case menu.FieldName:
 			values[i] = new(sql.NullString)
 		case menu.FieldCreatedAt, menu.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case menu.FieldID, menu.FieldMerchantID:
+		case menu.FieldID, menu.FieldMerchantID, menu.FieldStoreID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -129,17 +128,17 @@ func (m *Menu) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				m.MerchantID = *value
 			}
+		case menu.FieldStoreID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field store_id", values[i])
+			} else if value != nil {
+				m.StoreID = *value
+			}
 		case menu.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				m.Name = value.String
-			}
-		case menu.FieldDistributionRule:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field distribution_rule", values[i])
-			} else if value.Valid {
-				m.DistributionRule = domain.MenuDistributionRule(value.String)
 			}
 		case menu.FieldStoreCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -211,11 +210,11 @@ func (m *Menu) String() string {
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", m.MerchantID))
 	builder.WriteString(", ")
+	builder.WriteString("store_id=")
+	builder.WriteString(fmt.Sprintf("%v", m.StoreID))
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(m.Name)
-	builder.WriteString(", ")
-	builder.WriteString("distribution_rule=")
-	builder.WriteString(fmt.Sprintf("%v", m.DistributionRule))
 	builder.WriteString(", ")
 	builder.WriteString("store_count=")
 	builder.WriteString(fmt.Sprintf("%v", m.StoreCount))

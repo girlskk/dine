@@ -11,7 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -98,9 +101,130 @@ func (auu *AdminUserUpdate) SetNillableNickname(s *string) *AdminUserUpdate {
 	return auu
 }
 
+// SetDepartmentID sets the "department_id" field.
+func (auu *AdminUserUpdate) SetDepartmentID(u uuid.UUID) *AdminUserUpdate {
+	auu.mutation.SetDepartmentID(u)
+	return auu
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillableDepartmentID(u *uuid.UUID) *AdminUserUpdate {
+	if u != nil {
+		auu.SetDepartmentID(*u)
+	}
+	return auu
+}
+
+// SetRealName sets the "real_name" field.
+func (auu *AdminUserUpdate) SetRealName(s string) *AdminUserUpdate {
+	auu.mutation.SetRealName(s)
+	return auu
+}
+
+// SetNillableRealName sets the "real_name" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillableRealName(s *string) *AdminUserUpdate {
+	if s != nil {
+		auu.SetRealName(*s)
+	}
+	return auu
+}
+
+// SetGender sets the "gender" field.
+func (auu *AdminUserUpdate) SetGender(d domain.Gender) *AdminUserUpdate {
+	auu.mutation.SetGender(d)
+	return auu
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillableGender(d *domain.Gender) *AdminUserUpdate {
+	if d != nil {
+		auu.SetGender(*d)
+	}
+	return auu
+}
+
+// SetEmail sets the "email" field.
+func (auu *AdminUserUpdate) SetEmail(s string) *AdminUserUpdate {
+	auu.mutation.SetEmail(s)
+	return auu
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillableEmail(s *string) *AdminUserUpdate {
+	if s != nil {
+		auu.SetEmail(*s)
+	}
+	return auu
+}
+
+// ClearEmail clears the value of the "email" field.
+func (auu *AdminUserUpdate) ClearEmail() *AdminUserUpdate {
+	auu.mutation.ClearEmail()
+	return auu
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (auu *AdminUserUpdate) SetPhoneNumber(s string) *AdminUserUpdate {
+	auu.mutation.SetPhoneNumber(s)
+	return auu
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillablePhoneNumber(s *string) *AdminUserUpdate {
+	if s != nil {
+		auu.SetPhoneNumber(*s)
+	}
+	return auu
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (auu *AdminUserUpdate) ClearPhoneNumber() *AdminUserUpdate {
+	auu.mutation.ClearPhoneNumber()
+	return auu
+}
+
+// SetEnabled sets the "enabled" field.
+func (auu *AdminUserUpdate) SetEnabled(b bool) *AdminUserUpdate {
+	auu.mutation.SetEnabled(b)
+	return auu
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillableEnabled(b *bool) *AdminUserUpdate {
+	if b != nil {
+		auu.SetEnabled(*b)
+	}
+	return auu
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (auu *AdminUserUpdate) SetIsSuperadmin(b bool) *AdminUserUpdate {
+	auu.mutation.SetIsSuperadmin(b)
+	return auu
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (auu *AdminUserUpdate) SetNillableIsSuperadmin(b *bool) *AdminUserUpdate {
+	if b != nil {
+		auu.SetIsSuperadmin(*b)
+	}
+	return auu
+}
+
+// SetDepartment sets the "department" edge to the Department entity.
+func (auu *AdminUserUpdate) SetDepartment(d *Department) *AdminUserUpdate {
+	return auu.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the AdminUserMutation object of the builder.
 func (auu *AdminUserUpdate) Mutation() *AdminUserMutation {
 	return auu.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (auu *AdminUserUpdate) ClearDepartment() *AdminUserUpdate {
+	auu.mutation.ClearDepartment()
+	return auu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -157,6 +281,29 @@ func (auu *AdminUserUpdate) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "AdminUser.hashed_password": %w`, err)}
 		}
 	}
+	if v, ok := auu.mutation.RealName(); ok {
+		if err := adminuser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "AdminUser.real_name": %w`, err)}
+		}
+	}
+	if v, ok := auu.mutation.Gender(); ok {
+		if err := adminuser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "AdminUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := auu.mutation.Email(); ok {
+		if err := adminuser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "AdminUser.email": %w`, err)}
+		}
+	}
+	if v, ok := auu.mutation.PhoneNumber(); ok {
+		if err := adminuser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "AdminUser.phone_number": %w`, err)}
+		}
+	}
+	if auu.mutation.DepartmentCleared() && len(auu.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "AdminUser.department"`)
+	}
 	return nil
 }
 
@@ -195,6 +342,59 @@ func (auu *AdminUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := auu.mutation.Nickname(); ok {
 		_spec.SetField(adminuser.FieldNickname, field.TypeString, value)
+	}
+	if value, ok := auu.mutation.RealName(); ok {
+		_spec.SetField(adminuser.FieldRealName, field.TypeString, value)
+	}
+	if value, ok := auu.mutation.Gender(); ok {
+		_spec.SetField(adminuser.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := auu.mutation.Email(); ok {
+		_spec.SetField(adminuser.FieldEmail, field.TypeString, value)
+	}
+	if auu.mutation.EmailCleared() {
+		_spec.ClearField(adminuser.FieldEmail, field.TypeString)
+	}
+	if value, ok := auu.mutation.PhoneNumber(); ok {
+		_spec.SetField(adminuser.FieldPhoneNumber, field.TypeString, value)
+	}
+	if auu.mutation.PhoneNumberCleared() {
+		_spec.ClearField(adminuser.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := auu.mutation.Enabled(); ok {
+		_spec.SetField(adminuser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := auu.mutation.IsSuperadmin(); ok {
+		_spec.SetField(adminuser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if auu.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auu.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(auu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, auu.driver, _spec); err != nil {
@@ -287,9 +487,130 @@ func (auuo *AdminUserUpdateOne) SetNillableNickname(s *string) *AdminUserUpdateO
 	return auuo
 }
 
+// SetDepartmentID sets the "department_id" field.
+func (auuo *AdminUserUpdateOne) SetDepartmentID(u uuid.UUID) *AdminUserUpdateOne {
+	auuo.mutation.SetDepartmentID(u)
+	return auuo
+}
+
+// SetNillableDepartmentID sets the "department_id" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillableDepartmentID(u *uuid.UUID) *AdminUserUpdateOne {
+	if u != nil {
+		auuo.SetDepartmentID(*u)
+	}
+	return auuo
+}
+
+// SetRealName sets the "real_name" field.
+func (auuo *AdminUserUpdateOne) SetRealName(s string) *AdminUserUpdateOne {
+	auuo.mutation.SetRealName(s)
+	return auuo
+}
+
+// SetNillableRealName sets the "real_name" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillableRealName(s *string) *AdminUserUpdateOne {
+	if s != nil {
+		auuo.SetRealName(*s)
+	}
+	return auuo
+}
+
+// SetGender sets the "gender" field.
+func (auuo *AdminUserUpdateOne) SetGender(d domain.Gender) *AdminUserUpdateOne {
+	auuo.mutation.SetGender(d)
+	return auuo
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillableGender(d *domain.Gender) *AdminUserUpdateOne {
+	if d != nil {
+		auuo.SetGender(*d)
+	}
+	return auuo
+}
+
+// SetEmail sets the "email" field.
+func (auuo *AdminUserUpdateOne) SetEmail(s string) *AdminUserUpdateOne {
+	auuo.mutation.SetEmail(s)
+	return auuo
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillableEmail(s *string) *AdminUserUpdateOne {
+	if s != nil {
+		auuo.SetEmail(*s)
+	}
+	return auuo
+}
+
+// ClearEmail clears the value of the "email" field.
+func (auuo *AdminUserUpdateOne) ClearEmail() *AdminUserUpdateOne {
+	auuo.mutation.ClearEmail()
+	return auuo
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (auuo *AdminUserUpdateOne) SetPhoneNumber(s string) *AdminUserUpdateOne {
+	auuo.mutation.SetPhoneNumber(s)
+	return auuo
+}
+
+// SetNillablePhoneNumber sets the "phone_number" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillablePhoneNumber(s *string) *AdminUserUpdateOne {
+	if s != nil {
+		auuo.SetPhoneNumber(*s)
+	}
+	return auuo
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (auuo *AdminUserUpdateOne) ClearPhoneNumber() *AdminUserUpdateOne {
+	auuo.mutation.ClearPhoneNumber()
+	return auuo
+}
+
+// SetEnabled sets the "enabled" field.
+func (auuo *AdminUserUpdateOne) SetEnabled(b bool) *AdminUserUpdateOne {
+	auuo.mutation.SetEnabled(b)
+	return auuo
+}
+
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillableEnabled(b *bool) *AdminUserUpdateOne {
+	if b != nil {
+		auuo.SetEnabled(*b)
+	}
+	return auuo
+}
+
+// SetIsSuperadmin sets the "is_superadmin" field.
+func (auuo *AdminUserUpdateOne) SetIsSuperadmin(b bool) *AdminUserUpdateOne {
+	auuo.mutation.SetIsSuperadmin(b)
+	return auuo
+}
+
+// SetNillableIsSuperadmin sets the "is_superadmin" field if the given value is not nil.
+func (auuo *AdminUserUpdateOne) SetNillableIsSuperadmin(b *bool) *AdminUserUpdateOne {
+	if b != nil {
+		auuo.SetIsSuperadmin(*b)
+	}
+	return auuo
+}
+
+// SetDepartment sets the "department" edge to the Department entity.
+func (auuo *AdminUserUpdateOne) SetDepartment(d *Department) *AdminUserUpdateOne {
+	return auuo.SetDepartmentID(d.ID)
+}
+
 // Mutation returns the AdminUserMutation object of the builder.
 func (auuo *AdminUserUpdateOne) Mutation() *AdminUserMutation {
 	return auuo.mutation
+}
+
+// ClearDepartment clears the "department" edge to the Department entity.
+func (auuo *AdminUserUpdateOne) ClearDepartment() *AdminUserUpdateOne {
+	auuo.mutation.ClearDepartment()
+	return auuo
 }
 
 // Where appends a list predicates to the AdminUserUpdate builder.
@@ -359,6 +680,29 @@ func (auuo *AdminUserUpdateOne) check() error {
 			return &ValidationError{Name: "hashed_password", err: fmt.Errorf(`ent: validator failed for field "AdminUser.hashed_password": %w`, err)}
 		}
 	}
+	if v, ok := auuo.mutation.RealName(); ok {
+		if err := adminuser.RealNameValidator(v); err != nil {
+			return &ValidationError{Name: "real_name", err: fmt.Errorf(`ent: validator failed for field "AdminUser.real_name": %w`, err)}
+		}
+	}
+	if v, ok := auuo.mutation.Gender(); ok {
+		if err := adminuser.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "AdminUser.gender": %w`, err)}
+		}
+	}
+	if v, ok := auuo.mutation.Email(); ok {
+		if err := adminuser.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "AdminUser.email": %w`, err)}
+		}
+	}
+	if v, ok := auuo.mutation.PhoneNumber(); ok {
+		if err := adminuser.PhoneNumberValidator(v); err != nil {
+			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "AdminUser.phone_number": %w`, err)}
+		}
+	}
+	if auuo.mutation.DepartmentCleared() && len(auuo.mutation.DepartmentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "AdminUser.department"`)
+	}
 	return nil
 }
 
@@ -414,6 +758,59 @@ func (auuo *AdminUserUpdateOne) sqlSave(ctx context.Context) (_node *AdminUser, 
 	}
 	if value, ok := auuo.mutation.Nickname(); ok {
 		_spec.SetField(adminuser.FieldNickname, field.TypeString, value)
+	}
+	if value, ok := auuo.mutation.RealName(); ok {
+		_spec.SetField(adminuser.FieldRealName, field.TypeString, value)
+	}
+	if value, ok := auuo.mutation.Gender(); ok {
+		_spec.SetField(adminuser.FieldGender, field.TypeEnum, value)
+	}
+	if value, ok := auuo.mutation.Email(); ok {
+		_spec.SetField(adminuser.FieldEmail, field.TypeString, value)
+	}
+	if auuo.mutation.EmailCleared() {
+		_spec.ClearField(adminuser.FieldEmail, field.TypeString)
+	}
+	if value, ok := auuo.mutation.PhoneNumber(); ok {
+		_spec.SetField(adminuser.FieldPhoneNumber, field.TypeString, value)
+	}
+	if auuo.mutation.PhoneNumberCleared() {
+		_spec.ClearField(adminuser.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := auuo.mutation.Enabled(); ok {
+		_spec.SetField(adminuser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := auuo.mutation.IsSuperadmin(); ok {
+		_spec.SetField(adminuser.FieldIsSuperadmin, field.TypeBool, value)
+	}
+	if auuo.mutation.DepartmentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auuo.mutation.DepartmentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   adminuser.DepartmentTable,
+			Columns: []string{adminuser.DepartmentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(department.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(auuo.modifiers...)
 	_node = &AdminUser{config: auuo.config}

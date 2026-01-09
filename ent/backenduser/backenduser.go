@@ -3,11 +3,14 @@
 package backenduser
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 const (
@@ -29,8 +32,42 @@ const (
 	FieldNickname = "nickname"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
+	// FieldDepartmentID holds the string denoting the department_id field in the database.
+	FieldDepartmentID = "department_id"
+	// FieldCode holds the string denoting the code field in the database.
+	FieldCode = "code"
+	// FieldRealName holds the string denoting the real_name field in the database.
+	FieldRealName = "real_name"
+	// FieldGender holds the string denoting the gender field in the database.
+	FieldGender = "gender"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldPhoneNumber holds the string denoting the phone_number field in the database.
+	FieldPhoneNumber = "phone_number"
+	// FieldEnabled holds the string denoting the enabled field in the database.
+	FieldEnabled = "enabled"
+	// FieldIsSuperadmin holds the string denoting the is_superadmin field in the database.
+	FieldIsSuperadmin = "is_superadmin"
+	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
+	EdgeMerchant = "merchant"
+	// EdgeDepartment holds the string denoting the department edge name in mutations.
+	EdgeDepartment = "department"
 	// Table holds the table name of the backenduser in the database.
 	Table = "backend_users"
+	// MerchantTable is the table that holds the merchant relation/edge.
+	MerchantTable = "backend_users"
+	// MerchantInverseTable is the table name for the Merchant entity.
+	// It exists in this package in order to avoid circular dependency with the "merchant" package.
+	MerchantInverseTable = "merchants"
+	// MerchantColumn is the table column denoting the merchant relation/edge.
+	MerchantColumn = "merchant_id"
+	// DepartmentTable is the table that holds the department relation/edge.
+	DepartmentTable = "backend_users"
+	// DepartmentInverseTable is the table name for the Department entity.
+	// It exists in this package in order to avoid circular dependency with the "department" package.
+	DepartmentInverseTable = "departments"
+	// DepartmentColumn is the table column denoting the department relation/edge.
+	DepartmentColumn = "department_id"
 )
 
 // Columns holds all SQL columns for backenduser fields.
@@ -43,23 +80,20 @@ var Columns = []string{
 	FieldHashedPassword,
 	FieldNickname,
 	FieldMerchantID,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "backend_users"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"merchant_backend_users",
+	FieldDepartmentID,
+	FieldCode,
+	FieldRealName,
+	FieldGender,
+	FieldEmail,
+	FieldPhoneNumber,
+	FieldEnabled,
+	FieldIsSuperadmin,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -86,9 +120,31 @@ var (
 	UsernameValidator func(string) error
 	// HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	HashedPasswordValidator func(string) error
+	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	CodeValidator func(string) error
+	// RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
+	RealNameValidator func(string) error
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
+	// PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
+	PhoneNumberValidator func(string) error
+	// DefaultEnabled holds the default value on creation for the "enabled" field.
+	DefaultEnabled bool
+	// DefaultIsSuperadmin holds the default value on creation for the "is_superadmin" field.
+	DefaultIsSuperadmin bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// GenderValidator is a validator for the "gender" field enum values. It is called by the builders before save.
+func GenderValidator(ge domain.Gender) error {
+	switch ge {
+	case "male", "female", "other", "unknown":
+		return nil
+	default:
+		return fmt.Errorf("backenduser: invalid enum value for gender field: %q", ge)
+	}
+}
 
 // OrderOption defines the ordering options for the BackendUser queries.
 type OrderOption func(*sql.Selector)
@@ -131,4 +187,72 @@ func ByNickname(opts ...sql.OrderTermOption) OrderOption {
 // ByMerchantID orders the results by the merchant_id field.
 func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
+}
+
+// ByDepartmentID orders the results by the department_id field.
+func ByDepartmentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDepartmentID, opts...).ToFunc()
+}
+
+// ByCode orders the results by the code field.
+func ByCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCode, opts...).ToFunc()
+}
+
+// ByRealName orders the results by the real_name field.
+func ByRealName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRealName, opts...).ToFunc()
+}
+
+// ByGender orders the results by the gender field.
+func ByGender(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGender, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByPhoneNumber orders the results by the phone_number field.
+func ByPhoneNumber(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPhoneNumber, opts...).ToFunc()
+}
+
+// ByEnabled orders the results by the enabled field.
+func ByEnabled(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEnabled, opts...).ToFunc()
+}
+
+// ByIsSuperadmin orders the results by the is_superadmin field.
+func ByIsSuperadmin(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsSuperadmin, opts...).ToFunc()
+}
+
+// ByMerchantField orders the results by merchant field.
+func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByDepartmentField orders the results by department field.
+func ByDepartmentField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDepartmentStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newMerchantStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MerchantInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
+	)
+}
+func newDepartmentStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DepartmentInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DepartmentTable, DepartmentColumn),
+	)
 }

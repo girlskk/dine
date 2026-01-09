@@ -116,6 +116,21 @@ func (mr *MockAdditionalFeeRepositoryMockRecorder) GetAdditionalFees(arg0, arg1,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdditionalFees", reflect.TypeOf((*MockAdditionalFeeRepository)(nil).GetAdditionalFees), varargs...)
 }
 
+// ListByIDs mocks base method.
+func (m *MockAdditionalFeeRepository) ListByIDs(arg0 context.Context, arg1 []uuid.UUID) ([]*domain.AdditionalFee, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByIDs", arg0, arg1)
+	ret0, _ := ret[0].([]*domain.AdditionalFee)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListByIDs indicates an expected call of ListByIDs.
+func (mr *MockAdditionalFeeRepositoryMockRecorder) ListByIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByIDs", reflect.TypeOf((*MockAdditionalFeeRepository)(nil).ListByIDs), arg0, arg1)
+}
+
 // Update mocks base method.
 func (m *MockAdditionalFeeRepository) Update(arg0 context.Context, arg1 *domain.AdditionalFee) error {
 	m.ctrl.T.Helper()

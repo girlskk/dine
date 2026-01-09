@@ -52,9 +52,15 @@ type DepartmentEdges struct {
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// Store holds the value of the store edge.
 	Store *Store `json:"store,omitempty"`
+	// AdminUsers holds the value of the admin_users edge.
+	AdminUsers []*AdminUser `json:"admin_users,omitempty"`
+	// BackendUsers holds the value of the backend_users edge.
+	BackendUsers []*BackendUser `json:"backend_users,omitempty"`
+	// StoreUsers holds the value of the store_users edge.
+	StoreUsers []*StoreUser `json:"store_users,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [5]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -77,6 +83,33 @@ func (e DepartmentEdges) StoreOrErr() (*Store, error) {
 		return nil, &NotFoundError{label: store.Label}
 	}
 	return nil, &NotLoadedError{edge: "store"}
+}
+
+// AdminUsersOrErr returns the AdminUsers value or an error if the edge
+// was not loaded in eager-loading.
+func (e DepartmentEdges) AdminUsersOrErr() ([]*AdminUser, error) {
+	if e.loadedTypes[2] {
+		return e.AdminUsers, nil
+	}
+	return nil, &NotLoadedError{edge: "admin_users"}
+}
+
+// BackendUsersOrErr returns the BackendUsers value or an error if the edge
+// was not loaded in eager-loading.
+func (e DepartmentEdges) BackendUsersOrErr() ([]*BackendUser, error) {
+	if e.loadedTypes[3] {
+		return e.BackendUsers, nil
+	}
+	return nil, &NotLoadedError{edge: "backend_users"}
+}
+
+// StoreUsersOrErr returns the StoreUsers value or an error if the edge
+// was not loaded in eager-loading.
+func (e DepartmentEdges) StoreUsersOrErr() ([]*StoreUser, error) {
+	if e.loadedTypes[4] {
+		return e.StoreUsers, nil
+	}
+	return nil, &NotLoadedError{edge: "store_users"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -190,6 +223,21 @@ func (d *Department) QueryMerchant() *MerchantQuery {
 // QueryStore queries the "store" edge of the Department entity.
 func (d *Department) QueryStore() *StoreQuery {
 	return NewDepartmentClient(d.config).QueryStore(d)
+}
+
+// QueryAdminUsers queries the "admin_users" edge of the Department entity.
+func (d *Department) QueryAdminUsers() *AdminUserQuery {
+	return NewDepartmentClient(d.config).QueryAdminUsers(d)
+}
+
+// QueryBackendUsers queries the "backend_users" edge of the Department entity.
+func (d *Department) QueryBackendUsers() *BackendUserQuery {
+	return NewDepartmentClient(d.config).QueryBackendUsers(d)
+}
+
+// QueryStoreUsers queries the "store_users" edge of the Department entity.
+func (d *Department) QueryStoreUsers() *StoreUserQuery {
+	return NewDepartmentClient(d.config).QueryStoreUsers(d)
 }
 
 // Update returns a builder for updating this Department.

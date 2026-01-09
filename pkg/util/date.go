@@ -17,6 +17,19 @@ func DayEnd(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, t.Location())
 }
 
+// 上个月开始时间：00：00：00
+func LastMonthStart(t time.Time) time.Time {
+	lastMonth := t.AddDate(0, -1, 0)
+	return time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, t.Location())
+}
+
+// 上个月结束时间：23：59：59
+func LastMonthEnd(t time.Time) time.Time {
+	lastMonth := t.AddDate(0, -1, 0)
+	// 使用 month+1, day=0 的特性获取上个月的最后一天
+	return time.Date(lastMonth.Year(), lastMonth.Month()+1, 0, 23, 59, 59, 0, t.Location())
+}
+
 type RequestDate time.Time
 
 func (r *RequestDate) UnmarshalJSON(data []byte) error {

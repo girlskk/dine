@@ -11,9 +11,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
@@ -114,9 +117,81 @@ func (tfu *TaxFeeUpdate) SetNillableDefaultTax(b *bool) *TaxFeeUpdate {
 	return tfu
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (tfu *TaxFeeUpdate) AddCategoryIDs(ids ...uuid.UUID) *TaxFeeUpdate {
+	tfu.mutation.AddCategoryIDs(ids...)
+	return tfu
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (tfu *TaxFeeUpdate) AddCategories(c ...*Category) *TaxFeeUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tfu.AddCategoryIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (tfu *TaxFeeUpdate) AddProductIDs(ids ...uuid.UUID) *TaxFeeUpdate {
+	tfu.mutation.AddProductIDs(ids...)
+	return tfu
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (tfu *TaxFeeUpdate) AddProducts(p ...*Product) *TaxFeeUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tfu.AddProductIDs(ids...)
+}
+
 // Mutation returns the TaxFeeMutation object of the builder.
 func (tfu *TaxFeeUpdate) Mutation() *TaxFeeMutation {
 	return tfu.mutation
+}
+
+// ClearCategories clears all "categories" edges to the Category entity.
+func (tfu *TaxFeeUpdate) ClearCategories() *TaxFeeUpdate {
+	tfu.mutation.ClearCategories()
+	return tfu
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (tfu *TaxFeeUpdate) RemoveCategoryIDs(ids ...uuid.UUID) *TaxFeeUpdate {
+	tfu.mutation.RemoveCategoryIDs(ids...)
+	return tfu
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (tfu *TaxFeeUpdate) RemoveCategories(c ...*Category) *TaxFeeUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tfu.RemoveCategoryIDs(ids...)
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (tfu *TaxFeeUpdate) ClearProducts() *TaxFeeUpdate {
+	tfu.mutation.ClearProducts()
+	return tfu
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (tfu *TaxFeeUpdate) RemoveProductIDs(ids ...uuid.UUID) *TaxFeeUpdate {
+	tfu.mutation.RemoveProductIDs(ids...)
+	return tfu
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (tfu *TaxFeeUpdate) RemoveProducts(p ...*Product) *TaxFeeUpdate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tfu.RemoveProductIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -214,6 +289,96 @@ func (tfu *TaxFeeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tfu.mutation.DefaultTax(); ok {
 		_spec.SetField(taxfee.FieldDefaultTax, field.TypeBool, value)
+	}
+	if tfu.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.CategoriesTable,
+			Columns: []string{taxfee.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfu.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !tfu.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.CategoriesTable,
+			Columns: []string{taxfee.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfu.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.CategoriesTable,
+			Columns: []string{taxfee.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tfu.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfu.mutation.RemovedProductsIDs(); len(nodes) > 0 && !tfu.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfu.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(tfu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, tfu.driver, _spec); err != nil {
@@ -320,9 +485,81 @@ func (tfuo *TaxFeeUpdateOne) SetNillableDefaultTax(b *bool) *TaxFeeUpdateOne {
 	return tfuo
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (tfuo *TaxFeeUpdateOne) AddCategoryIDs(ids ...uuid.UUID) *TaxFeeUpdateOne {
+	tfuo.mutation.AddCategoryIDs(ids...)
+	return tfuo
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (tfuo *TaxFeeUpdateOne) AddCategories(c ...*Category) *TaxFeeUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tfuo.AddCategoryIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (tfuo *TaxFeeUpdateOne) AddProductIDs(ids ...uuid.UUID) *TaxFeeUpdateOne {
+	tfuo.mutation.AddProductIDs(ids...)
+	return tfuo
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (tfuo *TaxFeeUpdateOne) AddProducts(p ...*Product) *TaxFeeUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tfuo.AddProductIDs(ids...)
+}
+
 // Mutation returns the TaxFeeMutation object of the builder.
 func (tfuo *TaxFeeUpdateOne) Mutation() *TaxFeeMutation {
 	return tfuo.mutation
+}
+
+// ClearCategories clears all "categories" edges to the Category entity.
+func (tfuo *TaxFeeUpdateOne) ClearCategories() *TaxFeeUpdateOne {
+	tfuo.mutation.ClearCategories()
+	return tfuo
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (tfuo *TaxFeeUpdateOne) RemoveCategoryIDs(ids ...uuid.UUID) *TaxFeeUpdateOne {
+	tfuo.mutation.RemoveCategoryIDs(ids...)
+	return tfuo
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (tfuo *TaxFeeUpdateOne) RemoveCategories(c ...*Category) *TaxFeeUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tfuo.RemoveCategoryIDs(ids...)
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (tfuo *TaxFeeUpdateOne) ClearProducts() *TaxFeeUpdateOne {
+	tfuo.mutation.ClearProducts()
+	return tfuo
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (tfuo *TaxFeeUpdateOne) RemoveProductIDs(ids ...uuid.UUID) *TaxFeeUpdateOne {
+	tfuo.mutation.RemoveProductIDs(ids...)
+	return tfuo
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (tfuo *TaxFeeUpdateOne) RemoveProducts(p ...*Product) *TaxFeeUpdateOne {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tfuo.RemoveProductIDs(ids...)
 }
 
 // Where appends a list predicates to the TaxFeeUpdate builder.
@@ -450,6 +687,96 @@ func (tfuo *TaxFeeUpdateOne) sqlSave(ctx context.Context) (_node *TaxFee, err er
 	}
 	if value, ok := tfuo.mutation.DefaultTax(); ok {
 		_spec.SetField(taxfee.FieldDefaultTax, field.TypeBool, value)
+	}
+	if tfuo.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.CategoriesTable,
+			Columns: []string{taxfee.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfuo.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !tfuo.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.CategoriesTable,
+			Columns: []string{taxfee.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfuo.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.CategoriesTable,
+			Columns: []string{taxfee.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tfuo.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfuo.mutation.RemovedProductsIDs(); len(nodes) > 0 && !tfuo.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tfuo.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(tfuo.modifiers...)
 	_node = &TaxFee{config: tfuo.config}

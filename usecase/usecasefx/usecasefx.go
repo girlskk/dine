@@ -9,17 +9,24 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/order"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/paymentmethod"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/product"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productattr"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/refundorder"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/region"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/role"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/routermenu"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/taxfee"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/userauth"
 	"go.uber.org/fx"
@@ -123,6 +130,34 @@ var Module = fx.Module(
 		fx.Annotate(
 			paymentmethod.NewPaymentMethodInteractor,
 			fx.As(new(domain.PaymentMethodInteractor)),
+		),
+		fx.Annotate(
+			permission.NewPermissionInteractor,
+			fx.As(new(domain.PermissionInteractor)),
+		),
+		fx.Annotate(
+			routermenu.NewRouterMenuInteractor,
+			fx.As(new(domain.RouterMenuInteractor)),
+		),
+		fx.Annotate(
+			role.NewRoleInteractor,
+			fx.As(new(domain.RoleInteractor)),
+		),
+		fx.Annotate(
+			profitdistributionrule.NewProfitDistributionRuleInteractor,
+			fx.As(new(domain.ProfitDistributionRuleInteractor)),
+		),
+		fx.Annotate(
+			profitdistributionbill.NewProfitDistributionBillInteractor,
+			fx.As(new(domain.ProfitDistributionBillInteractor)),
+		),
+		fx.Annotate(
+			paymentaccount.NewPaymentAccountInteractor,
+			fx.As(new(domain.PaymentAccountInteractor)),
+		),
+		fx.Annotate(
+			storepaymentaccount.NewStorePaymentAccountInteractor,
+			fx.As(new(domain.StorePaymentAccountInteractor)),
 		),
 		fx.Annotate(
 			refundorder.NewRefundOrderInteractor,
