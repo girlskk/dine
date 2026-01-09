@@ -291,6 +291,9 @@ type OrderSalesReportItem struct {
 	ThirdPartyAmount   decimal.Decimal `json:"third_party_amount"`    // 三方支付金额
 	ChangeAmount       decimal.Decimal `json:"change_amount"`         // 零钱实收
 	AmountPaidPerGuest decimal.Decimal `json:"amount_paid_per_guest"` // 人均实收
+	RefundCount        int             `json:"refund_count"`          // 退款单数
+	RefundAmount       decimal.Decimal `json:"refund_amount"`         // 退款金额
+	NetAmount          decimal.Decimal `json:"net_amount"`            // 净收金额（实收-退款）
 }
 
 // ProductSalesSummaryParams 商品销售汇总查询参数

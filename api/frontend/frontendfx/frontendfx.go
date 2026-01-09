@@ -38,6 +38,7 @@ var Module = fx.Module(
 	// handler
 	fx.Provide(
 		asHandler(handler.NewOrderHandler),
+		asHandler(handler.NewRefundOrderHandler),
 	),
 )
 

@@ -15,6 +15,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/refundorder"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/region"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/stall"
@@ -122,6 +123,10 @@ var Module = fx.Module(
 		fx.Annotate(
 			paymentmethod.NewPaymentMethodInteractor,
 			fx.As(new(domain.PaymentMethodInteractor)),
+		),
+		fx.Annotate(
+			refundorder.NewRefundOrderInteractor,
+			fx.As(new(domain.RefundOrderInteractor)),
 		),
 	),
 )

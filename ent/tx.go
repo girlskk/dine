@@ -64,6 +64,10 @@ type Tx struct {
 	ProductUnit *ProductUnitClient
 	// Province is the client for interacting with the Province builders.
 	Province *ProvinceClient
+	// RefundOrder is the client for interacting with the RefundOrder builders.
+	RefundOrder *RefundOrderClient
+	// RefundOrderProduct is the client for interacting with the RefundOrderProduct builders.
+	RefundOrderProduct *RefundOrderProductClient
 	// Remark is the client for interacting with the Remark builders.
 	Remark *RemarkClient
 	// RemarkCategory is the client for interacting with the RemarkCategory builders.
@@ -239,6 +243,8 @@ func (tx *Tx) init() {
 	tx.ProductTag = NewProductTagClient(tx.config)
 	tx.ProductUnit = NewProductUnitClient(tx.config)
 	tx.Province = NewProvinceClient(tx.config)
+	tx.RefundOrder = NewRefundOrderClient(tx.config)
+	tx.RefundOrderProduct = NewRefundOrderProductClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
@@ -648,6 +649,39 @@ func (repo *OrderRepository) SalesReport(ctx context.Context, params domain.Orde
 	pageInfo := upagination.New(params.Page, params.Size)
 	cashMethod := string(domain.PaymentMethodTypeCash)
 
+	// 构建退款单子查询条件
+	refundConditions := []string{
+		fmt.Sprintf("ro.merchant_id = '%s'", params.MerchantID.String()),
+		"ro.refund_status = 'COMPLETED'",
+		"ro.deleted_at = 0",
+	}
+	if len(params.StoreIDs) > 0 {
+		storeIDStrs := make([]string, len(params.StoreIDs))
+		for i, id := range params.StoreIDs {
+			storeIDStrs[i] = fmt.Sprintf("'%s'", id.String())
+		}
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.store_id IN (%s)", strings.Join(storeIDStrs, ",")))
+	}
+	refundWhereClause := strings.Join(refundConditions, " AND ")
+
+	// 退款单数子查询
+	refundCountSubquery := fmt.Sprintf(`COALESCE((
+		SELECT COUNT(*) 
+		FROM refund_orders ro 
+		WHERE ro.store_id = orders.store_id 
+		AND ro.business_date = orders.business_date 
+		AND %s
+	), 0)`, refundWhereClause)
+
+	// 退款金额子查询
+	refundAmountSubquery := fmt.Sprintf(`COALESCE((
+		SELECT SUM(JSON_EXTRACT(ro.refund_amount, '$.refund_total')) 
+		FROM refund_orders ro 
+		WHERE ro.store_id = orders.store_id 
+		AND ro.business_date = orders.business_date 
+		AND %s
+	), 0)`, refundWhereClause)
+
 	// 现金金额：遍历 payments 数组，累加 payment_method = CASH 的金额
 	cashExpr := fmt.Sprintf(`CEILING(COALESCE(SUM(
 		(SELECT IFNULL(SUM(
@@ -692,6 +726,12 @@ func (repo *OrderRepository) SalesReport(ctx context.Context, params domain.Orde
 				AppendSelectExprAs(entsql.Raw(cashExpr), "cash_amount").
 				AppendSelectExprAs(entsql.Raw(thirdPartyExpr), "third_party_amount").
 				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_paid')), 0) / NULLIF(SUM(`guest_count`), 0) * 100) / 100"), "amount_paid_per_guest").
+				// 退款单数
+				AppendSelectExprAs(entsql.Raw(refundCountSubquery), "refund_count").
+				// 退款金额
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING(%s * 100) / 100", refundAmountSubquery)), "refund_amount").
+				// 净收金额（实收 - 退款）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_paid')), 0) - %s) * 100) / 100", refundAmountSubquery)), "net_amount").
 				AppendSelectExprAs(entsql.Raw("COUNT(*) OVER()"), "total").
 				GroupBy(s.C(entorder.FieldBusinessDate), s.C(entorder.FieldStoreID)).
 				OrderBy(entsql.Desc(s.C(entorder.FieldBusinessDate))).
@@ -759,6 +799,44 @@ func (repo *OrderRepository) ProductSalesSummary(ctx context.Context, params dom
 	// 分类过滤条件
 	categoryID := params.CategoryID.String()
 
+	// 构建退款单子查询条件
+	refundConditions := []string{
+		fmt.Sprintf("ro.merchant_id = '%s'", params.MerchantID.String()),
+		"ro.refund_status = 'COMPLETED'",
+		"ro.deleted_at = 0",
+		"rop.deleted_at = 0",
+	}
+	if len(params.StoreIDs) > 0 {
+		storeIDStrs := make([]string, len(params.StoreIDs))
+		for i, id := range params.StoreIDs {
+			storeIDStrs[i] = fmt.Sprintf("'%s'", id.String())
+		}
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.store_id IN (%s)", strings.Join(storeIDStrs, ",")))
+	}
+	if params.BusinessDateStart != "" {
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.business_date >= '%s'", params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.business_date <= '%s'", params.BusinessDateEnd))
+	}
+	refundWhereClause := strings.Join(refundConditions, " AND ")
+
+	// 退款数量子查询（从逆向单获取）
+	refundQtySubquery := fmt.Sprintf(`COALESCE((
+		SELECT SUM(rop.refund_qty) 
+		FROM refund_order_products rop 
+		INNER JOIN refund_orders ro ON rop.refund_order_id = ro.id 
+		WHERE rop.product_id = order_products.product_id AND %s
+	), 0)`, refundWhereClause)
+
+	// 退款金额子查询（从逆向单获取）
+	refundAmountSubquery := fmt.Sprintf(`COALESCE((
+		SELECT SUM(rop.refund_subtotal) 
+		FROM refund_order_products rop 
+		INNER JOIN refund_orders ro ON rop.refund_order_id = ro.id 
+		WHERE rop.product_id = order_products.product_id AND %s
+	), 0)`, refundWhereClause)
+
 	var rows []productSalesSummaryRow
 	err = repo.Client.OrderProduct.Query().
 		Where(entorderproduct.HasOrderWith(orderPredicates...)).
@@ -793,12 +871,12 @@ func (repo *OrderRepository) ProductSalesSummary(ctx context.Context, params dom
 				END)`), "category_name_2").
 				// 规格名称：从spec_relations中提取第一个规格名称
 				AppendSelectExprAs(entsql.Raw("ANY_VALUE(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(`spec_relations`, '$[0].spec_name')), ''))"), "spec_name").
-				// 销售数量
-				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`qty`), 0)"), "sales_qty").
-				// 销售金额（小计）
-				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`subtotal`), 0) * 100) / 100"), "sales_amount").
-				// 销售均价
-				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`subtotal`), 0) / NULLIF(SUM(`qty`), 0) * 100) / 100"), "avg_price").
+				// 销售数量（正向销售 - 逆向退款）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("COALESCE(SUM(`qty`), 0) - %s", refundQtySubquery)), "sales_qty").
+				// 销售金额（正向销售 - 逆向退款）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(`subtotal`), 0) - %s) * 100) / 100", refundAmountSubquery)), "sales_amount").
+				// 销售均价（净销售额 / 净销量）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(`subtotal`), 0) - %s) / NULLIF(COALESCE(SUM(`qty`), 0) - %s, 0) * 100) / 100", refundAmountSubquery, refundQtySubquery)), "avg_price").
 				// 商品应收金额（税后金额）
 				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`amount_after_tax`), 0) * 100) / 100"), "amount_due").
 				// 商品金额（小计）
@@ -807,10 +885,10 @@ func (repo *OrderRepository) ProductSalesSummary(ctx context.Context, params dom
 				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`discount_amount`), 0) * 100) / 100"), "discount_amount").
 				// 赠送金额
 				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`gift_amount`), 0) * 100) / 100"), "gift_amount").
-				// 退款数量
-				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`void_qty`), 0)"), "refund_qty").
-				// 退款金额
-				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`void_amount`), 0) * 100) / 100"), "refund_amount").
+				// 退款数量（正向void_qty + 逆向退款数量）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("COALESCE(SUM(`void_qty`), 0) + %s", refundQtySubquery)), "refund_qty").
+				// 退款金额（正向void_amount + 逆向退款金额）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(`void_amount`), 0) + %s) * 100) / 100", refundAmountSubquery)), "refund_amount").
 				// 赠送数量
 				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`gift_qty`), 0)"), "gift_qty").
 				// 做法金额

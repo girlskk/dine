@@ -35,6 +35,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorder"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
@@ -804,6 +806,60 @@ func (f TraverseProvince) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ProvinceQuery", q)
 }
 
+// The RefundOrderFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RefundOrderFunc func(context.Context, *ent.RefundOrderQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RefundOrderFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RefundOrderQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RefundOrderQuery", q)
+}
+
+// The TraverseRefundOrder type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRefundOrder func(context.Context, *ent.RefundOrderQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRefundOrder) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRefundOrder) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RefundOrderQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RefundOrderQuery", q)
+}
+
+// The RefundOrderProductFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RefundOrderProductFunc func(context.Context, *ent.RefundOrderProductQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RefundOrderProductFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RefundOrderProductQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RefundOrderProductQuery", q)
+}
+
+// The TraverseRefundOrderProduct type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRefundOrderProduct func(context.Context, *ent.RefundOrderProductQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRefundOrderProduct) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRefundOrderProduct) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RefundOrderProductQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RefundOrderProductQuery", q)
+}
+
 // The RemarkFunc type is an adapter to allow the use of ordinary function as a Querier.
 type RemarkFunc func(context.Context, *ent.RemarkQuery) (ent.Value, error)
 
@@ -1102,6 +1158,10 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.ProductUnitQuery, predicate.ProductUnit, productunit.OrderOption]{typ: ent.TypeProductUnit, tq: q}, nil
 	case *ent.ProvinceQuery:
 		return &query[*ent.ProvinceQuery, predicate.Province, province.OrderOption]{typ: ent.TypeProvince, tq: q}, nil
+	case *ent.RefundOrderQuery:
+		return &query[*ent.RefundOrderQuery, predicate.RefundOrder, refundorder.OrderOption]{typ: ent.TypeRefundOrder, tq: q}, nil
+	case *ent.RefundOrderProductQuery:
+		return &query[*ent.RefundOrderProductQuery, predicate.RefundOrderProduct, refundorderproduct.OrderOption]{typ: ent.TypeRefundOrderProduct, tq: q}, nil
 	case *ent.RemarkQuery:
 		return &query[*ent.RemarkQuery, predicate.Remark, remark.OrderOption]{typ: ent.TypeRemark, tq: q}, nil
 	case *ent.RemarkCategoryQuery:

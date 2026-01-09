@@ -32,7 +32,7 @@ func (h *OrderHandler) Routes(r gin.IRouter) {
 }
 
 func (h *OrderHandler) NoAuths() []string {
-	return []string{}
+	return []string{"/order/sales-report", "/order/product-sales-summary"}
 }
 
 // SalesReport 销售报表
@@ -117,7 +117,6 @@ func (h *OrderHandler) ProductSalesSummary() gin.HandlerFunc {
 		}
 
 		user := domain.FromStoreUserContext(ctx)
-
 		var categoryID uuid.UUID
 		if req.CategoryID != "" {
 			categoryID, _ = uuid.Parse(req.CategoryID)
