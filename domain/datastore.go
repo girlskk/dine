@@ -27,6 +27,7 @@ type DataStore interface {
 	RemarkCategoryRepo() RemarkCategoryRepository
 	OrderRepo() OrderRepository
 	MenuRepo() MenuRepository
+	ProfitDistributionRuleRepo() ProfitDistributionRuleRepository
 	StallRepo() StallRepository
 	AdditionalFeeRepo() AdditionalFeeRepository
 	TaxFeeRepo() TaxFeeRepository
@@ -35,6 +36,14 @@ type DataStore interface {
 	ProvinceRepo() ProvinceRepository
 	DepartmentRepo() DepartmentRepository
 	PaymentMethodRepo() PaymentMethodRepository
+	ProfitDistributionBillRepo() ProfitDistributionBillRepository
+	PaymentAccountRepo() PaymentAccountRepository
+	StorePaymentAccountRepo() StorePaymentAccountRepository
+	RoleRepo() RoleRepository
+	PermissionRepo() PermissionRepository
+	RouterMenuRepo() RouterMenuRepository
+	RoleMenuRepo() RoleMenuRepository
+	UserRoleRepo() UserRoleRepository
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/datacache.go -package=mock . DataCache

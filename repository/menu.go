@@ -79,8 +79,8 @@ func (repo *MenuRepository) Create(ctx context.Context, m *domain.Menu) (err err
 	menuBuilder := repo.Client.Menu.Create().
 		SetID(m.ID).
 		SetMerchantID(m.MerchantID).
+		SetStoreID(m.StoreID).
 		SetName(m.Name).
-		SetDistributionRule(m.DistributionRule).
 		SetStoreCount(m.StoreCount).
 		SetItemCount(m.ItemCount)
 
@@ -105,8 +105,7 @@ func (repo *MenuRepository) Create(ctx context.Context, m *domain.Menu) (err err
 			builder := repo.Client.MenuItem.Create().
 				SetID(item.ID).
 				SetMenuID(em.ID).
-				SetProductID(item.ProductID).
-				SetSaleRule(item.SaleRule)
+				SetProductID(item.ProductID)
 
 			if item.BasePrice != nil {
 				builder.SetBasePrice(*item.BasePrice)
@@ -145,7 +144,6 @@ func (repo *MenuRepository) Update(ctx context.Context, m *domain.Menu) (err err
 	// 更新菜单基本信息
 	builder := repo.Client.Menu.UpdateOneID(m.ID).
 		SetName(m.Name).
-		SetDistributionRule(m.DistributionRule).
 		SetStoreCount(m.StoreCount).
 		SetItemCount(m.ItemCount)
 
@@ -172,8 +170,7 @@ func (repo *MenuRepository) Update(ctx context.Context, m *domain.Menu) (err err
 			builder := repo.Client.MenuItem.Create().
 				SetID(item.ID).
 				SetMenuID(m.ID).
-				SetProductID(item.ProductID).
-				SetSaleRule(item.SaleRule)
+				SetProductID(item.ProductID)
 
 			if item.BasePrice != nil {
 				builder.SetBasePrice(*item.BasePrice)
@@ -220,7 +217,8 @@ func (repo *MenuRepository) Exists(ctx context.Context, params domain.MenuExists
 	}()
 
 	query := repo.Client.Menu.Query().
-		Where(menu.MerchantID(params.MerchantID))
+		Where(menu.MerchantID(params.MerchantID)).
+		Where(menu.StoreID(params.StoreID))
 
 	if params.ExcludeID != uuid.Nil {
 		query.Where(menu.IDNEQ(params.ExcludeID))
@@ -228,7 +226,7 @@ func (repo *MenuRepository) Exists(ctx context.Context, params domain.MenuExists
 	return query.Exist(ctx)
 }
 
-func (repo *MenuRepository) PagedListBySearch(
+func (repo *MenuRepository) PagedListMerchantMenusBySearch(
 	ctx context.Context,
 	page *upagination.Pagination,
 	params domain.MenuSearchParams,
@@ -237,13 +235,11 @@ func (repo *MenuRepository) PagedListBySearch(
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+	query := repo.Client.Menu.Query().Where(
+		menu.MerchantID(params.MerchantID),
+	)
 
-	query := repo.Client.Menu.Query()
-
-	if params.MerchantID != uuid.Nil {
-		query.Where(menu.MerchantID(params.MerchantID))
-	}
-
+	// 可选条件：门店ID
 	if params.StoreID != uuid.Nil {
 		query.Where(menu.HasStoresWith(store.IDEQ(params.StoreID)))
 	}
@@ -282,30 +278,66 @@ func (repo *MenuRepository) PagedListBySearch(
 	}, nil
 }
 
-func (repo *MenuRepository) CheckStoreBound(ctx context.Context, storeIDs []uuid.UUID, excludeMenuID uuid.UUID) (has bool, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "MenuRepository.CheckStoreBound")
+func (repo *MenuRepository) PagedListStoreMenusBySearch(
+	ctx context.Context,
+	page *upagination.Pagination,
+	params domain.MenuSearchParams,
+) (res *domain.MenuSearchRes, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MenuRepository.PagedListStoreMenusBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
-	if len(storeIDs) == 0 {
-		return false, nil
+	query := repo.Client.Menu.Query().Where(
+		menu.MerchantID(params.MerchantID),
+	)
+
+	// 使用 OR 查询：品牌商级别的菜单（关联了该门店） OR 门店级别的菜单
+	// 1. 品牌商级别的菜单（StoreID == uuid.Nil）并且关联了该门店
+	// 2. 门店级别的菜单（StoreID == params.StoreID）
+	query.Where(menu.Or(
+		// 品牌商级别的菜单，且关联了该门店
+		menu.And(
+			menu.StoreIDEQ(uuid.Nil),
+			menu.HasStoresWith(store.IDEQ(params.StoreID)),
+		),
+		// 门店级别的菜单
+		menu.StoreIDEQ(params.StoreID),
+	))
+
+	// 名称模糊匹配
+	if params.Name != "" {
+		query.Where(menu.NameContains(params.Name))
 	}
 
-	query := repo.Client.Menu.Query().
-		Where(menu.HasStoresWith(store.IDIn(storeIDs...))).
-		WithStores()
-
-	if excludeMenuID != uuid.Nil {
-		query.Where(menu.IDNEQ(excludeMenuID))
-	}
-
-	menus, err := query.All(ctx)
+	// 获取总数
+	total, err := query.Clone().Count(ctx)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	return len(menus) > 0, nil
+	// 分页处理
+	query = query.
+		Offset(page.Offset()).
+		Limit(page.Size)
+
+	// 按创建时间倒序排列
+	entMenus, err := query.Order(ent.Desc(menu.FieldCreatedAt)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.Menus, 0, len(entMenus))
+	for _, m := range entMenus {
+		items = append(items, convertMenuToDomain(m))
+	}
+
+	page.SetTotal(total)
+
+	return &domain.MenuSearchRes{
+		Pagination: page,
+		Items:      items,
+	}, nil
 }
 
 // ============================================
@@ -318,14 +350,14 @@ func convertMenuToDomain(em *ent.Menu) *domain.Menu {
 	}
 
 	m := &domain.Menu{
-		ID:               em.ID,
-		MerchantID:       em.MerchantID,
-		Name:             em.Name,
-		DistributionRule: em.DistributionRule,
-		StoreCount:       em.StoreCount,
-		ItemCount:        em.ItemCount,
-		CreatedAt:        em.CreatedAt,
-		UpdatedAt:        em.UpdatedAt,
+		ID:         em.ID,
+		MerchantID: em.MerchantID,
+		StoreID:    em.StoreID,
+		Name:       em.Name,
+		StoreCount: em.StoreCount,
+		ItemCount:  em.ItemCount,
+		CreatedAt:  em.CreatedAt,
+		UpdatedAt:  em.UpdatedAt,
 	}
 
 	// 转换菜单项
@@ -336,7 +368,6 @@ func convertMenuToDomain(em *ent.Menu) *domain.Menu {
 				ID:        item.ID,
 				MenuID:    item.MenuID,
 				ProductID: item.ProductID,
-				SaleRule:  item.SaleRule,
 				CreatedAt: item.CreatedAt,
 				UpdatedAt: item.UpdatedAt,
 			}

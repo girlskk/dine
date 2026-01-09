@@ -1,5 +1,111 @@
 basePath: /api/v1
 definitions:
+  domain.AdditionalCategory:
+    enum:
+    - service_fee
+    - additional_fee
+    - packing_fee
+    type: string
+    x-enum-comments:
+      AdditionalCategoryAdditional: 附加费
+      AdditionalCategoryPacking: 打包费
+      AdditionalCategoryService: 服务费
+    x-enum-varnames:
+    - AdditionalCategoryService
+    - AdditionalCategoryAdditional
+    - AdditionalCategoryPacking
+  domain.AdditionalFee:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 费用类型 percent 百分比，fixed 固定金额
+      created_at:
+        type: string
+      dining_ways:
+        description: 就餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣场景
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费类别
+      fee_type:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeType'
+        description: 附加费类型
+      fee_value:
+        description: 'fixed: 分; percent: BP'
+        type: number
+      id:
+        type: string
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      merchant_id:
+        description: 品牌商 ID
+        type: string
+      name:
+        description: 附加费名称
+        type: string
+      order_channels:
+        description: 订单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序
+        type: integer
+      store_id:
+        description: 门店 ID
+        type: string
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  domain.AdditionalFeeChargeMode:
+    enum:
+    - percent
+    - fixed
+    type: string
+    x-enum-comments:
+      AdditionalFeeChargeModeFixed: 固定金额
+      AdditionalFeeChargeModePercent: 百分比
+    x-enum-varnames:
+    - AdditionalFeeChargeModePercent
+    - AdditionalFeeChargeModeFixed
+  domain.AdditionalFeeDiscountScope:
+    enum:
+    - before_discount
+    - after_discount
+    type: string
+    x-enum-comments:
+      AdditionalFeeDiscountScopeAfter: 折后
+      AdditionalFeeDiscountScopeBefore: 折前
+    x-enum-varnames:
+    - AdditionalFeeDiscountScopeBefore
+    - AdditionalFeeDiscountScopeAfter
+  domain.AdditionalFeeType:
+    enum:
+    - merchant
+    - store
+    type: string
+    x-enum-comments:
+      AdditionalFeeTypeMerchant: 商户
+      AdditionalFeeTypeStore: 门店
+    x-enum-varnames:
+    - AdditionalFeeTypeMerchant
+    - AdditionalFeeTypeStore
   domain.Address:
     properties:
       address:
@@ -72,7 +178,7 @@ definitions:
   domain.Category:
     properties:
       children:
-        description: '@TODO 关联信息'
+        description: 关联信息
         items:
           $ref: '#/definitions/domain.Category'
         type: array
@@ -107,12 +213,20 @@ definitions:
       sort_order:
         description: 排序，值越小越靠前
         type: integer
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 出品部门ID
         type: string
       store_id:
         description: 门店ID
         type: string
+      tax_rate:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFee'
+        description: 税率
       tax_rate_id:
         description: 税率ID
         type: string
@@ -129,8 +243,43 @@ definitions:
       sort:
         type: integer
     type: object
+  domain.Department:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      department_type:
+        $ref: '#/definitions/domain.DepartmentType'
+      enable:
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        type: string
+      name:
+        type: string
+      store_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.DepartmentType:
+    enum:
+    - admin
+    - backend
+    - store
+    type: string
+    x-enum-varnames:
+    - DepartmentAdmin
+    - DepartmentBackend
+    - DepartmentStore
   domain.Device:
     properties:
+      connect_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceConnectType'
+        description: 设备连接类型 inside内置 / outside外置
       created_at:
         description: 创建时间
         type: string
@@ -214,6 +363,17 @@ definitions:
         description: 更新时间
         type: string
     type: object
+  domain.DeviceConnectType:
+    enum:
+    - inside
+    - outside
+    type: string
+    x-enum-comments:
+      DeviceConnectTypeInside: 内置
+      DeviceConnectTypeOutside: 外置
+    x-enum-varnames:
+    - DeviceConnectTypeInside
+    - DeviceConnectTypeOutside
   domain.DeviceLocation:
     enum:
     - front_hall
@@ -309,15 +469,42 @@ definitions:
     x-enum-varnames:
     - EffectiveDateTypeDaily
     - EffectiveDateTypeCustom
+  domain.Gender:
+    enum:
+    - male
+    - female
+    - other
+    - unknown
+    type: string
+    x-enum-comments:
+      GenderFemale: 女性
+      GenderMale: 男性
+      GenderOther: 其他
+      GenderUnknown: 未知
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+    - GenderOther
+    - GenderUnknown
+  domain.LoginChannel:
+    enum:
+    - pos
+    - mobile
+    - store
+    type: string
+    x-enum-comments:
+      LoginChannelMobile: 移动点餐
+      LoginChannelPos: pos
+      LoginChannelStore: 门店管理后台
+    x-enum-varnames:
+    - LoginChannelPos
+    - LoginChannelMobile
+    - LoginChannelStore
   domain.Menu:
     properties:
       created_at:
         description: 创建时间
         type: string
-      distribution_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuDistributionRule'
-        description: 下发规则
       id:
         description: 菜单ID
         type: string
@@ -338,6 +525,9 @@ definitions:
       store_count:
         description: 适用门店数量
         type: integer
+      store_id:
+        description: 门店ID
+        type: string
       stores:
         description: 关联信息
         items:
@@ -347,17 +537,6 @@ definitions:
         description: 更新时间
         type: string
     type: object
-  domain.MenuDistributionRule:
-    enum:
-    - override
-    - keep
-    type: string
-    x-enum-comments:
-      MenuDistributionRuleKeep: 对同名菜品不做修改
-      MenuDistributionRuleOverride: 新增并覆盖同名菜品
-    x-enum-varnames:
-    - MenuDistributionRuleOverride
-    - MenuDistributionRuleKeep
   domain.MenuItem:
     properties:
       base_price:
@@ -382,25 +561,10 @@ definitions:
       product_id:
         description: 菜品ID
         type: string
-      sale_rule:
-        allOf:
-        - $ref: '#/definitions/domain.MenuItemSaleRule'
-        description: 下发售卖规则
       updated_at:
         description: 更新时间
         type: string
     type: object
-  domain.MenuItemSaleRule:
-    enum:
-    - keep_brand_status
-    - keep_store_status
-    type: string
-    x-enum-comments:
-      MenuItemSaleRuleKeepBrandStatus: 保留品牌状态
-      MenuItemSaleRuleKeepStoreStatus: 保留门店状态
-    x-enum-varnames:
-    - MenuItemSaleRuleKeepBrandStatus
-    - MenuItemSaleRuleKeepStoreStatus
   domain.MenuSearchRes:
     properties:
       items:
@@ -417,6 +581,28 @@ definitions:
         description: 总页数
         type: integer
     type: object
+  domain.MerchantSimple:
+    properties:
+      id:
+        type: string
+      merchant_name:
+        description: 商户名称
+        type: string
+    type: object
+  domain.ObjectStorageScene:
+    enum:
+    - merchant
+    - store
+    - product
+    type: string
+    x-enum-comments:
+      ObjectStorageSceneMerchant: 商户
+      ObjectStorageSceneProduct: 商品
+      ObjectStorageSceneStore: 门店
+    x-enum-varnames:
+    - ObjectStorageSceneMerchant
+    - ObjectStorageSceneStore
+    - ObjectStorageSceneProduct
   domain.OrderChannel:
     enum:
     - pos
@@ -440,18 +626,6 @@ definitions:
     - OrderChannelMobileOrder
     - OrderChannelScanOrder
     - OrderChannelThirdDelivery
-  domain.PackingFee:
-    properties:
-      id:
-        description: 打包费ID
-        type: string
-      name:
-        description: 打包费名称
-        type: string
-      price:
-        description: 打包费价格
-        type: number
-    type: object
   domain.PaperSize:
     enum:
     - 58mm
@@ -460,155 +634,6 @@ definitions:
     x-enum-varnames:
     - PaperSize58mm
     - PaperSize80mm
-  domain.PaymentMethod:
-    properties:
-      accounting_rule:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodAccountingRule'
-        description: 计入规则:income-计入实收,discount-计入优惠
-      cash_drawer_status:
-        description: 开钱箱状态:false-不开钱箱, true-开钱箱（必选）
-        type: boolean
-      created_at:
-        description: 创建时间
-        type: string
-      display_channels:
-        description: 收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖
-        items:
-          type: string
-        type: array
-      fee_rate:
-        description: 手续费率,百分比
-        type: number
-      id:
-        type: string
-      invoice_rule:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodInvoiceRule'
-        description: 实收部分开票规则:no_invoice-不开发票,actual_amount-按实收金额
-      merchant_id:
-        description: 品牌商ID
-        type: string
-      name:
-        description: 结算方式名称
-        type: string
-      payment_type:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodPayType'
-        description: 结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券
-      source:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodSource'
-        description: 来源:brand-品牌,store-门店,system-系统
-      source_payment_method_id:
-        description: 结算方式来源ID
-        type: string
-      status:
-        description: '启用/停用状态: true-启用, false-停用（必选）'
-        type: boolean
-      store_id:
-        description: 门店ID
-        type: string
-      updated_at:
-        description: 更新时间
-        type: string
-    type: object
-  domain.PaymentMethodAccountingRule:
-    enum:
-    - income
-    - discount
-    type: string
-    x-enum-comments:
-      PaymentMethodAccountingRuleDiscount: 计入优惠
-      PaymentMethodAccountingRuleIncome: 计入实收
-    x-enum-varnames:
-    - PaymentMethodAccountingRuleIncome
-    - PaymentMethodAccountingRuleDiscount
-  domain.PaymentMethodInvoiceRule:
-    enum:
-    - no_invoice
-    - actual_amount
-    type: string
-    x-enum-comments:
-      PaymentMethodInvoiceRuleActualAmount: 按实收金额
-      PaymentMethodInvoiceRuleNotInvoice: 不开发票
-    x-enum-varnames:
-    - PaymentMethodInvoiceRuleNotInvoice
-    - PaymentMethodInvoiceRuleActualAmount
-  domain.PaymentMethodPayType:
-    enum:
-    - cash
-    - online_payment
-    - member_card
-    - custom_coupon
-    - partner_coupon
-    - bank_card
-    type: string
-    x-enum-comments:
-      PaymentMethodPayTypeBankCard: 银行卡
-      PaymentMethodPayTypeCash: 现金
-      PaymentMethodPayTypeCustomCoupon: 系统自定义券
-      PaymentMethodPayTypeMemberCard: 会员卡
-      PaymentMethodPayTypeOnlinePayment: 在线支付
-      PaymentMethodPayTypePartnerCoupon: 三方合作券
-    x-enum-varnames:
-    - PaymentMethodPayTypeCash
-    - PaymentMethodPayTypeOnlinePayment
-    - PaymentMethodPayTypeMemberCard
-    - PaymentMethodPayTypeCustomCoupon
-    - PaymentMethodPayTypePartnerCoupon
-    - PaymentMethodPayTypeBankCard
-  domain.PaymentMethodSearchRes:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/domain.PaymentMethod'
-        type: array
-      page:
-        description: 页码
-        type: integer
-      size:
-        description: 每页数量
-        type: integer
-      total:
-        description: 总页数
-        type: integer
-    type: object
-  domain.PaymentMethodSource:
-    enum:
-    - brand
-    - store
-    - system
-    type: string
-    x-enum-comments:
-      PaymentMethodSourceBrand: 品牌
-      PaymentMethodSourceStore: 门店
-      PaymentMethodSourceSystem: 系统
-    x-enum-varnames:
-    - PaymentMethodSourceBrand
-    - PaymentMethodSourceStore
-    - PaymentMethodSourceSystem
-  domain.PaymentMethodStatRes:
-    properties:
-      bank_card_count:
-        description: 银行卡数量
-        type: integer
-      cash_count:
-        description: 现金数量
-        type: integer
-      custom_coupon_count:
-        description: 自定义券数量
-        type: integer
-      member_card_count:
-        description: 会员卡数量
-        type: integer
-      online_payment_count:
-        description: 在线支付数量
-        type: integer
-      partner_coupon_count:
-        description: 三方合作券数量
-        type: integer
-    type: object
   domain.Product:
     properties:
       add_sale_quantity:
@@ -702,6 +727,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 指定出品部门ID
         type: string
@@ -718,6 +747,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductTag'
         type: array
+      tax_rate:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFee'
+        description: 税率
       tax_rate_id:
         description: 指定税率ID
         type: string
@@ -914,7 +947,7 @@ definitions:
         type: number
       packing_fee:
         allOf:
-        - $ref: '#/definitions/domain.PackingFee'
+        - $ref: '#/definitions/domain.AdditionalFee'
         description: 打包费
       packing_fee_id:
         description: 打包费ID（引用费用配置）
@@ -1068,6 +1101,97 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.ProfitDistributionBill:
+    properties:
+      bill_date:
+        description: 账单日期
+        type: string
+      created_at:
+        description: 创建时间
+        type: string
+      end_date:
+        description: 账单周期：结束日期
+        type: string
+      id:
+        description: 分账账单ID
+        type: string
+      merchant:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantSimple'
+        description: 关联数据
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      "no":
+        description: 分账账单编号
+        type: string
+      payment_amount:
+        description: 打款金额（令吉）
+        type: number
+      receivable_amount:
+        description: 应收金额（令吉）
+        type: number
+      rule_snapshot:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionRuleSnapshot'
+        description: 分账方案快照
+      start_date:
+        description: 账单周期：开始日期
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.ProfitDistributionBillStatus'
+        description: 分账状态
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.StoreSimple'
+        description: 门店
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.ProfitDistributionBillSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.ProfitDistributionBill'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
+  domain.ProfitDistributionBillStatus:
+    enum:
+    - unpaid
+    - paid
+    type: string
+    x-enum-comments:
+      ProfitDistributionBillStatusPaid: 已打款
+      ProfitDistributionBillStatusUnpaid: 未打款
+    x-enum-varnames:
+    - ProfitDistributionBillStatusUnpaid
+    - ProfitDistributionBillStatusPaid
+  domain.ProfitDistributionRuleSnapshot:
+    properties:
+      rule_id:
+        description: 分账方案ID
+        type: string
+      rule_name:
+        description: 分账方案名称
+        type: string
+      split_ratio:
+        description: 分账比例
+        type: number
+    type: object
   domain.Province:
     properties:
       country_id:
@@ -1079,6 +1203,83 @@ definitions:
       sort:
         type: integer
     type: object
+  domain.Role:
+    properties:
+      code:
+        description: 角色编码
+        type: string
+      created_at:
+        type: string
+      data_scope:
+        allOf:
+        - $ref: '#/definitions/domain.RoleDataScopeType'
+        description: 数据权限范围
+      enable:
+        description: 是否启用
+        type: boolean
+      id:
+        type: string
+      login_channels:
+        description: 允许登录渠道，取自 login_channel，多选
+        items:
+          $ref: '#/definitions/domain.LoginChannel'
+        type: array
+      merchant_id:
+        description: 所属商户 ID
+        type: string
+      name:
+        description: 角色名称
+        type: string
+      role_type:
+        allOf:
+        - $ref: '#/definitions/domain.RoleType'
+        description: 角色类型
+      store_id:
+        description: 所属门店 ID
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.RoleDataScopeType:
+    enum:
+    - all
+    - merchant
+    - store
+    - department
+    - self
+    - custom
+    type: string
+    x-enum-comments:
+      RoleDataScopeAll: 全部数据权限
+      RoleDataScopeCustom: 自定义数据权限
+      RoleDataScopeDepartment: 部门数据权限
+      RoleDataScopeMerchant: 品牌商数据权限
+      RoleDataScopeSelf: 仅本人数据权限
+      RoleDataScopeStore: 门店数据权限
+    x-enum-varnames:
+    - RoleDataScopeAll
+    - RoleDataScopeMerchant
+    - RoleDataScopeStore
+    - RoleDataScopeDepartment
+    - RoleDataScopeSelf
+    - RoleDataScopeCustom
+  domain.RoleType:
+    enum:
+    - admin
+    - backend
+    - store
+    - admin
+    - backend
+    - store
+    type: string
+    x-enum-comments:
+      UserTypeAdmin: admin表用户
+      UserTypeBackend: backend用户
+      UserTypeStore: store用户
+    x-enum-varnames:
+    - RoleTypeAdmin
+    - RoleTypeBackend
+    - RoleTypeStore
   domain.SaleChannel:
     enum:
     - POS
@@ -1202,6 +1403,65 @@ definitions:
         description: 开始时间，格式 HH:MM:SS
         type: string
     type: object
+  domain.Stall:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      enabled:
+        description: 使用状态
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 商户 ID
+        type: string
+      name:
+        description: 出品部门名称
+        type: string
+      print_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallPrintType'
+        description: 打印类型 ：receipt/label
+      sort_order:
+        description: 排序
+        type: integer
+      stall_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallType'
+        description: system/brand/store
+      store_id:
+        description: 门店 ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.StallPrintType:
+    enum:
+    - receipt
+    - label
+    type: string
+    x-enum-comments:
+      StallPrintTypeLabel: 标签
+      StallPrintTypeReceipt: 小票/收据
+    x-enum-varnames:
+    - StallPrintTypeReceipt
+    - StallPrintTypeLabel
+  domain.StallType:
+    enum:
+    - system
+    - brand
+    - store
+    type: string
+    x-enum-comments:
+      StallTypeBrand: 品牌出品部门
+      StallTypeStore: 门店出品部门
+      StallTypeSystem: 系统出品部门
+    x-enum-varnames:
+    - StallTypeSystem
+    - StallTypeBrand
+    - StallTypeStore
   domain.Store:
     properties:
       address:
@@ -1223,7 +1483,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.BusinessModel'
         description: 经营模式：直营 加盟
-      business_type_id:
+      business_type_code:
         description: 业态类型
         type: string
       business_type_name:
@@ -1319,22 +1579,122 @@ definitions:
     - StoreStatusClosed
   domain.StoreUser:
     properties:
+      code:
+        description: 编号
+        type: string
+      created_at:
+        type: string
+      department:
+        allOf:
+        - $ref: '#/definitions/domain.Department'
+        description: 所属部门
+      department_id:
+        description: 所属部门ID
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
       id:
         type: string
+      is_superadmin:
+        description: 是否为超级管理员
+        type: boolean
       merchant_id:
         type: string
       nickname:
         type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 真实姓名
+        type: string
+      role_ids:
+        description: 关联数据
+        items:
+          type: string
+        type: array
+      role_list:
+        description: 角色列表
+        items:
+          $ref: '#/definitions/domain.Role'
+        type: array
       store:
         allOf:
         - $ref: '#/definitions/domain.Store'
-        description: 关联数据
+        description: 所属门店
       store_id:
         description: 门店ID
+        type: string
+      updated_at:
         type: string
       username:
         type: string
     type: object
+  domain.TaxFee:
+    properties:
+      created_at:
+        type: string
+      default_tax:
+        description: 是否默认税费
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 品牌商 ID
+        type: string
+      name:
+        description: 税费名称
+        type: string
+      store_id:
+        description: 门店 ID
+        type: string
+      tax_code:
+        description: 税费代码
+        type: string
+      tax_fee_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxFeeType'
+        description: 税费类型：商户/门店
+      tax_rate:
+        description: 税率，6% -> 0.06
+        type: number
+      tax_rate_type:
+        allOf:
+        - $ref: '#/definitions/domain.TaxRateType'
+        description: 税率类型：统一比例/自定义比例
+      updated_at:
+        type: string
+    type: object
+  domain.TaxFeeType:
+    enum:
+    - merchant
+    - store
+    type: string
+    x-enum-comments:
+      TaxFeeTypeMerchant: 商户
+      TaxFeeTypeStore: 门店
+    x-enum-varnames:
+    - TaxFeeTypeMerchant
+    - TaxFeeTypeStore
+  domain.TaxRateType:
+    enum:
+    - unified
+    - custom
+    type: string
+    x-enum-comments:
+      TaxRateTypeCustom: 自定义比例
+      TaxRateTypeUnified: 统一比例
+    x-enum-varnames:
+    - TaxRateTypeUnified
+    - TaxRateTypeCustom
   response.Response:
     properties:
       code:
@@ -1343,13 +1703,6 @@ definitions:
     type: object
   time.Weekday:
     enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     - 0
     - 1
     - 2
@@ -1366,13 +1719,15 @@ definitions:
     - Thursday
     - Friday
     - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
+  types.AccountListResp:
+    properties:
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/domain.StoreUser'
+        type: array
+    type: object
   types.Address:
     properties:
       address:
@@ -1474,6 +1829,33 @@ definitions:
           $ref: '#/definitions/domain.Country'
         type: array
     type: object
+  types.DepartmentCreateReq:
+    properties:
+      enable:
+        type: boolean
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  types.DepartmentListResp:
+    properties:
+      departments:
+        items:
+          $ref: '#/definitions/domain.Department'
+        type: array
+      total:
+        type: integer
+    type: object
+  types.DepartmentUpdateReq:
+    properties:
+      enable:
+        type: boolean
+      name:
+        type: string
+    required:
+    - name
+    type: object
   types.DeviceCashier:
     properties:
       open_cash_drawer:
@@ -1546,6 +1928,13 @@ definitions:
     type: object
   types.DevicePrint:
     properties:
+      connect_type:
+        allOf:
+        - $ref: '#/definitions/domain.DeviceConnectType'
+        description: 设备连接类型 inside内置 / outside外置
+        enum:
+        - inside
+        - outside
       device_stall_print_type:
         allOf:
         - $ref: '#/definitions/domain.DeviceStallPrintType'
@@ -1586,6 +1975,7 @@ definitions:
         description: 出品部门 ID
         type: string
     required:
+    - connect_type
     - device_stall_print_type
     - device_stall_receipt_type
     - dining_ways
@@ -1663,124 +2053,93 @@ definitions:
       token:
         type: string
     type: object
-  types.PaymentMethodCreateReq:
+  types.MenuCreateReq:
     properties:
-      accounting_rule:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodAccountingRule'
-        description: 计入规则（必选）
-        enum:
-        - income
-        - discount
-      cash_drawer_status:
-        description: 开钱箱状态
-        type: boolean
-      display_channels:
-        description: 收银终端显示渠道（可选，可多选）
+      items:
+        description: 菜品列表（必选，至少一个）
         items:
-          type: string
+          $ref: '#/definitions/types.MenuItemReq'
         minItems: 1
         type: array
-      fee_rate:
-        description: 手续费率,百分比
-        type: number
-      invoice_rule:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodInvoiceRule'
-        description: 实收部分开票规则（必选）
-        enum:
-        - no_invoice
-        - actual_amount
       name:
-        description: 结算方式名称（必选）
+        description: 菜单名称（必选）
         maxLength: 255
         type: string
-      payment_type:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodPayType'
-        description: // 结算类型（必选）
-        enum:
-        - other
-        - cash
-        - offline_card
-        - custom_coupon
-        - partner_coupon
-      source:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodSource'
-        description: 来源:brand-品牌,store-门店,system-系统
-        enum:
-        - brand
-        - store
-        - system
-      status:
-        description: 启用/停用状态
-        type: boolean
     required:
-    - accounting_rule
-    - display_channels
-    - invoice_rule
+    - items
     - name
-    - payment_type
-    - source
     type: object
-  types.PaymentMethodUpdateReq:
+  types.MenuItemReq:
     properties:
-      accounting_rule:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodAccountingRule'
-        description: 计入规则（必选）
-        enum:
-        - income
-        - discount
-      cash_drawer_status:
-        description: 开钱箱状态
-        enum:
-        - true
-        - false
-        type: boolean
-      display_channels:
-        description: 收银终端显示渠道（可选，可多选）
+      base_price:
+        description: 基础价（可选，单位：分）
+        type: number
+      member_price:
+        description: 会员价（可选，单位：分）
+        type: number
+      product_id:
+        description: 菜品ID（必选）
+        type: string
+    required:
+    - product_id
+    type: object
+  types.MenuUpdateReq:
+    properties:
+      items:
+        description: 菜品列表（必选，至少一个）
         items:
-          type: string
+          $ref: '#/definitions/types.MenuItemReq'
         minItems: 1
         type: array
-      fee_rate:
-        description: 手续费率,百分比
-        type: number
-      invoice_rule:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodInvoiceRule'
-        description: 实收部分开票规则（必选）
-        enum:
-        - no_invoice
-        - actual_amount
       name:
-        description: 结算方式名称（必选）
+        description: 菜单名称（必选）
         maxLength: 255
         type: string
-      payment_type:
-        allOf:
-        - $ref: '#/definitions/domain.PaymentMethodPayType'
-        description: // 结算类型（必选）
-        enum:
-        - other
-        - cash
-        - offline_card
-        - custom_coupon
-        - partner_coupon
-      status:
-        description: 启用/停用状态
-        enum:
-        - true
-        - false
-        type: boolean
     required:
-    - accounting_rule
-    - display_channels
-    - invoice_rule
+    - items
     - name
-    - payment_type
+    type: object
+  types.OssTokenReq:
+    properties:
+      filename:
+        description: 文件名
+        type: string
+      for_download:
+        description: 是否用于下载
+        type: boolean
+      scene:
+        allOf:
+        - $ref: '#/definitions/domain.ObjectStorageScene'
+        description: '业务场景，store：门店相关 product: 商品相关'
+        enum:
+        - store
+        - product
+    required:
+    - filename
+    - scene
+    type: object
+  types.OssTokenResp:
+    properties:
+      content_disposition:
+        type: string
+      dir:
+        type: string
+      host:
+        type: string
+      key:
+        type: string
+      policy:
+        type: string
+      security_token:
+        type: string
+      signature:
+        type: string
+      x_oss_credential:
+        type: string
+      x_oss_date:
+        type: string
+      x_oss_signature_version:
+        type: string
     type: object
   types.ProductAttrCreateReq:
     properties:
@@ -2177,6 +2536,52 @@ definitions:
           $ref: '#/definitions/domain.Province'
         type: array
     type: object
+  types.ResetPasswordReq:
+    properties:
+      new_password:
+        type: string
+    required:
+    - new_password
+    type: object
+  types.RoleCreateReq:
+    properties:
+      enable:
+        type: boolean
+      login_channels:
+        description: 角色登录渠道pos/mobile/store
+        items:
+          $ref: '#/definitions/domain.LoginChannel'
+        type: array
+      name:
+        maxLength: 50
+        type: string
+    required:
+    - name
+    type: object
+  types.RoleListResp:
+    properties:
+      roles:
+        items:
+          $ref: '#/definitions/domain.Role'
+        type: array
+      total:
+        type: integer
+    type: object
+  types.RoleUpdateReq:
+    properties:
+      enable:
+        type: boolean
+      login_channels:
+        description: 角色登录渠道pos/mobile/store
+        items:
+          $ref: '#/definitions/domain.LoginChannel'
+        type: array
+      name:
+        maxLength: 50
+        type: string
+    required:
+    - name
+    type: object
   types.SetMealCreateReq:
     properties:
       add_sale_quantity:
@@ -2450,6 +2855,92 @@ definitions:
     - spec_relations
     - unit_id
     type: object
+  types.StoreUserCreateReq:
+    properties:
+      department_id:
+        description: 所属部门ID
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 用户登陆密码
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 用户姓名
+        type: string
+      role_ids:
+        description: 角色ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      username:
+        description: 用户登陆账号
+        type: string
+    required:
+    - department_id
+    - password
+    - real_name
+    - role_ids
+    - username
+    type: object
+  types.StoreUserUpdateReq:
+    properties:
+      department_id:
+        description: 所属部门ID
+        type: string
+      email:
+        description: 电子邮箱
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      gender:
+        allOf:
+        - $ref: '#/definitions/domain.Gender'
+        description: 性别
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 用户登陆密码
+        type: string
+      phone_number:
+        description: 手机号
+        type: string
+      real_name:
+        description: 用户姓名
+        type: string
+      role_ids:
+        description: 角色ID列表
+        items:
+          type: string
+        minItems: 1
+        type: array
+      username:
+        description: 用户登陆账号
+        type: string
+    required:
+    - department_id
+    - password
+    - real_name
+    - role_ids
+    - username
+    type: object
   types.UpdateCategoryReq:
     properties:
       inherit_stall:
@@ -2492,7 +2983,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.BusinessModel'
         description: 直营/加盟
-      business_type_id:
+      business_type_code:
         description: 业态类型
         type: string
       cashier_desk_url:
@@ -2523,9 +3014,6 @@ definitions:
       location_number:
         description: 门店位置编号
         maxLength: 255
-        type: string
-      login_password:
-        description: 登录密码(加密存储)
         type: string
       shift_times:
         description: 班次时间
@@ -2565,10 +3053,9 @@ definitions:
     - admin_phone_number
     - business_hours
     - business_model
-    - business_type_id
+    - business_type_code
     - dining_periods
     - location_number
-    - login_password
     - shift_times
     - status
     - store_name
@@ -2579,6 +3066,333 @@ info:
   title: 门店后台 API
   version: "1.0"
 paths:
+  /common/department:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询门店部门
+      parameters:
+      - in: query
+        name: code
+        type: string
+      - in: query
+        name: enable
+        type: boolean
+      - in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.DepartmentListResp'
+      security:
+      - BearerAuth: []
+      summary: 部门列表
+      tags:
+      - 部门管理
+    post:
+      consumes:
+      - application/json
+      description: 在门店后台创建部门
+      parameters:
+      - description: 创建部门请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.DepartmentCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建部门
+      tags:
+      - 部门管理
+  /common/department/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定门店部门
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除部门
+      tags:
+      - 部门管理
+    get:
+      consumes:
+      - application/json
+      description: 获取指定门店部门详情
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Department'
+      security:
+      - BearerAuth: []
+      summary: 获取部门详情
+      tags:
+      - 部门管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定门店部门
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新部门请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.DepartmentUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新部门
+      tags:
+      - 部门管理
+  /common/department/{id}/disable:
+    put:
+      consumes:
+      - application/json
+      description: 禁用指定门店部门
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用部门
+      tags:
+      - 部门管理
+  /common/department/{id}/enable:
+    put:
+      consumes:
+      - application/json
+      description: 启用指定门店部门
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用部门
+      tags:
+      - 部门管理
+  /common/role:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询门店角色
+      parameters:
+      - in: query
+        name: enable
+        type: boolean
+      - in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.RoleListResp'
+      security:
+      - BearerAuth: []
+      summary: 角色列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 在门店后台创建角色
+      parameters:
+      - description: 创建角色请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RoleCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建角色
+      tags:
+      - 角色管理
+  /common/role/{id}:
+    delete:
+      description: 删除指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除角色
+      tags:
+      - 角色管理
+    get:
+      description: 查询指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Role'
+      security:
+      - BearerAuth: []
+      summary: 获取角色详情
+      tags:
+      - 角色管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定门店后台角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新角色请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RoleUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新角色
+      tags:
+      - 角色管理
+  /common/role/{id}/disable:
+    put:
+      consumes:
+      - application/json
+      description: 禁用指定门店角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用角色
+      tags:
+      - 角色管理
+  /common/role/{id}/enable:
+    put:
+      consumes:
+      - application/json
+      description: 启用指定门店角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用角色
+      tags:
+      - 角色管理
   /menu:
     get:
       parameters:
@@ -2604,7 +3418,38 @@ paths:
       summary: 查询菜单列表
       tags:
       - 菜单管理
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.MenuCreateReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 创建菜单
+      tags:
+      - 菜单管理
   /menu/{id}:
+    delete:
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 删除菜单
+      tags:
+      - 菜单管理
     get:
       parameters:
       - description: 菜单ID
@@ -2622,87 +3467,9 @@ paths:
       summary: 获取菜单详情
       tags:
       - 菜单管理
-  /payment/method:
-    get:
-      parameters:
-      - description: 结算方式名称（模糊匹配）
-        in: query
-        name: name
-        type: string
-      - description: 来源:brand-品牌,store-门店,system-系统
-        in: query
-        name: source
-        type: string
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 每页数量
-        in: query
-        name: size
-        type: integer
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/domain.PaymentMethodSearchRes'
-      security:
-      - BearerAuth: []
-      summary: 查询结算方式列表
-      tags:
-      - 结算方式管理
-    post:
-      parameters:
-      - description: 请求信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.PaymentMethodCreateReq'
-      responses:
-        "200":
-          description: OK
-      security:
-      - BearerAuth: []
-      summary: 创建结算方式
-      tags:
-      - 结算方式管理
-  /payment/method/{id}:
-    delete:
-      parameters:
-      - description: 结算方式ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-      security:
-      - BearerAuth: []
-      summary: 删除结算方式
-      tags:
-      - 结算方式管理
-    get:
-      parameters:
-      - description: 结算方式ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/domain.PaymentMethod'
-      security:
-      - BearerAuth: []
-      summary: 获取结算方式详情
-      tags:
-      - 结算方式管理
     put:
       parameters:
-      - description: 结算方式ID
+      - description: 菜单ID
         in: path
         name: id
         required: true
@@ -2712,36 +3479,38 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/types.PaymentMethodUpdateReq'
+          $ref: '#/definitions/types.MenuUpdateReq'
       responses:
         "200":
           description: OK
       security:
       - BearerAuth: []
-      summary: 更新结算方式
+      summary: 更新菜单
       tags:
-      - 结算方式管理
-  /payment/method/stat:
-    get:
+      - 菜单管理
+  /oss/token:
+    post:
+      consumes:
+      - application/json
       parameters:
-      - description: 结算方式名称（模糊匹配）
-        in: query
-        name: name
-        type: string
-      - description: 来源:brand-品牌,store-门店,system-系统
-        in: query
-        name: source
-        type: string
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.OssTokenReq'
+      produces:
+      - application/json
       responses:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/domain.PaymentMethodStatRes'
+            $ref: '#/definitions/types.OssTokenResp'
       security:
       - BearerAuth: []
-      summary: 统计各个结算分类对应的结算方式数量
+      summary: 获取OSS Token
       tags:
-      - 结算方式管理
+      - 阿里OSS
   /product:
     get:
       parameters:
@@ -3413,6 +4182,44 @@ paths:
       summary: 更新商品单位
       tags:
       - 商品单位
+  /profit/distribution/bill:
+    get:
+      parameters:
+      - description: 账单结束日期
+        in: query
+        name: bill_end_date
+        type: string
+      - description: 账单开始日期
+        in: query
+        name: bill_start_date
+        type: string
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        minimum: 1
+        name: size
+        type: integer
+      - description: 分账状态（可选）
+        enum:
+        - pending
+        - paid
+        in: query
+        name: status
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.ProfitDistributionBillSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询分账账单列表
+      tags:
+      - 分账账单
   /region/countries:
     get:
       responses:
@@ -3504,14 +4311,6 @@ paths:
                 data:
                   $ref: '#/definitions/types.DeviceListResp'
               type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取设备列表
@@ -3533,18 +4332,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 创建设备
@@ -3564,18 +4351,6 @@ paths:
           description: No Content
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 删除设备
@@ -3599,18 +4374,6 @@ paths:
                 data:
                   $ref: '#/definitions/domain.Device'
               type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取设备详情
@@ -3637,18 +4400,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新设备
@@ -3668,18 +4419,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 禁用设备
@@ -3699,18 +4438,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 启用设备
@@ -3739,18 +4466,6 @@ paths:
                 data:
                   $ref: '#/definitions/domain.Store'
               type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 获取门店
@@ -3777,18 +4492,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 更新门店
@@ -3802,18 +4505,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 禁用门店
@@ -3827,27 +4518,231 @@ paths:
       responses:
         "200":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
       summary: 启用门店
       tags:
       - 门店管理
-  /user/info:
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: 查询门店用户列表
+      parameters:
+      - in: query
+        name: code
+        type: string
+      - in: query
+        name: email
+        type: string
+      - in: query
+        name: enable
+        type: boolean
+      - enum:
+        - male
+        - female
+        - other
+        - unknown
+        in: query
+        name: gender
+        type: string
+        x-enum-comments:
+          GenderFemale: 女性
+          GenderMale: 男性
+          GenderOther: 其他
+          GenderUnknown: 未知
+        x-enum-varnames:
+        - GenderMale
+        - GenderFemale
+        - GenderOther
+        - GenderUnknown
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: phone_number
+        type: string
+      - in: query
+        name: real_name
+        type: string
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.AccountListResp'
+      security:
+      - BearerAuth: []
+      summary: 门店用户列表
+      tags:
+      - 用户管理
     post:
       consumes:
       - application/json
+      description: 在门店后台创建用户
+      parameters:
+      - description: 创建用户请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StoreUserCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建门店用户
+      tags:
+      - 用户管理
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定门店用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除门店用户
+      tags:
+      - 用户管理
+    get:
+      consumes:
+      - application/json
+      description: 查询指定门店用户详情
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.StoreUser'
+      security:
+      - BearerAuth: []
+      summary: 获取门店用户
+      tags:
+      - 用户管理
+    put:
+      consumes:
+      - application/json
+      description: 修改指定门店用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新用户请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StoreUserUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新门店用户
+      tags:
+      - 用户管理
+  /user/{id}/disable:
+    put:
+      consumes:
+      - application/json
+      description: 禁用指定门店用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用门店用户
+      tags:
+      - 用户管理
+  /user/{id}/enable:
+    put:
+      consumes:
+      - application/json
+      description: 启用指定门店用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用门店用户
+      tags:
+      - 用户管理
+  /user/{id}/reset_password:
+    put:
+      consumes:
+      - application/json
+      description: 重置用户密码
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 重置密码请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 重置用户密码
+      tags:
+      - 用户管理
+  /user/info:
+    post:
       produces:
       - application/json
       responses:
@@ -3855,15 +4750,8 @@ paths:
           description: 成功
           schema:
             $ref: '#/definitions/domain.StoreUser'
-      security:
-      - BearerAuth: []
-      summary: 获取当前用户信息
-      tags:
-      - 用户管理
   /user/login:
     post:
-      consumes:
-      - application/json
       parameters:
       - description: 请求信息
         in: body
@@ -3878,25 +4766,13 @@ paths:
           description: 成功
           schema:
             $ref: '#/definitions/types.LoginResp'
-      security:
-      - BearerAuth: []
-      summary: 用户登录
-      tags:
-      - 用户管理
   /user/logout:
     post:
-      consumes:
-      - application/json
       produces:
       - application/json
       responses:
         "200":
           description: No Content
-      security:
-      - BearerAuth: []
-      summary: 用户登出
-      tags:
-      - 用户管理
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT token.

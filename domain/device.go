@@ -121,6 +121,21 @@ func (DeviceStallReceiptType) Values() []string {
 	}
 }
 
+// DeviceConnectType 设备连接类型
+type DeviceConnectType string
+
+const (
+	DeviceConnectTypeInside  DeviceConnectType = "inside"  // 内置
+	DeviceConnectTypeOutside DeviceConnectType = "outside" // 外置
+)
+
+func (DeviceConnectType) Values() []string {
+	return []string{
+		string(DeviceConnectTypeInside),
+		string(DeviceConnectTypeOutside),
+	}
+}
+
 // Device 设备实体
 type Device struct {
 	ID                     uuid.UUID              `json:"id"`                        // 设备 ID
@@ -137,6 +152,7 @@ type Device struct {
 	IP                     string                 `json:"ip"`                        // 设备 IP 地址
 	Status                 DeviceStatus           `json:"status"`                    // 设备状态
 	PaperSize              PaperSize              `json:"paper_size"`                // 打印纸张尺寸
+	ConnectType            DeviceConnectType      `json:"connect_type"`              // 设备连接类型 inside内置 / outside外置
 	StallID                uuid.UUID              `json:"stall_id"`                  // 出品部门 ID
 	StallName              string                 `json:"stall_name"`                // 出品部门名称
 	OrderChannels          []OrderChannel         `json:"order_channels"`            // 订单来源

@@ -11,8 +11,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 )
 
 // DepartmentUpdate is the builder for updating Department entities.
@@ -84,9 +88,117 @@ func (du *DepartmentUpdate) SetNillableEnable(b *bool) *DepartmentUpdate {
 	return du
 }
 
+// AddAdminUserIDs adds the "admin_users" edge to the AdminUser entity by IDs.
+func (du *DepartmentUpdate) AddAdminUserIDs(ids ...uuid.UUID) *DepartmentUpdate {
+	du.mutation.AddAdminUserIDs(ids...)
+	return du
+}
+
+// AddAdminUsers adds the "admin_users" edges to the AdminUser entity.
+func (du *DepartmentUpdate) AddAdminUsers(a ...*AdminUser) *DepartmentUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return du.AddAdminUserIDs(ids...)
+}
+
+// AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
+func (du *DepartmentUpdate) AddBackendUserIDs(ids ...uuid.UUID) *DepartmentUpdate {
+	du.mutation.AddBackendUserIDs(ids...)
+	return du
+}
+
+// AddBackendUsers adds the "backend_users" edges to the BackendUser entity.
+func (du *DepartmentUpdate) AddBackendUsers(b ...*BackendUser) *DepartmentUpdate {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return du.AddBackendUserIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (du *DepartmentUpdate) AddStoreUserIDs(ids ...uuid.UUID) *DepartmentUpdate {
+	du.mutation.AddStoreUserIDs(ids...)
+	return du
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (du *DepartmentUpdate) AddStoreUsers(s ...*StoreUser) *DepartmentUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return du.AddStoreUserIDs(ids...)
+}
+
 // Mutation returns the DepartmentMutation object of the builder.
 func (du *DepartmentUpdate) Mutation() *DepartmentMutation {
 	return du.mutation
+}
+
+// ClearAdminUsers clears all "admin_users" edges to the AdminUser entity.
+func (du *DepartmentUpdate) ClearAdminUsers() *DepartmentUpdate {
+	du.mutation.ClearAdminUsers()
+	return du
+}
+
+// RemoveAdminUserIDs removes the "admin_users" edge to AdminUser entities by IDs.
+func (du *DepartmentUpdate) RemoveAdminUserIDs(ids ...uuid.UUID) *DepartmentUpdate {
+	du.mutation.RemoveAdminUserIDs(ids...)
+	return du
+}
+
+// RemoveAdminUsers removes "admin_users" edges to AdminUser entities.
+func (du *DepartmentUpdate) RemoveAdminUsers(a ...*AdminUser) *DepartmentUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return du.RemoveAdminUserIDs(ids...)
+}
+
+// ClearBackendUsers clears all "backend_users" edges to the BackendUser entity.
+func (du *DepartmentUpdate) ClearBackendUsers() *DepartmentUpdate {
+	du.mutation.ClearBackendUsers()
+	return du
+}
+
+// RemoveBackendUserIDs removes the "backend_users" edge to BackendUser entities by IDs.
+func (du *DepartmentUpdate) RemoveBackendUserIDs(ids ...uuid.UUID) *DepartmentUpdate {
+	du.mutation.RemoveBackendUserIDs(ids...)
+	return du
+}
+
+// RemoveBackendUsers removes "backend_users" edges to BackendUser entities.
+func (du *DepartmentUpdate) RemoveBackendUsers(b ...*BackendUser) *DepartmentUpdate {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return du.RemoveBackendUserIDs(ids...)
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (du *DepartmentUpdate) ClearStoreUsers() *DepartmentUpdate {
+	du.mutation.ClearStoreUsers()
+	return du
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (du *DepartmentUpdate) RemoveStoreUserIDs(ids ...uuid.UUID) *DepartmentUpdate {
+	du.mutation.RemoveStoreUserIDs(ids...)
+	return du
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (du *DepartmentUpdate) RemoveStoreUsers(s ...*StoreUser) *DepartmentUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return du.RemoveStoreUserIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -160,6 +272,141 @@ func (du *DepartmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := du.mutation.Enable(); ok {
 		_spec.SetField(department.FieldEnable, field.TypeBool, value)
+	}
+	if du.mutation.AdminUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.AdminUsersTable,
+			Columns: []string{department.AdminUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := du.mutation.RemovedAdminUsersIDs(); len(nodes) > 0 && !du.mutation.AdminUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.AdminUsersTable,
+			Columns: []string{department.AdminUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := du.mutation.AdminUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.AdminUsersTable,
+			Columns: []string{department.AdminUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if du.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.BackendUsersTable,
+			Columns: []string{department.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := du.mutation.RemovedBackendUsersIDs(); len(nodes) > 0 && !du.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.BackendUsersTable,
+			Columns: []string{department.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := du.mutation.BackendUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.BackendUsersTable,
+			Columns: []string{department.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if du.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.StoreUsersTable,
+			Columns: []string{department.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := du.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !du.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.StoreUsersTable,
+			Columns: []string{department.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := du.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.StoreUsersTable,
+			Columns: []string{department.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(du.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, du.driver, _spec); err != nil {
@@ -238,9 +485,117 @@ func (duo *DepartmentUpdateOne) SetNillableEnable(b *bool) *DepartmentUpdateOne 
 	return duo
 }
 
+// AddAdminUserIDs adds the "admin_users" edge to the AdminUser entity by IDs.
+func (duo *DepartmentUpdateOne) AddAdminUserIDs(ids ...uuid.UUID) *DepartmentUpdateOne {
+	duo.mutation.AddAdminUserIDs(ids...)
+	return duo
+}
+
+// AddAdminUsers adds the "admin_users" edges to the AdminUser entity.
+func (duo *DepartmentUpdateOne) AddAdminUsers(a ...*AdminUser) *DepartmentUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return duo.AddAdminUserIDs(ids...)
+}
+
+// AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
+func (duo *DepartmentUpdateOne) AddBackendUserIDs(ids ...uuid.UUID) *DepartmentUpdateOne {
+	duo.mutation.AddBackendUserIDs(ids...)
+	return duo
+}
+
+// AddBackendUsers adds the "backend_users" edges to the BackendUser entity.
+func (duo *DepartmentUpdateOne) AddBackendUsers(b ...*BackendUser) *DepartmentUpdateOne {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return duo.AddBackendUserIDs(ids...)
+}
+
+// AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
+func (duo *DepartmentUpdateOne) AddStoreUserIDs(ids ...uuid.UUID) *DepartmentUpdateOne {
+	duo.mutation.AddStoreUserIDs(ids...)
+	return duo
+}
+
+// AddStoreUsers adds the "store_users" edges to the StoreUser entity.
+func (duo *DepartmentUpdateOne) AddStoreUsers(s ...*StoreUser) *DepartmentUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return duo.AddStoreUserIDs(ids...)
+}
+
 // Mutation returns the DepartmentMutation object of the builder.
 func (duo *DepartmentUpdateOne) Mutation() *DepartmentMutation {
 	return duo.mutation
+}
+
+// ClearAdminUsers clears all "admin_users" edges to the AdminUser entity.
+func (duo *DepartmentUpdateOne) ClearAdminUsers() *DepartmentUpdateOne {
+	duo.mutation.ClearAdminUsers()
+	return duo
+}
+
+// RemoveAdminUserIDs removes the "admin_users" edge to AdminUser entities by IDs.
+func (duo *DepartmentUpdateOne) RemoveAdminUserIDs(ids ...uuid.UUID) *DepartmentUpdateOne {
+	duo.mutation.RemoveAdminUserIDs(ids...)
+	return duo
+}
+
+// RemoveAdminUsers removes "admin_users" edges to AdminUser entities.
+func (duo *DepartmentUpdateOne) RemoveAdminUsers(a ...*AdminUser) *DepartmentUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return duo.RemoveAdminUserIDs(ids...)
+}
+
+// ClearBackendUsers clears all "backend_users" edges to the BackendUser entity.
+func (duo *DepartmentUpdateOne) ClearBackendUsers() *DepartmentUpdateOne {
+	duo.mutation.ClearBackendUsers()
+	return duo
+}
+
+// RemoveBackendUserIDs removes the "backend_users" edge to BackendUser entities by IDs.
+func (duo *DepartmentUpdateOne) RemoveBackendUserIDs(ids ...uuid.UUID) *DepartmentUpdateOne {
+	duo.mutation.RemoveBackendUserIDs(ids...)
+	return duo
+}
+
+// RemoveBackendUsers removes "backend_users" edges to BackendUser entities.
+func (duo *DepartmentUpdateOne) RemoveBackendUsers(b ...*BackendUser) *DepartmentUpdateOne {
+	ids := make([]uuid.UUID, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return duo.RemoveBackendUserIDs(ids...)
+}
+
+// ClearStoreUsers clears all "store_users" edges to the StoreUser entity.
+func (duo *DepartmentUpdateOne) ClearStoreUsers() *DepartmentUpdateOne {
+	duo.mutation.ClearStoreUsers()
+	return duo
+}
+
+// RemoveStoreUserIDs removes the "store_users" edge to StoreUser entities by IDs.
+func (duo *DepartmentUpdateOne) RemoveStoreUserIDs(ids ...uuid.UUID) *DepartmentUpdateOne {
+	duo.mutation.RemoveStoreUserIDs(ids...)
+	return duo
+}
+
+// RemoveStoreUsers removes "store_users" edges to StoreUser entities.
+func (duo *DepartmentUpdateOne) RemoveStoreUsers(s ...*StoreUser) *DepartmentUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return duo.RemoveStoreUserIDs(ids...)
 }
 
 // Where appends a list predicates to the DepartmentUpdate builder.
@@ -344,6 +699,141 @@ func (duo *DepartmentUpdateOne) sqlSave(ctx context.Context) (_node *Department,
 	}
 	if value, ok := duo.mutation.Enable(); ok {
 		_spec.SetField(department.FieldEnable, field.TypeBool, value)
+	}
+	if duo.mutation.AdminUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.AdminUsersTable,
+			Columns: []string{department.AdminUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duo.mutation.RemovedAdminUsersIDs(); len(nodes) > 0 && !duo.mutation.AdminUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.AdminUsersTable,
+			Columns: []string{department.AdminUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duo.mutation.AdminUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.AdminUsersTable,
+			Columns: []string{department.AdminUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(adminuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if duo.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.BackendUsersTable,
+			Columns: []string{department.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duo.mutation.RemovedBackendUsersIDs(); len(nodes) > 0 && !duo.mutation.BackendUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.BackendUsersTable,
+			Columns: []string{department.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duo.mutation.BackendUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.BackendUsersTable,
+			Columns: []string{department.BackendUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(backenduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if duo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.StoreUsersTable,
+			Columns: []string{department.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duo.mutation.RemovedStoreUsersIDs(); len(nodes) > 0 && !duo.mutation.StoreUsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.StoreUsersTable,
+			Columns: []string{department.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duo.mutation.StoreUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   department.StoreUsersTable,
+			Columns: []string{department.StoreUsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(storeuser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(duo.modifiers...)
 	_node = &Department{config: duo.config}

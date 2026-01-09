@@ -2,7 +2,7 @@
 RunMode = "dev"
 
 [HTTP]
-Port = "8080"
+Port = "8081"
 RequestTimeout = 15
 
 [Database]
@@ -17,6 +17,12 @@ TimeZone = "Asia/Shanghai"
 MaxLifetime = 3600
 MaxOpenConns = 150
 MaxIdleConns = 50
+
+[Redis]
+Addr = "127.0.0.1:6379"
+Username = ""
+Password = ""
+DB = 0
 
 [Alert]
 AppName = "backend"
@@ -47,3 +53,8 @@ SamplerType = "const"
 SamplerParam = 1.0
 AppVersion = "1.0.0"
 AppBuildAt = "2024-01-01"
+
+# 分账任务执行时间（24小时制）
+[ProfitDistribution]
+TaskHour = 2      # 凌晨2点
+TaskMinute = 0    # 0分

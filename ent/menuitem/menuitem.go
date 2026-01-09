@@ -3,14 +3,12 @@
 package menuitem
 
 import (
-	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 const (
@@ -28,8 +26,6 @@ const (
 	FieldMenuID = "menu_id"
 	// FieldProductID holds the string denoting the product_id field in the database.
 	FieldProductID = "product_id"
-	// FieldSaleRule holds the string denoting the sale_rule field in the database.
-	FieldSaleRule = "sale_rule"
 	// FieldBasePrice holds the string denoting the base_price field in the database.
 	FieldBasePrice = "base_price"
 	// FieldMemberPrice holds the string denoting the member_price field in the database.
@@ -64,7 +60,6 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldMenuID,
 	FieldProductID,
-	FieldSaleRule,
 	FieldBasePrice,
 	FieldMemberPrice,
 }
@@ -99,18 +94,6 @@ var (
 	DefaultID func() uuid.UUID
 )
 
-const DefaultSaleRule domain.MenuItemSaleRule = "keep_brand_status"
-
-// SaleRuleValidator is a validator for the "sale_rule" field enum values. It is called by the builders before save.
-func SaleRuleValidator(sr domain.MenuItemSaleRule) error {
-	switch sr {
-	case "keep_brand_status", "keep_store_status":
-		return nil
-	default:
-		return fmt.Errorf("menuitem: invalid enum value for sale_rule field: %q", sr)
-	}
-}
-
 // OrderOption defines the ordering options for the MenuItem queries.
 type OrderOption func(*sql.Selector)
 
@@ -142,11 +125,6 @@ func ByMenuID(opts ...sql.OrderTermOption) OrderOption {
 // ByProductID orders the results by the product_id field.
 func ByProductID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProductID, opts...).ToFunc()
-}
-
-// BySaleRule orders the results by the sale_rule field.
-func BySaleRule(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSaleRule, opts...).ToFunc()
 }
 
 // ByBasePrice orders the results by the base_price field.

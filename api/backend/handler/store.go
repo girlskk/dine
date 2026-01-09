@@ -13,6 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
 // StoreHandler handles store related routes for brand backend.
@@ -45,9 +46,6 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.CreateStoreReq	true	"创建门店请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/store [post]
 func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -72,7 +70,7 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			StoreCode:               req.StoreCode,
 			Status:                  req.Status,
 			BusinessModel:           req.BusinessModel,
-			BusinessTypeID:          req.BusinessTypeID,
+			BusinessTypeCode:        req.BusinessTypeCode,
 			LocationNumber:          req.LocationNumber,
 			ContactName:             req.ContactName,
 			ContactPhone:            req.ContactPhone,
@@ -121,9 +119,6 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 //	@Param			id		path	string					true	"门店ID"
 //	@Param			data	body	types.UpdateStoreReq	true	"更新门店请求"
 //	@Success		200		"No Content"
-//	@Failure		400		{object}	response.Response
-//	@Failure		409		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/store/{id} [put]
 func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -152,7 +147,7 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			StoreCode:               req.StoreCode,
 			Status:                  req.Status,
 			BusinessModel:           req.BusinessModel,
-			BusinessTypeID:          req.BusinessTypeID,
+			BusinessTypeCode:        req.BusinessTypeCode,
 			LocationNumber:          req.LocationNumber,
 			ContactName:             req.ContactName,
 			ContactPhone:            req.ContactPhone,
@@ -163,7 +158,6 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			CashierDeskURL:          req.CashierDeskURL,
 			DiningEnvironmentURL:    req.DiningEnvironmentURL,
 			FoodOperationLicenseURL: req.FoodOperationLicenseURL,
-			LoginPassword:           req.LoginPassword,
 			BusinessHours:           req.BusinessHours,
 			DiningPeriods:           req.DiningPeriods,
 			ShiftTimes:              req.ShiftTimes,
@@ -204,8 +198,6 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
 //	@Success		204	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/store/{id} [delete]
 func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -243,9 +235,6 @@ func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"门店ID"
 //	@Success		200	{object}	response.Response{data=domain.Store}
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/store/{id} [get]
 func (h *StoreHandler) GetStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -283,8 +272,6 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			data	query		types.StoreListReq	true	"门店列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.StoreListResp}
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
 //	@Router			/store/list [get]
 func (h *StoreHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -305,19 +292,34 @@ func (h *StoreHandler) List() gin.HandlerFunc {
 		filter := &domain.StoreListFilter{
 			StoreName:        req.StoreName,
 			MerchantID:       user.MerchantID,
-			BusinessTypeID:   req.BusinessTypeID,
+			BusinessTypeCode: req.BusinessTypeCode,
 			AdminPhoneNumber: req.AdminPhoneNumber,
 			Status:           req.Status,
 			BusinessModel:    req.BusinessModel,
-			CreatedAtGte:     &req.CreatedAtGte,
-			CreatedAtLte:     &req.CreatedAtLte,
-			ProvinceID:       req.ProvinceID,
 		}
-		if req.CreatedAtGte.IsZero() {
-			filter.CreatedAtGte = nil
+		// parse MerchantID if provided
+		if req.MerchantID != "" {
+			mid, err := uuid.Parse(req.MerchantID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.MerchantID = mid
 		}
-		if req.CreatedAtLte.IsZero() {
-			filter.CreatedAtLte = nil
+
+		if req.CreatedAtGte != "" || req.CreatedAtLte != "" {
+			var err error
+			startTime, endTime := util.GetShortcutDate("custom", req.CreatedAtGte, req.CreatedAtLte)
+			filter.CreatedAtGte, err = util.ParseDateToPtr(startTime)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtGte: %w", err)))
+				return
+			}
+			filter.CreatedAtLte, err = util.ParseDateToPtr(endTime)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtLte: %w", err)))
+				return
+			}
 		}
 
 		stores, total, err := h.StoreInteractor.GetStores(ctx, pager, filter)
@@ -339,9 +341,6 @@ func (h *StoreHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/store/{id}/enable [put]
 func (h *StoreHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -357,7 +356,7 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 		}
 
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusOpen}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateTypeStatus, updateParams); err != nil {
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -379,9 +378,6 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Failure		400	{object}	response.Response
-//	@Failure		404	{object}	response.Response
-//	@Failure		500	{object}	response.Response
 //	@Router			/store/{id}/disable [put]
 func (h *StoreHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -397,7 +393,7 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 		}
 
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusClosed}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateTypeStatus, updateParams); err != nil {
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return

@@ -48,6 +48,10 @@ const (
 	EdgeParent = "parent"
 	// EdgeProducts holds the string denoting the products edge name in mutations.
 	EdgeProducts = "products"
+	// EdgeTaxRate holds the string denoting the tax_rate edge name in mutations.
+	EdgeTaxRate = "tax_rate"
+	// EdgeStall holds the string denoting the stall edge name in mutations.
+	EdgeStall = "stall"
 	// Table holds the table name of the category in the database.
 	Table = "categories"
 	// ChildrenTable is the table that holds the children relation/edge.
@@ -65,6 +69,20 @@ const (
 	ProductsInverseTable = "products"
 	// ProductsColumn is the table column denoting the products relation/edge.
 	ProductsColumn = "category_id"
+	// TaxRateTable is the table that holds the tax_rate relation/edge.
+	TaxRateTable = "categories"
+	// TaxRateInverseTable is the table name for the TaxFee entity.
+	// It exists in this package in order to avoid circular dependency with the "taxfee" package.
+	TaxRateInverseTable = "tax_fees"
+	// TaxRateColumn is the table column denoting the tax_rate relation/edge.
+	TaxRateColumn = "tax_rate_id"
+	// StallTable is the table that holds the stall relation/edge.
+	StallTable = "categories"
+	// StallInverseTable is the table name for the Stall entity.
+	// It exists in this package in order to avoid circular dependency with the "stall" package.
+	StallInverseTable = "stalls"
+	// StallColumn is the table column denoting the stall relation/edge.
+	StallColumn = "stall_id"
 )
 
 // Columns holds all SQL columns for category fields.
@@ -85,10 +103,22 @@ var Columns = []string{
 	FieldSortOrder,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "categories"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"stall_categories",
+	"tax_fee_categories",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -236,6 +266,20 @@ func ByProducts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProductsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTaxRateField orders the results by tax_rate field.
+func ByTaxRateField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTaxRateStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByStallField orders the results by stall field.
+func ByStallField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStallStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newChildrenStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -255,5 +299,19 @@ func newProductsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProductsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProductsTable, ProductsColumn),
+	)
+}
+func newTaxRateStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TaxRateInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, TaxRateTable, TaxRateColumn),
+	)
+}
+func newStallStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StallInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, StallTable, StallColumn),
 	)
 }

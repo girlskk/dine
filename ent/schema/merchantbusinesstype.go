@@ -2,8 +2,9 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
@@ -15,6 +16,10 @@ type MerchantBusinessType struct {
 // Fields of the MerchantBusinessType.
 func (MerchantBusinessType) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("merchant_id", uuid.UUID{}).
+			Optional().
+			Immutable().
+			Comment("商户 ID"),
 		field.String("type_code").
 			NotEmpty().
 			Default("").
@@ -30,10 +35,7 @@ func (MerchantBusinessType) Fields() []ent.Field {
 
 // Edges of the MerchantBusinessType.
 func (MerchantBusinessType) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("merchants", Merchant.Type),
-		edge.To("stores", Store.Type),
-	}
+	return []ent.Edge{}
 }
 
 func (MerchantBusinessType) Mixin() []ent.Mixin {
@@ -41,5 +43,11 @@ func (MerchantBusinessType) Mixin() []ent.Mixin {
 		schematype.UUIDMixin{},
 		schematype.TimeMixin{},
 		schematype.SoftDeleteMixin{},
+	}
+}
+
+func (MerchantBusinessType) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("type_code", "deleted_at").Unique(),
 	}
 }

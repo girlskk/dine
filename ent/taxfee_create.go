@@ -15,7 +15,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
@@ -172,6 +174,36 @@ func (tfc *TaxFeeCreate) SetMerchant(m *Merchant) *TaxFeeCreate {
 // SetStore sets the "store" edge to the Store entity.
 func (tfc *TaxFeeCreate) SetStore(s *Store) *TaxFeeCreate {
 	return tfc.SetStoreID(s.ID)
+}
+
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (tfc *TaxFeeCreate) AddCategoryIDs(ids ...uuid.UUID) *TaxFeeCreate {
+	tfc.mutation.AddCategoryIDs(ids...)
+	return tfc
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (tfc *TaxFeeCreate) AddCategories(c ...*Category) *TaxFeeCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tfc.AddCategoryIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (tfc *TaxFeeCreate) AddProductIDs(ids ...uuid.UUID) *TaxFeeCreate {
+	tfc.mutation.AddProductIDs(ids...)
+	return tfc
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (tfc *TaxFeeCreate) AddProducts(p ...*Product) *TaxFeeCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tfc.AddProductIDs(ids...)
 }
 
 // Mutation returns the TaxFeeMutation object of the builder.
@@ -400,6 +432,38 @@ func (tfc *TaxFeeCreate) createSpec() (*TaxFee, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.StoreID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tfc.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.CategoriesTable,
+			Columns: []string{taxfee.CategoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tfc.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   taxfee.ProductsTable,
+			Columns: []string{taxfee.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

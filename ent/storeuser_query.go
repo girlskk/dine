@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -22,13 +23,14 @@ import (
 // StoreUserQuery is the builder for querying StoreUser entities.
 type StoreUserQuery struct {
 	config
-	ctx          *QueryContext
-	order        []storeuser.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.StoreUser
-	withMerchant *MerchantQuery
-	withStore    *StoreQuery
-	modifiers    []func(*sql.Selector)
+	ctx            *QueryContext
+	order          []storeuser.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.StoreUser
+	withMerchant   *MerchantQuery
+	withStore      *StoreQuery
+	withDepartment *DepartmentQuery
+	modifiers      []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +104,28 @@ func (suq *StoreUserQuery) QueryStore() *StoreQuery {
 			sqlgraph.From(storeuser.Table, storeuser.FieldID, selector),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.StoreTable, storeuser.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(suq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDepartment chains the current query on the "department" edge.
+func (suq *StoreUserQuery) QueryDepartment() *DepartmentQuery {
+	query := (&DepartmentClient{config: suq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := suq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := suq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(storeuser.Table, storeuser.FieldID, selector),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, storeuser.DepartmentTable, storeuser.DepartmentColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(suq.driver.Dialect(), step)
 		return fromU, nil
@@ -296,13 +320,14 @@ func (suq *StoreUserQuery) Clone() *StoreUserQuery {
 		return nil
 	}
 	return &StoreUserQuery{
-		config:       suq.config,
-		ctx:          suq.ctx.Clone(),
-		order:        append([]storeuser.OrderOption{}, suq.order...),
-		inters:       append([]Interceptor{}, suq.inters...),
-		predicates:   append([]predicate.StoreUser{}, suq.predicates...),
-		withMerchant: suq.withMerchant.Clone(),
-		withStore:    suq.withStore.Clone(),
+		config:         suq.config,
+		ctx:            suq.ctx.Clone(),
+		order:          append([]storeuser.OrderOption{}, suq.order...),
+		inters:         append([]Interceptor{}, suq.inters...),
+		predicates:     append([]predicate.StoreUser{}, suq.predicates...),
+		withMerchant:   suq.withMerchant.Clone(),
+		withStore:      suq.withStore.Clone(),
+		withDepartment: suq.withDepartment.Clone(),
 		// clone intermediate query.
 		sql:       suq.sql.Clone(),
 		path:      suq.path,
@@ -329,6 +354,17 @@ func (suq *StoreUserQuery) WithStore(opts ...func(*StoreQuery)) *StoreUserQuery 
 		opt(query)
 	}
 	suq.withStore = query
+	return suq
+}
+
+// WithDepartment tells the query-builder to eager-load the nodes that are connected to
+// the "department" edge. The optional arguments are used to configure the query builder of the edge.
+func (suq *StoreUserQuery) WithDepartment(opts ...func(*DepartmentQuery)) *StoreUserQuery {
+	query := (&DepartmentClient{config: suq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	suq.withDepartment = query
 	return suq
 }
 
@@ -410,9 +446,10 @@ func (suq *StoreUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	var (
 		nodes       = []*StoreUser{}
 		_spec       = suq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			suq.withMerchant != nil,
 			suq.withStore != nil,
+			suq.withDepartment != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +482,12 @@ func (suq *StoreUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	if query := suq.withStore; query != nil {
 		if err := suq.loadStore(ctx, query, nodes, nil,
 			func(n *StoreUser, e *Store) { n.Edges.Store = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := suq.withDepartment; query != nil {
+		if err := suq.loadDepartment(ctx, query, nodes, nil,
+			func(n *StoreUser, e *Department) { n.Edges.Department = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -509,6 +552,35 @@ func (suq *StoreUserQuery) loadStore(ctx context.Context, query *StoreQuery, nod
 	}
 	return nil
 }
+func (suq *StoreUserQuery) loadDepartment(ctx context.Context, query *DepartmentQuery, nodes []*StoreUser, init func(*StoreUser), assign func(*StoreUser, *Department)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*StoreUser)
+	for i := range nodes {
+		fk := nodes[i].DepartmentID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(department.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "department_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (suq *StoreUserQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := suq.querySpec()
@@ -543,6 +615,9 @@ func (suq *StoreUserQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if suq.withStore != nil {
 			_spec.Node.AddColumnOnce(storeuser.FieldStoreID)
+		}
+		if suq.withDepartment != nil {
+			_spec.Node.AddColumnOnce(storeuser.FieldDepartmentID)
 		}
 	}
 	if ps := suq.predicates; len(ps) > 0 {

@@ -47,7 +47,7 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetBrandName(domainMerchant.BrandName).
 		SetAdminPhoneNumber(domainMerchant.AdminPhoneNumber).
 		SetNillableExpireUtc(domainMerchant.ExpireUTC).
-		SetBusinessTypeID(domainMerchant.BusinessTypeID).
+		SetBusinessTypeCode(domainMerchant.BusinessTypeCode).
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status).
@@ -89,7 +89,7 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		SetBrandName(domainMerchant.BrandName).
 		SetAdminPhoneNumber(domainMerchant.AdminPhoneNumber).
 		SetNillableExpireUtc(domainMerchant.ExpireUTC).
-		SetBusinessTypeID(domainMerchant.BusinessTypeID).
+		SetBusinessTypeCode(domainMerchant.BusinessTypeCode).
 		SetMerchantLogo(domainMerchant.MerchantLogo).
 		SetDescription(domainMerchant.Description).
 		SetStatus(domainMerchant.Status)
@@ -155,7 +155,6 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id uuid.UUID) (dom
 		WithProvince().
 		WithCity().
 		WithDistrict().
-		WithMerchantBusinessType().
 		WithMerchantRenewals().
 		Only(ctx)
 	if err != nil {
@@ -366,7 +365,7 @@ func convertMerchant(em *ent.Merchant) *domain.Merchant {
 		BrandName:         em.BrandName,
 		AdminPhoneNumber:  em.AdminPhoneNumber,
 		ExpireUTC:         em.ExpireUtc,
-		BusinessTypeID:    em.BusinessTypeID,
+		BusinessTypeCode:  em.BusinessTypeCode,
 		MerchantLogo:      em.MerchantLogo,
 		Description:       em.Description,
 		Status:            em.Status,
@@ -376,9 +375,6 @@ func convertMerchant(em *ent.Merchant) *domain.Merchant {
 		UpdatedAt:         em.UpdatedAt,
 	}
 
-	if em.Edges.MerchantBusinessType != nil {
-		repoMerchant.BusinessTypeName = em.Edges.MerchantBusinessType.TypeName
-	}
 	if len(em.Edges.MerchantRenewals) > 0 {
 		// 倒序返回最后一条
 		sort.Slice(em.Edges.MerchantRenewals, func(i, j int) bool {

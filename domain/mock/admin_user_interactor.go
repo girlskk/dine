@@ -10,7 +10,9 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
+	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockAdminUserInteractor is a mock of AdminUserInteractor interface.
@@ -51,6 +53,70 @@ func (mr *MockAdminUserInteractorMockRecorder) Authenticate(arg0, arg1 interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authenticate", reflect.TypeOf((*MockAdminUserInteractor)(nil).Authenticate), arg0, arg1)
 }
 
+// Create mocks base method.
+func (m *MockAdminUserInteractor) Create(arg0 context.Context, arg1 *domain.AdminUser) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockAdminUserInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockAdminUserInteractor)(nil).Create), arg0, arg1)
+}
+
+// Delete mocks base method.
+func (m *MockAdminUserInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockAdminUserInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockAdminUserInteractor)(nil).Delete), arg0, arg1)
+}
+
+// GetUser mocks base method.
+func (m *MockAdminUserInteractor) GetUser(arg0 context.Context, arg1 uuid.UUID) (*domain.AdminUser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUser", arg0, arg1)
+	ret0, _ := ret[0].(*domain.AdminUser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockAdminUserInteractorMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockAdminUserInteractor)(nil).GetUser), arg0, arg1)
+}
+
+// GetUsers mocks base method.
+func (m *MockAdminUserInteractor) GetUsers(arg0 context.Context, arg1 *upagination.Pagination, arg2 *domain.AdminUserListFilter, arg3 ...domain.AdminUserOrderBy) ([]*domain.AdminUser, int, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetUsers", varargs...)
+	ret0, _ := ret[0].([]*domain.AdminUser)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockAdminUserInteractorMockRecorder) GetUsers(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockAdminUserInteractor)(nil).GetUsers), varargs...)
+}
+
 // Login mocks base method.
 func (m *MockAdminUserInteractor) Login(arg0 context.Context, arg1, arg2 string) (string, time.Time, error) {
 	m.ctrl.T.Helper()
@@ -79,4 +145,32 @@ func (m *MockAdminUserInteractor) Logout(arg0 context.Context) error {
 func (mr *MockAdminUserInteractorMockRecorder) Logout(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logout", reflect.TypeOf((*MockAdminUserInteractor)(nil).Logout), arg0)
+}
+
+// SimpleUpdate mocks base method.
+func (m *MockAdminUserInteractor) SimpleUpdate(arg0 context.Context, arg1 domain.AdminUserSimpleUpdateField, arg2 domain.AdminUserSimpleUpdateParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SimpleUpdate", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SimpleUpdate indicates an expected call of SimpleUpdate.
+func (mr *MockAdminUserInteractorMockRecorder) SimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SimpleUpdate", reflect.TypeOf((*MockAdminUserInteractor)(nil).SimpleUpdate), arg0, arg1, arg2)
+}
+
+// Update mocks base method.
+func (m *MockAdminUserInteractor) Update(arg0 context.Context, arg1 *domain.AdminUser) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockAdminUserInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockAdminUserInteractor)(nil).Update), arg0, arg1)
 }

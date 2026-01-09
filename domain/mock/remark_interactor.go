@@ -117,7 +117,7 @@ func (mr *MockRemarkInteractorMockRecorder) GetRemarks(arg0, arg1, arg2 interfac
 }
 
 // RemarkSimpleUpdate mocks base method.
-func (m *MockRemarkInteractor) RemarkSimpleUpdate(arg0 context.Context, arg1 domain.RemarkSimpleUpdateType, arg2 *domain.Remark) error {
+func (m *MockRemarkInteractor) RemarkSimpleUpdate(arg0 context.Context, arg1 domain.RemarkSimpleUpdateField, arg2 *domain.Remark) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemarkSimpleUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

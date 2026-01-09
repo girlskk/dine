@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
@@ -75,6 +74,11 @@ func DeletedAt(v int64) predicate.Menu {
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
 func MerchantID(v uuid.UUID) predicate.Menu {
 	return predicate.Menu(sql.FieldEQ(FieldMerchantID, v))
+}
+
+// StoreID applies equality check predicate on the "store_id" field. It's identical to StoreIDEQ.
+func StoreID(v uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldEQ(FieldStoreID, v))
 }
 
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
@@ -252,6 +256,46 @@ func MerchantIDLTE(v uuid.UUID) predicate.Menu {
 	return predicate.Menu(sql.FieldLTE(FieldMerchantID, v))
 }
 
+// StoreIDEQ applies the EQ predicate on the "store_id" field.
+func StoreIDEQ(v uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldEQ(FieldStoreID, v))
+}
+
+// StoreIDNEQ applies the NEQ predicate on the "store_id" field.
+func StoreIDNEQ(v uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldNEQ(FieldStoreID, v))
+}
+
+// StoreIDIn applies the In predicate on the "store_id" field.
+func StoreIDIn(vs ...uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldIn(FieldStoreID, vs...))
+}
+
+// StoreIDNotIn applies the NotIn predicate on the "store_id" field.
+func StoreIDNotIn(vs ...uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldNotIn(FieldStoreID, vs...))
+}
+
+// StoreIDGT applies the GT predicate on the "store_id" field.
+func StoreIDGT(v uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldGT(FieldStoreID, v))
+}
+
+// StoreIDGTE applies the GTE predicate on the "store_id" field.
+func StoreIDGTE(v uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldGTE(FieldStoreID, v))
+}
+
+// StoreIDLT applies the LT predicate on the "store_id" field.
+func StoreIDLT(v uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldLT(FieldStoreID, v))
+}
+
+// StoreIDLTE applies the LTE predicate on the "store_id" field.
+func StoreIDLTE(v uuid.UUID) predicate.Menu {
+	return predicate.Menu(sql.FieldLTE(FieldStoreID, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Menu {
 	return predicate.Menu(sql.FieldEQ(FieldName, v))
@@ -315,36 +359,6 @@ func NameEqualFold(v string) predicate.Menu {
 // NameContainsFold applies the ContainsFold predicate on the "name" field.
 func NameContainsFold(v string) predicate.Menu {
 	return predicate.Menu(sql.FieldContainsFold(FieldName, v))
-}
-
-// DistributionRuleEQ applies the EQ predicate on the "distribution_rule" field.
-func DistributionRuleEQ(v domain.MenuDistributionRule) predicate.Menu {
-	vc := v
-	return predicate.Menu(sql.FieldEQ(FieldDistributionRule, vc))
-}
-
-// DistributionRuleNEQ applies the NEQ predicate on the "distribution_rule" field.
-func DistributionRuleNEQ(v domain.MenuDistributionRule) predicate.Menu {
-	vc := v
-	return predicate.Menu(sql.FieldNEQ(FieldDistributionRule, vc))
-}
-
-// DistributionRuleIn applies the In predicate on the "distribution_rule" field.
-func DistributionRuleIn(vs ...domain.MenuDistributionRule) predicate.Menu {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Menu(sql.FieldIn(FieldDistributionRule, v...))
-}
-
-// DistributionRuleNotIn applies the NotIn predicate on the "distribution_rule" field.
-func DistributionRuleNotIn(vs ...domain.MenuDistributionRule) predicate.Menu {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Menu(sql.FieldNotIn(FieldDistributionRule, v...))
 }
 
 // StoreCountEQ applies the EQ predicate on the "store_count" field.

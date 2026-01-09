@@ -39,8 +39,8 @@ type CategoryRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/category_interactor.go -package=mock . CategoryInteractor
 type CategoryInteractor interface {
-	CreateRoot(ctx context.Context, category *Category) error
-	CreateChild(ctx context.Context, category *Category) error
+	CreateRoot(ctx context.Context, category *Category, user User) error
+	CreateChild(ctx context.Context, category *Category, user User) error
 	Delete(ctx context.Context, id uuid.UUID, user User) error
 	Update(ctx context.Context, category *Category, user User) error
 	ListBySearch(ctx context.Context, params CategorySearchParams) (Categories, error)
@@ -63,11 +63,11 @@ type Category struct {
 	CreatedAt      time.Time `json:"created_at"`       // 创建时间
 	UpdatedAt      time.Time `json:"updated_at"`       // 更新时间
 
-	// @TODO 关联信息
+	// 关联信息
 	Childrens []*Category `json:"children,omitempty"` // 子分类列表
 	Parent    *Category   `json:"parent,omitempty"`   // 父分类
-	// TaxRate *TaxRate `json:"tax_rate,omitempty"` // 税率
-	// Stall   *Stall   `json:"stall,omitempty"`    // 出品部门
+	TaxRate   *TaxFee     `json:"tax_rate,omitempty"` // 税率
+	Stall     *Stall      `json:"stall,omitempty"`    // 出品部门
 }
 
 // Categories 商品分类集合

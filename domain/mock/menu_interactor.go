@@ -38,17 +38,17 @@ func (m *MockMenuInteractor) EXPECT() *MockMenuInteractorMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockMenuInteractor) Create(arg0 context.Context, arg1 *domain.Menu) error {
+func (m *MockMenuInteractor) Create(arg0 context.Context, arg1 *domain.Menu, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockMenuInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMenuInteractorMockRecorder) Create(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockMenuInteractor)(nil).Create), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockMenuInteractor)(nil).Create), arg0, arg1, arg2)
 }
 
 // Delete mocks base method.

@@ -212,6 +212,20 @@ func (dc *DeviceCreate) SetNillablePaperSize(ds *domain.PaperSize) *DeviceCreate
 	return dc
 }
 
+// SetConnectType sets the "connect_type" field.
+func (dc *DeviceCreate) SetConnectType(dct domain.DeviceConnectType) *DeviceCreate {
+	dc.mutation.SetConnectType(dct)
+	return dc
+}
+
+// SetNillableConnectType sets the "connect_type" field if the given value is not nil.
+func (dc *DeviceCreate) SetNillableConnectType(dct *domain.DeviceConnectType) *DeviceCreate {
+	if dct != nil {
+		dc.SetConnectType(*dct)
+	}
+	return dc
+}
+
 // SetStallID sets the "stall_id" field.
 func (dc *DeviceCreate) SetStallID(u uuid.UUID) *DeviceCreate {
 	dc.mutation.SetStallID(u)
@@ -461,6 +475,11 @@ func (dc *DeviceCreate) check() error {
 			return &ValidationError{Name: "paper_size", err: fmt.Errorf(`ent: validator failed for field "Device.paper_size": %w`, err)}
 		}
 	}
+	if v, ok := dc.mutation.ConnectType(); ok {
+		if err := device.ConnectTypeValidator(v); err != nil {
+			return &ValidationError{Name: "connect_type", err: fmt.Errorf(`ent: validator failed for field "Device.connect_type": %w`, err)}
+		}
+	}
 	if v, ok := dc.mutation.DeviceStallPrintType(); ok {
 		if err := device.DeviceStallPrintTypeValidator(v); err != nil {
 			return &ValidationError{Name: "device_stall_print_type", err: fmt.Errorf(`ent: validator failed for field "Device.device_stall_print_type": %w`, err)}
@@ -568,6 +587,10 @@ func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 	if value, ok := dc.mutation.PaperSize(); ok {
 		_spec.SetField(device.FieldPaperSize, field.TypeEnum, value)
 		_node.PaperSize = value
+	}
+	if value, ok := dc.mutation.ConnectType(); ok {
+		_spec.SetField(device.FieldConnectType, field.TypeEnum, value)
+		_node.ConnectType = value
 	}
 	if value, ok := dc.mutation.OrderChannels(); ok {
 		_spec.SetField(device.FieldOrderChannels, field.TypeJSON, value)
@@ -893,6 +916,24 @@ func (u *DeviceUpsert) UpdatePaperSize() *DeviceUpsert {
 // ClearPaperSize clears the value of the "paper_size" field.
 func (u *DeviceUpsert) ClearPaperSize() *DeviceUpsert {
 	u.SetNull(device.FieldPaperSize)
+	return u
+}
+
+// SetConnectType sets the "connect_type" field.
+func (u *DeviceUpsert) SetConnectType(v domain.DeviceConnectType) *DeviceUpsert {
+	u.Set(device.FieldConnectType, v)
+	return u
+}
+
+// UpdateConnectType sets the "connect_type" field to the value that was provided on create.
+func (u *DeviceUpsert) UpdateConnectType() *DeviceUpsert {
+	u.SetExcluded(device.FieldConnectType)
+	return u
+}
+
+// ClearConnectType clears the value of the "connect_type" field.
+func (u *DeviceUpsert) ClearConnectType() *DeviceUpsert {
+	u.SetNull(device.FieldConnectType)
 	return u
 }
 
@@ -1296,6 +1337,27 @@ func (u *DeviceUpsertOne) UpdatePaperSize() *DeviceUpsertOne {
 func (u *DeviceUpsertOne) ClearPaperSize() *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.ClearPaperSize()
+	})
+}
+
+// SetConnectType sets the "connect_type" field.
+func (u *DeviceUpsertOne) SetConnectType(v domain.DeviceConnectType) *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetConnectType(v)
+	})
+}
+
+// UpdateConnectType sets the "connect_type" field to the value that was provided on create.
+func (u *DeviceUpsertOne) UpdateConnectType() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateConnectType()
+	})
+}
+
+// ClearConnectType clears the value of the "connect_type" field.
+func (u *DeviceUpsertOne) ClearConnectType() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearConnectType()
 	})
 }
 
@@ -1884,6 +1946,27 @@ func (u *DeviceUpsertBulk) UpdatePaperSize() *DeviceUpsertBulk {
 func (u *DeviceUpsertBulk) ClearPaperSize() *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.ClearPaperSize()
+	})
+}
+
+// SetConnectType sets the "connect_type" field.
+func (u *DeviceUpsertBulk) SetConnectType(v domain.DeviceConnectType) *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetConnectType(v)
+	})
+}
+
+// UpdateConnectType sets the "connect_type" field to the value that was provided on create.
+func (u *DeviceUpsertBulk) UpdateConnectType() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateConnectType()
+	})
+}
+
+// ClearConnectType clears the value of the "connect_type" field.
+func (u *DeviceUpsertBulk) ClearConnectType() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearConnectType()
 	})
 }
 

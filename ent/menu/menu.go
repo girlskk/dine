@@ -3,14 +3,12 @@
 package menu
 
 import (
-	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
 const (
@@ -26,10 +24,10 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
+	// FieldStoreID holds the string denoting the store_id field in the database.
+	FieldStoreID = "store_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldDistributionRule holds the string denoting the distribution_rule field in the database.
-	FieldDistributionRule = "distribution_rule"
 	// FieldStoreCount holds the string denoting the store_count field in the database.
 	FieldStoreCount = "store_count"
 	// FieldItemCount holds the string denoting the item_count field in the database.
@@ -61,8 +59,8 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldMerchantID,
+	FieldStoreID,
 	FieldName,
-	FieldDistributionRule,
 	FieldStoreCount,
 	FieldItemCount,
 }
@@ -99,6 +97,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt int64
+	// DefaultStoreID holds the default value on creation for the "store_id" field.
+	DefaultStoreID func() uuid.UUID
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// DefaultStoreCount holds the default value on creation for the "store_count" field.
@@ -108,18 +108,6 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
-
-const DefaultDistributionRule domain.MenuDistributionRule = "override"
-
-// DistributionRuleValidator is a validator for the "distribution_rule" field enum values. It is called by the builders before save.
-func DistributionRuleValidator(dr domain.MenuDistributionRule) error {
-	switch dr {
-	case "override", "keep":
-		return nil
-	default:
-		return fmt.Errorf("menu: invalid enum value for distribution_rule field: %q", dr)
-	}
-}
 
 // OrderOption defines the ordering options for the Menu queries.
 type OrderOption func(*sql.Selector)
@@ -149,14 +137,14 @@ func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
 }
 
+// ByStoreID orders the results by the store_id field.
+func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStoreID, opts...).ToFunc()
+}
+
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
-}
-
-// ByDistributionRule orders the results by the distribution_rule field.
-func ByDistributionRule(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDistributionRule, opts...).ToFunc()
 }
 
 // ByStoreCount orders the results by the store_count field.

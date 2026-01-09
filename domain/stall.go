@@ -35,13 +35,13 @@ type StallInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetStall(ctx context.Context, id uuid.UUID) (*Stall, error)
 	GetStalls(ctx context.Context, pager *upagination.Pagination, filter *StallListFilter, orderBys ...StallOrderBy) (stalls []*Stall, total int, err error)
-	StallSimpleUpdate(ctx context.Context, updateField StallSimpleUpdateType, stall *Stall) (err error)
+	StallSimpleUpdate(ctx context.Context, updateField StallSimpleUpdateField, stall *Stall) (err error)
 }
 
-type StallSimpleUpdateType string
+type StallSimpleUpdateField string
 
 const (
-	StallSimpleUpdateTypeEnabled StallSimpleUpdateType = "enabled"
+	StallSimpleUpdateFieldEnabled StallSimpleUpdateField = "enabled"
 )
 
 type StallOrderByType int

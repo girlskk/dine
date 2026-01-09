@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
@@ -17,11 +18,49 @@ type StoreUser struct {
 // Fields of the StoreUser.
 func (StoreUser) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("username").NotEmpty().MaxLen(100).Comment("用户名"),
-		field.String("hashed_password").NotEmpty().Comment("密码哈希"),
-		field.String("nickname").Comment("昵称"),
-		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("所属商户 ID"),
-		field.UUID("store_id", uuid.UUID{}).Immutable().Comment("所属门店 ID"),
+		field.String("username").
+			NotEmpty().
+			MaxLen(100).
+			Comment("用户名"),
+		field.String("hashed_password").
+			NotEmpty().
+			Comment("密码哈希"),
+		field.String("nickname").
+			Optional().
+			Comment("昵称"),
+		field.UUID("merchant_id", uuid.UUID{}).
+			Immutable().
+			Comment("所属商户 ID"),
+		field.UUID("store_id", uuid.UUID{}).
+			Immutable().
+			Comment("所属门店 ID"),
+		field.UUID("department_id", uuid.UUID{}).
+			Optional().
+			Comment("部门ID"),
+		field.String("code").
+			NotEmpty().
+			Immutable().
+			Comment("编码"),
+		field.String("real_name").
+			MaxLen(100).
+			Comment("真实姓名"),
+		field.Enum("gender").
+			GoType(domain.Gender("")).
+			Comment("性别"),
+		field.String("email").
+			Optional().
+			MaxLen(100).
+			Comment("电子邮箱"),
+		field.String("phone_number").
+			Optional().
+			MaxLen(20).
+			Comment("手机号"),
+		field.Bool("enabled").
+			Default(false).
+			Comment("是否启用"),
+		field.Bool("is_superadmin").
+			Default(false).
+			Comment("是否为超级管理员"),
 	}
 }
 
@@ -40,6 +79,10 @@ func (StoreUser) Edges() []ent.Edge {
 			Immutable().
 			Unique().
 			Required(),
+		edge.From("department", Department.Type).
+			Ref("store_users").
+			Field("department_id").
+			Unique(),
 	}
 }
 

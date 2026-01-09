@@ -16,15 +16,16 @@ import (
 type BackendConfig struct {
 	fx.Out
 
-	App      domain.AppConfig
-	HTTP     httpserver.Config
-	Database db.Config
-	Redis    rdb.Config
-	Alert    alert.Config
-	Auth     domain.AuthConfig
-	Huifu    huifu.MerchSysConfig
-	Tracing  tracing.Config
-	Oss      oss.Config
+	App                domain.AppConfig
+	HTTP               httpserver.Config
+	Database           db.Config
+	Redis              rdb.Config
+	Alert              alert.Config
+	Auth               domain.AuthConfig
+	Huifu              huifu.MerchSysConfig
+	Tracing            tracing.Config
+	Oss                oss.Config
+	ProfitDistribution domain.ProfitDistributionConfig
 }
 
 func NewBackendConfig(files []string) (cfg BackendConfig, err error) {

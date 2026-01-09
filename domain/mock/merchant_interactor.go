@@ -145,7 +145,7 @@ func (mr *MockMerchantInteractorMockRecorder) MerchantRenewal(arg0, arg1 interfa
 }
 
 // MerchantSimpleUpdate mocks base method.
-func (m *MockMerchantInteractor) MerchantSimpleUpdate(arg0 context.Context, arg1 domain.MerchantSimpleUpdateType, arg2 *domain.Merchant) error {
+func (m *MockMerchantInteractor) MerchantSimpleUpdate(arg0 context.Context, arg1 domain.MerchantSimpleUpdateField, arg2 *domain.Merchant) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "MerchantSimpleUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

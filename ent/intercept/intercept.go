@@ -24,7 +24,9 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/permission"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
@@ -34,16 +36,23 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolepermission"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/routermenu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
 // The Query interface represents an operation that queries a graph.
@@ -534,6 +543,33 @@ func (f TraverseOrderProduct) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.OrderProductQuery", q)
 }
 
+// The PaymentAccountFunc type is an adapter to allow the use of ordinary function as a Querier.
+type PaymentAccountFunc func(context.Context, *ent.PaymentAccountQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f PaymentAccountFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.PaymentAccountQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.PaymentAccountQuery", q)
+}
+
+// The TraversePaymentAccount type is an adapter to allow the use of ordinary function as Traverser.
+type TraversePaymentAccount func(context.Context, *ent.PaymentAccountQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraversePaymentAccount) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraversePaymentAccount) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.PaymentAccountQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.PaymentAccountQuery", q)
+}
+
 // The PaymentMethodFunc type is an adapter to allow the use of ordinary function as a Querier.
 type PaymentMethodFunc func(context.Context, *ent.PaymentMethodQuery) (ent.Value, error)
 
@@ -559,6 +595,33 @@ func (f TraversePaymentMethod) Traverse(ctx context.Context, q ent.Query) error 
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.PaymentMethodQuery", q)
+}
+
+// The PermissionFunc type is an adapter to allow the use of ordinary function as a Querier.
+type PermissionFunc func(context.Context, *ent.PermissionQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f PermissionFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.PermissionQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.PermissionQuery", q)
+}
+
+// The TraversePermission type is an adapter to allow the use of ordinary function as Traverser.
+type TraversePermission func(context.Context, *ent.PermissionQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraversePermission) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraversePermission) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.PermissionQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.PermissionQuery", q)
 }
 
 // The ProductFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -777,6 +840,60 @@ func (f TraverseProductUnit) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ProductUnitQuery", q)
 }
 
+// The ProfitDistributionBillFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ProfitDistributionBillFunc func(context.Context, *ent.ProfitDistributionBillQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ProfitDistributionBillFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ProfitDistributionBillQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ProfitDistributionBillQuery", q)
+}
+
+// The TraverseProfitDistributionBill type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseProfitDistributionBill func(context.Context, *ent.ProfitDistributionBillQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseProfitDistributionBill) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseProfitDistributionBill) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProfitDistributionBillQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ProfitDistributionBillQuery", q)
+}
+
+// The ProfitDistributionRuleFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ProfitDistributionRuleFunc func(context.Context, *ent.ProfitDistributionRuleQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ProfitDistributionRuleFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ProfitDistributionRuleQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ProfitDistributionRuleQuery", q)
+}
+
+// The TraverseProfitDistributionRule type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseProfitDistributionRule func(context.Context, *ent.ProfitDistributionRuleQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseProfitDistributionRule) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseProfitDistributionRule) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProfitDistributionRuleQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ProfitDistributionRuleQuery", q)
+}
+
 // The ProvinceFunc type is an adapter to allow the use of ordinary function as a Querier.
 type ProvinceFunc func(context.Context, *ent.ProvinceQuery) (ent.Value, error)
 
@@ -883,6 +1000,87 @@ func (f TraverseRole) Traverse(ctx context.Context, q ent.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.RoleQuery", q)
+}
+
+// The RoleMenuFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RoleMenuFunc func(context.Context, *ent.RoleMenuQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RoleMenuFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RoleMenuQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RoleMenuQuery", q)
+}
+
+// The TraverseRoleMenu type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRoleMenu func(context.Context, *ent.RoleMenuQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRoleMenu) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRoleMenu) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RoleMenuQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RoleMenuQuery", q)
+}
+
+// The RolePermissionFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RolePermissionFunc func(context.Context, *ent.RolePermissionQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RolePermissionFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RolePermissionQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RolePermissionQuery", q)
+}
+
+// The TraverseRolePermission type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRolePermission func(context.Context, *ent.RolePermissionQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRolePermission) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRolePermission) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RolePermissionQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RolePermissionQuery", q)
+}
+
+// The RouterMenuFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RouterMenuFunc func(context.Context, *ent.RouterMenuQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f RouterMenuFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.RouterMenuQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.RouterMenuQuery", q)
+}
+
+// The TraverseRouterMenu type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRouterMenu func(context.Context, *ent.RouterMenuQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRouterMenu) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRouterMenu) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RouterMenuQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.RouterMenuQuery", q)
 }
 
 // The SetMealDetailFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -993,6 +1191,33 @@ func (f TraverseStore) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.StoreQuery", q)
 }
 
+// The StorePaymentAccountFunc type is an adapter to allow the use of ordinary function as a Querier.
+type StorePaymentAccountFunc func(context.Context, *ent.StorePaymentAccountQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f StorePaymentAccountFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.StorePaymentAccountQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.StorePaymentAccountQuery", q)
+}
+
+// The TraverseStorePaymentAccount type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseStorePaymentAccount func(context.Context, *ent.StorePaymentAccountQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseStorePaymentAccount) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseStorePaymentAccount) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.StorePaymentAccountQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.StorePaymentAccountQuery", q)
+}
+
 // The StoreUserFunc type is an adapter to allow the use of ordinary function as a Querier.
 type StoreUserFunc func(context.Context, *ent.StoreUserQuery) (ent.Value, error)
 
@@ -1047,6 +1272,33 @@ func (f TraverseTaxFee) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.TaxFeeQuery", q)
 }
 
+// The UserRoleFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UserRoleFunc func(context.Context, *ent.UserRoleQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f UserRoleFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.UserRoleQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.UserRoleQuery", q)
+}
+
+// The TraverseUserRole type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUserRole func(context.Context, *ent.UserRoleQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUserRole) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUserRole) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UserRoleQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.UserRoleQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
@@ -1082,8 +1334,12 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.OrderQuery, predicate.Order, order.OrderOption]{typ: ent.TypeOrder, tq: q}, nil
 	case *ent.OrderProductQuery:
 		return &query[*ent.OrderProductQuery, predicate.OrderProduct, orderproduct.OrderOption]{typ: ent.TypeOrderProduct, tq: q}, nil
+	case *ent.PaymentAccountQuery:
+		return &query[*ent.PaymentAccountQuery, predicate.PaymentAccount, paymentaccount.OrderOption]{typ: ent.TypePaymentAccount, tq: q}, nil
 	case *ent.PaymentMethodQuery:
 		return &query[*ent.PaymentMethodQuery, predicate.PaymentMethod, paymentmethod.OrderOption]{typ: ent.TypePaymentMethod, tq: q}, nil
+	case *ent.PermissionQuery:
+		return &query[*ent.PermissionQuery, predicate.Permission, permission.OrderOption]{typ: ent.TypePermission, tq: q}, nil
 	case *ent.ProductQuery:
 		return &query[*ent.ProductQuery, predicate.Product, product.OrderOption]{typ: ent.TypeProduct, tq: q}, nil
 	case *ent.ProductAttrQuery:
@@ -1100,6 +1356,10 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.ProductTagQuery, predicate.ProductTag, producttag.OrderOption]{typ: ent.TypeProductTag, tq: q}, nil
 	case *ent.ProductUnitQuery:
 		return &query[*ent.ProductUnitQuery, predicate.ProductUnit, productunit.OrderOption]{typ: ent.TypeProductUnit, tq: q}, nil
+	case *ent.ProfitDistributionBillQuery:
+		return &query[*ent.ProfitDistributionBillQuery, predicate.ProfitDistributionBill, profitdistributionbill.OrderOption]{typ: ent.TypeProfitDistributionBill, tq: q}, nil
+	case *ent.ProfitDistributionRuleQuery:
+		return &query[*ent.ProfitDistributionRuleQuery, predicate.ProfitDistributionRule, profitdistributionrule.OrderOption]{typ: ent.TypeProfitDistributionRule, tq: q}, nil
 	case *ent.ProvinceQuery:
 		return &query[*ent.ProvinceQuery, predicate.Province, province.OrderOption]{typ: ent.TypeProvince, tq: q}, nil
 	case *ent.RemarkQuery:
@@ -1108,6 +1368,12 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.RemarkCategoryQuery, predicate.RemarkCategory, remarkcategory.OrderOption]{typ: ent.TypeRemarkCategory, tq: q}, nil
 	case *ent.RoleQuery:
 		return &query[*ent.RoleQuery, predicate.Role, role.OrderOption]{typ: ent.TypeRole, tq: q}, nil
+	case *ent.RoleMenuQuery:
+		return &query[*ent.RoleMenuQuery, predicate.RoleMenu, rolemenu.OrderOption]{typ: ent.TypeRoleMenu, tq: q}, nil
+	case *ent.RolePermissionQuery:
+		return &query[*ent.RolePermissionQuery, predicate.RolePermission, rolepermission.OrderOption]{typ: ent.TypeRolePermission, tq: q}, nil
+	case *ent.RouterMenuQuery:
+		return &query[*ent.RouterMenuQuery, predicate.RouterMenu, routermenu.OrderOption]{typ: ent.TypeRouterMenu, tq: q}, nil
 	case *ent.SetMealDetailQuery:
 		return &query[*ent.SetMealDetailQuery, predicate.SetMealDetail, setmealdetail.OrderOption]{typ: ent.TypeSetMealDetail, tq: q}, nil
 	case *ent.SetMealGroupQuery:
@@ -1116,10 +1382,14 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.StallQuery, predicate.Stall, stall.OrderOption]{typ: ent.TypeStall, tq: q}, nil
 	case *ent.StoreQuery:
 		return &query[*ent.StoreQuery, predicate.Store, store.OrderOption]{typ: ent.TypeStore, tq: q}, nil
+	case *ent.StorePaymentAccountQuery:
+		return &query[*ent.StorePaymentAccountQuery, predicate.StorePaymentAccount, storepaymentaccount.OrderOption]{typ: ent.TypeStorePaymentAccount, tq: q}, nil
 	case *ent.StoreUserQuery:
 		return &query[*ent.StoreUserQuery, predicate.StoreUser, storeuser.OrderOption]{typ: ent.TypeStoreUser, tq: q}, nil
 	case *ent.TaxFeeQuery:
 		return &query[*ent.TaxFeeQuery, predicate.TaxFee, taxfee.OrderOption]{typ: ent.TypeTaxFee, tq: q}, nil
+	case *ent.UserRoleQuery:
+		return &query[*ent.UserRoleQuery, predicate.UserRole, userrole.OrderOption]{typ: ent.TypeUserRole, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}

@@ -235,6 +235,9 @@ func (repo *CategoryRepository) ListBySearch(
 		)
 	})
 
+	// 预加载税率和出品部门
+	query.WithTaxRate().WithStall()
+
 	entCats, err := query.Order(
 		category.BySortOrder(),
 		ent.Desc(category.FieldCreatedAt),
@@ -375,9 +378,7 @@ func convertCategoryToDomainWithChildren(ec *ent.Category) *domain.Category {
 	if ec == nil {
 		return nil
 	}
-
 	cat := convertCategoryToDomain(ec)
-
 	// 转换子分类
 	if children, err := ec.Edges.ChildrenOrErr(); err == nil && len(children) > 0 {
 		cat.Childrens = make([]*domain.Category, 0, len(children))
@@ -385,6 +386,12 @@ func convertCategoryToDomainWithChildren(ec *ent.Category) *domain.Category {
 			cat.Childrens = append(cat.Childrens, convertCategoryToDomain(child))
 		}
 	}
-
+	// 转换税率和出品部门
+	if ec.Edges.TaxRate != nil {
+		cat.TaxRate = convertTaxFeeToDomain(ec.Edges.TaxRate)
+	}
+	if ec.Edges.Stall != nil {
+		cat.Stall = convertStallToDomain(ec.Edges.Stall)
+	}
 	return cat
 }

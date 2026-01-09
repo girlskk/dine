@@ -34,6 +34,17 @@ func (i *ProductInteractor) OffSale(ctx context.Context, id uuid.UUID, user doma
 			return domain.ParamsError(domain.ErrProductNotExists)
 		}
 
+		// 4. 如果是普通商品，则需要验证商品是否有关联的套餐组
+		if product.Type == domain.ProductTypeNormal {
+			belongToSetMeal, err := ds.SetMealGroupRepo().CheckProductBelongToSetMeal(ctx, product.ID)
+			if err != nil {
+				return err
+			}
+			if belongToSetMeal {
+				return domain.ErrProductBelongToSetMeal
+			}
+		}
+
 		// 4. 更新商品售卖状态为"停售"
 		product.SaleStatus = domain.ProductSaleStatusOffSale
 		err = ds.ProductRepo().Update(ctx, product)

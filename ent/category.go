@@ -11,6 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // Category is the model entity for the Category schema.
@@ -47,8 +49,10 @@ type Category struct {
 	SortOrder int `json:"sort_order,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CategoryQuery when eager-loading is set.
-	Edges        CategoryEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges              CategoryEdges `json:"edges"`
+	stall_categories   *uuid.UUID
+	tax_fee_categories *uuid.UUID
+	selectValues       sql.SelectValues
 }
 
 // CategoryEdges holds the relations/edges for other nodes in the graph.
@@ -59,9 +63,13 @@ type CategoryEdges struct {
 	Parent *Category `json:"parent,omitempty"`
 	// 关联的商品
 	Products []*Product `json:"products,omitempty"`
+	// 税率
+	TaxRate *TaxFee `json:"tax_rate,omitempty"`
+	// 出品部门
+	Stall *Stall `json:"stall,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [5]bool
 }
 
 // ChildrenOrErr returns the Children value or an error if the edge
@@ -93,6 +101,28 @@ func (e CategoryEdges) ProductsOrErr() ([]*Product, error) {
 	return nil, &NotLoadedError{edge: "products"}
 }
 
+// TaxRateOrErr returns the TaxRate value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CategoryEdges) TaxRateOrErr() (*TaxFee, error) {
+	if e.TaxRate != nil {
+		return e.TaxRate, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: taxfee.Label}
+	}
+	return nil, &NotLoadedError{edge: "tax_rate"}
+}
+
+// StallOrErr returns the Stall value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CategoryEdges) StallOrErr() (*Stall, error) {
+	if e.Stall != nil {
+		return e.Stall, nil
+	} else if e.loadedTypes[4] {
+		return nil, &NotFoundError{label: stall.Label}
+	}
+	return nil, &NotLoadedError{edge: "stall"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Category) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -108,6 +138,10 @@ func (*Category) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case category.FieldID, category.FieldMerchantID, category.FieldStoreID, category.FieldParentID, category.FieldTaxRateID, category.FieldStallID:
 			values[i] = new(uuid.UUID)
+		case category.ForeignKeys[0]: // stall_categories
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case category.ForeignKeys[1]: // tax_fee_categories
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -207,6 +241,20 @@ func (c *Category) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.SortOrder = int(value.Int64)
 			}
+		case category.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field stall_categories", values[i])
+			} else if value.Valid {
+				c.stall_categories = new(uuid.UUID)
+				*c.stall_categories = *value.S.(*uuid.UUID)
+			}
+		case category.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field tax_fee_categories", values[i])
+			} else if value.Valid {
+				c.tax_fee_categories = new(uuid.UUID)
+				*c.tax_fee_categories = *value.S.(*uuid.UUID)
+			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
 		}
@@ -233,6 +281,16 @@ func (c *Category) QueryParent() *CategoryQuery {
 // QueryProducts queries the "products" edge of the Category entity.
 func (c *Category) QueryProducts() *ProductQuery {
 	return NewCategoryClient(c.config).QueryProducts(c)
+}
+
+// QueryTaxRate queries the "tax_rate" edge of the Category entity.
+func (c *Category) QueryTaxRate() *TaxFeeQuery {
+	return NewCategoryClient(c.config).QueryTaxRate(c)
+}
+
+// QueryStall queries the "stall" edge of the Category entity.
+func (c *Category) QueryStall() *StallQuery {
+	return NewCategoryClient(c.config).QueryStall(c)
 }
 
 // Update returns a builder for updating this Category.

@@ -125,10 +125,10 @@ type SetMealGroupReq struct {
 
 // SetMealDetailReq 套餐组详情请求
 type SetMealDetailReq struct {
-	ProductID          uuid.UUID   `json:"product_id" binding:"required"`     // 商品ID（必选）
-	Quantity           int         `json:"quantity" binding:"required,min=1"` // 数量（必选，必须为正整数）
-	IsDefault          bool        `json:"is_default"`                        // 是否默认（必选，每个套餐组中只能有一个默认项）
-	OptionalProductIDs []uuid.UUID `json:"optional_product_ids,omitempty"`    // 备选商品ID列表（可选，多选）
+	ProductID uuid.UUID `json:"product_id" binding:"required"`     // 商品ID（必选）
+	Quantity  int       `json:"quantity" binding:"required,min=1"` // 数量（必选，必须为正整数）
+	IsDefault bool      `json:"is_default"`                        // 是否默认（必选，每个套餐组中只能有一个默认项）
+	// OptionalProductIDs []uuid.UUID `json:"optional_product_ids,omitempty"`    // 备选商品ID列表（可选，多选）
 }
 
 // ProductListReq 查询商品列表请求
@@ -149,8 +149,6 @@ type SetMealUpdateReq *SetMealCreateReq
 
 // ProductDistributeReq 商品下发请求
 type ProductDistributeReq struct {
-	ProductID        uuid.UUID                   `json:"product_id" binding:"required"`                                                     // 商品ID（必选）
-	StoreIDs         []uuid.UUID                 `json:"store_ids" binding:"required,min=1,dive,uuid"`                                      // 门店ID列表（必选，多选）
-	DistributionRule domain.MenuDistributionRule `json:"distribution_rule" binding:"required,oneof=override keep"`                          // 下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）
-	SaleRule         domain.MenuItemSaleRule     `json:"sale_rule,omitempty" binding:"omitempty,oneof=keep_brand_status keep_store_status"` // 下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）
+	ProductID uuid.UUID   `json:"product_id" binding:"required"`                // 商品ID（必选）
+	StoreIDs  []uuid.UUID `json:"store_ids" binding:"required,min=1,dive,uuid"` // 门店ID列表（必选，多选）
 }

@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
@@ -112,6 +113,14 @@ func (psrc *ProductSpecRelationCreate) SetNillableMemberPrice(d *decimal.Decimal
 // SetPackingFeeID sets the "packing_fee_id" field.
 func (psrc *ProductSpecRelationCreate) SetPackingFeeID(u uuid.UUID) *ProductSpecRelationCreate {
 	psrc.mutation.SetPackingFeeID(u)
+	return psrc
+}
+
+// SetNillablePackingFeeID sets the "packing_fee_id" field if the given value is not nil.
+func (psrc *ProductSpecRelationCreate) SetNillablePackingFeeID(u *uuid.UUID) *ProductSpecRelationCreate {
+	if u != nil {
+		psrc.SetPackingFeeID(*u)
+	}
 	return psrc
 }
 
@@ -223,6 +232,11 @@ func (psrc *ProductSpecRelationCreate) SetSpec(p *ProductSpec) *ProductSpecRelat
 	return psrc.SetSpecID(p.ID)
 }
 
+// SetPackingFee sets the "packing_fee" edge to the AdditionalFee entity.
+func (psrc *ProductSpecRelationCreate) SetPackingFee(a *AdditionalFee) *ProductSpecRelationCreate {
+	return psrc.SetPackingFeeID(a.ID)
+}
+
 // Mutation returns the ProductSpecRelationMutation object of the builder.
 func (psrc *ProductSpecRelationCreate) Mutation() *ProductSpecRelationMutation {
 	return psrc.mutation
@@ -320,9 +334,6 @@ func (psrc *ProductSpecRelationCreate) check() error {
 	if _, ok := psrc.mutation.BasePrice(); !ok {
 		return &ValidationError{Name: "base_price", err: errors.New(`ent: missing required field "ProductSpecRelation.base_price"`)}
 	}
-	if _, ok := psrc.mutation.PackingFeeID(); !ok {
-		return &ValidationError{Name: "packing_fee_id", err: errors.New(`ent: missing required field "ProductSpecRelation.packing_fee_id"`)}
-	}
 	if _, ok := psrc.mutation.Barcode(); !ok {
 		return &ValidationError{Name: "barcode", err: errors.New(`ent: missing required field "ProductSpecRelation.barcode"`)}
 	}
@@ -396,10 +407,6 @@ func (psrc *ProductSpecRelationCreate) createSpec() (*ProductSpecRelation, *sqlg
 		_spec.SetField(productspecrelation.FieldMemberPrice, field.TypeOther, value)
 		_node.MemberPrice = &value
 	}
-	if value, ok := psrc.mutation.PackingFeeID(); ok {
-		_spec.SetField(productspecrelation.FieldPackingFeeID, field.TypeUUID, value)
-		_node.PackingFeeID = value
-	}
 	if value, ok := psrc.mutation.EstimatedCostPrice(); ok {
 		_spec.SetField(productspecrelation.FieldEstimatedCostPrice, field.TypeOther, value)
 		_node.EstimatedCostPrice = &value
@@ -456,6 +463,23 @@ func (psrc *ProductSpecRelationCreate) createSpec() (*ProductSpecRelation, *sqlg
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.SpecID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := psrc.mutation.PackingFeeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   productspecrelation.PackingFeeTable,
+			Columns: []string{productspecrelation.PackingFeeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(additionalfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.PackingFeeID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -579,6 +603,12 @@ func (u *ProductSpecRelationUpsert) SetPackingFeeID(v uuid.UUID) *ProductSpecRel
 // UpdatePackingFeeID sets the "packing_fee_id" field to the value that was provided on create.
 func (u *ProductSpecRelationUpsert) UpdatePackingFeeID() *ProductSpecRelationUpsert {
 	u.SetExcluded(productspecrelation.FieldPackingFeeID)
+	return u
+}
+
+// ClearPackingFeeID clears the value of the "packing_fee_id" field.
+func (u *ProductSpecRelationUpsert) ClearPackingFeeID() *ProductSpecRelationUpsert {
+	u.SetNull(productspecrelation.FieldPackingFeeID)
 	return u
 }
 
@@ -816,6 +846,13 @@ func (u *ProductSpecRelationUpsertOne) SetPackingFeeID(v uuid.UUID) *ProductSpec
 func (u *ProductSpecRelationUpsertOne) UpdatePackingFeeID() *ProductSpecRelationUpsertOne {
 	return u.Update(func(s *ProductSpecRelationUpsert) {
 		s.UpdatePackingFeeID()
+	})
+}
+
+// ClearPackingFeeID clears the value of the "packing_fee_id" field.
+func (u *ProductSpecRelationUpsertOne) ClearPackingFeeID() *ProductSpecRelationUpsertOne {
+	return u.Update(func(s *ProductSpecRelationUpsert) {
+		s.ClearPackingFeeID()
 	})
 }
 
@@ -1236,6 +1273,13 @@ func (u *ProductSpecRelationUpsertBulk) SetPackingFeeID(v uuid.UUID) *ProductSpe
 func (u *ProductSpecRelationUpsertBulk) UpdatePackingFeeID() *ProductSpecRelationUpsertBulk {
 	return u.Update(func(s *ProductSpecRelationUpsert) {
 		s.UpdatePackingFeeID()
+	})
+}
+
+// ClearPackingFeeID clears the value of the "packing_fee_id" field.
+func (u *ProductSpecRelationUpsertBulk) ClearPackingFeeID() *ProductSpecRelationUpsertBulk {
+	return u.Update(func(s *ProductSpecRelationUpsert) {
+		s.ClearPackingFeeID()
 	})
 }
 

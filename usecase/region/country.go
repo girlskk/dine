@@ -11,18 +11,18 @@ import (
 var _ domain.CountryInteractor = (*CountryInteractor)(nil)
 
 type CountryInteractor struct {
-	ds domain.DataStore
+	DS domain.DataStore
 }
 
 func NewCountryInteractor(ds domain.DataStore) *CountryInteractor {
-	return &CountryInteractor{ds: ds}
+	return &CountryInteractor{DS: ds}
 }
 
 func (interactor *CountryInteractor) GetAllCountries(ctx context.Context) (countryList []*domain.Country, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "CountryInteractor.GetAllCountries")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	countryList, err = interactor.ds.CountryRepo().GetAll(ctx)
+	countryList, err = interactor.DS.CountryRepo().GetAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all countries: %w", err)
 	}

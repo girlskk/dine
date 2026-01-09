@@ -23,18 +23,24 @@ func NewMenuInteractor(ds domain.DataStore) *MenuInteractor {
 	}
 }
 
-func (i *MenuInteractor) Create(ctx context.Context, menu *domain.Menu) (err error) {
+func (i *MenuInteractor) Create(ctx context.Context, menu *domain.Menu, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MenuInteractor.Create")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
+	// 品牌端创建必须绑定门店
+	if user.GetStoreID() == uuid.Nil {
+		if len(menu.Stores) == 0 {
+			return domain.ParamsError(fmt.Errorf("门店不能为空"))
+		}
+	}
+
 	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		// 业务规则校验
-		if err = validateMenuBusinessRules(ctx, ds, menu, uuid.Nil); err != nil {
+		if err = validateMenuBusinessRules(ctx, ds, menu, user, uuid.Nil); err != nil {
 			return err
 		}
-
 		// 创建菜单
 		return ds.MenuRepo().Create(ctx, menu)
 	})
@@ -55,12 +61,11 @@ func (i *MenuInteractor) Update(ctx context.Context, menu *domain.Menu, user dom
 			}
 			return err
 		}
-		if menu.MerchantID != user.GetMerchantID() {
+		if !domain.VerifyOwnerShip(user, menu.MerchantID, menu.StoreID) {
 			return domain.ParamsError(domain.ErrMenuNotExists)
 		}
-
 		// 业务规则校验（排除自身）
-		if err = validateMenuBusinessRules(ctx, ds, menu, menu.ID); err != nil {
+		if err = validateMenuBusinessRules(ctx, ds, menu, user, menu.ID); err != nil {
 			return err
 		}
 		// 更新菜单
@@ -83,13 +88,12 @@ func (i *MenuInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.U
 			}
 			return err
 		}
-		if menu.MerchantID != user.GetMerchantID() {
+		if !domain.VerifyOwnerShip(user, menu.MerchantID, menu.StoreID) {
 			return domain.ParamsError(domain.ErrMenuNotExists)
 		}
 		if menu.StoreCount > 0 {
 			return domain.ParamsError(domain.ErrMenuHasStores)
 		}
-
 		// 删除菜单
 		return ds.MenuRepo().Delete(ctx, id)
 	})
@@ -123,18 +127,24 @@ func (i *MenuInteractor) PagedListBySearch(
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-
-	return i.DS.MenuRepo().PagedListBySearch(ctx, page, params)
+	if params.OnlyMerchant {
+		return i.DS.MenuRepo().PagedListMerchantMenusBySearch(ctx, page, params)
+	} else {
+		return i.DS.MenuRepo().PagedListStoreMenusBySearch(ctx, page, params)
+	}
 }
 
 // ============================================
 // 校验函数
 // ============================================
 
-func validateMenuBusinessRules(ctx context.Context, ds domain.DataStore, menu *domain.Menu, excludeMenuID uuid.UUID) error {
+func validateMenuBusinessRules(ctx context.Context, ds domain.DataStore,
+	menu *domain.Menu, user domain.User, excludeMenuID uuid.UUID,
+) error {
 	// 1. 检查菜单名称是否唯一
 	exists, err := ds.MenuRepo().Exists(ctx, domain.MenuExistsParams{
 		MerchantID: menu.MerchantID,
+		StoreID:    menu.StoreID,
 		Name:       menu.Name,
 		ExcludeID:  excludeMenuID,
 	})
@@ -145,20 +155,22 @@ func validateMenuBusinessRules(ctx context.Context, ds domain.DataStore, menu *d
 		return domain.ParamsError(domain.ErrMenuNameExists)
 	}
 
+	// 2. 检查门店是否有效且属于当前品牌商
 	storeIDs := lo.Map(menu.Stores, func(store *domain.StoreSimple, _ int) uuid.UUID {
 		return store.ID
 	})
 
-	// 2. 检查门店是否有效且属于当前品牌商
-	// @TODO
-
-	// 3. 检查门店是否已绑定其他菜单
-	hasBound, err := ds.MenuRepo().CheckStoreBound(ctx, storeIDs, excludeMenuID)
+	stores, err := ds.StoreRepo().ListByIDs(ctx, storeIDs)
 	if err != nil {
 		return err
 	}
-	if hasBound {
-		return domain.ParamsError(domain.ErrMenuStoreBound)
+	if len(stores) != len(storeIDs) {
+		return domain.ParamsError(fmt.Errorf("部分门店不存在"))
+	}
+	for _, store := range stores {
+		if store.MerchantID != menu.MerchantID {
+			return domain.ParamsError(fmt.Errorf("门店 %s 不属于当前品牌商", store.ID))
+		}
 	}
 
 	// 4. 检查菜品是否有效
@@ -179,11 +191,10 @@ func validateMenuBusinessRules(ctx context.Context, ds domain.DataStore, menu *d
 			return domain.ParamsError(fmt.Errorf("菜品ID %s 不存在", item.ProductID))
 		}
 
-		// 检查菜品是否属于当前品牌商
-		if product.MerchantID != menu.MerchantID {
+		// 检查菜品是否有效
+		if !domain.VerifyOwnerShip(user, product.MerchantID, product.StoreID) {
 			return domain.ParamsError(domain.ErrMenuItemProductInvalid)
 		}
 	}
-
 	return nil
 }

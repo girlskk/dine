@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
 
@@ -27,11 +26,8 @@ func (Menu) Mixin() []ent.Mixin {
 func (Menu) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("merchant_id", uuid.UUID{}).Immutable().Comment("品牌商ID"),
+		field.UUID("store_id", uuid.UUID{}).Default(schematype.NilUUID()).Immutable().Comment("门店ID"),
 		field.String("name").MaxLen(255).NotEmpty().Comment("菜单名称"),
-		field.Enum("distribution_rule").
-			GoType(domain.MenuDistributionRule("")).
-			Default(string(domain.MenuDistributionRuleOverride)).
-			Comment("下发规则：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）"),
 		field.Int("store_count").Default(0).Comment("适用门店数量"),
 		field.Int("item_count").Default(0).Comment("菜单项数量"),
 	}
@@ -40,6 +36,9 @@ func (Menu) Fields() []ent.Field {
 func (Menu) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("merchant_id"),
+		index.Fields("store_id"),
+		// 唯一索引
+		index.Fields("merchant_id", "store_id", "name", "deleted_at").Unique(),
 	}
 }
 

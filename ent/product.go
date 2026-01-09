@@ -16,6 +16,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // Product is the model entity for the Product schema.
@@ -94,6 +96,10 @@ type ProductEdges struct {
 	Category *Category `json:"category,omitempty"`
 	// 所属单位
 	Unit *ProductUnit `json:"unit,omitempty"`
+	// 所属税率
+	TaxRate *TaxFee `json:"tax_rate,omitempty"`
+	// 所属出品部门
+	Stall *Stall `json:"stall,omitempty"`
 	// 关联标签
 	Tags []*ProductTag `json:"tags,omitempty"`
 	// ProductSpecs holds the value of the product_specs edge.
@@ -108,7 +114,7 @@ type ProductEdges struct {
 	MenuItems []*MenuItem `json:"menu_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [10]bool
 }
 
 // CategoryOrErr returns the Category value or an error if the edge
@@ -133,10 +139,32 @@ func (e ProductEdges) UnitOrErr() (*ProductUnit, error) {
 	return nil, &NotLoadedError{edge: "unit"}
 }
 
+// TaxRateOrErr returns the TaxRate value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProductEdges) TaxRateOrErr() (*TaxFee, error) {
+	if e.TaxRate != nil {
+		return e.TaxRate, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: taxfee.Label}
+	}
+	return nil, &NotLoadedError{edge: "tax_rate"}
+}
+
+// StallOrErr returns the Stall value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProductEdges) StallOrErr() (*Stall, error) {
+	if e.Stall != nil {
+		return e.Stall, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: stall.Label}
+	}
+	return nil, &NotLoadedError{edge: "stall"}
+}
+
 // TagsOrErr returns the Tags value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProductEdges) TagsOrErr() ([]*ProductTag, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[4] {
 		return e.Tags, nil
 	}
 	return nil, &NotLoadedError{edge: "tags"}
@@ -145,7 +173,7 @@ func (e ProductEdges) TagsOrErr() ([]*ProductTag, error) {
 // ProductSpecsOrErr returns the ProductSpecs value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProductEdges) ProductSpecsOrErr() ([]*ProductSpecRelation, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[5] {
 		return e.ProductSpecs, nil
 	}
 	return nil, &NotLoadedError{edge: "product_specs"}
@@ -154,7 +182,7 @@ func (e ProductEdges) ProductSpecsOrErr() ([]*ProductSpecRelation, error) {
 // ProductAttrsOrErr returns the ProductAttrs value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProductEdges) ProductAttrsOrErr() ([]*ProductAttrRelation, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[6] {
 		return e.ProductAttrs, nil
 	}
 	return nil, &NotLoadedError{edge: "product_attrs"}
@@ -163,7 +191,7 @@ func (e ProductEdges) ProductAttrsOrErr() ([]*ProductAttrRelation, error) {
 // SetMealGroupsOrErr returns the SetMealGroups value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProductEdges) SetMealGroupsOrErr() ([]*SetMealGroup, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[7] {
 		return e.SetMealGroups, nil
 	}
 	return nil, &NotLoadedError{edge: "set_meal_groups"}
@@ -172,7 +200,7 @@ func (e ProductEdges) SetMealGroupsOrErr() ([]*SetMealGroup, error) {
 // SetMealDetailsOrErr returns the SetMealDetails value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProductEdges) SetMealDetailsOrErr() ([]*SetMealDetail, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[8] {
 		return e.SetMealDetails, nil
 	}
 	return nil, &NotLoadedError{edge: "set_meal_details"}
@@ -181,7 +209,7 @@ func (e ProductEdges) SetMealDetailsOrErr() ([]*SetMealDetail, error) {
 // MenuItemsOrErr returns the MenuItems value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProductEdges) MenuItemsOrErr() ([]*MenuItem, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[9] {
 		return e.MenuItems, nil
 	}
 	return nil, &NotLoadedError{edge: "menu_items"}
@@ -432,6 +460,16 @@ func (pr *Product) QueryCategory() *CategoryQuery {
 // QueryUnit queries the "unit" edge of the Product entity.
 func (pr *Product) QueryUnit() *ProductUnitQuery {
 	return NewProductClient(pr.config).QueryUnit(pr)
+}
+
+// QueryTaxRate queries the "tax_rate" edge of the Product entity.
+func (pr *Product) QueryTaxRate() *TaxFeeQuery {
+	return NewProductClient(pr.config).QueryTaxRate(pr)
+}
+
+// QueryStall queries the "stall" edge of the Product entity.
+func (pr *Product) QueryStall() *StallQuery {
+	return NewProductClient(pr.config).QueryStall(pr)
 }
 
 // QueryTags queries the "tags" edge of the Product entity.

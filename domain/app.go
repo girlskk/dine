@@ -6,5 +6,6 @@ const (
 )
 
 type AppConfig struct {
-	RunMode string `default:"dev"`
+	RunMode                  string                   `default:"dev"`
+	ProfitDistributionConfig ProfitDistributionConfig `default:"{TaskHour: 2, TaskMinute: 0}"`
 }

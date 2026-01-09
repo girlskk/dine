@@ -76,18 +76,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -121,24 +109,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -187,24 +157,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -245,24 +197,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -297,18 +231,6 @@ const docTemplate = `{
                     },
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -340,24 +262,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -389,24 +293,536 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/department": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询品牌部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "部门列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
+                    {
+                        "type": "boolean",
+                        "name": "enable",
+                        "in": "query"
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/types.DepartmentListResp"
                         }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "在品牌后台创建部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "创建部门",
+                "parameters": [
+                    {
+                        "description": "创建部门请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/department/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询指定品牌部门详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "获取部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Department"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "修改指定品牌部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "更新部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新部门请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DepartmentUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定品牌部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "删除部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/department/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "禁用指定品牌部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "禁用部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/department/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "启用指定品牌部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "启用部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/role": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询品牌角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "角色列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "name": "enable",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.RoleListResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "在品牌后台创建角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "创建角色",
+                "parameters": [
+                    {
+                        "description": "创建角色请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.RoleCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/role/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询指定品牌角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "获取角色详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Role"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "修改指定品牌后台角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "更新角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新角色请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.RoleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定角色",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "删除角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/role/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "禁用指定品牌角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "禁用角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/role/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "启用指定品牌角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "启用角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -613,24 +1029,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -674,24 +1072,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -714,24 +1094,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -754,24 +1116,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -808,24 +1152,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -869,24 +1195,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -925,6 +1233,194 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.OssTokenResp"
                         }
+                    }
+                }
+            }
+        },
+        "/payment/account": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "查询收款账户列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "rm"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "PaymentChannelRM": "Revenue Monster"
+                        },
+                        "x-enum-descriptions": [
+                            "Revenue Monster"
+                        ],
+                        "x-enum-varnames": [
+                            "PaymentChannelRM"
+                        ],
+                        "description": "支付渠道（可选）",
+                        "name": "channel",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间结束（可选）",
+                        "name": "created_at_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间开始（可选）",
+                        "name": "created_at_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "支付商户名称（可选，模糊匹配）",
+                        "name": "merchant_name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentAccountSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "创建收款账户",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentAccountCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/account/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "更新收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentAccountUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "删除收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/account/{id}/default": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "收款账户"
+                ],
+                "summary": "更新收款账户默认状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -1118,6 +1614,134 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/store-account": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "查询门店收款账户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "创建时间结束（可选）",
+                        "name": "created_at_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间开始（可选）",
+                        "name": "created_at_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "品牌商支付商户名称（可选，模糊匹配）",
+                        "name": "merchant_name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "门店ID列表（可选，多选）",
+                        "name": "store_ids",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StorePaymentAccountSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "创建门店收款账户",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StorePaymentAccountCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/store-account/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "更新门店收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StorePaymentAccountUpdateReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -1567,35 +2191,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/product/distribute": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "商品管理"
-                ],
-                "summary": "下发商品到门店",
-                "parameters": [
-                    {
-                        "description": "请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.ProductDistributeReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     }
                 }
             }
@@ -2250,6 +2845,319 @@ const docTemplate = `{
                 }
             }
         },
+        "/profit/distribution/bill": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "查询分账账单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账单结束日期",
+                        "name": "bill_end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "账单开始日期",
+                        "name": "bill_start_date",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "unpaid",
+                            "paid"
+                        ],
+                        "type": "string",
+                        "description": "分账状态（可选）",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "门店ID列表（可选，多选）",
+                        "name": "store_ids",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillSearchRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/profit/distribution/bill/{id}/pay": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账账单"
+                ],
+                "summary": "打款分账账单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账账单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "打款信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionBillPayReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "查询分账方案列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "enabled",
+                            "disabled"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "ProfitDistributionRuleStatusDisabled": "禁用",
+                            "ProfitDistributionRuleStatusEnabled": "启用"
+                        },
+                        "x-enum-descriptions": [
+                            "启用",
+                            "禁用"
+                        ],
+                        "x-enum-varnames": [
+                            "ProfitDistributionRuleStatusEnabled",
+                            "ProfitDistributionRuleStatusDisabled"
+                        ],
+                        "description": "状态筛选（可选）",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "创建分账方案",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionRuleCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "获取分账方案详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ProfitDistributionRule"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "更新分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ProfitDistributionRuleUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}/disable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "禁用分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/profit/distribution/rule/{id}/enable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "分账方案"
+                ],
+                "summary": "启用分账方案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分账方案ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/region/countries": {
             "get": {
                 "security": [
@@ -2392,18 +3300,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -2438,24 +3334,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -2499,24 +3377,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -2558,24 +3418,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -2605,24 +3447,6 @@ const docTemplate = `{
                     },
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -2654,24 +3478,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -2703,24 +3509,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -2754,18 +3542,6 @@ const docTemplate = `{
                                     }
                                 }
                             ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -2801,24 +3577,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -2862,24 +3620,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -2906,24 +3646,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -2951,6 +3673,10 @@ const docTemplate = `{
                             "DeviceTypeCashier": "收银机",
                             "DeviceTypePrinter": "打印机"
                         },
+                        "x-enum-descriptions": [
+                            "收银机",
+                            "打印机"
+                        ],
                         "x-enum-varnames": [
                             "DeviceTypeCashier",
                             "DeviceTypePrinter"
@@ -2987,6 +3713,10 @@ const docTemplate = `{
                             "DeviceStatusOffline": "离线",
                             "DeviceStatusOnline": "在线"
                         },
+                        "x-enum-descriptions": [
+                            "在线",
+                            "离线"
+                        ],
                         "x-enum-varnames": [
                             "DeviceStatusOnline",
                             "DeviceStatusOffline"
@@ -3019,18 +3749,6 @@ const docTemplate = `{
                                     }
                                 }
                             ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -3065,25 +3783,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
+                        "description": "OK"
                     }
                 }
             }
@@ -3127,24 +3827,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -3186,24 +3868,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -3233,24 +3897,6 @@ const docTemplate = `{
                     },
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3282,24 +3928,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3331,24 +3959,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3394,6 +4004,10 @@ const docTemplate = `{
                             "StallPrintTypeLabel": "标签",
                             "StallPrintTypeReceipt": "小票/收据"
                         },
+                        "x-enum-descriptions": [
+                            "小票/收据",
+                            "标签"
+                        ],
                         "x-enum-varnames": [
                             "StallPrintTypeReceipt",
                             "StallPrintTypeLabel"
@@ -3426,18 +4040,6 @@ const docTemplate = `{
                                     }
                                 }
                             ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -3473,24 +4075,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3534,24 +4118,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -3593,24 +4159,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -3640,24 +4188,6 @@ const docTemplate = `{
                     },
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3689,24 +4219,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3738,24 +4250,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3792,24 +4286,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -3846,6 +4322,10 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
+                        "x-enum-descriptions": [
+                            "直营",
+                            "加盟"
+                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -3857,16 +4337,18 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "业态类型",
-                        "name": "business_type_id",
+                        "name": "business_type_code",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_gte",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_lte",
                         "in": "query"
                     },
@@ -3904,6 +4386,10 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
+                        "x-enum-descriptions": [
+                            "营业",
+                            "停业"
+                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -3937,18 +4423,33 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
+                    }
+                }
+            }
+        },
+        "/store/payment/account/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "门店收款账户"
+                ],
+                "summary": "删除门店收款账户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店收款账户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -3998,24 +4499,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -4057,24 +4540,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -4110,18 +4575,6 @@ const docTemplate = `{
                     },
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -4153,24 +4606,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -4202,24 +4637,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -4278,18 +4695,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -4323,24 +4728,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -4389,24 +4776,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -4447,24 +4816,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             },
@@ -4499,18 +4850,6 @@ const docTemplate = `{
                     },
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -4542,24 +4881,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -4591,24 +4912,136 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询后台用户列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "后台用户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
+                    {
+                        "type": "string",
+                        "name": "email",
+                        "in": "query"
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
+                    {
+                        "type": "boolean",
+                        "name": "enable",
+                        "in": "query"
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    {
+                        "enum": [
+                            "male",
+                            "female",
+                            "other",
+                            "unknown"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "GenderFemale": "女性",
+                            "GenderMale": "男性",
+                            "GenderOther": "其他",
+                            "GenderUnknown": "未知"
+                        },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
+                        "x-enum-varnames": [
+                            "GenderMale",
+                            "GenderFemale",
+                            "GenderOther",
+                            "GenderUnknown"
+                        ],
+                        "name": "gender",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "phone_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "real_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/types.AccountListResp"
                         }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "在品牌后台创建用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "创建后台用户",
+                "parameters": [
+                    {
+                        "description": "创建用户请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.BackendUserCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -4701,6 +5134,227 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询指定后台用户详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取后台用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.BackendUser"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "修改指定后台用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "更新后台用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新用户请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.BackendUserUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定后台用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "删除后台用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "禁用指定后台用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "禁用后台用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "启用指定后台用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "启用后台用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user/{id}/reset_password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "重置用户密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "重置用户密码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "重置密码请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ResetPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -4716,6 +5370,11 @@ const docTemplate = `{
                 "AdditionalCategoryPacking": "打包费",
                 "AdditionalCategoryService": "服务费"
             },
+            "x-enum-descriptions": [
+                "服务费",
+                "附加费",
+                "打包费"
+            ],
             "x-enum-varnames": [
                 "AdditionalCategoryService",
                 "AdditionalCategoryAdditional",
@@ -4824,6 +5483,10 @@ const docTemplate = `{
                 "AdditionalFeeChargeModeFixed": "固定金额",
                 "AdditionalFeeChargeModePercent": "百分比"
             },
+            "x-enum-descriptions": [
+                "百分比",
+                "固定金额"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeChargeModePercent",
                 "AdditionalFeeChargeModeFixed"
@@ -4839,6 +5502,10 @@ const docTemplate = `{
                 "AdditionalFeeDiscountScopeAfter": "折后",
                 "AdditionalFeeDiscountScopeBefore": "折前"
             },
+            "x-enum-descriptions": [
+                "折前",
+                "折后"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeDiscountScopeBefore",
                 "AdditionalFeeDiscountScopeAfter"
@@ -4854,6 +5521,10 @@ const docTemplate = `{
                 "AdditionalFeeTypeMerchant": "商户",
                 "AdditionalFeeTypeStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeTypeMerchant",
                 "AdditionalFeeTypeStore"
@@ -4911,11 +5582,50 @@ const docTemplate = `{
         "domain.BackendUser": {
             "type": "object",
             "properties": {
+                "code": {
+                    "description": "编号",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "department": {
+                    "description": "所属部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Department"
+                        }
+                    ]
+                },
+                "department_id": {
+                    "description": "所属部门ID",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "电子邮箱",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "gender": {
+                    "description": "性别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Gender"
+                        }
+                    ]
+                },
                 "id": {
                     "type": "string"
                 },
+                "is_superadmin": {
+                    "description": "是否为超级管理员",
+                    "type": "boolean"
+                },
                 "merchant": {
-                    "description": "关联数据",
+                    "description": "所属品牌商",
                     "allOf": [
                         {
                             "$ref": "#/definitions/domain.Merchant"
@@ -4927,6 +5637,31 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "nickname": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "real_name": {
+                    "description": "真实姓名",
+                    "type": "string"
+                },
+                "role_ids": {
+                    "description": "关联数据",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "role_list": {
+                    "description": "角色列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Role"
+                    }
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "username": {
@@ -4976,6 +5711,10 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
+            "x-enum-descriptions": [
+                "直营",
+                "加盟"
+            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -4985,7 +5724,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "children": {
-                    "description": "@TODO 关联信息",
+                    "description": "关联信息",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Category"
@@ -5035,6 +5774,14 @@ const docTemplate = `{
                     "description": "排序，值越小越靠前",
                     "type": "integer"
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "出品部门ID",
                     "type": "string"
@@ -5042,6 +5789,14 @@ const docTemplate = `{
                 "store_id": {
                     "description": "门店ID",
                     "type": "string"
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "税率ID",
@@ -5067,9 +5822,62 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Department": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "department_type": {
+                    "$ref": "#/definitions/domain.DepartmentType"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.DepartmentType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-varnames": [
+                "DepartmentAdmin",
+                "DepartmentBackend",
+                "DepartmentStore"
+            ]
+        },
         "domain.Device": {
             "type": "object",
             "properties": {
+                "connect_type": {
+                    "description": "设备连接类型 inside内置 / outside外置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceConnectType"
+                        }
+                    ]
+                },
                 "created_at": {
                     "description": "创建时间",
                     "type": "string"
@@ -5198,6 +6006,25 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.DeviceConnectType": {
+            "type": "string",
+            "enum": [
+                "inside",
+                "outside"
+            ],
+            "x-enum-comments": {
+                "DeviceConnectTypeInside": "内置",
+                "DeviceConnectTypeOutside": "外置"
+            },
+            "x-enum-descriptions": [
+                "内置",
+                "外置"
+            ],
+            "x-enum-varnames": [
+                "DeviceConnectTypeInside",
+                "DeviceConnectTypeOutside"
+            ]
+        },
         "domain.DeviceLocation": {
             "type": "string",
             "enum": [
@@ -5208,6 +6035,10 @@ const docTemplate = `{
                 "DeviceLocationBackKitchen": "后厨",
                 "DeviceLocationFrontHall": "前厅"
             },
+            "x-enum-descriptions": [
+                "前厅",
+                "后厨"
+            ],
             "x-enum-varnames": [
                 "DeviceLocationFrontHall",
                 "DeviceLocationBackKitchen"
@@ -5225,6 +6056,11 @@ const docTemplate = `{
                 "DeviceStallPrintTypeCombined": "总单",
                 "DeviceStallPrintTypeSeparate": "分单"
             },
+            "x-enum-descriptions": [
+                "全部打印 总单+分单",
+                "总单",
+                "分单"
+            ],
             "x-enum-varnames": [
                 "DeviceStallPrintTypeAll",
                 "DeviceStallPrintTypeCombined",
@@ -5241,6 +6077,10 @@ const docTemplate = `{
                 "DeviceStallReceiptTypeAll": "全部打印",
                 "DeviceStallReceiptTypeExclude": "剔除部门商户"
             },
+            "x-enum-descriptions": [
+                "全部打印",
+                "剔除部门商户"
+            ],
             "x-enum-varnames": [
                 "DeviceStallReceiptTypeAll",
                 "DeviceStallReceiptTypeExclude"
@@ -5256,6 +6096,10 @@ const docTemplate = `{
                 "DeviceStatusOffline": "离线",
                 "DeviceStatusOnline": "在线"
             },
+            "x-enum-descriptions": [
+                "在线",
+                "离线"
+            ],
             "x-enum-varnames": [
                 "DeviceStatusOnline",
                 "DeviceStatusOffline"
@@ -5271,6 +6115,10 @@ const docTemplate = `{
                 "DeviceTypeCashier": "收银机",
                 "DeviceTypePrinter": "打印机"
             },
+            "x-enum-descriptions": [
+                "收银机",
+                "打印机"
+            ],
             "x-enum-varnames": [
                 "DeviceTypeCashier",
                 "DeviceTypePrinter"
@@ -5305,6 +6153,11 @@ const docTemplate = `{
                 "DiningWayDineIn": "堂食",
                 "DiningWayTakeOut": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外送"
+            ],
             "x-enum-varnames": [
                 "DiningWayDineIn",
                 "DiningWayTakeOut",
@@ -5321,9 +6174,63 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
+            "x-enum-descriptions": [
+                "按天",
+                "自定义"
+            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
+            ]
+        },
+        "domain.Gender": {
+            "type": "string",
+            "enum": [
+                "male",
+                "female",
+                "other",
+                "unknown"
+            ],
+            "x-enum-comments": {
+                "GenderFemale": "女性",
+                "GenderMale": "男性",
+                "GenderOther": "其他",
+                "GenderUnknown": "未知"
+            },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
+            "x-enum-varnames": [
+                "GenderMale",
+                "GenderFemale",
+                "GenderOther",
+                "GenderUnknown"
+            ]
+        },
+        "domain.LoginChannel": {
+            "type": "string",
+            "enum": [
+                "pos",
+                "mobile",
+                "store"
+            ],
+            "x-enum-comments": {
+                "LoginChannelMobile": "移动点餐",
+                "LoginChannelPos": "pos",
+                "LoginChannelStore": "门店管理后台"
+            },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
+            "x-enum-varnames": [
+                "LoginChannelPos",
+                "LoginChannelMobile",
+                "LoginChannelStore"
             ]
         },
         "domain.Menu": {
@@ -5332,14 +6239,6 @@ const docTemplate = `{
                 "created_at": {
                     "description": "创建时间",
                     "type": "string"
-                },
-                "distribution_rule": {
-                    "description": "下发规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
                 },
                 "id": {
                     "description": "菜单ID",
@@ -5368,6 +6267,10 @@ const docTemplate = `{
                     "description": "适用门店数量",
                     "type": "integer"
                 },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
                 "stores": {
                     "description": "关联信息",
                     "type": "array",
@@ -5380,21 +6283,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuDistributionRule": {
-            "type": "string",
-            "enum": [
-                "override",
-                "keep"
-            ],
-            "x-enum-comments": {
-                "MenuDistributionRuleKeep": "对同名菜品不做修改",
-                "MenuDistributionRuleOverride": "新增并覆盖同名菜品"
-            },
-            "x-enum-varnames": [
-                "MenuDistributionRuleOverride",
-                "MenuDistributionRuleKeep"
-            ]
         },
         "domain.MenuItem": {
             "type": "object",
@@ -5431,34 +6319,11 @@ const docTemplate = `{
                     "description": "菜品ID",
                     "type": "string"
                 },
-                "sale_rule": {
-                    "description": "下发售卖规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
                 "updated_at": {
                     "description": "更新时间",
                     "type": "string"
                 }
             }
-        },
-        "domain.MenuItemSaleRule": {
-            "type": "string",
-            "enum": [
-                "keep_brand_status",
-                "keep_store_status"
-            ],
-            "x-enum-comments": {
-                "MenuItemSaleRuleKeepBrandStatus": "保留品牌状态",
-                "MenuItemSaleRuleKeepStoreStatus": "保留门店状态"
-            },
-            "x-enum-varnames": [
-                "MenuItemSaleRuleKeepBrandStatus",
-                "MenuItemSaleRuleKeepStoreStatus"
-            ]
         },
         "domain.MenuSearchRes": {
             "type": "object",
@@ -5506,8 +6371,8 @@ const docTemplate = `{
                     "description": "品牌名称",
                     "type": "string"
                 },
-                "business_type_id": {
-                    "description": "业务类型",
+                "business_type_code": {
+                    "description": "业态类型",
                     "type": "string"
                 },
                 "business_type_name": {
@@ -5589,6 +6454,18 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.MerchantSimple": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "商户名称",
+                    "type": "string"
+                }
+            }
+        },
         "domain.MerchantStatus": {
             "type": "string",
             "enum": [
@@ -5601,6 +6478,11 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
+            "x-enum-descriptions": [
+                "已激活",
+                "已过期",
+                "已禁用"
+            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -5617,6 +6499,10 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
+            "x-enum-descriptions": [
+                "品牌商户",
+                "门店商户"
+            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -5625,31 +6511,24 @@ const docTemplate = `{
         "domain.ObjectStorageScene": {
             "type": "string",
             "enum": [
+                "merchant",
                 "store",
-                "product",
-                "order/list_export",
-                "reconciliation/list_export",
-                "reconciliation/detail_export",
-                "point_settlement/list_export",
-                "point_settlement/detail_export"
+                "product"
             ],
             "x-enum-comments": {
-                "ObjectStorageSceneOrderListExport": "订单列表导出",
-                "ObjectStorageScenePointSettlementDetailExport": "积分结算单明细导出",
-                "ObjectStorageScenePointSettlementListExport": "积分结算单导出",
+                "ObjectStorageSceneMerchant": "商户",
                 "ObjectStorageSceneProduct": "商品",
-                "ObjectStorageSceneReconciliationDetailExport": "财务对账单明细导出",
-                "ObjectStorageSceneReconciliationListExport": "财务对账单导出",
                 "ObjectStorageSceneStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店",
+                "商品"
+            ],
             "x-enum-varnames": [
+                "ObjectStorageSceneMerchant",
                 "ObjectStorageSceneStore",
-                "ObjectStorageSceneProduct",
-                "ObjectStorageSceneOrderListExport",
-                "ObjectStorageSceneReconciliationListExport",
-                "ObjectStorageSceneReconciliationDetailExport",
-                "ObjectStorageScenePointSettlementListExport",
-                "ObjectStorageScenePointSettlementDetailExport"
+                "ObjectStorageSceneProduct"
             ]
         },
         "domain.OrderChannel": {
@@ -5670,6 +6549,14 @@ const docTemplate = `{
                 "OrderChannelSelfOrder": "自助点餐",
                 "OrderChannelThirdDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS 端",
+                "自助点餐",
+                "小程序",
+                "手机点餐",
+                "扫码点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
                 "OrderChannelPOS",
                 "OrderChannelSelfOrder",
@@ -5678,23 +6565,6 @@ const docTemplate = `{
                 "OrderChannelScanOrder",
                 "OrderChannelThirdDelivery"
             ]
-        },
-        "domain.PackingFee": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "打包费ID",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "打包费名称",
-                    "type": "string"
-                },
-                "price": {
-                    "description": "打包费价格",
-                    "type": "number"
-                }
-            }
         },
         "domain.PaperSize": {
             "type": "string",
@@ -5705,6 +6575,85 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "PaperSize58mm",
                 "PaperSize80mm"
+            ]
+        },
+        "domain.PaymentAccount": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "description": "支付渠道",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "收款账户ID",
+                    "type": "string"
+                },
+                "is_default": {
+                    "description": "是否默认",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "支付商户名称",
+                    "type": "string"
+                },
+                "merchant_number": {
+                    "description": "支付商户号",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.PaymentAccountSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.PaymentAccount"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.PaymentChannel": {
+            "type": "string",
+            "enum": [
+                "rm"
+            ],
+            "x-enum-comments": {
+                "PaymentChannelRM": "Revenue Monster"
+            },
+            "x-enum-descriptions": [
+                "Revenue Monster"
+            ],
+            "x-enum-varnames": [
+                "PaymentChannelRM"
             ]
         },
         "domain.PaymentMethod": {
@@ -5800,6 +6749,10 @@ const docTemplate = `{
                 "PaymentMethodAccountingRuleDiscount": "计入优惠",
                 "PaymentMethodAccountingRuleIncome": "计入实收"
             },
+            "x-enum-descriptions": [
+                "计入实收",
+                "计入优惠"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodAccountingRuleIncome",
                 "PaymentMethodAccountingRuleDiscount"
@@ -5815,6 +6768,10 @@ const docTemplate = `{
                 "PaymentMethodInvoiceRuleActualAmount": "按实收金额",
                 "PaymentMethodInvoiceRuleNotInvoice": "不开发票"
             },
+            "x-enum-descriptions": [
+                "不开发票",
+                "按实收金额"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodInvoiceRuleNotInvoice",
                 "PaymentMethodInvoiceRuleActualAmount"
@@ -5838,6 +6795,13 @@ const docTemplate = `{
                 "PaymentMethodPayTypeOnlinePayment": "在线支付",
                 "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
+            "x-enum-descriptions": [
+                "其他",
+                "现金",
+                "线下刷卡",
+                "自定义券",
+                "三方合作券"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodPayTypeCash",
                 "PaymentMethodPayTypeOnlinePayment",
@@ -6051,6 +7015,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
                 },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
                 "stall_id": {
                     "description": "指定出品部门ID",
                     "type": "string"
@@ -6072,6 +7044,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductTag"
                     }
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
                 },
                 "tax_rate_id": {
                     "description": "指定税率ID",
@@ -6246,6 +7226,10 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
+            "x-enum-descriptions": [
+                "在售",
+                "停售"
+            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -6354,7 +7338,7 @@ const docTemplate = `{
                     "description": "打包费",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.PackingFee"
+                            "$ref": "#/definitions/domain.AdditionalFee"
                         }
                     ]
                 },
@@ -6415,6 +7399,11 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外卖"
+            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -6487,6 +7476,10 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
+            "x-enum-descriptions": [
+                "普通商品",
+                "套餐商品"
+            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -6566,9 +7559,282 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
+            "x-enum-descriptions": [
+                "数量单位",
+                "重量单位"
+            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
+            ]
+        },
+        "domain.ProfitDistributionBill": {
+            "type": "object",
+            "properties": {
+                "bill_date": {
+                    "description": "账单日期",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "end_date": {
+                    "description": "账单周期：结束日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账账单ID",
+                    "type": "string"
+                },
+                "merchant": {
+                    "description": "关联数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.MerchantSimple"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "no": {
+                    "description": "分账账单编号",
+                    "type": "string"
+                },
+                "payment_amount": {
+                    "description": "打款金额（令吉）",
+                    "type": "number"
+                },
+                "receivable_amount": {
+                    "description": "应收金额（令吉）",
+                    "type": "number"
+                },
+                "rule_snapshot": {
+                    "description": "分账方案快照",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleSnapshot"
+                        }
+                    ]
+                },
+                "start_date": {
+                    "description": "账单周期：开始日期",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "分账状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionBillStatus"
+                        }
+                    ]
+                },
+                "store": {
+                    "description": "门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionBill"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionBillStatus": {
+            "type": "string",
+            "enum": [
+                "unpaid",
+                "paid"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionBillStatusPaid": "已打款",
+                "ProfitDistributionBillStatusUnpaid": "未打款"
+            },
+            "x-enum-descriptions": [
+                "未打款",
+                "已打款"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionBillStatusUnpaid",
+                "ProfitDistributionBillStatusPaid"
+            ]
+        },
+        "domain.ProfitDistributionRule": {
+            "type": "object",
+            "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号",
+                    "type": "integer"
+                },
+                "billing_cycle": {
+                    "description": "账单生成周期",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "effective_date": {
+                    "description": "方案生效日期",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例（0-1，单位：小数）",
+                    "type": "number"
+                },
+                "status": {
+                    "description": "状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleStatus"
+                        }
+                    ]
+                },
+                "store_count": {
+                    "description": "关联门店数量",
+                    "type": "integer"
+                },
+                "stores": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoreSimple"
+                    }
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleBillingCycle": {
+            "type": "string",
+            "enum": [
+                "daily",
+                "monthly"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionRuleBillingCycleDaily": "按日",
+                "ProfitDistributionRuleBillingCycleMonthly": "按月"
+            },
+            "x-enum-descriptions": [
+                "按日",
+                "按月"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionRuleBillingCycleDaily",
+                "ProfitDistributionRuleBillingCycleMonthly"
+            ]
+        },
+        "domain.ProfitDistributionRuleSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProfitDistributionRule"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleSnapshot": {
+            "type": "object",
+            "properties": {
+                "rule_id": {
+                    "description": "分账方案ID",
+                    "type": "string"
+                },
+                "rule_name": {
+                    "description": "分账方案名称",
+                    "type": "string"
+                },
+                "split_ratio": {
+                    "description": "分账比例",
+                    "type": "number"
+                }
+            }
+        },
+        "domain.ProfitDistributionRuleStatus": {
+            "type": "string",
+            "enum": [
+                "enabled",
+                "disabled"
+            ],
+            "x-enum-comments": {
+                "ProfitDistributionRuleStatusDisabled": "禁用",
+                "ProfitDistributionRuleStatusEnabled": "启用"
+            },
+            "x-enum-descriptions": [
+                "启用",
+                "禁用"
+            ],
+            "x-enum-varnames": [
+                "ProfitDistributionRuleStatusEnabled",
+                "ProfitDistributionRuleStatusDisabled"
             ]
         },
         "domain.Province": {
@@ -6602,6 +7868,12 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
+            "x-enum-descriptions": [
+                "日",
+                "月",
+                "年",
+                "周"
+            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -6721,6 +7993,15 @@ const docTemplate = `{
                 "RemarkSceneRefundReject": "拒绝退款",
                 "RemarkSceneWholeOrder": "整单备注"
             },
+            "x-enum-descriptions": [
+                "整单备注",
+                "单品备注",
+                "退菜原因",
+                "优惠原因",
+                "赠菜原��",
+                "反结账原因",
+                "拒绝退款"
+            ],
             "x-enum-varnames": [
                 "RemarkSceneWholeOrder",
                 "RemarkSceneItem",
@@ -6743,10 +8024,133 @@ const docTemplate = `{
                 "RemarkTypeStore": "门店备注",
                 "RemarkTypeSystem": "系统备注"
             },
+            "x-enum-descriptions": [
+                "系统备注",
+                "商户备注",
+                "门店备注"
+            ],
             "x-enum-varnames": [
                 "RemarkTypeSystem",
                 "RemarkTypeBrand",
                 "RemarkTypeStore"
+            ]
+        },
+        "domain.Role": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "角色编码",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "data_scope": {
+                    "description": "数据权限范围",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RoleDataScopeType"
+                        }
+                    ]
+                },
+                "enable": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "login_channels": {
+                    "description": "允许登录渠道，取自 login_channel，多选",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.LoginChannel"
+                    }
+                },
+                "merchant_id": {
+                    "description": "所属商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "role_type": {
+                    "description": "角色类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RoleType"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "所属门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RoleDataScopeType": {
+            "type": "string",
+            "enum": [
+                "all",
+                "merchant",
+                "store",
+                "department",
+                "self",
+                "custom"
+            ],
+            "x-enum-comments": {
+                "RoleDataScopeAll": "全部数据权限",
+                "RoleDataScopeCustom": "自定义数据权限",
+                "RoleDataScopeDepartment": "部门数据权限",
+                "RoleDataScopeMerchant": "品牌商数据权限",
+                "RoleDataScopeSelf": "仅本人数据权限",
+                "RoleDataScopeStore": "门店数据权限"
+            },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
+            "x-enum-varnames": [
+                "RoleDataScopeAll",
+                "RoleDataScopeMerchant",
+                "RoleDataScopeStore",
+                "RoleDataScopeDepartment",
+                "RoleDataScopeSelf",
+                "RoleDataScopeCustom"
+            ]
+        },
+        "domain.RoleType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store",
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-comments": {
+                "UserTypeAdmin": "admin表用户",
+                "UserTypeBackend": "backend用户",
+                "UserTypeStore": "store用户"
+            },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
+            "x-enum-varnames": [
+                "RoleTypeAdmin",
+                "RoleTypeBackend",
+                "RoleTypeStore"
             ]
         },
         "domain.SaleChannel": {
@@ -6775,17 +8179,29 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖",
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -6893,6 +8309,10 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
+            "x-enum-descriptions": [
+                "固定分组",
+                "可选套餐"
+            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -6977,6 +8397,10 @@ const docTemplate = `{
                 "StallPrintTypeLabel": "标签",
                 "StallPrintTypeReceipt": "小票/收据"
             },
+            "x-enum-descriptions": [
+                "小票/收据",
+                "标签"
+            ],
             "x-enum-varnames": [
                 "StallPrintTypeReceipt",
                 "StallPrintTypeLabel"
@@ -6994,6 +8418,11 @@ const docTemplate = `{
                 "StallTypeStore": "门店出品部门",
                 "StallTypeSystem": "系统出品部门"
             },
+            "x-enum-descriptions": [
+                "系统出品部门",
+                "品牌出品部门",
+                "门店出品部门"
+            ],
             "x-enum-varnames": [
                 "StallTypeSystem",
                 "StallTypeBrand",
@@ -7034,7 +8463,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "business_type_id": {
+                "business_type_code": {
                     "description": "业态类型",
                     "type": "string"
                 },
@@ -7139,6 +8568,78 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.StorePaymentAccount": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "门店收款账户ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "merchant_number": {
+                    "description": "支付商户号",
+                    "type": "string"
+                },
+                "payment_account": {
+                    "description": "品牌商收款账户",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentAccount"
+                        }
+                    ]
+                },
+                "payment_account_id": {
+                    "description": "品牌商收款账户ID",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "关联信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreSimple"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StorePaymentAccountSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StorePaymentAccount"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.StoreSimple": {
             "type": "object",
             "properties": {
@@ -7161,6 +8662,10 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
+            "x-enum-descriptions": [
+                "营业",
+                "停业"
+            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -7230,6 +8735,10 @@ const docTemplate = `{
                 "TaxFeeTypeMerchant": "商户",
                 "TaxFeeTypeStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
             "x-enum-varnames": [
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
@@ -7245,6 +8754,10 @@ const docTemplate = `{
                 "TaxRateTypeCustom": "自定义比例",
                 "TaxRateTypeUnified": "统一比例"
             },
+            "x-enum-descriptions": [
+                "统一比例",
+                "自定义比例"
+            ],
             "x-enum-varnames": [
                 "TaxRateTypeUnified",
                 "TaxRateTypeCustom"
@@ -7280,6 +8793,20 @@ const docTemplate = `{
                 "Saturday"
             ]
         },
+        "types.AccountListResp": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BackendUser"
+                    }
+                }
+            }
+        },
         "types.AdditionalFeeCreateReq": {
             "type": "object",
             "required": [
@@ -7288,10 +8815,8 @@ const docTemplate = `{
                 "discount_scope",
                 "fee_category",
                 "fee_value",
-                "include_in_receivable",
                 "name",
-                "order_channels",
-                "taxable"
+                "order_channels"
             ],
             "properties": {
                 "charge_mode": {
@@ -7314,10 +8839,10 @@ const docTemplate = `{
                     }
                 },
                 "discount_scope": {
-                    "description": "折扣作用范围 (all/items)",
+                    "description": "折扣作用范围 (before_discount/after_discount)",
                     "enum": [
-                        "all",
-                        "items"
+                        "before_discount",
+                        "after_discount"
                     ],
                     "allOf": [
                         {
@@ -7330,11 +8855,11 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "fee_category": {
-                    "description": "附加费分类 (service/table/package)",
+                    "description": "附加费分类 (service_fee/additional_fee/packing_fee)",
                     "enum": [
-                        "service",
-                        "table",
-                        "package"
+                        "service_fee",
+                        "additional_fee",
+                        "packing_fee"
                     ],
                     "allOf": [
                         {
@@ -7397,10 +8922,8 @@ const docTemplate = `{
                 "discount_scope",
                 "fee_category",
                 "fee_value",
-                "include_in_receivable",
                 "name",
-                "order_channels",
-                "taxable"
+                "order_channels"
             ],
             "properties": {
                 "charge_mode": {
@@ -7423,10 +8946,10 @@ const docTemplate = `{
                     }
                 },
                 "discount_scope": {
-                    "description": "折扣作用范围 (all/items)",
+                    "description": "折扣作用范围 (before_discount/after_discount)",
                     "enum": [
-                        "all",
-                        "items"
+                        "before_discount",
+                        "after_discount"
                     ],
                     "allOf": [
                         {
@@ -7439,11 +8962,11 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "fee_category": {
-                    "description": "附加费分类 (service/table/package)",
+                    "description": "附加费分类 (service_fee/additional_fee/packing_fee)",
                     "enum": [
-                        "service",
-                        "table",
-                        "package"
+                        "service_fee",
+                        "additional_fee",
+                        "packing_fee"
                     ],
                     "allOf": [
                         {
@@ -7530,6 +9053,126 @@ const docTemplate = `{
                 },
                 "province_name": {
                     "description": "省份名称",
+                    "type": "string"
+                }
+            }
+        },
+        "types.BackendUserCreateReq": {
+            "type": "object",
+            "required": [
+                "department_id",
+                "password",
+                "real_name",
+                "role_ids",
+                "username"
+            ],
+            "properties": {
+                "department_id": {
+                    "description": "所属部门ID",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "电子邮箱",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "gender": {
+                    "description": "性别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Gender"
+                        }
+                    ]
+                },
+                "nickname": {
+                    "description": "昵称",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "用户登陆密码",
+                    "type": "string"
+                },
+                "phone_number": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "real_name": {
+                    "description": "用户姓名",
+                    "type": "string"
+                },
+                "role_ids": {
+                    "description": "角色ID列表",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "username": {
+                    "description": "用户登陆账号",
+                    "type": "string"
+                }
+            }
+        },
+        "types.BackendUserUpdateReq": {
+            "type": "object",
+            "required": [
+                "department_id",
+                "password",
+                "real_name",
+                "role_ids",
+                "username"
+            ],
+            "properties": {
+                "department_id": {
+                    "description": "所属部门ID",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "电子邮箱",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "gender": {
+                    "description": "性别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Gender"
+                        }
+                    ]
+                },
+                "nickname": {
+                    "description": "昵称",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "用户登陆密码",
+                    "type": "string"
+                },
+                "phone_number": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "real_name": {
+                    "description": "用户姓名",
+                    "type": "string"
+                },
+                "role_ids": {
+                    "description": "角色ID列表",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "username": {
+                    "description": "用户登陆账号",
                     "type": "string"
                 }
             }
@@ -7629,7 +9272,7 @@ const docTemplate = `{
                 "admin_phone_number",
                 "business_hours",
                 "business_model",
-                "business_type_id",
+                "business_type_code",
                 "dining_periods",
                 "location_number",
                 "login_account",
@@ -7673,8 +9316,8 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "business_type_id": {
-                    "description": "业态类型",
+                "business_type_code": {
+                    "description": "业务类型",
                     "type": "string"
                 },
                 "cashier_desk_url": {
@@ -7770,6 +9413,48 @@ const docTemplate = `{
                     "description": "统一社会信用代码",
                     "type": "string",
                     "maxLength": 255
+                }
+            }
+        },
+        "types.DepartmentCreateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.DepartmentListResp": {
+            "type": "object",
+            "properties": {
+                "departments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Department"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.DepartmentUpdateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -7886,6 +9571,7 @@ const docTemplate = `{
         "types.DevicePrint": {
             "type": "object",
             "required": [
+                "connect_type",
                 "device_stall_print_type",
                 "device_stall_receipt_type",
                 "dining_ways",
@@ -7895,6 +9581,18 @@ const docTemplate = `{
                 "stall_id"
             ],
             "properties": {
+                "connect_type": {
+                    "description": "设备连接类型 inside内置 / outside外置",
+                    "enum": [
+                        "inside",
+                        "outside"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceConnectType"
+                        }
+                    ]
+                },
                 "device_stall_print_type": {
                     "description": "打印出品部门总分单",
                     "enum": [
@@ -8070,24 +9768,11 @@ const docTemplate = `{
         "types.MenuCreateReq": {
             "type": "object",
             "required": [
-                "distribution_rule",
                 "items",
                 "name",
                 "store_ids"
             ],
             "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "items": {
                     "description": "菜品列表（必选，至少一个）",
                     "type": "array",
@@ -8114,8 +9799,7 @@ const docTemplate = `{
         "types.MenuItemReq": {
             "type": "object",
             "required": [
-                "product_id",
-                "sale_rule"
+                "product_id"
             ],
             "properties": {
                 "base_price": {
@@ -8129,42 +9813,17 @@ const docTemplate = `{
                 "product_id": {
                     "description": "菜品ID（必选）",
                     "type": "string"
-                },
-                "sale_rule": {
-                    "description": "下发售卖规则（必选）",
-                    "enum": [
-                        "keep_brand_status",
-                        "keep_store_status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
                 }
             }
         },
         "types.MenuUpdateReq": {
             "type": "object",
             "required": [
-                "distribution_rule",
                 "items",
                 "name",
                 "store_ids"
             ],
             "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
                 "items": {
                     "description": "菜品列表（必选，至少一个）",
                     "type": "array",
@@ -8296,6 +9955,68 @@ const docTemplate = `{
                 },
                 "x_oss_signature_version": {
                     "type": "string"
+                }
+            }
+        },
+        "types.PaymentAccountCreateReq": {
+            "type": "object",
+            "required": [
+                "channel",
+                "merchant_name",
+                "merchant_number"
+            ],
+            "properties": {
+                "channel": {
+                    "description": "支付渠道（必选）",
+                    "enum": [
+                        "rm"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "merchant_name": {
+                    "description": "支付商户名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "types.PaymentAccountUpdateReq": {
+            "type": "object",
+            "required": [
+                "channel",
+                "merchant_name",
+                "merchant_number"
+            ],
+            "properties": {
+                "channel": {
+                    "description": "支付渠道（必选）",
+                    "enum": [
+                        "rm"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentChannel"
+                        }
+                    ]
+                },
+                "merchant_name": {
+                    "description": "支付商户名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
                 }
             }
         },
@@ -8722,52 +10443,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.ProductDistributeReq": {
-            "type": "object",
-            "required": [
-                "distribution_rule",
-                "product_id",
-                "store_ids"
-            ],
-            "properties": {
-                "distribution_rule": {
-                    "description": "下发规则（必选）：override（新增并覆盖同名菜品）、keep（对同名菜品不做修改）",
-                    "enum": [
-                        "override",
-                        "keep"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuDistributionRule"
-                        }
-                    ]
-                },
-                "product_id": {
-                    "description": "商品ID（必选）",
-                    "type": "string"
-                },
-                "sale_rule": {
-                    "description": "下发售卖规则（可选，仅当下发规则为override时使用）：keep_brand_status（保留品牌状态）、keep_store_status（保留门店状态）",
-                    "enum": [
-                        "keep_brand_status",
-                        "keep_store_status"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MenuItemSaleRule"
-                        }
-                    ]
-                },
-                "store_ids": {
-                    "description": "门店ID列表（必选，多选）",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "types.ProductSpecCreateReq": {
             "type": "object",
             "required": [
@@ -9057,6 +10732,130 @@ const docTemplate = `{
                 }
             }
         },
+        "types.ProfitDistributionBillPayReq": {
+            "type": "object",
+            "required": [
+                "payment_amount"
+            ],
+            "properties": {
+                "payment_amount": {
+                    "description": "打款金额（必选，单位：令吉）",
+                    "type": "number"
+                }
+            }
+        },
+        "types.ProfitDistributionRuleCreateReq": {
+            "type": "object",
+            "required": [
+                "billing_cycle",
+                "effective_date",
+                "expiry_date",
+                "name",
+                "split_ratio",
+                "store_ids"
+            ],
+            "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号（必选）",
+                    "type": "integer",
+                    "maximum": 28,
+                    "minimum": 1
+                },
+                "billing_cycle": {
+                    "description": "账单生成周期（必选）",
+                    "enum": [
+                        "daily",
+                        "monthly"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "effective_date": {
+                    "description": "方案生效日期（必选）",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期（必选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "split_ratio": {
+                    "description": "分账比例（必选，0-1之间）",
+                    "type": "number"
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.ProfitDistributionRuleUpdateReq": {
+            "type": "object",
+            "required": [
+                "billing_cycle",
+                "effective_date",
+                "expiry_date",
+                "name",
+                "split_ratio",
+                "store_ids"
+            ],
+            "properties": {
+                "bill_generation_day": {
+                    "description": "账单生成日：1-28号（必选）",
+                    "type": "integer",
+                    "maximum": 28,
+                    "minimum": 1
+                },
+                "billing_cycle": {
+                    "description": "账单生成周期（必选）",
+                    "enum": [
+                        "daily",
+                        "monthly"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProfitDistributionRuleBillingCycle"
+                        }
+                    ]
+                },
+                "effective_date": {
+                    "description": "方案生效日期（必选）",
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "description": "方案失效日期（必选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分账方案名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "split_ratio": {
+                    "description": "分账比例（必选，0-1之间）",
+                    "type": "number"
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "types.ProvinceListResp": {
             "type": "object",
             "properties": {
@@ -9223,6 +11022,61 @@ const docTemplate = `{
                     "description": "排序，越小越靠前",
                     "type": "integer",
                     "minimum": 0
+                }
+            }
+        },
+        "types.ResetPasswordReq": {
+            "type": "object",
+            "required": [
+                "new_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.RoleCreateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                }
+            }
+        },
+        "types.RoleListResp": {
+            "type": "object",
+            "properties": {
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Role"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.RoleUpdateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
                 }
             }
         },
@@ -9395,13 +11249,6 @@ const docTemplate = `{
                 "is_default": {
                     "description": "是否默认（必选，每个套餐组中只能有一个默认项）",
                     "type": "boolean"
-                },
-                "optional_product_ids": {
-                    "description": "备选商品ID列表（可选，多选）",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 },
                 "product_id": {
                     "description": "商品ID（必选）",
@@ -9701,6 +11548,42 @@ const docTemplate = `{
                 }
             }
         },
+        "types.StorePaymentAccountCreateReq": {
+            "type": "object",
+            "required": [
+                "merchant_number",
+                "payment_account_id",
+                "store_id"
+            ],
+            "properties": {
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "payment_account_id": {
+                    "description": "品牌商收款账户ID（必选）",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店ID（必选）",
+                    "type": "string"
+                }
+            }
+        },
+        "types.StorePaymentAccountUpdateReq": {
+            "type": "object",
+            "required": [
+                "merchant_number"
+            ],
+            "properties": {
+                "merchant_number": {
+                    "description": "支付商户号（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
         "types.TaxFeeCreateReq": {
             "type": "object",
             "required": [
@@ -9779,11 +11662,124 @@ const docTemplate = `{
                 }
             }
         },
+        "types.UpdateMStoreReq": {
+            "type": "object",
+            "required": [
+                "admin_phone_number",
+                "business_hours",
+                "dining_periods",
+                "location_number",
+                "shift_times",
+                "status",
+                "store_name"
+            ],
+            "properties": {
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
+                },
+                "status": {
+                    "description": "营业/停业",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string",
+                    "maxLength": 30
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
         "types.UpdateMerchantReq": {
             "type": "object",
             "required": [
                 "admin_phone_number",
-                "business_type_id",
+                "business_type_code",
                 "merchant_name"
             ],
             "properties": {
@@ -9805,7 +11801,7 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50
                 },
-                "business_type_id": {
+                "business_type_code": {
                     "description": "业务类型",
                     "type": "string"
                 },
@@ -9851,7 +11847,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/types.UpdateMerchantReq"
                 },
                 "store": {
-                    "$ref": "#/definitions/types.UpdateStoreReq"
+                    "$ref": "#/definitions/types.UpdateMStoreReq"
                 }
             }
         },
@@ -9862,10 +11858,9 @@ const docTemplate = `{
                 "admin_phone_number",
                 "business_hours",
                 "business_model",
-                "business_type_id",
+                "business_type_code",
                 "dining_periods",
                 "location_number",
-                "login_password",
                 "shift_times",
                 "status",
                 "store_name"
@@ -9904,8 +11899,8 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "business_type_id": {
-                    "description": "业态类型",
+                "business_type_code": {
+                    "description": "业务类型",
                     "type": "string"
                 },
                 "cashier_desk_url": {
@@ -9944,10 +11939,6 @@ const docTemplate = `{
                     "description": "门店位置编号",
                     "type": "string",
                     "maxLength": 255
-                },
-                "login_password": {
-                    "description": "登录密码(加密存储)",
-                    "type": "string"
                 },
                 "shift_times": {
                     "description": "班次时间",

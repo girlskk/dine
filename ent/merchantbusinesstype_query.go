@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -14,22 +13,18 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
 // MerchantBusinessTypeQuery is the builder for querying MerchantBusinessType entities.
 type MerchantBusinessTypeQuery struct {
 	config
-	ctx           *QueryContext
-	order         []merchantbusinesstype.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.MerchantBusinessType
-	withMerchants *MerchantQuery
-	withStores    *StoreQuery
-	modifiers     []func(*sql.Selector)
+	ctx        *QueryContext
+	order      []merchantbusinesstype.OrderOption
+	inters     []Interceptor
+	predicates []predicate.MerchantBusinessType
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -64,50 +59,6 @@ func (mbtq *MerchantBusinessTypeQuery) Unique(unique bool) *MerchantBusinessType
 func (mbtq *MerchantBusinessTypeQuery) Order(o ...merchantbusinesstype.OrderOption) *MerchantBusinessTypeQuery {
 	mbtq.order = append(mbtq.order, o...)
 	return mbtq
-}
-
-// QueryMerchants chains the current query on the "merchants" edge.
-func (mbtq *MerchantBusinessTypeQuery) QueryMerchants() *MerchantQuery {
-	query := (&MerchantClient{config: mbtq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mbtq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mbtq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchantbusinesstype.Table, merchantbusinesstype.FieldID, selector),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchantbusinesstype.MerchantsTable, merchantbusinesstype.MerchantsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mbtq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryStores chains the current query on the "stores" edge.
-func (mbtq *MerchantBusinessTypeQuery) QueryStores() *StoreQuery {
-	query := (&StoreClient{config: mbtq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mbtq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mbtq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchantbusinesstype.Table, merchantbusinesstype.FieldID, selector),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchantbusinesstype.StoresTable, merchantbusinesstype.StoresColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mbtq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first MerchantBusinessType entity from the query.
@@ -297,40 +248,16 @@ func (mbtq *MerchantBusinessTypeQuery) Clone() *MerchantBusinessTypeQuery {
 		return nil
 	}
 	return &MerchantBusinessTypeQuery{
-		config:        mbtq.config,
-		ctx:           mbtq.ctx.Clone(),
-		order:         append([]merchantbusinesstype.OrderOption{}, mbtq.order...),
-		inters:        append([]Interceptor{}, mbtq.inters...),
-		predicates:    append([]predicate.MerchantBusinessType{}, mbtq.predicates...),
-		withMerchants: mbtq.withMerchants.Clone(),
-		withStores:    mbtq.withStores.Clone(),
+		config:     mbtq.config,
+		ctx:        mbtq.ctx.Clone(),
+		order:      append([]merchantbusinesstype.OrderOption{}, mbtq.order...),
+		inters:     append([]Interceptor{}, mbtq.inters...),
+		predicates: append([]predicate.MerchantBusinessType{}, mbtq.predicates...),
 		// clone intermediate query.
 		sql:       mbtq.sql.Clone(),
 		path:      mbtq.path,
 		modifiers: append([]func(*sql.Selector){}, mbtq.modifiers...),
 	}
-}
-
-// WithMerchants tells the query-builder to eager-load the nodes that are connected to
-// the "merchants" edge. The optional arguments are used to configure the query builder of the edge.
-func (mbtq *MerchantBusinessTypeQuery) WithMerchants(opts ...func(*MerchantQuery)) *MerchantBusinessTypeQuery {
-	query := (&MerchantClient{config: mbtq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mbtq.withMerchants = query
-	return mbtq
-}
-
-// WithStores tells the query-builder to eager-load the nodes that are connected to
-// the "stores" edge. The optional arguments are used to configure the query builder of the edge.
-func (mbtq *MerchantBusinessTypeQuery) WithStores(opts ...func(*StoreQuery)) *MerchantBusinessTypeQuery {
-	query := (&StoreClient{config: mbtq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mbtq.withStores = query
-	return mbtq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -409,12 +336,8 @@ func (mbtq *MerchantBusinessTypeQuery) prepareQuery(ctx context.Context) error {
 
 func (mbtq *MerchantBusinessTypeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*MerchantBusinessType, error) {
 	var (
-		nodes       = []*MerchantBusinessType{}
-		_spec       = mbtq.querySpec()
-		loadedTypes = [2]bool{
-			mbtq.withMerchants != nil,
-			mbtq.withStores != nil,
-		}
+		nodes = []*MerchantBusinessType{}
+		_spec = mbtq.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*MerchantBusinessType).scanValues(nil, columns)
@@ -422,7 +345,6 @@ func (mbtq *MerchantBusinessTypeQuery) sqlAll(ctx context.Context, hooks ...quer
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &MerchantBusinessType{config: mbtq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(mbtq.modifiers) > 0 {
@@ -437,82 +359,7 @@ func (mbtq *MerchantBusinessTypeQuery) sqlAll(ctx context.Context, hooks ...quer
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := mbtq.withMerchants; query != nil {
-		if err := mbtq.loadMerchants(ctx, query, nodes,
-			func(n *MerchantBusinessType) { n.Edges.Merchants = []*Merchant{} },
-			func(n *MerchantBusinessType, e *Merchant) { n.Edges.Merchants = append(n.Edges.Merchants, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := mbtq.withStores; query != nil {
-		if err := mbtq.loadStores(ctx, query, nodes,
-			func(n *MerchantBusinessType) { n.Edges.Stores = []*Store{} },
-			func(n *MerchantBusinessType, e *Store) { n.Edges.Stores = append(n.Edges.Stores, e) }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (mbtq *MerchantBusinessTypeQuery) loadMerchants(ctx context.Context, query *MerchantQuery, nodes []*MerchantBusinessType, init func(*MerchantBusinessType), assign func(*MerchantBusinessType, *Merchant)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*MerchantBusinessType)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(merchant.FieldBusinessTypeID)
-	}
-	query.Where(predicate.Merchant(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(merchantbusinesstype.MerchantsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.BusinessTypeID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "business_type_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (mbtq *MerchantBusinessTypeQuery) loadStores(ctx context.Context, query *StoreQuery, nodes []*MerchantBusinessType, init func(*MerchantBusinessType), assign func(*MerchantBusinessType, *Store)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*MerchantBusinessType)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(store.FieldBusinessTypeID)
-	}
-	query.Where(predicate.Store(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(merchantbusinesstype.StoresColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.BusinessTypeID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "business_type_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
 }
 
 func (mbtq *MerchantBusinessTypeQuery) sqlCount(ctx context.Context) (int, error) {

@@ -2,9 +2,9 @@
 AutoMigrate = false
 Debug = true
 Host = "127.0.0.1"
-Port = "3306"
+Port = "33061"
 User = "root"
-Password = "changepassword"
+Password = "pass"
 Name = "dine"
 TimeZone = "Asia/Shanghai"
 MaxLifetime = 3600
@@ -29,9 +29,6 @@ SysId = "sys_id"
 RsaMerchPrivateKey = "rsa_merch_private_key"
 RsaHuifuPublicKey = "rsa_huifu_public_key"
 
-[FinanceBill]
-Cron = "5 0 * * *"
-
 [Oss]
 Region = "cn-shanghai"
 Bucket = "bucket"
@@ -41,3 +38,7 @@ AccessKeySecret = "access_key_secret"
 RoleARN = "role_arn"
 SessionName = "dine-scheduler"
 Expiration = 3600
+
+# 分账账单生成时间：每天凌晨2点
+[ProfitDistribution]
+Cron = "0 2 * * *"

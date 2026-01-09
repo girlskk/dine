@@ -40,7 +40,7 @@ func (i *ProductInteractor) UpdateSetMeal(ctx context.Context, product *domain.P
 		}
 
 		// 业务规则校验
-		if err = validateProductBusinessRules(ctx, ds, product, existingProduct.ID); err != nil {
+		if err = i.validateProductBusinessRules(ctx, ds, product, user, existingProduct.ID); err != nil {
 			return err
 		}
 

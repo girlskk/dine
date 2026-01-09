@@ -12,6 +12,7 @@ import (
 type MerchantBusinessTypeRepository interface {
 	FindById(ctx context.Context, id uuid.UUID) (businessType *MerchantBusinessType, err error)
 	GetAll(ctx context.Context) (list []*MerchantBusinessType, err error)
+	FindByCode(ctx context.Context, typeCode string) (businessType *MerchantBusinessType, err error)
 }
 
 // MerchantBusinessTypeInteractor 业态类型用例接口

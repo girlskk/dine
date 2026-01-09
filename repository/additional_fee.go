@@ -42,6 +42,20 @@ func (repo *AdditionalFeeRepository) FindByID(ctx context.Context, id uuid.UUID)
 	return
 }
 
+func (repo *AdditionalFeeRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (fees []*domain.AdditionalFee, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeRepository.ListByIDs")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	efs, err := repo.Client.AdditionalFee.Query().Where(additionalfee.IDIn(ids...)).All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query additional fees: %w", err)
+	}
+	fees = lo.Map(efs, func(item *ent.AdditionalFee, _ int) *domain.AdditionalFee {
+		return convertAdditionalFeeToDomain(item)
+	})
+	return fees, nil
+}
+
 func (repo *AdditionalFeeRepository) Create(ctx context.Context, fee *domain.AdditionalFee) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeRepository.Create")
 	defer func() { util.SpanErrFinish(span, err) }()

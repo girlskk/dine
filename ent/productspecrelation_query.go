@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
@@ -22,13 +23,14 @@ import (
 // ProductSpecRelationQuery is the builder for querying ProductSpecRelation entities.
 type ProductSpecRelationQuery struct {
 	config
-	ctx         *QueryContext
-	order       []productspecrelation.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.ProductSpecRelation
-	withProduct *ProductQuery
-	withSpec    *ProductSpecQuery
-	modifiers   []func(*sql.Selector)
+	ctx            *QueryContext
+	order          []productspecrelation.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.ProductSpecRelation
+	withProduct    *ProductQuery
+	withSpec       *ProductSpecQuery
+	withPackingFee *AdditionalFeeQuery
+	modifiers      []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +104,28 @@ func (psrq *ProductSpecRelationQuery) QuerySpec() *ProductSpecQuery {
 			sqlgraph.From(productspecrelation.Table, productspecrelation.FieldID, selector),
 			sqlgraph.To(productspec.Table, productspec.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, productspecrelation.SpecTable, productspecrelation.SpecColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(psrq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPackingFee chains the current query on the "packing_fee" edge.
+func (psrq *ProductSpecRelationQuery) QueryPackingFee() *AdditionalFeeQuery {
+	query := (&AdditionalFeeClient{config: psrq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := psrq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := psrq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productspecrelation.Table, productspecrelation.FieldID, selector),
+			sqlgraph.To(additionalfee.Table, additionalfee.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productspecrelation.PackingFeeTable, productspecrelation.PackingFeeColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(psrq.driver.Dialect(), step)
 		return fromU, nil
@@ -296,13 +320,14 @@ func (psrq *ProductSpecRelationQuery) Clone() *ProductSpecRelationQuery {
 		return nil
 	}
 	return &ProductSpecRelationQuery{
-		config:      psrq.config,
-		ctx:         psrq.ctx.Clone(),
-		order:       append([]productspecrelation.OrderOption{}, psrq.order...),
-		inters:      append([]Interceptor{}, psrq.inters...),
-		predicates:  append([]predicate.ProductSpecRelation{}, psrq.predicates...),
-		withProduct: psrq.withProduct.Clone(),
-		withSpec:    psrq.withSpec.Clone(),
+		config:         psrq.config,
+		ctx:            psrq.ctx.Clone(),
+		order:          append([]productspecrelation.OrderOption{}, psrq.order...),
+		inters:         append([]Interceptor{}, psrq.inters...),
+		predicates:     append([]predicate.ProductSpecRelation{}, psrq.predicates...),
+		withProduct:    psrq.withProduct.Clone(),
+		withSpec:       psrq.withSpec.Clone(),
+		withPackingFee: psrq.withPackingFee.Clone(),
 		// clone intermediate query.
 		sql:       psrq.sql.Clone(),
 		path:      psrq.path,
@@ -329,6 +354,17 @@ func (psrq *ProductSpecRelationQuery) WithSpec(opts ...func(*ProductSpecQuery)) 
 		opt(query)
 	}
 	psrq.withSpec = query
+	return psrq
+}
+
+// WithPackingFee tells the query-builder to eager-load the nodes that are connected to
+// the "packing_fee" edge. The optional arguments are used to configure the query builder of the edge.
+func (psrq *ProductSpecRelationQuery) WithPackingFee(opts ...func(*AdditionalFeeQuery)) *ProductSpecRelationQuery {
+	query := (&AdditionalFeeClient{config: psrq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	psrq.withPackingFee = query
 	return psrq
 }
 
@@ -410,9 +446,10 @@ func (psrq *ProductSpecRelationQuery) sqlAll(ctx context.Context, hooks ...query
 	var (
 		nodes       = []*ProductSpecRelation{}
 		_spec       = psrq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			psrq.withProduct != nil,
 			psrq.withSpec != nil,
+			psrq.withPackingFee != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +482,12 @@ func (psrq *ProductSpecRelationQuery) sqlAll(ctx context.Context, hooks ...query
 	if query := psrq.withSpec; query != nil {
 		if err := psrq.loadSpec(ctx, query, nodes, nil,
 			func(n *ProductSpecRelation, e *ProductSpec) { n.Edges.Spec = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := psrq.withPackingFee; query != nil {
+		if err := psrq.loadPackingFee(ctx, query, nodes, nil,
+			func(n *ProductSpecRelation, e *AdditionalFee) { n.Edges.PackingFee = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -509,6 +552,38 @@ func (psrq *ProductSpecRelationQuery) loadSpec(ctx context.Context, query *Produ
 	}
 	return nil
 }
+func (psrq *ProductSpecRelationQuery) loadPackingFee(ctx context.Context, query *AdditionalFeeQuery, nodes []*ProductSpecRelation, init func(*ProductSpecRelation), assign func(*ProductSpecRelation, *AdditionalFee)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*ProductSpecRelation)
+	for i := range nodes {
+		if nodes[i].PackingFeeID == nil {
+			continue
+		}
+		fk := *nodes[i].PackingFeeID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(additionalfee.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "packing_fee_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (psrq *ProductSpecRelationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := psrq.querySpec()
@@ -543,6 +618,9 @@ func (psrq *ProductSpecRelationQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if psrq.withSpec != nil {
 			_spec.Node.AddColumnOnce(productspecrelation.FieldSpecID)
+		}
+		if psrq.withPackingFee != nil {
+			_spec.Node.AddColumnOnce(productspecrelation.FieldPackingFeeID)
 		}
 	}
 	if ps := psrq.predicates; len(ps) > 0 {

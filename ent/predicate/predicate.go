@@ -54,8 +54,14 @@ type Order func(*sql.Selector)
 // OrderProduct is the predicate function for orderproduct builders.
 type OrderProduct func(*sql.Selector)
 
+// PaymentAccount is the predicate function for paymentaccount builders.
+type PaymentAccount func(*sql.Selector)
+
 // PaymentMethod is the predicate function for paymentmethod builders.
 type PaymentMethod func(*sql.Selector)
+
+// Permission is the predicate function for permission builders.
+type Permission func(*sql.Selector)
 
 // Product is the predicate function for product builders.
 type Product func(*sql.Selector)
@@ -81,6 +87,12 @@ type ProductTag func(*sql.Selector)
 // ProductUnit is the predicate function for productunit builders.
 type ProductUnit func(*sql.Selector)
 
+// ProfitDistributionBill is the predicate function for profitdistributionbill builders.
+type ProfitDistributionBill func(*sql.Selector)
+
+// ProfitDistributionRule is the predicate function for profitdistributionrule builders.
+type ProfitDistributionRule func(*sql.Selector)
+
 // Province is the predicate function for province builders.
 type Province func(*sql.Selector)
 
@@ -92,6 +104,15 @@ type RemarkCategory func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
+
+// RoleMenu is the predicate function for rolemenu builders.
+type RoleMenu func(*sql.Selector)
+
+// RolePermission is the predicate function for rolepermission builders.
+type RolePermission func(*sql.Selector)
+
+// RouterMenu is the predicate function for routermenu builders.
+type RouterMenu func(*sql.Selector)
 
 // SetMealDetail is the predicate function for setmealdetail builders.
 type SetMealDetail func(*sql.Selector)
@@ -105,8 +126,14 @@ type Stall func(*sql.Selector)
 // Store is the predicate function for store builders.
 type Store func(*sql.Selector)
 
+// StorePaymentAccount is the predicate function for storepaymentaccount builders.
+type StorePaymentAccount func(*sql.Selector)
+
 // StoreUser is the predicate function for storeuser builders.
 type StoreUser func(*sql.Selector)
 
 // TaxFee is the predicate function for taxfee builders.
 type TaxFee func(*sql.Selector)
+
+// UserRole is the predicate function for userrole builders.
+type UserRole func(*sql.Selector)

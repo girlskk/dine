@@ -24,6 +24,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
 )
 
 // ProductCreate is the builder for creating a Product entity.
@@ -406,6 +408,16 @@ func (pc *ProductCreate) SetCategory(c *Category) *ProductCreate {
 // SetUnit sets the "unit" edge to the ProductUnit entity.
 func (pc *ProductCreate) SetUnit(p *ProductUnit) *ProductCreate {
 	return pc.SetUnitID(p.ID)
+}
+
+// SetTaxRate sets the "tax_rate" edge to the TaxFee entity.
+func (pc *ProductCreate) SetTaxRate(t *TaxFee) *ProductCreate {
+	return pc.SetTaxRateID(t.ID)
+}
+
+// SetStall sets the "stall" edge to the Stall entity.
+func (pc *ProductCreate) SetStall(s *Stall) *ProductCreate {
+	return pc.SetStallID(s.ID)
 }
 
 // AddTagIDs adds the "tags" edge to the ProductTag entity by IDs.
@@ -803,17 +815,9 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		_spec.SetField(product.FieldInheritTaxRate, field.TypeBool, value)
 		_node.InheritTaxRate = value
 	}
-	if value, ok := pc.mutation.TaxRateID(); ok {
-		_spec.SetField(product.FieldTaxRateID, field.TypeUUID, value)
-		_node.TaxRateID = value
-	}
 	if value, ok := pc.mutation.InheritStall(); ok {
 		_spec.SetField(product.FieldInheritStall, field.TypeBool, value)
 		_node.InheritStall = value
-	}
-	if value, ok := pc.mutation.StallID(); ok {
-		_spec.SetField(product.FieldStallID, field.TypeUUID, value)
-		_node.StallID = value
 	}
 	if value, ok := pc.mutation.MainImage(); ok {
 		_spec.SetField(product.FieldMainImage, field.TypeString, value)
@@ -875,6 +879,40 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UnitID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.TaxRateIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.TaxRateTable,
+			Columns: []string{product.TaxRateColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxfee.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TaxRateID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.StallIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.StallTable,
+			Columns: []string{product.StallColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(stall.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.StallID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := pc.mutation.TagsIDs(); len(nodes) > 0 {
