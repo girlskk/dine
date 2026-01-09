@@ -298,12 +298,19 @@ func (h *DeviceHandler) List() gin.HandlerFunc {
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.DeviceListFilter{
 			MerchantID: user.MerchantID,
-			StoreID:    req.StoreID,
 			DeviceType: req.DeviceType,
 			Status:     req.Status,
 			Name:       req.Name,
 		}
-
+		// parse StoreID if provided
+		if req.StoreID != "" {
+			pid, err := uuid.Parse(req.StoreID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.StoreID = pid
+		}
 		devices, total, err := h.DeviceInteractor.GetDevices(ctx, pager, filter, domain.NewDeviceOrderByCreatedAt(true))
 		if err != nil {
 			if domain.IsParamsError(err) {

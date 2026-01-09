@@ -31,9 +31,9 @@ type RouterMenuUpdateReq struct {
 // RouterMenuListReq 菜单列表请求
 type RouterMenuListReq struct {
 	upagination.RequestPagination
-	ParentID uuid.UUID `form:"parent_id"` // 父级菜单ID
-	Name     string    `form:"name"`      // 菜单名称
-	Enabled  *bool     `form:"enabled"`   // 是否启用
+	ParentID string `form:"parent_id"` // 父级菜单ID (as string, parsed in handler)
+	Name     string `form:"name"`      // 菜单名称
+	Enabled  *bool  `form:"enabled"`   // 是否启用
 }
 
 // RouterMenuListResp 菜单列表响应

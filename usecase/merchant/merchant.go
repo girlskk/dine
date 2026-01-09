@@ -153,7 +153,17 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 			}
 
 		}
-
+		err = ds.MerchantRenewalRepo().Create(ctx, &domain.MerchantRenewal{
+			ID:                   uuid.New(),
+			MerchantID:           merchantID,
+			PurchaseDuration:     domainMerchant.PurchaseDuration,
+			PurchaseDurationUnit: domainMerchant.PurchaseDurationUnit,
+			OperatorName:         "",
+			OperatorAccount:      "",
+		})
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 
@@ -330,6 +340,12 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 
 	if bt, err := interactor.DS.MerchantBusinessTypeRepo().FindByCode(ctx, domainMerchant.BusinessTypeCode); err == nil {
 		domainMerchant.BusinessTypeName = bt.TypeName
+	}
+
+	if renewals, err := interactor.DS.MerchantRenewalRepo().GetByMerchant(ctx, id); err == nil && len(renewals) > 0 {
+		latestRenewal := renewals[0]
+		domainMerchant.PurchaseDuration = latestRenewal.PurchaseDuration
+		domainMerchant.PurchaseDurationUnit = latestRenewal.PurchaseDurationUnit
 	}
 	return domainMerchant, nil
 }

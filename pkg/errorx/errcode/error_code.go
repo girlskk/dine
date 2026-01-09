@@ -25,7 +25,6 @@ const (
 	UnknownError  ErrCode = "UNKNOWN_ERROR"  // 未知错误
 
 	// 业务错误
-	UserNotFound                 ErrCode = "USER_NOT_FOUND"                   // 用户不存在
 	CategoryNameExists           ErrCode = "CATEGORY_NAME_EXISTS"             // 商品分类名称已存在
 	CategoryDeleteHasChildren    ErrCode = "CATEGORY_DELETE_HAS_CHILDREN"     // 商品分类有子分类
 	CategoryDeleteHasProducts    ErrCode = "CATEGORY_DELETE_HAS_PRODUCTS"     // 商品分类有商品
@@ -45,6 +44,7 @@ const (
 	ProductNameExists      ErrCode = "PRODUCT_NAME_EXISTS"        // 商品名称已存在
 	ProductBelongToSetMeal ErrCode = "PRODUCT_BELONG_TO_SET_MEAL" // 商品属于套餐组，不能停售或删除
 
+	// 商户与门店
 	MerchantNameExists            ErrCode = "MERCHANT_NAME_EXISTS"              // 商户名称已存在
 	StoreNameExists               ErrCode = "STORE_NAME_EXISTS"                 // 门店名称已存在
 	StoreBusinessHoursConflict    ErrCode = "STORE_BUSINESS_HOURS_CONFLICT"     // 门店营业时间冲突
@@ -55,16 +55,27 @@ const (
 	StoreShiftTimeConflict        ErrCode = "STORE_SHIFT_TIME_CONFLICT"         // 门店班次时间冲突
 	StoreShiftTimeTimeInvalid     ErrCode = "STORE_SHIFT_TIME_TIME_INVALID"     // 门店班次时间无效,开始时间不能晚于结束时间
 	StoreShiftTimeNameExists      ErrCode = "STORE_SHIFT_TIME_NAME_EXISTS"      // 门店班次名称已存在
-	RemarkNameExists              ErrCode = "REMARK_NAME_EXISTS"                // 备注名称已存在
-	RemarkDeleteSystem            ErrCode = "REMARK_DELETE_SYSTEM"              // 不能删除系统内置备注
-	RemarkCategoryNameExists      ErrCode = "REMARK_CATEGORY_NAME_EXISTS"       // 备注分类名称已存在
-	StallNameExists               ErrCode = "STALL_NAME_EXISTS"                 // 出品部门名称已存在
-	DeviceNameExists              ErrCode = "DEVICE_NAME_EXISTS"                // 设备名称已存在
-	DeviceCodeExists              ErrCode = "DEVICE_CODE_EXISTS"                // 设备编号已存在
-	TaxFeeNameExists              ErrCode = "TAX_FEE_NAME_EXISTS"               // 税费名称已存在
-	BackendUserExists             ErrCode = "BACKEND_USER_EXISTS"               // 后台用户已存在
-	AdditionalNameExists          ErrCode = "ADDITIONAL_NAME_EXISTS"            // 附加费费名称已存在
 
+	// 备注
+	RemarkNameExists         ErrCode = "REMARK_NAME_EXISTS"          // 备注名称已存在
+	RemarkDeleteSystem       ErrCode = "REMARK_DELETE_SYSTEM"        // 不能删除系统内置备注
+	RemarkCategoryNameExists ErrCode = "REMARK_CATEGORY_NAME_EXISTS" // 备注分类名称已存在
+
+	// 出品部门
+	StallNameExists ErrCode = "STALL_NAME_EXISTS" // 出品部门名称已存在
+
+	// 设备相关
+	DeviceNameExists ErrCode = "DEVICE_NAME_EXISTS" // 设备名称已存在
+	DeviceCodeExists ErrCode = "DEVICE_CODE_EXISTS" // 设备编号已存在
+
+	// 税费与附加费
+	TaxFeeNameExists     ErrCode = "TAX_FEE_NAME_EXISTS"    // 税费名称已存在
+	AdditionalNameExists ErrCode = "ADDITIONAL_NAME_EXISTS" // 附加费费名称已存在
+
+	// 用户相关
+	UserNotFound               ErrCode = "USER_NOT_FOUND"                // 用户不存在
+	UserNameExists             ErrCode = "USER_NAME_EXISTS"              // 用户账号已存在
+	UserExists                 ErrCode = "USER_EXISTS"                   // 用户已存在
 	SuperUserCannotDelete      ErrCode = "SUPER_USER_CANNOT_DELETE"      // 超级管理员用户不能被删除
 	SuperUserCannotDisable     ErrCode = "SUPER_USER_CANNOT_DISABLE"     // 超级管理员用户不能被禁用
 	SuperUserCannotUpdate      ErrCode = "SUPER_USER_CANNOT_UPDATE"      // 超级管理员用户不能被修改
@@ -75,4 +86,8 @@ const (
 	UserDepartmentRequired     ErrCode = "USER_DEPARTMENT_REQUIRED"      // 用户所属部门不能为空
 	UserRoleTypeMismatch       ErrCode = "USER_ROLE_TYPE_MISMATCH"       // 用户角色类型不匹配
 	UserDepartmentTypeMismatch ErrCode = "USER_DEPARTMENT_TYPE_MISMATCH" // 用户部门类型不匹配
+	PasswordCannotBeEmpty      ErrCode = "PASSWORD_CANNOT_BE_EMPTY"      // 密码不能为空
+
+	// 时间相关
+	TimeFormatInvalid ErrCode = "TIME_FORMAT_INVALID" // 时间格式错误
 )

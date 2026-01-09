@@ -4431,11 +4431,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_gte",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
                         "name": "created_at_lte",
                         "in": "query"
                     },
@@ -5381,6 +5383,49 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user/{id}/reset_password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "重置用户密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "重置用户密码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "重置密码请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ResetPasswordReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -8690,9 +8735,23 @@ const docTemplate = `{
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -10937,6 +10996,17 @@ const docTemplate = `{
                     "description": "排序，越小越靠前",
                     "type": "integer",
                     "minimum": 0
+                }
+            }
+        },
+        "types.ResetPasswordReq": {
+            "type": "object",
+            "required": [
+                "new_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
                 }
             }
         },

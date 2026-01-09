@@ -59,7 +59,7 @@ var Module = fx.Module(
 		asHandler(handler.NewProfitDistributionBillHandler),
 		asHandler(handler.NewRoleHandler),
 		asHandler(handler.NewDepartmentHandler),
-		asHandler(handler.NewOrderHandler),
+		asHandler(handler.NewOssHandler),
 	),
 )
 

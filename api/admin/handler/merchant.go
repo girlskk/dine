@@ -102,7 +102,7 @@ func (h *MerchantHandler) CreateBrandMerchant() gin.HandlerFunc {
 		err = h.MerchantInteractor.CreateMerchant(ctx, createBrandMerchant)
 		if err != nil {
 			if errors.Is(err, domain.ErrUserExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.BackendUserExists, err))
+				c.Error(errorx.New(http.StatusConflict, errcode.UserNameExists, err))
 				return
 			}
 			if domain.IsConflict(err) {
@@ -519,15 +519,31 @@ func (h *MerchantHandler) GetMerchants() gin.HandlerFunc {
 			AdminPhoneNumber: req.AdminPhoneNumber,
 			MerchantType:     req.MerchantType,
 			Status:           req.Status,
-			ProvinceID:       req.ProvinceID,
-			CreatedAtGte:     &req.CreatedAtGte,
-			CreatedAtLte:     &req.CreatedAtLte,
 		}
-		if req.CreatedAtGte.IsZero() {
-			filter.CreatedAtGte = nil
+
+		// parse ProvinceID if provided
+		if req.ProvinceID != "" {
+			pid, err := uuid.Parse(req.ProvinceID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.ProvinceID = pid
 		}
-		if req.CreatedAtLte.IsZero() {
-			filter.CreatedAtLte = nil
+
+		if req.CreatedAtGte != "" || req.CreatedAtLte != "" {
+			var err error
+			startTime, endTime := util.GetShortcutDate("custom", req.CreatedAtGte, req.CreatedAtLte)
+			filter.CreatedAtGte, err = util.ParseDateToPtr(startTime)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtGte: %w", err)))
+				return
+			}
+			filter.CreatedAtLte, err = util.ParseDateToPtr(endTime)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtLte: %w", err)))
+				return
+			}
 		}
 
 		domainMerchants, total, err := h.MerchantInteractor.GetMerchants(ctx, pager, filter)

@@ -118,6 +118,7 @@ type BackendUserListFilter struct {
 	PhoneNumber string      `json:"phone_number"` // 手机号
 	Enabled     *bool       `json:"enabled"`      // 是否启用
 	MerchantID  uuid.UUID   `json:"merchant_id"`  // 品牌商ID
+	RoleID      uuid.UUID   `json:"role_id"`      // 角色ID
 }
 
 type BackendUserOrderByType int
@@ -156,10 +157,12 @@ type BackendUserExistsParams struct {
 type BackendUserSimpleUpdateField string
 
 const (
-	BackendUserSimpleUpdateFieldEnable BackendUserSimpleUpdateField = "enable"
+	BackendUserSimpleUpdateFieldEnable   BackendUserSimpleUpdateField = "enable"
+	BackendUserSimpleUpdateFieldPassword BackendUserSimpleUpdateField = "password" // 密码
 )
 
 type BackendUserSimpleUpdateParams struct {
-	ID      uuid.UUID `json:"id"`
-	Enabled bool      `json:"enabled"`
+	ID       uuid.UUID `json:"id"`
+	Enabled  bool      `json:"enabled"`
+	Password string    `json:"password"`
 }

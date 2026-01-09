@@ -17,6 +17,7 @@ type MerchantBusinessType struct {
 func (MerchantBusinessType) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("merchant_id", uuid.UUID{}).
+			Optional().
 			Immutable().
 			Comment("商户 ID"),
 		field.String("type_code").

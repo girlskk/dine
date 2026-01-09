@@ -264,11 +264,17 @@ func (h *RouterMenuHandler) List() gin.HandlerFunc {
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.RouterMenuListFilter{
 			UserType: domain.UserTypeAdmin,
-			ParentID: req.ParentID,
 			Name:     req.Name,
 			Enabled:  req.Enabled,
 		}
-
+		if req.ParentID != "" {
+			parentID, err := uuid.Parse(req.ParentID)
+			if err != nil {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			filter.ParentID = parentID
+		}
 		menus, total, err := h.Interactor.GetRouterMenus(ctx, pager, filter, domain.NewRouterMenuListOrderBySort(false))
 		if err != nil {
 			err = fmt.Errorf("failed to get router menus: %w", err)

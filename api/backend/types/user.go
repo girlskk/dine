@@ -56,3 +56,7 @@ type AccountListResp struct {
 	Users []*domain.BackendUser `json:"users"`
 	Total int                   `json:"total"`
 }
+
+type ResetPasswordReq struct {
+	NewPassword string `json:"new_password" binding:"required"`
+}

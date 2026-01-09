@@ -56,7 +56,7 @@ type DeviceUpdateReq struct {
 // DeviceListReq 设备列表查询
 type DeviceListReq struct {
 	upagination.RequestPagination
-	StoreID    uuid.UUID           `form:"store_id"`    // 门店 ID
+	StoreID    string              `form:"store_id"`    // 门店 ID
 	DeviceType domain.DeviceType   `form:"device_type"` // 设备类型
 	Status     domain.DeviceStatus `form:"status"`      // 设备状态
 	Name       string              `form:"name"`        // 设备名称模糊查询
