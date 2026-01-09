@@ -111,7 +111,7 @@ func (interactor *BackendUserInteractor) Create(ctx context.Context, user *domai
 
 	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		// check username exists
-		exists, err := ds.AdminUserRepo().Exists(ctx, domain.AdminUserExistsParams{
+		exists, err := ds.BackendUserRepo().Exists(ctx, domain.BackendUserExistsParams{
 			Username: user.Username,
 		})
 		if err != nil {
@@ -310,23 +310,53 @@ func (interactor *BackendUserInteractor) GetUsers(ctx context.Context, pager *up
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		var userRoles []*domain.UserRole
+		var roleUserIDs []uuid.UUID
+		var roleIDs []uuid.UUID
+		if filter.RoleID != uuid.Nil {
+			userRoles, err = ds.UserRoleRepo().GetByRoleIDs(ctx, domain.UserTypeBackend, filter.RoleID)
+			if err != nil {
+				return err
+			}
+			roleUserIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.UserID })
+			if len(roleUserIDs) == 0 {
+				return nil
+			}
+			filter.UserIDs = roleUserIDs
+
+			roleIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.RoleID })
+		}
 		users, total, err = ds.BackendUserRepo().GetUsers(ctx, pager, filter, orderBys...)
 		if err != nil {
 			return err
 		}
-		uIds := lo.Map(users, func(item *domain.BackendUser, _ int) uuid.UUID { return item.ID })
-		userRoles, err := ds.UserRoleRepo().GetByUserIDs(ctx, domain.UserTypeBackend, uIds...)
-		if err != nil {
-			return err
+		if len(users) == 0 {
+			return nil
 		}
-		roleIDs := lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.RoleID })
+		uIds := lo.Map(users, func(item *domain.BackendUser, _ int) uuid.UUID { return item.ID })
+		if filter.RoleID == uuid.Nil {
+			userRoles, err = ds.UserRoleRepo().GetByUserIDs(ctx, domain.UserTypeBackend, uIds...)
+			if err != nil {
+				return err
+			}
+			roleIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.RoleID })
+		}
+		if len(roleIDs) == 0 {
+			return nil
+		}
 		roles, err := ds.RoleRepo().ListByIDs(ctx, roleIDs...)
 		if err != nil {
 			return err
 		}
+		if len(roles) == 0 {
+			return nil
+		}
 		roleMap := lo.SliceToMap(roles, func(item *domain.Role) (uuid.UUID, *domain.Role) {
 			return item.ID, item
 		})
+		if len(userRoles) == 0 {
+			return nil
+		}
 		userRoleMap := lo.SliceToMap(userRoles, func(item *domain.UserRole) (uuid.UUID, *domain.UserRole) {
 			return item.UserID, item
 		})
@@ -366,6 +396,13 @@ func (interactor *BackendUserInteractor) SimpleUpdate(ctx context.Context, updat
 				return domain.ErrSuperUserCannotDisable
 			}
 			user.Enabled = params.Enabled
+		case domain.BackendUserSimpleUpdateFieldPassword:
+			if params.Password == "" {
+				return domain.ErrPasswordCannotBeEmpty
+			}
+			if err := user.SetPassword(params.Password); err != nil {
+				return fmt.Errorf("failed to set password: %w", err)
+			}
 		default:
 			return domain.ParamsError(fmt.Errorf("unsupported update field: %v", updateField))
 		}

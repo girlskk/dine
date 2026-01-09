@@ -1,8 +1,6 @@
 package types
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
@@ -61,15 +59,15 @@ type UpdateStoreReq struct {
 
 type StoreListReq struct {
 	upagination.RequestPagination
-	MerchantID       uuid.UUID            `form:"merchant_id"`                            // 商户 ID
+	MerchantID       string               `form:"merchant_id" binding:"omitempty"`        // 商户 ID
 	AdminPhoneNumber string               `form:"admin_phone_number" binding:"omitempty"` // 管理员手机号
 	StoreName        string               `form:"store_name" binding:"omitempty"`         // 门店名称
 	Status           domain.StoreStatus   `form:"status" binding:"omitempty"`             // 营业/停业
 	BusinessModel    domain.BusinessModel `form:"business_model" binding:"omitempty"`     // 直营/加盟
 	BusinessTypeCode string               `form:"business_type_code" binding:"omitempty"` // 业态类型
-	ProvinceID       uuid.UUID            `form:"province_id" binding:"omitempty"`        // 省份 ID
-	CreatedAtGte     time.Time            `form:"created_at_gte" binding:"omitempty"`
-	CreatedAtLte     time.Time            `form:"created_at_lte" binding:"omitempty"`
+	ProvinceID       string               `form:"province_id" binding:"omitempty"`        // 省份 ID
+	CreatedAtGte     string               `form:"created_at_gte" binding:"omitempty"`     // 创建时间 yyyy-mm-dd 2026-01-01
+	CreatedAtLte     string               `form:"created_at_lte" binding:"omitempty"`     // 创建时间 yyyy-mm-dd 2026-01-01
 }
 
 type StoreListResp struct {

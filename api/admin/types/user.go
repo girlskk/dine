@@ -48,17 +48,21 @@ type AdminUserUpdateReq struct {
 // AdminUserListReq 管理员用户列表查询请求
 type AdminUserListReq struct {
 	upagination.RequestPagination
-	Code        string        `form:"code"`
-	RealName    string        `form:"real_name"`
-	Gender      domain.Gender `form:"gender"`
-	Email       string        `form:"email"`
-	PhoneNumber string        `form:"phone_number"`
-	Enabled     *bool         `form:"enabled"`
-	RoleID      uuid.UUID     `form:"role_id"`
+	Code        string        `form:"code"`         // 编号
+	RealName    string        `form:"real_name"`    // 真实姓名
+	Gender      domain.Gender `form:"gender"`       // 性别
+	Email       string        `form:"email"`        // 电子邮箱
+	PhoneNumber string        `form:"phone_number"` // 手机号
+	Enabled     *bool         `form:"enabled"`      // 是否启用
+	RoleID      string        `form:"role_id"`      // 角色ID
 }
 
 // AdminUserListResp 管理员用户列表响应
 type AdminUserListResp struct {
 	Users []*domain.AdminUser `json:"users"`
 	Total int                 `json:"total"`
+}
+
+type ResetPasswordReq struct {
+	NewPassword string `json:"new_password" binding:"required"`
 }

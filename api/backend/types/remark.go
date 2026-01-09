@@ -27,10 +27,10 @@ type RemarkUpdateReq struct {
 // RemarkListReq 备注列表查询
 type RemarkListReq struct {
 	upagination.RequestPagination
-	Name       string    `form:"name"`        // 备注名称
-	CategoryID uuid.UUID `form:"category_id"` // 备注类型
-	StoreID    uuid.UUID `form:"store_id"`    // 门店 ID
-	Enabled    *bool     `form:"enabled"`     // 启用状态
+	Name       string `form:"name"`        // 备注名称
+	CategoryID string `form:"category_id"` // 备注类型
+	StoreID    string `form:"store_id"`    // 门店 ID
+	Enabled    *bool  `form:"enabled"`     // 启用状态
 }
 
 type RemarkListResp struct {

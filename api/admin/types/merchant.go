@@ -1,8 +1,6 @@
 package types
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
@@ -119,9 +117,9 @@ type MerchantListReq struct {
 	AdminPhoneNumber string                `form:"admin_phone_number" binding:"omitempty"`                   // 管理员手机号
 	MerchantType     domain.MerchantType   `form:"merchant_type" binding:"omitempty,oneof=brand store"`      // 商户类型: 品牌商户,门店商户
 	Status           domain.MerchantStatus `form:"status" binding:"omitempty,oneof=active expired disabled"` // 状态: 正常,停用,过期
-	ProvinceID       uuid.UUID             `form:"province_id" binding:"omitempty"`                          // 省份 ID
-	CreatedAtGte     time.Time             `form:"created_at_gte" binding:"omitempty"`
-	CreatedAtLte     time.Time             `form:"created_at_lte" binding:"omitempty"`
+	ProvinceID       string                `form:"province_id" binding:"omitempty"`                          // 省份 ID (as string, parsed in handler)
+	CreatedAtGte     string                `form:"created_at_gte" binding:"omitempty"`                       // 创建时间 yyyy-mm-dd 2026-01-01
+	CreatedAtLte     string                `form:"created_at_lte" binding:"omitempty"`                       // 创建时间 yyyy-mm-dd 2026-01-01
 }
 
 type MerchantListResp struct {

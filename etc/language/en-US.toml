@@ -112,9 +112,6 @@ other = "Device name already exists"
 [TAX_FEE_NAME_EXISTS]
 other = "Tax fee name already exists"
 
-[BACKEND_USER_EXISTS]
-other = "Backend user already exists"
-
 [SUPER_USER_CANNOT_DELETE]
 other = "Super administrator user cannot be deleted"
 
@@ -144,3 +141,9 @@ other = "User role type mismatch"
 
 [USER_DEPARTMENT_TYPE_MISMATCH]
 other = "User department type mismatch"
+
+[PASSWORD_CANNOT_BE_EMPTY]
+other = "Password cannot be empty"
+
+[TIME_FORMAT_INVALID]
+other = "Time format is invalid"

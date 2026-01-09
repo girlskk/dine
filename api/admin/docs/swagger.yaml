@@ -1228,6 +1228,13 @@ definitions:
           $ref: '#/definitions/domain.Province'
         type: array
     type: object
+  types.ResetPasswordReq:
+    properties:
+      new_password:
+        type: string
+    required:
+    - new_password
+    type: object
   types.RoleCreateReq:
     properties:
       enable:
@@ -1928,7 +1935,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: 父级菜单ID
+      - description: 父级菜单ID (as string, parsed in handler)
         in: query
         name: parent_id
         type: string
@@ -2257,10 +2264,12 @@ paths:
         in: query
         name: admin_phone_number
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_gte
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_lte
         type: string
       - description: 商户名称
@@ -2287,7 +2296,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: 省份 ID
+      - description: 省份 ID (as string, parsed in handler)
         in: query
         name: province_id
         type: string
@@ -2567,13 +2576,15 @@ paths:
         in: query
         name: business_type_code
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_gte
         type: string
-      - in: query
+      - description: 创建时间 yyyy-mm-dd 2026-01-01
+        in: query
         name: created_at_lte
         type: string
-      - description: 商户 ID
+      - description: 商户 ID (as string, parsed in handler)
         in: query
         name: merchant_id
         type: string
@@ -2581,7 +2592,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: 省份 ID
+      - description: 省份 ID (as string, parsed in handler)
         in: query
         name: province_id
         type: string
@@ -2694,16 +2705,20 @@ paths:
       - application/json
       description: 查询管理员用户列表
       parameters:
-      - in: query
+      - description: 编号
+        in: query
         name: code
         type: string
-      - in: query
+      - description: 电子邮箱
+        in: query
         name: email
         type: string
-      - in: query
+      - description: 是否启用
+        in: query
         name: enabled
         type: boolean
-      - enum:
+      - description: 性别
+        enum:
         - male
         - female
         - other
@@ -2730,13 +2745,16 @@ paths:
         in: query
         name: page
         type: integer
-      - in: query
+      - description: 手机号
+        in: query
         name: phone_number
         type: string
-      - in: query
+      - description: 真实姓名
+        in: query
         name: real_name
         type: string
-      - in: query
+      - description: 角色ID
+        in: query
         name: role_id
         type: string
       - description: 每页数量
@@ -2885,6 +2903,33 @@ paths:
       security:
       - BearerAuth: []
       summary: 启用管理员用户
+      tags:
+      - 用户管理
+  /user/{id}/reset_password:
+    put:
+      consumes:
+      - application/json
+      description: 重置用户密码
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 重置密码请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.ResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 重置用户密码
       tags:
       - 用户管理
   /user/info:
