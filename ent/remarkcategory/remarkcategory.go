@@ -34,19 +34,10 @@ const (
 	FieldDescription = "description"
 	// FieldSortOrder holds the string denoting the sort_order field in the database.
 	FieldSortOrder = "sort_order"
-	// EdgeRemarks holds the string denoting the remarks edge name in mutations.
-	EdgeRemarks = "remarks"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
 	// Table holds the table name of the remarkcategory in the database.
 	Table = "remark_categories"
-	// RemarksTable is the table that holds the remarks relation/edge.
-	RemarksTable = "remarks"
-	// RemarksInverseTable is the table name for the Remark entity.
-	// It exists in this package in order to avoid circular dependency with the "remark" package.
-	RemarksInverseTable = "remarks"
-	// RemarksColumn is the table column denoting the remarks relation/edge.
-	RemarksColumn = "category_id"
 	// MerchantTable is the table that holds the merchant relation/edge.
 	MerchantTable = "remark_categories"
 	// MerchantInverseTable is the table name for the Merchant entity.
@@ -165,32 +156,11 @@ func BySortOrder(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSortOrder, opts...).ToFunc()
 }
 
-// ByRemarksCount orders the results by remarks count.
-func ByRemarksCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newRemarksStep(), opts...)
-	}
-}
-
-// ByRemarks orders the results by remarks terms.
-func ByRemarks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRemarksStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByMerchantField orders the results by merchant field.
 func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
 	}
-}
-func newRemarksStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RemarksInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
-	)
 }
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

@@ -52,7 +52,7 @@ func (repo *RoleMenuRepository) Create(ctx context.Context, rm *domain.RoleMenu)
 		SetID(rm.ID).
 		SetRoleType(rm.RoleType).
 		SetRoleID(rm.RoleID).
-		SetMenuID(rm.MenuID)
+		SetPath(rm.Path)
 
 	if rm.MerchantID != uuid.Nil {
 		builder = builder.SetMerchantID(rm.MerchantID)
@@ -90,7 +90,7 @@ func (repo *RoleMenuRepository) CreateBulk(ctx context.Context, relations []*dom
 			SetID(rm.ID).
 			SetRoleType(rm.RoleType).
 			SetRoleID(rm.RoleID).
-			SetMenuID(rm.MenuID)
+			SetPath(rm.Path)
 		if rm.MerchantID != uuid.Nil {
 			builder = builder.SetMerchantID(rm.MerchantID)
 		}
@@ -111,20 +111,20 @@ func (repo *RoleMenuRepository) CreateBulk(ctx context.Context, relations []*dom
 	return
 }
 
-func (repo *RoleMenuRepository) CreateBulkByRoleIDMenus(ctx context.Context, role *domain.Role, menuIDs []uuid.UUID) (err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "RoleMenuRepository.CreateBulkByRoleIDMenus")
+func (repo *RoleMenuRepository) CreateBulkByRoleIDPaths(ctx context.Context, role *domain.Role, paths []string) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "RoleMenuRepository.CreateBulkByRoleIDPaths")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if role == nil || len(menuIDs) == 0 {
+	if role == nil || len(paths) == 0 {
 		return nil
 	}
 
-	builders := make([]*ent.RoleMenuCreate, 0, len(menuIDs))
-	for _, menuID := range menuIDs {
+	builders := make([]*ent.RoleMenuCreate, 0, len(paths))
+	for _, path := range paths {
 		builder := repo.Client.RoleMenu.Create().
 			SetRoleType(role.RoleType).
 			SetRoleID(role.ID).
-			SetMenuID(menuID)
+			SetPath(path)
 
 		if role.MerchantID != uuid.Nil {
 			builder = builder.SetMerchantID(role.MerchantID)
@@ -137,7 +137,7 @@ func (repo *RoleMenuRepository) CreateBulkByRoleIDMenus(ctx context.Context, rol
 
 	_, err = repo.Client.RoleMenu.CreateBulk(builders...).Save(ctx)
 	if err != nil {
-		err = fmt.Errorf("failed to bulk create role menus by role/menus: %w", err)
+		err = fmt.Errorf("failed to bulk create role menus by role/paths: %w", err)
 	}
 	return
 }
@@ -190,6 +190,20 @@ func (repo *RoleMenuRepository) GetRoleMenus(ctx context.Context, pager *upagina
 	return
 }
 
+func (repo *RoleMenuRepository) GetByRoleID(ctx context.Context, roleID uuid.UUID) (list []*domain.RoleMenu, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "RoleMenuRepository.GetByRoleID")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	items, err := repo.Client.RoleMenu.Query().Where(rolemenu.RoleID(roleID)).All(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to query role menus by role id: %w", err)
+		return
+	}
+
+	list = lo.Map(items, func(erm *ent.RoleMenu, _ int) *domain.RoleMenu { return convertRoleMenuToDomain(erm) })
+	return
+}
+
 func (repo *RoleMenuRepository) buildFilterQuery(filter *domain.RoleMenuListFilter) *ent.RoleMenuQuery {
 	query := repo.Client.RoleMenu.Query()
 	if filter == nil {
@@ -201,8 +215,8 @@ func (repo *RoleMenuRepository) buildFilterQuery(filter *domain.RoleMenuListFilt
 	if filter.RoleID != uuid.Nil {
 		query = query.Where(rolemenu.RoleID(filter.RoleID))
 	}
-	if filter.MenuID != uuid.Nil {
-		query = query.Where(rolemenu.MenuID(filter.MenuID))
+	if filter.Path != "" {
+		query = query.Where(rolemenu.PathEQ(filter.Path))
 	}
 	if filter.MerchantID != uuid.Nil {
 		query = query.Where(rolemenu.MerchantID(filter.MerchantID))
@@ -238,7 +252,7 @@ func convertRoleMenuToDomain(erm *ent.RoleMenu) *domain.RoleMenu {
 		ID:         erm.ID,
 		RoleType:   erm.RoleType,
 		RoleID:     erm.RoleID,
-		MenuID:     erm.MenuID,
+		Path:       erm.Path,
 		MerchantID: erm.MerchantID,
 		StoreID:    erm.StoreID,
 		CreatedAt:  erm.CreatedAt,

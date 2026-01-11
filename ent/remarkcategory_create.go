@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 )
 
@@ -135,21 +134,6 @@ func (rcc *RemarkCategoryCreate) SetNillableID(u *uuid.UUID) *RemarkCategoryCrea
 		rcc.SetID(*u)
 	}
 	return rcc
-}
-
-// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
-func (rcc *RemarkCategoryCreate) AddRemarkIDs(ids ...uuid.UUID) *RemarkCategoryCreate {
-	rcc.mutation.AddRemarkIDs(ids...)
-	return rcc
-}
-
-// AddRemarks adds the "remarks" edges to the Remark entity.
-func (rcc *RemarkCategoryCreate) AddRemarks(r ...*Remark) *RemarkCategoryCreate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return rcc.AddRemarkIDs(ids...)
 }
 
 // SetMerchant sets the "merchant" edge to the Merchant entity.
@@ -331,22 +315,6 @@ func (rcc *RemarkCategoryCreate) createSpec() (*RemarkCategory, *sqlgraph.Create
 	if value, ok := rcc.mutation.SortOrder(); ok {
 		_spec.SetField(remarkcategory.FieldSortOrder, field.TypeInt, value)
 		_node.SortOrder = value
-	}
-	if nodes := rcc.mutation.RemarksIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   remarkcategory.RemarksTable,
-			Columns: []string{remarkcategory.RemarksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := rcc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

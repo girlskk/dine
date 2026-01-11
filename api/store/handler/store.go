@@ -207,6 +207,8 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 
 func (h *StoreHandler) checkEditErr(err error) error {
 	switch {
+	case errors.Is(err, domain.ErrStoreNameExists):
+		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursConflict):
 		return errorx.New(http.StatusBadRequest, errcode.StoreBusinessHoursConflict, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursTimeInvalid):

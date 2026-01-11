@@ -24,7 +24,7 @@ type RemarkCategoryUpdateReq struct {
 type RemarkCategoryListReq struct {
 }
 
-// RemarkCategoryListResp 备注分类列表响应
-type RemarkCategoryListResp struct {
-	RemarkCategories domain.RemarkCategories `json:"remark_categories"`
+// RemarkGroupListResp 备注类型列表
+type RemarkGroupListResp struct {
+	RemarkGroups []domain.RemarkGroup `json:"remark_groups"`
 }

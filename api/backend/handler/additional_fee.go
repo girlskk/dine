@@ -145,6 +145,10 @@ func (h *AdditionalFeeHandler) Update() gin.HandlerFunc {
 				c.Error(errorx.New(http.StatusConflict, errcode.AdditionalNameExists, err))
 				return
 			}
+			if errors.Is(err, domain.ErrAdditionalFeeNotExists) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
@@ -167,7 +171,6 @@ func (h *AdditionalFeeHandler) Update() gin.HandlerFunc {
 //	@Produce	json
 //	@Param		id	path	string	true	"附加费ID"
 //	@Success	200	"No Content"
-//	@Success	204	"No Content"
 //	@Router		/additional_fee/{id} [delete]
 func (h *AdditionalFeeHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {

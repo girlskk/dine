@@ -6180,22 +6180,6 @@ func (c *RemarkClient) GetX(ctx context.Context, id uuid.UUID) *Remark {
 	return obj
 }
 
-// QueryRemarkCategory queries the remark_category edge of a Remark.
-func (c *RemarkClient) QueryRemarkCategory(r *Remark) *RemarkCategoryQuery {
-	query := (&RemarkCategoryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := r.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(remark.Table, remark.FieldID, id),
-			sqlgraph.To(remarkcategory.Table, remarkcategory.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, remark.RemarkCategoryTable, remark.RemarkCategoryColumn),
-		)
-		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryMerchant queries the merchant edge of a Remark.
 func (c *RemarkClient) QueryMerchant(r *Remark) *MerchantQuery {
 	query := (&MerchantClient{config: c.config}).Query()
@@ -6361,22 +6345,6 @@ func (c *RemarkCategoryClient) GetX(ctx context.Context, id uuid.UUID) *RemarkCa
 		panic(err)
 	}
 	return obj
-}
-
-// QueryRemarks queries the remarks edge of a RemarkCategory.
-func (c *RemarkCategoryClient) QueryRemarks(rc *RemarkCategory) *RemarkQuery {
-	query := (&RemarkClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := rc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(remarkcategory.Table, remarkcategory.FieldID, id),
-			sqlgraph.To(remark.Table, remark.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, remarkcategory.RemarksTable, remarkcategory.RemarksColumn),
-		)
-		fromV = sqlgraph.Neighbors(rc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // QueryMerchant queries the merchant edge of a RemarkCategory.
@@ -6555,6 +6523,22 @@ func (c *RoleClient) QueryStore(r *Role) *StoreQuery {
 			sqlgraph.From(role.Table, role.FieldID, id),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, role.StoreTable, role.StoreColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUserRoles queries the user_roles edge of a Role.
+func (c *RoleClient) QueryUserRoles(r *Role) *UserRoleQuery {
+	query := (&UserRoleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(role.Table, role.FieldID, id),
+			sqlgraph.To(userrole.Table, userrole.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, role.UserRolesTable, role.UserRolesColumn),
 		)
 		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
 		return fromV, nil
@@ -8621,6 +8605,22 @@ func (c *UserRoleClient) GetX(ctx context.Context, id uuid.UUID) *UserRole {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryRole queries the role edge of a UserRole.
+func (c *UserRoleClient) QueryRole(ur *UserRole) *RoleQuery {
+	query := (&RoleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ur.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userrole.Table, userrole.FieldID, id),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userrole.RoleTable, userrole.RoleColumn),
+		)
+		fromV = sqlgraph.Neighbors(ur.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

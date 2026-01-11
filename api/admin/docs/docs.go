@@ -548,6 +548,84 @@ const docTemplate = `{
                 }
             }
         },
+        "/common/role/{id}/menus": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页或非分页获取指定角色的菜单路径列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "角色菜单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.RoleMenusResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "为指定角色设置菜单路径（交集保留，新增/删除按 paths 调整）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "设置角色菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "设置菜单请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.SetMenusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/common/router_menu": {
             "get": {
                 "security": [
@@ -563,38 +641,6 @@ const docTemplate = `{
                     "菜单管理"
                 ],
                 "summary": "菜单列表",
-                "parameters": [
-                    {
-                        "type": "boolean",
-                        "description": "是否启用",
-                        "name": "enabled",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "菜单名称",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "父级菜单ID (as string, parsed in handler)",
-                        "name": "parent_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "size",
-                        "in": "query"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1008,10 +1054,6 @@ const docTemplate = `{
                             "MerchantTypeBrand": "品牌商户",
                             "MerchantTypeStore": "门店商户"
                         },
-                        "x-enum-descriptions": [
-                            "品牌商户",
-                            "门店商户"
-                        ],
                         "x-enum-varnames": [
                             "MerchantTypeBrand",
                             "MerchantTypeStore"
@@ -1050,11 +1092,6 @@ const docTemplate = `{
                             "MerchantStatusDisabled": "已禁用",
                             "MerchantStatusExpired": "已过期"
                         },
-                        "x-enum-descriptions": [
-                            "已激活",
-                            "已过期",
-                            "已禁用"
-                        ],
                         "x-enum-varnames": [
                             "MerchantStatusActive",
                             "MerchantStatusExpired",
@@ -1279,9 +1316,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "204": {
-                        "description": "No Content"
                     }
                 }
             }
@@ -1416,10 +1450,6 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
-                        "x-enum-descriptions": [
-                            "直营",
-                            "加盟"
-                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -1480,10 +1510,6 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
-                        "x-enum-descriptions": [
-                            "营业",
-                            "停业"
-                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -1779,7 +1805,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/region/provinces": {
+        "/region/{id}/provinces": {
             "get": {
                 "security": [
                     {
@@ -1789,13 +1815,14 @@ const docTemplate = `{
                 "tags": [
                     "地区"
                 ],
-                "summary": "获取省份列表",
+                "summary": "获取指定国家/地区的省/州列表",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "国家/地区ID",
-                        "name": "country_id",
-                        "in": "query"
+                        "description": "国家/地区 ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1871,12 +1898,6 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
-                        "x-enum-descriptions": [
-                            "男性",
-                            "女性",
-                            "其他",
-                            "未知"
-                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -2430,7 +2451,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -2445,14 +2466,23 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
-            "x-enum-descriptions": [
-                "直营",
-                "加盟"
-            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
             ]
+        },
+        "domain.BusinessType": {
+            "type": "object",
+            "properties": {
+                "type_code": {
+                    "description": "业态类型编码",
+                    "type": "string"
+                },
+                "type_name": {
+                    "description": "业态类型名称",
+                    "type": "string"
+                }
+            }
         },
         "domain.Country": {
             "type": "object",
@@ -2544,12 +2574,6 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
-            "x-enum-descriptions": [
-                "男性",
-                "女性",
-                "其他",
-                "未知"
-            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -2569,11 +2593,6 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
-            "x-enum-descriptions": [
-                "pos",
-                "移动点餐",
-                "门店管理后台"
-            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -2686,22 +2705,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.MerchantBusinessType": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "type_code": {
-                    "description": "业态类型编码（保留字段）",
-                    "type": "string"
-                },
-                "type_name": {
-                    "description": "业态类型名称",
-                    "type": "string"
-                }
-            }
-        },
         "domain.MerchantStatus": {
             "type": "string",
             "enum": [
@@ -2714,11 +2717,6 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
-            "x-enum-descriptions": [
-                "已激活",
-                "已过期",
-                "已禁用"
-            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -2735,10 +2733,6 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
-            "x-enum-descriptions": [
-                "品牌商户",
-                "门店商户"
-            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -2756,11 +2750,6 @@ const docTemplate = `{
                 "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店",
-                "商品"
-            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
                 "ObjectStorageSceneStore",
@@ -2798,12 +2787,6 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
-            "x-enum-descriptions": [
-                "日",
-                "月",
-                "年",
-                "周"
-            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -2851,6 +2834,13 @@ const docTemplate = `{
                     "description": "角色名称",
                     "type": "string"
                 },
+                "paths": {
+                    "description": "前端路由菜单列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "role_type": {
                     "description": "角色类型",
                     "allOf": [
@@ -2886,14 +2876,6 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
-            "x-enum-descriptions": [
-                "全部数据权限",
-                "品牌商数据权限",
-                "门店数据权限",
-                "部门数据权限",
-                "仅本人数据权限",
-                "自定义数据权限"
-            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -2918,11 +2900,6 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
-            "x-enum-descriptions": [
-                "admin表用户",
-                "backend用户",
-                "store用户"
-            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -3149,10 +3126,6 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
-            "x-enum-descriptions": [
-                "营业",
-                "停业"
-            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -3173,11 +3146,6 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
-            "x-enum-descriptions": [
-                "admin表用户",
-                "backend用户",
-                "store用户"
-            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -3192,6 +3160,27 @@ const docTemplate = `{
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.Address": {
             "type": "object",
@@ -3519,7 +3508,6 @@ const docTemplate = `{
                 "login_account",
                 "login_password",
                 "merchant_name",
-                "merchant_type",
                 "purchase_duration",
                 "purchase_duration_unit"
             ],
@@ -3578,14 +3566,6 @@ const docTemplate = `{
                     "description": "商户简称",
                     "type": "string",
                     "maxLength": 50
-                },
-                "merchant_type": {
-                    "description": "商户类型: 品牌商户,门店商户",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.MerchantType"
-                        }
-                    ]
                 },
                 "purchase_duration": {
                     "description": "购买时长",
@@ -3847,7 +3827,7 @@ const docTemplate = `{
                     "description": "业务类型列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.MerchantBusinessType"
+                        "$ref": "#/definitions/domain.BusinessType"
                     }
                 }
             }
@@ -4048,6 +4028,17 @@ const docTemplate = `{
                 }
             }
         },
+        "types.RoleMenusResp": {
+            "type": "object",
+            "properties": {
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "types.RoleUpdateReq": {
             "type": "object",
             "required": [
@@ -4154,6 +4145,20 @@ const docTemplate = `{
                 "sort": {
                     "description": "排序",
                     "type": "integer"
+                }
+            }
+        },
+        "types.SetMenusReq": {
+            "type": "object",
+            "required": [
+                "paths"
+            ],
+            "properties": {
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

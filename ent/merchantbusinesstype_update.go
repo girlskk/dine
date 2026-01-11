@@ -173,6 +173,9 @@ func (mbtu *MerchantBusinessTypeUpdate) sqlSave(ctx context.Context) (n int, err
 	if value, ok := mbtu.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
 	}
+	if mbtu.mutation.MerchantIDCleared() {
+		_spec.ClearField(merchantbusinesstype.FieldMerchantID, field.TypeUUID)
+	}
 	if value, ok := mbtu.mutation.TypeCode(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeCode, field.TypeString, value)
 	}
@@ -374,6 +377,9 @@ func (mbtuo *MerchantBusinessTypeUpdateOne) sqlSave(ctx context.Context) (_node 
 	}
 	if value, ok := mbtuo.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(merchantbusinesstype.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if mbtuo.mutation.MerchantIDCleared() {
+		_spec.ClearField(merchantbusinesstype.FieldMerchantID, field.TypeUUID)
 	}
 	if value, ok := mbtuo.mutation.TypeCode(); ok {
 		_spec.SetField(merchantbusinesstype.FieldTypeCode, field.TypeString, value)

@@ -3,7 +3,6 @@ package types
 import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // RouterMenuCreateReq 创建菜单请求
@@ -30,10 +29,6 @@ type RouterMenuUpdateReq struct {
 
 // RouterMenuListReq 菜单列表请求
 type RouterMenuListReq struct {
-	upagination.RequestPagination
-	ParentID string `form:"parent_id"` // 父级菜单ID (as string, parsed in handler)
-	Name     string `form:"name"`      // 菜单名称
-	Enabled  *bool  `form:"enabled"`   // 是否启用
 }
 
 // RouterMenuListResp 菜单列表响应

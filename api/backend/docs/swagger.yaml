@@ -10,10 +10,6 @@ definitions:
       AdditionalCategoryAdditional: 附加费
       AdditionalCategoryPacking: 打包费
       AdditionalCategoryService: 服务费
-    x-enum-descriptions:
-    - 服务费
-    - 附加费
-    - 打包费
     x-enum-varnames:
     - AdditionalCategoryService
     - AdditionalCategoryAdditional
@@ -85,9 +81,6 @@ definitions:
     x-enum-comments:
       AdditionalFeeChargeModeFixed: 固定金额
       AdditionalFeeChargeModePercent: 百分比
-    x-enum-descriptions:
-    - 百分比
-    - 固定金额
     x-enum-varnames:
     - AdditionalFeeChargeModePercent
     - AdditionalFeeChargeModeFixed
@@ -99,9 +92,6 @@ definitions:
     x-enum-comments:
       AdditionalFeeDiscountScopeAfter: 折后
       AdditionalFeeDiscountScopeBefore: 折前
-    x-enum-descriptions:
-    - 折前
-    - 折后
     x-enum-varnames:
     - AdditionalFeeDiscountScopeBefore
     - AdditionalFeeDiscountScopeAfter
@@ -113,9 +103,6 @@ definitions:
     x-enum-comments:
       AdditionalFeeTypeMerchant: 商户
       AdditionalFeeTypeStore: 门店
-    x-enum-descriptions:
-    - 商户
-    - 门店
     x-enum-varnames:
     - AdditionalFeeTypeMerchant
     - AdditionalFeeTypeStore
@@ -233,7 +220,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -244,12 +231,18 @@ definitions:
     x-enum-comments:
       BusinessModelDirect: 直营
       BusinessModelFranchisee: 加盟
-    x-enum-descriptions:
-    - 直营
-    - 加盟
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
+  domain.BusinessType:
+    properties:
+      type_code:
+        description: 业态类型编码
+        type: string
+      type_name:
+        description: 业态类型名称
+        type: string
+    type: object
   domain.Category:
     properties:
       children:
@@ -446,9 +439,6 @@ definitions:
     x-enum-comments:
       DeviceConnectTypeInside: 内置
       DeviceConnectTypeOutside: 外置
-    x-enum-descriptions:
-    - 内置
-    - 外置
     x-enum-varnames:
     - DeviceConnectTypeInside
     - DeviceConnectTypeOutside
@@ -460,9 +450,6 @@ definitions:
     x-enum-comments:
       DeviceLocationBackKitchen: 后厨
       DeviceLocationFrontHall: 前厅
-    x-enum-descriptions:
-    - 前厅
-    - 后厨
     x-enum-varnames:
     - DeviceLocationFrontHall
     - DeviceLocationBackKitchen
@@ -476,10 +463,6 @@ definitions:
       DeviceStallPrintTypeAll: 全部打印 总单+分单
       DeviceStallPrintTypeCombined: 总单
       DeviceStallPrintTypeSeparate: 分单
-    x-enum-descriptions:
-    - 全部打印 总单+分单
-    - 总单
-    - 分单
     x-enum-varnames:
     - DeviceStallPrintTypeAll
     - DeviceStallPrintTypeCombined
@@ -492,9 +475,6 @@ definitions:
     x-enum-comments:
       DeviceStallReceiptTypeAll: 全部打印
       DeviceStallReceiptTypeExclude: 剔除部门商户
-    x-enum-descriptions:
-    - 全部打印
-    - 剔除部门商户
     x-enum-varnames:
     - DeviceStallReceiptTypeAll
     - DeviceStallReceiptTypeExclude
@@ -506,9 +486,6 @@ definitions:
     x-enum-comments:
       DeviceStatusOffline: 离线
       DeviceStatusOnline: 在线
-    x-enum-descriptions:
-    - 在线
-    - 离线
     x-enum-varnames:
     - DeviceStatusOnline
     - DeviceStatusOffline
@@ -520,9 +497,6 @@ definitions:
     x-enum-comments:
       DeviceTypeCashier: 收银机
       DeviceTypePrinter: 打印机
-    x-enum-descriptions:
-    - 收银机
-    - 打印机
     x-enum-varnames:
     - DeviceTypeCashier
     - DeviceTypePrinter
@@ -548,10 +522,6 @@ definitions:
       DiningWayDelivery: 外送
       DiningWayDineIn: 堂食
       DiningWayTakeOut: 外带
-    x-enum-descriptions:
-    - 堂食
-    - 外带
-    - 外送
     x-enum-varnames:
     - DiningWayDineIn
     - DiningWayTakeOut
@@ -564,9 +534,6 @@ definitions:
     x-enum-comments:
       EffectiveDateTypeCustom: 自定义
       EffectiveDateTypeDaily: 按天
-    x-enum-descriptions:
-    - 按天
-    - 自定义
     x-enum-varnames:
     - EffectiveDateTypeDaily
     - EffectiveDateTypeCustom
@@ -582,11 +549,6 @@ definitions:
       GenderMale: 男性
       GenderOther: 其他
       GenderUnknown: 未知
-    x-enum-descriptions:
-    - 男性
-    - 女性
-    - 其他
-    - 未知
     x-enum-varnames:
     - GenderMale
     - GenderFemale
@@ -602,10 +564,6 @@ definitions:
       LoginChannelMobile: 移动点餐
       LoginChannelPos: pos
       LoginChannelStore: 门店管理后台
-    x-enum-descriptions:
-    - pos
-    - 移动点餐
-    - 门店管理后台
     x-enum-varnames:
     - LoginChannelPos
     - LoginChannelMobile
@@ -779,10 +737,6 @@ definitions:
       MerchantStatusActive: 已激活
       MerchantStatusDisabled: 已禁用
       MerchantStatusExpired: 已过期
-    x-enum-descriptions:
-    - 已激活
-    - 已过期
-    - 已禁用
     x-enum-varnames:
     - MerchantStatusActive
     - MerchantStatusExpired
@@ -795,9 +749,6 @@ definitions:
     x-enum-comments:
       MerchantTypeBrand: 品牌商户
       MerchantTypeStore: 门店商户
-    x-enum-descriptions:
-    - 品牌商户
-    - 门店商户
     x-enum-varnames:
     - MerchantTypeBrand
     - MerchantTypeStore
@@ -811,10 +762,6 @@ definitions:
       ObjectStorageSceneMerchant: 商户
       ObjectStorageSceneProduct: 商品
       ObjectStorageSceneStore: 门店
-    x-enum-descriptions:
-    - 商户
-    - 门店
-    - 商品
     x-enum-varnames:
     - ObjectStorageSceneMerchant
     - ObjectStorageSceneStore
@@ -835,13 +782,6 @@ definitions:
       OrderChannelScanOrder: 扫码点餐
       OrderChannelSelfOrder: 自助点餐
       OrderChannelThirdDelivery: 三方外卖
-    x-enum-descriptions:
-    - POS 端
-    - 自助点餐
-    - 小程序
-    - 手机点餐
-    - 扫码点餐
-    - 三方外卖
     x-enum-varnames:
     - OrderChannelPOS
     - OrderChannelSelfOrder
@@ -907,8 +847,6 @@ definitions:
     type: string
     x-enum-comments:
       PaymentChannelRM: Revenue Monster
-    x-enum-descriptions:
-    - Revenue Monster
     x-enum-varnames:
     - PaymentChannelRM
   domain.PaymentMethod:
@@ -962,9 +900,6 @@ definitions:
     x-enum-comments:
       PaymentMethodAccountingRuleDiscount: 计入优惠
       PaymentMethodAccountingRuleIncome: 计入实收
-    x-enum-descriptions:
-    - 计入实收
-    - 计入优惠
     x-enum-varnames:
     - PaymentMethodAccountingRuleIncome
     - PaymentMethodAccountingRuleDiscount
@@ -976,9 +911,6 @@ definitions:
     x-enum-comments:
       PaymentMethodInvoiceRuleActualAmount: 按实收金额
       PaymentMethodInvoiceRuleNotInvoice: 不开发票
-    x-enum-descriptions:
-    - 不开发票
-    - 按实收金额
     x-enum-varnames:
     - PaymentMethodInvoiceRuleNotInvoice
     - PaymentMethodInvoiceRuleActualAmount
@@ -996,12 +928,6 @@ definitions:
       PaymentMethodPayTypeOfflineCard: 线下刷卡
       PaymentMethodPayTypeOther: 其他
       PaymentMethodPayTypePartnerCoupon: 三方合作券
-    x-enum-descriptions:
-    - 其他
-    - 现金
-    - 线下刷卡
-    - 自定义券
-    - 三方合作券
     x-enum-varnames:
     - PaymentMethodPayTypeOther
     - PaymentMethodPayTypeCash
@@ -1260,9 +1186,6 @@ definitions:
     x-enum-comments:
       ProductSaleStatusOffSale: 停售
       ProductSaleStatusOnSale: 在售
-    x-enum-descriptions:
-    - 在售
-    - 停售
     x-enum-varnames:
     - ProductSaleStatusOnSale
     - ProductSaleStatusOffSale
@@ -1384,10 +1307,6 @@ definitions:
       ProductSupportTypeDelivery: 外卖
       ProductSupportTypeDine: 堂食
       ProductSupportTypeTakeaway: 外带
-    x-enum-descriptions:
-    - 堂食
-    - 外带
-    - 外卖
     x-enum-varnames:
     - ProductSupportTypeDine
     - ProductSupportTypeTakeaway
@@ -1440,9 +1359,6 @@ definitions:
     x-enum-comments:
       ProductTypeNormal: 普通商品
       ProductTypeSetMeal: 套餐商品
-    x-enum-descriptions:
-    - 普通商品
-    - 套餐商品
     x-enum-varnames:
     - ProductTypeNormal
     - ProductTypeSetMeal
@@ -1498,9 +1414,6 @@ definitions:
     x-enum-comments:
       ProductUnitTypeQuantity: 数量单位
       ProductUnitTypeWeight: 重量单位
-    x-enum-descriptions:
-    - 数量单位
-    - 重量单位
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
@@ -1580,9 +1493,6 @@ definitions:
     x-enum-comments:
       ProfitDistributionBillStatusPaid: 已打款
       ProfitDistributionBillStatusUnpaid: 未打款
-    x-enum-descriptions:
-    - 未打款
-    - 已打款
     x-enum-varnames:
     - ProfitDistributionBillStatusUnpaid
     - ProfitDistributionBillStatusPaid
@@ -1640,9 +1550,6 @@ definitions:
     x-enum-comments:
       ProfitDistributionRuleBillingCycleDaily: 按日
       ProfitDistributionRuleBillingCycleMonthly: 按月
-    x-enum-descriptions:
-    - 按日
-    - 按月
     x-enum-varnames:
     - ProfitDistributionRuleBillingCycleDaily
     - ProfitDistributionRuleBillingCycleMonthly
@@ -1682,9 +1589,6 @@ definitions:
     x-enum-comments:
       ProfitDistributionRuleStatusDisabled: 禁用
       ProfitDistributionRuleStatusEnabled: 启用
-    x-enum-descriptions:
-    - 启用
-    - 禁用
     x-enum-varnames:
     - ProfitDistributionRuleStatusEnabled
     - ProfitDistributionRuleStatusDisabled
@@ -1711,11 +1615,6 @@ definitions:
       PurchaseDurationUnitMonth: 月
       PurchaseDurationUnitWeek: 周
       PurchaseDurationUnitYear: 年
-    x-enum-descriptions:
-    - 日
-    - 月
-    - 年
-    - 周
     x-enum-varnames:
     - PurchaseDurationUnitDay
     - PurchaseDurationUnitMonth
@@ -1723,12 +1622,6 @@ definitions:
     - PurchaseDurationUnitWeek
   domain.Remark:
     properties:
-      category_id:
-        description: 分类 ID
-        type: string
-      category_name:
-        description: 分类名称
-        type: string
       created_at:
         type: string
       enabled:
@@ -1741,6 +1634,13 @@ definitions:
         type: string
       name:
         description: 备注名称
+        type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景：整单备注/单品备注/退菜原因等
+      remark_scene_name:
+        description: 使用场景：整单备注/单品备注/退菜原因等
         type: string
       remark_type:
         allOf:
@@ -1755,18 +1655,8 @@ definitions:
       updated_at:
         type: string
     type: object
-  domain.RemarkCategory:
+  domain.RemarkGroup:
     properties:
-      created_at:
-        type: string
-      description:
-        description: 分类描述
-        type: string
-      id:
-        type: string
-      merchant_id:
-        description: 品牌商ID，可为空表示系统级分类
-        type: string
       name:
         description: 分类名称
         type: string
@@ -1777,11 +1667,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.RemarkScene'
         description: 使用场景：整单备注/单品备注/退菜原因等
-      sort_order:
-        description: 排序，值越小越靠前
-        type: integer
-      updated_at:
-        type: string
     type: object
   domain.RemarkScene:
     enum:
@@ -1796,19 +1681,11 @@ definitions:
     x-enum-comments:
       RemarkSceneCancelReason: 退菜原因
       RemarkSceneDiscount: 优惠原因
-      RemarkSceneGift: 赠菜原��
+      RemarkSceneGift: 赠菜原因
       RemarkSceneItem: 单品备注
       RemarkSceneRebill: 反结账原因
       RemarkSceneRefundReject: 拒绝退款
       RemarkSceneWholeOrder: 整单备注
-    x-enum-descriptions:
-    - 整单备注
-    - 单品备注
-    - 退菜原因
-    - 优惠原因
-    - 赠菜原��
-    - 反结账原因
-    - 拒绝退款
     x-enum-varnames:
     - RemarkSceneWholeOrder
     - RemarkSceneItem
@@ -1827,10 +1704,6 @@ definitions:
       RemarkTypeBrand: 商户备注
       RemarkTypeStore: 门店备注
       RemarkTypeSystem: 系统备注
-    x-enum-descriptions:
-    - 系统备注
-    - 商户备注
-    - 门店备注
     x-enum-varnames:
     - RemarkTypeSystem
     - RemarkTypeBrand
@@ -1862,6 +1735,11 @@ definitions:
       name:
         description: 角色名称
         type: string
+      paths:
+        description: 前端路由菜单列表
+        items:
+          type: string
+        type: array
       role_type:
         allOf:
         - $ref: '#/definitions/domain.RoleType'
@@ -1888,13 +1766,6 @@ definitions:
       RoleDataScopeMerchant: 品牌商数据权限
       RoleDataScopeSelf: 仅本人数据权限
       RoleDataScopeStore: 门店数据权限
-    x-enum-descriptions:
-    - 全部数据权限
-    - 品牌商数据权限
-    - 门店数据权限
-    - 部门数据权限
-    - 仅本人数据权限
-    - 自定义数据权限
     x-enum-varnames:
     - RoleDataScopeAll
     - RoleDataScopeMerchant
@@ -1915,10 +1786,6 @@ definitions:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
       UserTypeStore: store用户
-    x-enum-descriptions:
-    - admin表用户
-    - backend用户
-    - store用户
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeBackend
@@ -1947,17 +1814,6 @@ definitions:
       SaleChannelScanOrdering: 扫码点餐
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
-    x-enum-descriptions:
-    - POS
-    - 移动点餐
-    - 扫码点餐
-    - 自助点餐
-    - 三方外卖
-    - POS
-    - 移动点餐
-    - 扫码点餐
-    - 自助点餐
-    - 三方外卖
     x-enum-varnames:
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
@@ -2042,9 +1898,6 @@ definitions:
     x-enum-comments:
       SetMealGroupSelectionTypeFixed: 固定分组
       SetMealGroupSelectionTypeOptional: 可选套餐
-    x-enum-descriptions:
-    - 固定分组
-    - 可选套餐
     x-enum-varnames:
     - SetMealGroupSelectionTypeFixed
     - SetMealGroupSelectionTypeOptional
@@ -2102,9 +1955,6 @@ definitions:
     x-enum-comments:
       StallPrintTypeLabel: 标签
       StallPrintTypeReceipt: 小票/收据
-    x-enum-descriptions:
-    - 小票/收据
-    - 标签
     x-enum-varnames:
     - StallPrintTypeReceipt
     - StallPrintTypeLabel
@@ -2118,10 +1968,6 @@ definitions:
       StallTypeBrand: 品牌出品部门
       StallTypeStore: 门店出品部门
       StallTypeSystem: 系统出品部门
-    x-enum-descriptions:
-    - 系统出品部门
-    - 品牌出品部门
-    - 门店出品部门
     x-enum-varnames:
     - StallTypeSystem
     - StallTypeBrand
@@ -2286,9 +2132,6 @@ definitions:
     x-enum-comments:
       StoreStatusClosed: 停业
       StoreStatusOpen: 营业
-    x-enum-descriptions:
-    - 营业
-    - 停业
     x-enum-varnames:
     - StoreStatusOpen
     - StoreStatusClosed
@@ -2335,9 +2178,6 @@ definitions:
     x-enum-comments:
       TaxFeeTypeMerchant: 商户
       TaxFeeTypeStore: 门店
-    x-enum-descriptions:
-    - 商户
-    - 门店
     x-enum-varnames:
     - TaxFeeTypeMerchant
     - TaxFeeTypeStore
@@ -2349,9 +2189,6 @@ definitions:
     x-enum-comments:
       TaxRateTypeCustom: 自定义比例
       TaxRateTypeUnified: 统一比例
-    x-enum-descriptions:
-    - 统一比例
-    - 自定义比例
     x-enum-varnames:
     - TaxRateTypeUnified
     - TaxRateTypeCustom
@@ -2361,38 +2198,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.AccountListResp:
     properties:
       total:
@@ -3130,6 +2935,14 @@ definitions:
     - name
     - store_ids
     type: object
+  types.MerchantBusinessTypeListResp:
+    properties:
+      business_types:
+        description: 业务类型列表
+        items:
+          $ref: '#/definitions/domain.BusinessType'
+        type: array
+    type: object
   types.MerchantInfoResp:
     properties:
       merchant:
@@ -3172,6 +2985,7 @@ definitions:
         description: '业务场景，store：门店相关 product: 商品相关'
         enum:
         - store
+        - merchant
         - product
     required:
     - filename
@@ -3867,13 +3681,6 @@ definitions:
     - name
     - remark_scene
     type: object
-  types.RemarkCategoryListResp:
-    properties:
-      remark_categories:
-        items:
-          $ref: '#/definitions/domain.RemarkCategory'
-        type: array
-    type: object
   types.RemarkCategoryUpdateReq:
     properties:
       description:
@@ -3902,9 +3709,6 @@ definitions:
     type: object
   types.RemarkCreateReq:
     properties:
-      category_id:
-        description: 备注类型
-        type: string
       enabled:
         description: 是否启用
         type: boolean
@@ -3912,6 +3716,18 @@ definitions:
         description: 备注名称
         maxLength: 255
         type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
       sort_order:
         description: 排序，越小越靠前
         minimum: 0
@@ -3920,8 +3736,15 @@ definitions:
         description: 可选，品牌级可为空
         type: string
     required:
-    - category_id
     - name
+    - remark_scene
+    type: object
+  types.RemarkGroupListResp:
+    properties:
+      remark_groups:
+        items:
+          $ref: '#/definitions/domain.RemarkGroup'
+        type: array
     type: object
   types.RemarkListResp:
     properties:
@@ -4720,8 +4543,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "204":
-          description: No Content
       security:
       - BearerAuth: []
       summary: 删除附加费
@@ -5295,6 +5116,26 @@ paths:
       summary: 更新品牌商户
       tags:
       - 商户管理
+  /merchant/business_type/list:
+    get:
+      description: 业态列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.MerchantBusinessTypeListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 业态列表
+      tags:
+      - 商户管理-业态列表
   /merchant/disable:
     put:
       description: 将商户状态置为禁用
@@ -5404,8 +5245,6 @@ paths:
         type: string
         x-enum-comments:
           PaymentChannelRM: Revenue Monster
-        x-enum-descriptions:
-        - Revenue Monster
         x-enum-varnames:
         - PaymentChannelRM
       - description: 创建时间结束（可选）
@@ -6447,9 +6286,6 @@ paths:
         x-enum-comments:
           ProfitDistributionRuleStatusDisabled: 禁用
           ProfitDistributionRuleStatusEnabled: 启用
-        x-enum-descriptions:
-        - 启用
-        - 禁用
         x-enum-varnames:
         - ProfitDistributionRuleStatusEnabled
         - ProfitDistributionRuleStatusDisabled
@@ -6550,6 +6386,29 @@ paths:
       summary: 启用分账方案
       tags:
       - 分账方案
+  /region/{id}/provinces:
+    get:
+      parameters:
+      - description: 国家/地区 ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.ProvinceListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取指定国家/地区的省/州列表
+      tags:
+      - 地区
   /region/countries:
     get:
       responses:
@@ -6567,36 +6426,10 @@ paths:
       summary: 获取国家/地区列表
       tags:
       - 地区
-  /region/provinces:
-    get:
-      parameters:
-      - description: 国家/地区ID
-        in: query
-        name: country_id
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/types.ProvinceListResp'
-              type: object
-      security:
-      - BearerAuth: []
-      summary: 获取省份列表
-      tags:
-      - 地区
   /remark:
     get:
       description: 分页查询备注列表
       parameters:
-      - description: 备注类型
-        in: query
-        name: category_id
-        type: string
       - description: 启用状态
         in: query
         name: enabled
@@ -6609,6 +6442,34 @@ paths:
         in: query
         name: page
         type: integer
+      - description: 使用场景
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
+        in: query
+        name: remark_scene
+        type: string
+        x-enum-comments:
+          RemarkSceneCancelReason: 退菜原因
+          RemarkSceneDiscount: 优惠原因
+          RemarkSceneGift: 赠菜原因
+          RemarkSceneItem: 单品备注
+          RemarkSceneRebill: 反结账原因
+          RemarkSceneRefundReject: 拒绝退款
+          RemarkSceneWholeOrder: 整单备注
+        x-enum-varnames:
+        - RemarkSceneWholeOrder
+        - RemarkSceneItem
+        - RemarkSceneCancelReason
+        - RemarkSceneDiscount
+        - RemarkSceneGift
+        - RemarkSceneRebill
+        - RemarkSceneRefundReject
       - description: 每页数量
         in: query
         name: size
@@ -6770,7 +6631,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/types.RemarkCategoryListResp'
+                  $ref: '#/definitions/types.RemarkGroupListResp'
               type: object
       security:
       - BearerAuth: []
@@ -6855,9 +6716,6 @@ paths:
         x-enum-comments:
           DeviceTypeCashier: 收银机
           DeviceTypePrinter: 打印机
-        x-enum-descriptions:
-        - 收银机
-        - 打印机
         x-enum-varnames:
         - DeviceTypeCashier
         - DeviceTypePrinter
@@ -6883,9 +6741,6 @@ paths:
         x-enum-comments:
           DeviceStatusOffline: 离线
           DeviceStatusOnline: 在线
-        x-enum-descriptions:
-        - 在线
-        - 离线
         x-enum-varnames:
         - DeviceStatusOnline
         - DeviceStatusOffline
@@ -7061,9 +6916,6 @@ paths:
         x-enum-comments:
           StallPrintTypeLabel: 标签
           StallPrintTypeReceipt: 小票/收据
-        x-enum-descriptions:
-        - 小票/收据
-        - 标签
         x-enum-varnames:
         - StallPrintTypeReceipt
         - StallPrintTypeLabel
@@ -7367,9 +7219,6 @@ paths:
         x-enum-comments:
           BusinessModelDirect: 直营
           BusinessModelFranchisee: 加盟
-        x-enum-descriptions:
-        - 直营
-        - 加盟
         x-enum-varnames:
         - BusinessModelDirect
         - BusinessModelFranchisee
@@ -7411,9 +7260,6 @@ paths:
         x-enum-comments:
           StoreStatusClosed: 停业
           StoreStatusOpen: 营业
-        x-enum-descriptions:
-        - 营业
-        - 停业
         x-enum-varnames:
         - StoreStatusOpen
         - StoreStatusClosed
@@ -7646,11 +7492,6 @@ paths:
           GenderMale: 男性
           GenderOther: 其他
           GenderUnknown: 未知
-        x-enum-descriptions:
-        - 男性
-        - 女性
-        - 其他
-        - 未知
         x-enum-varnames:
         - GenderMale
         - GenderFemale

@@ -27,7 +27,7 @@ type RemarkRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
 	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
-	CountRemarkByCategories(ctx context.Context, params CountRemarkParams) (countRemark map[uuid.UUID]int, err error)
+	CountRemarkByScene(ctx context.Context, params CountRemarkParams) (countRemark map[RemarkScene]int, err error)
 }
 
 // RemarkInteractor 备注用例接口
@@ -39,7 +39,6 @@ type RemarkInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetRemark(ctx context.Context, id uuid.UUID) (remark *Remark, err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
-	Exists(ctx context.Context, filter RemarkExistsParams) (exists bool, err error)
 	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateField, remark *Remark) (err error)
 }
 type RemarkType string // 备注归属方
@@ -61,10 +60,20 @@ const (
 	RemarkSceneItem         RemarkScene = "item"          // 单品备注
 	RemarkSceneCancelReason RemarkScene = "cancel_reason" // 退菜原因
 	RemarkSceneDiscount     RemarkScene = "discount"      // 优惠原因
-	RemarkSceneGift         RemarkScene = "gift"          // 赠菜原��
+	RemarkSceneGift         RemarkScene = "gift"          // 赠菜原因
 	RemarkSceneRebill       RemarkScene = "rebill"        // 反结账原因
 	RemarkSceneRefundReject RemarkScene = "refund_reject" // 拒绝退款
 )
+
+var RemarkSceneList = []RemarkScene{
+	RemarkSceneWholeOrder,
+	RemarkSceneItem,
+	RemarkSceneCancelReason,
+	RemarkSceneDiscount,
+	RemarkSceneGift,
+	RemarkSceneRebill,
+	RemarkSceneRefundReject,
+}
 
 func (RemarkScene) Values() []string {
 	return []string{
@@ -76,6 +85,31 @@ func (RemarkScene) Values() []string {
 		string(RemarkSceneRebill),
 		string(RemarkSceneRefundReject),
 	}
+}
+
+// RemarkSceneEntries provides ordered entries and message IDs used by i18n translation
+var RemarkSceneEntries = []struct {
+	Code  string
+	MsgID string
+}{
+	{"whole_order", "REMARK_SCENE_whole_order"},
+	{"item", "REMARK_SCENE_item"},
+	{"cancel_reason", "REMARK_SCENE_cancel_reason"},
+	{"discount", "REMARK_SCENE_discount"},
+	{"gift", "REMARK_SCENE_gift"},
+	{"rebill", "REMARK_SCENE_rebill"},
+	{"refund_reject", "REMARK_SCENE_refund_reject"},
+}
+
+// RemarkSceneI18NMap maps cannot be const in Go; use var
+var RemarkSceneI18NMap = map[string]string{
+	"whole_order":   "REMARK_SCENE_whole_order",
+	"item":          "REMARK_SCENE_item",
+	"cancel_reason": "REMARK_SCENE_cancel_reason",
+	"discount":      "REMARK_SCENE_discount",
+	"gift":          "REMARK_SCENE_gift",
+	"rebill":        "REMARK_SCENE_rebill",
+	"refund_reject": "REMARK_SCENE_refund_reject",
 }
 
 type RemarkSimpleUpdateField string
@@ -120,27 +154,27 @@ func NewRemarkOrderBySortOrder(desc bool) RemarkOrderBy {
 }
 
 type Remark struct {
-	ID           uuid.UUID  `json:"id"`
-	Name         string     `json:"name"`          // 备注名称
-	RemarkType   RemarkType `json:"remark_type"`   // 备注类型：系统/品牌
-	Enabled      bool       `json:"enabled"`       // 是否启用
-	SortOrder    int        `json:"sort_order"`    // 排序，值越小越靠前
-	CategoryID   uuid.UUID  `json:"category_id"`   // 分类 ID
-	CategoryName string     `json:"category_name"` // 分类名称
-	MerchantID   uuid.UUID  `json:"merchant_id"`   // 品牌商ID，仅品牌备注需要
-	StoreID      uuid.UUID  `json:"store_id"`      // 门店 ID
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
+	ID              uuid.UUID   `json:"id"`
+	Name            string      `json:"name"`              // 备注名称
+	RemarkType      RemarkType  `json:"remark_type"`       // 备注类型：系统/品牌
+	Enabled         bool        `json:"enabled"`           // 是否启用
+	SortOrder       int         `json:"sort_order"`        // 排序，值越小越靠前
+	RemarkScene     RemarkScene `json:"remark_scene"`      // 使用场景：整单备注/单品备注/退菜原因等
+	RemarkSceneName string      `json:"remark_scene_name"` // 使用场景：整单备注/单品备注/退菜原因等
+	MerchantID      uuid.UUID   `json:"merchant_id"`       // 品牌商ID，仅品牌备注需要
+	StoreID         uuid.UUID   `json:"store_id"`          // 门店 ID
+	CreatedAt       time.Time   `json:"created_at"`
+	UpdatedAt       time.Time   `json:"updated_at"`
 }
 
 type CreateRemarkParams struct {
-	RemarkType RemarkType `json:"remark_type"` // 备注归属方
-	Name       string     `json:"name"`        // 备注名称
-	Enabled    bool       `json:"enabled"`     // 是否启用
-	SortOrder  int        `json:"sort_order"`  // 排序，越小越靠前
-	CategoryID uuid.UUID  `json:"category_id"` // 备注分类 ID
-	MerchantID uuid.UUID  `json:"merchant_id"` // 商户 ID
-	StoreID    uuid.UUID  `json:"store_id"`    // 门店 ID
+	RemarkType  RemarkType  `json:"remark_type"`  // 备注归属方
+	Name        string      `json:"name"`         // 备注名称
+	Enabled     bool        `json:"enabled"`      // 是否启用
+	SortOrder   int         `json:"sort_order"`   // 排序，越小越靠前
+	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
+	MerchantID  uuid.UUID   `json:"merchant_id"`  // 商户 ID
+	StoreID     uuid.UUID   `json:"store_id"`     // 门店 ID
 }
 
 type UpdateRemarkParams struct {
@@ -150,27 +184,39 @@ type UpdateRemarkParams struct {
 	SortOrder int       `json:"sort_order"` // 排序，越小越靠前
 }
 type RemarkExistsParams struct {
-	RemarkType RemarkType `json:"remark_type"` // 备注归属方
-	CategoryID uuid.UUID  `json:"category_id"` // 备注分类 ID
-	MerchantID uuid.UUID  `json:"merchant_id"` // 商户 ID
-	StoreID    uuid.UUID  `json:"store_id"`    // 门店 ID
-	Name       string     `json:"name"`        // 备注名称
-	ExcludeID  uuid.UUID  `json:"exclude_id"`  // 更新时排除自身
+	RemarkType  RemarkType  `json:"remark_type"`  // 备注归属方
+	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
+	MerchantID  uuid.UUID   `json:"merchant_id"`  // 商户 ID
+	StoreID     uuid.UUID   `json:"store_id"`     // 门店 ID
+	Name        string      `json:"name"`         // 备注名称
+	ExcludeID   uuid.UUID   `json:"exclude_id"`   // 更新时排除自身
 }
 
 // RemarkListFilter merchant ID is required when store ID is provided
 // RemarkListFilter 备注列表过滤条件
 type RemarkListFilter struct {
-	RemarkType RemarkType `json:"remark_type"` // 备注归属方
-	CategoryID uuid.UUID  `json:"category_id"` // 备注分类 ID
-	MerchantID uuid.UUID  `json:"merchant_id"` // 商户 ID
-	StoreID    uuid.UUID  `json:"store_id"`    // 门店 ID
-	Enabled    *bool      `json:"enabled"`     // nil: 不筛; true/false: 按状态筛
+	RemarkType  RemarkType  `json:"remark_type"`  // 备注归属方
+	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
+	MerchantID  uuid.UUID   `json:"merchant_id"`  // 商户 ID
+	StoreID     uuid.UUID   `json:"store_id"`     // 门店 ID
+	Enabled     *bool       `json:"enabled"`      // nil: 不筛; true/false: 按状态筛
 }
 
 type CountRemarkParams struct {
-	RemarkType  RemarkType  `json:"remark_type"`
-	CategoryIDs []uuid.UUID `json:"category_ids"`
-	MerchantID  uuid.UUID   `json:"merchant_id"`
-	StoreID     uuid.UUID   `json:"store_id"`
+	RemarkType   RemarkType    `json:"remark_type"`
+	RemarkScenes []RemarkScene `json:"remark_scenes"` // 使用场景：整单备注/单品备注/退菜原因等
+	MerchantID   uuid.UUID     `json:"merchant_id"`
+	StoreID      uuid.UUID     `json:"store_id"`
+}
+
+type RemarkGroup struct {
+	Name        string      `json:"name"`         // 分类名称
+	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
+	RemarkCount int         `json:"remark_count"` // 该分类下备注数量
+}
+
+type RemarkGroupListFilter struct {
+	MerchantID uuid.UUID
+	StoreID    uuid.UUID
+	CountScene RemarkType // 统计备注数量场景
 }

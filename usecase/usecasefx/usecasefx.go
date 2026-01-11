@@ -158,5 +158,9 @@ var Module = fx.Module(
 			storepaymentaccount.NewStorePaymentAccountInteractor,
 			fx.As(new(domain.StorePaymentAccountInteractor)),
 		),
+		fx.Annotate(
+			role.NewRoleMenuInteractor,
+			fx.As(new(domain.RoleMenuInteractor)),
+		),
 	),
 )

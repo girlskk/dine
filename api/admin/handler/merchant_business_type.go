@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -25,6 +23,12 @@ func (h *MerchantBusinessTypeHandler) Routes(r gin.IRouter) {
 	r.GET("/list", h.GetAll())
 }
 
+func (h *MerchantBusinessTypeHandler) NoAuths() []string {
+	return []string{
+		"/list",
+	}
+}
+
 // GetAll 业态列表
 //
 //	@Summary		业态列表
@@ -41,15 +45,14 @@ func (h *MerchantBusinessTypeHandler) GetAll() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		businessTypes, err := h.BusinessTypeInteractor.GetAll(ctx)
+		list, err := h.BusinessTypeInteractor.GetAll(ctx)
 		if err != nil {
-			err = fmt.Errorf("failed to list businessTypes: %w", err)
 			c.Error(err)
 			return
 		}
 
 		response.Ok(c, &types.MerchantBusinessTypeListResp{
-			BusinessTypes: businessTypes,
+			BusinessTypes: list,
 		})
 	}
 }

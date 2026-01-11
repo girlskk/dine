@@ -71,5 +71,6 @@ func (RouterMenu) Mixin() []ent.Mixin {
 func (RouterMenu) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("parent_id", "name", "deleted_at").Unique(),
+		index.Fields("path", "deleted_at").Unique(),
 	}
 }

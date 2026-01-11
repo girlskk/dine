@@ -357,6 +357,16 @@ func OperatorNameHasSuffix(v string) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldHasSuffix(FieldOperatorName, v))
 }
 
+// OperatorNameIsNil applies the IsNil predicate on the "operator_name" field.
+func OperatorNameIsNil() predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldIsNull(FieldOperatorName))
+}
+
+// OperatorNameNotNil applies the NotNil predicate on the "operator_name" field.
+func OperatorNameNotNil() predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldNotNull(FieldOperatorName))
+}
+
 // OperatorNameEqualFold applies the EqualFold predicate on the "operator_name" field.
 func OperatorNameEqualFold(v string) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldEqualFold(FieldOperatorName, v))
@@ -420,6 +430,16 @@ func OperatorAccountHasPrefix(v string) predicate.MerchantRenewal {
 // OperatorAccountHasSuffix applies the HasSuffix predicate on the "operator_account" field.
 func OperatorAccountHasSuffix(v string) predicate.MerchantRenewal {
 	return predicate.MerchantRenewal(sql.FieldHasSuffix(FieldOperatorAccount, v))
+}
+
+// OperatorAccountIsNil applies the IsNil predicate on the "operator_account" field.
+func OperatorAccountIsNil() predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldIsNull(FieldOperatorAccount))
+}
+
+// OperatorAccountNotNil applies the NotNil predicate on the "operator_account" field.
+func OperatorAccountNotNil() predicate.MerchantRenewal {
+	return predicate.MerchantRenewal(sql.FieldNotNull(FieldOperatorAccount))
 }
 
 // OperatorAccountEqualFold applies the EqualFold predicate on the "operator_account" field.

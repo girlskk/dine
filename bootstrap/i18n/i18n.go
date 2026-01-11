@@ -2,7 +2,7 @@ package i18n
 
 import (
 	"fmt"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strings"
 
@@ -28,25 +28,24 @@ func Init(cfg Config) error {
 	// 注册 TOML 解析器
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
-	// 读取语言目录下的所有 TOML 文件
-	files, err := os.ReadDir(cfg.LanguageDir)
-	if err != nil {
-		return fmt.Errorf("failed to read language directory %s: %w", cfg.LanguageDir, err)
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			continue
+	// 递归读取语言目录下的所有 TOML 文件（包含子目录）
+	err := filepath.WalkDir(cfg.LanguageDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
 		}
-
-		// 只加载 .toml 文件
-		if strings.HasSuffix(strings.ToLower(file.Name()), ".toml") {
-			filePath := filepath.Join(cfg.LanguageDir, file.Name())
-			_, err := bundle.LoadMessageFile(filePath)
+		if d.IsDir() {
+			return nil
+		}
+		if strings.HasSuffix(strings.ToLower(d.Name()), ".toml") {
+			_, err := bundle.LoadMessageFile(path)
 			if err != nil {
-				return fmt.Errorf("failed to load language file %s: %w", filePath, err)
+				return fmt.Errorf("failed to load language file %s: %w", path, err)
 			}
 		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to walk language directory %s: %w", cfg.LanguageDir, err)
 	}
 
 	// 将初始化好的 bundle 设置到 pkg/i18n

@@ -243,16 +243,10 @@ func (mrc *MerchantRenewalCreate) check() error {
 			return &ValidationError{Name: "purchase_duration_unit", err: fmt.Errorf(`ent: validator failed for field "MerchantRenewal.purchase_duration_unit": %w`, err)}
 		}
 	}
-	if _, ok := mrc.mutation.OperatorName(); !ok {
-		return &ValidationError{Name: "operator_name", err: errors.New(`ent: missing required field "MerchantRenewal.operator_name"`)}
-	}
 	if v, ok := mrc.mutation.OperatorName(); ok {
 		if err := merchantrenewal.OperatorNameValidator(v); err != nil {
 			return &ValidationError{Name: "operator_name", err: fmt.Errorf(`ent: validator failed for field "MerchantRenewal.operator_name": %w`, err)}
 		}
-	}
-	if _, ok := mrc.mutation.OperatorAccount(); !ok {
-		return &ValidationError{Name: "operator_account", err: errors.New(`ent: missing required field "MerchantRenewal.operator_account"`)}
 	}
 	if v, ok := mrc.mutation.OperatorAccount(); ok {
 		if err := merchantrenewal.OperatorAccountValidator(v); err != nil {
@@ -467,6 +461,12 @@ func (u *MerchantRenewalUpsert) UpdateOperatorName() *MerchantRenewalUpsert {
 	return u
 }
 
+// ClearOperatorName clears the value of the "operator_name" field.
+func (u *MerchantRenewalUpsert) ClearOperatorName() *MerchantRenewalUpsert {
+	u.SetNull(merchantrenewal.FieldOperatorName)
+	return u
+}
+
 // SetOperatorAccount sets the "operator_account" field.
 func (u *MerchantRenewalUpsert) SetOperatorAccount(v string) *MerchantRenewalUpsert {
 	u.Set(merchantrenewal.FieldOperatorAccount, v)
@@ -476,6 +476,12 @@ func (u *MerchantRenewalUpsert) SetOperatorAccount(v string) *MerchantRenewalUps
 // UpdateOperatorAccount sets the "operator_account" field to the value that was provided on create.
 func (u *MerchantRenewalUpsert) UpdateOperatorAccount() *MerchantRenewalUpsert {
 	u.SetExcluded(merchantrenewal.FieldOperatorAccount)
+	return u
+}
+
+// ClearOperatorAccount clears the value of the "operator_account" field.
+func (u *MerchantRenewalUpsert) ClearOperatorAccount() *MerchantRenewalUpsert {
+	u.SetNull(merchantrenewal.FieldOperatorAccount)
 	return u
 }
 
@@ -617,6 +623,13 @@ func (u *MerchantRenewalUpsertOne) UpdateOperatorName() *MerchantRenewalUpsertOn
 	})
 }
 
+// ClearOperatorName clears the value of the "operator_name" field.
+func (u *MerchantRenewalUpsertOne) ClearOperatorName() *MerchantRenewalUpsertOne {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.ClearOperatorName()
+	})
+}
+
 // SetOperatorAccount sets the "operator_account" field.
 func (u *MerchantRenewalUpsertOne) SetOperatorAccount(v string) *MerchantRenewalUpsertOne {
 	return u.Update(func(s *MerchantRenewalUpsert) {
@@ -628,6 +641,13 @@ func (u *MerchantRenewalUpsertOne) SetOperatorAccount(v string) *MerchantRenewal
 func (u *MerchantRenewalUpsertOne) UpdateOperatorAccount() *MerchantRenewalUpsertOne {
 	return u.Update(func(s *MerchantRenewalUpsert) {
 		s.UpdateOperatorAccount()
+	})
+}
+
+// ClearOperatorAccount clears the value of the "operator_account" field.
+func (u *MerchantRenewalUpsertOne) ClearOperatorAccount() *MerchantRenewalUpsertOne {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.ClearOperatorAccount()
 	})
 }
 
@@ -936,6 +956,13 @@ func (u *MerchantRenewalUpsertBulk) UpdateOperatorName() *MerchantRenewalUpsertB
 	})
 }
 
+// ClearOperatorName clears the value of the "operator_name" field.
+func (u *MerchantRenewalUpsertBulk) ClearOperatorName() *MerchantRenewalUpsertBulk {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.ClearOperatorName()
+	})
+}
+
 // SetOperatorAccount sets the "operator_account" field.
 func (u *MerchantRenewalUpsertBulk) SetOperatorAccount(v string) *MerchantRenewalUpsertBulk {
 	return u.Update(func(s *MerchantRenewalUpsert) {
@@ -947,6 +974,13 @@ func (u *MerchantRenewalUpsertBulk) SetOperatorAccount(v string) *MerchantRenewa
 func (u *MerchantRenewalUpsertBulk) UpdateOperatorAccount() *MerchantRenewalUpsertBulk {
 	return u.Update(func(s *MerchantRenewalUpsert) {
 		s.UpdateOperatorAccount()
+	})
+}
+
+// ClearOperatorAccount clears the value of the "operator_account" field.
+func (u *MerchantRenewalUpsertBulk) ClearOperatorAccount() *MerchantRenewalUpsertBulk {
+	return u.Update(func(s *MerchantRenewalUpsert) {
+		s.ClearOperatorAccount()
 	})
 }
 

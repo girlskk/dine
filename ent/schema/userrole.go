@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -45,7 +46,13 @@ func (UserRole) Fields() []ent.Field {
 }
 
 func (UserRole) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("role", Role.Type).
+			Ref("user_roles").
+			Field("role_id").
+			Unique().
+			Required(),
+	}
 }
 
 func (UserRole) Indexes() []ent.Index {

@@ -29,3 +29,11 @@ type RoleListResp struct {
 	Roles []*domain.Role `json:"roles"`
 	Total int            `json:"total"`
 }
+
+type SetMenusReq struct {
+	Paths []string `json:"paths" binding:"required"`
+}
+
+type RoleMenusResp struct {
+	Paths []string `json:"paths"`
+}

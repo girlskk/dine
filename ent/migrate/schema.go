@@ -654,7 +654,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "type_code", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "type_name", Type: field.TypeString, Size: 50, Default: ""},
 	}
@@ -684,8 +684,8 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "purchase_duration", Type: field.TypeInt, Default: 0},
 		{Name: "purchase_duration_unit", Type: field.TypeEnum, Enums: []string{"day", "month", "year", "week"}},
-		{Name: "operator_name", Type: field.TypeString, Size: 50, Default: ""},
-		{Name: "operator_account", Type: field.TypeString, Size: 50, Default: ""},
+		{Name: "operator_name", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
+		{Name: "operator_account", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "merchant_id", Type: field.TypeUUID},
 	}
 	// MerchantRenewalsTable holds the schema information for the "merchant_renewals" table.
@@ -1542,8 +1542,8 @@ var (
 		{Name: "remark_type", Type: field.TypeEnum, Enums: []string{"system", "brand", "store"}},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
+		{Name: "remark_scene", Type: field.TypeEnum, Enums: []string{"whole_order", "item", "cancel_reason", "discount", "gift", "rebill", "refund_reject"}},
 		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "category_id", Type: field.TypeUUID},
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// RemarksTable holds the schema information for the "remarks" table.
@@ -1554,15 +1554,9 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "remarks_merchants_remarks",
-				Columns:    []*schema.Column{RemarksColumns[8]},
+				Columns:    []*schema.Column{RemarksColumns[9]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "remarks_remark_categories_remarks",
-				Columns:    []*schema.Column{RemarksColumns[9]},
-				RefColumns: []*schema.Column{RemarkCategoriesColumns[0]},
-				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "remarks_stores_remarks",
@@ -1578,14 +1572,14 @@ var (
 				Columns: []*schema.Column{RemarksColumns[3]},
 			},
 			{
-				Name:    "remark_category_id",
+				Name:    "remark_remark_scene",
 				Unique:  false,
-				Columns: []*schema.Column{RemarksColumns[9]},
+				Columns: []*schema.Column{RemarksColumns[8]},
 			},
 			{
 				Name:    "remark_merchant_id",
 				Unique:  false,
-				Columns: []*schema.Column{RemarksColumns[8]},
+				Columns: []*schema.Column{RemarksColumns[9]},
 			},
 			{
 				Name:    "remark_store_id",
@@ -1697,7 +1691,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "role_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
 		{Name: "role_id", Type: field.TypeUUID},
-		{Name: "menu_id", Type: field.TypeUUID},
+		{Name: "path", Type: field.TypeString},
 		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 	}
@@ -1713,12 +1707,12 @@ var (
 				Columns: []*schema.Column{RoleMenusColumns[3]},
 			},
 			{
-				Name:    "role_menu_unique_idx",
+				Name:    "role_path_unique_idx",
 				Unique:  true,
 				Columns: []*schema.Column{RoleMenusColumns[5], RoleMenusColumns[7], RoleMenusColumns[8], RoleMenusColumns[6], RoleMenusColumns[4], RoleMenusColumns[3]},
 			},
 			{
-				Name:    "rolemenu_menu_id",
+				Name:    "rolemenu_path",
 				Unique:  false,
 				Columns: []*schema.Column{RoleMenusColumns[6]},
 			},
@@ -1800,6 +1794,11 @@ var (
 				Name:    "routermenu_parent_id_name_deleted_at",
 				Unique:  true,
 				Columns: []*schema.Column{RouterMenusColumns[5], RouterMenusColumns[6], RouterMenusColumns[3]},
+			},
+			{
+				Name:    "routermenu_path_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{RouterMenusColumns[7], RouterMenusColumns[3]},
 			},
 		},
 	}
@@ -2206,15 +2205,23 @@ var (
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "user_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
 		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "role_id", Type: field.TypeUUID},
 		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "role_id", Type: field.TypeUUID},
 	}
 	// UserRolesTable holds the schema information for the "user_roles" table.
 	UserRolesTable = &schema.Table{
 		Name:       "user_roles",
 		Columns:    UserRolesColumns,
 		PrimaryKey: []*schema.Column{UserRolesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_roles_roles_user_roles",
+				Columns:    []*schema.Column{UserRolesColumns[8]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "userrole_deleted_at",
@@ -2224,7 +2231,7 @@ var (
 			{
 				Name:    "role_user_unique_idx",
 				Unique:  true,
-				Columns: []*schema.Column{UserRolesColumns[6], UserRolesColumns[4], UserRolesColumns[5], UserRolesColumns[7], UserRolesColumns[8], UserRolesColumns[3]},
+				Columns: []*schema.Column{UserRolesColumns[8], UserRolesColumns[4], UserRolesColumns[5], UserRolesColumns[6], UserRolesColumns[7], UserRolesColumns[3]},
 			},
 			{
 				Name:    "userrole_user_type_user_id",
@@ -2234,7 +2241,7 @@ var (
 			{
 				Name:    "userrole_merchant_id_store_id",
 				Unique:  false,
-				Columns: []*schema.Column{UserRolesColumns[7], UserRolesColumns[8]},
+				Columns: []*schema.Column{UserRolesColumns[6], UserRolesColumns[7]},
 			},
 		},
 	}
@@ -2410,8 +2417,7 @@ func init() {
 	ProfitDistributionBillsTable.ForeignKeys[1].RefTable = StoresTable
 	ProvincesTable.ForeignKeys[0].RefTable = CountriesTable
 	RemarksTable.ForeignKeys[0].RefTable = MerchantsTable
-	RemarksTable.ForeignKeys[1].RefTable = RemarkCategoriesTable
-	RemarksTable.ForeignKeys[2].RefTable = StoresTable
+	RemarksTable.ForeignKeys[1].RefTable = StoresTable
 	RemarkCategoriesTable.ForeignKeys[0].RefTable = MerchantsTable
 	RolesTable.ForeignKeys[0].RefTable = MerchantsTable
 	RolesTable.ForeignKeys[1].RefTable = StoresTable
@@ -2432,6 +2438,7 @@ func init() {
 	StoreUsersTable.ForeignKeys[2].RefTable = StoresTable
 	TaxFeesTable.ForeignKeys[0].RefTable = MerchantsTable
 	TaxFeesTable.ForeignKeys[1].RefTable = StoresTable
+	UserRolesTable.ForeignKeys[0].RefTable = RolesTable
 	MenuStoreRelationsTable.ForeignKeys[0].RefTable = MenusTable
 	MenuStoreRelationsTable.ForeignKeys[1].RefTable = StoresTable
 	ProductTagRelationsTable.ForeignKeys[0].RefTable = ProductsTable

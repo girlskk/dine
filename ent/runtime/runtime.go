@@ -931,41 +931,13 @@ func init() {
 	// merchantrenewal.DefaultOperatorName holds the default value on creation for the operator_name field.
 	merchantrenewal.DefaultOperatorName = merchantrenewalDescOperatorName.Default.(string)
 	// merchantrenewal.OperatorNameValidator is a validator for the "operator_name" field. It is called by the builders before save.
-	merchantrenewal.OperatorNameValidator = func() func(string) error {
-		validators := merchantrenewalDescOperatorName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(operator_name string) error {
-			for _, fn := range fns {
-				if err := fn(operator_name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	merchantrenewal.OperatorNameValidator = merchantrenewalDescOperatorName.Validators[0].(func(string) error)
 	// merchantrenewalDescOperatorAccount is the schema descriptor for operator_account field.
 	merchantrenewalDescOperatorAccount := merchantrenewalFields[4].Descriptor()
 	// merchantrenewal.DefaultOperatorAccount holds the default value on creation for the operator_account field.
 	merchantrenewal.DefaultOperatorAccount = merchantrenewalDescOperatorAccount.Default.(string)
 	// merchantrenewal.OperatorAccountValidator is a validator for the "operator_account" field. It is called by the builders before save.
-	merchantrenewal.OperatorAccountValidator = func() func(string) error {
-		validators := merchantrenewalDescOperatorAccount.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(operator_account string) error {
-			for _, fn := range fns {
-				if err := fn(operator_account); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	merchantrenewal.OperatorAccountValidator = merchantrenewalDescOperatorAccount.Validators[0].(func(string) error)
 	// merchantrenewalDescID is the schema descriptor for id field.
 	merchantrenewalDescID := merchantrenewalMixinFields0[0].Descriptor()
 	// merchantrenewal.DefaultID holds the default value on creation for the id field.

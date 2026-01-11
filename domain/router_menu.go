@@ -2,17 +2,9 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
-)
-
-var (
-	ErrRouterMenuNotExists        = errors.New("菜单不存在")
-	ErrRouterMenuNameExists       = errors.New("同级菜单名称已存在")
-	ErrRouterMenuForbidenAddChild = errors.New("禁止添加子菜单")
 )
 
 // RouterMenuRepository 菜单仓储接口
@@ -24,7 +16,7 @@ type RouterMenuRepository interface {
 	Update(ctx context.Context, menu *RouterMenu) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Exists(ctx context.Context, params RouterMenuExistsParams) (bool, error)
-	GetRouterMenus(ctx context.Context, pager *upagination.Pagination, filter *RouterMenuListFilter, orderBys ...RouterMenuListOrderBy) ([]*RouterMenu, int, error)
+	GetRouterMenus(ctx context.Context, filter *RouterMenuListFilter, orderBys ...RouterMenuListOrderBy) ([]*RouterMenu, int, error)
 }
 
 // RouterMenuInteractor 菜单用例接口
@@ -35,7 +27,7 @@ type RouterMenuInteractor interface {
 	UpdateRouterMenu(ctx context.Context, params *UpdateRouterMenuParams) error
 	DeleteRouterMenu(ctx context.Context, id uuid.UUID) error
 	GetRouterMenu(ctx context.Context, id uuid.UUID) (*RouterMenu, error)
-	GetRouterMenus(ctx context.Context, pager *upagination.Pagination, filter *RouterMenuListFilter, orderBys ...RouterMenuListOrderBy) ([]*RouterMenu, int, error)
+	GetRouterMenus(ctx context.Context, filter *RouterMenuListFilter, orderBys ...RouterMenuListOrderBy) ([]*RouterMenu, int, error)
 }
 
 type RouterMenuListOrderByType int
