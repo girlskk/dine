@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
@@ -29,69 +29,11 @@ func (s *DeviceRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *DeviceRepositoryTestSuite) createBusinessType(tag string) *ent.MerchantBusinessType {
-	return s.client.MerchantBusinessType.Create().SetTypeCode("bt-" + tag).SetTypeName("业态-" + tag).SaveX(s.ctx)
-}
-
-func (s *DeviceRepositoryTestSuite) createStore(tag string) *ent.Store {
-	bt := s.createBusinessType(tag)
-	merchant := s.client.Merchant.Create().
-		SetID(uuid.New()).
-		SetMerchantCode("MC-" + tag).
-		SetMerchantName("商户-" + tag).
-		SetMerchantShortName("简称-" + tag).
-		SetMerchantType(domain.MerchantTypeBrand).
-		SetBrandName("品牌-" + tag).
-		SetAdminPhoneNumber("13800000000").
-		SetBusinessTypeCode(bt.TypeCode).
-		SetMerchantLogo("logo-" + tag).
-		SetDescription("描述-" + tag).
-		SetStatus(domain.MerchantStatusActive).
-		SetSuperAccount("account-" + tag).
-		SaveX(s.ctx)
-
-	store := s.client.Store.Create().
-		SetID(uuid.New()).
-		SetMerchantID(merchant.ID).
-		SetAdminPhoneNumber("139" + tag[:3]).
-		SetStoreName("门店-" + tag).
-		SetStoreShortName("简称-" + tag).
-		SetStoreCode("SC-" + tag).
-		SetStatus(domain.StoreStatusOpen).
-		SetBusinessModel(domain.BusinessModelDirect).
-		SetBusinessTypeCode(bt.TypeCode).
-		SetLocationNumber("L-" + tag).
-		SetContactName("联系人-" + tag).
-		SetContactPhone("137" + tag[:3]).
-		SetUnifiedSocialCreditCode("USC-" + tag).
-		SetStoreLogo("logo-" + tag).
-		SetBusinessLicenseURL("license-" + tag).
-		SetStorefrontURL("front-" + tag).
-		SetCashierDeskURL("cashier-" + tag).
-		SetDiningEnvironmentURL("environment-" + tag).
-		SetFoodOperationLicenseURL("food-" + tag).
-		SetSuperAccount("login-" + tag).
-		SetBusinessHours([]domain.BusinessHours{{Weekdays: []time.Weekday{time.Monday}, BusinessHours: []domain.BusinessHour{{StartTime: "09:00:00", EndTime: "18:00:00"}}}}).
-		SetDiningPeriods([]domain.DiningPeriod{{Name: "午餐", StartTime: "11:00:00", EndTime: "13:00:00"}}).
-		SetShiftTimes([]domain.ShiftTime{{Name: "早班", StartTime: "09:00:00", EndTime: "15:00:00"}}).
-		SetCountryID(uuid.New()).
-		SetProvinceID(uuid.New()).
-		SetCityID(uuid.New()).
-		SetDistrictID(uuid.New()).
-		SetAddress("地址-" + tag).
-		SetLng("120.0").
-		SetLat("30.0").
-		SetSuperAccount("login-" + tag).
-		SaveX(s.ctx)
-
-	return store
-}
-
-func (s *DeviceRepositoryTestSuite) newPrinter(tag string, store *ent.Store) *domain.Device {
+func (s *DeviceRepositoryTestSuite) newPrinter(tag string) *domain.Device {
 	return &domain.Device{
 		ID:                     uuid.New(),
-		MerchantID:             store.MerchantID,
-		StoreID:                store.ID,
+		MerchantID:             uuid.New(),
+		StoreID:                uuid.New(),
 		Name:                   "打印机-" + tag,
 		DeviceType:             domain.DeviceTypePrinter,
 		DeviceCode:             "CODE-" + tag,
@@ -112,11 +54,11 @@ func (s *DeviceRepositoryTestSuite) newPrinter(tag string, store *ent.Store) *do
 	}
 }
 
-func (s *DeviceRepositoryTestSuite) newCashier(tag string, store *ent.Store) *domain.Device {
+func (s *DeviceRepositoryTestSuite) newCashier(tag string) *domain.Device {
 	return &domain.Device{
 		ID:             uuid.New(),
-		MerchantID:     store.MerchantID,
-		StoreID:        store.ID,
+		MerchantID:     uuid.New(),
+		StoreID:        uuid.New(),
 		Name:           "收银机-" + tag,
 		DeviceType:     domain.DeviceTypeCashier,
 		DeviceCode:     "CODE-CASH-" + tag,
@@ -131,10 +73,9 @@ func (s *DeviceRepositoryTestSuite) newCashier(tag string, store *ent.Store) *do
 }
 
 func (s *DeviceRepositoryTestSuite) TestDevice_Create() {
-	store := s.createStore("create")
 
 	s.T().Run("创建打印机成功", func(t *testing.T) {
-		device := s.newPrinter("p1", store)
+		device := s.newPrinter("p1")
 		err := s.repo.Create(s.ctx, device)
 		require.NoError(t, err)
 
@@ -146,7 +87,7 @@ func (s *DeviceRepositoryTestSuite) TestDevice_Create() {
 	})
 
 	s.T().Run("创建收银机成功", func(t *testing.T) {
-		device := s.newCashier("c1", store)
+		device := s.newCashier("c1")
 		err := s.repo.Create(s.ctx, device)
 		require.NoError(t, err)
 
@@ -162,8 +103,7 @@ func (s *DeviceRepositoryTestSuite) TestDevice_Create() {
 }
 
 func (s *DeviceRepositoryTestSuite) TestDevice_FindByID() {
-	store := s.createStore("find")
-	device := s.newPrinter("find", store)
+	device := s.newPrinter("find")
 	require.NoError(s.T(), s.repo.Create(s.ctx, device))
 
 	s.T().Run("查询成功", func(t *testing.T) {
@@ -182,10 +122,9 @@ func (s *DeviceRepositoryTestSuite) TestDevice_FindByID() {
 }
 
 func (s *DeviceRepositoryTestSuite) TestDevice_Update() {
-	store := s.createStore("update")
-	printer := s.newPrinter("update", store)
+	printer := s.newPrinter("update")
 	require.NoError(s.T(), s.repo.Create(s.ctx, printer))
-	cashier := s.newCashier("update", store)
+	cashier := s.newCashier("update")
 	require.NoError(s.T(), s.repo.Create(s.ctx, cashier))
 
 	s.T().Run("更新打印机成功", func(t *testing.T) {
@@ -216,7 +155,7 @@ func (s *DeviceRepositoryTestSuite) TestDevice_Update() {
 	})
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
-		missing := s.newPrinter("missing", store)
+		missing := s.newPrinter("missing")
 		err := s.repo.Update(s.ctx, missing)
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
@@ -229,8 +168,7 @@ func (s *DeviceRepositoryTestSuite) TestDevice_Update() {
 }
 
 func (s *DeviceRepositoryTestSuite) TestDevice_Delete() {
-	store := s.createStore("delete")
-	device := s.newPrinter("delete", store)
+	device := s.newPrinter("delete")
 	require.NoError(s.T(), s.repo.Create(s.ctx, device))
 
 	s.T().Run("删除成功", func(t *testing.T) {
@@ -248,24 +186,23 @@ func (s *DeviceRepositoryTestSuite) TestDevice_Delete() {
 }
 
 func (s *DeviceRepositoryTestSuite) TestDevice_GetDevices() {
-	store := s.createStore("list")
-	device1 := s.newPrinter("001", store)
+	device1 := s.newPrinter("001")
 	require.NoError(s.T(), s.repo.Create(s.ctx, device1))
 	time.Sleep(10 * time.Millisecond)
-	device2 := s.newPrinter("002", store)
+	device2 := s.newPrinter("002")
 	device2.Enabled = false
 	device2.SortOrder = 2
 	device2.Status = domain.DeviceStatusOffline
 	require.NoError(s.T(), s.repo.Create(s.ctx, device2))
 	time.Sleep(10 * time.Millisecond)
-	device3 := s.newCashier("003", store)
+	device3 := s.newCashier("003")
 	device3.SortOrder = 1
 	require.NoError(s.T(), s.repo.Create(s.ctx, device3))
 
 	pager := upagination.New(1, 10)
 
 	s.T().Run("按门店筛选默认排序", func(t *testing.T) {
-		list, total, err := s.repo.GetDevices(s.ctx, pager, &domain.DeviceListFilter{StoreID: store.ID})
+		list, total, err := s.repo.GetDevices(s.ctx, pager, &domain.DeviceListFilter{})
 		require.NoError(t, err)
 		require.Equal(t, 3, total)
 		require.Len(t, list, 3)
@@ -274,14 +211,14 @@ func (s *DeviceRepositoryTestSuite) TestDevice_GetDevices() {
 
 	s.T().Run("按排序字段升序", func(t *testing.T) {
 		order := domain.NewDeviceOrderBySortOrder(false)
-		list, total, err := s.repo.GetDevices(s.ctx, pager, &domain.DeviceListFilter{StoreID: store.ID}, order)
+		list, total, err := s.repo.GetDevices(s.ctx, pager, &domain.DeviceListFilter{}, order)
 		require.NoError(t, err)
 		require.Equal(t, 3, total)
 		require.Equal(t, device3.ID, list[0].ID)
 	})
 
 	s.T().Run("按类型与状态筛选", func(t *testing.T) {
-		list, total, err := s.repo.GetDevices(s.ctx, pager, &domain.DeviceListFilter{StoreID: store.ID, DeviceType: domain.DeviceTypePrinter, Status: domain.DeviceStatusOffline})
+		list, total, err := s.repo.GetDevices(s.ctx, pager, &domain.DeviceListFilter{DeviceType: domain.DeviceTypePrinter, Status: domain.DeviceStatusOffline})
 		require.NoError(t, err)
 		require.Equal(t, 1, total)
 		require.Equal(t, device2.ID, list[0].ID)
@@ -296,24 +233,23 @@ func (s *DeviceRepositoryTestSuite) TestDevice_GetDevices() {
 }
 
 func (s *DeviceRepositoryTestSuite) TestDevice_Exists() {
-	store := s.createStore("exists")
-	device := s.newPrinter("exists", store)
+	device := s.newPrinter("exists")
 	require.NoError(s.T(), s.repo.Create(s.ctx, device))
 
 	s.T().Run("同名存在", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DeviceExistsParams{Name: device.Name, MerchantID: store.MerchantID, StoreID: store.ID})
+		exists, err := s.repo.Exists(s.ctx, domain.DeviceExistsParams{Name: device.Name})
 		require.NoError(t, err)
 		require.True(t, exists)
 	})
 
 	s.T().Run("排除自身", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DeviceExistsParams{Name: device.Name, MerchantID: store.MerchantID, StoreID: store.ID, ExcludeID: device.ID})
+		exists, err := s.repo.Exists(s.ctx, domain.DeviceExistsParams{Name: device.Name, ExcludeID: device.ID})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
 
 	s.T().Run("不同门店不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DeviceExistsParams{Name: device.Name, MerchantID: store.MerchantID, StoreID: uuid.New()})
+		exists, err := s.repo.Exists(s.ctx, domain.DeviceExistsParams{Name: device.Name, MerchantID: uuid.New(), StoreID: uuid.New()})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
