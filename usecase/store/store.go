@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -134,15 +133,8 @@ func (interactor *StoreInteractor) GetStore(ctx context.Context, id uuid.UUID) (
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	domainStore, err = interactor.DS.StoreRepo().FindByID(ctx, id)
-	if err != nil {
-		return
-	}
-	if msgID, ok := domain.BusinessTypeI18NMap[domainStore.BusinessTypeCode]; ok {
-		name := i18n.Translate(ctx, msgID, nil)
-		domainStore.BusinessTypeName = name
-	}
-	return
+
+	return interactor.DS.StoreRepo().FindByID(ctx, id)
 }
 
 func (interactor *StoreInteractor) GetStoreByMerchantID(ctx context.Context, merchantID uuid.UUID) (domainStore *domain.Store, err error) {
@@ -151,16 +143,7 @@ func (interactor *StoreInteractor) GetStoreByMerchantID(ctx context.Context, mer
 		util.SpanErrFinish(span, err)
 	}()
 
-	domainStore, err = interactor.DS.StoreRepo().FindStoreMerchant(ctx, merchantID)
-	if err != nil {
-		return
-	}
-	if msgID, ok := domain.BusinessTypeI18NMap[domainStore.BusinessTypeCode]; ok {
-		name := i18n.Translate(ctx, msgID, nil)
-		domainStore.BusinessTypeName = name
-	}
-
-	return
+	return interactor.DS.StoreRepo().FindStoreMerchant(ctx, merchantID)
 }
 
 func (interactor *StoreInteractor) GetStores(ctx context.Context,
@@ -172,11 +155,8 @@ func (interactor *StoreInteractor) GetStores(ctx context.Context,
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	domainStores, total, err = interactor.DS.StoreRepo().GetStores(ctx, pager, filter, orderBys...)
-	if err != nil {
-		return
-	}
-	return
+
+	return interactor.DS.StoreRepo().GetStores(ctx, pager, filter, orderBys...)
 }
 
 func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,

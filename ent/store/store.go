@@ -66,14 +66,10 @@ const (
 	FieldDiningPeriods = "dining_periods"
 	// FieldShiftTimes holds the string denoting the shift_times field in the database.
 	FieldShiftTimes = "shift_times"
-	// FieldCountryID holds the string denoting the country_id field in the database.
-	FieldCountryID = "country_id"
-	// FieldProvinceID holds the string denoting the province_id field in the database.
-	FieldProvinceID = "province_id"
-	// FieldCityID holds the string denoting the city_id field in the database.
-	FieldCityID = "city_id"
-	// FieldDistrictID holds the string denoting the district_id field in the database.
-	FieldDistrictID = "district_id"
+	// FieldCountry holds the string denoting the country field in the database.
+	FieldCountry = "country"
+	// FieldProvince holds the string denoting the province field in the database.
+	FieldProvince = "province"
 	// FieldAddress holds the string denoting the address field in the database.
 	FieldAddress = "address"
 	// FieldLng holds the string denoting the lng field in the database.
@@ -84,14 +80,6 @@ const (
 	FieldSuperAccount = "super_account"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
-	// EdgeCountry holds the string denoting the country edge name in mutations.
-	EdgeCountry = "country"
-	// EdgeProvince holds the string denoting the province edge name in mutations.
-	EdgeProvince = "province"
-	// EdgeCity holds the string denoting the city edge name in mutations.
-	EdgeCity = "city"
-	// EdgeDistrict holds the string denoting the district edge name in mutations.
-	EdgeDistrict = "district"
 	// EdgeStoreUsers holds the string denoting the store_users edge name in mutations.
 	EdgeStoreUsers = "store_users"
 	// EdgeRemarks holds the string denoting the remarks edge name in mutations.
@@ -125,34 +113,6 @@ const (
 	MerchantInverseTable = "merchants"
 	// MerchantColumn is the table column denoting the merchant relation/edge.
 	MerchantColumn = "merchant_id"
-	// CountryTable is the table that holds the country relation/edge.
-	CountryTable = "stores"
-	// CountryInverseTable is the table name for the Country entity.
-	// It exists in this package in order to avoid circular dependency with the "country" package.
-	CountryInverseTable = "countries"
-	// CountryColumn is the table column denoting the country relation/edge.
-	CountryColumn = "country_id"
-	// ProvinceTable is the table that holds the province relation/edge.
-	ProvinceTable = "stores"
-	// ProvinceInverseTable is the table name for the Province entity.
-	// It exists in this package in order to avoid circular dependency with the "province" package.
-	ProvinceInverseTable = "provinces"
-	// ProvinceColumn is the table column denoting the province relation/edge.
-	ProvinceColumn = "province_id"
-	// CityTable is the table that holds the city relation/edge.
-	CityTable = "stores"
-	// CityInverseTable is the table name for the City entity.
-	// It exists in this package in order to avoid circular dependency with the "city" package.
-	CityInverseTable = "cities"
-	// CityColumn is the table column denoting the city relation/edge.
-	CityColumn = "city_id"
-	// DistrictTable is the table that holds the district relation/edge.
-	DistrictTable = "stores"
-	// DistrictInverseTable is the table name for the District entity.
-	// It exists in this package in order to avoid circular dependency with the "district" package.
-	DistrictInverseTable = "districts"
-	// DistrictColumn is the table column denoting the district relation/edge.
-	DistrictColumn = "district_id"
 	// StoreUsersTable is the table that holds the store_users relation/edge.
 	StoreUsersTable = "store_users"
 	// StoreUsersInverseTable is the table name for the StoreUser entity.
@@ -262,10 +222,8 @@ var Columns = []string{
 	FieldBusinessHours,
 	FieldDiningPeriods,
 	FieldShiftTimes,
-	FieldCountryID,
-	FieldProvinceID,
-	FieldCityID,
-	FieldDistrictID,
+	FieldCountry,
+	FieldProvince,
 	FieldAddress,
 	FieldLng,
 	FieldLat,
@@ -395,6 +353,26 @@ func BusinessModelValidator(bm domain.BusinessModel) error {
 	}
 }
 
+// CountryValidator is a validator for the "country" field enum values. It is called by the builders before save.
+func CountryValidator(c domain.Country) error {
+	switch c {
+	case "MY", "SG":
+		return nil
+	default:
+		return fmt.Errorf("store: invalid enum value for country field: %q", c)
+	}
+}
+
+// ProvinceValidator is a validator for the "province" field enum values. It is called by the builders before save.
+func ProvinceValidator(pr domain.Province) error {
+	switch pr {
+	case "MY-01", "MY-02", "MY-03", "MY-04", "MY-05", "MY-06", "MY-07", "MY-08", "MY-09", "MY-10", "MY-11", "MY-12", "MY-13", "MY-14", "MY-15", "MY-16", "SG-01", "SG-02", "SG-03", "SG-04", "SG-05":
+		return nil
+	default:
+		return fmt.Errorf("store: invalid enum value for province field: %q", pr)
+	}
+}
+
 // OrderOption defines the ordering options for the Store queries.
 type OrderOption func(*sql.Selector)
 
@@ -508,24 +486,14 @@ func ByFoodOperationLicenseURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFoodOperationLicenseURL, opts...).ToFunc()
 }
 
-// ByCountryID orders the results by the country_id field.
-func ByCountryID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCountryID, opts...).ToFunc()
+// ByCountry orders the results by the country field.
+func ByCountry(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCountry, opts...).ToFunc()
 }
 
-// ByProvinceID orders the results by the province_id field.
-func ByProvinceID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldProvinceID, opts...).ToFunc()
-}
-
-// ByCityID orders the results by the city_id field.
-func ByCityID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCityID, opts...).ToFunc()
-}
-
-// ByDistrictID orders the results by the district_id field.
-func ByDistrictID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDistrictID, opts...).ToFunc()
+// ByProvince orders the results by the province field.
+func ByProvince(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProvince, opts...).ToFunc()
 }
 
 // ByAddress orders the results by the address field.
@@ -552,34 +520,6 @@ func BySuperAccount(opts ...sql.OrderTermOption) OrderOption {
 func ByMerchantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByCountryField orders the results by country field.
-func ByCountryField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCountryStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByProvinceField orders the results by province field.
-func ByProvinceField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProvinceStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByCityField orders the results by city field.
-func ByCityField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCityStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByDistrictField orders the results by district field.
-func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newDistrictStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -755,34 +695,6 @@ func newMerchantStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
-	)
-}
-func newCountryStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CountryInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CountryTable, CountryColumn),
-	)
-}
-func newProvinceStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProvinceInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ProvinceTable, ProvinceColumn),
-	)
-}
-func newCityStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CityInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CityTable, CityColumn),
-	)
-}
-func newDistrictStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(DistrictInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
 	)
 }
 func newStoreUsersStep() *sqlgraph.Step {

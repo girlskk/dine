@@ -65,21 +65,6 @@ func (mr *MockRemarkInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRemarkInteractor)(nil).Delete), arg0, arg1)
 }
 
-// Exists mocks base method.
-func (m *MockRemarkInteractor) Exists(arg0 context.Context, arg1 domain.RemarkExistsParams) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exists", arg0, arg1)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Exists indicates an expected call of Exists.
-func (mr *MockRemarkInteractorMockRecorder) Exists(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockRemarkInteractor)(nil).Exists), arg0, arg1)
-}
-
 // GetRemark mocks base method.
 func (m *MockRemarkInteractor) GetRemark(arg0 context.Context, arg1 uuid.UUID) (*domain.Remark, error) {
 	m.ctrl.T.Helper()

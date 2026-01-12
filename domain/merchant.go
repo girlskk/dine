@@ -129,6 +129,26 @@ const (
 	MerchantSimpleUpdateTypeStatus MerchantSimpleUpdateField = "status" // 状态
 )
 
+type BusinessType string
+
+const (
+	BusinessTypeNoodle      BusinessType = "noodle"       // 面馆
+	BusinessTypeBakery      BusinessType = "bakery"       // 烘焙
+	BusinessTypeSnack       BusinessType = "snack"        // 小吃
+	BusinessTypeDrink       BusinessType = "drink"        // 饮品
+	BusinessTypeChineseFood BusinessType = "chinese_food" // 中餐
+)
+
+func (BusinessType) Values() []string {
+	return []string{
+		string(BusinessTypeNoodle),
+		string(BusinessTypeBakery),
+		string(BusinessTypeSnack),
+		string(BusinessTypeDrink),
+		string(BusinessTypeChineseFood),
+	}
+}
+
 type Merchant struct {
 	ID                   uuid.UUID            `json:"id"`
 	MerchantCode         string               `json:"merchant_code"`                             // 商户编号(保留字段)
@@ -138,8 +158,7 @@ type Merchant struct {
 	BrandName            string               `json:"brand_name"`                                // 品牌名称
 	AdminPhoneNumber     string               `json:"admin_phone_number"`                        // 管理员手机号
 	ExpireUTC            *time.Time           `json:"expire_utc"`                                // UTC 时区的过期时间
-	BusinessTypeCode     string               `json:"business_type_code"`                        // 业态类型
-	BusinessTypeName     string               `json:"business_type_name"`                        // 业务类型名称
+	BusinessTypeCode     BusinessType         `json:"business_type_code"`                        // 业态类型
 	MerchantLogo         string               `json:"merchant_logo"`                             // logo 图片地址
 	Description          string               `json:"description"`                               // 商户描述(保留字段)
 	Status               MerchantStatus       `json:"status"`                                    // 状态: 正常,停用,过期
@@ -160,17 +179,11 @@ type MerchantSimple struct {
 }
 
 type Address struct {
-	CountryID    uuid.UUID `json:"country_id"`    // 国家/地区 ID
-	ProvinceID   uuid.UUID `json:"province_id"`   // 省份 ID
-	CityID       uuid.UUID `json:"city_id"`       // 城市 ID
-	DistrictID   uuid.UUID `json:"district_id"`   // 区县 ID
-	CountryName  string    `json:"country_name"`  // 国家/地区 名称
-	ProvinceName string    `json:"province_name"` // 省份名称
-	CityName     string    `json:"city_name"`     // 城市名称
-	DistrictName string    `json:"district_name"` // 区县名称
-	Address      string    `json:"address"`       // 详细地址
-	Lng          string    `json:"lng"`           // 经度
-	Lat          string    `json:"lat"`           // 纬度
+	Country  Country  `json:"country"`  // 国家/地区
+	Province Province `json:"province"` // 省份
+	Address  string   `json:"address"`  // 详细地址
+	Lng      string   `json:"lng"`      // 经度
+	Lat      string   `json:"lat"`      // 纬度
 }
 type MerchantCount struct {
 	MerchantTypeBrand int `json:"merchant_type_brand"` // 品牌商户数量
@@ -185,7 +198,7 @@ type MerchantListFilter struct {
 	MerchantType     MerchantType   `json:"merchant_type"`      // 商户类型: 品牌商户,门店商户
 	CreatedAtGte     *time.Time     `json:"created_at_gte"`     // 创建时间 大于等于
 	CreatedAtLte     *time.Time     `json:"created_at_lte"`     // 创建时间 小于等于
-	ProvinceID       uuid.UUID      `json:"province_id"`        // 省份 ID
+	Province         Province       `json:"province"`           // 省份
 }
 
 type MerchantExistsParams struct {
@@ -202,7 +215,7 @@ type CreateMerchantParams struct {
 	AdminPhoneNumber     string               `json:"admin_phone_number"`     // 管理员手机号
 	PurchaseDuration     int                  `json:"purchase_duration"`      // 购买时长
 	PurchaseDurationUnit PurchaseDurationUnit `json:"purchase_duration_unit"` // 购买时长单位
-	BusinessTypeCode     string               `json:"business_type_code"`     // 业务类型
+	BusinessTypeCode     BusinessType         `json:"business_type_code"`     // 业务类型
 	MerchantLogo         string               `json:"merchant_logo"`          // logo 图片地址
 	Description          string               `json:"description"`            // 商户描述(保留字段)
 	LoginAccount         string               `json:"login_account"`          // 登录账号
@@ -211,14 +224,14 @@ type CreateMerchantParams struct {
 }
 
 type UpdateMerchantParams struct {
-	ID                uuid.UUID `json:"id"`
-	MerchantCode      string    `json:"merchant_code"`       // 商户编号(保留字段)
-	MerchantName      string    `json:"merchant_name"`       // 商户名称,最长不得超过50个字
-	MerchantShortName string    `json:"merchant_short_name"` // 商户简称
-	BrandName         string    `json:"brand_name"`          // 品牌名称
-	AdminPhoneNumber  string    `json:"admin_phone_number"`  // 管理员手机号
-	BusinessTypeCode  string    `json:"business_type_code"`  // 业务类型
-	MerchantLogo      string    `json:"merchant_logo"`       // logo 图片地址
-	Description       string    `json:"description"`         // 商户描述(保留字段)
-	Address           *Address  `json:"address"`             // 地址
+	ID                uuid.UUID    `json:"id"`
+	MerchantCode      string       `json:"merchant_code"`       // 商户编号(保留字段)
+	MerchantName      string       `json:"merchant_name"`       // 商户名称,最长不得超过50个字
+	MerchantShortName string       `json:"merchant_short_name"` // 商户简称
+	BrandName         string       `json:"brand_name"`          // 品牌名称
+	AdminPhoneNumber  string       `json:"admin_phone_number"`  // 管理员手机号
+	BusinessTypeCode  BusinessType `json:"business_type_code"`  // 业务类型
+	MerchantLogo      string       `json:"merchant_logo"`       // logo 图片地址
+	Description       string       `json:"description"`         // 商户描述(保留字段)
+	Address           *Address     `json:"address"`             // 地址
 }

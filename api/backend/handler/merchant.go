@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
@@ -75,16 +74,12 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 			MerchantLogo:      req.MerchantLogo,
 			Description:       req.Description,
 		}
-		if req.Address.CountryID != uuid.Nil {
-			updateBrandMerchant.Address = &domain.Address{
-				CountryID:  req.Address.CountryID,
-				ProvinceID: req.Address.ProvinceID,
-				CityID:     req.Address.CityID,
-				DistrictID: req.Address.DistrictID,
-				Address:    req.Address.Address,
-				Lng:        req.Address.Lng,
-				Lat:        req.Address.Lat,
-			}
+		updateBrandMerchant.Address = &domain.Address{
+			Country:  req.Address.Country,
+			Province: req.Address.Province,
+			Address:  req.Address.Address,
+			Lng:      req.Address.Lng,
+			Lat:      req.Address.Lat,
 		}
 
 		err = h.MerchantInteractor.UpdateMerchant(ctx, updateBrandMerchant)
@@ -126,13 +121,11 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		address := &domain.Address{
-			CountryID:  req.Merchant.Address.CountryID,
-			ProvinceID: req.Merchant.Address.ProvinceID,
-			CityID:     req.Merchant.Address.CityID,
-			DistrictID: req.Merchant.Address.DistrictID,
-			Address:    req.Merchant.Address.Address,
-			Lng:        req.Merchant.Address.Lng,
-			Lat:        req.Merchant.Address.Lat,
+			Country:  req.Merchant.Address.Country,
+			Province: req.Merchant.Address.Province,
+			Address:  req.Merchant.Address.Address,
+			Lng:      req.Merchant.Address.Lng,
+			Lat:      req.Merchant.Address.Lat,
 		}
 		updateMerchant := &domain.UpdateMerchantParams{
 			ID:                user.MerchantID,

@@ -65,16 +65,6 @@ const (
 	RemarkSceneRefundReject RemarkScene = "refund_reject" // 拒绝退款
 )
 
-var RemarkSceneList = []RemarkScene{
-	RemarkSceneWholeOrder,
-	RemarkSceneItem,
-	RemarkSceneCancelReason,
-	RemarkSceneDiscount,
-	RemarkSceneGift,
-	RemarkSceneRebill,
-	RemarkSceneRefundReject,
-}
-
 func (RemarkScene) Values() []string {
 	return []string{
 		string(RemarkSceneWholeOrder),
@@ -85,31 +75,6 @@ func (RemarkScene) Values() []string {
 		string(RemarkSceneRebill),
 		string(RemarkSceneRefundReject),
 	}
-}
-
-// RemarkSceneEntries provides ordered entries and message IDs used by i18n translation
-var RemarkSceneEntries = []struct {
-	Code  string
-	MsgID string
-}{
-	{"whole_order", "REMARK_SCENE_whole_order"},
-	{"item", "REMARK_SCENE_item"},
-	{"cancel_reason", "REMARK_SCENE_cancel_reason"},
-	{"discount", "REMARK_SCENE_discount"},
-	{"gift", "REMARK_SCENE_gift"},
-	{"rebill", "REMARK_SCENE_rebill"},
-	{"refund_reject", "REMARK_SCENE_refund_reject"},
-}
-
-// RemarkSceneI18NMap maps cannot be const in Go; use var
-var RemarkSceneI18NMap = map[string]string{
-	"whole_order":   "REMARK_SCENE_whole_order",
-	"item":          "REMARK_SCENE_item",
-	"cancel_reason": "REMARK_SCENE_cancel_reason",
-	"discount":      "REMARK_SCENE_discount",
-	"gift":          "REMARK_SCENE_gift",
-	"rebill":        "REMARK_SCENE_rebill",
-	"refund_reject": "REMARK_SCENE_refund_reject",
 }
 
 type RemarkSimpleUpdateField string

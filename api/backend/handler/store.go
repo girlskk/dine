@@ -87,16 +87,12 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			DiningPeriods:           req.DiningPeriods,
 			ShiftTimes:              req.ShiftTimes,
 		}
-		if req.Address.CountryID != uuid.Nil {
-			domainStore.Address = &domain.Address{
-				CountryID:  req.Address.CountryID,
-				ProvinceID: req.Address.ProvinceID,
-				CityID:     req.Address.CityID,
-				DistrictID: req.Address.DistrictID,
-				Address:    req.Address.Address,
-				Lng:        req.Address.Lng,
-				Lat:        req.Address.Lat,
-			}
+		domainStore.Address = &domain.Address{
+			Country:  req.Address.Country,
+			Province: req.Address.Province,
+			Address:  req.Address.Address,
+			Lng:      req.Address.Lng,
+			Lat:      req.Address.Lat,
 		}
 
 		if err := h.StoreInteractor.CreateStore(ctx, domainStore); err != nil {
@@ -162,16 +158,12 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			DiningPeriods:           req.DiningPeriods,
 			ShiftTimes:              req.ShiftTimes,
 		}
-		if req.Address.CountryID != uuid.Nil {
-			domainStore.Address = &domain.Address{
-				CountryID:  req.Address.CountryID,
-				ProvinceID: req.Address.ProvinceID,
-				CityID:     req.Address.CityID,
-				DistrictID: req.Address.DistrictID,
-				Address:    req.Address.Address,
-				Lng:        req.Address.Lng,
-				Lat:        req.Address.Lat,
-			}
+		domainStore.Address = &domain.Address{
+			Country:  req.Address.Country,
+			Province: req.Address.Province,
+			Address:  req.Address.Address,
+			Lng:      req.Address.Lng,
+			Lat:      req.Address.Lat,
 		}
 
 		if err := h.StoreInteractor.UpdateStore(ctx, domainStore); err != nil {

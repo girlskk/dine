@@ -21,20 +21,11 @@ type BusinessConfig func(*sql.Selector)
 // Category is the predicate function for category builders.
 type Category func(*sql.Selector)
 
-// City is the predicate function for city builders.
-type City func(*sql.Selector)
-
-// Country is the predicate function for country builders.
-type Country func(*sql.Selector)
-
 // Department is the predicate function for department builders.
 type Department func(*sql.Selector)
 
 // Device is the predicate function for device builders.
 type Device func(*sql.Selector)
-
-// District is the predicate function for district builders.
-type District func(*sql.Selector)
 
 // Menu is the predicate function for menu builders.
 type Menu func(*sql.Selector)
@@ -96,14 +87,8 @@ type ProfitDistributionBill func(*sql.Selector)
 // ProfitDistributionRule is the predicate function for profitdistributionrule builders.
 type ProfitDistributionRule func(*sql.Selector)
 
-// Province is the predicate function for province builders.
-type Province func(*sql.Selector)
-
 // Remark is the predicate function for remark builders.
 type Remark func(*sql.Selector)
-
-// RemarkCategory is the predicate function for remarkcategory builders.
-type RemarkCategory func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)

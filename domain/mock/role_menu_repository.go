@@ -5,11 +5,11 @@
 package mock
 
 import (
-	"context"
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
@@ -120,6 +120,21 @@ func (m *MockRoleMenuRepository) FindByID(arg0 context.Context, arg1 uuid.UUID) 
 func (mr *MockRoleMenuRepositoryMockRecorder) FindByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRoleMenuRepository)(nil).FindByID), arg0, arg1)
+}
+
+// GetByRoleID mocks base method.
+func (m *MockRoleMenuRepository) GetByRoleID(arg0 context.Context, arg1 uuid.UUID) ([]*domain.RoleMenu, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByRoleID", arg0, arg1)
+	ret0, _ := ret[0].([]*domain.RoleMenu)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByRoleID indicates an expected call of GetByRoleID.
+func (mr *MockRoleMenuRepositoryMockRecorder) GetByRoleID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByRoleID", reflect.TypeOf((*MockRoleMenuRepository)(nil).GetByRoleID), arg0, arg1)
 }
 
 // GetRoleMenus mocks base method.

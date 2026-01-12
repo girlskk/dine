@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/store"
@@ -381,11 +380,6 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 			return nil, domain.ParamsError(domain.ErrMerchantNotExists)
 		}
 		return nil, err
-	}
-
-	if msgID, ok := domain.BusinessTypeI18NMap[domainMerchant.BusinessTypeCode]; ok {
-		name := i18n.Translate(ctx, msgID, nil)
-		domainMerchant.BusinessTypeName = name
 	}
 
 	if renewals, err := interactor.DS.MerchantRenewalRepo().GetByMerchant(ctx, id); err == nil && len(renewals) > 0 {

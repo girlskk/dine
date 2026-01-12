@@ -14,7 +14,7 @@ type CreateStoreReq struct {
 	StoreCode               string                 `json:"store_code" binding:"omitempty,max=50"`                  // 门店编码(保留字段)
 	Status                  domain.StoreStatus     `json:"status" binding:"required"`                              // 营业/停业
 	BusinessModel           domain.BusinessModel   `json:"business_model" binding:"required"`                      // 直营/加盟
-	BusinessTypeCode        string                 `json:"business_type_code" binding:"required"`                  // 业务类型
+	BusinessTypeCode        domain.BusinessType    `json:"business_type_code" binding:"required"`                  // 业务类型
 	LocationNumber          string                 `json:"location_number" binding:"required,max=255"`             // 门店位置编号
 	ContactName             string                 `json:"contact_name" binding:"omitempty,max=255"`               // 联系人
 	ContactPhone            string                 `json:"contact_phone" binding:"omitempty,max=255"`              // 联系电话
@@ -40,7 +40,7 @@ type UpdateStoreReq struct {
 	StoreCode               string                 `json:"store_code" binding:"omitempty,max=50"`                  // 门店编码(保留字段)
 	Status                  domain.StoreStatus     `json:"status" binding:"required"`                              // 营业/停业
 	BusinessModel           domain.BusinessModel   `json:"business_model" binding:"required"`                      // 直营/加盟
-	BusinessTypeCode        string                 `json:"business_type_code" binding:"required"`                  // 业务类型
+	BusinessTypeCode        domain.BusinessType    `json:"business_type_code" binding:"required"`                  // 业务类型
 	LocationNumber          string                 `json:"location_number" binding:"required,max=255"`             // 门店位置编号
 	ContactName             string                 `json:"contact_name" binding:"omitempty,max=255"`               // 联系人
 	ContactPhone            string                 `json:"contact_phone" binding:"omitempty,max=255"`              // 联系电话
@@ -64,8 +64,8 @@ type StoreListReq struct {
 	StoreName        string               `form:"store_name" binding:"omitempty"`         // 门店名称
 	Status           domain.StoreStatus   `form:"status" binding:"omitempty"`             // 营业/停业
 	BusinessModel    domain.BusinessModel `form:"business_model" binding:"omitempty"`     // 直营/加盟
-	BusinessTypeCode string               `form:"business_type_code" binding:"omitempty"` // 业态类型
-	ProvinceID       string               `form:"province_id" binding:"omitempty"`        // 省份 ID
+	BusinessTypeCode domain.BusinessType  `form:"business_type_code" binding:"omitempty"` // 业务类型
+	Province         domain.Province      `form:"province" binding:"omitempty"`           // 省份
 	CreatedAtGte     string               `form:"created_at_gte" binding:"omitempty"`     // 创建时间 yyyy-mm-dd 2026-01-01
 	CreatedAtLte     string               `form:"created_at_lte" binding:"omitempty"`     // 创建时间 yyyy-mm-dd 2026-01-01
 }

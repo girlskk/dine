@@ -143,8 +143,7 @@ type Store struct {
 	StoreCode               string          `json:"store_code"`                 // 门店编码(保留字段)
 	Status                  StoreStatus     `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel   `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeCode        string          `json:"business_type_code"`         // 业态类型
-	BusinessTypeName        string          `json:"business_type_name"`         // 业务类型名称
+	BusinessTypeCode        BusinessType    `json:"business_type_code"`         // 业态类型
 	LocationNumber          string          `json:"location_number"`            // 门店位置编号
 	ContactName             string          `json:"contact_name"`               // 联系人
 	ContactPhone            string          `json:"contact_phone"`              // 联系电话
@@ -173,13 +172,13 @@ type StoreSimple struct {
 type StoreListFilter struct {
 	StoreName        string        `json:"store_name"`         // 门店名称
 	MerchantID       uuid.UUID     `json:"merchant_id"`        // 商户 ID
-	BusinessTypeCode string        `json:"business_type_code"` // 业态类型
+	BusinessTypeCode BusinessType  `json:"business_type_code"` // 业态类型
 	AdminPhoneNumber string        `json:"admin_phone_number"` // 管理员手机号
 	Status           StoreStatus   `json:"status"`             // 状态: 营业 停业
 	BusinessModel    BusinessModel `json:"business_model"`     // 经营模式：直营 加盟
 	CreatedAtGte     *time.Time    `json:"created_at_gte"`     // 创建时间 大于等于
 	CreatedAtLte     *time.Time    `json:"created_at_lte"`     // 创建时间 小于等于
-	ProvinceID       uuid.UUID     `json:"province_id"`        // 省份 ID
+	Province         Province      `json:"province"`           // 省份 ID
 }
 
 type CreateStoreParams struct {
@@ -190,7 +189,7 @@ type CreateStoreParams struct {
 	StoreCode               string          `json:"store_code"`                 // 门店编码(保留字段)
 	Status                  StoreStatus     `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel   `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeCode        string          `json:"business_type_code"`         // 业态类型
+	BusinessTypeCode        BusinessType    `json:"business_type_code"`         // 业态类型
 	LocationNumber          string          `json:"location_number"`            // 门店位置编号
 	ContactName             string          `json:"contact_name"`               // 联系人
 	ContactPhone            string          `json:"contact_phone"`              // 联系电话
@@ -217,7 +216,7 @@ type UpdateStoreParams struct {
 	StoreCode               string          `json:"store_code"`                 // 门店编码(保留字段)
 	Status                  StoreStatus     `json:"status"`                     // 状态: 营业 停业
 	BusinessModel           BusinessModel   `json:"business_model"`             // 经营模式：直营 加盟
-	BusinessTypeCode        string          `json:"business_type_code"`         // 业态类型
+	BusinessTypeCode        BusinessType    `json:"business_type_code"`         // 业态类型
 	LocationNumber          string          `json:"location_number"`            // 门店位置编号
 	ContactName             string          `json:"contact_name"`               // 联系人
 	ContactPhone            string          `json:"contact_phone"`              // 联系电话
