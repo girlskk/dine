@@ -32,6 +32,7 @@ type RemarkCategoryInteractor interface {
 	Update(ctx context.Context, remarkCategory *RemarkCategory) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetRemarkCategories(ctx context.Context, filter *RemarkCategoryListFilter) (remarkCategories RemarkCategories, err error)
+	GetRemarkGroup(ctx context.Context, params RemarkGroupListFilter) (remarkGroups []RemarkGroup, err error)
 }
 
 type RemarkCategory struct {

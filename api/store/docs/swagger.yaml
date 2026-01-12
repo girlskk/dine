@@ -1578,6 +1578,11 @@ definitions:
       name:
         description: 角色名称
         type: string
+      paths:
+        description: 前端路由菜单列表
+        items:
+          type: string
+        type: array
       role_type:
         allOf:
         - $ref: '#/definitions/domain.RoleType'
@@ -4976,6 +4981,29 @@ paths:
       summary: 查询分账账单列表
       tags:
       - 分账账单
+  /region/{id}/provinces:
+    get:
+      parameters:
+      - description: 国家/地区 ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.ProvinceListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取指定国家/地区的省/州列表
+      tags:
+      - 地区
   /region/countries:
     get:
       responses:
@@ -4991,28 +5019,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取国家/地区列表
-      tags:
-      - 地区
-  /region/provinces:
-    get:
-      parameters:
-      - description: 国家/地区ID
-        in: query
-        name: country_id
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/types.ProvinceListResp'
-              type: object
-      security:
-      - BearerAuth: []
-      summary: 获取省份列表
       tags:
       - 地区
   /restaurant/device:

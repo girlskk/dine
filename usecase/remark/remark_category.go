@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -90,26 +90,38 @@ func (interactor *RemarkCategoryInteractor) GetRemarkCategories(ctx context.Cont
 		err = fmt.Errorf("failed to list remark categories: %w", err)
 		return
 	}
-	categoriesIds := lo.Map(remarkCategories, func(item *domain.RemarkCategory, _ int) uuid.UUID {
-		return item.ID
-	})
-	countRemark, err := interactor.DS.RemarkRepo().CountRemarkByCategories(ctx, domain.CountRemarkParams{
-		CategoryIDs: categoriesIds,
-		MerchantID:  filter.MerchantID,
-		StoreID:     filter.StoreID,
-		RemarkType:  filter.CountScene,
+	return
+}
+
+func (interactor *RemarkCategoryInteractor) GetRemarkGroup(ctx context.Context, params domain.RemarkGroupListFilter) (remarkGroups []domain.RemarkGroup, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "RemarkCategoryInteractor.GetRemarkGroup")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	countRemark, err := interactor.DS.RemarkRepo().CountRemarkByScene(ctx, domain.CountRemarkParams{
+		RemarkScenes: domain.RemarkSceneList,
+		MerchantID:   params.MerchantID,
+		StoreID:      params.StoreID,
+		RemarkType:   params.CountScene,
 	})
 	if err != nil {
-		err = fmt.Errorf("failed to count remarks by categories: %w", err)
+		err = fmt.Errorf("failed to count remarks by scenes: %w", err)
 		return
 	}
-	for _, category := range remarkCategories {
-		if count, ok := countRemark[category.ID]; ok {
-			category.RemarkCount = count
-		} else {
-			category.RemarkCount = 0
+	// Build remark groups from the RemarkScene enum entries with i18n support
+	for _, e := range domain.RemarkSceneEntries {
+		name := i18n.Translate(ctx, e.MsgID, nil)
+		remarkGroup := domain.RemarkGroup{
+			Name:        name,
+			RemarkScene: domain.RemarkScene(e.Code),
 		}
+		if count, ok := countRemark[remarkGroup.RemarkScene]; ok {
+			remarkGroup.RemarkCount = count
+		} else {
+			remarkGroup.RemarkCount = 0
+		}
+		remarkGroups = append(remarkGroups, remarkGroup)
 	}
+
 	return
 }
 

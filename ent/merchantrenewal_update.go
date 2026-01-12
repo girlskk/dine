@@ -107,6 +107,12 @@ func (mru *MerchantRenewalUpdate) SetNillableOperatorName(s *string) *MerchantRe
 	return mru
 }
 
+// ClearOperatorName clears the value of the "operator_name" field.
+func (mru *MerchantRenewalUpdate) ClearOperatorName() *MerchantRenewalUpdate {
+	mru.mutation.ClearOperatorName()
+	return mru
+}
+
 // SetOperatorAccount sets the "operator_account" field.
 func (mru *MerchantRenewalUpdate) SetOperatorAccount(s string) *MerchantRenewalUpdate {
 	mru.mutation.SetOperatorAccount(s)
@@ -118,6 +124,12 @@ func (mru *MerchantRenewalUpdate) SetNillableOperatorAccount(s *string) *Merchan
 	if s != nil {
 		mru.SetOperatorAccount(*s)
 	}
+	return mru
+}
+
+// ClearOperatorAccount clears the value of the "operator_account" field.
+func (mru *MerchantRenewalUpdate) ClearOperatorAccount() *MerchantRenewalUpdate {
+	mru.mutation.ClearOperatorAccount()
 	return mru
 }
 
@@ -233,8 +245,14 @@ func (mru *MerchantRenewalUpdate) sqlSave(ctx context.Context) (n int, err error
 	if value, ok := mru.mutation.OperatorName(); ok {
 		_spec.SetField(merchantrenewal.FieldOperatorName, field.TypeString, value)
 	}
+	if mru.mutation.OperatorNameCleared() {
+		_spec.ClearField(merchantrenewal.FieldOperatorName, field.TypeString)
+	}
 	if value, ok := mru.mutation.OperatorAccount(); ok {
 		_spec.SetField(merchantrenewal.FieldOperatorAccount, field.TypeString, value)
+	}
+	if mru.mutation.OperatorAccountCleared() {
+		_spec.ClearField(merchantrenewal.FieldOperatorAccount, field.TypeString)
 	}
 	if mru.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -363,6 +381,12 @@ func (mruo *MerchantRenewalUpdateOne) SetNillableOperatorName(s *string) *Mercha
 	return mruo
 }
 
+// ClearOperatorName clears the value of the "operator_name" field.
+func (mruo *MerchantRenewalUpdateOne) ClearOperatorName() *MerchantRenewalUpdateOne {
+	mruo.mutation.ClearOperatorName()
+	return mruo
+}
+
 // SetOperatorAccount sets the "operator_account" field.
 func (mruo *MerchantRenewalUpdateOne) SetOperatorAccount(s string) *MerchantRenewalUpdateOne {
 	mruo.mutation.SetOperatorAccount(s)
@@ -374,6 +398,12 @@ func (mruo *MerchantRenewalUpdateOne) SetNillableOperatorAccount(s *string) *Mer
 	if s != nil {
 		mruo.SetOperatorAccount(*s)
 	}
+	return mruo
+}
+
+// ClearOperatorAccount clears the value of the "operator_account" field.
+func (mruo *MerchantRenewalUpdateOne) ClearOperatorAccount() *MerchantRenewalUpdateOne {
+	mruo.mutation.ClearOperatorAccount()
 	return mruo
 }
 
@@ -519,8 +549,14 @@ func (mruo *MerchantRenewalUpdateOne) sqlSave(ctx context.Context) (_node *Merch
 	if value, ok := mruo.mutation.OperatorName(); ok {
 		_spec.SetField(merchantrenewal.FieldOperatorName, field.TypeString, value)
 	}
+	if mruo.mutation.OperatorNameCleared() {
+		_spec.ClearField(merchantrenewal.FieldOperatorName, field.TypeString)
+	}
 	if value, ok := mruo.mutation.OperatorAccount(); ok {
 		_spec.SetField(merchantrenewal.FieldOperatorAccount, field.TypeString, value)
+	}
+	if mruo.mutation.OperatorAccountCleared() {
+		_spec.ClearField(merchantrenewal.FieldOperatorAccount, field.TypeString)
 	}
 	if mruo.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{

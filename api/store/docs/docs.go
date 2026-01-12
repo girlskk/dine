@@ -2303,7 +2303,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/region/provinces": {
+        "/region/{id}/provinces": {
             "get": {
                 "security": [
                     {
@@ -2313,13 +2313,14 @@ const docTemplate = `{
                 "tags": [
                     "地区"
                 ],
-                "summary": "获取省份列表",
+                "summary": "获取指定国家/地区的省/州列表",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "国家/地区ID",
-                        "name": "country_id",
-                        "in": "query"
+                        "description": "国家/地区 ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -5428,6 +5429,13 @@ const docTemplate = `{
                 "name": {
                     "description": "角色名称",
                     "type": "string"
+                },
+                "paths": {
+                    "description": "前端路由菜单列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "role_type": {
                     "description": "角色类型",

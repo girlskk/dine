@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
@@ -301,26 +302,6 @@ func RoleIDNotIn(vs ...uuid.UUID) predicate.UserRole {
 	return predicate.UserRole(sql.FieldNotIn(FieldRoleID, vs...))
 }
 
-// RoleIDGT applies the GT predicate on the "role_id" field.
-func RoleIDGT(v uuid.UUID) predicate.UserRole {
-	return predicate.UserRole(sql.FieldGT(FieldRoleID, v))
-}
-
-// RoleIDGTE applies the GTE predicate on the "role_id" field.
-func RoleIDGTE(v uuid.UUID) predicate.UserRole {
-	return predicate.UserRole(sql.FieldGTE(FieldRoleID, v))
-}
-
-// RoleIDLT applies the LT predicate on the "role_id" field.
-func RoleIDLT(v uuid.UUID) predicate.UserRole {
-	return predicate.UserRole(sql.FieldLT(FieldRoleID, v))
-}
-
-// RoleIDLTE applies the LTE predicate on the "role_id" field.
-func RoleIDLTE(v uuid.UUID) predicate.UserRole {
-	return predicate.UserRole(sql.FieldLTE(FieldRoleID, v))
-}
-
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
 func MerchantIDEQ(v uuid.UUID) predicate.UserRole {
 	return predicate.UserRole(sql.FieldEQ(FieldMerchantID, v))
@@ -419,6 +400,29 @@ func StoreIDIsNil() predicate.UserRole {
 // StoreIDNotNil applies the NotNil predicate on the "store_id" field.
 func StoreIDNotNil() predicate.UserRole {
 	return predicate.UserRole(sql.FieldNotNull(FieldStoreID))
+}
+
+// HasRole applies the HasEdge predicate on the "role" edge.
+func HasRole() predicate.UserRole {
+	return predicate.UserRole(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, RoleTable, RoleColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRoleWith applies the HasEdge predicate on the "role" edge with a given conditions (other predicates).
+func HasRoleWith(preds ...predicate.Role) predicate.UserRole {
+	return predicate.UserRole(func(s *sql.Selector) {
+		step := newRoleStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

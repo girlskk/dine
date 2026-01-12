@@ -28,7 +28,7 @@ func (s *StallRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *StallRepositoryTestSuite) newStall(tag string, merchantID, storeID uuid.UUID) *domain.Stall {
+func (s *StallRepositoryTestSuite) newStall(tag string, merchantID uuid.UUID) *domain.Stall {
 	return &domain.Stall{
 		ID:         uuid.New(),
 		Name:       "出品-" + tag,
@@ -37,13 +37,13 @@ func (s *StallRepositoryTestSuite) newStall(tag string, merchantID, storeID uuid
 		Enabled:    true,
 		SortOrder:  10,
 		MerchantID: merchantID,
-		StoreID:    storeID,
+		StoreID:    uuid.New(),
 	}
 }
 
 func (s *StallRepositoryTestSuite) TestStall_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
-		stall := s.newStall("create", uuid.New(), uuid.New())
+		stall := s.newStall("create", uuid.New())
 
 		err := s.repo.Create(s.ctx, stall)
 		require.NoError(t, err)
@@ -62,7 +62,7 @@ func (s *StallRepositoryTestSuite) TestStall_Create() {
 }
 
 func (s *StallRepositoryTestSuite) TestStall_FindByID() {
-	stall := s.newStall("find", uuid.New(), uuid.New())
+	stall := s.newStall("find", uuid.New())
 	require.NoError(s.T(), s.repo.Create(s.ctx, stall))
 
 	s.T().Run("查询成功", func(t *testing.T) {
@@ -80,7 +80,7 @@ func (s *StallRepositoryTestSuite) TestStall_FindByID() {
 }
 
 func (s *StallRepositoryTestSuite) TestStall_Update() {
-	stall := s.newStall("update", uuid.New(), uuid.New())
+	stall := s.newStall("update", uuid.New())
 	require.NoError(s.T(), s.repo.Create(s.ctx, stall))
 
 	s.T().Run("更新成功", func(t *testing.T) {
@@ -98,7 +98,7 @@ func (s *StallRepositoryTestSuite) TestStall_Update() {
 	})
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
-		missing := s.newStall("missing", uuid.New(), uuid.New())
+		missing := s.newStall("missing", uuid.New())
 		err := s.repo.Update(s.ctx, missing)
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
@@ -111,7 +111,7 @@ func (s *StallRepositoryTestSuite) TestStall_Update() {
 }
 
 func (s *StallRepositoryTestSuite) TestStall_Delete() {
-	stall := s.newStall("delete", uuid.New(), uuid.New())
+	stall := s.newStall("delete", uuid.New())
 	require.NoError(s.T(), s.repo.Create(s.ctx, stall))
 
 	s.T().Run("删除成功", func(t *testing.T) {
@@ -131,15 +131,15 @@ func (s *StallRepositoryTestSuite) TestStall_Delete() {
 func (s *StallRepositoryTestSuite) TestStall_GetStalls() {
 	m1 := uuid.New()
 	m2 := uuid.New()
-	stall1 := s.newStall("001", m1, uuid.New())
+	stall1 := s.newStall("001", m1)
 	require.NoError(s.T(), s.repo.Create(s.ctx, stall1))
 	time.Sleep(10 * time.Millisecond)
-	stall2 := s.newStall("002", m1, uuid.New())
+	stall2 := s.newStall("002", m1)
 	stall2.Enabled = false
 	stall2.SortOrder = 2
 	require.NoError(s.T(), s.repo.Create(s.ctx, stall2))
 	time.Sleep(10 * time.Millisecond)
-	stall3 := s.newStall("003", m2, uuid.New())
+	stall3 := s.newStall("003", m2)
 	stall3.PrintType = domain.StallPrintTypeLabel
 	require.NoError(s.T(), s.repo.Create(s.ctx, stall3))
 
@@ -179,30 +179,23 @@ func (s *StallRepositoryTestSuite) TestStall_GetStalls() {
 
 func (s *StallRepositoryTestSuite) TestStall_Exists() {
 	merchantID := uuid.New()
-	storeID := uuid.New()
-	stall := s.newStall("exists", merchantID, storeID)
+	stall := s.newStall("exists", merchantID)
 	require.NoError(s.T(), s.repo.Create(s.ctx, stall))
 
 	s.T().Run("同名存在", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.StallExistsParams{Name: stall.Name, MerchantID: merchantID, StoreID: storeID})
+		exists, err := s.repo.Exists(s.ctx, domain.StallExistsParams{Name: stall.Name, MerchantID: merchantID})
 		require.NoError(t, err)
 		require.True(t, exists)
 	})
 
 	s.T().Run("排除自身", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.StallExistsParams{Name: stall.Name, MerchantID: merchantID, StoreID: storeID, ExcludeID: stall.ID})
+		exists, err := s.repo.Exists(s.ctx, domain.StallExistsParams{Name: stall.Name, MerchantID: merchantID, ExcludeID: stall.ID})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
 
 	s.T().Run("不同商户不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.StallExistsParams{Name: stall.Name, MerchantID: uuid.New(), StoreID: storeID})
-		require.NoError(t, err)
-		require.False(t, exists)
-	})
-
-	s.T().Run("不同门店不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.StallExistsParams{Name: stall.Name, MerchantID: merchantID, StoreID: uuid.New()})
+		exists, err := s.repo.Exists(s.ctx, domain.StallExistsParams{Name: stall.Name, MerchantID: uuid.New()})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})

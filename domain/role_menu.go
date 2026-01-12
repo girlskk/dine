@@ -2,16 +2,10 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
-)
-
-var (
-	ErrRoleMenuNotExists = errors.New("角色菜单关系不存在")
-	ErrRoleMenuExists    = errors.New("角色菜单关系已存在")
 )
 
 // RoleMenuRepository 角色菜单关系仓储接口
@@ -21,10 +15,16 @@ type RoleMenuRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*RoleMenu, error)
 	Create(ctx context.Context, roleMenu *RoleMenu) error
 	CreateBulk(ctx context.Context, roleMenus []*RoleMenu) error
-	CreateBulkByRoleIDMenus(ctx context.Context, role *Role, menuIDs []uuid.UUID) error
+	CreateBulkByRoleIDPaths(ctx context.Context, role *Role, paths []string) error
 	DeletesByRoleID(ctx context.Context, roleID uuid.UUID) error
 	Deletes(ctx context.Context, ids []uuid.UUID) error
 	GetRoleMenus(ctx context.Context, pager *upagination.Pagination, filter *RoleMenuListFilter, orderBys ...RoleMenuListOrderBy) ([]*RoleMenu, int, error)
+	GetByRoleID(ctx context.Context, roleID uuid.UUID) ([]*RoleMenu, error)
+}
+
+type RoleMenuInteractor interface {
+	SetRoleMenu(ctx context.Context, roleID uuid.UUID, paths []string) error
+	RoleMenuList(ctx context.Context, roleID uuid.UUID) (paths []string, err error)
 }
 
 type RoleMenuListOrderByType int
@@ -52,7 +52,7 @@ type RoleMenu struct {
 	ID         uuid.UUID `json:"id"`
 	RoleType   RoleType  `json:"role_type"`
 	RoleID     uuid.UUID `json:"role_id"`
-	MenuID     uuid.UUID `json:"menu_id"`
+	Path       string    `json:"path"`
 	MerchantID uuid.UUID `json:"merchant_id"`
 	StoreID    uuid.UUID `json:"store_id"`
 	CreatedAt  time.Time `json:"created_at"`
@@ -62,7 +62,7 @@ type RoleMenu struct {
 type RoleMenuListFilter struct {
 	RoleType   RoleType  `json:"role_type"`
 	RoleID     uuid.UUID `json:"role_id"`
-	MenuID     uuid.UUID `json:"menu_id"`
+	Path       string    `json:"path"`
 	MerchantID uuid.UUID `json:"merchant_id"`
 	StoreID    uuid.UUID `json:"store_id"`
 }

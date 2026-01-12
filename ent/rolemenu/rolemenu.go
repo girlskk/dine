@@ -27,8 +27,8 @@ const (
 	FieldRoleType = "role_type"
 	// FieldRoleID holds the string denoting the role_id field in the database.
 	FieldRoleID = "role_id"
-	// FieldMenuID holds the string denoting the menu_id field in the database.
-	FieldMenuID = "menu_id"
+	// FieldPath holds the string denoting the path field in the database.
+	FieldPath = "path"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
@@ -45,7 +45,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldRoleType,
 	FieldRoleID,
-	FieldMenuID,
+	FieldPath,
 	FieldMerchantID,
 	FieldStoreID,
 }
@@ -123,9 +123,9 @@ func ByRoleID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRoleID, opts...).ToFunc()
 }
 
-// ByMenuID orders the results by the menu_id field.
-func ByMenuID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMenuID, opts...).ToFunc()
+// ByPath orders the results by the path field.
+func ByPath(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPath, opts...).ToFunc()
 }
 
 // ByMerchantID orders the results by the merchant_id field.

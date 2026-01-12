@@ -54,7 +54,7 @@ func (repo *RemarkRepository) Create(ctx context.Context, remark *domain.Remark)
 		SetRemarkType(remark.RemarkType).
 		SetEnabled(remark.Enabled).
 		SetSortOrder(remark.SortOrder).
-		SetCategoryID(remark.CategoryID)
+		SetRemarkScene(remark.RemarkScene)
 
 	if remark.MerchantID == uuid.Nil && remark.RemarkType == domain.RemarkTypeBrand {
 		return fmt.Errorf("merchant ID is required for brand remark")
@@ -153,8 +153,8 @@ func (repo *RemarkRepository) GetRemarks(ctx context.Context, pager *upagination
 	return
 }
 
-func (repo *RemarkRepository) CountRemarkByCategories(ctx context.Context, params domain.CountRemarkParams) (countRemark map[uuid.UUID]int, err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "RemarkRepository.CountRemarkByCategories")
+func (repo *RemarkRepository) CountRemarkByScene(ctx context.Context, params domain.CountRemarkParams) (countRemark map[domain.RemarkScene]int, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "RemarkRepository.CountRemarkByScene")
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	if params.StoreID != uuid.Nil && params.MerchantID == uuid.Nil {
@@ -162,27 +162,25 @@ func (repo *RemarkRepository) CountRemarkByCategories(ctx context.Context, param
 		return
 	}
 
-	countRemark = make(map[uuid.UUID]int)
-	if len(params.CategoryIDs) == 0 {
+	countRemark = make(map[domain.RemarkScene]int)
+	if len(params.RemarkScenes) == 0 {
 		return countRemark, nil
 	}
 
 	type result struct {
-		CategoryID uuid.UUID `json:"category_id"`
-		Count      int       `json:"count"`
+		RemarkScene domain.RemarkScene `json:"remark_scene"`
+		Count       int                `json:"count"`
 	}
 	var results []result
 	builder := repo.Client.Remark.Query().
-		Where(remark.CategoryIDIn(params.CategoryIDs...))
+		Where(remark.RemarkSceneIn(params.RemarkScenes...))
 	if params.RemarkType != "" {
-		if params.RemarkType != "" {
-			if params.MerchantID != uuid.Nil && params.StoreID != uuid.Nil {
-			}
-			if params.MerchantID != uuid.Nil && params.StoreID == uuid.Nil {
-			}
-			if params.MerchantID == uuid.Nil && params.StoreID == uuid.Nil {
-				builder = builder.Where(remark.RemarkTypeEQ(params.RemarkType))
-			}
+		if params.MerchantID != uuid.Nil && params.StoreID != uuid.Nil {
+		}
+		if params.MerchantID != uuid.Nil && params.StoreID == uuid.Nil {
+		}
+		if params.MerchantID == uuid.Nil && params.StoreID == uuid.Nil {
+			builder = builder.Where(remark.RemarkTypeEQ(params.RemarkType))
 		}
 	}
 
@@ -190,15 +188,15 @@ func (repo *RemarkRepository) CountRemarkByCategories(ctx context.Context, param
 	builder = repo.convertStoreIDFilter(params.RemarkType, params.StoreID, builder)
 
 	err = builder.
-		GroupBy(remark.FieldCategoryID).
+		GroupBy(remark.FieldRemarkScene).
 		Aggregate(ent.Count()).
 		Scan(ctx, &results)
 	if err != nil {
-		err = fmt.Errorf("failed to count remarks by categories: %w", err)
+		err = fmt.Errorf("failed to count remarks by scenes: %w", err)
 		return
 	}
-	countRemark = lo.SliceToMap(results, func(item result) (uuid.UUID, int) {
-		return item.CategoryID, item.Count
+	countRemark = lo.SliceToMap(results, func(item result) (domain.RemarkScene, int) {
+		return item.RemarkScene, item.Count
 	})
 	return
 }
@@ -211,8 +209,8 @@ func (repo *RemarkRepository) Exists(ctx context.Context, params domain.RemarkEx
 	if params.RemarkType != "" {
 		query = query.Where(remark.RemarkTypeEQ(params.RemarkType))
 	}
-	if params.CategoryID != uuid.Nil {
-		query = query.Where(remark.CategoryID(params.CategoryID))
+	if params.RemarkScene != "" {
+		query = query.Where(remark.RemarkSceneEQ(params.RemarkScene))
 	}
 	if params.MerchantID != uuid.Nil {
 		query = query.Where(remark.MerchantID(params.MerchantID))
@@ -239,16 +237,16 @@ func convertRemarkToDomain(er *ent.Remark) *domain.Remark {
 		return nil
 	}
 	return &domain.Remark{
-		ID:         er.ID,
-		Name:       er.Name,
-		RemarkType: er.RemarkType,
-		Enabled:    er.Enabled,
-		SortOrder:  er.SortOrder,
-		CategoryID: er.CategoryID,
-		MerchantID: er.MerchantID,
-		StoreID:    er.StoreID,
-		CreatedAt:  er.CreatedAt,
-		UpdatedAt:  er.UpdatedAt,
+		ID:          er.ID,
+		Name:        er.Name,
+		RemarkType:  er.RemarkType,
+		Enabled:     er.Enabled,
+		SortOrder:   er.SortOrder,
+		RemarkScene: er.RemarkScene,
+		MerchantID:  er.MerchantID,
+		StoreID:     er.StoreID,
+		CreatedAt:   er.CreatedAt,
+		UpdatedAt:   er.UpdatedAt,
 	}
 }
 
@@ -258,8 +256,8 @@ func (repo *RemarkRepository) filterBuildQuery(filter *domain.RemarkListFilter) 
 	query = repo.convertMerchantIDFilter(filter.RemarkType, filter.MerchantID, query)
 	query = repo.convertStoreIDFilter(filter.RemarkType, filter.StoreID, query)
 
-	if filter.CategoryID != uuid.Nil {
-		query = query.Where(remark.CategoryID(filter.CategoryID))
+	if filter.RemarkScene != "" {
+		query = query.Where(remark.RemarkSceneEQ(filter.RemarkScene))
 	}
 	if filter.Enabled != nil {
 		query = query.Where(remark.EnabledEQ(*filter.Enabled))

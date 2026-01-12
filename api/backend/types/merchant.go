@@ -68,3 +68,7 @@ type MerchantRenewalReq struct {
 	PurchaseDuration     int                         `json:"purchase_duration" binding:"required"`      // 购买时长
 	PurchaseDurationUnit domain.PurchaseDurationUnit `json:"purchase_duration_unit" binding:"required"` // 购买时长单位
 }
+
+type MerchantBusinessTypeListResp struct {
+	BusinessTypes []*domain.BusinessType `json:"business_types"` // 业务类型列表
+}

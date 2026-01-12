@@ -46,6 +46,7 @@ func (interactor *StoreUserInteractor) Login(ctx context.Context, username, pass
 	if !user.Enabled {
 		err = domain.ErrUserDisabled
 	}
+
 	expAt = time.Now().Add(time.Duration(interactor.AuthConfig.Expire) * time.Second)
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, AuthToken{
 		ID: user.ID,
@@ -276,25 +277,44 @@ func (interactor *StoreUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	span, ctx := util.StartSpan(ctx, "usecase", "StoreUserInteractor.GetUser")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		user, err = ds.StoreUserRepo().Find(ctx, id)
-		if err != nil {
-			return err
-		}
+	// 查询用户信息
+	user, err = interactor.DS.StoreUserRepo().Find(ctx, id)
+	if err != nil {
+		return
+	}
+	if user.IsSuperAdmin {
+		return
+	}
+	// 查询用户关联的角色
+	userRole, err := interactor.DS.UserRoleRepo().FindOneByUser(ctx, user)
+	if err != nil {
+		return
+	}
 
-		userRole, err := ds.UserRoleRepo().FindOneByUser(ctx, user)
-		if err != nil {
-			return err
-		}
-		user.RoleIDs = []uuid.UUID{userRole.RoleID}
-		role, err := ds.RoleRepo().FindByID(ctx, userRole.RoleID)
-		if err != nil {
-			return err
-		}
-		user.RoleList = []*domain.Role{role}
-		return nil
+	// 查询角色关联的菜单权限
+	roleMenus, err := interactor.DS.RoleMenuRepo().GetByRoleID(ctx, userRole.RoleID)
+	if err != nil {
+		return
+	}
+	paths := lo.Map(roleMenus, func(item *domain.RoleMenu, _ int) string {
+		return item.Path
 	})
 
+	// 查询角色信息
+	role := &domain.Role{}
+	if userRole.Role != nil {
+		role = userRole.Role
+	} else {
+		role, err = interactor.DS.RoleRepo().FindByID(ctx, userRole.RoleID)
+		if err != nil {
+			return
+		}
+	}
+
+	role.Paths = paths
+	user.RoleIDs = []uuid.UUID{userRole.RoleID}
+	user.RoleList = []*domain.Role{role}
+	return
 	return
 }
 
@@ -302,68 +322,71 @@ func (interactor *StoreUserInteractor) GetUsers(ctx context.Context, pager *upag
 	span, ctx := util.StartSpan(ctx, "usecase", "StoreUserInteractor.GetUsers")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		var userRoles []*domain.UserRole
-		var roleUserIDs []uuid.UUID
-		var roleIDs []uuid.UUID
-		if filter.RoleID != uuid.Nil {
-			userRoles, err = ds.UserRoleRepo().GetByRoleIDs(ctx, domain.UserTypeStore, filter.RoleID)
-			if err != nil {
-				return err
-			}
-			roleUserIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.UserID })
-			if len(roleUserIDs) == 0 {
-				return nil
-			}
-			filter.UserIDs = roleUserIDs
-
-			roleIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.RoleID })
-		}
-		users, total, err = ds.StoreUserRepo().GetUsers(ctx, pager, filter, orderBys...)
+	var userRoles []*domain.UserRole
+	var roleUserIDs []uuid.UUID
+	var roleIDs []uuid.UUID
+	// 如果按角色过滤，先查出该角色下的用户ID列表
+	if filter.RoleID != uuid.Nil {
+		userRoles, err = interactor.DS.UserRoleRepo().GetByRoleIDs(ctx, domain.UserTypeStore, filter.RoleID)
 		if err != nil {
-			return err
+			return
 		}
-		if len(users) == 0 {
-			return nil
+		roleUserIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.UserID })
+		if len(roleUserIDs) == 0 {
+			return
 		}
+		filter.UserIDs = roleUserIDs
+		roleIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.RoleID })
+	}
+	// 查询用户列表
+	users, total, err = interactor.DS.StoreUserRepo().GetUsers(ctx, pager, filter, orderBys...)
+	if err != nil {
+		return
+	}
+	if len(users) == 0 {
+		return
+	}
 
-		if filter.RoleID == uuid.Nil {
-			uIds := lo.Map(users, func(item *domain.StoreUser, _ int) uuid.UUID { return item.ID })
-			userRoles, err = ds.UserRoleRepo().GetByUserIDs(ctx, domain.UserTypeStore, uIds...)
-			if err != nil {
-				return err
-			}
-			roleIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.RoleID })
-		}
-		if len(roleIDs) == 0 {
-			return nil
-		}
-		roles, err := ds.RoleRepo().ListByIDs(ctx, roleIDs...)
+	// 如果没有按角色过滤，查询用户角色关系
+	if filter.RoleID == uuid.Nil {
+		uIds := lo.Map(users, func(item *domain.StoreUser, _ int) uuid.UUID { return item.ID })
+		userRoles, err = interactor.DS.UserRoleRepo().GetByUserIDs(ctx, domain.UserTypeStore, uIds...)
 		if err != nil {
-			return err
+			return
 		}
-		if len(roles) == 0 {
-			return nil
-		}
-		roleMap := lo.SliceToMap(roles, func(item *domain.Role) (uuid.UUID, *domain.Role) {
-			return item.ID, item
-		})
-		if len(userRoles) == 0 {
-			return nil
-		}
-		userRoleMap := lo.SliceToMap(userRoles, func(item *domain.UserRole) (uuid.UUID, *domain.UserRole) {
-			return item.UserID, item
-		})
-		for _, user := range users {
-			if ur, ok := userRoleMap[user.ID]; ok {
-				user.RoleIDs = []uuid.UUID{ur.RoleID}
-				if role, ok := roleMap[ur.RoleID]; ok {
-					user.RoleList = []*domain.Role{role}
-				}
-			}
-		}
-		return nil
+		roleIDs = lo.Map(userRoles, func(item *domain.UserRole, _ int) uuid.UUID { return item.RoleID })
+	}
+	if len(roleIDs) == 0 {
+		return
+	}
+	// 查询角色列表
+	roles, err := interactor.DS.RoleRepo().ListByIDs(ctx, roleIDs...)
+	if err != nil {
+		return
+	}
+	if len(roles) == 0 {
+		return
+	}
+	roleMap := lo.SliceToMap(roles, func(item *domain.Role) (uuid.UUID, *domain.Role) {
+		return item.ID, item
 	})
+
+	// 用户到用户角色的映射
+	if len(userRoles) == 0 {
+		return
+	}
+	userRoleMap := lo.SliceToMap(userRoles, func(item *domain.UserRole) (uuid.UUID, *domain.UserRole) {
+		return item.UserID, item
+	})
+
+	for _, user := range users {
+		if ur, ok := userRoleMap[user.ID]; ok {
+			user.RoleIDs = []uuid.UUID{ur.RoleID}
+			if role, ok := roleMap[ur.RoleID]; ok {
+				user.RoleList = []*domain.Role{role}
+			}
+		}
+	}
 
 	return
 }

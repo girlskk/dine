@@ -32,27 +32,18 @@ const (
 	FieldEnabled = "enabled"
 	// FieldSortOrder holds the string denoting the sort_order field in the database.
 	FieldSortOrder = "sort_order"
-	// FieldCategoryID holds the string denoting the category_id field in the database.
-	FieldCategoryID = "category_id"
+	// FieldRemarkScene holds the string denoting the remark_scene field in the database.
+	FieldRemarkScene = "remark_scene"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
 	FieldStoreID = "store_id"
-	// EdgeRemarkCategory holds the string denoting the remark_category edge name in mutations.
-	EdgeRemarkCategory = "remark_category"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
 	// EdgeStore holds the string denoting the store edge name in mutations.
 	EdgeStore = "store"
 	// Table holds the table name of the remark in the database.
 	Table = "remarks"
-	// RemarkCategoryTable is the table that holds the remark_category relation/edge.
-	RemarkCategoryTable = "remarks"
-	// RemarkCategoryInverseTable is the table name for the RemarkCategory entity.
-	// It exists in this package in order to avoid circular dependency with the "remarkcategory" package.
-	RemarkCategoryInverseTable = "remark_categories"
-	// RemarkCategoryColumn is the table column denoting the remark_category relation/edge.
-	RemarkCategoryColumn = "category_id"
 	// MerchantTable is the table that holds the merchant relation/edge.
 	MerchantTable = "remarks"
 	// MerchantInverseTable is the table name for the Merchant entity.
@@ -79,7 +70,7 @@ var Columns = []string{
 	FieldRemarkType,
 	FieldEnabled,
 	FieldSortOrder,
-	FieldCategoryID,
+	FieldRemarkScene,
 	FieldMerchantID,
 	FieldStoreID,
 }
@@ -130,6 +121,16 @@ func RemarkTypeValidator(rt domain.RemarkType) error {
 	}
 }
 
+// RemarkSceneValidator is a validator for the "remark_scene" field enum values. It is called by the builders before save.
+func RemarkSceneValidator(rs domain.RemarkScene) error {
+	switch rs {
+	case "whole_order", "item", "cancel_reason", "discount", "gift", "rebill", "refund_reject":
+		return nil
+	default:
+		return fmt.Errorf("remark: invalid enum value for remark_scene field: %q", rs)
+	}
+}
+
 // OrderOption defines the ordering options for the Remark queries.
 type OrderOption func(*sql.Selector)
 
@@ -173,9 +174,9 @@ func BySortOrder(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSortOrder, opts...).ToFunc()
 }
 
-// ByCategoryID orders the results by the category_id field.
-func ByCategoryID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCategoryID, opts...).ToFunc()
+// ByRemarkScene orders the results by the remark_scene field.
+func ByRemarkScene(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRemarkScene, opts...).ToFunc()
 }
 
 // ByMerchantID orders the results by the merchant_id field.
@@ -186,13 +187,6 @@ func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
 // ByStoreID orders the results by the store_id field.
 func ByStoreID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStoreID, opts...).ToFunc()
-}
-
-// ByRemarkCategoryField orders the results by remark_category field.
-func ByRemarkCategoryField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRemarkCategoryStep(), sql.OrderByField(field, opts...))
-	}
 }
 
 // ByMerchantField orders the results by merchant field.
@@ -207,13 +201,6 @@ func ByStoreField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newStoreStep(), sql.OrderByField(field, opts...))
 	}
-}
-func newRemarkCategoryStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RemarkCategoryInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, RemarkCategoryTable, RemarkCategoryColumn),
-	)
 }
 func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

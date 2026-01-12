@@ -313,7 +313,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -327,6 +327,15 @@ definitions:
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
+  domain.BusinessType:
+    properties:
+      type_code:
+        description: 业态类型编码
+        type: string
+      type_name:
+        description: 业态类型名称
+        type: string
+    type: object
   domain.Category:
     properties:
       children:
@@ -1860,12 +1869,6 @@ definitions:
     - PurchaseDurationUnitWeek
   domain.Remark:
     properties:
-      category_id:
-        description: 分类 ID
-        type: string
-      category_name:
-        description: 分类名称
-        type: string
       created_at:
         type: string
       enabled:
@@ -1878,6 +1881,13 @@ definitions:
         type: string
       name:
         description: 备注名称
+        type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景：整单备注/单品备注/退菜原因等
+      remark_scene_name:
+        description: 使用场景：整单备注/单品备注/退菜原因等
         type: string
       remark_type:
         allOf:
@@ -1892,18 +1902,8 @@ definitions:
       updated_at:
         type: string
     type: object
-  domain.RemarkCategory:
+  domain.RemarkGroup:
     properties:
-      created_at:
-        type: string
-      description:
-        description: 分类描述
-        type: string
-      id:
-        type: string
-      merchant_id:
-        description: 品牌商ID，可为空表示系统级分类
-        type: string
       name:
         description: 分类名称
         type: string
@@ -1914,11 +1914,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.RemarkScene'
         description: 使用场景：整单备注/单品备注/退菜原因等
-      sort_order:
-        description: 排序，值越小越靠前
-        type: integer
-      updated_at:
-        type: string
     type: object
   domain.RemarkScene:
     enum:
@@ -1933,7 +1928,7 @@ definitions:
     x-enum-comments:
       RemarkSceneCancelReason: 退菜原因
       RemarkSceneDiscount: 优惠原因
-      RemarkSceneGift: 赠菜原��
+      RemarkSceneGift: 赠菜原因
       RemarkSceneItem: 单品备注
       RemarkSceneRebill: 反结账原因
       RemarkSceneRefundReject: 拒绝退款
@@ -1987,6 +1982,11 @@ definitions:
       name:
         description: 角色名称
         type: string
+      paths:
+        description: 前端路由菜单列表
+        items:
+          type: string
+        type: array
       role_type:
         allOf:
         - $ref: '#/definitions/domain.RoleType'
@@ -2445,24 +2445,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.AccountListResp:
     properties:
       total:
@@ -3199,6 +3181,14 @@ definitions:
     - items
     - name
     - store_ids
+    type: object
+  types.MerchantBusinessTypeListResp:
+    properties:
+      business_types:
+        description: 业务类型列表
+        items:
+          $ref: '#/definitions/domain.BusinessType'
+        type: array
     type: object
   types.MerchantInfoResp:
     properties:
@@ -3959,13 +3949,6 @@ definitions:
     - name
     - remark_scene
     type: object
-  types.RemarkCategoryListResp:
-    properties:
-      remark_categories:
-        items:
-          $ref: '#/definitions/domain.RemarkCategory'
-        type: array
-    type: object
   types.RemarkCategoryUpdateReq:
     properties:
       description:
@@ -3994,9 +3977,6 @@ definitions:
     type: object
   types.RemarkCreateReq:
     properties:
-      category_id:
-        description: 备注类型
-        type: string
       enabled:
         description: 是否启用
         type: boolean
@@ -4004,6 +3984,18 @@ definitions:
         description: 备注名称
         maxLength: 255
         type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
       sort_order:
         description: 排序，越小越靠前
         minimum: 0
@@ -4012,8 +4004,15 @@ definitions:
         description: 可选，品牌级可为空
         type: string
     required:
-    - category_id
     - name
+    - remark_scene
+    type: object
+  types.RemarkGroupListResp:
+    properties:
+      remark_groups:
+        items:
+          $ref: '#/definitions/domain.RemarkGroup'
+        type: array
     type: object
   types.RemarkListResp:
     properties:
@@ -4836,8 +4835,6 @@ paths:
       responses:
         "200":
           description: No Content
-        "204":
-          description: No Content
       security:
       - BearerAuth: []
       summary: 删除附加费
@@ -5428,6 +5425,26 @@ paths:
       summary: 更新品牌商户
       tags:
       - 商户管理
+  /merchant/business_type/list:
+    get:
+      description: 业态列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.MerchantBusinessTypeListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 业态列表
+      tags:
+      - 商户管理-业态列表
   /merchant/disable:
     put:
       description: 将商户状态置为禁用
@@ -6802,6 +6819,29 @@ paths:
       summary: 启用分账方案
       tags:
       - 分账方案
+  /region/{id}/provinces:
+    get:
+      parameters:
+      - description: 国家/地区 ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.ProvinceListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取指定国家/地区的省/州列表
+      tags:
+      - 地区
   /region/countries:
     get:
       responses:
@@ -6819,36 +6859,10 @@ paths:
       summary: 获取国家/地区列表
       tags:
       - 地区
-  /region/provinces:
-    get:
-      parameters:
-      - description: 国家/地区ID
-        in: query
-        name: country_id
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/types.ProvinceListResp'
-              type: object
-      security:
-      - BearerAuth: []
-      summary: 获取省份列表
-      tags:
-      - 地区
   /remark:
     get:
       description: 分页查询备注列表
       parameters:
-      - description: 备注类型
-        in: query
-        name: category_id
-        type: string
       - description: 启用状态
         in: query
         name: enabled
@@ -6861,6 +6875,34 @@ paths:
         in: query
         name: page
         type: integer
+      - description: 使用场景
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
+        in: query
+        name: remark_scene
+        type: string
+        x-enum-comments:
+          RemarkSceneCancelReason: 退菜原因
+          RemarkSceneDiscount: 优惠原因
+          RemarkSceneGift: 赠菜原因
+          RemarkSceneItem: 单品备注
+          RemarkSceneRebill: 反结账原因
+          RemarkSceneRefundReject: 拒绝退款
+          RemarkSceneWholeOrder: 整单备注
+        x-enum-varnames:
+        - RemarkSceneWholeOrder
+        - RemarkSceneItem
+        - RemarkSceneCancelReason
+        - RemarkSceneDiscount
+        - RemarkSceneGift
+        - RemarkSceneRebill
+        - RemarkSceneRefundReject
       - description: 每页数量
         in: query
         name: size
@@ -7022,7 +7064,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/types.RemarkCategoryListResp'
+                  $ref: '#/definitions/types.RemarkGroupListResp'
               type: object
       security:
       - BearerAuth: []

@@ -15,7 +15,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 )
 
@@ -143,21 +142,6 @@ func (rcu *RemarkCategoryUpdate) AddSortOrder(i int) *RemarkCategoryUpdate {
 	return rcu
 }
 
-// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
-func (rcu *RemarkCategoryUpdate) AddRemarkIDs(ids ...uuid.UUID) *RemarkCategoryUpdate {
-	rcu.mutation.AddRemarkIDs(ids...)
-	return rcu
-}
-
-// AddRemarks adds the "remarks" edges to the Remark entity.
-func (rcu *RemarkCategoryUpdate) AddRemarks(r ...*Remark) *RemarkCategoryUpdate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return rcu.AddRemarkIDs(ids...)
-}
-
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (rcu *RemarkCategoryUpdate) SetMerchant(m *Merchant) *RemarkCategoryUpdate {
 	return rcu.SetMerchantID(m.ID)
@@ -166,27 +150,6 @@ func (rcu *RemarkCategoryUpdate) SetMerchant(m *Merchant) *RemarkCategoryUpdate 
 // Mutation returns the RemarkCategoryMutation object of the builder.
 func (rcu *RemarkCategoryUpdate) Mutation() *RemarkCategoryMutation {
 	return rcu.mutation
-}
-
-// ClearRemarks clears all "remarks" edges to the Remark entity.
-func (rcu *RemarkCategoryUpdate) ClearRemarks() *RemarkCategoryUpdate {
-	rcu.mutation.ClearRemarks()
-	return rcu
-}
-
-// RemoveRemarkIDs removes the "remarks" edge to Remark entities by IDs.
-func (rcu *RemarkCategoryUpdate) RemoveRemarkIDs(ids ...uuid.UUID) *RemarkCategoryUpdate {
-	rcu.mutation.RemoveRemarkIDs(ids...)
-	return rcu
-}
-
-// RemoveRemarks removes "remarks" edges to Remark entities.
-func (rcu *RemarkCategoryUpdate) RemoveRemarks(r ...*Remark) *RemarkCategoryUpdate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return rcu.RemoveRemarkIDs(ids...)
 }
 
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
@@ -298,51 +261,6 @@ func (rcu *RemarkCategoryUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if value, ok := rcu.mutation.AddedSortOrder(); ok {
 		_spec.AddField(remarkcategory.FieldSortOrder, field.TypeInt, value)
-	}
-	if rcu.mutation.RemarksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   remarkcategory.RemarksTable,
-			Columns: []string{remarkcategory.RemarksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := rcu.mutation.RemovedRemarksIDs(); len(nodes) > 0 && !rcu.mutation.RemarksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   remarkcategory.RemarksTable,
-			Columns: []string{remarkcategory.RemarksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := rcu.mutation.RemarksIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   remarkcategory.RemarksTable,
-			Columns: []string{remarkcategory.RemarksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if rcu.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -505,21 +423,6 @@ func (rcuo *RemarkCategoryUpdateOne) AddSortOrder(i int) *RemarkCategoryUpdateOn
 	return rcuo
 }
 
-// AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
-func (rcuo *RemarkCategoryUpdateOne) AddRemarkIDs(ids ...uuid.UUID) *RemarkCategoryUpdateOne {
-	rcuo.mutation.AddRemarkIDs(ids...)
-	return rcuo
-}
-
-// AddRemarks adds the "remarks" edges to the Remark entity.
-func (rcuo *RemarkCategoryUpdateOne) AddRemarks(r ...*Remark) *RemarkCategoryUpdateOne {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return rcuo.AddRemarkIDs(ids...)
-}
-
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (rcuo *RemarkCategoryUpdateOne) SetMerchant(m *Merchant) *RemarkCategoryUpdateOne {
 	return rcuo.SetMerchantID(m.ID)
@@ -528,27 +431,6 @@ func (rcuo *RemarkCategoryUpdateOne) SetMerchant(m *Merchant) *RemarkCategoryUpd
 // Mutation returns the RemarkCategoryMutation object of the builder.
 func (rcuo *RemarkCategoryUpdateOne) Mutation() *RemarkCategoryMutation {
 	return rcuo.mutation
-}
-
-// ClearRemarks clears all "remarks" edges to the Remark entity.
-func (rcuo *RemarkCategoryUpdateOne) ClearRemarks() *RemarkCategoryUpdateOne {
-	rcuo.mutation.ClearRemarks()
-	return rcuo
-}
-
-// RemoveRemarkIDs removes the "remarks" edge to Remark entities by IDs.
-func (rcuo *RemarkCategoryUpdateOne) RemoveRemarkIDs(ids ...uuid.UUID) *RemarkCategoryUpdateOne {
-	rcuo.mutation.RemoveRemarkIDs(ids...)
-	return rcuo
-}
-
-// RemoveRemarks removes "remarks" edges to Remark entities.
-func (rcuo *RemarkCategoryUpdateOne) RemoveRemarks(r ...*Remark) *RemarkCategoryUpdateOne {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return rcuo.RemoveRemarkIDs(ids...)
 }
 
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
@@ -690,51 +572,6 @@ func (rcuo *RemarkCategoryUpdateOne) sqlSave(ctx context.Context) (_node *Remark
 	}
 	if value, ok := rcuo.mutation.AddedSortOrder(); ok {
 		_spec.AddField(remarkcategory.FieldSortOrder, field.TypeInt, value)
-	}
-	if rcuo.mutation.RemarksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   remarkcategory.RemarksTable,
-			Columns: []string{remarkcategory.RemarksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := rcuo.mutation.RemovedRemarksIDs(); len(nodes) > 0 && !rcuo.mutation.RemarksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   remarkcategory.RemarksTable,
-			Columns: []string{remarkcategory.RemarksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := rcuo.mutation.RemarksIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   remarkcategory.RemarksTable,
-			Columns: []string{remarkcategory.RemarksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remark.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if rcuo.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{

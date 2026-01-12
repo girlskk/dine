@@ -109,7 +109,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -123,6 +123,15 @@ definitions:
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
+  domain.BusinessType:
+    properties:
+      type_code:
+        description: 业态类型编码
+        type: string
+      type_name:
+        description: 业态类型名称
+        type: string
+    type: object
   domain.Country:
     properties:
       id:
@@ -276,17 +285,6 @@ definitions:
     - purchase_duration
     - purchase_duration_unit
     type: object
-  domain.MerchantBusinessType:
-    properties:
-      id:
-        type: string
-      type_code:
-        description: 业态类型编码（保留字段）
-        type: string
-      type_name:
-        description: 业态类型名称
-        type: string
-    type: object
   domain.MerchantStatus:
     enum:
     - active
@@ -381,6 +379,11 @@ definitions:
       name:
         description: 角色名称
         type: string
+      paths:
+        description: 前端路由菜单列表
+        items:
+          type: string
+        type: array
       role_type:
         allOf:
         - $ref: '#/definitions/domain.RoleType'
@@ -610,38 +613,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.Address:
     properties:
       address:
@@ -916,10 +887,6 @@ definitions:
         description: 商户简称
         maxLength: 50
         type: string
-      merchant_type:
-        allOf:
-        - $ref: '#/definitions/domain.MerchantType'
-        description: '商户类型: 品牌商户,门店商户'
       purchase_duration:
         description: 购买时长
         type: integer
@@ -937,7 +904,6 @@ definitions:
     - login_account
     - login_password
     - merchant_name
-    - merchant_type
     - purchase_duration
     - purchase_duration_unit
     type: object
@@ -1110,7 +1076,7 @@ definitions:
       business_types:
         description: 业务类型列表
         items:
-          $ref: '#/definitions/domain.MerchantBusinessType'
+          $ref: '#/definitions/domain.BusinessType'
         type: array
     type: object
   types.MerchantCount:
@@ -1240,6 +1206,13 @@ definitions:
       total:
         type: integer
     type: object
+  types.RoleMenusResp:
+    properties:
+      paths:
+        items:
+          type: string
+        type: array
+    type: object
   types.RoleUpdateReq:
     properties:
       enable:
@@ -1318,6 +1291,15 @@ definitions:
         type: integer
     required:
     - name
+    type: object
+  types.SetMenusReq:
+    properties:
+      paths:
+        items:
+          type: string
+        type: array
+    required:
+    - paths
     type: object
   types.StoreListResp:
     properties:
@@ -1905,30 +1887,58 @@ paths:
       summary: 启用角色
       tags:
       - 角色管理
+  /common/role/{id}/menus:
+    get:
+      consumes:
+      - application/json
+      description: 分页或非分页获取指定角色的菜单路径列表
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.RoleMenusResp'
+      security:
+      - BearerAuth: []
+      summary: 角色菜单列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 为指定角色设置菜单路径（交集保留，新增/删除按 paths 调整）
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 设置菜单请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.SetMenusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 设置角色菜单
+      tags:
+      - 角色管理
   /common/router_menu:
     get:
       description: 分页查询菜单
-      parameters:
-      - description: 是否启用
-        in: query
-        name: enabled
-        type: boolean
-      - description: 菜单名称
-        in: query
-        name: name
-        type: string
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 父级菜单ID (as string, parsed in handler)
-        in: query
-        name: parent_id
-        type: string
-      - description: 每页数量
-        in: query
-        name: size
-        type: integer
       produces:
       - application/json
       responses:
@@ -2100,8 +2110,6 @@ paths:
       - application/json
       responses:
         "200":
-          description: No Content
-        "204":
           description: No Content
       security:
       - BearerAuth: []
@@ -2633,6 +2641,29 @@ paths:
       summary: 获取OSS Token
       tags:
       - 阿里OSS
+  /region/{id}/provinces:
+    get:
+      parameters:
+      - description: 国家/地区 ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.ProvinceListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取指定国家/地区的省/州列表
+      tags:
+      - 地区
   /region/countries:
     get:
       responses:
@@ -2648,28 +2679,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取国家/地区列表
-      tags:
-      - 地区
-  /region/provinces:
-    get:
-      parameters:
-      - description: 国家/地区ID
-        in: query
-        name: country_id
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/types.ProvinceListResp'
-              type: object
-      security:
-      - BearerAuth: []
-      summary: 获取省份列表
       tags:
       - 地区
   /user:

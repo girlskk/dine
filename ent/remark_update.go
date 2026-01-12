@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 )
@@ -105,6 +106,20 @@ func (ru *RemarkUpdate) AddSortOrder(i int) *RemarkUpdate {
 	return ru
 }
 
+// SetRemarkScene sets the "remark_scene" field.
+func (ru *RemarkUpdate) SetRemarkScene(ds domain.RemarkScene) *RemarkUpdate {
+	ru.mutation.SetRemarkScene(ds)
+	return ru
+}
+
+// SetNillableRemarkScene sets the "remark_scene" field if the given value is not nil.
+func (ru *RemarkUpdate) SetNillableRemarkScene(ds *domain.RemarkScene) *RemarkUpdate {
+	if ds != nil {
+		ru.SetRemarkScene(*ds)
+	}
+	return ru
+}
+
 // Mutation returns the RemarkMutation object of the builder.
 func (ru *RemarkUpdate) Mutation() *RemarkMutation {
 	return ru.mutation
@@ -159,8 +174,10 @@ func (ru *RemarkUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Remark.name": %w`, err)}
 		}
 	}
-	if ru.mutation.RemarkCategoryCleared() && len(ru.mutation.RemarkCategoryIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Remark.remark_category"`)
+	if v, ok := ru.mutation.RemarkScene(); ok {
+		if err := remark.RemarkSceneValidator(v); err != nil {
+			return &ValidationError{Name: "remark_scene", err: fmt.Errorf(`ent: validator failed for field "Remark.remark_scene": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -203,6 +220,9 @@ func (ru *RemarkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ru.mutation.AddedSortOrder(); ok {
 		_spec.AddField(remark.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := ru.mutation.RemarkScene(); ok {
+		_spec.SetField(remark.FieldRemarkScene, field.TypeEnum, value)
 	}
 	_spec.AddModifiers(ru.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, ru.driver, _spec); err != nil {
@@ -302,6 +322,20 @@ func (ruo *RemarkUpdateOne) AddSortOrder(i int) *RemarkUpdateOne {
 	return ruo
 }
 
+// SetRemarkScene sets the "remark_scene" field.
+func (ruo *RemarkUpdateOne) SetRemarkScene(ds domain.RemarkScene) *RemarkUpdateOne {
+	ruo.mutation.SetRemarkScene(ds)
+	return ruo
+}
+
+// SetNillableRemarkScene sets the "remark_scene" field if the given value is not nil.
+func (ruo *RemarkUpdateOne) SetNillableRemarkScene(ds *domain.RemarkScene) *RemarkUpdateOne {
+	if ds != nil {
+		ruo.SetRemarkScene(*ds)
+	}
+	return ruo
+}
+
 // Mutation returns the RemarkMutation object of the builder.
 func (ruo *RemarkUpdateOne) Mutation() *RemarkMutation {
 	return ruo.mutation
@@ -369,8 +403,10 @@ func (ruo *RemarkUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Remark.name": %w`, err)}
 		}
 	}
-	if ruo.mutation.RemarkCategoryCleared() && len(ruo.mutation.RemarkCategoryIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Remark.remark_category"`)
+	if v, ok := ruo.mutation.RemarkScene(); ok {
+		if err := remark.RemarkSceneValidator(v); err != nil {
+			return &ValidationError{Name: "remark_scene", err: fmt.Errorf(`ent: validator failed for field "Remark.remark_scene": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -430,6 +466,9 @@ func (ruo *RemarkUpdateOne) sqlSave(ctx context.Context) (_node *Remark, err err
 	}
 	if value, ok := ruo.mutation.AddedSortOrder(); ok {
 		_spec.AddField(remark.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := ruo.mutation.RemarkScene(); ok {
+		_spec.SetField(remark.FieldRemarkScene, field.TypeEnum, value)
 	}
 	_spec.AddModifiers(ruo.modifiers...)
 	_node = &Remark{config: ruo.config}

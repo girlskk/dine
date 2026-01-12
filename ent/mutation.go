@@ -19205,9 +19205,22 @@ func (m *MerchantRenewalMutation) OldOperatorName(ctx context.Context) (v string
 	return oldValue.OperatorName, nil
 }
 
+// ClearOperatorName clears the value of the "operator_name" field.
+func (m *MerchantRenewalMutation) ClearOperatorName() {
+	m.operator_name = nil
+	m.clearedFields[merchantrenewal.FieldOperatorName] = struct{}{}
+}
+
+// OperatorNameCleared returns if the "operator_name" field was cleared in this mutation.
+func (m *MerchantRenewalMutation) OperatorNameCleared() bool {
+	_, ok := m.clearedFields[merchantrenewal.FieldOperatorName]
+	return ok
+}
+
 // ResetOperatorName resets all changes to the "operator_name" field.
 func (m *MerchantRenewalMutation) ResetOperatorName() {
 	m.operator_name = nil
+	delete(m.clearedFields, merchantrenewal.FieldOperatorName)
 }
 
 // SetOperatorAccount sets the "operator_account" field.
@@ -19241,9 +19254,22 @@ func (m *MerchantRenewalMutation) OldOperatorAccount(ctx context.Context) (v str
 	return oldValue.OperatorAccount, nil
 }
 
+// ClearOperatorAccount clears the value of the "operator_account" field.
+func (m *MerchantRenewalMutation) ClearOperatorAccount() {
+	m.operator_account = nil
+	m.clearedFields[merchantrenewal.FieldOperatorAccount] = struct{}{}
+}
+
+// OperatorAccountCleared returns if the "operator_account" field was cleared in this mutation.
+func (m *MerchantRenewalMutation) OperatorAccountCleared() bool {
+	_, ok := m.clearedFields[merchantrenewal.FieldOperatorAccount]
+	return ok
+}
+
 // ResetOperatorAccount resets all changes to the "operator_account" field.
 func (m *MerchantRenewalMutation) ResetOperatorAccount() {
 	m.operator_account = nil
+	delete(m.clearedFields, merchantrenewal.FieldOperatorAccount)
 }
 
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
@@ -19502,7 +19528,14 @@ func (m *MerchantRenewalMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *MerchantRenewalMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(merchantrenewal.FieldOperatorName) {
+		fields = append(fields, merchantrenewal.FieldOperatorName)
+	}
+	if m.FieldCleared(merchantrenewal.FieldOperatorAccount) {
+		fields = append(fields, merchantrenewal.FieldOperatorAccount)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -19515,6 +19548,14 @@ func (m *MerchantRenewalMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *MerchantRenewalMutation) ClearField(name string) error {
+	switch name {
+	case merchantrenewal.FieldOperatorName:
+		m.ClearOperatorName()
+		return nil
+	case merchantrenewal.FieldOperatorAccount:
+		m.ClearOperatorAccount()
+		return nil
+	}
 	return fmt.Errorf("unknown MerchantRenewal nullable field %s", name)
 }
 
@@ -45125,28 +45166,27 @@ func (m *RefundOrderProductMutation) ResetEdge(name string) error {
 // RemarkMutation represents an operation that mutates the Remark nodes in the graph.
 type RemarkMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *uuid.UUID
-	created_at             *time.Time
-	updated_at             *time.Time
-	deleted_at             *int64
-	adddeleted_at          *int64
-	name                   *string
-	remark_type            *domain.RemarkType
-	enabled                *bool
-	sort_order             *int
-	addsort_order          *int
-	clearedFields          map[string]struct{}
-	remark_category        *uuid.UUID
-	clearedremark_category bool
-	merchant               *uuid.UUID
-	clearedmerchant        bool
-	store                  *uuid.UUID
-	clearedstore           bool
-	done                   bool
-	oldValue               func(context.Context) (*Remark, error)
-	predicates             []predicate.Remark
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	created_at      *time.Time
+	updated_at      *time.Time
+	deleted_at      *int64
+	adddeleted_at   *int64
+	name            *string
+	remark_type     *domain.RemarkType
+	enabled         *bool
+	sort_order      *int
+	addsort_order   *int
+	remark_scene    *domain.RemarkScene
+	clearedFields   map[string]struct{}
+	merchant        *uuid.UUID
+	clearedmerchant bool
+	store           *uuid.UUID
+	clearedstore    bool
+	done            bool
+	oldValue        func(context.Context) (*Remark, error)
+	predicates      []predicate.Remark
 }
 
 var _ ent.Mutation = (*RemarkMutation)(nil)
@@ -45545,40 +45585,40 @@ func (m *RemarkMutation) ResetSortOrder() {
 	m.addsort_order = nil
 }
 
-// SetCategoryID sets the "category_id" field.
-func (m *RemarkMutation) SetCategoryID(u uuid.UUID) {
-	m.remark_category = &u
+// SetRemarkScene sets the "remark_scene" field.
+func (m *RemarkMutation) SetRemarkScene(ds domain.RemarkScene) {
+	m.remark_scene = &ds
 }
 
-// CategoryID returns the value of the "category_id" field in the mutation.
-func (m *RemarkMutation) CategoryID() (r uuid.UUID, exists bool) {
-	v := m.remark_category
+// RemarkScene returns the value of the "remark_scene" field in the mutation.
+func (m *RemarkMutation) RemarkScene() (r domain.RemarkScene, exists bool) {
+	v := m.remark_scene
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCategoryID returns the old "category_id" field's value of the Remark entity.
+// OldRemarkScene returns the old "remark_scene" field's value of the Remark entity.
 // If the Remark object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RemarkMutation) OldCategoryID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *RemarkMutation) OldRemarkScene(ctx context.Context) (v domain.RemarkScene, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategoryID is only allowed on UpdateOne operations")
+		return v, errors.New("OldRemarkScene is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategoryID requires an ID field in the mutation")
+		return v, errors.New("OldRemarkScene requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategoryID: %w", err)
+		return v, fmt.Errorf("querying old value for OldRemarkScene: %w", err)
 	}
-	return oldValue.CategoryID, nil
+	return oldValue.RemarkScene, nil
 }
 
-// ResetCategoryID resets all changes to the "category_id" field.
-func (m *RemarkMutation) ResetCategoryID() {
-	m.remark_category = nil
+// ResetRemarkScene resets all changes to the "remark_scene" field.
+func (m *RemarkMutation) ResetRemarkScene() {
+	m.remark_scene = nil
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -45677,46 +45717,6 @@ func (m *RemarkMutation) StoreIDCleared() bool {
 func (m *RemarkMutation) ResetStoreID() {
 	m.store = nil
 	delete(m.clearedFields, remark.FieldStoreID)
-}
-
-// SetRemarkCategoryID sets the "remark_category" edge to the RemarkCategory entity by id.
-func (m *RemarkMutation) SetRemarkCategoryID(id uuid.UUID) {
-	m.remark_category = &id
-}
-
-// ClearRemarkCategory clears the "remark_category" edge to the RemarkCategory entity.
-func (m *RemarkMutation) ClearRemarkCategory() {
-	m.clearedremark_category = true
-	m.clearedFields[remark.FieldCategoryID] = struct{}{}
-}
-
-// RemarkCategoryCleared reports if the "remark_category" edge to the RemarkCategory entity was cleared.
-func (m *RemarkMutation) RemarkCategoryCleared() bool {
-	return m.clearedremark_category
-}
-
-// RemarkCategoryID returns the "remark_category" edge ID in the mutation.
-func (m *RemarkMutation) RemarkCategoryID() (id uuid.UUID, exists bool) {
-	if m.remark_category != nil {
-		return *m.remark_category, true
-	}
-	return
-}
-
-// RemarkCategoryIDs returns the "remark_category" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// RemarkCategoryID instead. It exists only for internal usage by the builders.
-func (m *RemarkMutation) RemarkCategoryIDs() (ids []uuid.UUID) {
-	if id := m.remark_category; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetRemarkCategory resets all changes to the "remark_category" edge.
-func (m *RemarkMutation) ResetRemarkCategory() {
-	m.remark_category = nil
-	m.clearedremark_category = false
 }
 
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
@@ -45829,8 +45829,8 @@ func (m *RemarkMutation) Fields() []string {
 	if m.sort_order != nil {
 		fields = append(fields, remark.FieldSortOrder)
 	}
-	if m.remark_category != nil {
-		fields = append(fields, remark.FieldCategoryID)
+	if m.remark_scene != nil {
+		fields = append(fields, remark.FieldRemarkScene)
 	}
 	if m.merchant != nil {
 		fields = append(fields, remark.FieldMerchantID)
@@ -45860,8 +45860,8 @@ func (m *RemarkMutation) Field(name string) (ent.Value, bool) {
 		return m.Enabled()
 	case remark.FieldSortOrder:
 		return m.SortOrder()
-	case remark.FieldCategoryID:
-		return m.CategoryID()
+	case remark.FieldRemarkScene:
+		return m.RemarkScene()
 	case remark.FieldMerchantID:
 		return m.MerchantID()
 	case remark.FieldStoreID:
@@ -45889,8 +45889,8 @@ func (m *RemarkMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldEnabled(ctx)
 	case remark.FieldSortOrder:
 		return m.OldSortOrder(ctx)
-	case remark.FieldCategoryID:
-		return m.OldCategoryID(ctx)
+	case remark.FieldRemarkScene:
+		return m.OldRemarkScene(ctx)
 	case remark.FieldMerchantID:
 		return m.OldMerchantID(ctx)
 	case remark.FieldStoreID:
@@ -45953,12 +45953,12 @@ func (m *RemarkMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSortOrder(v)
 		return nil
-	case remark.FieldCategoryID:
-		v, ok := value.(uuid.UUID)
+	case remark.FieldRemarkScene:
+		v, ok := value.(domain.RemarkScene)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCategoryID(v)
+		m.SetRemarkScene(v)
 		return nil
 	case remark.FieldMerchantID:
 		v, ok := value.(uuid.UUID)
@@ -46086,8 +46086,8 @@ func (m *RemarkMutation) ResetField(name string) error {
 	case remark.FieldSortOrder:
 		m.ResetSortOrder()
 		return nil
-	case remark.FieldCategoryID:
-		m.ResetCategoryID()
+	case remark.FieldRemarkScene:
+		m.ResetRemarkScene()
 		return nil
 	case remark.FieldMerchantID:
 		m.ResetMerchantID()
@@ -46101,10 +46101,7 @@ func (m *RemarkMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RemarkMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.remark_category != nil {
-		edges = append(edges, remark.EdgeRemarkCategory)
-	}
+	edges := make([]string, 0, 2)
 	if m.merchant != nil {
 		edges = append(edges, remark.EdgeMerchant)
 	}
@@ -46118,10 +46115,6 @@ func (m *RemarkMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *RemarkMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case remark.EdgeRemarkCategory:
-		if id := m.remark_category; id != nil {
-			return []ent.Value{*id}
-		}
 	case remark.EdgeMerchant:
 		if id := m.merchant; id != nil {
 			return []ent.Value{*id}
@@ -46136,7 +46129,7 @@ func (m *RemarkMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RemarkMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -46148,10 +46141,7 @@ func (m *RemarkMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RemarkMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.clearedremark_category {
-		edges = append(edges, remark.EdgeRemarkCategory)
-	}
+	edges := make([]string, 0, 2)
 	if m.clearedmerchant {
 		edges = append(edges, remark.EdgeMerchant)
 	}
@@ -46165,8 +46155,6 @@ func (m *RemarkMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *RemarkMutation) EdgeCleared(name string) bool {
 	switch name {
-	case remark.EdgeRemarkCategory:
-		return m.clearedremark_category
 	case remark.EdgeMerchant:
 		return m.clearedmerchant
 	case remark.EdgeStore:
@@ -46179,9 +46167,6 @@ func (m *RemarkMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *RemarkMutation) ClearEdge(name string) error {
 	switch name {
-	case remark.EdgeRemarkCategory:
-		m.ClearRemarkCategory()
-		return nil
 	case remark.EdgeMerchant:
 		m.ClearMerchant()
 		return nil
@@ -46196,9 +46181,6 @@ func (m *RemarkMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *RemarkMutation) ResetEdge(name string) error {
 	switch name {
-	case remark.EdgeRemarkCategory:
-		m.ResetRemarkCategory()
-		return nil
 	case remark.EdgeMerchant:
 		m.ResetMerchant()
 		return nil
@@ -46225,9 +46207,6 @@ type RemarkCategoryMutation struct {
 	sort_order      *int
 	addsort_order   *int
 	clearedFields   map[string]struct{}
-	remarks         map[uuid.UUID]struct{}
-	removedremarks  map[uuid.UUID]struct{}
-	clearedremarks  bool
 	merchant        *uuid.UUID
 	clearedmerchant bool
 	done            bool
@@ -46680,60 +46659,6 @@ func (m *RemarkCategoryMutation) ResetSortOrder() {
 	m.addsort_order = nil
 }
 
-// AddRemarkIDs adds the "remarks" edge to the Remark entity by ids.
-func (m *RemarkCategoryMutation) AddRemarkIDs(ids ...uuid.UUID) {
-	if m.remarks == nil {
-		m.remarks = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.remarks[ids[i]] = struct{}{}
-	}
-}
-
-// ClearRemarks clears the "remarks" edge to the Remark entity.
-func (m *RemarkCategoryMutation) ClearRemarks() {
-	m.clearedremarks = true
-}
-
-// RemarksCleared reports if the "remarks" edge to the Remark entity was cleared.
-func (m *RemarkCategoryMutation) RemarksCleared() bool {
-	return m.clearedremarks
-}
-
-// RemoveRemarkIDs removes the "remarks" edge to the Remark entity by IDs.
-func (m *RemarkCategoryMutation) RemoveRemarkIDs(ids ...uuid.UUID) {
-	if m.removedremarks == nil {
-		m.removedremarks = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.remarks, ids[i])
-		m.removedremarks[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedRemarks returns the removed IDs of the "remarks" edge to the Remark entity.
-func (m *RemarkCategoryMutation) RemovedRemarksIDs() (ids []uuid.UUID) {
-	for id := range m.removedremarks {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// RemarksIDs returns the "remarks" edge IDs in the mutation.
-func (m *RemarkCategoryMutation) RemarksIDs() (ids []uuid.UUID) {
-	for id := range m.remarks {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetRemarks resets all changes to the "remarks" edge.
-func (m *RemarkCategoryMutation) ResetRemarks() {
-	m.remarks = nil
-	m.clearedremarks = false
-	m.removedremarks = nil
-}
-
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
 func (m *RemarkCategoryMutation) ClearMerchant() {
 	m.clearedmerchant = true
@@ -47049,10 +46974,7 @@ func (m *RemarkCategoryMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RemarkCategoryMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.remarks != nil {
-		edges = append(edges, remarkcategory.EdgeRemarks)
-	}
+	edges := make([]string, 0, 1)
 	if m.merchant != nil {
 		edges = append(edges, remarkcategory.EdgeMerchant)
 	}
@@ -47063,12 +46985,6 @@ func (m *RemarkCategoryMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *RemarkCategoryMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case remarkcategory.EdgeRemarks:
-		ids := make([]ent.Value, 0, len(m.remarks))
-		for id := range m.remarks {
-			ids = append(ids, id)
-		}
-		return ids
 	case remarkcategory.EdgeMerchant:
 		if id := m.merchant; id != nil {
 			return []ent.Value{*id}
@@ -47079,33 +46995,19 @@ func (m *RemarkCategoryMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RemarkCategoryMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.removedremarks != nil {
-		edges = append(edges, remarkcategory.EdgeRemarks)
-	}
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *RemarkCategoryMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case remarkcategory.EdgeRemarks:
-		ids := make([]ent.Value, 0, len(m.removedremarks))
-		for id := range m.removedremarks {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RemarkCategoryMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.clearedremarks {
-		edges = append(edges, remarkcategory.EdgeRemarks)
-	}
+	edges := make([]string, 0, 1)
 	if m.clearedmerchant {
 		edges = append(edges, remarkcategory.EdgeMerchant)
 	}
@@ -47116,8 +47018,6 @@ func (m *RemarkCategoryMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *RemarkCategoryMutation) EdgeCleared(name string) bool {
 	switch name {
-	case remarkcategory.EdgeRemarks:
-		return m.clearedremarks
 	case remarkcategory.EdgeMerchant:
 		return m.clearedmerchant
 	}
@@ -47139,9 +47039,6 @@ func (m *RemarkCategoryMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *RemarkCategoryMutation) ResetEdge(name string) error {
 	switch name {
-	case remarkcategory.EdgeRemarks:
-		m.ResetRemarks()
-		return nil
 	case remarkcategory.EdgeMerchant:
 		m.ResetMerchant()
 		return nil
@@ -47171,6 +47068,9 @@ type RoleMutation struct {
 	clearedmerchant      bool
 	store                *uuid.UUID
 	clearedstore         bool
+	user_roles           map[uuid.UUID]struct{}
+	removeduser_roles    map[uuid.UUID]struct{}
+	cleareduser_roles    bool
 	done                 bool
 	oldValue             func(context.Context) (*Role, error)
 	predicates           []predicate.Role
@@ -47818,6 +47718,60 @@ func (m *RoleMutation) ResetStore() {
 	m.clearedstore = false
 }
 
+// AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by ids.
+func (m *RoleMutation) AddUserRoleIDs(ids ...uuid.UUID) {
+	if m.user_roles == nil {
+		m.user_roles = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.user_roles[ids[i]] = struct{}{}
+	}
+}
+
+// ClearUserRoles clears the "user_roles" edge to the UserRole entity.
+func (m *RoleMutation) ClearUserRoles() {
+	m.cleareduser_roles = true
+}
+
+// UserRolesCleared reports if the "user_roles" edge to the UserRole entity was cleared.
+func (m *RoleMutation) UserRolesCleared() bool {
+	return m.cleareduser_roles
+}
+
+// RemoveUserRoleIDs removes the "user_roles" edge to the UserRole entity by IDs.
+func (m *RoleMutation) RemoveUserRoleIDs(ids ...uuid.UUID) {
+	if m.removeduser_roles == nil {
+		m.removeduser_roles = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.user_roles, ids[i])
+		m.removeduser_roles[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedUserRoles returns the removed IDs of the "user_roles" edge to the UserRole entity.
+func (m *RoleMutation) RemovedUserRolesIDs() (ids []uuid.UUID) {
+	for id := range m.removeduser_roles {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// UserRolesIDs returns the "user_roles" edge IDs in the mutation.
+func (m *RoleMutation) UserRolesIDs() (ids []uuid.UUID) {
+	for id := range m.user_roles {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetUserRoles resets all changes to the "user_roles" edge.
+func (m *RoleMutation) ResetUserRoles() {
+	m.user_roles = nil
+	m.cleareduser_roles = false
+	m.removeduser_roles = nil
+}
+
 // Where appends a list predicates to the RoleMutation builder.
 func (m *RoleMutation) Where(ps ...predicate.Role) {
 	m.predicates = append(m.predicates, ps...)
@@ -48163,12 +48117,15 @@ func (m *RoleMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RoleMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.merchant != nil {
 		edges = append(edges, role.EdgeMerchant)
 	}
 	if m.store != nil {
 		edges = append(edges, role.EdgeStore)
+	}
+	if m.user_roles != nil {
+		edges = append(edges, role.EdgeUserRoles)
 	}
 	return edges
 }
@@ -48185,30 +48142,50 @@ func (m *RoleMutation) AddedIDs(name string) []ent.Value {
 		if id := m.store; id != nil {
 			return []ent.Value{*id}
 		}
+	case role.EdgeUserRoles:
+		ids := make([]ent.Value, 0, len(m.user_roles))
+		for id := range m.user_roles {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RoleMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
+	if m.removeduser_roles != nil {
+		edges = append(edges, role.EdgeUserRoles)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *RoleMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case role.EdgeUserRoles:
+		ids := make([]ent.Value, 0, len(m.removeduser_roles))
+		for id := range m.removeduser_roles {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RoleMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedmerchant {
 		edges = append(edges, role.EdgeMerchant)
 	}
 	if m.clearedstore {
 		edges = append(edges, role.EdgeStore)
+	}
+	if m.cleareduser_roles {
+		edges = append(edges, role.EdgeUserRoles)
 	}
 	return edges
 }
@@ -48221,6 +48198,8 @@ func (m *RoleMutation) EdgeCleared(name string) bool {
 		return m.clearedmerchant
 	case role.EdgeStore:
 		return m.clearedstore
+	case role.EdgeUserRoles:
+		return m.cleareduser_roles
 	}
 	return false
 }
@@ -48249,6 +48228,9 @@ func (m *RoleMutation) ResetEdge(name string) error {
 	case role.EdgeStore:
 		m.ResetStore()
 		return nil
+	case role.EdgeUserRoles:
+		m.ResetUserRoles()
+		return nil
 	}
 	return fmt.Errorf("unknown Role edge %s", name)
 }
@@ -48265,7 +48247,7 @@ type RoleMenuMutation struct {
 	adddeleted_at *int64
 	role_type     *domain.RoleType
 	role_id       *uuid.UUID
-	menu_id       *uuid.UUID
+	_path         *string
 	merchant_id   *uuid.UUID
 	store_id      *uuid.UUID
 	clearedFields map[string]struct{}
@@ -48578,40 +48560,40 @@ func (m *RoleMenuMutation) ResetRoleID() {
 	m.role_id = nil
 }
 
-// SetMenuID sets the "menu_id" field.
-func (m *RoleMenuMutation) SetMenuID(u uuid.UUID) {
-	m.menu_id = &u
+// SetPath sets the "path" field.
+func (m *RoleMenuMutation) SetPath(s string) {
+	m._path = &s
 }
 
-// MenuID returns the value of the "menu_id" field in the mutation.
-func (m *RoleMenuMutation) MenuID() (r uuid.UUID, exists bool) {
-	v := m.menu_id
+// Path returns the value of the "path" field in the mutation.
+func (m *RoleMenuMutation) Path() (r string, exists bool) {
+	v := m._path
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldMenuID returns the old "menu_id" field's value of the RoleMenu entity.
+// OldPath returns the old "path" field's value of the RoleMenu entity.
 // If the RoleMenu object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleMenuMutation) OldMenuID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *RoleMenuMutation) OldPath(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMenuID is only allowed on UpdateOne operations")
+		return v, errors.New("OldPath is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMenuID requires an ID field in the mutation")
+		return v, errors.New("OldPath requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMenuID: %w", err)
+		return v, fmt.Errorf("querying old value for OldPath: %w", err)
 	}
-	return oldValue.MenuID, nil
+	return oldValue.Path, nil
 }
 
-// ResetMenuID resets all changes to the "menu_id" field.
-func (m *RoleMenuMutation) ResetMenuID() {
-	m.menu_id = nil
+// ResetPath resets all changes to the "path" field.
+func (m *RoleMenuMutation) ResetPath() {
+	m._path = nil
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -48762,8 +48744,8 @@ func (m *RoleMenuMutation) Fields() []string {
 	if m.role_id != nil {
 		fields = append(fields, rolemenu.FieldRoleID)
 	}
-	if m.menu_id != nil {
-		fields = append(fields, rolemenu.FieldMenuID)
+	if m._path != nil {
+		fields = append(fields, rolemenu.FieldPath)
 	}
 	if m.merchant_id != nil {
 		fields = append(fields, rolemenu.FieldMerchantID)
@@ -48789,8 +48771,8 @@ func (m *RoleMenuMutation) Field(name string) (ent.Value, bool) {
 		return m.RoleType()
 	case rolemenu.FieldRoleID:
 		return m.RoleID()
-	case rolemenu.FieldMenuID:
-		return m.MenuID()
+	case rolemenu.FieldPath:
+		return m.Path()
 	case rolemenu.FieldMerchantID:
 		return m.MerchantID()
 	case rolemenu.FieldStoreID:
@@ -48814,8 +48796,8 @@ func (m *RoleMenuMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldRoleType(ctx)
 	case rolemenu.FieldRoleID:
 		return m.OldRoleID(ctx)
-	case rolemenu.FieldMenuID:
-		return m.OldMenuID(ctx)
+	case rolemenu.FieldPath:
+		return m.OldPath(ctx)
 	case rolemenu.FieldMerchantID:
 		return m.OldMerchantID(ctx)
 	case rolemenu.FieldStoreID:
@@ -48864,12 +48846,12 @@ func (m *RoleMenuMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRoleID(v)
 		return nil
-	case rolemenu.FieldMenuID:
-		v, ok := value.(uuid.UUID)
+	case rolemenu.FieldPath:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetMenuID(v)
+		m.SetPath(v)
 		return nil
 	case rolemenu.FieldMerchantID:
 		v, ok := value.(uuid.UUID)
@@ -48979,8 +48961,8 @@ func (m *RoleMenuMutation) ResetField(name string) error {
 	case rolemenu.FieldRoleID:
 		m.ResetRoleID()
 		return nil
-	case rolemenu.FieldMenuID:
-		m.ResetMenuID()
+	case rolemenu.FieldPath:
+		m.ResetPath()
 		return nil
 	case rolemenu.FieldMerchantID:
 		m.ResetMerchantID()
@@ -61077,10 +61059,11 @@ type UserRoleMutation struct {
 	adddeleted_at *int64
 	user_type     *domain.UserType
 	user_id       *uuid.UUID
-	role_id       *uuid.UUID
 	merchant_id   *uuid.UUID
 	store_id      *uuid.UUID
 	clearedFields map[string]struct{}
+	role          *uuid.UUID
+	clearedrole   bool
 	done          bool
 	oldValue      func(context.Context) (*UserRole, error)
 	predicates    []predicate.UserRole
@@ -61392,12 +61375,12 @@ func (m *UserRoleMutation) ResetUserID() {
 
 // SetRoleID sets the "role_id" field.
 func (m *UserRoleMutation) SetRoleID(u uuid.UUID) {
-	m.role_id = &u
+	m.role = &u
 }
 
 // RoleID returns the value of the "role_id" field in the mutation.
 func (m *UserRoleMutation) RoleID() (r uuid.UUID, exists bool) {
-	v := m.role_id
+	v := m.role
 	if v == nil {
 		return
 	}
@@ -61423,7 +61406,7 @@ func (m *UserRoleMutation) OldRoleID(ctx context.Context) (v uuid.UUID, err erro
 
 // ResetRoleID resets all changes to the "role_id" field.
 func (m *UserRoleMutation) ResetRoleID() {
-	m.role_id = nil
+	m.role = nil
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -61524,6 +61507,33 @@ func (m *UserRoleMutation) ResetStoreID() {
 	delete(m.clearedFields, userrole.FieldStoreID)
 }
 
+// ClearRole clears the "role" edge to the Role entity.
+func (m *UserRoleMutation) ClearRole() {
+	m.clearedrole = true
+	m.clearedFields[userrole.FieldRoleID] = struct{}{}
+}
+
+// RoleCleared reports if the "role" edge to the Role entity was cleared.
+func (m *UserRoleMutation) RoleCleared() bool {
+	return m.clearedrole
+}
+
+// RoleIDs returns the "role" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RoleID instead. It exists only for internal usage by the builders.
+func (m *UserRoleMutation) RoleIDs() (ids []uuid.UUID) {
+	if id := m.role; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRole resets all changes to the "role" edge.
+func (m *UserRoleMutation) ResetRole() {
+	m.role = nil
+	m.clearedrole = false
+}
+
 // Where appends a list predicates to the UserRoleMutation builder.
 func (m *UserRoleMutation) Where(ps ...predicate.UserRole) {
 	m.predicates = append(m.predicates, ps...)
@@ -61574,7 +61584,7 @@ func (m *UserRoleMutation) Fields() []string {
 	if m.user_id != nil {
 		fields = append(fields, userrole.FieldUserID)
 	}
-	if m.role_id != nil {
+	if m.role != nil {
 		fields = append(fields, userrole.FieldRoleID)
 	}
 	if m.merchant_id != nil {
@@ -61806,19 +61816,28 @@ func (m *UserRoleMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserRoleMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.role != nil {
+		edges = append(edges, userrole.EdgeRole)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *UserRoleMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case userrole.EdgeRole:
+		if id := m.role; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserRoleMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -61830,24 +61849,41 @@ func (m *UserRoleMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserRoleMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedrole {
+		edges = append(edges, userrole.EdgeRole)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *UserRoleMutation) EdgeCleared(name string) bool {
+	switch name {
+	case userrole.EdgeRole:
+		return m.clearedrole
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *UserRoleMutation) ClearEdge(name string) error {
+	switch name {
+	case userrole.EdgeRole:
+		m.ClearRole()
+		return nil
+	}
 	return fmt.Errorf("unknown UserRole unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *UserRoleMutation) ResetEdge(name string) error {
+	switch name {
+	case userrole.EdgeRole:
+		m.ResetRole()
+		return nil
+	}
 	return fmt.Errorf("unknown UserRole edge %s", name)
 }

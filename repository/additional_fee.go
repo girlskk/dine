@@ -158,7 +158,9 @@ func (repo *AdditionalFeeRepository) Exists(ctx context.Context, params domain.A
 	if params.ExcludeID != uuid.Nil {
 		query = query.Where(additionalfee.IDNEQ(params.ExcludeID))
 	}
-
+	if params.FeeType != "" {
+		query = query.Where(additionalfee.FeeTypeEQ(params.FeeType))
+	}
 	exists, err = query.Exist(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to check additional fee exists: %w", err)

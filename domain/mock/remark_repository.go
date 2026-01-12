@@ -38,10 +38,10 @@ func (m *MockRemarkRepository) EXPECT() *MockRemarkRepositoryMockRecorder {
 }
 
 // CountRemarkByCategories mocks base method.
-func (m *MockRemarkRepository) CountRemarkByCategories(arg0 context.Context, arg1 domain.CountRemarkParams) (map[uuid.UUID]int, error) {
+func (m *MockRemarkRepository) CountRemarkByCategories(arg0 context.Context, arg1 domain.CountRemarkParams) (map[domain.RemarkScene]int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountRemarkByCategories", arg0, arg1)
-	ret0, _ := ret[0].(map[uuid.UUID]int)
+	ret0, _ := ret[0].(map[domain.RemarkScene]int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

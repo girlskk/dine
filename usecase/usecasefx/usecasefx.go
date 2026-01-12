@@ -168,5 +168,9 @@ var Module = fx.Module(
 			businessconfig.NewBusinessConfigInteractor,
 			fx.As(new(domain.BusinessConfigInteractor)),
 		),
+		fx.Annotate(
+			role.NewRoleMenuInteractor,
+			fx.As(new(domain.RoleMenuInteractor)),
+		),
 	),
 )
