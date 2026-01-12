@@ -72,6 +72,14 @@ func (mbtc *MerchantBusinessTypeCreate) SetMerchantID(u uuid.UUID) *MerchantBusi
 	return mbtc
 }
 
+// SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
+func (mbtc *MerchantBusinessTypeCreate) SetNillableMerchantID(u *uuid.UUID) *MerchantBusinessTypeCreate {
+	if u != nil {
+		mbtc.SetMerchantID(*u)
+	}
+	return mbtc
+}
+
 // SetTypeCode sets the "type_code" field.
 func (mbtc *MerchantBusinessTypeCreate) SetTypeCode(s string) *MerchantBusinessTypeCreate {
 	mbtc.mutation.SetTypeCode(s)
@@ -197,9 +205,6 @@ func (mbtc *MerchantBusinessTypeCreate) check() error {
 	}
 	if _, ok := mbtc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "MerchantBusinessType.deleted_at"`)}
-	}
-	if _, ok := mbtc.mutation.MerchantID(); !ok {
-		return &ValidationError{Name: "merchant_id", err: errors.New(`ent: missing required field "MerchantBusinessType.merchant_id"`)}
 	}
 	if _, ok := mbtc.mutation.TypeCode(); !ok {
 		return &ValidationError{Name: "type_code", err: errors.New(`ent: missing required field "MerchantBusinessType.type_code"`)}

@@ -1,6 +1,5 @@
--- Modify "orders" table
-ALTER TABLE `orders`
-ADD COLUMN `remark` varchar(255) NULL;
+-- Modify "merchant_business_types" table
+ALTER TABLE `merchant_business_types` MODIFY COLUMN `merchant_id` char(36) NULL;
 
 -- Modify "payment_methods" table
 ALTER TABLE `payment_methods` MODIFY COLUMN `store_id` char(36) NULL,

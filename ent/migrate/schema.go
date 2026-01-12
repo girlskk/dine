@@ -654,7 +654,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "type_code", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "type_name", Type: field.TypeString, Size: 50, Default: ""},
 	}
