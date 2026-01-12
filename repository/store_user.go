@@ -267,6 +267,15 @@ func convertStoreUser(eu *ent.StoreUser) *domain.StoreUser {
 		Nickname:       eu.Nickname,
 		MerchantID:     eu.MerchantID,
 		StoreID:        eu.StoreID,
+		Code:           eu.Code,
+		RealName:       eu.RealName,
+		Gender:         eu.Gender,
+		Email:          eu.Email,
+		PhoneNumber:    eu.PhoneNumber,
+		Enabled:        eu.Enabled,
+		IsSuperAdmin:   eu.IsSuperadmin,
+		CreatedAt:      eu.CreatedAt,
+		UpdatedAt:      eu.UpdatedAt,
 	}
 
 	if eu.Edges.Store != nil {

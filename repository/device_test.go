@@ -102,6 +102,7 @@ func (s *DeviceRepositoryTestSuite) newPrinter(tag string, store *ent.Store) *do
 		IP:                     "192.168.1." + tag[len(tag)-1:],
 		Status:                 domain.DeviceStatusOnline,
 		PaperSize:              domain.PaperSize80mm,
+		ConnectType:            domain.DeviceConnectTypeInside,
 		StallID:                uuid.New(),
 		OrderChannels:          []domain.OrderChannel{domain.OrderChannelPOS},
 		DiningWays:             []domain.DiningWay{domain.DiningWayDineIn},
