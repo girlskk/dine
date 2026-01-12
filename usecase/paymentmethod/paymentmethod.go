@@ -107,3 +107,12 @@ func (i *PaymentMethodInteractor) PagedListBySearch(
 
 	return i.DS.PaymentMethodRepo().PagedListBySearch(ctx, page, params)
 }
+
+func (i *PaymentMethodInteractor) Stat(ctx context.Context, params domain.PaymentMethodStatParams) (res *domain.PaymentMethodStatRes, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "PaymentMethodInteractor.Stat")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	return i.DS.PaymentMethodRepo().Stat(ctx, params)
+}

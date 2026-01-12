@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
@@ -66,6 +67,15 @@ func (repo *PaymentMethodRepository) Create(ctx context.Context, p *domain.Payme
 		SetStatus(p.Status)
 	if p.FeeRate != nil {
 		builder = builder.SetFeeRate(*p.FeeRate)
+	}
+	if p.SourcePaymentMethodID != uuid.Nil {
+		builder = builder.SetSourcePaymentMethodID(p.SourcePaymentMethodID)
+	}
+	if p.StoreID != uuid.Nil {
+		builder = builder.SetStoreID(p.StoreID)
+	}
+	if p.Source != "" {
+		builder = builder.SetSource(p.Source)
 	}
 	created, err := builder.Save(ctx)
 	if err != nil {
@@ -130,10 +140,15 @@ func (repo *PaymentMethodRepository) PagedListBySearch(
 	if params.MerchantID != uuid.Nil {
 		query.Where(paymentmethod.MerchantID(params.MerchantID))
 	}
+	if params.StoreID != uuid.Nil {
+		query.Where(paymentmethod.StoreID(params.StoreID))
+	}
 	if params.Name != "" {
 		query.Where(paymentmethod.NameContains(params.Name))
 	}
-
+	if params.Source != "" {
+		query.Where(paymentmethod.SourceEQ(params.Source))
+	}
 	// 获取总数
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
@@ -173,16 +188,66 @@ func convertPaymentMethodToDomain(pm *ent.PaymentMethod) *domain.PaymentMethod {
 		return nil
 	}
 	m := &domain.PaymentMethod{
-		ID:               pm.ID,
-		MerchantID:       pm.MerchantID,
-		Name:             pm.Name,
-		AccountingRule:   pm.AccountingRule,
-		PaymentType:      pm.PaymentType,
-		InvoiceRule:      pm.InvoiceRule,
-		CashDrawerStatus: pm.CashDrawerStatus,
-		DisplayChannels:  pm.DisplayChannels,
-		Status:           pm.Status,
-		CreatedAt:        pm.CreatedAt,
+		ID:                    pm.ID,
+		SourcePaymentMethodID: pm.SourcePaymentMethodID,
+		MerchantID:            pm.MerchantID,
+		StoreID:               pm.StoreID,
+		Name:                  pm.Name,
+		AccountingRule:        pm.AccountingRule,
+		PaymentType:           pm.PaymentType,
+		InvoiceRule:           pm.InvoiceRule,
+		CashDrawerStatus:      pm.CashDrawerStatus,
+		DisplayChannels:       pm.DisplayChannels,
+		Source:                pm.Source,
+		Status:                pm.Status,
+		CreatedAt:             pm.CreatedAt,
 	}
 	return m
+}
+
+func (repo *PaymentMethodRepository) Stat(
+	ctx context.Context,
+	params domain.PaymentMethodStatParams,
+) (res *domain.PaymentMethodStatRes, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "PaymentMethodRepository.Stat")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.PaymentMethod.Query()
+
+	if params.MerchantID != uuid.Nil {
+		query.Where(paymentmethod.MerchantID(params.MerchantID))
+	}
+	if params.StoreID != uuid.Nil {
+		query.Where(paymentmethod.StoreID(params.StoreID))
+	}
+	if params.Name != "" {
+		query.Where(paymentmethod.NameContains(params.Name))
+	}
+	if params.Source != "" {
+		query.Where(paymentmethod.SourceEQ(params.Source))
+	}
+	type result struct {
+		PaymentType string `json:"payment_type"`
+		Count       int    `json:"count"`
+	}
+	var resultList []result
+	err = query.GroupBy(paymentmethod.FieldPaymentType).
+		Aggregate(ent.Count()).
+		Scan(ctx, &resultList)
+	if err != nil {
+		return nil, err
+	}
+	paymentTypeCount := lo.SliceToMap(resultList, func(item result) (string, int) {
+		return item.PaymentType, item.Count
+	})
+	return &domain.PaymentMethodStatRes{
+		CashCount:          paymentTypeCount[string(domain.PaymentMethodPayTypeCash)],
+		OnlinePaymentCount: paymentTypeCount[string(domain.PaymentMethodPayTypeOnlinePayment)],
+		MemberCardCount:    paymentTypeCount[string(domain.PaymentMethodPayTypeMemberCard)],
+		CustomCouponCount:  paymentTypeCount[string(domain.PaymentMethodPayTypeCustomCoupon)],
+		PartnerCouponCount: paymentTypeCount[string(domain.PaymentMethodPayTypePartnerCoupon)],
+		BankCardCount:      paymentTypeCount[string(domain.PaymentMethodPayTypeBankCard)],
+	}, nil
 }

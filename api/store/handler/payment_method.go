@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -60,11 +60,12 @@ func (h *PaymentMethodHandler) Create() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		// 构建 domain.PaymentMethod
 		paymentMethod := &domain.PaymentMethod{
 			ID:               uuid.New(),
 			MerchantID:       user.MerchantID,
+			StoreID:          user.StoreID,
 			Name:             req.Name,
 			AccountingRule:   req.AccountingRule,
 			PaymentType:      req.PaymentType,
@@ -122,7 +123,7 @@ func (h *PaymentMethodHandler) Update() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		// 构建 domain.PaymentMethod
 		paymentMethod := &domain.PaymentMethod{
 			ID:               paymentMethodID,
@@ -177,7 +178,7 @@ func (h *PaymentMethodHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		err = h.PaymentMethodInteractor.Delete(ctx, paymentMethodID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
@@ -213,7 +214,7 @@ func (h *PaymentMethodHandler) GetDetail() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		paymentMethod, err := h.PaymentMethodInteractor.GetDetail(ctx, paymentMethodID, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
@@ -254,9 +255,10 @@ func (h *PaymentMethodHandler) List() gin.HandlerFunc {
 		}
 
 		page := upagination.New(req.Page, req.Size)
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		params := domain.PaymentMethodSearchParams{
 			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 			Name:       req.Name,
 			Source:     req.Source,
 		}
@@ -296,13 +298,10 @@ func (h *PaymentMethodHandler) Stat() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		ctx = domain.NewBackendUserContext(ctx, &domain.BackendUser{
-			ID:         uuid.New(),
-			MerchantID: uuid.New(),
-		})
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		params := domain.PaymentMethodStatParams{
 			MerchantID: user.MerchantID,
+			StoreID:    user.StoreID,
 			Name:       req.Name,
 			Source:     req.Source,
 		}
