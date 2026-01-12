@@ -15,6 +15,50 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/business/config": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "经营管理"
+                ],
+                "summary": "经营设置列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "print"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "BusinessConfigGroupPrint": "print"
+                        },
+                        "x-enum-varnames": [
+                            "BusinessConfigGroupPrint"
+                        ],
+                        "description": "配置分组",
+                        "name": "group",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "设置名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.BusinessConfigSearchRes"
+                        }
+                    }
+                }
+            }
+        },
         "/common/department": {
             "get": {
                 "security": [
@@ -733,6 +777,204 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.OssTokenResp"
                         }
+                    }
+                }
+            }
+        },
+        "/payment/method": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "查询结算方式列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算方式名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "来源:brand-品牌,store-门店,system-系统",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentMethodSearchRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "创建结算方式",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentMethodCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/method/stat": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "统计各个结算分类对应的结算方式数量",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算方式名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "来源:brand-品牌,store-门店,system-系统",
+                        "name": "source",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentMethodStatRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/method/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "获取结算方式详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算方式ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentMethod"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "更新结算方式",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算方式ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PaymentMethodUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "删除结算方式",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算方式ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -3002,6 +3244,137 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.BusinessConfig": {
+            "type": "object",
+            "properties": {
+                "config_type": {
+                    "description": "键值类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigConfigType"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "group": {
+                    "description": "配置分组",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigGroup"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_default": {
+                    "description": "是否为系统默认",
+                    "type": "boolean"
+                },
+                "key": {
+                    "description": "参数键名",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "参数名称",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "source_config_id": {
+                    "description": "来源配置ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "tip": {
+                    "description": "变量描述",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "参数键值",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.BusinessConfigConfigType": {
+            "type": "string",
+            "enum": [
+                "string",
+                "int",
+                "uint",
+                "datetime",
+                "date"
+            ],
+            "x-enum-comments": {
+                "BusinessConfigConfigTypeDate": "date",
+                "BusinessConfigConfigTypeDatetime": "datetime",
+                "BusinessConfigConfigTypeInt": "int",
+                "BusinessConfigConfigTypeString": "string",
+                "BusinessConfigConfigTypeUint": "uint"
+            },
+            "x-enum-varnames": [
+                "BusinessConfigConfigTypeString",
+                "BusinessConfigConfigTypeInt",
+                "BusinessConfigConfigTypeUint",
+                "BusinessConfigConfigTypeDatetime",
+                "BusinessConfigConfigTypeDate"
+            ]
+        },
+        "domain.BusinessConfigGroup": {
+            "type": "string",
+            "enum": [
+                "print"
+            ],
+            "x-enum-comments": {
+                "BusinessConfigGroupPrint": "print"
+            },
+            "x-enum-varnames": [
+                "BusinessConfigGroupPrint"
+            ]
+        },
+        "domain.BusinessConfigSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessConfig"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.BusinessHour": {
             "type": "object",
             "properties": {
@@ -3699,6 +4072,216 @@ const docTemplate = `{
                 "PaperSize58mm",
                 "PaperSize80mm"
             ]
+        },
+        "domain.PaymentMethod": {
+            "type": "object",
+            "properties": {
+                "accounting_rule": {
+                    "description": "计入规则:income-计入实收,discount-计入优惠",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodAccountingRule"
+                        }
+                    ]
+                },
+                "cash_drawer_status": {
+                    "description": "开钱箱状态:false-不开钱箱, true-开钱箱（必选）",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "display_channels": {
+                    "description": "收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fee_rate": {
+                    "description": "手续费率,百分比",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoice_rule": {
+                    "description": "实收部分开票规则:no_invoice-不开发票,actual_amount-按实收金额",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodInvoiceRule"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "结算方式名称",
+                    "type": "string"
+                },
+                "payment_type": {
+                    "description": "结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
+                        }
+                    ]
+                },
+                "source": {
+                    "description": "来源:brand-品牌,store-门店,system-系统",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodSource"
+                        }
+                    ]
+                },
+                "source_payment_method_id": {
+                    "description": "结算方式来源ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "启用/停用状态: true-启用, false-停用（必选）",
+                    "type": "boolean"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.PaymentMethodAccountingRule": {
+            "type": "string",
+            "enum": [
+                "income",
+                "discount"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodAccountingRuleDiscount": "计入优惠",
+                "PaymentMethodAccountingRuleIncome": "计入实收"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodAccountingRuleIncome",
+                "PaymentMethodAccountingRuleDiscount"
+            ]
+        },
+        "domain.PaymentMethodInvoiceRule": {
+            "type": "string",
+            "enum": [
+                "no_invoice",
+                "actual_amount"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodInvoiceRuleActualAmount": "按实收金额",
+                "PaymentMethodInvoiceRuleNotInvoice": "不开发票"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodInvoiceRuleNotInvoice",
+                "PaymentMethodInvoiceRuleActualAmount"
+            ]
+        },
+        "domain.PaymentMethodPayType": {
+            "type": "string",
+            "enum": [
+                "cash",
+                "online_payment",
+                "member_card",
+                "custom_coupon",
+                "partner_coupon",
+                "bank_card"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodPayTypeBankCard": "银行卡",
+                "PaymentMethodPayTypeCash": "现金",
+                "PaymentMethodPayTypeCustomCoupon": "系统自定义券",
+                "PaymentMethodPayTypeMemberCard": "会员卡",
+                "PaymentMethodPayTypeOnlinePayment": "在线支付",
+                "PaymentMethodPayTypePartnerCoupon": "三方合作券"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodPayTypeCash",
+                "PaymentMethodPayTypeOnlinePayment",
+                "PaymentMethodPayTypeMemberCard",
+                "PaymentMethodPayTypeCustomCoupon",
+                "PaymentMethodPayTypePartnerCoupon",
+                "PaymentMethodPayTypeBankCard"
+            ]
+        },
+        "domain.PaymentMethodSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.PaymentMethod"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.PaymentMethodSource": {
+            "type": "string",
+            "enum": [
+                "brand",
+                "store",
+                "system"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodSourceBrand": "品牌",
+                "PaymentMethodSourceStore": "门店",
+                "PaymentMethodSourceSystem": "系统"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodSourceBrand",
+                "PaymentMethodSourceStore",
+                "PaymentMethodSourceSystem"
+            ]
+        },
+        "domain.PaymentMethodStatRes": {
+            "type": "object",
+            "properties": {
+                "bank_card_count": {
+                    "description": "银行卡数量",
+                    "type": "integer"
+                },
+                "cash_count": {
+                    "description": "现金数量",
+                    "type": "integer"
+                },
+                "custom_coupon_count": {
+                    "description": "自定义券数量",
+                    "type": "integer"
+                },
+                "member_card_count": {
+                    "description": "会员卡数量",
+                    "type": "integer"
+                },
+                "online_payment_count": {
+                    "description": "在线支付数量",
+                    "type": "integer"
+                },
+                "partner_coupon_count": {
+                    "description": "三方合作券数量",
+                    "type": "integer"
+                }
+            }
         },
         "domain.Product": {
             "type": "object",
@@ -4662,16 +5245,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -5891,6 +6474,180 @@ const docTemplate = `{
                 },
                 "x_oss_signature_version": {
                     "type": "string"
+                }
+            }
+        },
+        "types.PaymentMethodCreateReq": {
+            "type": "object",
+            "required": [
+                "accounting_rule",
+                "display_channels",
+                "invoice_rule",
+                "name",
+                "payment_type",
+                "source"
+            ],
+            "properties": {
+                "accounting_rule": {
+                    "description": "计入规则（必选）",
+                    "enum": [
+                        "income",
+                        "discount"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodAccountingRule"
+                        }
+                    ]
+                },
+                "cash_drawer_status": {
+                    "description": "开钱箱状态",
+                    "type": "boolean"
+                },
+                "display_channels": {
+                    "description": "收银终端显示渠道（可选，可多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fee_rate": {
+                    "description": "手续费率,百分比",
+                    "type": "number"
+                },
+                "invoice_rule": {
+                    "description": "实收部分开票规则（必选）",
+                    "enum": [
+                        "no_invoice",
+                        "actual_amount"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodInvoiceRule"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "结算方式名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "payment_type": {
+                    "description": "// 结算类型（必选）",
+                    "enum": [
+                        "other",
+                        "cash",
+                        "offline_card",
+                        "custom_coupon",
+                        "partner_coupon"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
+                        }
+                    ]
+                },
+                "source": {
+                    "description": "来源:brand-品牌,store-门店,system-系统",
+                    "enum": [
+                        "brand",
+                        "store",
+                        "system"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodSource"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "启用/停用状态",
+                    "type": "boolean"
+                }
+            }
+        },
+        "types.PaymentMethodUpdateReq": {
+            "type": "object",
+            "required": [
+                "accounting_rule",
+                "display_channels",
+                "invoice_rule",
+                "name",
+                "payment_type"
+            ],
+            "properties": {
+                "accounting_rule": {
+                    "description": "计入规则（必选）",
+                    "enum": [
+                        "income",
+                        "discount"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodAccountingRule"
+                        }
+                    ]
+                },
+                "cash_drawer_status": {
+                    "description": "开钱箱状态",
+                    "type": "boolean",
+                    "enum": [
+                        true,
+                        false
+                    ]
+                },
+                "display_channels": {
+                    "description": "收银终端显示渠道（可选，可多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fee_rate": {
+                    "description": "手续费率,百分比",
+                    "type": "number"
+                },
+                "invoice_rule": {
+                    "description": "实收部分开票规则（必选）",
+                    "enum": [
+                        "no_invoice",
+                        "actual_amount"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodInvoiceRule"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "结算方式名称（必选）",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "payment_type": {
+                    "description": "// 结算类型（必选）",
+                    "enum": [
+                        "other",
+                        "cash",
+                        "offline_card",
+                        "custom_coupon",
+                        "partner_coupon"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "启用/停用状态",
+                    "type": "boolean",
+                    "enum": [
+                        true,
+                        false
+                    ]
                 }
             }
         },

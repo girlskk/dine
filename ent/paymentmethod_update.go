@@ -60,6 +60,46 @@ func (pmu *PaymentMethodUpdate) AddDeletedAt(i int64) *PaymentMethodUpdate {
 	return pmu
 }
 
+// SetSourcePaymentMethodID sets the "source_payment_method_id" field.
+func (pmu *PaymentMethodUpdate) SetSourcePaymentMethodID(u uuid.UUID) *PaymentMethodUpdate {
+	pmu.mutation.SetSourcePaymentMethodID(u)
+	return pmu
+}
+
+// SetNillableSourcePaymentMethodID sets the "source_payment_method_id" field if the given value is not nil.
+func (pmu *PaymentMethodUpdate) SetNillableSourcePaymentMethodID(u *uuid.UUID) *PaymentMethodUpdate {
+	if u != nil {
+		pmu.SetSourcePaymentMethodID(*u)
+	}
+	return pmu
+}
+
+// ClearSourcePaymentMethodID clears the value of the "source_payment_method_id" field.
+func (pmu *PaymentMethodUpdate) ClearSourcePaymentMethodID() *PaymentMethodUpdate {
+	pmu.mutation.ClearSourcePaymentMethodID()
+	return pmu
+}
+
+// SetStoreID sets the "store_id" field.
+func (pmu *PaymentMethodUpdate) SetStoreID(u uuid.UUID) *PaymentMethodUpdate {
+	pmu.mutation.SetStoreID(u)
+	return pmu
+}
+
+// SetNillableStoreID sets the "store_id" field if the given value is not nil.
+func (pmu *PaymentMethodUpdate) SetNillableStoreID(u *uuid.UUID) *PaymentMethodUpdate {
+	if u != nil {
+		pmu.SetStoreID(*u)
+	}
+	return pmu
+}
+
+// ClearStoreID clears the value of the "store_id" field.
+func (pmu *PaymentMethodUpdate) ClearStoreID() *PaymentMethodUpdate {
+	pmu.mutation.ClearStoreID()
+	return pmu
+}
+
 // SetName sets the "name" field.
 func (pmu *PaymentMethodUpdate) SetName(s string) *PaymentMethodUpdate {
 	pmu.mutation.SetName(s)
@@ -168,6 +208,12 @@ func (pmu *PaymentMethodUpdate) AppendDisplayChannels(dmdc []domain.PaymentMetho
 	return pmu
 }
 
+// ClearDisplayChannels clears the value of the "display_channels" field.
+func (pmu *PaymentMethodUpdate) ClearDisplayChannels() *PaymentMethodUpdate {
+	pmu.mutation.ClearDisplayChannels()
+	return pmu
+}
+
 // SetSource sets the "source" field.
 func (pmu *PaymentMethodUpdate) SetSource(dms domain.PaymentMethodSource) *PaymentMethodUpdate {
 	pmu.mutation.SetSource(dms)
@@ -182,21 +228,9 @@ func (pmu *PaymentMethodUpdate) SetNillableSource(dms *domain.PaymentMethodSourc
 	return pmu
 }
 
-// SetStoreIds sets the "store_ids" field.
-func (pmu *PaymentMethodUpdate) SetStoreIds(u []uuid.UUID) *PaymentMethodUpdate {
-	pmu.mutation.SetStoreIds(u)
-	return pmu
-}
-
-// AppendStoreIds appends u to the "store_ids" field.
-func (pmu *PaymentMethodUpdate) AppendStoreIds(u []uuid.UUID) *PaymentMethodUpdate {
-	pmu.mutation.AppendStoreIds(u)
-	return pmu
-}
-
-// ClearStoreIds clears the value of the "store_ids" field.
-func (pmu *PaymentMethodUpdate) ClearStoreIds() *PaymentMethodUpdate {
-	pmu.mutation.ClearStoreIds()
+// ClearSource clears the value of the "source" field.
+func (pmu *PaymentMethodUpdate) ClearSource() *PaymentMethodUpdate {
+	pmu.mutation.ClearSource()
 	return pmu
 }
 
@@ -318,6 +352,18 @@ func (pmu *PaymentMethodUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	if value, ok := pmu.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(paymentmethod.FieldDeletedAt, field.TypeInt64, value)
 	}
+	if value, ok := pmu.mutation.SourcePaymentMethodID(); ok {
+		_spec.SetField(paymentmethod.FieldSourcePaymentMethodID, field.TypeUUID, value)
+	}
+	if pmu.mutation.SourcePaymentMethodIDCleared() {
+		_spec.ClearField(paymentmethod.FieldSourcePaymentMethodID, field.TypeUUID)
+	}
+	if value, ok := pmu.mutation.StoreID(); ok {
+		_spec.SetField(paymentmethod.FieldStoreID, field.TypeUUID, value)
+	}
+	if pmu.mutation.StoreIDCleared() {
+		_spec.ClearField(paymentmethod.FieldStoreID, field.TypeUUID)
+	}
 	if value, ok := pmu.mutation.Name(); ok {
 		_spec.SetField(paymentmethod.FieldName, field.TypeString, value)
 	}
@@ -350,19 +396,14 @@ func (pmu *PaymentMethodUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			sqljson.Append(u, paymentmethod.FieldDisplayChannels, value)
 		})
 	}
+	if pmu.mutation.DisplayChannelsCleared() {
+		_spec.ClearField(paymentmethod.FieldDisplayChannels, field.TypeJSON)
+	}
 	if value, ok := pmu.mutation.Source(); ok {
 		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
 	}
-	if value, ok := pmu.mutation.StoreIds(); ok {
-		_spec.SetField(paymentmethod.FieldStoreIds, field.TypeJSON, value)
-	}
-	if value, ok := pmu.mutation.AppendedStoreIds(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, paymentmethod.FieldStoreIds, value)
-		})
-	}
-	if pmu.mutation.StoreIdsCleared() {
-		_spec.ClearField(paymentmethod.FieldStoreIds, field.TypeJSON)
+	if pmu.mutation.SourceCleared() {
+		_spec.ClearField(paymentmethod.FieldSource, field.TypeEnum)
 	}
 	if value, ok := pmu.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)
@@ -413,6 +454,46 @@ func (pmuo *PaymentMethodUpdateOne) SetNillableDeletedAt(i *int64) *PaymentMetho
 // AddDeletedAt adds i to the "deleted_at" field.
 func (pmuo *PaymentMethodUpdateOne) AddDeletedAt(i int64) *PaymentMethodUpdateOne {
 	pmuo.mutation.AddDeletedAt(i)
+	return pmuo
+}
+
+// SetSourcePaymentMethodID sets the "source_payment_method_id" field.
+func (pmuo *PaymentMethodUpdateOne) SetSourcePaymentMethodID(u uuid.UUID) *PaymentMethodUpdateOne {
+	pmuo.mutation.SetSourcePaymentMethodID(u)
+	return pmuo
+}
+
+// SetNillableSourcePaymentMethodID sets the "source_payment_method_id" field if the given value is not nil.
+func (pmuo *PaymentMethodUpdateOne) SetNillableSourcePaymentMethodID(u *uuid.UUID) *PaymentMethodUpdateOne {
+	if u != nil {
+		pmuo.SetSourcePaymentMethodID(*u)
+	}
+	return pmuo
+}
+
+// ClearSourcePaymentMethodID clears the value of the "source_payment_method_id" field.
+func (pmuo *PaymentMethodUpdateOne) ClearSourcePaymentMethodID() *PaymentMethodUpdateOne {
+	pmuo.mutation.ClearSourcePaymentMethodID()
+	return pmuo
+}
+
+// SetStoreID sets the "store_id" field.
+func (pmuo *PaymentMethodUpdateOne) SetStoreID(u uuid.UUID) *PaymentMethodUpdateOne {
+	pmuo.mutation.SetStoreID(u)
+	return pmuo
+}
+
+// SetNillableStoreID sets the "store_id" field if the given value is not nil.
+func (pmuo *PaymentMethodUpdateOne) SetNillableStoreID(u *uuid.UUID) *PaymentMethodUpdateOne {
+	if u != nil {
+		pmuo.SetStoreID(*u)
+	}
+	return pmuo
+}
+
+// ClearStoreID clears the value of the "store_id" field.
+func (pmuo *PaymentMethodUpdateOne) ClearStoreID() *PaymentMethodUpdateOne {
+	pmuo.mutation.ClearStoreID()
 	return pmuo
 }
 
@@ -524,6 +605,12 @@ func (pmuo *PaymentMethodUpdateOne) AppendDisplayChannels(dmdc []domain.PaymentM
 	return pmuo
 }
 
+// ClearDisplayChannels clears the value of the "display_channels" field.
+func (pmuo *PaymentMethodUpdateOne) ClearDisplayChannels() *PaymentMethodUpdateOne {
+	pmuo.mutation.ClearDisplayChannels()
+	return pmuo
+}
+
 // SetSource sets the "source" field.
 func (pmuo *PaymentMethodUpdateOne) SetSource(dms domain.PaymentMethodSource) *PaymentMethodUpdateOne {
 	pmuo.mutation.SetSource(dms)
@@ -538,21 +625,9 @@ func (pmuo *PaymentMethodUpdateOne) SetNillableSource(dms *domain.PaymentMethodS
 	return pmuo
 }
 
-// SetStoreIds sets the "store_ids" field.
-func (pmuo *PaymentMethodUpdateOne) SetStoreIds(u []uuid.UUID) *PaymentMethodUpdateOne {
-	pmuo.mutation.SetStoreIds(u)
-	return pmuo
-}
-
-// AppendStoreIds appends u to the "store_ids" field.
-func (pmuo *PaymentMethodUpdateOne) AppendStoreIds(u []uuid.UUID) *PaymentMethodUpdateOne {
-	pmuo.mutation.AppendStoreIds(u)
-	return pmuo
-}
-
-// ClearStoreIds clears the value of the "store_ids" field.
-func (pmuo *PaymentMethodUpdateOne) ClearStoreIds() *PaymentMethodUpdateOne {
-	pmuo.mutation.ClearStoreIds()
+// ClearSource clears the value of the "source" field.
+func (pmuo *PaymentMethodUpdateOne) ClearSource() *PaymentMethodUpdateOne {
+	pmuo.mutation.ClearSource()
 	return pmuo
 }
 
@@ -704,6 +779,18 @@ func (pmuo *PaymentMethodUpdateOne) sqlSave(ctx context.Context) (_node *Payment
 	if value, ok := pmuo.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(paymentmethod.FieldDeletedAt, field.TypeInt64, value)
 	}
+	if value, ok := pmuo.mutation.SourcePaymentMethodID(); ok {
+		_spec.SetField(paymentmethod.FieldSourcePaymentMethodID, field.TypeUUID, value)
+	}
+	if pmuo.mutation.SourcePaymentMethodIDCleared() {
+		_spec.ClearField(paymentmethod.FieldSourcePaymentMethodID, field.TypeUUID)
+	}
+	if value, ok := pmuo.mutation.StoreID(); ok {
+		_spec.SetField(paymentmethod.FieldStoreID, field.TypeUUID, value)
+	}
+	if pmuo.mutation.StoreIDCleared() {
+		_spec.ClearField(paymentmethod.FieldStoreID, field.TypeUUID)
+	}
 	if value, ok := pmuo.mutation.Name(); ok {
 		_spec.SetField(paymentmethod.FieldName, field.TypeString, value)
 	}
@@ -736,19 +823,14 @@ func (pmuo *PaymentMethodUpdateOne) sqlSave(ctx context.Context) (_node *Payment
 			sqljson.Append(u, paymentmethod.FieldDisplayChannels, value)
 		})
 	}
+	if pmuo.mutation.DisplayChannelsCleared() {
+		_spec.ClearField(paymentmethod.FieldDisplayChannels, field.TypeJSON)
+	}
 	if value, ok := pmuo.mutation.Source(); ok {
 		_spec.SetField(paymentmethod.FieldSource, field.TypeEnum, value)
 	}
-	if value, ok := pmuo.mutation.StoreIds(); ok {
-		_spec.SetField(paymentmethod.FieldStoreIds, field.TypeJSON, value)
-	}
-	if value, ok := pmuo.mutation.AppendedStoreIds(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, paymentmethod.FieldStoreIds, value)
-		})
-	}
-	if pmuo.mutation.StoreIdsCleared() {
-		_spec.ClearField(paymentmethod.FieldStoreIds, field.TypeJSON)
+	if pmuo.mutation.SourceCleared() {
+		_spec.ClearField(paymentmethod.FieldSource, field.TypeEnum)
 	}
 	if value, ok := pmuo.mutation.Status(); ok {
 		_spec.SetField(paymentmethod.FieldStatus, field.TypeBool, value)

@@ -103,6 +103,20 @@ func (mr *MockDataStoreMockRecorder) BackendUserRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BackendUserRepo", reflect.TypeOf((*MockDataStore)(nil).BackendUserRepo))
 }
 
+// BusinessConfigRepo mocks base method.
+func (m *MockDataStore) BusinessConfigRepo() domain.BusinessConfigRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BusinessConfigRepo")
+	ret0, _ := ret[0].(domain.BusinessConfigRepository)
+	return ret0
+}
+
+// BusinessConfigRepo indicates an expected call of BusinessConfigRepo.
+func (mr *MockDataStoreMockRecorder) BusinessConfigRepo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BusinessConfigRepo", reflect.TypeOf((*MockDataStore)(nil).BusinessConfigRepo))
+}
+
 // CategoryRepo mocks base method.
 func (m *MockDataStore) CategoryRepo() domain.CategoryRepository {
 	m.ctrl.T.Helper()

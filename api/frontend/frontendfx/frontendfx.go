@@ -5,6 +5,7 @@ import (
 
 	"gitlab.jiguang.dev/pos-dine/dine/api/frontend"
 	"gitlab.jiguang.dev/pos-dine/dine/api/frontend/handler"
+	mid "gitlab.jiguang.dev/pos-dine/dine/api/frontend/middleware"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/middleware"
@@ -32,10 +33,17 @@ var Module = fx.Module(
 			fx.ResultTags(`group:"middlewares"`),
 		),
 		asMiddleware(middleware.NewLogger),
+		fx.Annotate(
+			mid.NewAuth,
+			fx.As(new(ugin.Middleware)),
+			fx.ParamTags(`group:"handlers"`),
+			fx.ResultTags(`group:"middlewares"`),
+		),
 	),
 	// handler
 	fx.Provide(
 		asHandler(handler.NewOrderHandler),
+		asHandler(handler.NewPaymentMethodHandler),
 	),
 )
 

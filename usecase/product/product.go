@@ -355,7 +355,7 @@ func (i *ProductInteractor) PagedListBySearch(
 	page *upagination.Pagination,
 	params domain.ProductSearchParams,
 ) (res *domain.ProductSearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.PagedListBySearch")
+	span, ctx := util.StartSpan(ctx, "usecase", "ProductInteractor.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

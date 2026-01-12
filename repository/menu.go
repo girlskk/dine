@@ -231,7 +231,7 @@ func (repo *MenuRepository) PagedListMerchantMenusBySearch(
 	page *upagination.Pagination,
 	params domain.MenuSearchParams,
 ) (res *domain.MenuSearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "MenuRepository.PagedListBySearch")
+	span, ctx := util.StartSpan(ctx, "repository", "MenuRepository.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

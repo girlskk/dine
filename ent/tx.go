@@ -18,6 +18,8 @@ type Tx struct {
 	AdminUser *AdminUserClient
 	// BackendUser is the client for interacting with the BackendUser builders.
 	BackendUser *BackendUserClient
+	// BusinessConfig is the client for interacting with the BusinessConfig builders.
+	BusinessConfig *BusinessConfigClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
 	// City is the client for interacting with the City builders.
@@ -234,6 +236,7 @@ func (tx *Tx) init() {
 	tx.AdditionalFee = NewAdditionalFeeClient(tx.config)
 	tx.AdminUser = NewAdminUserClient(tx.config)
 	tx.BackendUser = NewBackendUserClient(tx.config)
+	tx.BusinessConfig = NewBusinessConfigClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
 	tx.City = NewCityClient(tx.config)
 	tx.Country = NewCountryClient(tx.config)

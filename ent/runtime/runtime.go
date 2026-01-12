@@ -10,6 +10,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
@@ -277,6 +278,65 @@ func init() {
 	backenduserDescID := backenduserMixinFields2[0].Descriptor()
 	// backenduser.DefaultID holds the default value on creation for the id field.
 	backenduser.DefaultID = backenduserDescID.Default.(func() uuid.UUID)
+	businessconfigMixin := schema.BusinessConfig{}.Mixin()
+	businessconfigMixinHooks2 := businessconfigMixin[2].Hooks()
+	businessconfig.Hooks[0] = businessconfigMixinHooks2[0]
+	businessconfigMixinInters2 := businessconfigMixin[2].Interceptors()
+	businessconfig.Interceptors[0] = businessconfigMixinInters2[0]
+	businessconfigMixinFields0 := businessconfigMixin[0].Fields()
+	_ = businessconfigMixinFields0
+	businessconfigMixinFields1 := businessconfigMixin[1].Fields()
+	_ = businessconfigMixinFields1
+	businessconfigMixinFields2 := businessconfigMixin[2].Fields()
+	_ = businessconfigMixinFields2
+	businessconfigFields := schema.BusinessConfig{}.Fields()
+	_ = businessconfigFields
+	// businessconfigDescCreatedAt is the schema descriptor for created_at field.
+	businessconfigDescCreatedAt := businessconfigMixinFields1[0].Descriptor()
+	// businessconfig.DefaultCreatedAt holds the default value on creation for the created_at field.
+	businessconfig.DefaultCreatedAt = businessconfigDescCreatedAt.Default.(func() time.Time)
+	// businessconfigDescUpdatedAt is the schema descriptor for updated_at field.
+	businessconfigDescUpdatedAt := businessconfigMixinFields1[1].Descriptor()
+	// businessconfig.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	businessconfig.DefaultUpdatedAt = businessconfigDescUpdatedAt.Default.(func() time.Time)
+	// businessconfig.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	businessconfig.UpdateDefaultUpdatedAt = businessconfigDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// businessconfigDescDeletedAt is the schema descriptor for deleted_at field.
+	businessconfigDescDeletedAt := businessconfigMixinFields2[0].Descriptor()
+	// businessconfig.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	businessconfig.DefaultDeletedAt = businessconfigDescDeletedAt.Default.(int64)
+	// businessconfigDescName is the schema descriptor for name field.
+	businessconfigDescName := businessconfigFields[4].Descriptor()
+	// businessconfig.DefaultName holds the default value on creation for the name field.
+	businessconfig.DefaultName = businessconfigDescName.Default.(string)
+	// businessconfigDescKey is the schema descriptor for key field.
+	businessconfigDescKey := businessconfigFields[6].Descriptor()
+	// businessconfig.DefaultKey holds the default value on creation for the key field.
+	businessconfig.DefaultKey = businessconfigDescKey.Default.(string)
+	// businessconfigDescValue is the schema descriptor for value field.
+	businessconfigDescValue := businessconfigFields[7].Descriptor()
+	// businessconfig.DefaultValue holds the default value on creation for the value field.
+	businessconfig.DefaultValue = businessconfigDescValue.Default.(string)
+	// businessconfigDescSort is the schema descriptor for sort field.
+	businessconfigDescSort := businessconfigFields[8].Descriptor()
+	// businessconfig.DefaultSort holds the default value on creation for the sort field.
+	businessconfig.DefaultSort = businessconfigDescSort.Default.(int32)
+	// businessconfigDescTip is the schema descriptor for tip field.
+	businessconfigDescTip := businessconfigFields[9].Descriptor()
+	// businessconfig.DefaultTip holds the default value on creation for the tip field.
+	businessconfig.DefaultTip = businessconfigDescTip.Default.(string)
+	// businessconfigDescIsDefault is the schema descriptor for is_default field.
+	businessconfigDescIsDefault := businessconfigFields[10].Descriptor()
+	// businessconfig.DefaultIsDefault holds the default value on creation for the is_default field.
+	businessconfig.DefaultIsDefault = businessconfigDescIsDefault.Default.(bool)
+	// businessconfigDescStatus is the schema descriptor for status field.
+	businessconfigDescStatus := businessconfigFields[11].Descriptor()
+	// businessconfig.DefaultStatus holds the default value on creation for the status field.
+	businessconfig.DefaultStatus = businessconfigDescStatus.Default.(bool)
+	// businessconfigDescID is the schema descriptor for id field.
+	businessconfigDescID := businessconfigMixinFields0[0].Descriptor()
+	// businessconfig.DefaultID holds the default value on creation for the id field.
+	businessconfig.DefaultID = businessconfigDescID.Default.(func() uuid.UUID)
 	categoryMixin := schema.Category{}.Mixin()
 	categoryMixinHooks2 := categoryMixin[2].Hooks()
 	category.Hooks[0] = categoryMixinHooks2[0]
@@ -1154,12 +1214,8 @@ func init() {
 	paymentmethodDescDeletedAt := paymentmethodMixinFields2[0].Descriptor()
 	// paymentmethod.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	paymentmethod.DefaultDeletedAt = paymentmethodDescDeletedAt.Default.(int64)
-	// paymentmethodDescStoreID is the schema descriptor for store_id field.
-	paymentmethodDescStoreID := paymentmethodFields[1].Descriptor()
-	// paymentmethod.DefaultStoreID holds the default value on creation for the store_id field.
-	paymentmethod.DefaultStoreID = paymentmethodDescStoreID.Default.(func() uuid.UUID)
 	// paymentmethodDescName is the schema descriptor for name field.
-	paymentmethodDescName := paymentmethodFields[2].Descriptor()
+	paymentmethodDescName := paymentmethodFields[3].Descriptor()
 	// paymentmethod.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	paymentmethod.NameValidator = func() func(string) error {
 		validators := paymentmethodDescName.Validators
@@ -1177,7 +1233,7 @@ func init() {
 		}
 	}()
 	// paymentmethodDescCashDrawerStatus is the schema descriptor for cash_drawer_status field.
-	paymentmethodDescCashDrawerStatus := paymentmethodFields[7].Descriptor()
+	paymentmethodDescCashDrawerStatus := paymentmethodFields[8].Descriptor()
 	// paymentmethod.DefaultCashDrawerStatus holds the default value on creation for the cash_drawer_status field.
 	paymentmethod.DefaultCashDrawerStatus = paymentmethodDescCashDrawerStatus.Default.(bool)
 	// paymentmethodDescStatus is the schema descriptor for status field.

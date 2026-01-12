@@ -1,6 +1,3 @@
--- Modify "merchant_business_types" table
-ALTER TABLE `merchant_business_types` MODIFY COLUMN `merchant_id` char(36) NULL;
-
 -- Modify "merchant_renewals" table
 ALTER TABLE `merchant_renewals` MODIFY COLUMN `operator_name` varchar(50) NULL DEFAULT "",
 MODIFY COLUMN `operator_account` varchar(50) NULL DEFAULT "";

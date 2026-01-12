@@ -33,6 +33,7 @@ func (h *PaymentMethodHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.GetDetail())
 	r.GET("", h.List())
+	r.GET("/stat", h.Stat())
 }
 
 func (h *PaymentMethodHandler) NoAuths() []string {
@@ -71,6 +72,7 @@ func (h *PaymentMethodHandler) Create() gin.HandlerFunc {
 			InvoiceRule:      req.InvoiceRule,
 			CashDrawerStatus: req.CashDrawerStatus,
 			DisplayChannels:  req.DisplayChannels,
+			Source:           req.Source,
 			Status:           req.Status,
 		}
 		err := h.PaymentMethodInteractor.Create(ctx, paymentMethod)
@@ -233,6 +235,7 @@ func (h *PaymentMethodHandler) GetDetail() gin.HandlerFunc {
 //	@Security	BearerAuth
 //	@Summary	查询结算方式列表
 //	@Param		name	query		string							false	"结算方式名称（模糊匹配）"
+//	@Param		source	query		string							false	"来源:brand-品牌,store-门店,system-系统"
 //	@Param		page	query		int								false	"页码"
 //	@Param		size	query		int								false	"每页数量"
 //	@Success	200		{object}	domain.PaymentMethodSearchRes	"成功"
@@ -255,6 +258,7 @@ func (h *PaymentMethodHandler) List() gin.HandlerFunc {
 		params := domain.PaymentMethodSearchParams{
 			MerchantID: user.MerchantID,
 			Name:       req.Name,
+			Source:     req.Source,
 		}
 		res, err := h.PaymentMethodInteractor.PagedListBySearch(ctx, page, params)
 		if err != nil {
@@ -262,6 +266,52 @@ func (h *PaymentMethodHandler) List() gin.HandlerFunc {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			} else {
 				err = fmt.Errorf("failed to list paymentMethods: %w", err)
+				c.Error(err)
+			}
+			return
+		}
+
+		response.Ok(c, res)
+	}
+}
+
+// Stat
+//
+//	@Tags		结算方式管理
+//	@Security	BearerAuth
+//	@Summary	统计各个结算分类对应的结算方式数量
+//	@Param		name	query		string						false	"结算方式名称（模糊匹配）"
+//	@Param		source	query		string						false	"来源:brand-品牌,store-门店,system-系统"
+//	@Success	200		{object}	domain.PaymentMethodStatRes	"成功"
+//	@Router		/payment/method/stat [get]
+func (h *PaymentMethodHandler) Stat() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("PaymentMethodHandler.Stat")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.PaymentMethodStatReq
+		if err := c.ShouldBindQuery(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+		ctx = domain.NewBackendUserContext(ctx, &domain.BackendUser{
+			ID:         uuid.New(),
+			MerchantID: uuid.New(),
+		})
+		user := domain.FromBackendUserContext(ctx)
+		params := domain.PaymentMethodStatParams{
+			MerchantID: user.MerchantID,
+			Name:       req.Name,
+			Source:     req.Source,
+		}
+		res, err := h.PaymentMethodInteractor.Stat(ctx, params)
+		if err != nil {
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			} else {
+				err = fmt.Errorf("failed to query stat count : %w", err)
 				c.Error(err)
 			}
 			return

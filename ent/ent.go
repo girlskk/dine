@@ -15,6 +15,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
@@ -119,6 +120,7 @@ func checkColumn(table, column string) error {
 			additionalfee.Table:          additionalfee.ValidColumn,
 			adminuser.Table:              adminuser.ValidColumn,
 			backenduser.Table:            backenduser.ValidColumn,
+			businessconfig.Table:         businessconfig.ValidColumn,
 			category.Table:               category.ValidColumn,
 			city.Table:                   city.ValidColumn,
 			country.Table:                country.ValidColumn,
