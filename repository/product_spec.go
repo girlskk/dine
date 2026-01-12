@@ -125,7 +125,7 @@ func (repo *ProductSpecRepository) PagedListBySearch(
 	page *upagination.Pagination,
 	params domain.ProductSpecSearchParams,
 ) (res *domain.ProductSpecSearchRes, err error) {
-	span, ctx := util.StartSpan(ctx, "repository", "ProductSpecRepository.PagedListBySearch")
+	span, ctx := util.StartSpan(ctx, "repository", "ProductSpecRepository.ListBySearch")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()

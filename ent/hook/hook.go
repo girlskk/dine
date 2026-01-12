@@ -45,6 +45,18 @@ func (f BackendUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BackendUserMutation", m)
 }
 
+// The BusinessConfigFunc type is an adapter to allow the use of ordinary
+// function as BusinessConfig mutator.
+type BusinessConfigFunc func(context.Context, *ent.BusinessConfigMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BusinessConfigFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BusinessConfigMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BusinessConfigMutation", m)
+}
+
 // The CategoryFunc type is an adapter to allow the use of ordinary
 // function as Category mutator.
 type CategoryFunc func(context.Context, *ent.CategoryMutation) (ent.Value, error)

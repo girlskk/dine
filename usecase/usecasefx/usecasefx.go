@@ -3,6 +3,7 @@ package usecasefx
 import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/additionalfee"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/category"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/department"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/device"
@@ -162,6 +163,10 @@ var Module = fx.Module(
 		fx.Annotate(
 			refundorder.NewRefundOrderInteractor,
 			fx.As(new(domain.RefundOrderInteractor)),
+		),
+		fx.Annotate(
+			businessconfig.NewBusinessConfigInteractor,
+			fx.As(new(domain.BusinessConfigInteractor)),
 		),
 	),
 )

@@ -28,6 +28,8 @@ type PaymentMethod struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// 删除时间
 	DeletedAt int64 `json:"deleted_at,omitempty"`
+	// 结算方式来源ID
+	SourcePaymentMethodID uuid.UUID `json:"source_payment_method_id,omitempty"`
 	// 品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 门店ID
@@ -36,7 +38,7 @@ type PaymentMethod struct {
 	Name string `json:"name,omitempty"`
 	// 计入规则:income-计入实收,discount-计入优惠
 	AccountingRule domain.PaymentMethodAccountingRule `json:"accounting_rule,omitempty"`
-	// 结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券
+	// 结算分类:cash-现金,online_payment-在线支付,member_card-会员卡,custom_coupon-自定义券,partner_coupon-三方合作券,bank_card-银行卡
 	PaymentType domain.PaymentMethodPayType `json:"payment_type,omitempty"`
 	// 手续费率,百分比
 	FeeRate *decimal.Decimal `json:"fee_rate,omitempty"`
@@ -44,12 +46,10 @@ type PaymentMethod struct {
 	InvoiceRule domain.PaymentMethodInvoiceRule `json:"invoice_rule,omitempty"`
 	// 开钱箱状态:false-不开钱箱, true-开钱箱（必选）
 	CashDrawerStatus bool `json:"cash_drawer_status,omitempty"`
-	// 收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖
+	// 收银终端显示渠道（可选，可多选）：POS-POS、Mobile-移动点餐、Scan-扫码点餐、SelfService-自助点餐、ThirdParty-三方外卖
 	DisplayChannels []domain.PaymentMethodDisplayChannel `json:"display_channels,omitempty"`
 	// 来源:brand-品牌,store-门店,system-系统
 	Source domain.PaymentMethodSource `json:"source,omitempty"`
-	// 下发门店ID集合
-	StoreIds []uuid.UUID `json:"store_ids,omitempty"`
 	// 启用/停用状态: true-启用, false-停用（必选）
 	Status       bool `json:"status,omitempty"`
 	selectValues sql.SelectValues
@@ -62,7 +62,7 @@ func (*PaymentMethod) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case paymentmethod.FieldFeeRate:
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
-		case paymentmethod.FieldDisplayChannels, paymentmethod.FieldStoreIds:
+		case paymentmethod.FieldDisplayChannels:
 			values[i] = new([]byte)
 		case paymentmethod.FieldCashDrawerStatus, paymentmethod.FieldStatus:
 			values[i] = new(sql.NullBool)
@@ -72,7 +72,7 @@ func (*PaymentMethod) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case paymentmethod.FieldCreatedAt, paymentmethod.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case paymentmethod.FieldID, paymentmethod.FieldMerchantID, paymentmethod.FieldStoreID:
+		case paymentmethod.FieldID, paymentmethod.FieldSourcePaymentMethodID, paymentmethod.FieldMerchantID, paymentmethod.FieldStoreID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -112,6 +112,12 @@ func (pm *PaymentMethod) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				pm.DeletedAt = value.Int64
+			}
+		case paymentmethod.FieldSourcePaymentMethodID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field source_payment_method_id", values[i])
+			} else if value != nil {
+				pm.SourcePaymentMethodID = *value
 			}
 		case paymentmethod.FieldMerchantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -176,14 +182,6 @@ func (pm *PaymentMethod) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pm.Source = domain.PaymentMethodSource(value.String)
 			}
-		case paymentmethod.FieldStoreIds:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field store_ids", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pm.StoreIds); err != nil {
-					return fmt.Errorf("unmarshal field store_ids: %w", err)
-				}
-			}
 		case paymentmethod.FieldStatus:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -235,6 +233,9 @@ func (pm *PaymentMethod) String() string {
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", pm.DeletedAt))
 	builder.WriteString(", ")
+	builder.WriteString("source_payment_method_id=")
+	builder.WriteString(fmt.Sprintf("%v", pm.SourcePaymentMethodID))
+	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", pm.MerchantID))
 	builder.WriteString(", ")
@@ -266,9 +267,6 @@ func (pm *PaymentMethod) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("source=")
 	builder.WriteString(fmt.Sprintf("%v", pm.Source))
-	builder.WriteString(", ")
-	builder.WriteString("store_ids=")
-	builder.WriteString(fmt.Sprintf("%v", pm.StoreIds))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", pm.Status))

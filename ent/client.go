@@ -19,6 +19,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
@@ -75,6 +76,8 @@ type Client struct {
 	AdminUser *AdminUserClient
 	// BackendUser is the client for interacting with the BackendUser builders.
 	BackendUser *BackendUserClient
+	// BusinessConfig is the client for interacting with the BusinessConfig builders.
+	BusinessConfig *BusinessConfigClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
 	// City is the client for interacting with the City builders.
@@ -175,6 +178,7 @@ func (c *Client) init() {
 	c.AdditionalFee = NewAdditionalFeeClient(c.config)
 	c.AdminUser = NewAdminUserClient(c.config)
 	c.BackendUser = NewBackendUserClient(c.config)
+	c.BusinessConfig = NewBusinessConfigClient(c.config)
 	c.Category = NewCategoryClient(c.config)
 	c.City = NewCityClient(c.config)
 	c.Country = NewCountryClient(c.config)
@@ -313,6 +317,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		AdditionalFee:          NewAdditionalFeeClient(cfg),
 		AdminUser:              NewAdminUserClient(cfg),
 		BackendUser:            NewBackendUserClient(cfg),
+		BusinessConfig:         NewBusinessConfigClient(cfg),
 		Category:               NewCategoryClient(cfg),
 		City:                   NewCityClient(cfg),
 		Country:                NewCountryClient(cfg),
@@ -378,6 +383,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		AdditionalFee:          NewAdditionalFeeClient(cfg),
 		AdminUser:              NewAdminUserClient(cfg),
 		BackendUser:            NewBackendUserClient(cfg),
+		BusinessConfig:         NewBusinessConfigClient(cfg),
 		Category:               NewCategoryClient(cfg),
 		City:                   NewCityClient(cfg),
 		Country:                NewCountryClient(cfg),
@@ -450,9 +456,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
-		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
-		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
+		c.AdditionalFee, c.AdminUser, c.BackendUser, c.BusinessConfig, c.Category,
+		c.City, c.Country, c.Department, c.Device, c.District, c.Menu, c.MenuItem,
+		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
 		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
 		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
 		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
@@ -469,9 +475,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AdditionalFee, c.AdminUser, c.BackendUser, c.Category, c.City, c.Country,
-		c.Department, c.Device, c.District, c.Menu, c.MenuItem, c.Merchant,
-		c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
+		c.AdditionalFee, c.AdminUser, c.BackendUser, c.BusinessConfig, c.Category,
+		c.City, c.Country, c.Department, c.Device, c.District, c.Menu, c.MenuItem,
+		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
 		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
 		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
 		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
@@ -493,6 +499,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AdminUser.mutate(ctx, m)
 	case *BackendUserMutation:
 		return c.BackendUser.mutate(ctx, m)
+	case *BusinessConfigMutation:
+		return c.BusinessConfig.mutate(ctx, m)
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
 	case *CityMutation:
@@ -1082,6 +1090,141 @@ func (c *BackendUserClient) mutate(ctx context.Context, m *BackendUserMutation) 
 		return (&BackendUserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown BackendUser mutation op: %q", m.Op())
+	}
+}
+
+// BusinessConfigClient is a client for the BusinessConfig schema.
+type BusinessConfigClient struct {
+	config
+}
+
+// NewBusinessConfigClient returns a client for the BusinessConfig from the given config.
+func NewBusinessConfigClient(c config) *BusinessConfigClient {
+	return &BusinessConfigClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `businessconfig.Hooks(f(g(h())))`.
+func (c *BusinessConfigClient) Use(hooks ...Hook) {
+	c.hooks.BusinessConfig = append(c.hooks.BusinessConfig, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `businessconfig.Intercept(f(g(h())))`.
+func (c *BusinessConfigClient) Intercept(interceptors ...Interceptor) {
+	c.inters.BusinessConfig = append(c.inters.BusinessConfig, interceptors...)
+}
+
+// Create returns a builder for creating a BusinessConfig entity.
+func (c *BusinessConfigClient) Create() *BusinessConfigCreate {
+	mutation := newBusinessConfigMutation(c.config, OpCreate)
+	return &BusinessConfigCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of BusinessConfig entities.
+func (c *BusinessConfigClient) CreateBulk(builders ...*BusinessConfigCreate) *BusinessConfigCreateBulk {
+	return &BusinessConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *BusinessConfigClient) MapCreateBulk(slice any, setFunc func(*BusinessConfigCreate, int)) *BusinessConfigCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &BusinessConfigCreateBulk{err: fmt.Errorf("calling to BusinessConfigClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*BusinessConfigCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &BusinessConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for BusinessConfig.
+func (c *BusinessConfigClient) Update() *BusinessConfigUpdate {
+	mutation := newBusinessConfigMutation(c.config, OpUpdate)
+	return &BusinessConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BusinessConfigClient) UpdateOne(bc *BusinessConfig) *BusinessConfigUpdateOne {
+	mutation := newBusinessConfigMutation(c.config, OpUpdateOne, withBusinessConfig(bc))
+	return &BusinessConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BusinessConfigClient) UpdateOneID(id uuid.UUID) *BusinessConfigUpdateOne {
+	mutation := newBusinessConfigMutation(c.config, OpUpdateOne, withBusinessConfigID(id))
+	return &BusinessConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for BusinessConfig.
+func (c *BusinessConfigClient) Delete() *BusinessConfigDelete {
+	mutation := newBusinessConfigMutation(c.config, OpDelete)
+	return &BusinessConfigDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BusinessConfigClient) DeleteOne(bc *BusinessConfig) *BusinessConfigDeleteOne {
+	return c.DeleteOneID(bc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BusinessConfigClient) DeleteOneID(id uuid.UUID) *BusinessConfigDeleteOne {
+	builder := c.Delete().Where(businessconfig.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BusinessConfigDeleteOne{builder}
+}
+
+// Query returns a query builder for BusinessConfig.
+func (c *BusinessConfigClient) Query() *BusinessConfigQuery {
+	return &BusinessConfigQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBusinessConfig},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a BusinessConfig entity by its id.
+func (c *BusinessConfigClient) Get(ctx context.Context, id uuid.UUID) (*BusinessConfig, error) {
+	return c.Query().Where(businessconfig.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BusinessConfigClient) GetX(ctx context.Context, id uuid.UUID) *BusinessConfig {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *BusinessConfigClient) Hooks() []Hook {
+	hooks := c.hooks.BusinessConfig
+	return append(hooks[:len(hooks):len(hooks)], businessconfig.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *BusinessConfigClient) Interceptors() []Interceptor {
+	inters := c.inters.BusinessConfig
+	return append(inters[:len(inters):len(inters)], businessconfig.Interceptors[:]...)
+}
+
+func (c *BusinessConfigClient) mutate(ctx context.Context, m *BusinessConfigMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BusinessConfigCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BusinessConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BusinessConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BusinessConfigDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown BusinessConfig mutation op: %q", m.Op())
 	}
 }
 
@@ -8973,8 +9116,8 @@ func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
-		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
+		AdditionalFee, AdminUser, BackendUser, BusinessConfig, Category, City, Country,
+		Department, Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
 		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
 		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
 		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
@@ -8984,8 +9127,8 @@ type (
 		StoreUser, TaxFee, UserRole []ent.Hook
 	}
 	inters struct {
-		AdditionalFee, AdminUser, BackendUser, Category, City, Country, Department,
-		Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
+		AdditionalFee, AdminUser, BackendUser, BusinessConfig, Category, City, Country,
+		Department, Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
 		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
 		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
 		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,

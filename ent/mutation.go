@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
@@ -75,6 +76,7 @@ const (
 	TypeAdditionalFee          = "AdditionalFee"
 	TypeAdminUser              = "AdminUser"
 	TypeBackendUser            = "BackendUser"
+	TypeBusinessConfig         = "BusinessConfig"
 	TypeCategory               = "Category"
 	TypeCity                   = "City"
 	TypeCountry                = "Country"
@@ -4109,6 +4111,1337 @@ func (m *BackendUserMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown BackendUser edge %s", name)
+}
+
+// BusinessConfigMutation represents an operation that mutates the BusinessConfig nodes in the graph.
+type BusinessConfigMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *int64
+	adddeleted_at    *int64
+	source_config_id *uuid.UUID
+	merchant_id      *uuid.UUID
+	store_id         *uuid.UUID
+	group            *domain.BusinessConfigGroup
+	name             *string
+	config_type      *domain.BusinessConfigConfigType
+	key              *string
+	value            *string
+	sort             *int32
+	addsort          *int32
+	tip              *string
+	is_default       *bool
+	status           *bool
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*BusinessConfig, error)
+	predicates       []predicate.BusinessConfig
+}
+
+var _ ent.Mutation = (*BusinessConfigMutation)(nil)
+
+// businessconfigOption allows management of the mutation configuration using functional options.
+type businessconfigOption func(*BusinessConfigMutation)
+
+// newBusinessConfigMutation creates new mutation for the BusinessConfig entity.
+func newBusinessConfigMutation(c config, op Op, opts ...businessconfigOption) *BusinessConfigMutation {
+	m := &BusinessConfigMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeBusinessConfig,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withBusinessConfigID sets the ID field of the mutation.
+func withBusinessConfigID(id uuid.UUID) businessconfigOption {
+	return func(m *BusinessConfigMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *BusinessConfig
+		)
+		m.oldValue = func(ctx context.Context) (*BusinessConfig, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().BusinessConfig.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withBusinessConfig sets the old BusinessConfig of the mutation.
+func withBusinessConfig(node *BusinessConfig) businessconfigOption {
+	return func(m *BusinessConfigMutation) {
+		m.oldValue = func(context.Context) (*BusinessConfig, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m BusinessConfigMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m BusinessConfigMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of BusinessConfig entities.
+func (m *BusinessConfigMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *BusinessConfigMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *BusinessConfigMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().BusinessConfig.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *BusinessConfigMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *BusinessConfigMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *BusinessConfigMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *BusinessConfigMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *BusinessConfigMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *BusinessConfigMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *BusinessConfigMutation) SetDeletedAt(i int64) {
+	m.deleted_at = &i
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *BusinessConfigMutation) DeletedAt() (r int64, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldDeletedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds i to the "deleted_at" field.
+func (m *BusinessConfigMutation) AddDeletedAt(i int64) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += i
+	} else {
+		m.adddeleted_at = &i
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *BusinessConfigMutation) AddedDeletedAt() (r int64, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *BusinessConfigMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetSourceConfigID sets the "source_config_id" field.
+func (m *BusinessConfigMutation) SetSourceConfigID(u uuid.UUID) {
+	m.source_config_id = &u
+}
+
+// SourceConfigID returns the value of the "source_config_id" field in the mutation.
+func (m *BusinessConfigMutation) SourceConfigID() (r uuid.UUID, exists bool) {
+	v := m.source_config_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSourceConfigID returns the old "source_config_id" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldSourceConfigID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSourceConfigID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSourceConfigID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSourceConfigID: %w", err)
+	}
+	return oldValue.SourceConfigID, nil
+}
+
+// ClearSourceConfigID clears the value of the "source_config_id" field.
+func (m *BusinessConfigMutation) ClearSourceConfigID() {
+	m.source_config_id = nil
+	m.clearedFields[businessconfig.FieldSourceConfigID] = struct{}{}
+}
+
+// SourceConfigIDCleared returns if the "source_config_id" field was cleared in this mutation.
+func (m *BusinessConfigMutation) SourceConfigIDCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldSourceConfigID]
+	return ok
+}
+
+// ResetSourceConfigID resets all changes to the "source_config_id" field.
+func (m *BusinessConfigMutation) ResetSourceConfigID() {
+	m.source_config_id = nil
+	delete(m.clearedFields, businessconfig.FieldSourceConfigID)
+}
+
+// SetMerchantID sets the "merchant_id" field.
+func (m *BusinessConfigMutation) SetMerchantID(u uuid.UUID) {
+	m.merchant_id = &u
+}
+
+// MerchantID returns the value of the "merchant_id" field in the mutation.
+func (m *BusinessConfigMutation) MerchantID() (r uuid.UUID, exists bool) {
+	v := m.merchant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMerchantID returns the old "merchant_id" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldMerchantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMerchantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMerchantID: %w", err)
+	}
+	return oldValue.MerchantID, nil
+}
+
+// ClearMerchantID clears the value of the "merchant_id" field.
+func (m *BusinessConfigMutation) ClearMerchantID() {
+	m.merchant_id = nil
+	m.clearedFields[businessconfig.FieldMerchantID] = struct{}{}
+}
+
+// MerchantIDCleared returns if the "merchant_id" field was cleared in this mutation.
+func (m *BusinessConfigMutation) MerchantIDCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldMerchantID]
+	return ok
+}
+
+// ResetMerchantID resets all changes to the "merchant_id" field.
+func (m *BusinessConfigMutation) ResetMerchantID() {
+	m.merchant_id = nil
+	delete(m.clearedFields, businessconfig.FieldMerchantID)
+}
+
+// SetStoreID sets the "store_id" field.
+func (m *BusinessConfigMutation) SetStoreID(u uuid.UUID) {
+	m.store_id = &u
+}
+
+// StoreID returns the value of the "store_id" field in the mutation.
+func (m *BusinessConfigMutation) StoreID() (r uuid.UUID, exists bool) {
+	v := m.store_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStoreID returns the old "store_id" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStoreID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStoreID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStoreID: %w", err)
+	}
+	return oldValue.StoreID, nil
+}
+
+// ClearStoreID clears the value of the "store_id" field.
+func (m *BusinessConfigMutation) ClearStoreID() {
+	m.store_id = nil
+	m.clearedFields[businessconfig.FieldStoreID] = struct{}{}
+}
+
+// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
+func (m *BusinessConfigMutation) StoreIDCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldStoreID]
+	return ok
+}
+
+// ResetStoreID resets all changes to the "store_id" field.
+func (m *BusinessConfigMutation) ResetStoreID() {
+	m.store_id = nil
+	delete(m.clearedFields, businessconfig.FieldStoreID)
+}
+
+// SetGroup sets the "group" field.
+func (m *BusinessConfigMutation) SetGroup(dcg domain.BusinessConfigGroup) {
+	m.group = &dcg
+}
+
+// Group returns the value of the "group" field in the mutation.
+func (m *BusinessConfigMutation) Group() (r domain.BusinessConfigGroup, exists bool) {
+	v := m.group
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroup returns the old "group" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldGroup(ctx context.Context) (v domain.BusinessConfigGroup, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroup is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroup requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroup: %w", err)
+	}
+	return oldValue.Group, nil
+}
+
+// ClearGroup clears the value of the "group" field.
+func (m *BusinessConfigMutation) ClearGroup() {
+	m.group = nil
+	m.clearedFields[businessconfig.FieldGroup] = struct{}{}
+}
+
+// GroupCleared returns if the "group" field was cleared in this mutation.
+func (m *BusinessConfigMutation) GroupCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldGroup]
+	return ok
+}
+
+// ResetGroup resets all changes to the "group" field.
+func (m *BusinessConfigMutation) ResetGroup() {
+	m.group = nil
+	delete(m.clearedFields, businessconfig.FieldGroup)
+}
+
+// SetName sets the "name" field.
+func (m *BusinessConfigMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *BusinessConfigMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ClearName clears the value of the "name" field.
+func (m *BusinessConfigMutation) ClearName() {
+	m.name = nil
+	m.clearedFields[businessconfig.FieldName] = struct{}{}
+}
+
+// NameCleared returns if the "name" field was cleared in this mutation.
+func (m *BusinessConfigMutation) NameCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldName]
+	return ok
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *BusinessConfigMutation) ResetName() {
+	m.name = nil
+	delete(m.clearedFields, businessconfig.FieldName)
+}
+
+// SetConfigType sets the "config_type" field.
+func (m *BusinessConfigMutation) SetConfigType(dcct domain.BusinessConfigConfigType) {
+	m.config_type = &dcct
+}
+
+// ConfigType returns the value of the "config_type" field in the mutation.
+func (m *BusinessConfigMutation) ConfigType() (r domain.BusinessConfigConfigType, exists bool) {
+	v := m.config_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfigType returns the old "config_type" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldConfigType(ctx context.Context) (v domain.BusinessConfigConfigType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConfigType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConfigType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfigType: %w", err)
+	}
+	return oldValue.ConfigType, nil
+}
+
+// ClearConfigType clears the value of the "config_type" field.
+func (m *BusinessConfigMutation) ClearConfigType() {
+	m.config_type = nil
+	m.clearedFields[businessconfig.FieldConfigType] = struct{}{}
+}
+
+// ConfigTypeCleared returns if the "config_type" field was cleared in this mutation.
+func (m *BusinessConfigMutation) ConfigTypeCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldConfigType]
+	return ok
+}
+
+// ResetConfigType resets all changes to the "config_type" field.
+func (m *BusinessConfigMutation) ResetConfigType() {
+	m.config_type = nil
+	delete(m.clearedFields, businessconfig.FieldConfigType)
+}
+
+// SetKey sets the "key" field.
+func (m *BusinessConfigMutation) SetKey(s string) {
+	m.key = &s
+}
+
+// Key returns the value of the "key" field in the mutation.
+func (m *BusinessConfigMutation) Key() (r string, exists bool) {
+	v := m.key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKey returns the old "key" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKey: %w", err)
+	}
+	return oldValue.Key, nil
+}
+
+// ClearKey clears the value of the "key" field.
+func (m *BusinessConfigMutation) ClearKey() {
+	m.key = nil
+	m.clearedFields[businessconfig.FieldKey] = struct{}{}
+}
+
+// KeyCleared returns if the "key" field was cleared in this mutation.
+func (m *BusinessConfigMutation) KeyCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldKey]
+	return ok
+}
+
+// ResetKey resets all changes to the "key" field.
+func (m *BusinessConfigMutation) ResetKey() {
+	m.key = nil
+	delete(m.clearedFields, businessconfig.FieldKey)
+}
+
+// SetValue sets the "value" field.
+func (m *BusinessConfigMutation) SetValue(s string) {
+	m.value = &s
+}
+
+// Value returns the value of the "value" field in the mutation.
+func (m *BusinessConfigMutation) Value() (r string, exists bool) {
+	v := m.value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValue returns the old "value" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldValue(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValue: %w", err)
+	}
+	return oldValue.Value, nil
+}
+
+// ClearValue clears the value of the "value" field.
+func (m *BusinessConfigMutation) ClearValue() {
+	m.value = nil
+	m.clearedFields[businessconfig.FieldValue] = struct{}{}
+}
+
+// ValueCleared returns if the "value" field was cleared in this mutation.
+func (m *BusinessConfigMutation) ValueCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldValue]
+	return ok
+}
+
+// ResetValue resets all changes to the "value" field.
+func (m *BusinessConfigMutation) ResetValue() {
+	m.value = nil
+	delete(m.clearedFields, businessconfig.FieldValue)
+}
+
+// SetSort sets the "sort" field.
+func (m *BusinessConfigMutation) SetSort(i int32) {
+	m.sort = &i
+	m.addsort = nil
+}
+
+// Sort returns the value of the "sort" field in the mutation.
+func (m *BusinessConfigMutation) Sort() (r int32, exists bool) {
+	v := m.sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSort returns the old "sort" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldSort(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSort is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSort requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSort: %w", err)
+	}
+	return oldValue.Sort, nil
+}
+
+// AddSort adds i to the "sort" field.
+func (m *BusinessConfigMutation) AddSort(i int32) {
+	if m.addsort != nil {
+		*m.addsort += i
+	} else {
+		m.addsort = &i
+	}
+}
+
+// AddedSort returns the value that was added to the "sort" field in this mutation.
+func (m *BusinessConfigMutation) AddedSort() (r int32, exists bool) {
+	v := m.addsort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSort resets all changes to the "sort" field.
+func (m *BusinessConfigMutation) ResetSort() {
+	m.sort = nil
+	m.addsort = nil
+}
+
+// SetTip sets the "tip" field.
+func (m *BusinessConfigMutation) SetTip(s string) {
+	m.tip = &s
+}
+
+// Tip returns the value of the "tip" field in the mutation.
+func (m *BusinessConfigMutation) Tip() (r string, exists bool) {
+	v := m.tip
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTip returns the old "tip" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldTip(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTip is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTip requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTip: %w", err)
+	}
+	return oldValue.Tip, nil
+}
+
+// ClearTip clears the value of the "tip" field.
+func (m *BusinessConfigMutation) ClearTip() {
+	m.tip = nil
+	m.clearedFields[businessconfig.FieldTip] = struct{}{}
+}
+
+// TipCleared returns if the "tip" field was cleared in this mutation.
+func (m *BusinessConfigMutation) TipCleared() bool {
+	_, ok := m.clearedFields[businessconfig.FieldTip]
+	return ok
+}
+
+// ResetTip resets all changes to the "tip" field.
+func (m *BusinessConfigMutation) ResetTip() {
+	m.tip = nil
+	delete(m.clearedFields, businessconfig.FieldTip)
+}
+
+// SetIsDefault sets the "is_default" field.
+func (m *BusinessConfigMutation) SetIsDefault(b bool) {
+	m.is_default = &b
+}
+
+// IsDefault returns the value of the "is_default" field in the mutation.
+func (m *BusinessConfigMutation) IsDefault() (r bool, exists bool) {
+	v := m.is_default
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsDefault returns the old "is_default" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldIsDefault(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsDefault is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsDefault requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsDefault: %w", err)
+	}
+	return oldValue.IsDefault, nil
+}
+
+// ResetIsDefault resets all changes to the "is_default" field.
+func (m *BusinessConfigMutation) ResetIsDefault() {
+	m.is_default = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *BusinessConfigMutation) SetStatus(b bool) {
+	m.status = &b
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *BusinessConfigMutation) Status() (r bool, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldStatus(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *BusinessConfigMutation) ResetStatus() {
+	m.status = nil
+}
+
+// Where appends a list predicates to the BusinessConfigMutation builder.
+func (m *BusinessConfigMutation) Where(ps ...predicate.BusinessConfig) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the BusinessConfigMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *BusinessConfigMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.BusinessConfig, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *BusinessConfigMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *BusinessConfigMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (BusinessConfig).
+func (m *BusinessConfigMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *BusinessConfigMutation) Fields() []string {
+	fields := make([]string, 0, 15)
+	if m.created_at != nil {
+		fields = append(fields, businessconfig.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, businessconfig.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, businessconfig.FieldDeletedAt)
+	}
+	if m.source_config_id != nil {
+		fields = append(fields, businessconfig.FieldSourceConfigID)
+	}
+	if m.merchant_id != nil {
+		fields = append(fields, businessconfig.FieldMerchantID)
+	}
+	if m.store_id != nil {
+		fields = append(fields, businessconfig.FieldStoreID)
+	}
+	if m.group != nil {
+		fields = append(fields, businessconfig.FieldGroup)
+	}
+	if m.name != nil {
+		fields = append(fields, businessconfig.FieldName)
+	}
+	if m.config_type != nil {
+		fields = append(fields, businessconfig.FieldConfigType)
+	}
+	if m.key != nil {
+		fields = append(fields, businessconfig.FieldKey)
+	}
+	if m.value != nil {
+		fields = append(fields, businessconfig.FieldValue)
+	}
+	if m.sort != nil {
+		fields = append(fields, businessconfig.FieldSort)
+	}
+	if m.tip != nil {
+		fields = append(fields, businessconfig.FieldTip)
+	}
+	if m.is_default != nil {
+		fields = append(fields, businessconfig.FieldIsDefault)
+	}
+	if m.status != nil {
+		fields = append(fields, businessconfig.FieldStatus)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *BusinessConfigMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case businessconfig.FieldCreatedAt:
+		return m.CreatedAt()
+	case businessconfig.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case businessconfig.FieldDeletedAt:
+		return m.DeletedAt()
+	case businessconfig.FieldSourceConfigID:
+		return m.SourceConfigID()
+	case businessconfig.FieldMerchantID:
+		return m.MerchantID()
+	case businessconfig.FieldStoreID:
+		return m.StoreID()
+	case businessconfig.FieldGroup:
+		return m.Group()
+	case businessconfig.FieldName:
+		return m.Name()
+	case businessconfig.FieldConfigType:
+		return m.ConfigType()
+	case businessconfig.FieldKey:
+		return m.Key()
+	case businessconfig.FieldValue:
+		return m.Value()
+	case businessconfig.FieldSort:
+		return m.Sort()
+	case businessconfig.FieldTip:
+		return m.Tip()
+	case businessconfig.FieldIsDefault:
+		return m.IsDefault()
+	case businessconfig.FieldStatus:
+		return m.Status()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *BusinessConfigMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case businessconfig.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case businessconfig.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case businessconfig.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case businessconfig.FieldSourceConfigID:
+		return m.OldSourceConfigID(ctx)
+	case businessconfig.FieldMerchantID:
+		return m.OldMerchantID(ctx)
+	case businessconfig.FieldStoreID:
+		return m.OldStoreID(ctx)
+	case businessconfig.FieldGroup:
+		return m.OldGroup(ctx)
+	case businessconfig.FieldName:
+		return m.OldName(ctx)
+	case businessconfig.FieldConfigType:
+		return m.OldConfigType(ctx)
+	case businessconfig.FieldKey:
+		return m.OldKey(ctx)
+	case businessconfig.FieldValue:
+		return m.OldValue(ctx)
+	case businessconfig.FieldSort:
+		return m.OldSort(ctx)
+	case businessconfig.FieldTip:
+		return m.OldTip(ctx)
+	case businessconfig.FieldIsDefault:
+		return m.OldIsDefault(ctx)
+	case businessconfig.FieldStatus:
+		return m.OldStatus(ctx)
+	}
+	return nil, fmt.Errorf("unknown BusinessConfig field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BusinessConfigMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case businessconfig.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case businessconfig.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case businessconfig.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case businessconfig.FieldSourceConfigID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSourceConfigID(v)
+		return nil
+	case businessconfig.FieldMerchantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMerchantID(v)
+		return nil
+	case businessconfig.FieldStoreID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStoreID(v)
+		return nil
+	case businessconfig.FieldGroup:
+		v, ok := value.(domain.BusinessConfigGroup)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroup(v)
+		return nil
+	case businessconfig.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case businessconfig.FieldConfigType:
+		v, ok := value.(domain.BusinessConfigConfigType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfigType(v)
+		return nil
+	case businessconfig.FieldKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKey(v)
+		return nil
+	case businessconfig.FieldValue:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValue(v)
+		return nil
+	case businessconfig.FieldSort:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSort(v)
+		return nil
+	case businessconfig.FieldTip:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTip(v)
+		return nil
+	case businessconfig.FieldIsDefault:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsDefault(v)
+		return nil
+	case businessconfig.FieldStatus:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	}
+	return fmt.Errorf("unknown BusinessConfig field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *BusinessConfigMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_at != nil {
+		fields = append(fields, businessconfig.FieldDeletedAt)
+	}
+	if m.addsort != nil {
+		fields = append(fields, businessconfig.FieldSort)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *BusinessConfigMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case businessconfig.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	case businessconfig.FieldSort:
+		return m.AddedSort()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BusinessConfigMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case businessconfig.FieldDeletedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	case businessconfig.FieldSort:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSort(v)
+		return nil
+	}
+	return fmt.Errorf("unknown BusinessConfig numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *BusinessConfigMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(businessconfig.FieldSourceConfigID) {
+		fields = append(fields, businessconfig.FieldSourceConfigID)
+	}
+	if m.FieldCleared(businessconfig.FieldMerchantID) {
+		fields = append(fields, businessconfig.FieldMerchantID)
+	}
+	if m.FieldCleared(businessconfig.FieldStoreID) {
+		fields = append(fields, businessconfig.FieldStoreID)
+	}
+	if m.FieldCleared(businessconfig.FieldGroup) {
+		fields = append(fields, businessconfig.FieldGroup)
+	}
+	if m.FieldCleared(businessconfig.FieldName) {
+		fields = append(fields, businessconfig.FieldName)
+	}
+	if m.FieldCleared(businessconfig.FieldConfigType) {
+		fields = append(fields, businessconfig.FieldConfigType)
+	}
+	if m.FieldCleared(businessconfig.FieldKey) {
+		fields = append(fields, businessconfig.FieldKey)
+	}
+	if m.FieldCleared(businessconfig.FieldValue) {
+		fields = append(fields, businessconfig.FieldValue)
+	}
+	if m.FieldCleared(businessconfig.FieldTip) {
+		fields = append(fields, businessconfig.FieldTip)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *BusinessConfigMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *BusinessConfigMutation) ClearField(name string) error {
+	switch name {
+	case businessconfig.FieldSourceConfigID:
+		m.ClearSourceConfigID()
+		return nil
+	case businessconfig.FieldMerchantID:
+		m.ClearMerchantID()
+		return nil
+	case businessconfig.FieldStoreID:
+		m.ClearStoreID()
+		return nil
+	case businessconfig.FieldGroup:
+		m.ClearGroup()
+		return nil
+	case businessconfig.FieldName:
+		m.ClearName()
+		return nil
+	case businessconfig.FieldConfigType:
+		m.ClearConfigType()
+		return nil
+	case businessconfig.FieldKey:
+		m.ClearKey()
+		return nil
+	case businessconfig.FieldValue:
+		m.ClearValue()
+		return nil
+	case businessconfig.FieldTip:
+		m.ClearTip()
+		return nil
+	}
+	return fmt.Errorf("unknown BusinessConfig nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *BusinessConfigMutation) ResetField(name string) error {
+	switch name {
+	case businessconfig.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case businessconfig.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case businessconfig.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case businessconfig.FieldSourceConfigID:
+		m.ResetSourceConfigID()
+		return nil
+	case businessconfig.FieldMerchantID:
+		m.ResetMerchantID()
+		return nil
+	case businessconfig.FieldStoreID:
+		m.ResetStoreID()
+		return nil
+	case businessconfig.FieldGroup:
+		m.ResetGroup()
+		return nil
+	case businessconfig.FieldName:
+		m.ResetName()
+		return nil
+	case businessconfig.FieldConfigType:
+		m.ResetConfigType()
+		return nil
+	case businessconfig.FieldKey:
+		m.ResetKey()
+		return nil
+	case businessconfig.FieldValue:
+		m.ResetValue()
+		return nil
+	case businessconfig.FieldSort:
+		m.ResetSort()
+		return nil
+	case businessconfig.FieldTip:
+		m.ResetTip()
+		return nil
+	case businessconfig.FieldIsDefault:
+		m.ResetIsDefault()
+		return nil
+	case businessconfig.FieldStatus:
+		m.ResetStatus()
+		return nil
+	}
+	return fmt.Errorf("unknown BusinessConfig field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *BusinessConfigMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *BusinessConfigMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *BusinessConfigMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *BusinessConfigMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *BusinessConfigMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *BusinessConfigMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *BusinessConfigMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown BusinessConfig unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *BusinessConfigMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown BusinessConfig edge %s", name)
 }
 
 // CategoryMutation represents an operation that mutates the Category nodes in the graph.
@@ -17080,9 +18413,22 @@ func (m *MerchantBusinessTypeMutation) OldMerchantID(ctx context.Context) (v uui
 	return oldValue.MerchantID, nil
 }
 
+// ClearMerchantID clears the value of the "merchant_id" field.
+func (m *MerchantBusinessTypeMutation) ClearMerchantID() {
+	m.merchant_id = nil
+	m.clearedFields[merchantbusinesstype.FieldMerchantID] = struct{}{}
+}
+
+// MerchantIDCleared returns if the "merchant_id" field was cleared in this mutation.
+func (m *MerchantBusinessTypeMutation) MerchantIDCleared() bool {
+	_, ok := m.clearedFields[merchantbusinesstype.FieldMerchantID]
+	return ok
+}
+
 // ResetMerchantID resets all changes to the "merchant_id" field.
 func (m *MerchantBusinessTypeMutation) ResetMerchantID() {
 	m.merchant_id = nil
+	delete(m.clearedFields, merchantbusinesstype.FieldMerchantID)
 }
 
 // SetTypeCode sets the "type_code" field.
@@ -17346,7 +18692,11 @@ func (m *MerchantBusinessTypeMutation) AddField(name string, value ent.Value) er
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *MerchantBusinessTypeMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(merchantbusinesstype.FieldMerchantID) {
+		fields = append(fields, merchantbusinesstype.FieldMerchantID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -17359,6 +18709,11 @@ func (m *MerchantBusinessTypeMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *MerchantBusinessTypeMutation) ClearField(name string) error {
+	switch name {
+	case merchantbusinesstype.FieldMerchantID:
+		m.ClearMerchantID()
+		return nil
+	}
 	return fmt.Errorf("unknown MerchantBusinessType nullable field %s", name)
 }
 
@@ -24316,31 +25671,30 @@ func (m *PaymentAccountMutation) ResetEdge(name string) error {
 // PaymentMethodMutation represents an operation that mutates the PaymentMethod nodes in the graph.
 type PaymentMethodMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *uuid.UUID
-	created_at             *time.Time
-	updated_at             *time.Time
-	deleted_at             *int64
-	adddeleted_at          *int64
-	merchant_id            *uuid.UUID
-	store_id               *uuid.UUID
-	name                   *string
-	accounting_rule        *domain.PaymentMethodAccountingRule
-	payment_type           *domain.PaymentMethodPayType
-	fee_rate               *decimal.Decimal
-	invoice_rule           *domain.PaymentMethodInvoiceRule
-	cash_drawer_status     *bool
-	display_channels       *[]domain.PaymentMethodDisplayChannel
-	appenddisplay_channels []domain.PaymentMethodDisplayChannel
-	source                 *domain.PaymentMethodSource
-	store_ids              *[]uuid.UUID
-	appendstore_ids        []uuid.UUID
-	status                 *bool
-	clearedFields          map[string]struct{}
-	done                   bool
-	oldValue               func(context.Context) (*PaymentMethod, error)
-	predicates             []predicate.PaymentMethod
+	op                       Op
+	typ                      string
+	id                       *uuid.UUID
+	created_at               *time.Time
+	updated_at               *time.Time
+	deleted_at               *int64
+	adddeleted_at            *int64
+	source_payment_method_id *uuid.UUID
+	merchant_id              *uuid.UUID
+	store_id                 *uuid.UUID
+	name                     *string
+	accounting_rule          *domain.PaymentMethodAccountingRule
+	payment_type             *domain.PaymentMethodPayType
+	fee_rate                 *decimal.Decimal
+	invoice_rule             *domain.PaymentMethodInvoiceRule
+	cash_drawer_status       *bool
+	display_channels         *[]domain.PaymentMethodDisplayChannel
+	appenddisplay_channels   []domain.PaymentMethodDisplayChannel
+	source                   *domain.PaymentMethodSource
+	status                   *bool
+	clearedFields            map[string]struct{}
+	done                     bool
+	oldValue                 func(context.Context) (*PaymentMethod, error)
+	predicates               []predicate.PaymentMethod
 }
 
 var _ ent.Mutation = (*PaymentMethodMutation)(nil)
@@ -24575,6 +25929,55 @@ func (m *PaymentMethodMutation) ResetDeletedAt() {
 	m.adddeleted_at = nil
 }
 
+// SetSourcePaymentMethodID sets the "source_payment_method_id" field.
+func (m *PaymentMethodMutation) SetSourcePaymentMethodID(u uuid.UUID) {
+	m.source_payment_method_id = &u
+}
+
+// SourcePaymentMethodID returns the value of the "source_payment_method_id" field in the mutation.
+func (m *PaymentMethodMutation) SourcePaymentMethodID() (r uuid.UUID, exists bool) {
+	v := m.source_payment_method_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSourcePaymentMethodID returns the old "source_payment_method_id" field's value of the PaymentMethod entity.
+// If the PaymentMethod object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentMethodMutation) OldSourcePaymentMethodID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSourcePaymentMethodID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSourcePaymentMethodID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSourcePaymentMethodID: %w", err)
+	}
+	return oldValue.SourcePaymentMethodID, nil
+}
+
+// ClearSourcePaymentMethodID clears the value of the "source_payment_method_id" field.
+func (m *PaymentMethodMutation) ClearSourcePaymentMethodID() {
+	m.source_payment_method_id = nil
+	m.clearedFields[paymentmethod.FieldSourcePaymentMethodID] = struct{}{}
+}
+
+// SourcePaymentMethodIDCleared returns if the "source_payment_method_id" field was cleared in this mutation.
+func (m *PaymentMethodMutation) SourcePaymentMethodIDCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldSourcePaymentMethodID]
+	return ok
+}
+
+// ResetSourcePaymentMethodID resets all changes to the "source_payment_method_id" field.
+func (m *PaymentMethodMutation) ResetSourcePaymentMethodID() {
+	m.source_payment_method_id = nil
+	delete(m.clearedFields, paymentmethod.FieldSourcePaymentMethodID)
+}
+
 // SetMerchantID sets the "merchant_id" field.
 func (m *PaymentMethodMutation) SetMerchantID(u uuid.UUID) {
 	m.merchant_id = &u
@@ -24642,9 +26045,22 @@ func (m *PaymentMethodMutation) OldStoreID(ctx context.Context) (v uuid.UUID, er
 	return oldValue.StoreID, nil
 }
 
+// ClearStoreID clears the value of the "store_id" field.
+func (m *PaymentMethodMutation) ClearStoreID() {
+	m.store_id = nil
+	m.clearedFields[paymentmethod.FieldStoreID] = struct{}{}
+}
+
+// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
+func (m *PaymentMethodMutation) StoreIDCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldStoreID]
+	return ok
+}
+
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *PaymentMethodMutation) ResetStoreID() {
 	m.store_id = nil
+	delete(m.clearedFields, paymentmethod.FieldStoreID)
 }
 
 // SetName sets the "name" field.
@@ -24934,10 +26350,24 @@ func (m *PaymentMethodMutation) AppendedDisplayChannels() ([]domain.PaymentMetho
 	return m.appenddisplay_channels, true
 }
 
+// ClearDisplayChannels clears the value of the "display_channels" field.
+func (m *PaymentMethodMutation) ClearDisplayChannels() {
+	m.display_channels = nil
+	m.appenddisplay_channels = nil
+	m.clearedFields[paymentmethod.FieldDisplayChannels] = struct{}{}
+}
+
+// DisplayChannelsCleared returns if the "display_channels" field was cleared in this mutation.
+func (m *PaymentMethodMutation) DisplayChannelsCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldDisplayChannels]
+	return ok
+}
+
 // ResetDisplayChannels resets all changes to the "display_channels" field.
 func (m *PaymentMethodMutation) ResetDisplayChannels() {
 	m.display_channels = nil
 	m.appenddisplay_channels = nil
+	delete(m.clearedFields, paymentmethod.FieldDisplayChannels)
 }
 
 // SetSource sets the "source" field.
@@ -24971,74 +26401,22 @@ func (m *PaymentMethodMutation) OldSource(ctx context.Context) (v domain.Payment
 	return oldValue.Source, nil
 }
 
-// ResetSource resets all changes to the "source" field.
-func (m *PaymentMethodMutation) ResetSource() {
+// ClearSource clears the value of the "source" field.
+func (m *PaymentMethodMutation) ClearSource() {
 	m.source = nil
+	m.clearedFields[paymentmethod.FieldSource] = struct{}{}
 }
 
-// SetStoreIds sets the "store_ids" field.
-func (m *PaymentMethodMutation) SetStoreIds(u []uuid.UUID) {
-	m.store_ids = &u
-	m.appendstore_ids = nil
-}
-
-// StoreIds returns the value of the "store_ids" field in the mutation.
-func (m *PaymentMethodMutation) StoreIds() (r []uuid.UUID, exists bool) {
-	v := m.store_ids
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStoreIds returns the old "store_ids" field's value of the PaymentMethod entity.
-// If the PaymentMethod object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PaymentMethodMutation) OldStoreIds(ctx context.Context) (v []uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStoreIds is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStoreIds requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStoreIds: %w", err)
-	}
-	return oldValue.StoreIds, nil
-}
-
-// AppendStoreIds adds u to the "store_ids" field.
-func (m *PaymentMethodMutation) AppendStoreIds(u []uuid.UUID) {
-	m.appendstore_ids = append(m.appendstore_ids, u...)
-}
-
-// AppendedStoreIds returns the list of values that were appended to the "store_ids" field in this mutation.
-func (m *PaymentMethodMutation) AppendedStoreIds() ([]uuid.UUID, bool) {
-	if len(m.appendstore_ids) == 0 {
-		return nil, false
-	}
-	return m.appendstore_ids, true
-}
-
-// ClearStoreIds clears the value of the "store_ids" field.
-func (m *PaymentMethodMutation) ClearStoreIds() {
-	m.store_ids = nil
-	m.appendstore_ids = nil
-	m.clearedFields[paymentmethod.FieldStoreIds] = struct{}{}
-}
-
-// StoreIdsCleared returns if the "store_ids" field was cleared in this mutation.
-func (m *PaymentMethodMutation) StoreIdsCleared() bool {
-	_, ok := m.clearedFields[paymentmethod.FieldStoreIds]
+// SourceCleared returns if the "source" field was cleared in this mutation.
+func (m *PaymentMethodMutation) SourceCleared() bool {
+	_, ok := m.clearedFields[paymentmethod.FieldSource]
 	return ok
 }
 
-// ResetStoreIds resets all changes to the "store_ids" field.
-func (m *PaymentMethodMutation) ResetStoreIds() {
-	m.store_ids = nil
-	m.appendstore_ids = nil
-	delete(m.clearedFields, paymentmethod.FieldStoreIds)
+// ResetSource resets all changes to the "source" field.
+func (m *PaymentMethodMutation) ResetSource() {
+	m.source = nil
+	delete(m.clearedFields, paymentmethod.FieldSource)
 }
 
 // SetStatus sets the "status" field.
@@ -25121,6 +26499,9 @@ func (m *PaymentMethodMutation) Fields() []string {
 	if m.deleted_at != nil {
 		fields = append(fields, paymentmethod.FieldDeletedAt)
 	}
+	if m.source_payment_method_id != nil {
+		fields = append(fields, paymentmethod.FieldSourcePaymentMethodID)
+	}
 	if m.merchant_id != nil {
 		fields = append(fields, paymentmethod.FieldMerchantID)
 	}
@@ -25151,9 +26532,6 @@ func (m *PaymentMethodMutation) Fields() []string {
 	if m.source != nil {
 		fields = append(fields, paymentmethod.FieldSource)
 	}
-	if m.store_ids != nil {
-		fields = append(fields, paymentmethod.FieldStoreIds)
-	}
 	if m.status != nil {
 		fields = append(fields, paymentmethod.FieldStatus)
 	}
@@ -25171,6 +26549,8 @@ func (m *PaymentMethodMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case paymentmethod.FieldDeletedAt:
 		return m.DeletedAt()
+	case paymentmethod.FieldSourcePaymentMethodID:
+		return m.SourcePaymentMethodID()
 	case paymentmethod.FieldMerchantID:
 		return m.MerchantID()
 	case paymentmethod.FieldStoreID:
@@ -25191,8 +26571,6 @@ func (m *PaymentMethodMutation) Field(name string) (ent.Value, bool) {
 		return m.DisplayChannels()
 	case paymentmethod.FieldSource:
 		return m.Source()
-	case paymentmethod.FieldStoreIds:
-		return m.StoreIds()
 	case paymentmethod.FieldStatus:
 		return m.Status()
 	}
@@ -25210,6 +26588,8 @@ func (m *PaymentMethodMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case paymentmethod.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case paymentmethod.FieldSourcePaymentMethodID:
+		return m.OldSourcePaymentMethodID(ctx)
 	case paymentmethod.FieldMerchantID:
 		return m.OldMerchantID(ctx)
 	case paymentmethod.FieldStoreID:
@@ -25230,8 +26610,6 @@ func (m *PaymentMethodMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldDisplayChannels(ctx)
 	case paymentmethod.FieldSource:
 		return m.OldSource(ctx)
-	case paymentmethod.FieldStoreIds:
-		return m.OldStoreIds(ctx)
 	case paymentmethod.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -25263,6 +26641,13 @@ func (m *PaymentMethodMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case paymentmethod.FieldSourcePaymentMethodID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSourcePaymentMethodID(v)
 		return nil
 	case paymentmethod.FieldMerchantID:
 		v, ok := value.(uuid.UUID)
@@ -25334,13 +26719,6 @@ func (m *PaymentMethodMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSource(v)
 		return nil
-	case paymentmethod.FieldStoreIds:
-		v, ok := value.([]uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetStoreIds(v)
-		return nil
 	case paymentmethod.FieldStatus:
 		v, ok := value.(bool)
 		if !ok {
@@ -25393,14 +26771,23 @@ func (m *PaymentMethodMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *PaymentMethodMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(paymentmethod.FieldSourcePaymentMethodID) {
+		fields = append(fields, paymentmethod.FieldSourcePaymentMethodID)
+	}
+	if m.FieldCleared(paymentmethod.FieldStoreID) {
+		fields = append(fields, paymentmethod.FieldStoreID)
+	}
 	if m.FieldCleared(paymentmethod.FieldFeeRate) {
 		fields = append(fields, paymentmethod.FieldFeeRate)
 	}
 	if m.FieldCleared(paymentmethod.FieldInvoiceRule) {
 		fields = append(fields, paymentmethod.FieldInvoiceRule)
 	}
-	if m.FieldCleared(paymentmethod.FieldStoreIds) {
-		fields = append(fields, paymentmethod.FieldStoreIds)
+	if m.FieldCleared(paymentmethod.FieldDisplayChannels) {
+		fields = append(fields, paymentmethod.FieldDisplayChannels)
+	}
+	if m.FieldCleared(paymentmethod.FieldSource) {
+		fields = append(fields, paymentmethod.FieldSource)
 	}
 	return fields
 }
@@ -25416,14 +26803,23 @@ func (m *PaymentMethodMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *PaymentMethodMutation) ClearField(name string) error {
 	switch name {
+	case paymentmethod.FieldSourcePaymentMethodID:
+		m.ClearSourcePaymentMethodID()
+		return nil
+	case paymentmethod.FieldStoreID:
+		m.ClearStoreID()
+		return nil
 	case paymentmethod.FieldFeeRate:
 		m.ClearFeeRate()
 		return nil
 	case paymentmethod.FieldInvoiceRule:
 		m.ClearInvoiceRule()
 		return nil
-	case paymentmethod.FieldStoreIds:
-		m.ClearStoreIds()
+	case paymentmethod.FieldDisplayChannels:
+		m.ClearDisplayChannels()
+		return nil
+	case paymentmethod.FieldSource:
+		m.ClearSource()
 		return nil
 	}
 	return fmt.Errorf("unknown PaymentMethod nullable field %s", name)
@@ -25441,6 +26837,9 @@ func (m *PaymentMethodMutation) ResetField(name string) error {
 		return nil
 	case paymentmethod.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case paymentmethod.FieldSourcePaymentMethodID:
+		m.ResetSourcePaymentMethodID()
 		return nil
 	case paymentmethod.FieldMerchantID:
 		m.ResetMerchantID()
@@ -25471,9 +26870,6 @@ func (m *PaymentMethodMutation) ResetField(name string) error {
 		return nil
 	case paymentmethod.FieldSource:
 		m.ResetSource()
-		return nil
-	case paymentmethod.FieldStoreIds:
-		m.ResetStoreIds()
 		return nil
 	case paymentmethod.FieldStatus:
 		m.ResetStatus()

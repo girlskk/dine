@@ -39,6 +39,7 @@ var Module = fx.Module(
 	fx.Provide(
 		asHandler(handler.NewOrderHandler),
 		asHandler(handler.NewRefundOrderHandler),
+		asHandler(handler.NewPaymentMethodHandler),
 	),
 )
 

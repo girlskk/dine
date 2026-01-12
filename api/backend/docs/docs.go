@@ -297,6 +297,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/business/config": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "经营管理"
+                ],
+                "summary": "经营设置列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设置名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.BusinessConfigSearchRes"
+                        }
+                    }
+                }
+            }
+        },
         "/common/department": {
             "get": {
                 "security": [
@@ -1594,6 +1623,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "来源:brand-品牌,store-门店,system-系统",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "页码",
                         "name": "page",
@@ -1639,6 +1674,41 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/payment/method/stat": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "统计各个结算分类对应的结算方式数量",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算方式名称（模糊匹配）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "来源:brand-品牌,store-门店,system-系统",
+                        "name": "source",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentMethodStatRes"
+                        }
                     }
                 }
             }
@@ -5731,6 +5801,137 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.BusinessConfig": {
+            "type": "object",
+            "properties": {
+                "config_type": {
+                    "description": "键值类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigConfigType"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "group": {
+                    "description": "配置分组",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigGroup"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_default": {
+                    "description": "是否为系统默认",
+                    "type": "boolean"
+                },
+                "key": {
+                    "description": "参数键名",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "参数名称",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "source_config_id": {
+                    "description": "来源配置ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "tip": {
+                    "description": "变量描述",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "参数键值",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.BusinessConfigConfigType": {
+            "type": "string",
+            "enum": [
+                "string",
+                "int",
+                "uint",
+                "datetime",
+                "date"
+            ],
+            "x-enum-comments": {
+                "BusinessConfigConfigTypeDate": "date",
+                "BusinessConfigConfigTypeDatetime": "datetime",
+                "BusinessConfigConfigTypeInt": "int",
+                "BusinessConfigConfigTypeString": "string",
+                "BusinessConfigConfigTypeUint": "uint"
+            },
+            "x-enum-varnames": [
+                "BusinessConfigConfigTypeString",
+                "BusinessConfigConfigTypeInt",
+                "BusinessConfigConfigTypeUint",
+                "BusinessConfigConfigTypeDatetime",
+                "BusinessConfigConfigTypeDate"
+            ]
+        },
+        "domain.BusinessConfigGroup": {
+            "type": "string",
+            "enum": [
+                "print"
+            ],
+            "x-enum-comments": {
+                "BusinessConfigGroupPrint": "print"
+            },
+            "x-enum-varnames": [
+                "BusinessConfigGroupPrint"
+            ]
+        },
+        "domain.BusinessConfigSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessConfig"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.BusinessHour": {
             "type": "object",
             "properties": {
@@ -6770,9 +6971,25 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "source": {
+                    "description": "来源:brand-品牌,store-门店,system-系统",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodSource"
+                        }
+                    ]
+                },
+                "source_payment_method_id": {
+                    "description": "结算方式来源ID",
+                    "type": "string"
+                },
                 "status": {
                     "description": "启用/停用状态: true-启用, false-停用（必选）",
                     "type": "boolean"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
                 },
                 "updated_at": {
                     "description": "更新时间",
@@ -6813,25 +7030,28 @@ const docTemplate = `{
         "domain.PaymentMethodPayType": {
             "type": "string",
             "enum": [
-                "other",
                 "cash",
-                "offline_card",
+                "online_payment",
+                "member_card",
                 "custom_coupon",
-                "partner_coupon"
+                "partner_coupon",
+                "bank_card"
             ],
             "x-enum-comments": {
+                "PaymentMethodPayTypeBankCard": "银行卡",
                 "PaymentMethodPayTypeCash": "现金",
-                "PaymentMethodPayTypeCustomCoupon": "自定义券",
-                "PaymentMethodPayTypeOfflineCard": "线下刷卡",
-                "PaymentMethodPayTypeOther": "其他",
+                "PaymentMethodPayTypeCustomCoupon": "系统自定义券",
+                "PaymentMethodPayTypeMemberCard": "会员卡",
+                "PaymentMethodPayTypeOnlinePayment": "在线支付",
                 "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
             "x-enum-varnames": [
-                "PaymentMethodPayTypeOther",
                 "PaymentMethodPayTypeCash",
-                "PaymentMethodPayTypeOfflineCard",
+                "PaymentMethodPayTypeOnlinePayment",
+                "PaymentMethodPayTypeMemberCard",
                 "PaymentMethodPayTypeCustomCoupon",
-                "PaymentMethodPayTypePartnerCoupon"
+                "PaymentMethodPayTypePartnerCoupon",
+                "PaymentMethodPayTypeBankCard"
             ]
         },
         "domain.PaymentMethodSearchRes": {
@@ -6853,6 +7073,53 @@ const docTemplate = `{
                 },
                 "total": {
                     "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.PaymentMethodSource": {
+            "type": "string",
+            "enum": [
+                "brand",
+                "store",
+                "system"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodSourceBrand": "品牌",
+                "PaymentMethodSourceStore": "门店",
+                "PaymentMethodSourceSystem": "系统"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodSourceBrand",
+                "PaymentMethodSourceStore",
+                "PaymentMethodSourceSystem"
+            ]
+        },
+        "domain.PaymentMethodStatRes": {
+            "type": "object",
+            "properties": {
+                "bank_card_count": {
+                    "description": "银行卡数量",
+                    "type": "integer"
+                },
+                "cash_count": {
+                    "description": "现金数量",
+                    "type": "integer"
+                },
+                "custom_coupon_count": {
+                    "description": "自定义券数量",
+                    "type": "integer"
+                },
+                "member_card_count": {
+                    "description": "会员卡数量",
+                    "type": "integer"
+                },
+                "online_payment_count": {
+                    "description": "在线支付数量",
+                    "type": "integer"
+                },
+                "partner_coupon_count": {
+                    "description": "三方合作券数量",
                     "type": "integer"
                 }
             }
@@ -8735,23 +9002,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -9881,6 +10134,7 @@ const docTemplate = `{
                     "description": "业务场景，store：门店相关 product: 商品相关",
                     "enum": [
                         "store",
+                        "merchant",
                         "product"
                     ],
                     "allOf": [
@@ -9995,7 +10249,8 @@ const docTemplate = `{
                 "display_channels",
                 "invoice_rule",
                 "name",
-                "payment_type"
+                "payment_type",
+                "source"
             ],
             "properties": {
                 "accounting_rule": {
@@ -10055,6 +10310,19 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/domain.PaymentMethodPayType"
+                        }
+                    ]
+                },
+                "source": {
+                    "description": "来源:brand-品牌,store-门店,system-系统",
+                    "enum": [
+                        "brand",
+                        "store",
+                        "system"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodSource"
                         }
                     ]
                 },

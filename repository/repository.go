@@ -55,6 +55,7 @@ type Repository struct {
 	paymentAccountRepo         *PaymentAccountRepository
 	storePaymentAccountRepo    *StorePaymentAccountRepository
 	refundOrderRepo            *RefundOrderRepository
+	businessConfigRepo         *BusinessConfigRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -481,4 +482,13 @@ func (repo *Repository) RefundOrderRepo() domain.RefundOrderRepository {
 		repo.refundOrderRepo = NewRefundOrderRepository(repo.client)
 	}
 	return repo.refundOrderRepo
+}
+
+func (repo *Repository) BusinessConfigRepo() domain.BusinessConfigRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.businessConfigRepo == nil {
+		repo.businessConfigRepo = NewBusinessConfigRepository(repo.client)
+	}
+	return repo.businessConfigRepo
 }

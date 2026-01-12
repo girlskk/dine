@@ -166,6 +166,48 @@ var (
 			},
 		},
 	}
+	// BusinessConfigsColumns holds the columns for the "business_configs" table.
+	BusinessConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "source_config_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "group", Type: field.TypeEnum, Nullable: true, Enums: []string{"print"}},
+		{Name: "name", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(100)"}},
+		{Name: "config_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"string", "int", "uint", "datetime", "date"}},
+		{Name: "key", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(100)"}},
+		{Name: "value", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(500)"}},
+		{Name: "sort", Type: field.TypeInt32, Default: 0, SchemaType: map[string]string{"mysql": "int"}},
+		{Name: "tip", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(500)"}},
+		{Name: "is_default", Type: field.TypeBool, Default: true},
+		{Name: "status", Type: field.TypeBool, Default: true},
+	}
+	// BusinessConfigsTable holds the schema information for the "business_configs" table.
+	BusinessConfigsTable = &schema.Table{
+		Name:       "business_configs",
+		Columns:    BusinessConfigsColumns,
+		PrimaryKey: []*schema.Column{BusinessConfigsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "businessconfig_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{BusinessConfigsColumns[3]},
+			},
+			{
+				Name:    "businessconfig_group",
+				Unique:  false,
+				Columns: []*schema.Column{BusinessConfigsColumns[7]},
+			},
+			{
+				Name:    "businessconfig_key",
+				Unique:  false,
+				Columns: []*schema.Column{BusinessConfigsColumns[10]},
+			},
+		},
+	}
 	// CategoriesColumns holds the columns for the "categories" table.
 	CategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -654,7 +696,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "type_code", Type: field.TypeString, Size: 50, Default: ""},
 		{Name: "type_name", Type: field.TypeString, Size: 50, Default: ""},
 	}
@@ -907,17 +949,17 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "source_payment_method_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "store_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
 		{Name: "accounting_rule", Type: field.TypeEnum, Enums: []string{"income", "discount"}, Default: "income"},
-		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"other", "cash", "offline_card", "custom_coupon", "partner_coupon"}, Default: "other"},
+		{Name: "payment_type", Type: field.TypeEnum, Enums: []string{"cash", "online_payment", "member_card", "custom_coupon", "partner_coupon", "bank_card"}, Default: "cash"},
 		{Name: "fee_rate", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,2)", "sqlite3": "NUMERIC"}},
 		{Name: "invoice_rule", Type: field.TypeEnum, Nullable: true, Enums: []string{"no_invoice", "actual_amount"}},
 		{Name: "cash_drawer_status", Type: field.TypeBool, Default: false},
-		{Name: "display_channels", Type: field.TypeJSON},
-		{Name: "source", Type: field.TypeEnum, Enums: []string{"brand", "store", "system"}, Default: "brand"},
-		{Name: "store_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "display_channels", Type: field.TypeJSON, Nullable: true},
+		{Name: "source", Type: field.TypeEnum, Nullable: true, Enums: []string{"brand", "store", "system"}},
 		{Name: "status", Type: field.TypeBool, Default: false},
 	}
 	// PaymentMethodsTable holds the schema information for the "payment_methods" table.
@@ -934,7 +976,7 @@ var (
 			{
 				Name:    "paymentmethod_merchant_id_store_id",
 				Unique:  false,
-				Columns: []*schema.Column{PaymentMethodsColumns[4], PaymentMethodsColumns[5]},
+				Columns: []*schema.Column{PaymentMethodsColumns[5], PaymentMethodsColumns[6]},
 			},
 		},
 	}
@@ -2469,6 +2511,7 @@ var (
 		AdditionalFeesTable,
 		AdminUsersTable,
 		BackendUsersTable,
+		BusinessConfigsTable,
 		CategoriesTable,
 		CitiesTable,
 		CountriesTable,
