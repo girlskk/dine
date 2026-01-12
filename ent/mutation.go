@@ -17076,9 +17076,22 @@ func (m *MerchantBusinessTypeMutation) OldMerchantID(ctx context.Context) (v uui
 	return oldValue.MerchantID, nil
 }
 
+// ClearMerchantID clears the value of the "merchant_id" field.
+func (m *MerchantBusinessTypeMutation) ClearMerchantID() {
+	m.merchant_id = nil
+	m.clearedFields[merchantbusinesstype.FieldMerchantID] = struct{}{}
+}
+
+// MerchantIDCleared returns if the "merchant_id" field was cleared in this mutation.
+func (m *MerchantBusinessTypeMutation) MerchantIDCleared() bool {
+	_, ok := m.clearedFields[merchantbusinesstype.FieldMerchantID]
+	return ok
+}
+
 // ResetMerchantID resets all changes to the "merchant_id" field.
 func (m *MerchantBusinessTypeMutation) ResetMerchantID() {
 	m.merchant_id = nil
+	delete(m.clearedFields, merchantbusinesstype.FieldMerchantID)
 }
 
 // SetTypeCode sets the "type_code" field.
@@ -17342,7 +17355,11 @@ func (m *MerchantBusinessTypeMutation) AddField(name string, value ent.Value) er
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *MerchantBusinessTypeMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(merchantbusinesstype.FieldMerchantID) {
+		fields = append(fields, merchantbusinesstype.FieldMerchantID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -17355,6 +17372,11 @@ func (m *MerchantBusinessTypeMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *MerchantBusinessTypeMutation) ClearField(name string) error {
+	switch name {
+	case merchantbusinesstype.FieldMerchantID:
+		m.ClearMerchantID()
+		return nil
+	}
 	return fmt.Errorf("unknown MerchantBusinessType nullable field %s", name)
 }
 

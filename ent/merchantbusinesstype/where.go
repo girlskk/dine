@@ -245,6 +245,16 @@ func MerchantIDLTE(v uuid.UUID) predicate.MerchantBusinessType {
 	return predicate.MerchantBusinessType(sql.FieldLTE(FieldMerchantID, v))
 }
 
+// MerchantIDIsNil applies the IsNil predicate on the "merchant_id" field.
+func MerchantIDIsNil() predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldIsNull(FieldMerchantID))
+}
+
+// MerchantIDNotNil applies the NotNil predicate on the "merchant_id" field.
+func MerchantIDNotNil() predicate.MerchantBusinessType {
+	return predicate.MerchantBusinessType(sql.FieldNotNull(FieldMerchantID))
+}
+
 // TypeCodeEQ applies the EQ predicate on the "type_code" field.
 func TypeCodeEQ(v string) predicate.MerchantBusinessType {
 	return predicate.MerchantBusinessType(sql.FieldEQ(FieldTypeCode, v))
