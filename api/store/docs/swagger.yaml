@@ -142,6 +142,99 @@ definitions:
         description: 省份名称
         type: string
     type: object
+  domain.BusinessConfig:
+    properties:
+      config_type:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessConfigConfigType'
+        description: 键值类型
+      created_at:
+        description: 创建时间
+        type: string
+      group:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessConfigGroup'
+        description: 配置分组
+      id:
+        type: string
+      is_default:
+        description: 是否为系统默认
+        type: boolean
+      key:
+        description: 参数键名
+        type: string
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 参数名称
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      source_config_id:
+        description: 来源配置ID
+        type: string
+      status:
+        description: 状态
+        type: boolean
+      store_id:
+        description: 门店ID
+        type: string
+      tip:
+        description: 变量描述
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+      value:
+        description: 参数键值
+        type: string
+    type: object
+  domain.BusinessConfigConfigType:
+    enum:
+    - string
+    - int
+    - uint
+    - datetime
+    - date
+    type: string
+    x-enum-comments:
+      BusinessConfigConfigTypeDate: date
+      BusinessConfigConfigTypeDatetime: datetime
+      BusinessConfigConfigTypeInt: int
+      BusinessConfigConfigTypeString: string
+      BusinessConfigConfigTypeUint: uint
+    x-enum-varnames:
+    - BusinessConfigConfigTypeString
+    - BusinessConfigConfigTypeInt
+    - BusinessConfigConfigTypeUint
+    - BusinessConfigConfigTypeDatetime
+    - BusinessConfigConfigTypeDate
+  domain.BusinessConfigGroup:
+    enum:
+    - print
+    type: string
+    x-enum-comments:
+      BusinessConfigGroupPrint: print
+    x-enum-varnames:
+    - BusinessConfigGroupPrint
+  domain.BusinessConfigSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.BusinessConfig'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
   domain.BusinessHour:
     properties:
       end_time:
@@ -161,7 +254,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          type: integer
+          $ref: '#/definitions/time.Weekday'
         type: array
     type: object
   domain.BusinessModel:
@@ -1454,16 +1547,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -1850,6 +1943,24 @@ definitions:
         type: string
       data: {}
     type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   types.AccountListResp:
     properties:
       total:
@@ -3316,6 +3427,33 @@ info:
   title: 门店后台 API
   version: "1.0"
 paths:
+  /business/config:
+    get:
+      parameters:
+      - description: 配置分组
+        enum:
+        - print
+        in: query
+        name: group
+        type: string
+        x-enum-comments:
+          BusinessConfigGroupPrint: print
+        x-enum-varnames:
+        - BusinessConfigGroupPrint
+      - description: 设置名称（模糊匹配）
+        in: query
+        name: name
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.BusinessConfigSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 经营设置列表
+      tags:
+      - 经营管理
   /common/department:
     get:
       consumes:

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
+	"gitlab.jiguang.dev/pos-dine/dine/api/store/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
@@ -29,7 +29,9 @@ func (h *BusinessConfigHandler) Routes(r gin.IRouter) {
 }
 
 func (h *BusinessConfigHandler) NoAuths() []string {
-	return []string{}
+	return []string{
+		"/business/config",
+	}
 }
 
 // List
@@ -52,8 +54,7 @@ func (h *BusinessConfigHandler) List() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 		params := domain.BusinessConfigSearchParams{
 			MerchantID: user.MerchantID,
 			Name:       req.Name,
