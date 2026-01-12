@@ -246,6 +246,7 @@ func convertAdditionalFeeToDomain(ef *ent.AdditionalFee) *domain.AdditionalFee {
 		ID:                  ef.ID,
 		Name:                ef.Name,
 		FeeType:             ef.FeeType,
+		FeeCategory:         ef.FeeCategory,
 		ChargeMode:          ef.ChargeMode,
 		FeeValue:            ef.FeeValue,
 		IncludeInReceivable: ef.IncludeInReceivable,

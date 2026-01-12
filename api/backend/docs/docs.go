@@ -1286,6 +1286,9 @@ const docTemplate = `{
                         "x-enum-comments": {
                             "PaymentChannelRM": "Revenue Monster"
                         },
+                        "x-enum-descriptions": [
+                            "Revenue Monster"
+                        ],
                         "x-enum-varnames": [
                             "PaymentChannelRM"
                         ],
@@ -3016,6 +3019,10 @@ const docTemplate = `{
                             "ProfitDistributionRuleStatusDisabled": "禁用",
                             "ProfitDistributionRuleStatusEnabled": "启用"
                         },
+                        "x-enum-descriptions": [
+                            "启用",
+                            "禁用"
+                        ],
                         "x-enum-varnames": [
                             "ProfitDistributionRuleStatusEnabled",
                             "ProfitDistributionRuleStatusDisabled"
@@ -3695,6 +3702,10 @@ const docTemplate = `{
                             "DeviceTypeCashier": "收银机",
                             "DeviceTypePrinter": "打印机"
                         },
+                        "x-enum-descriptions": [
+                            "收银机",
+                            "打印机"
+                        ],
                         "x-enum-varnames": [
                             "DeviceTypeCashier",
                             "DeviceTypePrinter"
@@ -3731,6 +3742,10 @@ const docTemplate = `{
                             "DeviceStatusOffline": "离线",
                             "DeviceStatusOnline": "在线"
                         },
+                        "x-enum-descriptions": [
+                            "在线",
+                            "离线"
+                        ],
                         "x-enum-varnames": [
                             "DeviceStatusOnline",
                             "DeviceStatusOffline"
@@ -4018,6 +4033,10 @@ const docTemplate = `{
                             "StallPrintTypeLabel": "标签",
                             "StallPrintTypeReceipt": "小票/收据"
                         },
+                        "x-enum-descriptions": [
+                            "小票/收据",
+                            "标签"
+                        ],
                         "x-enum-varnames": [
                             "StallPrintTypeReceipt",
                             "StallPrintTypeLabel"
@@ -4332,6 +4351,10 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
+                        "x-enum-descriptions": [
+                            "直营",
+                            "加盟"
+                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -4392,6 +4415,10 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
+                        "x-enum-descriptions": [
+                            "营业",
+                            "停业"
+                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -4966,6 +4993,12 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -5366,6 +5399,11 @@ const docTemplate = `{
                 "AdditionalCategoryPacking": "打包费",
                 "AdditionalCategoryService": "服务费"
             },
+            "x-enum-descriptions": [
+                "服务费",
+                "附加费",
+                "打包费"
+            ],
             "x-enum-varnames": [
                 "AdditionalCategoryService",
                 "AdditionalCategoryAdditional",
@@ -5474,6 +5512,10 @@ const docTemplate = `{
                 "AdditionalFeeChargeModeFixed": "固定金额",
                 "AdditionalFeeChargeModePercent": "百分比"
             },
+            "x-enum-descriptions": [
+                "百分比",
+                "固定金额"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeChargeModePercent",
                 "AdditionalFeeChargeModeFixed"
@@ -5489,6 +5531,10 @@ const docTemplate = `{
                 "AdditionalFeeDiscountScopeAfter": "折后",
                 "AdditionalFeeDiscountScopeBefore": "折前"
             },
+            "x-enum-descriptions": [
+                "折前",
+                "折后"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeDiscountScopeBefore",
                 "AdditionalFeeDiscountScopeAfter"
@@ -5504,6 +5550,10 @@ const docTemplate = `{
                 "AdditionalFeeTypeMerchant": "商户",
                 "AdditionalFeeTypeStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
             "x-enum-varnames": [
                 "AdditionalFeeTypeMerchant",
                 "AdditionalFeeTypeStore"
@@ -5736,6 +5786,13 @@ const docTemplate = `{
                 "BusinessConfigConfigTypeString": "string",
                 "BusinessConfigConfigTypeUint": "uint"
             },
+            "x-enum-descriptions": [
+                "string",
+                "int",
+                "uint",
+                "datetime",
+                "date"
+            ],
             "x-enum-varnames": [
                 "BusinessConfigConfigTypeString",
                 "BusinessConfigConfigTypeInt",
@@ -5752,6 +5809,9 @@ const docTemplate = `{
             "x-enum-comments": {
                 "BusinessConfigGroupPrint": "print"
             },
+            "x-enum-descriptions": [
+                "print"
+            ],
             "x-enum-varnames": [
                 "BusinessConfigGroupPrint"
             ]
@@ -5806,7 +5866,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -5821,6 +5881,10 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
+            "x-enum-descriptions": [
+                "直营",
+                "加盟"
+            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -6122,6 +6186,10 @@ const docTemplate = `{
                 "DeviceConnectTypeInside": "内置",
                 "DeviceConnectTypeOutside": "外置"
             },
+            "x-enum-descriptions": [
+                "内置",
+                "外置"
+            ],
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
                 "DeviceConnectTypeOutside"
@@ -6137,6 +6205,10 @@ const docTemplate = `{
                 "DeviceLocationBackKitchen": "后厨",
                 "DeviceLocationFrontHall": "前厅"
             },
+            "x-enum-descriptions": [
+                "前厅",
+                "后厨"
+            ],
             "x-enum-varnames": [
                 "DeviceLocationFrontHall",
                 "DeviceLocationBackKitchen"
@@ -6154,6 +6226,11 @@ const docTemplate = `{
                 "DeviceStallPrintTypeCombined": "总单",
                 "DeviceStallPrintTypeSeparate": "分单"
             },
+            "x-enum-descriptions": [
+                "全部打印 总单+分单",
+                "总单",
+                "分单"
+            ],
             "x-enum-varnames": [
                 "DeviceStallPrintTypeAll",
                 "DeviceStallPrintTypeCombined",
@@ -6170,6 +6247,10 @@ const docTemplate = `{
                 "DeviceStallReceiptTypeAll": "全部打印",
                 "DeviceStallReceiptTypeExclude": "剔除部门商户"
             },
+            "x-enum-descriptions": [
+                "全部打印",
+                "剔除部门商户"
+            ],
             "x-enum-varnames": [
                 "DeviceStallReceiptTypeAll",
                 "DeviceStallReceiptTypeExclude"
@@ -6185,6 +6266,10 @@ const docTemplate = `{
                 "DeviceStatusOffline": "离线",
                 "DeviceStatusOnline": "在线"
             },
+            "x-enum-descriptions": [
+                "在线",
+                "离线"
+            ],
             "x-enum-varnames": [
                 "DeviceStatusOnline",
                 "DeviceStatusOffline"
@@ -6200,6 +6285,10 @@ const docTemplate = `{
                 "DeviceTypeCashier": "收银机",
                 "DeviceTypePrinter": "打印机"
             },
+            "x-enum-descriptions": [
+                "收银机",
+                "打印机"
+            ],
             "x-enum-varnames": [
                 "DeviceTypeCashier",
                 "DeviceTypePrinter"
@@ -6234,6 +6323,11 @@ const docTemplate = `{
                 "DiningWayDineIn": "堂食",
                 "DiningWayTakeOut": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外送"
+            ],
             "x-enum-varnames": [
                 "DiningWayDineIn",
                 "DiningWayTakeOut",
@@ -6250,6 +6344,10 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
+            "x-enum-descriptions": [
+                "按天",
+                "自定义"
+            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -6269,6 +6367,12 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -6288,6 +6392,11 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -6539,6 +6648,11 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
+            "x-enum-descriptions": [
+                "已激活",
+                "已过期",
+                "已禁用"
+            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -6555,6 +6669,10 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
+            "x-enum-descriptions": [
+                "品牌商户",
+                "门店商户"
+            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -6572,6 +6690,11 @@ const docTemplate = `{
                 "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店",
+                "商品"
+            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
                 "ObjectStorageSceneStore",
@@ -6596,6 +6719,14 @@ const docTemplate = `{
                 "OrderChannelSelfOrder": "自助点餐",
                 "OrderChannelThirdDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS 端",
+                "自助点餐",
+                "小程序",
+                "手机点餐",
+                "扫码点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
                 "OrderChannelPOS",
                 "OrderChannelSelfOrder",
@@ -6688,6 +6819,9 @@ const docTemplate = `{
             "x-enum-comments": {
                 "PaymentChannelRM": "Revenue Monster"
             },
+            "x-enum-descriptions": [
+                "Revenue Monster"
+            ],
             "x-enum-varnames": [
                 "PaymentChannelRM"
             ]
@@ -6785,6 +6919,10 @@ const docTemplate = `{
                 "PaymentMethodAccountingRuleDiscount": "计入优惠",
                 "PaymentMethodAccountingRuleIncome": "计入实收"
             },
+            "x-enum-descriptions": [
+                "计入实收",
+                "计入优惠"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodAccountingRuleIncome",
                 "PaymentMethodAccountingRuleDiscount"
@@ -6800,6 +6938,10 @@ const docTemplate = `{
                 "PaymentMethodInvoiceRuleActualAmount": "按实收金额",
                 "PaymentMethodInvoiceRuleNotInvoice": "不开发票"
             },
+            "x-enum-descriptions": [
+                "不开发票",
+                "按实收金额"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodInvoiceRuleNotInvoice",
                 "PaymentMethodInvoiceRuleActualAmount"
@@ -6823,6 +6965,14 @@ const docTemplate = `{
                 "PaymentMethodPayTypeOnlinePayment": "在线支付",
                 "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
+            "x-enum-descriptions": [
+                "现金",
+                "在线支付",
+                "会员卡",
+                "系统自定义券",
+                "三方合作券",
+                "银行卡"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodPayTypeCash",
                 "PaymentMethodPayTypeOnlinePayment",
@@ -6867,6 +7017,11 @@ const docTemplate = `{
                 "PaymentMethodSourceStore": "门店",
                 "PaymentMethodSourceSystem": "系统"
             },
+            "x-enum-descriptions": [
+                "品牌",
+                "门店",
+                "系统"
+            ],
             "x-enum-varnames": [
                 "PaymentMethodSourceBrand",
                 "PaymentMethodSourceStore",
@@ -7247,6 +7402,10 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
+            "x-enum-descriptions": [
+                "在售",
+                "停售"
+            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -7416,6 +7575,11 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
+            "x-enum-descriptions": [
+                "堂食",
+                "外带",
+                "外卖"
+            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -7488,6 +7652,10 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
+            "x-enum-descriptions": [
+                "普通商品",
+                "套餐商品"
+            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -7567,6 +7735,10 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
+            "x-enum-descriptions": [
+                "数量单位",
+                "重量单位"
+            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
@@ -7686,6 +7858,10 @@ const docTemplate = `{
                 "ProfitDistributionBillStatusPaid": "已打款",
                 "ProfitDistributionBillStatusUnpaid": "未打款"
             },
+            "x-enum-descriptions": [
+                "未打款",
+                "已打款"
+            ],
             "x-enum-varnames": [
                 "ProfitDistributionBillStatusUnpaid",
                 "ProfitDistributionBillStatusPaid"
@@ -7769,6 +7945,10 @@ const docTemplate = `{
                 "ProfitDistributionRuleBillingCycleDaily": "按日",
                 "ProfitDistributionRuleBillingCycleMonthly": "按月"
             },
+            "x-enum-descriptions": [
+                "按日",
+                "按月"
+            ],
             "x-enum-varnames": [
                 "ProfitDistributionRuleBillingCycleDaily",
                 "ProfitDistributionRuleBillingCycleMonthly"
@@ -7824,6 +8004,10 @@ const docTemplate = `{
                 "ProfitDistributionRuleStatusDisabled": "禁用",
                 "ProfitDistributionRuleStatusEnabled": "启用"
             },
+            "x-enum-descriptions": [
+                "启用",
+                "禁用"
+            ],
             "x-enum-varnames": [
                 "ProfitDistributionRuleStatusEnabled",
                 "ProfitDistributionRuleStatusDisabled"
@@ -7860,6 +8044,12 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
+            "x-enum-descriptions": [
+                "日",
+                "月",
+                "年",
+                "周"
+            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -7979,6 +8169,15 @@ const docTemplate = `{
                 "RemarkSceneRefundReject": "拒绝退款",
                 "RemarkSceneWholeOrder": "整单备注"
             },
+            "x-enum-descriptions": [
+                "整单备注",
+                "单品备注",
+                "退菜原因",
+                "优惠原因",
+                "赠菜原��",
+                "反结账原因",
+                "拒绝退款"
+            ],
             "x-enum-varnames": [
                 "RemarkSceneWholeOrder",
                 "RemarkSceneItem",
@@ -8001,6 +8200,11 @@ const docTemplate = `{
                 "RemarkTypeStore": "门店备注",
                 "RemarkTypeSystem": "系统备注"
             },
+            "x-enum-descriptions": [
+                "系统备注",
+                "商户备注",
+                "门店备注"
+            ],
             "x-enum-varnames": [
                 "RemarkTypeSystem",
                 "RemarkTypeBrand",
@@ -8082,6 +8286,14 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -8106,6 +8318,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -8138,17 +8355,29 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
+            "x-enum-descriptions": [
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖",
+                "POS",
+                "移动点餐",
+                "扫码点餐",
+                "自助点餐",
+                "三方外卖"
+            ],
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -8256,6 +8485,10 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
+            "x-enum-descriptions": [
+                "固定分组",
+                "可选套餐"
+            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -8340,6 +8573,10 @@ const docTemplate = `{
                 "StallPrintTypeLabel": "标签",
                 "StallPrintTypeReceipt": "小票/收据"
             },
+            "x-enum-descriptions": [
+                "小票/收据",
+                "标签"
+            ],
             "x-enum-varnames": [
                 "StallPrintTypeReceipt",
                 "StallPrintTypeLabel"
@@ -8357,6 +8594,11 @@ const docTemplate = `{
                 "StallTypeStore": "门店出品部门",
                 "StallTypeSystem": "系统出品部门"
             },
+            "x-enum-descriptions": [
+                "系统出品部门",
+                "品牌出品部门",
+                "门店出品部门"
+            ],
             "x-enum-varnames": [
                 "StallTypeSystem",
                 "StallTypeBrand",
@@ -8596,6 +8838,10 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
+            "x-enum-descriptions": [
+                "营业",
+                "停业"
+            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -8665,6 +8911,10 @@ const docTemplate = `{
                 "TaxFeeTypeMerchant": "商户",
                 "TaxFeeTypeStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店"
+            ],
             "x-enum-varnames": [
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
@@ -8680,6 +8930,10 @@ const docTemplate = `{
                 "TaxRateTypeCustom": "自定义比例",
                 "TaxRateTypeUnified": "统一比例"
             },
+            "x-enum-descriptions": [
+                "统一比例",
+                "自定义比例"
+            ],
             "x-enum-varnames": [
                 "TaxRateTypeUnified",
                 "TaxRateTypeCustom"
@@ -8693,27 +8947,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.AccountListResp": {
             "type": "object",

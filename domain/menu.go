@@ -78,6 +78,7 @@ type MenuRepository interface {
 	Exists(ctx context.Context, params MenuExistsParams) (bool, error)
 	PagedListMerchantMenusBySearch(ctx context.Context, page *upagination.Pagination, params MenuSearchParams) (*MenuSearchRes, error)
 	PagedListStoreMenusBySearch(ctx context.Context, page *upagination.Pagination, params MenuSearchParams) (*MenuSearchRes, error)
+	ListAllStoreMenus(ctx context.Context, params MenuListAllParams) (Menus, error)
 }
 
 // MenuInteractor 菜单用例接口
@@ -89,6 +90,7 @@ type MenuInteractor interface {
 	Delete(ctx context.Context, id uuid.UUID, user User) error
 	GetDetail(ctx context.Context, id uuid.UUID, user User) (*Menu, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params MenuSearchParams) (*MenuSearchRes, error)
+	ListAllStoreMenus(ctx context.Context, params MenuListAllParams) (Menus, error)
 }
 
 // ------------------------------------------------------------
@@ -115,4 +117,9 @@ type MenuSearchParams struct {
 type MenuSearchRes struct {
 	*upagination.Pagination
 	Items Menus `json:"items"`
+}
+
+type MenuListAllParams struct {
+	MerchantID uuid.UUID
+	StoreID    uuid.UUID
 }
