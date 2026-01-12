@@ -1,4 +1,4 @@
-h1:bGDlRuYnSUXoWekSnl9GYyX5V67e8V+OlKFD3doDx8Q=
+h1:cHoiMSs7BwlSZPc20LN05v9vSoLL8WCzCIi2eQ/h8xo=
 20251223111733_init.sql h1:BZGETBAzpuxIl67b1Kkw/yckxcI0V4VIcznVzEx4Vuw=
 20251224025141_add_merchant_table.sql h1:qLFX5sh/Ofo6UTFK3VgOfKL6HFML+OIi7XoezN8i3Ww=
 20251224035249_init_product_table.sql h1:Kifmbf/JbBNlguTgcR1nja3dObJ2A0qjkg9yFM+C7AY=
@@ -12,3 +12,4 @@ h1:bGDlRuYnSUXoWekSnl9GYyX5V67e8V+OlKFD3doDx8Q=
 20260108105453_add_profit_distribution_table.sql h1:cNVr0vx1nYmlkXYTRoE4Wh8iT/bLa+ds2q2j3dD6r+M=
 20260109021521_add_payment_account_table.sql h1:2IlMz9O5RhZ9QfuOeyovxkdS1nTirVmtCP2QAlAvmhI=
 20260112031635_update_payment_method.sql h1:zsn/bhmzcqD/0+dX8S+IlpzsTYfJjKUhrm07dkw/Xxg=
+20260112032342_add_business_config_table.sql h1:D9KSfT8g+1wW6W7QEr5tVN3FuyN1c0Ot9vE0NOCE2kc=
