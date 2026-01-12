@@ -228,9 +228,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
-                    },
-                    "204": {
-                        "description": "No Content"
                     }
                 }
             }
@@ -1101,6 +1098,43 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/merchant/business_type/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "业态列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户管理-业态列表"
+                ],
+                "summary": "业态列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.MerchantBusinessTypeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 }
             }
@@ -3213,7 +3247,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/region/provinces": {
+        "/region/{id}/provinces": {
             "get": {
                 "security": [
                     {
@@ -3223,13 +3257,14 @@ const docTemplate = `{
                 "tags": [
                     "地区"
                 ],
-                "summary": "获取省份列表",
+                "summary": "获取指定国家/地区的省/州列表",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "国家/地区ID",
-                        "name": "country_id",
-                        "in": "query"
+                        "description": "国家/地区 ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3268,12 +3303,6 @@ const docTemplate = `{
                 "summary": "获取备注列表",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "备注类型",
-                        "name": "category_id",
-                        "in": "query"
-                    },
-                    {
                         "type": "boolean",
                         "description": "启用状态",
                         "name": "enabled",
@@ -3289,6 +3318,39 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "页码",
                         "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "whole_order",
+                            "item",
+                            "cancel_reason",
+                            "discount",
+                            "gift",
+                            "rebill",
+                            "refund_reject"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "RemarkSceneCancelReason": "退菜原因",
+                            "RemarkSceneDiscount": "优惠原因",
+                            "RemarkSceneGift": "赠菜原因",
+                            "RemarkSceneItem": "单品备注",
+                            "RemarkSceneRebill": "反结账原因",
+                            "RemarkSceneRefundReject": "拒绝退款",
+                            "RemarkSceneWholeOrder": "整单备注"
+                        },
+                        "x-enum-varnames": [
+                            "RemarkSceneWholeOrder",
+                            "RemarkSceneItem",
+                            "RemarkSceneCancelReason",
+                            "RemarkSceneDiscount",
+                            "RemarkSceneGift",
+                            "RemarkSceneRebill",
+                            "RemarkSceneRefundReject"
+                        ],
+                        "description": "使用场景",
+                        "name": "remark_scene",
                         "in": "query"
                     },
                     {
@@ -3559,7 +3621,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/types.RemarkCategoryListResp"
+                                            "$ref": "#/definitions/types.RemarkGroupListResp"
                                         }
                                     }
                                 }
@@ -5806,7 +5868,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -5825,6 +5887,19 @@ const docTemplate = `{
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
             ]
+        },
+        "domain.BusinessType": {
+            "type": "object",
+            "properties": {
+                "type_code": {
+                    "description": "业态类型编码",
+                    "type": "string"
+                },
+                "type_name": {
+                    "description": "业态类型名称",
+                    "type": "string"
+                }
+            }
         },
         "domain.Category": {
             "type": "object",
@@ -7870,14 +7945,6 @@ const docTemplate = `{
         "domain.Remark": {
             "type": "object",
             "properties": {
-                "category_id": {
-                    "description": "分类 ID",
-                    "type": "string"
-                },
-                "category_name": {
-                    "description": "分类名称",
-                    "type": "string"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -7894,6 +7961,18 @@ const docTemplate = `{
                 },
                 "name": {
                     "description": "备注名称",
+                    "type": "string"
+                },
+                "remark_scene": {
+                    "description": "使用场景：整单备注/单品备注/退菜原因等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
+                "remark_scene_name": {
+                    "description": "使用场景：整单备注/单品备注/退菜原因等",
                     "type": "string"
                 },
                 "remark_type": {
@@ -7917,23 +7996,9 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.RemarkCategory": {
+        "domain.RemarkGroup": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "description": "分类描述",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "merchant_id": {
-                    "description": "品牌商ID，可为空表示系统级分类",
-                    "type": "string"
-                },
                 "name": {
                     "description": "分类名称",
                     "type": "string"
@@ -7949,13 +8014,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/domain.RemarkScene"
                         }
                     ]
-                },
-                "sort_order": {
-                    "description": "排序，值越小越靠前",
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -7973,7 +8031,7 @@ const docTemplate = `{
             "x-enum-comments": {
                 "RemarkSceneCancelReason": "退菜原因",
                 "RemarkSceneDiscount": "优惠原因",
-                "RemarkSceneGift": "赠菜原��",
+                "RemarkSceneGift": "赠菜原因",
                 "RemarkSceneItem": "单品备注",
                 "RemarkSceneRebill": "反结账原因",
                 "RemarkSceneRefundReject": "拒绝退款",
@@ -8046,6 +8104,13 @@ const docTemplate = `{
                 "name": {
                     "description": "角色名称",
                     "type": "string"
+                },
+                "paths": {
+                    "description": "前端路由菜单列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "role_type": {
                     "description": "角色类型",
@@ -8693,27 +8758,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.AccountListResp": {
             "type": "object",
@@ -9765,6 +9809,18 @@ const docTemplate = `{
                     "minItems": 1,
                     "items": {
                         "type": "string"
+                    }
+                }
+            }
+        },
+        "types.MerchantBusinessTypeListResp": {
+            "type": "object",
+            "properties": {
+                "business_types": {
+                    "description": "业务类型列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessType"
                     }
                 }
             }
@@ -10831,17 +10887,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.RemarkCategoryListResp": {
-            "type": "object",
-            "properties": {
-                "remark_categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.RemarkCategory"
-                    }
-                }
-            }
-        },
         "types.RemarkCategoryUpdateReq": {
             "type": "object",
             "required": [
@@ -10882,14 +10927,10 @@ const docTemplate = `{
         "types.RemarkCreateReq": {
             "type": "object",
             "required": [
-                "category_id",
-                "name"
+                "name",
+                "remark_scene"
             ],
             "properties": {
-                "category_id": {
-                    "description": "备注类型",
-                    "type": "string"
-                },
                 "enabled": {
                     "description": "是否启用",
                     "type": "boolean"
@@ -10899,6 +10940,23 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255
                 },
+                "remark_scene": {
+                    "description": "使用场景",
+                    "enum": [
+                        "whole_order",
+                        "item",
+                        "cancel_reason",
+                        "discount",
+                        "gift",
+                        "rebill",
+                        "refund_reject"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
                 "sort_order": {
                     "description": "排序，越小越靠前",
                     "type": "integer",
@@ -10907,6 +10965,17 @@ const docTemplate = `{
                 "store_id": {
                     "description": "可选，品牌级可为空",
                     "type": "string"
+                }
+            }
+        },
+        "types.RemarkGroupListResp": {
+            "type": "object",
+            "properties": {
+                "remark_groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RemarkGroup"
+                    }
                 }
             }
         },

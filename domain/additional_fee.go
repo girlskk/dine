@@ -180,8 +180,9 @@ type AdditionalFeeListFilter struct {
 }
 
 type AdditionalFeeExistsParams struct {
-	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
-	StoreID    uuid.UUID `json:"store_id,omitempty"`
-	Name       string    `json:"name,omitempty"`
-	ExcludeID  uuid.UUID `json:"exclude_id,omitempty"`
+	FeeType    AdditionalFeeType `json:"fee_type"` // 附加费类型  商户/门店
+	MerchantID uuid.UUID         `json:"merchant_id,omitempty"`
+	StoreID    uuid.UUID         `json:"store_id,omitempty"`
+	Name       string            `json:"name,omitempty"`
+	ExcludeID  uuid.UUID         `json:"exclude_id,omitempty"`
 }

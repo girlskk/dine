@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 )
 
@@ -27,7 +25,6 @@ type RemarkCategoryQuery struct {
 	order        []remarkcategory.OrderOption
 	inters       []Interceptor
 	predicates   []predicate.RemarkCategory
-	withRemarks  *RemarkQuery
 	withMerchant *MerchantQuery
 	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
@@ -64,28 +61,6 @@ func (rcq *RemarkCategoryQuery) Unique(unique bool) *RemarkCategoryQuery {
 func (rcq *RemarkCategoryQuery) Order(o ...remarkcategory.OrderOption) *RemarkCategoryQuery {
 	rcq.order = append(rcq.order, o...)
 	return rcq
-}
-
-// QueryRemarks chains the current query on the "remarks" edge.
-func (rcq *RemarkCategoryQuery) QueryRemarks() *RemarkQuery {
-	query := (&RemarkClient{config: rcq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rcq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rcq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(remarkcategory.Table, remarkcategory.FieldID, selector),
-			sqlgraph.To(remark.Table, remark.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, remarkcategory.RemarksTable, remarkcategory.RemarksColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(rcq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryMerchant chains the current query on the "merchant" edge.
@@ -302,24 +277,12 @@ func (rcq *RemarkCategoryQuery) Clone() *RemarkCategoryQuery {
 		order:        append([]remarkcategory.OrderOption{}, rcq.order...),
 		inters:       append([]Interceptor{}, rcq.inters...),
 		predicates:   append([]predicate.RemarkCategory{}, rcq.predicates...),
-		withRemarks:  rcq.withRemarks.Clone(),
 		withMerchant: rcq.withMerchant.Clone(),
 		// clone intermediate query.
 		sql:       rcq.sql.Clone(),
 		path:      rcq.path,
 		modifiers: append([]func(*sql.Selector){}, rcq.modifiers...),
 	}
-}
-
-// WithRemarks tells the query-builder to eager-load the nodes that are connected to
-// the "remarks" edge. The optional arguments are used to configure the query builder of the edge.
-func (rcq *RemarkCategoryQuery) WithRemarks(opts ...func(*RemarkQuery)) *RemarkCategoryQuery {
-	query := (&RemarkClient{config: rcq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	rcq.withRemarks = query
-	return rcq
 }
 
 // WithMerchant tells the query-builder to eager-load the nodes that are connected to
@@ -411,8 +374,7 @@ func (rcq *RemarkCategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	var (
 		nodes       = []*RemarkCategory{}
 		_spec       = rcq.querySpec()
-		loadedTypes = [2]bool{
-			rcq.withRemarks != nil,
+		loadedTypes = [1]bool{
 			rcq.withMerchant != nil,
 		}
 	)
@@ -437,13 +399,6 @@ func (rcq *RemarkCategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := rcq.withRemarks; query != nil {
-		if err := rcq.loadRemarks(ctx, query, nodes,
-			func(n *RemarkCategory) { n.Edges.Remarks = []*Remark{} },
-			func(n *RemarkCategory, e *Remark) { n.Edges.Remarks = append(n.Edges.Remarks, e) }); err != nil {
-			return nil, err
-		}
-	}
 	if query := rcq.withMerchant; query != nil {
 		if err := rcq.loadMerchant(ctx, query, nodes, nil,
 			func(n *RemarkCategory, e *Merchant) { n.Edges.Merchant = e }); err != nil {
@@ -453,36 +408,6 @@ func (rcq *RemarkCategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	return nodes, nil
 }
 
-func (rcq *RemarkCategoryQuery) loadRemarks(ctx context.Context, query *RemarkQuery, nodes []*RemarkCategory, init func(*RemarkCategory), assign func(*RemarkCategory, *Remark)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*RemarkCategory)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(remark.FieldCategoryID)
-	}
-	query.Where(predicate.Remark(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(remarkcategory.RemarksColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.CategoryID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "category_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
 func (rcq *RemarkCategoryQuery) loadMerchant(ctx context.Context, query *MerchantQuery, nodes []*RemarkCategory, init func(*RemarkCategory), assign func(*RemarkCategory, *Merchant)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*RemarkCategory)

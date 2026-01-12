@@ -189,8 +189,7 @@ func (h *RemarkCategoryHandler) Delete() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Summary		获取备注分类列表
 //	@Description	获取备注分类列表
-//	@Param			data	query		types.RemarkCategoryListReq	true	"查询参数"
-//	@Success		200		{object}	response.Response{data=types.RemarkCategoryListResp}
+//	@Success		200	{object}	response.Response{data=types.RemarkGroupListResp}
 //	@Router			/remark_category [get]
 func (h *RemarkCategoryHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -198,25 +197,19 @@ func (h *RemarkCategoryHandler) List() gin.HandlerFunc {
 		logger := logging.FromContext(ctx).Named("RemarkCategoryHandler.List")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
-
-		var req types.RemarkCategoryListReq
-		if err := c.ShouldBind(&req); err != nil {
-			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-			return
-		}
-
 		user := domain.FromBackendUserContext(ctx)
-		filter := &domain.RemarkCategoryListFilter{
+		remarkGroups, err := h.RemarkCategoryInteractor.GetRemarkGroup(ctx, domain.RemarkGroupListFilter{
 			MerchantID: user.MerchantID,
-		}
-
-		remarkCategories, err := h.RemarkCategoryInteractor.GetRemarkCategories(ctx, filter)
+			CountScene: domain.RemarkTypeBrand,
+		})
 		if err != nil {
 			err = fmt.Errorf("failed to get remark categories: %w", err)
 			c.Error(err)
 			return
 		}
 
-		response.Ok(c, types.RemarkCategoryListResp{RemarkCategories: remarkCategories})
+		response.Ok(c, types.RemarkGroupListResp{
+			RemarkGroups: remarkGroups,
+		})
 	}
 }

@@ -17,6 +17,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
 // RoleCreate is the builder for creating a Role entity.
@@ -171,6 +172,21 @@ func (rc *RoleCreate) SetMerchant(m *Merchant) *RoleCreate {
 // SetStore sets the "store" edge to the Store entity.
 func (rc *RoleCreate) SetStore(s *Store) *RoleCreate {
 	return rc.SetStoreID(s.ID)
+}
+
+// AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
+func (rc *RoleCreate) AddUserRoleIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddUserRoleIDs(ids...)
+	return rc
+}
+
+// AddUserRoles adds the "user_roles" edges to the UserRole entity.
+func (rc *RoleCreate) AddUserRoles(u ...*UserRole) *RoleCreate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return rc.AddUserRoleIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -388,6 +404,22 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.StoreID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rc.mutation.UserRolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   role.UserRolesTable,
+			Columns: []string{role.UserRolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

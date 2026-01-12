@@ -442,29 +442,6 @@ func SortOrderLTE(v int) predicate.RemarkCategory {
 	return predicate.RemarkCategory(sql.FieldLTE(FieldSortOrder, v))
 }
 
-// HasRemarks applies the HasEdge predicate on the "remarks" edge.
-func HasRemarks() predicate.RemarkCategory {
-	return predicate.RemarkCategory(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, RemarksTable, RemarksColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasRemarksWith applies the HasEdge predicate on the "remarks" edge with a given conditions (other predicates).
-func HasRemarksWith(preds ...predicate.Remark) predicate.RemarkCategory {
-	return predicate.RemarkCategory(func(s *sql.Selector) {
-		step := newRemarksStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasMerchant applies the HasEdge predicate on the "merchant" edge.
 func HasMerchant() predicate.RemarkCategory {
 	return predicate.RemarkCategory(func(s *sql.Selector) {

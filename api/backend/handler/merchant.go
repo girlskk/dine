@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -88,12 +89,7 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 
 		err = h.MerchantInteractor.UpdateMerchant(ctx, updateBrandMerchant)
 		if err != nil {
-			if domain.IsConflict(err) {
-				c.Error(errorx.New(http.StatusConflict, errcode.MerchantNameExists, err))
-				return
-			}
-			err = fmt.Errorf("failed to update brand merchant: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -153,12 +149,7 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 
 		storeMerchant, err := h.StoreInteractor.GetStoreByMerchantID(ctx, user.MerchantID)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to get store by merchant id: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 		updateStore := &domain.UpdateStoreParams{
@@ -187,12 +178,7 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 		}
 
 		if err := h.MerchantInteractor.UpdateMerchantAndStore(ctx, updateMerchant, updateStore); err != nil {
-			if domain.IsConflict(err) {
-				c.Error(errorx.New(http.StatusConflict, errcode.MerchantNameExists, err))
-				return
-			}
-			err = fmt.Errorf("failed to update store merchant: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -285,12 +271,7 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 		}
 
 		if err := h.MerchantInteractor.MerchantRenewal(ctx, merchantRenewal); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to renew merchant: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -319,12 +300,7 @@ func (h *MerchantHandler) Enable() gin.HandlerFunc {
 		updateParams := &domain.Merchant{ID: user.MerchantID, Status: domain.MerchantStatusActive}
 
 		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update merchant: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -353,15 +329,25 @@ func (h *MerchantHandler) Disable() gin.HandlerFunc {
 		updateParams := &domain.Merchant{ID: user.MerchantID, Status: domain.MerchantStatusDisabled}
 
 		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update merchant: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+func (h *MerchantHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrMerchantNameExists):
+		return errorx.New(http.StatusConflict, errcode.MerchantNameExists, err)
+	case errors.Is(err, domain.ErrStoreNameExists):
+		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("merchant handler error: %w", err)
 	}
 }

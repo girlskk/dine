@@ -86,16 +86,7 @@ func (h *RoleHandler) Create() gin.HandlerFunc {
 		}
 
 		if err := h.Interactor.CreateRole(ctx, params); err != nil {
-			if errors.Is(err, domain.ErrRoleNameExists) || errors.Is(err, domain.ErrRoleCodeExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create role: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -143,20 +134,7 @@ func (h *RoleHandler) Update() gin.HandlerFunc {
 		}
 
 		if err := h.Interactor.UpdateRole(ctx, params); err != nil {
-			if errors.Is(err, domain.ErrRoleNameExists) || errors.Is(err, domain.ErrRoleCodeExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to update role: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -188,16 +166,7 @@ func (h *RoleHandler) Delete() gin.HandlerFunc {
 		}
 
 		if err := h.Interactor.DeleteRole(ctx, id); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete role: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -318,16 +287,7 @@ func (h *RoleHandler) Enable() gin.HandlerFunc {
 			Enable: true,
 		})
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to enable role: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -364,16 +324,7 @@ func (h *RoleHandler) Disable() gin.HandlerFunc {
 			Enable: false,
 		})
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to disable role: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -390,4 +341,23 @@ func (h *RoleHandler) generateRoleCode(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("failed to generate role code: %w", err)
 	}
 	return seq, nil
+}
+
+func (h *RoleHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrRoleAssignedCannotDisable):
+		return errorx.New(http.StatusBadRequest, errcode.RoleAssignedCannotDisable, err)
+	case errors.Is(err, domain.ErrRoleAssignedCannotDelete):
+		return errorx.New(http.StatusBadRequest, errcode.RoleAssignedCannotDelete, err)
+	case errors.Is(err, domain.ErrUserRoleNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.UserRoleNotExists, err)
+	case errors.Is(err, domain.ErrRoleNameExists), errors.Is(err, domain.ErrRoleCodeExists):
+		return errorx.New(http.StatusConflict, errcode.Conflict, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("role handler error: %w", err)
+	}
 }

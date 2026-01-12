@@ -28,7 +28,6 @@ type CreateMerchantReq struct {
 	MerchantCode         string                      `json:"merchant_code" binding:"omitempty,max=50"`       // 商户编号(保留字段)
 	MerchantName         string                      `json:"merchant_name" binding:"required,max=50"`        // 商户名称,最长不得超过50个字
 	MerchantShortName    string                      `json:"merchant_short_name" binding:"omitempty,max=50"` // 商户简称
-	MerchantType         domain.MerchantType         `json:"merchant_type" binding:"required"`               // 商户类型: 品牌商户,门店商户
 	BrandName            string                      `json:"brand_name" binding:"omitempty,max=50"`          // 品牌名称
 	AdminPhoneNumber     string                      `json:"admin_phone_number" binding:"required,max=20"`   // 管理员手机号
 	PurchaseDuration     int                         `json:"purchase_duration" binding:"required"`           // 购买时长
@@ -145,5 +144,5 @@ type MerchantCount struct {
 }
 
 type MerchantBusinessTypeListResp struct {
-	BusinessTypes []*domain.MerchantBusinessType `json:"business_types"` // 业务类型列表
+	BusinessTypes []*domain.BusinessType `json:"business_types"` // 业务类型列表
 }

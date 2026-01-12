@@ -29,12 +29,12 @@ func (MerchantRenewal) Fields() []ent.Field {
 			Immutable().
 			Comment("购买时长单位"),
 		field.String("operator_name").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(50).
 			Comment("操作人"),
 		field.String("operator_account").
-			NotEmpty().
+			Optional().
 			Default("").
 			MaxLen(50).
 			Comment("操作人账号"),

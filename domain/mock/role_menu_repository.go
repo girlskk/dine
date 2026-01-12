@@ -5,11 +5,11 @@
 package mock
 
 import (
-	context "context"
+	"context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
@@ -65,18 +65,18 @@ func (mr *MockRoleMenuRepositoryMockRecorder) CreateBulk(arg0, arg1 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulk", reflect.TypeOf((*MockRoleMenuRepository)(nil).CreateBulk), arg0, arg1)
 }
 
-// CreateBulkByRoleIDMenus mocks base method.
-func (m *MockRoleMenuRepository) CreateBulkByRoleIDMenus(arg0 context.Context, arg1 *domain.Role, arg2 []uuid.UUID) error {
+// CreateBulkByRoleIDPaths mocks base method.
+func (m *MockRoleMenuRepository) CreateBulkByRoleIDPaths(arg0 context.Context, arg1 *domain.Role, arg2 []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateBulkByRoleIDMenus", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "CreateBulkByRoleIDPaths", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CreateBulkByRoleIDMenus indicates an expected call of CreateBulkByRoleIDMenus.
-func (mr *MockRoleMenuRepositoryMockRecorder) CreateBulkByRoleIDMenus(arg0, arg1, arg2 interface{}) *gomock.Call {
+// CreateBulkByRoleIDPaths indicates an expected call of CreateBulkByRoleIDPaths.
+func (mr *MockRoleMenuRepositoryMockRecorder) CreateBulkByRoleIDPaths(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulkByRoleIDMenus", reflect.TypeOf((*MockRoleMenuRepository)(nil).CreateBulkByRoleIDMenus), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulkByRoleIDPaths", reflect.TypeOf((*MockRoleMenuRepository)(nil).CreateBulkByRoleIDPaths), arg0, arg1, arg2)
 }
 
 // Deletes mocks base method.

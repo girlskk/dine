@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
@@ -35,8 +36,31 @@ type UserRole struct {
 	// 商户ID，可为空表示全局/非商户
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 门店ID，可为空表示商户级
-	StoreID      uuid.UUID `json:"store_id,omitempty"`
+	StoreID uuid.UUID `json:"store_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserRoleQuery when eager-loading is set.
+	Edges        UserRoleEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserRoleEdges holds the relations/edges for other nodes in the graph.
+type UserRoleEdges struct {
+	// Role holds the value of the role edge.
+	Role *Role `json:"role,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// RoleOrErr returns the Role value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserRoleEdges) RoleOrErr() (*Role, error) {
+	if e.Role != nil {
+		return e.Role, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: role.Label}
+	}
+	return nil, &NotLoadedError{edge: "role"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -132,6 +156,11 @@ func (ur *UserRole) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (ur *UserRole) Value(name string) (ent.Value, error) {
 	return ur.selectValues.Get(name)
+}
+
+// QueryRole queries the "role" edge of the UserRole entity.
+func (ur *UserRole) QueryRole() *RoleQuery {
+	return NewUserRoleClient(ur.config).QueryRole(ur)
 }
 
 // Update returns a builder for updating this UserRole.

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/api/backend/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
@@ -27,7 +28,7 @@ func NewRegionHandler(countryInteractor domain.CountryInteractor, provinceIntera
 func (h *RegionHandler) Routes(r gin.IRouter) {
 	r = r.Group("/region")
 	r.GET("/countries", h.ListCountries())
-	r.GET("/provinces", h.ListProvinces())
+	r.GET("/:id/provinces", h.ListProvinces())
 }
 
 // ListCountries
@@ -60,10 +61,10 @@ func (h *RegionHandler) ListCountries() gin.HandlerFunc {
 //
 //	@Tags		地区
 //	@Security	BearerAuth
-//	@Summary	获取省份列表
-//	@Param		country_id	query		string	false	"国家/地区ID"
-//	@Success	200			{object}	response.Response{data=types.ProvinceListResp}
-//	@Router		/region/provinces [get]
+//	@Summary	获取指定国家/地区的省/州列表
+//	@Param		id	path		string	true	"国家/地区 ID (UUID)"
+//	@Success	200	{object}	response.Response{data=types.ProvinceListResp}
+//	@Router		/region/{id}/provinces [get]
 func (h *RegionHandler) ListProvinces() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -71,13 +72,12 @@ func (h *RegionHandler) ListProvinces() gin.HandlerFunc {
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		var req types.ProvinceListReq
-		if err := c.ShouldBindQuery(&req); err != nil {
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		provinces, err := h.ProvinceInteractor.GetProvinces(ctx, req.CountryID)
+		provinces, err := h.ProvinceInteractor.GetProvinces(ctx, id)
 		if err != nil {
 			c.Error(errorx.New(http.StatusInternalServerError, errcode.InternalError, err))
 			return

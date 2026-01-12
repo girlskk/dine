@@ -1,0 +1,23 @@
+# Remark group / scene translations for en-US
+
+[REMARK_SCENE_whole_order]
+other = "Whole order remark"
+
+[REMARK_SCENE_item]
+other = "Item remark"
+
+[REMARK_SCENE_cancel_reason]
+other = "Cancel reason"
+
+[REMARK_SCENE_discount]
+other = "Discount reason"
+
+[REMARK_SCENE_gift]
+other = "Gift reason"
+
+[REMARK_SCENE_rebill]
+other = "Rebill reason"
+
+[REMARK_SCENE_refund_reject]
+other = "Refund rejection reason"
+

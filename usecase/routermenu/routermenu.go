@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -143,23 +142,18 @@ func (interactor *RouterMenuInteractor) GetRouterMenu(ctx context.Context, id uu
 }
 
 func (interactor *RouterMenuInteractor) GetRouterMenus(ctx context.Context,
-	pager *upagination.Pagination,
 	filter *domain.RouterMenuListFilter,
 	orderBys ...domain.RouterMenuListOrderBy,
 ) (menus []*domain.RouterMenu, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RouterMenuInteractor.GetRouterMenus")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if pager == nil {
-		err = domain.ParamsError(errors.New("pager is required"))
-		return
-	}
 	if filter == nil {
 		err = domain.ParamsError(errors.New("filter is required"))
 		return
 	}
 
-	menus, total, err = interactor.DS.RouterMenuRepo().GetRouterMenus(ctx, pager, filter, orderBys...)
+	menus, total, err = interactor.DS.RouterMenuRepo().GetRouterMenus(ctx, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get router menus: %w", err)
 		return

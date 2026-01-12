@@ -408,6 +408,10 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 
 func (h *StoreHandler) checkEditErr(err error) error {
 	switch {
+	case errors.Is(err, domain.ErrUserExists):
+		return errorx.New(http.StatusConflict, errcode.UserNameExists, err)
+	case errors.Is(err, domain.ErrStoreNameExists):
+		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursConflict):
 		return errorx.New(http.StatusBadRequest, errcode.StoreBusinessHoursConflict, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursTimeInvalid):
@@ -424,8 +428,6 @@ func (h *StoreHandler) checkEditErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.StoreShiftTimeTimeInvalid, err)
 	case errors.Is(err, domain.ErrStoreShiftTimeNameExists):
 		return errorx.New(http.StatusBadRequest, errcode.StoreShiftTimeNameExists, err)
-	case domain.IsConflict(err):
-		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
 	case domain.IsParamsError(err):
 		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
 	default:

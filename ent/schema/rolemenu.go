@@ -32,9 +32,8 @@ func (RoleMenu) Fields() []ent.Field {
 		field.UUID("role_id", uuid.UUID{}).
 			Immutable().
 			Comment("角色ID"),
-		field.UUID("menu_id", uuid.UUID{}).
-			Immutable().
-			Comment("菜单ID"),
+		field.String("path").
+			Comment("path 作为唯一标识"),
 		field.UUID("merchant_id", uuid.UUID{}).
 			Optional().
 			Immutable().
@@ -52,10 +51,10 @@ func (RoleMenu) Edges() []ent.Edge {
 
 func (RoleMenu) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("role_id", "merchant_id", "store_id", "menu_id", "role_type", "deleted_at").
+		index.Fields("role_id", "merchant_id", "store_id", "path", "role_type", "deleted_at").
 			Unique().
-			StorageKey("role_menu_unique_idx"),
-		index.Fields("menu_id"),
+			StorageKey("role_path_unique_idx"),
+		index.Fields("path"),
 		index.Fields("merchant_id", "store_id"),
 	}
 }

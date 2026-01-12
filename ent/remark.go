@@ -13,7 +13,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -37,8 +36,8 @@ type Remark struct {
 	Enabled bool `json:"enabled,omitempty"`
 	// 排序，值越小越靠前
 	SortOrder int `json:"sort_order,omitempty"`
-	// 备注分类ID
-	CategoryID uuid.UUID `json:"category_id,omitempty"`
+	// 使用场景：整单备注/单品备注/退菜原因等
+	RemarkScene domain.RemarkScene `json:"remark_scene,omitempty"`
 	// 品牌商ID，仅品牌备注需要
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 门店ID，保留字段
@@ -51,26 +50,13 @@ type Remark struct {
 
 // RemarkEdges holds the relations/edges for other nodes in the graph.
 type RemarkEdges struct {
-	// RemarkCategory holds the value of the remark_category edge.
-	RemarkCategory *RemarkCategory `json:"remark_category,omitempty"`
 	// Merchant holds the value of the merchant edge.
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// Store holds the value of the store edge.
 	Store *Store `json:"store,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
-}
-
-// RemarkCategoryOrErr returns the RemarkCategory value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e RemarkEdges) RemarkCategoryOrErr() (*RemarkCategory, error) {
-	if e.RemarkCategory != nil {
-		return e.RemarkCategory, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: remarkcategory.Label}
-	}
-	return nil, &NotLoadedError{edge: "remark_category"}
+	loadedTypes [2]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -78,7 +64,7 @@ func (e RemarkEdges) RemarkCategoryOrErr() (*RemarkCategory, error) {
 func (e RemarkEdges) MerchantOrErr() (*Merchant, error) {
 	if e.Merchant != nil {
 		return e.Merchant, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: merchant.Label}
 	}
 	return nil, &NotLoadedError{edge: "merchant"}
@@ -89,7 +75,7 @@ func (e RemarkEdges) MerchantOrErr() (*Merchant, error) {
 func (e RemarkEdges) StoreOrErr() (*Store, error) {
 	if e.Store != nil {
 		return e.Store, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: store.Label}
 	}
 	return nil, &NotLoadedError{edge: "store"}
@@ -104,11 +90,11 @@ func (*Remark) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case remark.FieldDeletedAt, remark.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case remark.FieldName, remark.FieldRemarkType:
+		case remark.FieldName, remark.FieldRemarkType, remark.FieldRemarkScene:
 			values[i] = new(sql.NullString)
 		case remark.FieldCreatedAt, remark.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case remark.FieldID, remark.FieldCategoryID, remark.FieldMerchantID, remark.FieldStoreID:
+		case remark.FieldID, remark.FieldMerchantID, remark.FieldStoreID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -173,11 +159,11 @@ func (r *Remark) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.SortOrder = int(value.Int64)
 			}
-		case remark.FieldCategoryID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field category_id", values[i])
-			} else if value != nil {
-				r.CategoryID = *value
+		case remark.FieldRemarkScene:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field remark_scene", values[i])
+			} else if value.Valid {
+				r.RemarkScene = domain.RemarkScene(value.String)
 			}
 		case remark.FieldMerchantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -202,11 +188,6 @@ func (r *Remark) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (r *Remark) Value(name string) (ent.Value, error) {
 	return r.selectValues.Get(name)
-}
-
-// QueryRemarkCategory queries the "remark_category" edge of the Remark entity.
-func (r *Remark) QueryRemarkCategory() *RemarkCategoryQuery {
-	return NewRemarkClient(r.config).QueryRemarkCategory(r)
 }
 
 // QueryMerchant queries the "merchant" edge of the Remark entity.
@@ -263,8 +244,8 @@ func (r *Remark) String() string {
 	builder.WriteString("sort_order=")
 	builder.WriteString(fmt.Sprintf("%v", r.SortOrder))
 	builder.WriteString(", ")
-	builder.WriteString("category_id=")
-	builder.WriteString(fmt.Sprintf("%v", r.CategoryID))
+	builder.WriteString("remark_scene=")
+	builder.WriteString(fmt.Sprintf("%v", r.RemarkScene))
 	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", r.MerchantID))

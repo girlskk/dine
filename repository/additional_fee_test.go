@@ -28,8 +28,7 @@ func (s *AdditionalFeeRepositoryTestSuite) SetupTest() {
 	s.repo = &AdditionalFeeRepository{Client: s.client}
 	s.ctx = context.Background()
 }
-
-func (s *AdditionalFeeRepositoryTestSuite) newFee(tag string, merchantID, storeID uuid.UUID) *domain.AdditionalFee {
+func (s *AdditionalFeeRepositoryTestSuite) newFeeWithMerchantID(tag string, merchantID uuid.UUID) *domain.AdditionalFee {
 	return &domain.AdditionalFee{
 		ID:                  uuid.New(),
 		Name:                "附加费-" + tag,
@@ -45,13 +44,17 @@ func (s *AdditionalFeeRepositoryTestSuite) newFee(tag string, merchantID, storeI
 		Enabled:             true,
 		SortOrder:           10,
 		MerchantID:          merchantID,
-		StoreID:             storeID,
+		StoreID:             uuid.New(),
 	}
+}
+
+func (s *AdditionalFeeRepositoryTestSuite) newFee(tag string) *domain.AdditionalFee {
+	return s.newFeeWithMerchantID(tag, uuid.New())
 }
 
 func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
-		fee := s.newFee("create", uuid.New(), uuid.Nil)
+		fee := s.newFee("create")
 
 		err := s.repo.Create(s.ctx, fee)
 		require.NoError(t, err)
@@ -70,7 +73,7 @@ func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Create() {
 }
 
 func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_FindByID() {
-	fee := s.newFee("find", uuid.New(), uuid.Nil)
+	fee := s.newFee("find")
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("查询成功", func(t *testing.T) {
@@ -89,7 +92,7 @@ func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_FindByID() {
 }
 
 func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Update() {
-	fee := s.newFee("update", uuid.New(), uuid.Nil)
+	fee := s.newFee("update")
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("更新成功", func(t *testing.T) {
@@ -108,7 +111,7 @@ func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Update() {
 	})
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
-		missing := s.newFee("missing", uuid.New(), uuid.Nil)
+		missing := s.newFee("missing")
 		err := s.repo.Update(s.ctx, missing)
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
@@ -121,7 +124,7 @@ func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Update() {
 }
 
 func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Delete() {
-	fee := s.newFee("delete", uuid.New(), uuid.Nil)
+	fee := s.newFee("delete")
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("删除成功", func(t *testing.T) {
@@ -141,17 +144,17 @@ func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Delete() {
 func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_GetAdditionalFees() {
 	m1 := uuid.New()
 	m2 := uuid.New()
-	fee1 := s.newFee("001", m1, uuid.New())
+	fee1 := s.newFeeWithMerchantID("001", m1)
 	fee1.FeeType = domain.AdditionalFeeTypeMerchant
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee1))
 	time.Sleep(10 * time.Millisecond)
-	fee2 := s.newFee("002", m1, uuid.New())
+	fee2 := s.newFeeWithMerchantID("002", m1)
 	fee2.Enabled = false
 	fee2.SortOrder = 5
 	fee2.FeeType = domain.AdditionalFeeTypeStore
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee2))
 	time.Sleep(10 * time.Millisecond)
-	fee3 := s.newFee("003", m2, uuid.New())
+	fee3 := s.newFeeWithMerchantID("003", m2)
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee3))
 
 	pager := upagination.New(1, 10)
@@ -197,30 +200,23 @@ func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_GetAdditionalFees()
 
 func (s *AdditionalFeeRepositoryTestSuite) TestAdditionalFee_Exists() {
 	merchantID := uuid.New()
-	storeID := uuid.New()
-	fee := s.newFee("exists", merchantID, storeID)
+	fee := s.newFeeWithMerchantID("exists", merchantID)
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("同名存在", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.AdditionalFeeExistsParams{Name: fee.Name, MerchantID: merchantID, StoreID: storeID})
+		exists, err := s.repo.Exists(s.ctx, domain.AdditionalFeeExistsParams{Name: fee.Name, MerchantID: merchantID})
 		require.NoError(t, err)
 		require.True(t, exists)
 	})
 
 	s.T().Run("排除自身", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.AdditionalFeeExistsParams{Name: fee.Name, MerchantID: merchantID, StoreID: storeID, ExcludeID: fee.ID})
+		exists, err := s.repo.Exists(s.ctx, domain.AdditionalFeeExistsParams{Name: fee.Name, MerchantID: merchantID, ExcludeID: fee.ID})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
 
 	s.T().Run("不同商户不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.AdditionalFeeExistsParams{Name: fee.Name, MerchantID: uuid.New(), StoreID: storeID})
-		require.NoError(t, err)
-		require.False(t, exists)
-	})
-
-	s.T().Run("不同门店不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.AdditionalFeeExistsParams{Name: fee.Name, MerchantID: merchantID, StoreID: uuid.New()})
+		exists, err := s.repo.Exists(s.ctx, domain.AdditionalFeeExistsParams{Name: fee.Name, MerchantID: uuid.New()})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})

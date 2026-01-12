@@ -145,5 +145,15 @@ other = "User department type mismatch"
 [PASSWORD_CANNOT_BE_EMPTY]
 other = "Password cannot be empty"
 
+[ROLE_ASSIGNED_CANNOT_DISABLE]
+other = "Role has assigned users, cannot disable"
+
+[ROLE_ASSIGNED_CANNOT_DELETE]
+other = "Role has assigned users, cannot delete"
+
+[USER_ROLE_NOT_EXISTS]
+other = "User has no assigned roles"
+
 [TIME_FORMAT_INVALID]
 other = "Time format is invalid"
+

@@ -87,11 +87,6 @@ func SortOrder(v int) predicate.Remark {
 	return predicate.Remark(sql.FieldEQ(FieldSortOrder, v))
 }
 
-// CategoryID applies equality check predicate on the "category_id" field. It's identical to CategoryIDEQ.
-func CategoryID(v uuid.UUID) predicate.Remark {
-	return predicate.Remark(sql.FieldEQ(FieldCategoryID, v))
-}
-
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
 func MerchantID(v uuid.UUID) predicate.Remark {
 	return predicate.Remark(sql.FieldEQ(FieldMerchantID, v))
@@ -367,24 +362,34 @@ func SortOrderLTE(v int) predicate.Remark {
 	return predicate.Remark(sql.FieldLTE(FieldSortOrder, v))
 }
 
-// CategoryIDEQ applies the EQ predicate on the "category_id" field.
-func CategoryIDEQ(v uuid.UUID) predicate.Remark {
-	return predicate.Remark(sql.FieldEQ(FieldCategoryID, v))
+// RemarkSceneEQ applies the EQ predicate on the "remark_scene" field.
+func RemarkSceneEQ(v domain.RemarkScene) predicate.Remark {
+	vc := v
+	return predicate.Remark(sql.FieldEQ(FieldRemarkScene, vc))
 }
 
-// CategoryIDNEQ applies the NEQ predicate on the "category_id" field.
-func CategoryIDNEQ(v uuid.UUID) predicate.Remark {
-	return predicate.Remark(sql.FieldNEQ(FieldCategoryID, v))
+// RemarkSceneNEQ applies the NEQ predicate on the "remark_scene" field.
+func RemarkSceneNEQ(v domain.RemarkScene) predicate.Remark {
+	vc := v
+	return predicate.Remark(sql.FieldNEQ(FieldRemarkScene, vc))
 }
 
-// CategoryIDIn applies the In predicate on the "category_id" field.
-func CategoryIDIn(vs ...uuid.UUID) predicate.Remark {
-	return predicate.Remark(sql.FieldIn(FieldCategoryID, vs...))
+// RemarkSceneIn applies the In predicate on the "remark_scene" field.
+func RemarkSceneIn(vs ...domain.RemarkScene) predicate.Remark {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Remark(sql.FieldIn(FieldRemarkScene, v...))
 }
 
-// CategoryIDNotIn applies the NotIn predicate on the "category_id" field.
-func CategoryIDNotIn(vs ...uuid.UUID) predicate.Remark {
-	return predicate.Remark(sql.FieldNotIn(FieldCategoryID, vs...))
+// RemarkSceneNotIn applies the NotIn predicate on the "remark_scene" field.
+func RemarkSceneNotIn(vs ...domain.RemarkScene) predicate.Remark {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Remark(sql.FieldNotIn(FieldRemarkScene, v...))
 }
 
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
@@ -445,29 +450,6 @@ func StoreIDIsNil() predicate.Remark {
 // StoreIDNotNil applies the NotNil predicate on the "store_id" field.
 func StoreIDNotNil() predicate.Remark {
 	return predicate.Remark(sql.FieldNotNull(FieldStoreID))
-}
-
-// HasRemarkCategory applies the HasEdge predicate on the "remark_category" edge.
-func HasRemarkCategory() predicate.Remark {
-	return predicate.Remark(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, RemarkCategoryTable, RemarkCategoryColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasRemarkCategoryWith applies the HasEdge predicate on the "remark_category" edge with a given conditions (other predicates).
-func HasRemarkCategoryWith(preds ...predicate.RemarkCategory) predicate.Remark {
-	return predicate.Remark(func(s *sql.Selector) {
-		step := newRemarkCategoryStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // HasMerchant applies the HasEdge predicate on the "merchant" edge.

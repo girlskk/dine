@@ -45,22 +45,11 @@ type RemarkCategory struct {
 
 // RemarkCategoryEdges holds the relations/edges for other nodes in the graph.
 type RemarkCategoryEdges struct {
-	// Remarks holds the value of the remarks edge.
-	Remarks []*Remark `json:"remarks,omitempty"`
 	// Merchant holds the value of the merchant edge.
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// RemarksOrErr returns the Remarks value or an error if the edge
-// was not loaded in eager-loading.
-func (e RemarkCategoryEdges) RemarksOrErr() ([]*Remark, error) {
-	if e.loadedTypes[0] {
-		return e.Remarks, nil
-	}
-	return nil, &NotLoadedError{edge: "remarks"}
+	loadedTypes [1]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -68,7 +57,7 @@ func (e RemarkCategoryEdges) RemarksOrErr() ([]*Remark, error) {
 func (e RemarkCategoryEdges) MerchantOrErr() (*Merchant, error) {
 	if e.Merchant != nil {
 		return e.Merchant, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: merchant.Label}
 	}
 	return nil, &NotLoadedError{edge: "merchant"}
@@ -167,11 +156,6 @@ func (rc *RemarkCategory) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (rc *RemarkCategory) Value(name string) (ent.Value, error) {
 	return rc.selectValues.Get(name)
-}
-
-// QueryRemarks queries the "remarks" edge of the RemarkCategory entity.
-func (rc *RemarkCategory) QueryRemarks() *RemarkQuery {
-	return NewRemarkCategoryClient(rc.config).QueryRemarks(rc)
 }
 
 // QueryMerchant queries the "merchant" edge of the RemarkCategory entity.

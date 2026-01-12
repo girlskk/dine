@@ -29,7 +29,7 @@ func (s *TaxFeeRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *TaxFeeRepositoryTestSuite) newTaxFee(tag string, merchantID, storeID uuid.UUID) *domain.TaxFee {
+func (s *TaxFeeRepositoryTestSuite) newTaxFee(tag string, merchantID uuid.UUID) *domain.TaxFee {
 	return &domain.TaxFee{
 		ID:          uuid.New(),
 		Name:        "税费-" + tag,
@@ -39,13 +39,13 @@ func (s *TaxFeeRepositoryTestSuite) newTaxFee(tag string, merchantID, storeID uu
 		TaxRate:     decimal.NewFromFloat(0.06),
 		DefaultTax:  true,
 		MerchantID:  merchantID,
-		StoreID:     storeID,
+		StoreID:     uuid.New(),
 	}
 }
 
 func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
-		fee := s.newTaxFee("create", uuid.New(), uuid.Nil)
+		fee := s.newTaxFee("create", uuid.New())
 
 		err := s.repo.Create(s.ctx, fee)
 		require.NoError(t, err)
@@ -63,7 +63,7 @@ func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Create() {
 }
 
 func (s *TaxFeeRepositoryTestSuite) TestTaxFee_FindByID() {
-	fee := s.newTaxFee("find", uuid.New(), uuid.Nil)
+	fee := s.newTaxFee("find", uuid.New())
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("查询成功", func(t *testing.T) {
@@ -81,7 +81,7 @@ func (s *TaxFeeRepositoryTestSuite) TestTaxFee_FindByID() {
 }
 
 func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Update() {
-	fee := s.newTaxFee("update", uuid.New(), uuid.Nil)
+	fee := s.newTaxFee("update", uuid.New())
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("更新成功", func(t *testing.T) {
@@ -99,7 +99,7 @@ func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Update() {
 	})
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
-		missing := s.newTaxFee("missing", uuid.New(), uuid.Nil)
+		missing := s.newTaxFee("missing", uuid.New())
 		err := s.repo.Update(s.ctx, missing)
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
@@ -112,7 +112,7 @@ func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Update() {
 }
 
 func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Delete() {
-	fee := s.newTaxFee("delete", uuid.New(), uuid.Nil)
+	fee := s.newTaxFee("delete", uuid.New())
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("删除成功", func(t *testing.T) {
@@ -132,14 +132,14 @@ func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Delete() {
 func (s *TaxFeeRepositoryTestSuite) TestTaxFee_GetTaxFees() {
 	m1 := uuid.New()
 	m2 := uuid.New()
-	fee1 := s.newTaxFee("001", m1, uuid.New())
+	fee1 := s.newTaxFee("001", m1)
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee1))
 	time.Sleep(10 * time.Millisecond)
-	fee2 := s.newTaxFee("002", m1, uuid.New())
+	fee2 := s.newTaxFee("002", m1)
 	fee2.DefaultTax = false
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee2))
 	time.Sleep(10 * time.Millisecond)
-	fee3 := s.newTaxFee("003", m2, uuid.New())
+	fee3 := s.newTaxFee("003", m2)
 	fee3.TaxFeeType = domain.TaxFeeTypeMerchant
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee3))
 
@@ -185,30 +185,23 @@ func (s *TaxFeeRepositoryTestSuite) TestTaxFee_GetTaxFees() {
 
 func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Exists() {
 	merchantID := uuid.New()
-	storeID := uuid.New()
-	fee := s.newTaxFee("exists", merchantID, storeID)
+	fee := s.newTaxFee("exists", merchantID)
 	require.NoError(s.T(), s.repo.Create(s.ctx, fee))
 
 	s.T().Run("同名存在", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.TaxFeeExistsParams{Name: fee.Name, MerchantID: merchantID, StoreID: storeID})
+		exists, err := s.repo.Exists(s.ctx, domain.TaxFeeExistsParams{Name: fee.Name, MerchantID: merchantID})
 		require.NoError(t, err)
 		require.True(t, exists)
 	})
 
 	s.T().Run("排除自身", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.TaxFeeExistsParams{Name: fee.Name, MerchantID: merchantID, StoreID: storeID, ExcludeID: fee.ID})
+		exists, err := s.repo.Exists(s.ctx, domain.TaxFeeExistsParams{Name: fee.Name, MerchantID: merchantID, ExcludeID: fee.ID})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
 
 	s.T().Run("不同商户不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.TaxFeeExistsParams{Name: fee.Name, MerchantID: uuid.New(), StoreID: storeID})
-		require.NoError(t, err)
-		require.False(t, exists)
-	})
-
-	s.T().Run("不同门店不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.TaxFeeExistsParams{Name: fee.Name, MerchantID: merchantID, StoreID: uuid.New()})
+		exists, err := s.repo.Exists(s.ctx, domain.TaxFeeExistsParams{Name: fee.Name, MerchantID: uuid.New()})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})

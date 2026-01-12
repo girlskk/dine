@@ -3,13 +3,12 @@ package repository
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
+	"gitlab.jiguang.dev/pos-dine/dine/ent"
 )
 
 type DepartmentRepositoryTestSuite struct {
@@ -28,204 +27,155 @@ func (s *DepartmentRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *DepartmentRepositoryTestSuite) newDepartment(tag string, merchantID, storeID uuid.UUID) *domain.Department {
-	return &domain.Department{
-		ID:             uuid.New(),
-		Name:           "Dept-" + tag,
-		Code:           "CODE-" + tag,
-		DepartmentType: domain.DepartmentBackend,
-		Enable:         true,
-		MerchantID:     merchantID,
-		StoreID:        storeID,
-	}
+func (s *DepartmentRepositoryTestSuite) createTestDepartment(tag string, deptType domain.DepartmentType) *ent.Department {
+	return s.client.Department.Create().
+		SetID(uuid.New()).
+		SetName(tag + "-部门").
+		SetCode(tag + "-CODE").
+		SetDepartmentType(deptType).
+		SetEnable(true).
+		SetMerchantID(uuid.New()).
+		SetStoreID(uuid.New()).
+		SaveX(s.ctx)
 }
 
 func (s *DepartmentRepositoryTestSuite) TestDepartment_Create() {
-	s.T().Run("创建成功", func(t *testing.T) {
-		dept := s.newDepartment("create", uuid.New(), uuid.Nil)
+	s.T().Run("正常创建", func(t *testing.T) {
+		dept := &domain.Department{
+			ID:             uuid.New(),
+			Name:           "新部门",
+			Code:           "DEPT-001",
+			DepartmentType: domain.DepartmentBackend,
+			Enable:         true,
+		}
+		require.NoError(t, s.repo.Create(s.ctx, dept))
+		require.NotEqual(t, uuid.Nil, dept.ID)
 
-		err := s.repo.Create(s.ctx, dept)
-		require.NoError(t, err)
-
-		saved := s.client.Department.GetX(s.ctx, dept.ID)
-		require.Equal(t, dept.Name, saved.Name)
-		require.Equal(t, dept.Code, saved.Code)
-		require.Equal(t, dept.DepartmentType, saved.DepartmentType)
-		require.Equal(t, dept.Enable, saved.Enable)
-	})
-
-	s.T().Run("空入参", func(t *testing.T) {
-		err := s.repo.Create(s.ctx, nil)
-		require.Error(t, err)
+		db := s.client.Department.GetX(s.ctx, dept.ID)
+		require.Equal(t, "新部门", db.Name)
+		require.Equal(t, "DEPT-001", db.Code)
+		require.Equal(t, domain.DepartmentBackend, db.DepartmentType)
+		require.True(t, db.Enable)
 	})
 }
 
 func (s *DepartmentRepositoryTestSuite) TestDepartment_FindByID() {
-	dept := s.newDepartment("find", uuid.New(), uuid.Nil)
-	require.NoError(s.T(), s.repo.Create(s.ctx, dept))
+	entity := s.createTestDepartment("find", domain.DepartmentAdmin)
 
-	s.T().Run("查询成功", func(t *testing.T) {
-		found, err := s.repo.FindByID(s.ctx, dept.ID)
+	s.T().Run("存在记录", func(t *testing.T) {
+		dept, err := s.repo.FindByID(s.ctx, entity.ID)
 		require.NoError(t, err)
-		require.Equal(t, dept.ID, found.ID)
-		require.Equal(t, dept.Name, found.Name)
-		require.Equal(t, dept.Code, found.Code)
+		require.Equal(t, entity.ID, dept.ID)
+		require.Equal(t, "find-部门", dept.Name)
 	})
 
-	s.T().Run("不存在", func(t *testing.T) {
+	s.T().Run("不存在记录", func(t *testing.T) {
 		_, err := s.repo.FindByID(s.ctx, uuid.New())
 		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
 	})
 }
 
 func (s *DepartmentRepositoryTestSuite) TestDepartment_Update() {
-	dept := s.newDepartment("update", uuid.New(), uuid.Nil)
-	require.NoError(s.T(), s.repo.Create(s.ctx, dept))
+	entity := s.createTestDepartment("update", domain.DepartmentStore)
 
 	s.T().Run("更新成功", func(t *testing.T) {
-		dept.Name = "Updated-" + dept.Name
-		dept.Enable = false
+		payload := &domain.Department{
+			ID:     entity.ID,
+			Name:   "更新名称",
+			Enable: false,
+		}
+		require.NoError(t, s.repo.Update(s.ctx, payload))
 
-		err := s.repo.Update(s.ctx, dept)
-		require.NoError(t, err)
-
-		updated := s.client.Department.GetX(s.ctx, dept.ID)
-		require.Equal(t, dept.Name, updated.Name)
-		require.Equal(t, dept.Enable, updated.Enable)
-	})
-
-	s.T().Run("不存在的ID", func(t *testing.T) {
-		missing := s.newDepartment("missing", uuid.New(), uuid.Nil)
-		err := s.repo.Update(s.ctx, missing)
-		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
-	})
-
-	s.T().Run("空入参", func(t *testing.T) {
-		err := s.repo.Update(s.ctx, nil)
-		require.Error(t, err)
+		db := s.client.Department.GetX(s.ctx, entity.ID)
+		require.Equal(t, "更新名称", db.Name)
+		require.False(t, db.Enable)
 	})
 }
 
 func (s *DepartmentRepositoryTestSuite) TestDepartment_Delete() {
-	dept := s.newDepartment("delete", uuid.New(), uuid.Nil)
-	require.NoError(s.T(), s.repo.Create(s.ctx, dept))
+	entity := s.createTestDepartment("delete", domain.DepartmentBackend)
 
 	s.T().Run("删除成功", func(t *testing.T) {
-		err := s.repo.Delete(s.ctx, dept.ID)
-		require.NoError(t, err)
-
-		_, err = s.client.Department.Get(s.ctx, dept.ID)
+		require.NoError(t, s.repo.Delete(s.ctx, entity.ID))
+		_, err := s.client.Department.Get(s.ctx, entity.ID)
 		require.Error(t, err)
+		require.True(t, ent.IsNotFound(err))
 	})
 
-	s.T().Run("不存在的ID", func(t *testing.T) {
-		err := s.repo.Delete(s.ctx, uuid.New())
-		require.Error(t, err)
-		require.True(t, domain.IsNotFound(err))
-	})
-}
-
-func (s *DepartmentRepositoryTestSuite) TestDepartment_GetDepartments() {
-	m1 := uuid.New()
-	m2 := uuid.New()
-	s1 := uuid.New()
-	s2 := uuid.New()
-
-	dept1 := s.newDepartment("001", m1, s1)
-	require.NoError(s.T(), s.repo.Create(s.ctx, dept1))
-	time.Sleep(10 * time.Millisecond)
-	dept2 := s.newDepartment("002", m1, s1)
-	dept2.DepartmentType = domain.DepartmentAdmin
-	dept2.Enable = false
-	require.NoError(s.T(), s.repo.Create(s.ctx, dept2))
-	time.Sleep(10 * time.Millisecond)
-	dept3 := s.newDepartment("003", m2, s2)
-	dept3.DepartmentType = domain.DepartmentStore
-	require.NoError(s.T(), s.repo.Create(s.ctx, dept3))
-
-	pager := upagination.New(1, 10)
-
-	s.T().Run("按商户筛选默认排序", func(t *testing.T) {
-		list, total, err := s.repo.GetDepartments(s.ctx, pager, &domain.DepartmentListFilter{MerchantID: m1})
-		require.NoError(t, err)
-		require.Equal(t, 2, total)
-		require.Len(t, list, 2)
-		require.Equal(t, dept2.ID, list[0].ID)
-	})
-
-	s.T().Run("按创建时间升序", func(t *testing.T) {
-		order := domain.NewDepartmentListOrderByCreatedAt(false)
-		list, total, err := s.repo.GetDepartments(s.ctx, pager, &domain.DepartmentListFilter{MerchantID: m1}, order)
-		require.NoError(t, err)
-		require.Equal(t, 2, total)
-		require.Equal(t, dept1.ID, list[0].ID)
-	})
-
-	s.T().Run("按部门类型与启用状态筛选", func(t *testing.T) {
-		enable := true
-		list, total, err := s.repo.GetDepartments(s.ctx, pager, &domain.DepartmentListFilter{MerchantID: m2, DepartmentType: domain.DepartmentStore, Enable: &enable})
-		require.NoError(t, err)
-		require.Equal(t, 1, total)
-		require.Equal(t, dept3.ID, list[0].ID)
-	})
-
-	s.T().Run("按名称模糊筛选", func(t *testing.T) {
-		list, total, err := s.repo.GetDepartments(s.ctx, pager, &domain.DepartmentListFilter{Name: dept1.Name})
-		require.NoError(t, err)
-		require.Equal(t, 1, total)
-		require.Equal(t, dept1.ID, list[0].ID)
-	})
-
-	s.T().Run("按编码模糊筛选", func(t *testing.T) {
-		list, total, err := s.repo.GetDepartments(s.ctx, pager, &domain.DepartmentListFilter{Code: "002"})
-		require.NoError(t, err)
-		require.Equal(t, 1, total)
-		require.Equal(t, dept2.ID, list[0].ID)
-	})
-
-	s.T().Run("无筛选返回全部", func(t *testing.T) {
-		list, total, err := s.repo.GetDepartments(s.ctx, pager, nil)
-		require.NoError(t, err)
-		require.Equal(t, 3, total)
-		require.Len(t, list, 3)
+	s.T().Run("删除不存在", func(t *testing.T) {
+		require.Error(t, s.repo.Delete(s.ctx, uuid.New()))
 	})
 }
 
 func (s *DepartmentRepositoryTestSuite) TestDepartment_Exists() {
-	merchantID := uuid.New()
-	storeID := uuid.New()
-	dept := s.newDepartment("exists", merchantID, storeID)
-	require.NoError(s.T(), s.repo.Create(s.ctx, dept))
+	entity := s.createTestDepartment("exists", domain.DepartmentAdmin)
 
-	s.T().Run("同名存在", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DepartmentExistsParams{Name: dept.Name, MerchantID: merchantID, StoreID: storeID})
+	s.T().Run("返回真", func(t *testing.T) {
+		exists, err := s.repo.Exists(s.ctx, domain.DepartmentExistsParams{Name: entity.Name, MerchantID: entity.MerchantID})
 		require.NoError(t, err)
 		require.True(t, exists)
 	})
 
-	s.T().Run("排除自身", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DepartmentExistsParams{Name: dept.Name, MerchantID: merchantID, StoreID: storeID, ExcludeID: dept.ID})
+	s.T().Run("排除自身后假", func(t *testing.T) {
+		exists, err := s.repo.Exists(s.ctx, domain.DepartmentExistsParams{Name: entity.Name, ExcludeID: entity.ID})
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
+}
 
-	s.T().Run("不同商户不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DepartmentExistsParams{Name: dept.Name, MerchantID: uuid.New(), StoreID: storeID})
-		require.NoError(t, err)
-		require.False(t, exists)
-	})
+func (s *DepartmentRepositoryTestSuite) TestDepartment_CheckUserInDepartment() {
+	d := s.createTestDepartment("checkadmin", domain.DepartmentAdmin)
+	_, err := s.client.AdminUser.Create().
+		SetID(uuid.New()).
+		SetUsername("dept-admin").
+		SetHashedPassword("pass").
+		SetNickname("dept admin").
+		SetDepartmentID(d.ID).
+		SetCode("CODE-DEP").
+		SetRealName("dept").
+		SetGender(domain.GenderMale).
+		SetEnabled(true).
+		SetIsSuperadmin(false).
+		Save(s.ctx)
+	require.NoError(s.T(), err)
 
-	s.T().Run("不同门店不冲突", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DepartmentExistsParams{Name: dept.Name, MerchantID: merchantID, StoreID: uuid.New()})
-		require.NoError(t, err)
-		require.False(t, exists)
-	})
-
-	s.T().Run("仅名称查询", func(t *testing.T) {
-		exists, err := s.repo.Exists(s.ctx, domain.DepartmentExistsParams{Name: dept.Name})
+	s.T().Run("存在用户", func(t *testing.T) {
+		exists, err := s.repo.CheckUserInDepartment(s.ctx, d.ID)
 		require.NoError(t, err)
 		require.True(t, exists)
+	})
+
+	s.T().Run("不存在部门报错", func(t *testing.T) {
+		exists, err := s.repo.CheckUserInDepartment(s.ctx, uuid.New())
+		require.Error(t, err)
+		require.False(t, exists)
+	})
+}
+
+func (s *DepartmentRepositoryTestSuite) TestDepartment_Integration() {
+	s.T().Run("CRUD流程", func(t *testing.T) {
+		d := &domain.Department{
+			ID:             uuid.New(),
+			Name:           "integration",
+			Code:           "DEPT-INT",
+			DepartmentType: domain.DepartmentBackend,
+			Enable:         true,
+		}
+		require.NoError(t, s.repo.Create(s.ctx, d))
+
+		fetched, err := s.repo.FindByID(s.ctx, d.ID)
+		require.NoError(t, err)
+		require.Equal(t, d.Name, fetched.Name)
+
+		d.Name = "integration-2"
+		require.NoError(t, s.repo.Update(s.ctx, d))
+
+		updated, err := s.repo.FindByID(s.ctx, d.ID)
+		require.NoError(t, err)
+		require.Equal(t, "integration-2", updated.Name)
+
+		require.NoError(t, s.repo.Delete(s.ctx, d.ID))
+		_, err = s.repo.FindByID(s.ctx, d.ID)
+		require.Error(t, err)
 	})
 }

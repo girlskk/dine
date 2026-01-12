@@ -60,8 +60,6 @@ func (RemarkCategory) Indexes() []ent.Index {
 // Edges of the RemarkCategory.
 func (RemarkCategory) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("remarks", Remark.Type),
-
 		edge.From("merchant", Merchant.Type).
 			Ref("remark_categories").
 			Field("merchant_id").
