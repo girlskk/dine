@@ -11,7 +11,6 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
-	upagination "gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // MockRouterMenuInteractor is a mock of RouterMenuInteractor interface.
@@ -81,10 +80,10 @@ func (mr *MockRouterMenuInteractorMockRecorder) GetRouterMenu(arg0, arg1 interfa
 }
 
 // GetRouterMenus mocks base method.
-func (m *MockRouterMenuInteractor) GetRouterMenus(arg0 context.Context, arg1 *upagination.Pagination, arg2 *domain.RouterMenuListFilter, arg3 ...domain.RouterMenuListOrderBy) ([]*domain.RouterMenu, int, error) {
+func (m *MockRouterMenuInteractor) GetRouterMenus(arg0 context.Context, arg1 *domain.RouterMenuListFilter, arg2 ...domain.RouterMenuListOrderBy) ([]*domain.RouterMenu, int, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1, arg2}
-	for _, a := range arg3 {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetRouterMenus", varargs...)
@@ -95,9 +94,9 @@ func (m *MockRouterMenuInteractor) GetRouterMenus(arg0 context.Context, arg1 *up
 }
 
 // GetRouterMenus indicates an expected call of GetRouterMenus.
-func (mr *MockRouterMenuInteractorMockRecorder) GetRouterMenus(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+func (mr *MockRouterMenuInteractorMockRecorder) GetRouterMenus(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouterMenus", reflect.TypeOf((*MockRouterMenuInteractor)(nil).GetRouterMenus), varargs...)
 }
 

@@ -47,6 +47,7 @@ func (Store) Fields() []ent.Field {
 			GoType(domain.BusinessModel("")).
 			Comment("经营模式：直营 加盟"),
 		field.String("business_type_code").
+			GoType(domain.BusinessType("")).
 			Comment("业态类型"),
 		field.String("location_number").
 			NotEmpty().
@@ -104,18 +105,14 @@ func (Store) Fields() []ent.Field {
 		field.JSON("shift_times", []domain.ShiftTime{}).
 			Comment("班次时间，JSON格式存储"),
 		// 地区信息
-		field.UUID("country_id", uuid.UUID{}).
+		field.Enum("country").
+			GoType(domain.Country("")).
 			Optional().
-			Comment("国家/地区id"),
-		field.UUID("province_id", uuid.UUID{}).
+			Comment("国家/地区"),
+		field.Enum("province").
+			GoType(domain.Province("")).
 			Optional().
-			Comment("省份 id"),
-		field.UUID("city_id", uuid.UUID{}).
-			Optional().
-			Comment("城市 id"),
-		field.UUID("district_id", uuid.UUID{}).
-			Optional().
-			Comment("区县 id"),
+			Comment("省份"),
 		field.String("address").
 			Optional().
 			Default("").
@@ -147,23 +144,6 @@ func (Store) Edges() []ent.Edge {
 			Unique().
 			Immutable().
 			Required(),
-		// 地区关联（绑定已有外键字段）
-		edge.From("country", Country.Type).
-			Ref("stores").
-			Field("country_id").
-			Unique(),
-		edge.From("province", Province.Type).
-			Ref("stores").
-			Field("province_id").
-			Unique(),
-		edge.From("city", City.Type).
-			Ref("stores").
-			Field("city_id").
-			Unique(),
-		edge.From("district", District.Type).
-			Ref("stores").
-			Field("district_id").
-			Unique(),
 		edge.To("store_users", StoreUser.Type),
 		edge.To("remarks", Remark.Type),
 		edge.To("stalls", Stall.Type),

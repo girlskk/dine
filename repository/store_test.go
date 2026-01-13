@@ -42,36 +42,7 @@ func (s *StoreRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *StoreRepositoryTestSuite) createLocation(tag string) storeLocation {
-	countryName := "国家-" + tag
-	country := s.client.Country.Create().SetName(countryName).SaveX(s.ctx)
-
-	provinceName := "省份-" + tag
-	province := s.client.Province.Create().SetCountry(country).SetName(provinceName).SaveX(s.ctx)
-
-	cityName := "城市-" + tag
-	city := s.client.City.Create().SetCountry(country).SetProvince(province).SetName(cityName).SaveX(s.ctx)
-
-	districtName := "区域-" + tag
-	district := s.client.District.Create().SetCountry(country).SetProvince(province).SetCity(city).SetName(districtName).SaveX(s.ctx)
-
-	return storeLocation{
-		countryID:    country.ID,
-		provinceID:   province.ID,
-		cityID:       city.ID,
-		districtID:   district.ID,
-		countryName:  countryName,
-		provinceName: provinceName,
-		cityName:     cityName,
-		districtName: districtName,
-	}
-}
-
-func (s *StoreRepositoryTestSuite) createBusinessType(tag string) *ent.MerchantBusinessType {
-	return s.client.MerchantBusinessType.Create().SetTypeCode("bt-" + tag).SetTypeName("业态-" + tag).SaveX(s.ctx)
-}
-
-func (s *StoreRepositoryTestSuite) createMerchant(tag string, loc storeLocation, bt *ent.MerchantBusinessType) *ent.Merchant {
+func (s *StoreRepositoryTestSuite) createMerchant(tag string) *ent.Merchant {
 	return s.client.Merchant.Create().
 		SetID(uuid.New()).
 		SetMerchantCode("MC-" + tag).
@@ -80,22 +51,20 @@ func (s *StoreRepositoryTestSuite) createMerchant(tag string, loc storeLocation,
 		SetMerchantType(domain.MerchantTypeBrand).
 		SetBrandName("品牌-" + tag).
 		SetAdminPhoneNumber("13800000000").
-		SetBusinessTypeCode(bt.TypeCode).
+		SetBusinessTypeCode(domain.BusinessTypeBakery).
 		SetMerchantLogo("logo-" + tag).
 		SetDescription("描述-" + tag).
 		SetStatus(domain.MerchantStatusActive).
 		SetSuperAccount("account-" + tag).
-		SetCountryID(loc.countryID).
-		SetProvinceID(loc.provinceID).
-		SetCityID(loc.cityID).
-		SetDistrictID(loc.districtID).
+		SetCountry(domain.CountryMY).
+		SetProvince(domain.ProvinceMY01).
 		SetAddress("地址-" + tag).
 		SetLng("120.00").
 		SetLat("30.00").
 		SaveX(s.ctx)
 }
 
-func (s *StoreRepositoryTestSuite) newDomainStore(tag string, merchant *ent.Merchant, loc storeLocation, bt *ent.MerchantBusinessType) *domain.Store {
+func (s *StoreRepositoryTestSuite) newDomainStore(tag string, merchant *ent.Merchant) *domain.Store {
 	return &domain.Store{
 		ID:                      uuid.New(),
 		MerchantID:              merchant.ID,
@@ -105,7 +74,7 @@ func (s *StoreRepositoryTestSuite) newDomainStore(tag string, merchant *ent.Merc
 		StoreCode:               "SC-" + tag,
 		Status:                  domain.StoreStatusOpen,
 		BusinessModel:           domain.BusinessModelDirect,
-		BusinessTypeCode:        bt.TypeCode,
+		BusinessTypeCode:        domain.BusinessTypeBakery,
 		LocationNumber:          "L-" + tag,
 		ContactName:             "联系人-" + tag,
 		ContactPhone:            "1370000" + tag[len(tag)-4:],
@@ -121,13 +90,11 @@ func (s *StoreRepositoryTestSuite) newDomainStore(tag string, merchant *ent.Merc
 		DiningPeriods:           []domain.DiningPeriod{{Name: "午餐", StartTime: "11:00:00", EndTime: "13:00:00"}},
 		ShiftTimes:              []domain.ShiftTime{{Name: "早班", StartTime: "09:00:00", EndTime: "15:00:00"}},
 		Address: &domain.Address{
-			CountryID:  loc.countryID,
-			ProvinceID: loc.provinceID,
-			CityID:     loc.cityID,
-			DistrictID: loc.districtID,
-			Address:    "门店地址-" + tag,
-			Lng:        "121.00",
-			Lat:        "31.00",
+			Country:  domain.CountryMY,
+			Province: domain.ProvinceMY01,
+			Address:  "门店地址-" + tag,
+			Lng:      "121.00",
+			Lat:      "31.00",
 		},
 	}
 }
@@ -135,10 +102,9 @@ func (s *StoreRepositoryTestSuite) newDomainStore(tag string, merchant *ent.Merc
 func (s *StoreRepositoryTestSuite) TestStore_Create() {
 	s.T().Run("创建成功", func(t *testing.T) {
 		tag := "create-test"
-		loc := s.createLocation(tag)
-		bt := s.createBusinessType(tag)
-		merchant := s.createMerchant(tag, loc, bt)
-		store := s.newDomainStore(tag, merchant, loc, bt)
+
+		merchant := s.createMerchant(tag)
+		store := s.newDomainStore(tag, merchant)
 
 		err := s.repo.Create(s.ctx, store)
 		require.NoError(t, err)
@@ -158,10 +124,8 @@ func (s *StoreRepositoryTestSuite) TestStore_Create() {
 
 	s.T().Run("地址为空", func(t *testing.T) {
 		tag := "create-no-address"
-		loc := s.createLocation(tag)
-		bt := s.createBusinessType(tag)
-		merchant := s.createMerchant(tag, loc, bt)
-		store := s.newDomainStore(tag, merchant, loc, bt)
+		merchant := s.createMerchant(tag)
+		store := s.newDomainStore(tag, merchant)
 		store.Address = nil
 
 		err := s.repo.Create(s.ctx, store)
@@ -171,15 +135,13 @@ func (s *StoreRepositoryTestSuite) TestStore_Create() {
 
 func (s *StoreRepositoryTestSuite) TestStore_Update() {
 	tag := "update-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant := s.createMerchant(tag, loc, bt)
-	store := s.newDomainStore(tag, merchant, loc, bt)
+
+	merchant := s.createMerchant(tag)
+	store := s.newDomainStore(tag, merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store))
 
-	newBT := s.createBusinessType("new-" + tag)
 	store.StoreName = "更新-" + store.StoreName
-	store.BusinessTypeCode = newBT.TypeCode
+	store.BusinessTypeCode = domain.BusinessTypeChineseFood
 	store.Address.Address = "新地址-" + tag
 	store.Address.Lng = "122.00"
 	store.Address.Lat = "32.00"
@@ -190,10 +152,10 @@ func (s *StoreRepositoryTestSuite) TestStore_Update() {
 	updated := s.client.Store.GetX(s.ctx, store.ID)
 	require.Equal(s.T(), store.StoreName, updated.StoreName)
 	require.Equal(s.T(), store.Address.Address, updated.Address)
-	require.Equal(s.T(), newBT.TypeCode, updated.BusinessTypeCode)
+	require.Equal(s.T(), domain.BusinessTypeChineseFood, updated.BusinessTypeCode)
 
 	s.T().Run("不存在的ID", func(t *testing.T) {
-		missing := s.newDomainStore("missing"+tag, merchant, loc, bt)
+		missing := s.newDomainStore("missing"+tag, merchant)
 		err := s.repo.Update(s.ctx, missing)
 		require.Error(t, err)
 		require.True(t, domain.IsNotFound(err))
@@ -213,10 +175,8 @@ func (s *StoreRepositoryTestSuite) TestStore_Update() {
 
 func (s *StoreRepositoryTestSuite) TestStore_Delete() {
 	tag := "delete-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant := s.createMerchant(tag, loc, bt)
-	store := s.newDomainStore(tag, merchant, loc, bt)
+	merchant := s.createMerchant(tag)
+	store := s.newDomainStore(tag, merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store))
 
 	err := s.repo.Delete(s.ctx, store.ID)
@@ -232,17 +192,14 @@ func (s *StoreRepositoryTestSuite) TestStore_Delete() {
 
 func (s *StoreRepositoryTestSuite) TestStore_FindByID() {
 	tag := "find-by-id-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant := s.createMerchant(tag, loc, bt)
-	store := s.newDomainStore(tag, merchant, loc, bt)
+	merchant := s.createMerchant(tag)
+	store := s.newDomainStore(tag, merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store))
 
 	found, err := s.repo.FindByID(s.ctx, store.ID)
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), store.StoreName, found.StoreName)
 	require.Equal(s.T(), store.Address.Address, found.Address.Address)
-	require.Equal(s.T(), loc.cityID, found.Address.CityID)
 
 	_, err = s.repo.FindByID(s.ctx, uuid.New())
 	require.Error(s.T(), err)
@@ -251,10 +208,8 @@ func (s *StoreRepositoryTestSuite) TestStore_FindByID() {
 
 func (s *StoreRepositoryTestSuite) TestStore_FindStoreMerchant() {
 	tag := "find-store-merchant-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant := s.createMerchant(tag, loc, bt)
-	store := s.newDomainStore(tag, merchant, loc, bt)
+	merchant := s.createMerchant(tag)
+	store := s.newDomainStore(tag, merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store))
 
 	found, err := s.repo.FindStoreMerchant(s.ctx, merchant.ID)
@@ -271,14 +226,12 @@ func (s *StoreRepositoryTestSuite) TestStore_FindStoreMerchant() {
 
 func (s *StoreRepositoryTestSuite) TestStore_GetStores() {
 	tag := "get-stores-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant := s.createMerchant(tag, loc, bt)
 
-	store1 := s.newDomainStore(tag+"-1", merchant, loc, bt)
+	merchant := s.createMerchant(tag)
+	store1 := s.newDomainStore(tag+"-1", merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store1))
 	time.Sleep(10 * time.Millisecond)
-	store2 := s.newDomainStore(tag+"-2", merchant, loc, bt)
+	store2 := s.newDomainStore(tag+"-2", merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store2))
 
 	pager := upagination.New(1, 10)
@@ -314,10 +267,9 @@ func (s *StoreRepositoryTestSuite) TestStore_GetStores() {
 
 func (s *StoreRepositoryTestSuite) TestStore_ExistsStore() {
 	tag := "exists-store-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant := s.createMerchant(tag, loc, bt)
-	store := s.newDomainStore(tag, merchant, loc, bt)
+
+	merchant := s.createMerchant(tag)
+	store := s.newDomainStore(tag, merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store))
 
 	exists, err := s.repo.ExistsStore(s.ctx, &domain.ExistsStoreParams{StoreName: store.StoreName})
@@ -338,14 +290,11 @@ func (s *StoreRepositoryTestSuite) TestStore_ExistsStore() {
 
 func (s *StoreRepositoryTestSuite) TestStore_CountStoresByMerchantID() {
 	tag := "count-store-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant1 := s.createMerchant(tag+"-1", loc, bt)
-	merchant2 := s.createMerchant(tag+"-2", loc, bt)
-
-	store1 := s.newDomainStore(tag+"-1", merchant1, loc, bt)
-	store2 := s.newDomainStore(tag+"-2", merchant1, loc, bt)
-	store3 := s.newDomainStore(tag+"-3", merchant2, loc, bt)
+	merchant1 := s.createMerchant(tag + "-1")
+	merchant2 := s.createMerchant(tag + "-2")
+	store1 := s.newDomainStore(tag+"-1", merchant1)
+	store2 := s.newDomainStore(tag+"-2", merchant1)
+	store3 := s.newDomainStore(tag+"-3", merchant2)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store1))
 	require.NoError(s.T(), s.repo.Create(s.ctx, store2))
 	require.NoError(s.T(), s.repo.Create(s.ctx, store3))
@@ -370,12 +319,10 @@ func (s *StoreRepositoryTestSuite) TestStore_CountStoresByMerchantID() {
 
 func (s *StoreRepositoryTestSuite) TestStore_ListByIDs() {
 	tag := "list-by-ids-test"
-	loc := s.createLocation(tag)
-	bt := s.createBusinessType(tag)
-	merchant := s.createMerchant(tag, loc, bt)
+	merchant := s.createMerchant(tag)
 
-	store1 := s.newDomainStore(tag+"-1", merchant, loc, bt)
-	store2 := s.newDomainStore(tag+"-2", merchant, loc, bt)
+	store1 := s.newDomainStore(tag+"-1", merchant)
+	store2 := s.newDomainStore(tag+"-2", merchant)
 	require.NoError(s.T(), s.repo.Create(s.ctx, store1))
 	require.NoError(s.T(), s.repo.Create(s.ctx, store2))
 

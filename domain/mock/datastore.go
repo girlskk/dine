@@ -131,20 +131,6 @@ func (mr *MockDataStoreMockRecorder) CategoryRepo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CategoryRepo", reflect.TypeOf((*MockDataStore)(nil).CategoryRepo))
 }
 
-// CountryRepo mocks base method.
-func (m *MockDataStore) CountryRepo() domain.CountryRepository {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CountryRepo")
-	ret0, _ := ret[0].(domain.CountryRepository)
-	return ret0
-}
-
-// CountryRepo indicates an expected call of CountryRepo.
-func (mr *MockDataStoreMockRecorder) CountryRepo() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountryRepo", reflect.TypeOf((*MockDataStore)(nil).CountryRepo))
-}
-
 // DepartmentRepo mocks base method.
 func (m *MockDataStore) DepartmentRepo() domain.DepartmentRepository {
 	m.ctrl.T.Helper()
@@ -199,20 +185,6 @@ func (m *MockDataStore) MenuRepo() domain.MenuRepository {
 func (mr *MockDataStoreMockRecorder) MenuRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MenuRepo", reflect.TypeOf((*MockDataStore)(nil).MenuRepo))
-}
-
-// MerchantBusinessTypeRepo mocks base method.
-func (m *MockDataStore) MerchantBusinessTypeRepo() domain.MerchantBusinessTypeRepository {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MerchantBusinessTypeRepo")
-	ret0, _ := ret[0].(domain.MerchantBusinessTypeRepository)
-	return ret0
-}
-
-// MerchantBusinessTypeRepo indicates an expected call of MerchantBusinessTypeRepo.
-func (mr *MockDataStoreMockRecorder) MerchantBusinessTypeRepo() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantBusinessTypeRepo", reflect.TypeOf((*MockDataStore)(nil).MerchantBusinessTypeRepo))
 }
 
 // MerchantRenewalRepo mocks base method.
@@ -423,34 +395,6 @@ func (m *MockDataStore) ProfitDistributionRuleRepo() domain.ProfitDistributionRu
 func (mr *MockDataStoreMockRecorder) ProfitDistributionRuleRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProfitDistributionRuleRepo", reflect.TypeOf((*MockDataStore)(nil).ProfitDistributionRuleRepo))
-}
-
-// ProvinceRepo mocks base method.
-func (m *MockDataStore) ProvinceRepo() domain.ProvinceRepository {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProvinceRepo")
-	ret0, _ := ret[0].(domain.ProvinceRepository)
-	return ret0
-}
-
-// ProvinceRepo indicates an expected call of ProvinceRepo.
-func (mr *MockDataStoreMockRecorder) ProvinceRepo() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProvinceRepo", reflect.TypeOf((*MockDataStore)(nil).ProvinceRepo))
-}
-
-// RemarkCategoryRepo mocks base method.
-func (m *MockDataStore) RemarkCategoryRepo() domain.RemarkCategoryRepository {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemarkCategoryRepo")
-	ret0, _ := ret[0].(domain.RemarkCategoryRepository)
-	return ret0
-}
-
-// RemarkCategoryRepo indicates an expected call of RemarkCategoryRepo.
-func (mr *MockDataStoreMockRecorder) RemarkCategoryRepo() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemarkCategoryRepo", reflect.TypeOf((*MockDataStore)(nil).RemarkCategoryRepo))
 }
 
 // RemarkRepo mocks base method.

@@ -22,17 +22,13 @@ type DataStore interface {
 	MerchantRepo() MerchantRepository
 	StoreRepo() StoreRepository
 	MerchantRenewalRepo() MerchantRenewalRepository
-	MerchantBusinessTypeRepo() MerchantBusinessTypeRepository
 	RemarkRepo() RemarkRepository
-	RemarkCategoryRepo() RemarkCategoryRepository
 	OrderRepo() OrderRepository
 	MenuRepo() MenuRepository
 	StallRepo() StallRepository
 	AdditionalFeeRepo() AdditionalFeeRepository
 	TaxFeeRepo() TaxFeeRepository
 	DeviceRepo() DeviceRepository
-	CountryRepo() CountryRepository
-	ProvinceRepo() ProvinceRepository
 	DepartmentRepo() DepartmentRepository
 	PaymentMethodRepo() PaymentMethodRepository
 	ProfitDistributionBillRepo() ProfitDistributionBillRepository

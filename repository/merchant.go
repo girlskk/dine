@@ -54,11 +54,13 @@ func (repo *MerchantRepository) Create(ctx context.Context, domainMerchant *doma
 		SetSuperAccount(domainMerchant.LoginAccount)
 
 	if domainMerchant.Address != nil {
-		builder.SetCountryID(domainMerchant.Address.CountryID).
-			SetProvinceID(domainMerchant.Address.ProvinceID).
-			SetCityID(domainMerchant.Address.CityID).
-			SetDistrictID(domainMerchant.Address.DistrictID).
-			SetAddress(domainMerchant.Address.Address).
+		if domainMerchant.Address.Country != "" {
+			builder = builder.SetCountry(domainMerchant.Address.Country)
+		}
+		if domainMerchant.Address.Province != "" {
+			builder = builder.SetProvince(domainMerchant.Address.Province)
+		}
+		builder = builder.SetAddress(domainMerchant.Address.Address).
 			SetLng(domainMerchant.Address.Lng).
 			SetLat(domainMerchant.Address.Lat)
 	}
@@ -103,11 +105,17 @@ func (repo *MerchantRepository) Update(ctx context.Context, domainMerchant *doma
 		builder = builder.ClearDescription()
 	}
 	if domainMerchant.Address != nil {
-		builder.SetCountryID(domainMerchant.Address.CountryID).
-			SetProvinceID(domainMerchant.Address.ProvinceID).
-			SetCityID(domainMerchant.Address.CityID).
-			SetDistrictID(domainMerchant.Address.DistrictID).
-			SetAddress(domainMerchant.Address.Address).
+		if domainMerchant.Address.Country != "" {
+			builder = builder.SetCountry(domainMerchant.Address.Country)
+		} else {
+			builder = builder.ClearCountry()
+		}
+		if domainMerchant.Address.Province != "" {
+			builder = builder.SetProvince(domainMerchant.Address.Province)
+		} else {
+			builder = builder.ClearProvince()
+		}
+		builder = builder.SetAddress(domainMerchant.Address.Address).
 			SetLng(domainMerchant.Address.Lng).
 			SetLat(domainMerchant.Address.Lat)
 	}
@@ -151,10 +159,6 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id uuid.UUID) (dom
 
 	em, err := repo.Client.Merchant.Query().
 		Where(merchant.ID(id)).
-		WithCountry().
-		WithProvince().
-		WithCity().
-		WithDistrict().
 		WithMerchantRenewals().
 		Only(ctx)
 	if err != nil {
@@ -308,8 +312,8 @@ func (repo *MerchantRepository) filterBuildQuery(filter *domain.MerchantListFilt
 	if filter.CreatedAtLte != nil {
 		query = query.Where(merchant.CreatedAtLTE(*filter.CreatedAtLte))
 	}
-	if filter.ProvinceID != uuid.Nil {
-		query = query.Where(merchant.ProvinceIDEQ(filter.ProvinceID))
+	if filter.Province != "" {
+		query = query.Where(merchant.ProvinceEQ(filter.Province))
 	}
 	return query
 }
@@ -335,25 +339,11 @@ func (repo *MerchantRepository) orderBy(orderBys ...domain.MerchantListOrderBy) 
 
 func convertMerchant(em *ent.Merchant) *domain.Merchant {
 	address := &domain.Address{
-		CountryID:  em.CountryID,
-		ProvinceID: em.ProvinceID,
-		CityID:     em.CityID,
-		DistrictID: em.DistrictID,
-		Address:    em.Address,
-		Lng:        em.Lng,
-		Lat:        em.Lat,
-	}
-	if em.Edges.Country != nil {
-		address.CountryName = em.Edges.Country.Name
-	}
-	if em.Edges.Province != nil {
-		address.ProvinceName = em.Edges.Province.Name
-	}
-	if em.Edges.City != nil {
-		address.CityName = em.Edges.City.Name
-	}
-	if em.Edges.District != nil {
-		address.DistrictName = em.Edges.District.Name
+		Country:  em.Country,
+		Province: em.Province,
+		Address:  em.Address,
+		Lng:      em.Lng,
+		Lat:      em.Lat,
 	}
 
 	repoMerchant := &domain.Merchant{

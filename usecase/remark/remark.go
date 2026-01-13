@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -141,10 +140,6 @@ func (interactor *RemarkInteractor) GetRemark(ctx context.Context, id uuid.UUID)
 			return nil, domain.ErrRemarkNotExists
 		}
 		return
-	}
-	if msgID, ok := domain.RemarkSceneI18NMap[string(remark.RemarkScene)]; ok {
-		name := i18n.Translate(ctx, msgID, nil)
-		remark.RemarkSceneName = name
 	}
 	return
 }

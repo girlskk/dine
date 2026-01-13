@@ -1,0 +1,61 @@
+-- Modify "merchants" table
+ALTER TABLE `merchants`
+DROP COLUMN `city_id`,
+DROP COLUMN `country_id`,
+DROP COLUMN `district_id`,
+DROP COLUMN `province_id`,
+ADD COLUMN `country` enum ('MY', 'SG') NULL,
+ADD COLUMN `province` enum (
+  'MY-01',
+  'MY-02',
+  'MY-03',
+  'MY-04',
+  'MY-05',
+  'MY-06',
+  'MY-07',
+  'MY-08',
+  'MY-09',
+  'MY-10',
+  'MY-11',
+  'MY-12',
+  'MY-13',
+  'MY-14',
+  'MY-15',
+  'MY-16',
+  'SG-01',
+  'SG-02',
+  'SG-03',
+  'SG-04',
+  'SG-05'
+) NULL;
+
+-- Modify "stores" table
+ALTER TABLE `stores`
+DROP COLUMN `city_id`,
+DROP COLUMN `country_id`,
+DROP COLUMN `district_id`,
+DROP COLUMN `province_id`,
+ADD COLUMN `country` enum ('MY', 'SG') NULL,
+ADD COLUMN `province` enum (
+  'MY-01',
+  'MY-02',
+  'MY-03',
+  'MY-04',
+  'MY-05',
+  'MY-06',
+  'MY-07',
+  'MY-08',
+  'MY-09',
+  'MY-10',
+  'MY-11',
+  'MY-12',
+  'MY-13',
+  'MY-14',
+  'MY-15',
+  'MY-16',
+  'SG-01',
+  'SG-02',
+  'SG-03',
+  'SG-04',
+  'SG-05'
+) NULL;

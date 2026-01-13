@@ -21,11 +21,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
@@ -46,9 +43,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/rolepermission"
@@ -78,16 +73,10 @@ type Client struct {
 	BusinessConfig *BusinessConfigClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
-	// City is the client for interacting with the City builders.
-	City *CityClient
-	// Country is the client for interacting with the Country builders.
-	Country *CountryClient
 	// Department is the client for interacting with the Department builders.
 	Department *DepartmentClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
-	// District is the client for interacting with the District builders.
-	District *DistrictClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
 	// MenuItem is the client for interacting with the MenuItem builders.
@@ -128,12 +117,8 @@ type Client struct {
 	ProfitDistributionBill *ProfitDistributionBillClient
 	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
 	ProfitDistributionRule *ProfitDistributionRuleClient
-	// Province is the client for interacting with the Province builders.
-	Province *ProvinceClient
 	// Remark is the client for interacting with the Remark builders.
 	Remark *RemarkClient
-	// RemarkCategory is the client for interacting with the RemarkCategory builders.
-	RemarkCategory *RemarkCategoryClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// RoleMenu is the client for interacting with the RoleMenu builders.
@@ -174,11 +159,8 @@ func (c *Client) init() {
 	c.BackendUser = NewBackendUserClient(c.config)
 	c.BusinessConfig = NewBusinessConfigClient(c.config)
 	c.Category = NewCategoryClient(c.config)
-	c.City = NewCityClient(c.config)
-	c.Country = NewCountryClient(c.config)
 	c.Department = NewDepartmentClient(c.config)
 	c.Device = NewDeviceClient(c.config)
-	c.District = NewDistrictClient(c.config)
 	c.Menu = NewMenuClient(c.config)
 	c.MenuItem = NewMenuItemClient(c.config)
 	c.Merchant = NewMerchantClient(c.config)
@@ -199,9 +181,7 @@ func (c *Client) init() {
 	c.ProductUnit = NewProductUnitClient(c.config)
 	c.ProfitDistributionBill = NewProfitDistributionBillClient(c.config)
 	c.ProfitDistributionRule = NewProfitDistributionRuleClient(c.config)
-	c.Province = NewProvinceClient(c.config)
 	c.Remark = NewRemarkClient(c.config)
-	c.RemarkCategory = NewRemarkCategoryClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.RoleMenu = NewRoleMenuClient(c.config)
 	c.RolePermission = NewRolePermissionClient(c.config)
@@ -311,11 +291,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		BackendUser:            NewBackendUserClient(cfg),
 		BusinessConfig:         NewBusinessConfigClient(cfg),
 		Category:               NewCategoryClient(cfg),
-		City:                   NewCityClient(cfg),
-		Country:                NewCountryClient(cfg),
 		Department:             NewDepartmentClient(cfg),
 		Device:                 NewDeviceClient(cfg),
-		District:               NewDistrictClient(cfg),
 		Menu:                   NewMenuClient(cfg),
 		MenuItem:               NewMenuItemClient(cfg),
 		Merchant:               NewMerchantClient(cfg),
@@ -336,9 +313,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ProductUnit:            NewProductUnitClient(cfg),
 		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
 		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
-		Province:               NewProvinceClient(cfg),
 		Remark:                 NewRemarkClient(cfg),
-		RemarkCategory:         NewRemarkCategoryClient(cfg),
 		Role:                   NewRoleClient(cfg),
 		RoleMenu:               NewRoleMenuClient(cfg),
 		RolePermission:         NewRolePermissionClient(cfg),
@@ -375,11 +350,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		BackendUser:            NewBackendUserClient(cfg),
 		BusinessConfig:         NewBusinessConfigClient(cfg),
 		Category:               NewCategoryClient(cfg),
-		City:                   NewCityClient(cfg),
-		Country:                NewCountryClient(cfg),
 		Department:             NewDepartmentClient(cfg),
 		Device:                 NewDeviceClient(cfg),
-		District:               NewDistrictClient(cfg),
 		Menu:                   NewMenuClient(cfg),
 		MenuItem:               NewMenuItemClient(cfg),
 		Merchant:               NewMerchantClient(cfg),
@@ -400,9 +372,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ProductUnit:            NewProductUnitClient(cfg),
 		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
 		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
-		Province:               NewProvinceClient(cfg),
 		Remark:                 NewRemarkClient(cfg),
-		RemarkCategory:         NewRemarkCategoryClient(cfg),
 		Role:                   NewRoleClient(cfg),
 		RoleMenu:               NewRoleMenuClient(cfg),
 		RolePermission:         NewRolePermissionClient(cfg),
@@ -445,14 +415,14 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.BusinessConfig, c.Category,
-		c.City, c.Country, c.Department, c.Device, c.District, c.Menu, c.MenuItem,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
-		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
-		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
-		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory, c.Role,
-		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
-		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
+		c.Department, c.Device, c.Menu, c.MenuItem, c.Merchant, c.MerchantBusinessType,
+		c.MerchantRenewal, c.Order, c.OrderProduct, c.PaymentAccount, c.PaymentMethod,
+		c.Permission, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
+		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Remark,
+		c.Role, c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail,
+		c.SetMealGroup, c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
+		c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -463,14 +433,14 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AdditionalFee, c.AdminUser, c.BackendUser, c.BusinessConfig, c.Category,
-		c.City, c.Country, c.Department, c.Device, c.District, c.Menu, c.MenuItem,
-		c.Merchant, c.MerchantBusinessType, c.MerchantRenewal, c.Order, c.OrderProduct,
-		c.PaymentAccount, c.PaymentMethod, c.Permission, c.Product, c.ProductAttr,
-		c.ProductAttrItem, c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation,
-		c.ProductTag, c.ProductUnit, c.ProfitDistributionBill,
-		c.ProfitDistributionRule, c.Province, c.Remark, c.RemarkCategory, c.Role,
-		c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup,
-		c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
+		c.Department, c.Device, c.Menu, c.MenuItem, c.Merchant, c.MerchantBusinessType,
+		c.MerchantRenewal, c.Order, c.OrderProduct, c.PaymentAccount, c.PaymentMethod,
+		c.Permission, c.Product, c.ProductAttr, c.ProductAttrItem,
+		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
+		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Remark,
+		c.Role, c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail,
+		c.SetMealGroup, c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
+		c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -489,16 +459,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.BusinessConfig.mutate(ctx, m)
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
-	case *CityMutation:
-		return c.City.mutate(ctx, m)
-	case *CountryMutation:
-		return c.Country.mutate(ctx, m)
 	case *DepartmentMutation:
 		return c.Department.mutate(ctx, m)
 	case *DeviceMutation:
 		return c.Device.mutate(ctx, m)
-	case *DistrictMutation:
-		return c.District.mutate(ctx, m)
 	case *MenuMutation:
 		return c.Menu.mutate(ctx, m)
 	case *MenuItemMutation:
@@ -539,12 +503,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ProfitDistributionBill.mutate(ctx, m)
 	case *ProfitDistributionRuleMutation:
 		return c.ProfitDistributionRule.mutate(ctx, m)
-	case *ProvinceMutation:
-		return c.Province.mutate(ctx, m)
 	case *RemarkMutation:
 		return c.Remark.mutate(ctx, m)
-	case *RemarkCategoryMutation:
-		return c.RemarkCategory.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
 	case *RoleMenuMutation:
@@ -1425,436 +1385,6 @@ func (c *CategoryClient) mutate(ctx context.Context, m *CategoryMutation) (Value
 	}
 }
 
-// CityClient is a client for the City schema.
-type CityClient struct {
-	config
-}
-
-// NewCityClient returns a client for the City from the given config.
-func NewCityClient(c config) *CityClient {
-	return &CityClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `city.Hooks(f(g(h())))`.
-func (c *CityClient) Use(hooks ...Hook) {
-	c.hooks.City = append(c.hooks.City, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `city.Intercept(f(g(h())))`.
-func (c *CityClient) Intercept(interceptors ...Interceptor) {
-	c.inters.City = append(c.inters.City, interceptors...)
-}
-
-// Create returns a builder for creating a City entity.
-func (c *CityClient) Create() *CityCreate {
-	mutation := newCityMutation(c.config, OpCreate)
-	return &CityCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of City entities.
-func (c *CityClient) CreateBulk(builders ...*CityCreate) *CityCreateBulk {
-	return &CityCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *CityClient) MapCreateBulk(slice any, setFunc func(*CityCreate, int)) *CityCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &CityCreateBulk{err: fmt.Errorf("calling to CityClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*CityCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &CityCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for City.
-func (c *CityClient) Update() *CityUpdate {
-	mutation := newCityMutation(c.config, OpUpdate)
-	return &CityUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *CityClient) UpdateOne(ci *City) *CityUpdateOne {
-	mutation := newCityMutation(c.config, OpUpdateOne, withCity(ci))
-	return &CityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *CityClient) UpdateOneID(id uuid.UUID) *CityUpdateOne {
-	mutation := newCityMutation(c.config, OpUpdateOne, withCityID(id))
-	return &CityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for City.
-func (c *CityClient) Delete() *CityDelete {
-	mutation := newCityMutation(c.config, OpDelete)
-	return &CityDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *CityClient) DeleteOne(ci *City) *CityDeleteOne {
-	return c.DeleteOneID(ci.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CityClient) DeleteOneID(id uuid.UUID) *CityDeleteOne {
-	builder := c.Delete().Where(city.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &CityDeleteOne{builder}
-}
-
-// Query returns a query builder for City.
-func (c *CityClient) Query() *CityQuery {
-	return &CityQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeCity},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a City entity by its id.
-func (c *CityClient) Get(ctx context.Context, id uuid.UUID) (*City, error) {
-	return c.Query().Where(city.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *CityClient) GetX(ctx context.Context, id uuid.UUID) *City {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryCountry queries the country edge of a City.
-func (c *CityClient) QueryCountry(ci *City) *CountryQuery {
-	query := (&CountryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ci.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(city.Table, city.FieldID, id),
-			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, city.CountryTable, city.CountryColumn),
-		)
-		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProvince queries the province edge of a City.
-func (c *CityClient) QueryProvince(ci *City) *ProvinceQuery {
-	query := (&ProvinceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ci.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(city.Table, city.FieldID, id),
-			sqlgraph.To(province.Table, province.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, city.ProvinceTable, city.ProvinceColumn),
-		)
-		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDistricts queries the districts edge of a City.
-func (c *CityClient) QueryDistricts(ci *City) *DistrictQuery {
-	query := (&DistrictClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ci.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(city.Table, city.FieldID, id),
-			sqlgraph.To(district.Table, district.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, city.DistrictsTable, city.DistrictsColumn),
-		)
-		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMerchants queries the merchants edge of a City.
-func (c *CityClient) QueryMerchants(ci *City) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ci.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(city.Table, city.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, city.MerchantsTable, city.MerchantsColumn),
-		)
-		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryStores queries the stores edge of a City.
-func (c *CityClient) QueryStores(ci *City) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ci.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(city.Table, city.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, city.StoresTable, city.StoresColumn),
-		)
-		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *CityClient) Hooks() []Hook {
-	hooks := c.hooks.City
-	return append(hooks[:len(hooks):len(hooks)], city.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *CityClient) Interceptors() []Interceptor {
-	inters := c.inters.City
-	return append(inters[:len(inters):len(inters)], city.Interceptors[:]...)
-}
-
-func (c *CityClient) mutate(ctx context.Context, m *CityMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&CityCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&CityUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&CityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&CityDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown City mutation op: %q", m.Op())
-	}
-}
-
-// CountryClient is a client for the Country schema.
-type CountryClient struct {
-	config
-}
-
-// NewCountryClient returns a client for the Country from the given config.
-func NewCountryClient(c config) *CountryClient {
-	return &CountryClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `country.Hooks(f(g(h())))`.
-func (c *CountryClient) Use(hooks ...Hook) {
-	c.hooks.Country = append(c.hooks.Country, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `country.Intercept(f(g(h())))`.
-func (c *CountryClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Country = append(c.inters.Country, interceptors...)
-}
-
-// Create returns a builder for creating a Country entity.
-func (c *CountryClient) Create() *CountryCreate {
-	mutation := newCountryMutation(c.config, OpCreate)
-	return &CountryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Country entities.
-func (c *CountryClient) CreateBulk(builders ...*CountryCreate) *CountryCreateBulk {
-	return &CountryCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *CountryClient) MapCreateBulk(slice any, setFunc func(*CountryCreate, int)) *CountryCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &CountryCreateBulk{err: fmt.Errorf("calling to CountryClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*CountryCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &CountryCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Country.
-func (c *CountryClient) Update() *CountryUpdate {
-	mutation := newCountryMutation(c.config, OpUpdate)
-	return &CountryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *CountryClient) UpdateOne(co *Country) *CountryUpdateOne {
-	mutation := newCountryMutation(c.config, OpUpdateOne, withCountry(co))
-	return &CountryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *CountryClient) UpdateOneID(id uuid.UUID) *CountryUpdateOne {
-	mutation := newCountryMutation(c.config, OpUpdateOne, withCountryID(id))
-	return &CountryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Country.
-func (c *CountryClient) Delete() *CountryDelete {
-	mutation := newCountryMutation(c.config, OpDelete)
-	return &CountryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *CountryClient) DeleteOne(co *Country) *CountryDeleteOne {
-	return c.DeleteOneID(co.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CountryClient) DeleteOneID(id uuid.UUID) *CountryDeleteOne {
-	builder := c.Delete().Where(country.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &CountryDeleteOne{builder}
-}
-
-// Query returns a query builder for Country.
-func (c *CountryClient) Query() *CountryQuery {
-	return &CountryQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeCountry},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Country entity by its id.
-func (c *CountryClient) Get(ctx context.Context, id uuid.UUID) (*Country, error) {
-	return c.Query().Where(country.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *CountryClient) GetX(ctx context.Context, id uuid.UUID) *Country {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryProvinces queries the provinces edge of a Country.
-func (c *CountryClient) QueryProvinces(co *Country) *ProvinceQuery {
-	query := (&ProvinceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(country.Table, country.FieldID, id),
-			sqlgraph.To(province.Table, province.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, country.ProvincesTable, country.ProvincesColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCities queries the cities edge of a Country.
-func (c *CountryClient) QueryCities(co *Country) *CityQuery {
-	query := (&CityClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(country.Table, country.FieldID, id),
-			sqlgraph.To(city.Table, city.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, country.CitiesTable, country.CitiesColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDistricts queries the districts edge of a Country.
-func (c *CountryClient) QueryDistricts(co *Country) *DistrictQuery {
-	query := (&DistrictClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(country.Table, country.FieldID, id),
-			sqlgraph.To(district.Table, district.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, country.DistrictsTable, country.DistrictsColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMerchants queries the merchants edge of a Country.
-func (c *CountryClient) QueryMerchants(co *Country) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(country.Table, country.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, country.MerchantsTable, country.MerchantsColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryStores queries the stores edge of a Country.
-func (c *CountryClient) QueryStores(co *Country) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(country.Table, country.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, country.StoresTable, country.StoresColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *CountryClient) Hooks() []Hook {
-	hooks := c.hooks.Country
-	return append(hooks[:len(hooks):len(hooks)], country.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *CountryClient) Interceptors() []Interceptor {
-	inters := c.inters.Country
-	return append(inters[:len(inters):len(inters)], country.Interceptors[:]...)
-}
-
-func (c *CountryClient) mutate(ctx context.Context, m *CountryMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&CountryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&CountryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&CountryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&CountryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Country mutation op: %q", m.Op())
-	}
-}
-
 // DepartmentClient is a client for the Department schema.
 type DepartmentClient struct {
 	config
@@ -2250,221 +1780,6 @@ func (c *DeviceClient) mutate(ctx context.Context, m *DeviceMutation) (Value, er
 		return (&DeviceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Device mutation op: %q", m.Op())
-	}
-}
-
-// DistrictClient is a client for the District schema.
-type DistrictClient struct {
-	config
-}
-
-// NewDistrictClient returns a client for the District from the given config.
-func NewDistrictClient(c config) *DistrictClient {
-	return &DistrictClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `district.Hooks(f(g(h())))`.
-func (c *DistrictClient) Use(hooks ...Hook) {
-	c.hooks.District = append(c.hooks.District, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `district.Intercept(f(g(h())))`.
-func (c *DistrictClient) Intercept(interceptors ...Interceptor) {
-	c.inters.District = append(c.inters.District, interceptors...)
-}
-
-// Create returns a builder for creating a District entity.
-func (c *DistrictClient) Create() *DistrictCreate {
-	mutation := newDistrictMutation(c.config, OpCreate)
-	return &DistrictCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of District entities.
-func (c *DistrictClient) CreateBulk(builders ...*DistrictCreate) *DistrictCreateBulk {
-	return &DistrictCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *DistrictClient) MapCreateBulk(slice any, setFunc func(*DistrictCreate, int)) *DistrictCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &DistrictCreateBulk{err: fmt.Errorf("calling to DistrictClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*DistrictCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &DistrictCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for District.
-func (c *DistrictClient) Update() *DistrictUpdate {
-	mutation := newDistrictMutation(c.config, OpUpdate)
-	return &DistrictUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *DistrictClient) UpdateOne(d *District) *DistrictUpdateOne {
-	mutation := newDistrictMutation(c.config, OpUpdateOne, withDistrict(d))
-	return &DistrictUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *DistrictClient) UpdateOneID(id uuid.UUID) *DistrictUpdateOne {
-	mutation := newDistrictMutation(c.config, OpUpdateOne, withDistrictID(id))
-	return &DistrictUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for District.
-func (c *DistrictClient) Delete() *DistrictDelete {
-	mutation := newDistrictMutation(c.config, OpDelete)
-	return &DistrictDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *DistrictClient) DeleteOne(d *District) *DistrictDeleteOne {
-	return c.DeleteOneID(d.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *DistrictClient) DeleteOneID(id uuid.UUID) *DistrictDeleteOne {
-	builder := c.Delete().Where(district.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &DistrictDeleteOne{builder}
-}
-
-// Query returns a query builder for District.
-func (c *DistrictClient) Query() *DistrictQuery {
-	return &DistrictQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeDistrict},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a District entity by its id.
-func (c *DistrictClient) Get(ctx context.Context, id uuid.UUID) (*District, error) {
-	return c.Query().Where(district.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *DistrictClient) GetX(ctx context.Context, id uuid.UUID) *District {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryCountry queries the country edge of a District.
-func (c *DistrictClient) QueryCountry(d *District) *CountryQuery {
-	query := (&CountryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := d.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(district.Table, district.FieldID, id),
-			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, district.CountryTable, district.CountryColumn),
-		)
-		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProvince queries the province edge of a District.
-func (c *DistrictClient) QueryProvince(d *District) *ProvinceQuery {
-	query := (&ProvinceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := d.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(district.Table, district.FieldID, id),
-			sqlgraph.To(province.Table, province.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, district.ProvinceTable, district.ProvinceColumn),
-		)
-		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCity queries the city edge of a District.
-func (c *DistrictClient) QueryCity(d *District) *CityQuery {
-	query := (&CityClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := d.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(district.Table, district.FieldID, id),
-			sqlgraph.To(city.Table, city.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, district.CityTable, district.CityColumn),
-		)
-		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMerchants queries the merchants edge of a District.
-func (c *DistrictClient) QueryMerchants(d *District) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := d.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(district.Table, district.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, district.MerchantsTable, district.MerchantsColumn),
-		)
-		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryStores queries the stores edge of a District.
-func (c *DistrictClient) QueryStores(d *District) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := d.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(district.Table, district.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, district.StoresTable, district.StoresColumn),
-		)
-		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *DistrictClient) Hooks() []Hook {
-	hooks := c.hooks.District
-	return append(hooks[:len(hooks):len(hooks)], district.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *DistrictClient) Interceptors() []Interceptor {
-	inters := c.inters.District
-	return append(inters[:len(inters):len(inters)], district.Interceptors[:]...)
-}
-
-func (c *DistrictClient) mutate(ctx context.Context, m *DistrictMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&DistrictCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&DistrictUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&DistrictUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&DistrictDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown District mutation op: %q", m.Op())
 	}
 }
 
@@ -2910,70 +2225,6 @@ func (c *MerchantClient) GetX(ctx context.Context, id uuid.UUID) *Merchant {
 	return obj
 }
 
-// QueryCountry queries the country edge of a Merchant.
-func (c *MerchantClient) QueryCountry(m *Merchant) *CountryQuery {
-	query := (&CountryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.CountryTable, merchant.CountryColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProvince queries the province edge of a Merchant.
-func (c *MerchantClient) QueryProvince(m *Merchant) *ProvinceQuery {
-	query := (&ProvinceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(province.Table, province.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.ProvinceTable, merchant.ProvinceColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCity queries the city edge of a Merchant.
-func (c *MerchantClient) QueryCity(m *Merchant) *CityQuery {
-	query := (&CityClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(city.Table, city.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.CityTable, merchant.CityColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDistrict queries the district edge of a Merchant.
-func (c *MerchantClient) QueryDistrict(m *Merchant) *DistrictQuery {
-	query := (&DistrictClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(district.Table, district.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.DistrictTable, merchant.DistrictColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryBackendUsers queries the backend_users edge of a Merchant.
 func (c *MerchantClient) QueryBackendUsers(m *Merchant) *BackendUserQuery {
 	query := (&BackendUserClient{config: c.config}).Query()
@@ -3015,22 +2266,6 @@ func (c *MerchantClient) QueryMerchantRenewals(m *Merchant) *MerchantRenewalQuer
 			sqlgraph.From(merchant.Table, merchant.FieldID, id),
 			sqlgraph.To(merchantrenewal.Table, merchantrenewal.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, merchant.MerchantRenewalsTable, merchant.MerchantRenewalsColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryRemarkCategories queries the remark_categories edge of a Merchant.
-func (c *MerchantClient) QueryRemarkCategories(m *Merchant) *RemarkCategoryQuery {
-	query := (&RemarkCategoryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, id),
-			sqlgraph.To(remarkcategory.Table, remarkcategory.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarkCategoriesTable, merchant.RemarkCategoriesColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -6000,221 +5235,6 @@ func (c *ProfitDistributionRuleClient) mutate(ctx context.Context, m *ProfitDist
 	}
 }
 
-// ProvinceClient is a client for the Province schema.
-type ProvinceClient struct {
-	config
-}
-
-// NewProvinceClient returns a client for the Province from the given config.
-func NewProvinceClient(c config) *ProvinceClient {
-	return &ProvinceClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `province.Hooks(f(g(h())))`.
-func (c *ProvinceClient) Use(hooks ...Hook) {
-	c.hooks.Province = append(c.hooks.Province, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `province.Intercept(f(g(h())))`.
-func (c *ProvinceClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Province = append(c.inters.Province, interceptors...)
-}
-
-// Create returns a builder for creating a Province entity.
-func (c *ProvinceClient) Create() *ProvinceCreate {
-	mutation := newProvinceMutation(c.config, OpCreate)
-	return &ProvinceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Province entities.
-func (c *ProvinceClient) CreateBulk(builders ...*ProvinceCreate) *ProvinceCreateBulk {
-	return &ProvinceCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ProvinceClient) MapCreateBulk(slice any, setFunc func(*ProvinceCreate, int)) *ProvinceCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ProvinceCreateBulk{err: fmt.Errorf("calling to ProvinceClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ProvinceCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ProvinceCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Province.
-func (c *ProvinceClient) Update() *ProvinceUpdate {
-	mutation := newProvinceMutation(c.config, OpUpdate)
-	return &ProvinceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ProvinceClient) UpdateOne(pr *Province) *ProvinceUpdateOne {
-	mutation := newProvinceMutation(c.config, OpUpdateOne, withProvince(pr))
-	return &ProvinceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ProvinceClient) UpdateOneID(id uuid.UUID) *ProvinceUpdateOne {
-	mutation := newProvinceMutation(c.config, OpUpdateOne, withProvinceID(id))
-	return &ProvinceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Province.
-func (c *ProvinceClient) Delete() *ProvinceDelete {
-	mutation := newProvinceMutation(c.config, OpDelete)
-	return &ProvinceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ProvinceClient) DeleteOne(pr *Province) *ProvinceDeleteOne {
-	return c.DeleteOneID(pr.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProvinceClient) DeleteOneID(id uuid.UUID) *ProvinceDeleteOne {
-	builder := c.Delete().Where(province.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ProvinceDeleteOne{builder}
-}
-
-// Query returns a query builder for Province.
-func (c *ProvinceClient) Query() *ProvinceQuery {
-	return &ProvinceQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeProvince},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Province entity by its id.
-func (c *ProvinceClient) Get(ctx context.Context, id uuid.UUID) (*Province, error) {
-	return c.Query().Where(province.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ProvinceClient) GetX(ctx context.Context, id uuid.UUID) *Province {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryCountry queries the country edge of a Province.
-func (c *ProvinceClient) QueryCountry(pr *Province) *CountryQuery {
-	query := (&CountryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(province.Table, province.FieldID, id),
-			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, province.CountryTable, province.CountryColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCities queries the cities edge of a Province.
-func (c *ProvinceClient) QueryCities(pr *Province) *CityQuery {
-	query := (&CityClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(province.Table, province.FieldID, id),
-			sqlgraph.To(city.Table, city.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, province.CitiesTable, province.CitiesColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDistricts queries the districts edge of a Province.
-func (c *ProvinceClient) QueryDistricts(pr *Province) *DistrictQuery {
-	query := (&DistrictClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(province.Table, province.FieldID, id),
-			sqlgraph.To(district.Table, district.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, province.DistrictsTable, province.DistrictsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMerchants queries the merchants edge of a Province.
-func (c *ProvinceClient) QueryMerchants(pr *Province) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(province.Table, province.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, province.MerchantsTable, province.MerchantsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryStores queries the stores edge of a Province.
-func (c *ProvinceClient) QueryStores(pr *Province) *StoreQuery {
-	query := (&StoreClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(province.Table, province.FieldID, id),
-			sqlgraph.To(store.Table, store.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, province.StoresTable, province.StoresColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ProvinceClient) Hooks() []Hook {
-	hooks := c.hooks.Province
-	return append(hooks[:len(hooks):len(hooks)], province.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *ProvinceClient) Interceptors() []Interceptor {
-	inters := c.inters.Province
-	return append(inters[:len(inters):len(inters)], province.Interceptors[:]...)
-}
-
-func (c *ProvinceClient) mutate(ctx context.Context, m *ProvinceMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ProvinceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ProvinceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ProvinceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ProvinceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Province mutation op: %q", m.Op())
-	}
-}
-
 // RemarkClient is a client for the Remark schema.
 type RemarkClient struct {
 	config
@@ -6379,157 +5399,6 @@ func (c *RemarkClient) mutate(ctx context.Context, m *RemarkMutation) (Value, er
 		return (&RemarkDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Remark mutation op: %q", m.Op())
-	}
-}
-
-// RemarkCategoryClient is a client for the RemarkCategory schema.
-type RemarkCategoryClient struct {
-	config
-}
-
-// NewRemarkCategoryClient returns a client for the RemarkCategory from the given config.
-func NewRemarkCategoryClient(c config) *RemarkCategoryClient {
-	return &RemarkCategoryClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `remarkcategory.Hooks(f(g(h())))`.
-func (c *RemarkCategoryClient) Use(hooks ...Hook) {
-	c.hooks.RemarkCategory = append(c.hooks.RemarkCategory, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `remarkcategory.Intercept(f(g(h())))`.
-func (c *RemarkCategoryClient) Intercept(interceptors ...Interceptor) {
-	c.inters.RemarkCategory = append(c.inters.RemarkCategory, interceptors...)
-}
-
-// Create returns a builder for creating a RemarkCategory entity.
-func (c *RemarkCategoryClient) Create() *RemarkCategoryCreate {
-	mutation := newRemarkCategoryMutation(c.config, OpCreate)
-	return &RemarkCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of RemarkCategory entities.
-func (c *RemarkCategoryClient) CreateBulk(builders ...*RemarkCategoryCreate) *RemarkCategoryCreateBulk {
-	return &RemarkCategoryCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *RemarkCategoryClient) MapCreateBulk(slice any, setFunc func(*RemarkCategoryCreate, int)) *RemarkCategoryCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &RemarkCategoryCreateBulk{err: fmt.Errorf("calling to RemarkCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*RemarkCategoryCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &RemarkCategoryCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for RemarkCategory.
-func (c *RemarkCategoryClient) Update() *RemarkCategoryUpdate {
-	mutation := newRemarkCategoryMutation(c.config, OpUpdate)
-	return &RemarkCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *RemarkCategoryClient) UpdateOne(rc *RemarkCategory) *RemarkCategoryUpdateOne {
-	mutation := newRemarkCategoryMutation(c.config, OpUpdateOne, withRemarkCategory(rc))
-	return &RemarkCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *RemarkCategoryClient) UpdateOneID(id uuid.UUID) *RemarkCategoryUpdateOne {
-	mutation := newRemarkCategoryMutation(c.config, OpUpdateOne, withRemarkCategoryID(id))
-	return &RemarkCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for RemarkCategory.
-func (c *RemarkCategoryClient) Delete() *RemarkCategoryDelete {
-	mutation := newRemarkCategoryMutation(c.config, OpDelete)
-	return &RemarkCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *RemarkCategoryClient) DeleteOne(rc *RemarkCategory) *RemarkCategoryDeleteOne {
-	return c.DeleteOneID(rc.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *RemarkCategoryClient) DeleteOneID(id uuid.UUID) *RemarkCategoryDeleteOne {
-	builder := c.Delete().Where(remarkcategory.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &RemarkCategoryDeleteOne{builder}
-}
-
-// Query returns a query builder for RemarkCategory.
-func (c *RemarkCategoryClient) Query() *RemarkCategoryQuery {
-	return &RemarkCategoryQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeRemarkCategory},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a RemarkCategory entity by its id.
-func (c *RemarkCategoryClient) Get(ctx context.Context, id uuid.UUID) (*RemarkCategory, error) {
-	return c.Query().Where(remarkcategory.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *RemarkCategoryClient) GetX(ctx context.Context, id uuid.UUID) *RemarkCategory {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryMerchant queries the merchant edge of a RemarkCategory.
-func (c *RemarkCategoryClient) QueryMerchant(rc *RemarkCategory) *MerchantQuery {
-	query := (&MerchantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := rc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(remarkcategory.Table, remarkcategory.FieldID, id),
-			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, remarkcategory.MerchantTable, remarkcategory.MerchantColumn),
-		)
-		fromV = sqlgraph.Neighbors(rc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *RemarkCategoryClient) Hooks() []Hook {
-	hooks := c.hooks.RemarkCategory
-	return append(hooks[:len(hooks):len(hooks)], remarkcategory.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *RemarkCategoryClient) Interceptors() []Interceptor {
-	inters := c.inters.RemarkCategory
-	return append(inters[:len(inters):len(inters)], remarkcategory.Interceptors[:]...)
-}
-
-func (c *RemarkCategoryClient) mutate(ctx context.Context, m *RemarkCategoryMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&RemarkCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&RemarkCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&RemarkCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&RemarkCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown RemarkCategory mutation op: %q", m.Op())
 	}
 }
 
@@ -7810,70 +6679,6 @@ func (c *StoreClient) QueryMerchant(s *Store) *MerchantQuery {
 	return query
 }
 
-// QueryCountry queries the country edge of a Store.
-func (c *StoreClient) QueryCountry(s *Store) *CountryQuery {
-	query := (&CountryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, id),
-			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.CountryTable, store.CountryColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProvince queries the province edge of a Store.
-func (c *StoreClient) QueryProvince(s *Store) *ProvinceQuery {
-	query := (&ProvinceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, id),
-			sqlgraph.To(province.Table, province.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.ProvinceTable, store.ProvinceColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCity queries the city edge of a Store.
-func (c *StoreClient) QueryCity(s *Store) *CityQuery {
-	query := (&CityClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, id),
-			sqlgraph.To(city.Table, city.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.CityTable, store.CityColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDistrict queries the district edge of a Store.
-func (c *StoreClient) QueryDistrict(s *Store) *DistrictQuery {
-	query := (&DistrictClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(store.Table, store.FieldID, id),
-			sqlgraph.To(district.Table, district.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, store.DistrictTable, store.DistrictColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryStoreUsers queries the store_users edge of a Store.
 func (c *StoreClient) QueryStoreUsers(s *Store) *StoreUserQuery {
 	query := (&StoreUserClient{config: c.config}).Query()
@@ -8796,24 +7601,22 @@ func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AdditionalFee, AdminUser, BackendUser, BusinessConfig, Category, City, Country,
-		Department, Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
-		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
-		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
-		ProfitDistributionBill, ProfitDistributionRule, Province, Remark,
-		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
+		AdditionalFee, AdminUser, BackendUser, BusinessConfig, Category, Department,
+		Device, Menu, MenuItem, Merchant, MerchantBusinessType, MerchantRenewal, Order,
+		OrderProduct, PaymentAccount, PaymentMethod, Permission, Product, ProductAttr,
+		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
+		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
+		Remark, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
 		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
 		UserRole []ent.Hook
 	}
 	inters struct {
-		AdditionalFee, AdminUser, BackendUser, BusinessConfig, Category, City, Country,
-		Department, Device, District, Menu, MenuItem, Merchant, MerchantBusinessType,
-		MerchantRenewal, Order, OrderProduct, PaymentAccount, PaymentMethod,
-		Permission, Product, ProductAttr, ProductAttrItem, ProductAttrRelation,
-		ProductSpec, ProductSpecRelation, ProductTag, ProductUnit,
-		ProfitDistributionBill, ProfitDistributionRule, Province, Remark,
-		RemarkCategory, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
+		AdditionalFee, AdminUser, BackendUser, BusinessConfig, Category, Department,
+		Device, Menu, MenuItem, Merchant, MerchantBusinessType, MerchantRenewal, Order,
+		OrderProduct, PaymentAccount, PaymentMethod, Permission, Product, ProductAttr,
+		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
+		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
+		Remark, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
 		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
 		UserRole []ent.Interceptor
 	}

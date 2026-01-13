@@ -46,14 +46,10 @@ const (
 	FieldDescription = "description"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldCountryID holds the string denoting the country_id field in the database.
-	FieldCountryID = "country_id"
-	// FieldProvinceID holds the string denoting the province_id field in the database.
-	FieldProvinceID = "province_id"
-	// FieldCityID holds the string denoting the city_id field in the database.
-	FieldCityID = "city_id"
-	// FieldDistrictID holds the string denoting the district_id field in the database.
-	FieldDistrictID = "district_id"
+	// FieldCountry holds the string denoting the country field in the database.
+	FieldCountry = "country"
+	// FieldProvince holds the string denoting the province field in the database.
+	FieldProvince = "province"
 	// FieldAddress holds the string denoting the address field in the database.
 	FieldAddress = "address"
 	// FieldLng holds the string denoting the lng field in the database.
@@ -62,22 +58,12 @@ const (
 	FieldLat = "lat"
 	// FieldSuperAccount holds the string denoting the super_account field in the database.
 	FieldSuperAccount = "super_account"
-	// EdgeCountry holds the string denoting the country edge name in mutations.
-	EdgeCountry = "country"
-	// EdgeProvince holds the string denoting the province edge name in mutations.
-	EdgeProvince = "province"
-	// EdgeCity holds the string denoting the city edge name in mutations.
-	EdgeCity = "city"
-	// EdgeDistrict holds the string denoting the district edge name in mutations.
-	EdgeDistrict = "district"
 	// EdgeBackendUsers holds the string denoting the backend_users edge name in mutations.
 	EdgeBackendUsers = "backend_users"
 	// EdgeStores holds the string denoting the stores edge name in mutations.
 	EdgeStores = "stores"
 	// EdgeMerchantRenewals holds the string denoting the merchant_renewals edge name in mutations.
 	EdgeMerchantRenewals = "merchant_renewals"
-	// EdgeRemarkCategories holds the string denoting the remark_categories edge name in mutations.
-	EdgeRemarkCategories = "remark_categories"
 	// EdgeRemarks holds the string denoting the remarks edge name in mutations.
 	EdgeRemarks = "remarks"
 	// EdgeStalls holds the string denoting the stalls edge name in mutations.
@@ -98,34 +84,6 @@ const (
 	EdgeProfitDistributionBills = "profit_distribution_bills"
 	// Table holds the table name of the merchant in the database.
 	Table = "merchants"
-	// CountryTable is the table that holds the country relation/edge.
-	CountryTable = "merchants"
-	// CountryInverseTable is the table name for the Country entity.
-	// It exists in this package in order to avoid circular dependency with the "country" package.
-	CountryInverseTable = "countries"
-	// CountryColumn is the table column denoting the country relation/edge.
-	CountryColumn = "country_id"
-	// ProvinceTable is the table that holds the province relation/edge.
-	ProvinceTable = "merchants"
-	// ProvinceInverseTable is the table name for the Province entity.
-	// It exists in this package in order to avoid circular dependency with the "province" package.
-	ProvinceInverseTable = "provinces"
-	// ProvinceColumn is the table column denoting the province relation/edge.
-	ProvinceColumn = "province_id"
-	// CityTable is the table that holds the city relation/edge.
-	CityTable = "merchants"
-	// CityInverseTable is the table name for the City entity.
-	// It exists in this package in order to avoid circular dependency with the "city" package.
-	CityInverseTable = "cities"
-	// CityColumn is the table column denoting the city relation/edge.
-	CityColumn = "city_id"
-	// DistrictTable is the table that holds the district relation/edge.
-	DistrictTable = "merchants"
-	// DistrictInverseTable is the table name for the District entity.
-	// It exists in this package in order to avoid circular dependency with the "district" package.
-	DistrictInverseTable = "districts"
-	// DistrictColumn is the table column denoting the district relation/edge.
-	DistrictColumn = "district_id"
 	// BackendUsersTable is the table that holds the backend_users relation/edge.
 	BackendUsersTable = "backend_users"
 	// BackendUsersInverseTable is the table name for the BackendUser entity.
@@ -147,13 +105,6 @@ const (
 	MerchantRenewalsInverseTable = "merchant_renewals"
 	// MerchantRenewalsColumn is the table column denoting the merchant_renewals relation/edge.
 	MerchantRenewalsColumn = "merchant_id"
-	// RemarkCategoriesTable is the table that holds the remark_categories relation/edge.
-	RemarkCategoriesTable = "remark_categories"
-	// RemarkCategoriesInverseTable is the table name for the RemarkCategory entity.
-	// It exists in this package in order to avoid circular dependency with the "remarkcategory" package.
-	RemarkCategoriesInverseTable = "remark_categories"
-	// RemarkCategoriesColumn is the table column denoting the remark_categories relation/edge.
-	RemarkCategoriesColumn = "merchant_id"
 	// RemarksTable is the table that holds the remarks relation/edge.
 	RemarksTable = "remarks"
 	// RemarksInverseTable is the table name for the Remark entity.
@@ -236,10 +187,8 @@ var Columns = []string{
 	FieldMerchantLogo,
 	FieldDescription,
 	FieldStatus,
-	FieldCountryID,
-	FieldProvinceID,
-	FieldCityID,
-	FieldDistrictID,
+	FieldCountry,
+	FieldProvince,
 	FieldAddress,
 	FieldLng,
 	FieldLat,
@@ -332,6 +281,26 @@ func StatusValidator(s domain.MerchantStatus) error {
 	}
 }
 
+// CountryValidator is a validator for the "country" field enum values. It is called by the builders before save.
+func CountryValidator(c domain.Country) error {
+	switch c {
+	case "MY", "SG":
+		return nil
+	default:
+		return fmt.Errorf("merchant: invalid enum value for country field: %q", c)
+	}
+}
+
+// ProvinceValidator is a validator for the "province" field enum values. It is called by the builders before save.
+func ProvinceValidator(pr domain.Province) error {
+	switch pr {
+	case "MY-01", "MY-02", "MY-03", "MY-04", "MY-05", "MY-06", "MY-07", "MY-08", "MY-09", "MY-10", "MY-11", "MY-12", "MY-13", "MY-14", "MY-15", "MY-16", "SG-01", "SG-02", "SG-03", "SG-04", "SG-05":
+		return nil
+	default:
+		return fmt.Errorf("merchant: invalid enum value for province field: %q", pr)
+	}
+}
+
 // OrderOption defines the ordering options for the Merchant queries.
 type OrderOption func(*sql.Selector)
 
@@ -410,24 +379,14 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByCountryID orders the results by the country_id field.
-func ByCountryID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCountryID, opts...).ToFunc()
+// ByCountry orders the results by the country field.
+func ByCountry(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCountry, opts...).ToFunc()
 }
 
-// ByProvinceID orders the results by the province_id field.
-func ByProvinceID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldProvinceID, opts...).ToFunc()
-}
-
-// ByCityID orders the results by the city_id field.
-func ByCityID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCityID, opts...).ToFunc()
-}
-
-// ByDistrictID orders the results by the district_id field.
-func ByDistrictID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDistrictID, opts...).ToFunc()
+// ByProvince orders the results by the province field.
+func ByProvince(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProvince, opts...).ToFunc()
 }
 
 // ByAddress orders the results by the address field.
@@ -448,34 +407,6 @@ func ByLat(opts ...sql.OrderTermOption) OrderOption {
 // BySuperAccount orders the results by the super_account field.
 func BySuperAccount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSuperAccount, opts...).ToFunc()
-}
-
-// ByCountryField orders the results by country field.
-func ByCountryField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCountryStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByProvinceField orders the results by province field.
-func ByProvinceField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProvinceStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByCityField orders the results by city field.
-func ByCityField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCityStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByDistrictField orders the results by district field.
-func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newDistrictStep(), sql.OrderByField(field, opts...))
-	}
 }
 
 // ByBackendUsersCount orders the results by backend_users count.
@@ -517,20 +448,6 @@ func ByMerchantRenewalsCount(opts ...sql.OrderTermOption) OrderOption {
 func ByMerchantRenewals(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMerchantRenewalsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByRemarkCategoriesCount orders the results by remark_categories count.
-func ByRemarkCategoriesCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newRemarkCategoriesStep(), opts...)
-	}
-}
-
-// ByRemarkCategories orders the results by remark_categories terms.
-func ByRemarkCategories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRemarkCategoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -659,34 +576,6 @@ func ByProfitDistributionBills(term sql.OrderTerm, terms ...sql.OrderTerm) Order
 		sqlgraph.OrderByNeighborTerms(s, newProfitDistributionBillsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newCountryStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CountryInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CountryTable, CountryColumn),
-	)
-}
-func newProvinceStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProvinceInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ProvinceTable, ProvinceColumn),
-	)
-}
-func newCityStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CityInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CityTable, CityColumn),
-	)
-}
-func newDistrictStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(DistrictInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
-	)
-}
 func newBackendUsersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -706,13 +595,6 @@ func newMerchantRenewalsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantRenewalsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, MerchantRenewalsTable, MerchantRenewalsColumn),
-	)
-}
-func newRemarkCategoriesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RemarkCategoriesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, RemarkCategoriesTable, RemarkCategoriesColumn),
 	)
 }
 func newRemarksStep() *sqlgraph.Step {
