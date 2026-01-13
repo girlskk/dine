@@ -32,7 +32,7 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.DeleteStore())
 	r.GET("/:id", h.GetStore())
 	r.GET("/list", h.List())
-	r.PUT("/:id/Enable", h.Enable())
+	r.PUT("/:id/enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 }
 

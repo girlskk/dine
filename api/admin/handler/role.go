@@ -41,7 +41,7 @@ func (h *RoleHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/Enable", h.Enable())
+	r.PUT("/:id/enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 	r.POST("/:id/menus", h.SetMenus())
 	r.GET("/:id/menus", h.RoleMenuList())
@@ -265,7 +265,7 @@ func (h *RoleHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"角色ID"
 //	@Success		200	"No Content"
-//	@Router			/common/role/{id}/Enable [put]
+//	@Router			/common/role/{id}/enable [put]
 func (h *RoleHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()

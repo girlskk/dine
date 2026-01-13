@@ -216,40 +216,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/common/department/{id}/Enable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "将部门设置为启用",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "部门管理"
-                ],
-                "summary": "启用部门",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "部门ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
         "/common/department/{id}/disable": {
             "put": {
                 "security": [
@@ -268,6 +234,40 @@ const docTemplate = `{
                     "部门管理"
                 ],
                 "summary": "禁用部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/department/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将部门设置为启用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "启用部门",
                 "parameters": [
                     {
                         "type": "string",
@@ -480,40 +480,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/common/role/{id}/Enable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "启用指定角色",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "角色管理"
-                ],
-                "summary": "启用角色",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "角色ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
         "/common/role/{id}/disable": {
             "put": {
                 "security": [
@@ -532,6 +498,40 @@ const docTemplate = `{
                     "角色管理"
                 ],
                 "summary": "禁用角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/role/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "启用指定角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "启用角色",
                 "parameters": [
                     {
                         "type": "string",
@@ -647,206 +647,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.RouterMenuListResp"
                         }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "新建一个菜单",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "创建菜单",
-                "parameters": [
-                    {
-                        "description": "创建菜单请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.RouterMenuCreateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "查询指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "获取菜单详情",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.RouterMenu"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "修改指定菜单",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "更新菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "更新菜单请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.RouterMenuUpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "删除指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "删除菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}/Enabled": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "启用指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "启用菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}/disable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "禁用指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "禁用菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
                     }
                 }
             }
@@ -1352,21 +1152,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/merchant/{id}/Enable": {
+        "/merchant/merchant/{id}/disable": {
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "将商户状态置为激活",
+                "description": "将商户状态置为禁用",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "商户管理-商户"
                 ],
-                "summary": "启用商户",
+                "summary": "禁用商户",
                 "parameters": [
                     {
                         "type": "string",
@@ -1383,21 +1183,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/merchant/{id}/disable": {
+        "/merchant/merchant/{id}/enable": {
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "将商户状态置为禁用",
+                "description": "将商户状态置为激活",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "商户管理-商户"
                 ],
-                "summary": "禁用商户",
+                "summary": "启用商户",
                 "parameters": [
                     {
                         "type": "string",
@@ -1794,21 +1594,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/store/{id}/Enable": {
+        "/merchant/store/{id}/disable": {
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "将门店状态置为营业",
+                "description": "将门店状态置为停业",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "商户管理-门店"
                 ],
-                "summary": "启用门店",
+                "summary": "禁用门店",
                 "parameters": [
                     {
                         "type": "string",
@@ -1825,21 +1625,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/store/{id}/disable": {
+        "/merchant/store/{id}/enable": {
             "put": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "将门店状态置为停业",
+                "description": "将门店状态置为营业",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "商户管理-门店"
                 ],
-                "summary": "禁用门店",
+                "summary": "启用门店",
                 "parameters": [
                     {
                         "type": "string",
@@ -2229,40 +2029,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/{id}/Enable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "启用指定管理员用户",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户管理"
-                ],
-                "summary": "启用管理员用户",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "管理员用户ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
         "/user/{id}/disable": {
             "put": {
                 "security": [
@@ -2281,6 +2047,40 @@ const docTemplate = `{
                     "用户管理"
                 ],
                 "summary": "禁用管理员用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "管理员用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/user/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "启用指定管理员用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "启用管理员用户",
                 "parameters": [
                     {
                         "type": "string",
@@ -2482,7 +2282,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -3254,6 +3054,41 @@ const docTemplate = `{
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.Address": {
             "type": "object",
@@ -4085,46 +3920,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.RouterMenuCreateReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "component": {
-                    "description": "组件路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "enabled": {
-                    "description": "是否启用",
-                    "type": "boolean"
-                },
-                "icon": {
-                    "description": "菜单图标",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "name": {
-                    "description": "菜单名称",
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "parent_id": {
-                    "description": "父级菜单ID",
-                    "type": "string"
-                },
-                "path": {
-                    "description": "路由路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "sort": {
-                    "description": "排序",
-                    "type": "integer"
-                }
-            }
-        },
         "types.RouterMenuListResp": {
             "type": "object",
             "properties": {
@@ -4135,46 +3930,6 @@ const docTemplate = `{
                     }
                 },
                 "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "types.RouterMenuUpdateReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "component": {
-                    "description": "组件路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "enabled": {
-                    "description": "是否启用",
-                    "type": "boolean"
-                },
-                "icon": {
-                    "description": "菜单图标",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "name": {
-                    "description": "菜单名称",
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "parent_id": {
-                    "description": "父级菜单ID",
-                    "type": "string"
-                },
-                "path": {
-                    "description": "路由路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "sort": {
-                    "description": "排序",
                     "type": "integer"
                 }
             }

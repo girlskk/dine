@@ -32,7 +32,7 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.DeleteStore())
 	r.GET("/:id", h.GetStore())
 	r.GET("/list", h.GetStores())
-	r.PUT("/:id/Enable", h.Enable())
+	r.PUT("/:id/enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 }
 
@@ -334,7 +334,7 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Router			/merchant/store/{id}/Enable [put]
+//	@Router			/merchant/store/{id}/enable [put]
 func (h *StoreHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()

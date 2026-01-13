@@ -262,7 +262,7 @@ func (h *DepartmentHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"部门ID"
 //	@Success		200	"No Content"
-//	@Router			/common/department/{id}/Enable [put]
+//	@Router			/common/department/{id}/enable [put]
 func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()

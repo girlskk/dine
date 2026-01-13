@@ -38,7 +38,7 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 	r.GET("/:id", h.GetMerchant())
 	r.GET("/list", h.GetMerchants())
 	r.POST("/renewal", h.MerchantRenewal())
-	r.PUT("/:id/Enable", h.Enable())
+	r.PUT("/:id/enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 	r.GET("/count", h.CountMerchant())
 }
@@ -563,7 +563,7 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"商户ID"
 //	@Success		200	"No Content"
-//	@Router			/merchant/merchant/{id}/Enable [put]
+//	@Router			/merchant/merchant/{id}/enable [put]
 func (h *MerchantHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()

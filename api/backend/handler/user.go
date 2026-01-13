@@ -43,7 +43,7 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/Enable", h.Enable())
+	r.PUT("/:id/enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 	r.PUT("/:id/reset_password", h.ResetPassword())
 }
