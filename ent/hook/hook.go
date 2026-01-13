@@ -69,30 +69,6 @@ func (f CategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CategoryMutation", m)
 }
 
-// The CityFunc type is an adapter to allow the use of ordinary
-// function as City mutator.
-type CityFunc func(context.Context, *ent.CityMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f CityFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CityMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CityMutation", m)
-}
-
-// The CountryFunc type is an adapter to allow the use of ordinary
-// function as Country mutator.
-type CountryFunc func(context.Context, *ent.CountryMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f CountryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CountryMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CountryMutation", m)
-}
-
 // The DepartmentFunc type is an adapter to allow the use of ordinary
 // function as Department mutator.
 type DepartmentFunc func(context.Context, *ent.DepartmentMutation) (ent.Value, error)
@@ -115,18 +91,6 @@ func (f DeviceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeviceMutation", m)
-}
-
-// The DistrictFunc type is an adapter to allow the use of ordinary
-// function as District mutator.
-type DistrictFunc func(context.Context, *ent.DistrictMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f DistrictFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.DistrictMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DistrictMutation", m)
 }
 
 // The MenuFunc type is an adapter to allow the use of ordinary
@@ -369,16 +333,28 @@ func (f ProfitDistributionRuleFunc) Mutate(ctx context.Context, m ent.Mutation) 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProfitDistributionRuleMutation", m)
 }
 
-// The ProvinceFunc type is an adapter to allow the use of ordinary
-// function as Province mutator.
-type ProvinceFunc func(context.Context, *ent.ProvinceMutation) (ent.Value, error)
+// The RefundOrderFunc type is an adapter to allow the use of ordinary
+// function as RefundOrder mutator.
+type RefundOrderFunc func(context.Context, *ent.RefundOrderMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f ProvinceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.ProvinceMutation); ok {
+func (f RefundOrderFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RefundOrderMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProvinceMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RefundOrderMutation", m)
+}
+
+// The RefundOrderProductFunc type is an adapter to allow the use of ordinary
+// function as RefundOrderProduct mutator.
+type RefundOrderProductFunc func(context.Context, *ent.RefundOrderProductMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RefundOrderProductFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RefundOrderProductMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RefundOrderProductMutation", m)
 }
 
 // The RemarkFunc type is an adapter to allow the use of ordinary
@@ -391,18 +367,6 @@ func (f RemarkFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RemarkMutation", m)
-}
-
-// The RemarkCategoryFunc type is an adapter to allow the use of ordinary
-// function as RemarkCategory mutator.
-type RemarkCategoryFunc func(context.Context, *ent.RemarkCategoryMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f RemarkCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.RemarkCategoryMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RemarkCategoryMutation", m)
 }
 
 // The RoleFunc type is an adapter to allow the use of ordinary

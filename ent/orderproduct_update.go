@@ -152,23 +152,23 @@ func (opu *OrderProductUpdate) SetNillableProductType(dt *domain.ProductType) *O
 	return opu
 }
 
-// SetCategoryID sets the "category_id" field.
-func (opu *OrderProductUpdate) SetCategoryID(u uuid.UUID) *OrderProductUpdate {
-	opu.mutation.SetCategoryID(u)
+// SetCategory sets the "category" field.
+func (opu *OrderProductUpdate) SetCategory(d domain.Category) *OrderProductUpdate {
+	opu.mutation.SetCategory(d)
 	return opu
 }
 
-// SetNillableCategoryID sets the "category_id" field if the given value is not nil.
-func (opu *OrderProductUpdate) SetNillableCategoryID(u *uuid.UUID) *OrderProductUpdate {
-	if u != nil {
-		opu.SetCategoryID(*u)
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (opu *OrderProductUpdate) SetNillableCategory(d *domain.Category) *OrderProductUpdate {
+	if d != nil {
+		opu.SetCategory(*d)
 	}
 	return opu
 }
 
-// ClearCategoryID clears the value of the "category_id" field.
-func (opu *OrderProductUpdate) ClearCategoryID() *OrderProductUpdate {
-	opu.mutation.ClearCategoryID()
+// ClearCategory clears the value of the "category" field.
+func (opu *OrderProductUpdate) ClearCategory() *OrderProductUpdate {
+	opu.mutation.ClearCategory()
 	return opu
 }
 
@@ -433,6 +433,46 @@ func (opu *OrderProductUpdate) SetNillablePromotionDiscount(d *decimal.Decimal) 
 // ClearPromotionDiscount clears the value of the "promotion_discount" field.
 func (opu *OrderProductUpdate) ClearPromotionDiscount() *OrderProductUpdate {
 	opu.mutation.ClearPromotionDiscount()
+	return opu
+}
+
+// SetAttrAmount sets the "attr_amount" field.
+func (opu *OrderProductUpdate) SetAttrAmount(d decimal.Decimal) *OrderProductUpdate {
+	opu.mutation.SetAttrAmount(d)
+	return opu
+}
+
+// SetNillableAttrAmount sets the "attr_amount" field if the given value is not nil.
+func (opu *OrderProductUpdate) SetNillableAttrAmount(d *decimal.Decimal) *OrderProductUpdate {
+	if d != nil {
+		opu.SetAttrAmount(*d)
+	}
+	return opu
+}
+
+// ClearAttrAmount clears the value of the "attr_amount" field.
+func (opu *OrderProductUpdate) ClearAttrAmount() *OrderProductUpdate {
+	opu.mutation.ClearAttrAmount()
+	return opu
+}
+
+// SetGiftAmount sets the "gift_amount" field.
+func (opu *OrderProductUpdate) SetGiftAmount(d decimal.Decimal) *OrderProductUpdate {
+	opu.mutation.SetGiftAmount(d)
+	return opu
+}
+
+// SetNillableGiftAmount sets the "gift_amount" field if the given value is not nil.
+func (opu *OrderProductUpdate) SetNillableGiftAmount(d *decimal.Decimal) *OrderProductUpdate {
+	if d != nil {
+		opu.SetGiftAmount(*d)
+	}
+	return opu
+}
+
+// ClearGiftAmount clears the value of the "gift_amount" field.
+func (opu *OrderProductUpdate) ClearGiftAmount() *OrderProductUpdate {
+	opu.mutation.ClearGiftAmount()
 	return opu
 }
 
@@ -767,11 +807,11 @@ func (opu *OrderProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := opu.mutation.ProductType(); ok {
 		_spec.SetField(orderproduct.FieldProductType, field.TypeEnum, value)
 	}
-	if value, ok := opu.mutation.CategoryID(); ok {
-		_spec.SetField(orderproduct.FieldCategoryID, field.TypeUUID, value)
+	if value, ok := opu.mutation.Category(); ok {
+		_spec.SetField(orderproduct.FieldCategory, field.TypeJSON, value)
 	}
-	if opu.mutation.CategoryIDCleared() {
-		_spec.ClearField(orderproduct.FieldCategoryID, field.TypeUUID)
+	if opu.mutation.CategoryCleared() {
+		_spec.ClearField(orderproduct.FieldCategory, field.TypeJSON)
 	}
 	if value, ok := opu.mutation.UnitID(); ok {
 		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
@@ -847,6 +887,18 @@ func (opu *OrderProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if opu.mutation.PromotionDiscountCleared() {
 		_spec.ClearField(orderproduct.FieldPromotionDiscount, field.TypeOther)
+	}
+	if value, ok := opu.mutation.AttrAmount(); ok {
+		_spec.SetField(orderproduct.FieldAttrAmount, field.TypeOther, value)
+	}
+	if opu.mutation.AttrAmountCleared() {
+		_spec.ClearField(orderproduct.FieldAttrAmount, field.TypeOther)
+	}
+	if value, ok := opu.mutation.GiftAmount(); ok {
+		_spec.SetField(orderproduct.FieldGiftAmount, field.TypeOther, value)
+	}
+	if opu.mutation.GiftAmountCleared() {
+		_spec.ClearField(orderproduct.FieldGiftAmount, field.TypeOther)
 	}
 	if value, ok := opu.mutation.VoidQty(); ok {
 		_spec.SetField(orderproduct.FieldVoidQty, field.TypeInt, value)
@@ -1092,23 +1144,23 @@ func (opuo *OrderProductUpdateOne) SetNillableProductType(dt *domain.ProductType
 	return opuo
 }
 
-// SetCategoryID sets the "category_id" field.
-func (opuo *OrderProductUpdateOne) SetCategoryID(u uuid.UUID) *OrderProductUpdateOne {
-	opuo.mutation.SetCategoryID(u)
+// SetCategory sets the "category" field.
+func (opuo *OrderProductUpdateOne) SetCategory(d domain.Category) *OrderProductUpdateOne {
+	opuo.mutation.SetCategory(d)
 	return opuo
 }
 
-// SetNillableCategoryID sets the "category_id" field if the given value is not nil.
-func (opuo *OrderProductUpdateOne) SetNillableCategoryID(u *uuid.UUID) *OrderProductUpdateOne {
-	if u != nil {
-		opuo.SetCategoryID(*u)
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (opuo *OrderProductUpdateOne) SetNillableCategory(d *domain.Category) *OrderProductUpdateOne {
+	if d != nil {
+		opuo.SetCategory(*d)
 	}
 	return opuo
 }
 
-// ClearCategoryID clears the value of the "category_id" field.
-func (opuo *OrderProductUpdateOne) ClearCategoryID() *OrderProductUpdateOne {
-	opuo.mutation.ClearCategoryID()
+// ClearCategory clears the value of the "category" field.
+func (opuo *OrderProductUpdateOne) ClearCategory() *OrderProductUpdateOne {
+	opuo.mutation.ClearCategory()
 	return opuo
 }
 
@@ -1373,6 +1425,46 @@ func (opuo *OrderProductUpdateOne) SetNillablePromotionDiscount(d *decimal.Decim
 // ClearPromotionDiscount clears the value of the "promotion_discount" field.
 func (opuo *OrderProductUpdateOne) ClearPromotionDiscount() *OrderProductUpdateOne {
 	opuo.mutation.ClearPromotionDiscount()
+	return opuo
+}
+
+// SetAttrAmount sets the "attr_amount" field.
+func (opuo *OrderProductUpdateOne) SetAttrAmount(d decimal.Decimal) *OrderProductUpdateOne {
+	opuo.mutation.SetAttrAmount(d)
+	return opuo
+}
+
+// SetNillableAttrAmount sets the "attr_amount" field if the given value is not nil.
+func (opuo *OrderProductUpdateOne) SetNillableAttrAmount(d *decimal.Decimal) *OrderProductUpdateOne {
+	if d != nil {
+		opuo.SetAttrAmount(*d)
+	}
+	return opuo
+}
+
+// ClearAttrAmount clears the value of the "attr_amount" field.
+func (opuo *OrderProductUpdateOne) ClearAttrAmount() *OrderProductUpdateOne {
+	opuo.mutation.ClearAttrAmount()
+	return opuo
+}
+
+// SetGiftAmount sets the "gift_amount" field.
+func (opuo *OrderProductUpdateOne) SetGiftAmount(d decimal.Decimal) *OrderProductUpdateOne {
+	opuo.mutation.SetGiftAmount(d)
+	return opuo
+}
+
+// SetNillableGiftAmount sets the "gift_amount" field if the given value is not nil.
+func (opuo *OrderProductUpdateOne) SetNillableGiftAmount(d *decimal.Decimal) *OrderProductUpdateOne {
+	if d != nil {
+		opuo.SetGiftAmount(*d)
+	}
+	return opuo
+}
+
+// ClearGiftAmount clears the value of the "gift_amount" field.
+func (opuo *OrderProductUpdateOne) ClearGiftAmount() *OrderProductUpdateOne {
+	opuo.mutation.ClearGiftAmount()
 	return opuo
 }
 
@@ -1737,11 +1829,11 @@ func (opuo *OrderProductUpdateOne) sqlSave(ctx context.Context) (_node *OrderPro
 	if value, ok := opuo.mutation.ProductType(); ok {
 		_spec.SetField(orderproduct.FieldProductType, field.TypeEnum, value)
 	}
-	if value, ok := opuo.mutation.CategoryID(); ok {
-		_spec.SetField(orderproduct.FieldCategoryID, field.TypeUUID, value)
+	if value, ok := opuo.mutation.Category(); ok {
+		_spec.SetField(orderproduct.FieldCategory, field.TypeJSON, value)
 	}
-	if opuo.mutation.CategoryIDCleared() {
-		_spec.ClearField(orderproduct.FieldCategoryID, field.TypeUUID)
+	if opuo.mutation.CategoryCleared() {
+		_spec.ClearField(orderproduct.FieldCategory, field.TypeJSON)
 	}
 	if value, ok := opuo.mutation.UnitID(); ok {
 		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
@@ -1817,6 +1909,18 @@ func (opuo *OrderProductUpdateOne) sqlSave(ctx context.Context) (_node *OrderPro
 	}
 	if opuo.mutation.PromotionDiscountCleared() {
 		_spec.ClearField(orderproduct.FieldPromotionDiscount, field.TypeOther)
+	}
+	if value, ok := opuo.mutation.AttrAmount(); ok {
+		_spec.SetField(orderproduct.FieldAttrAmount, field.TypeOther, value)
+	}
+	if opuo.mutation.AttrAmountCleared() {
+		_spec.ClearField(orderproduct.FieldAttrAmount, field.TypeOther)
+	}
+	if value, ok := opuo.mutation.GiftAmount(); ok {
+		_spec.SetField(orderproduct.FieldGiftAmount, field.TypeOther, value)
+	}
+	if opuo.mutation.GiftAmountCleared() {
+		_spec.ClearField(orderproduct.FieldGiftAmount, field.TypeOther)
 	}
 	if value, ok := opuo.mutation.VoidQty(); ok {
 		_spec.SetField(orderproduct.FieldVoidQty, field.TypeInt, value)

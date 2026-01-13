@@ -44,9 +44,9 @@ func (Remark) Fields() []ent.Field {
 			Default(1000).
 			Comment("排序，值越小越靠前"),
 
-		field.UUID("category_id", uuid.UUID{}).
-			Immutable().
-			Comment("备注分类ID"),
+		field.Enum("remark_scene").
+			GoType(domain.RemarkScene("")).
+			Comment("使用场景：整单备注/单品备注/退菜原因等"),
 
 		field.UUID("merchant_id", uuid.UUID{}).
 			Optional().
@@ -62,7 +62,7 @@ func (Remark) Fields() []ent.Field {
 
 func (Remark) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("category_id"),
+		index.Fields("remark_scene"),
 		index.Fields("merchant_id"),
 		index.Fields("store_id"),
 	}
@@ -71,12 +71,6 @@ func (Remark) Indexes() []ent.Index {
 // Edges of the Remark.
 func (Remark) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("remark_category", RemarkCategory.Type).
-			Ref("remarks").
-			Field("category_id").
-			Unique().
-			Immutable().
-			Required(),
 		edge.From("merchant", Merchant.Type).
 			Ref("remarks").
 			Field("merchant_id").

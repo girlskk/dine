@@ -24,16 +24,10 @@ type Tx struct {
 	BusinessConfig *BusinessConfigClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
-	// City is the client for interacting with the City builders.
-	City *CityClient
-	// Country is the client for interacting with the Country builders.
-	Country *CountryClient
 	// Department is the client for interacting with the Department builders.
 	Department *DepartmentClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
-	// District is the client for interacting with the District builders.
-	District *DistrictClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
 	// MenuItem is the client for interacting with the MenuItem builders.
@@ -74,12 +68,12 @@ type Tx struct {
 	ProfitDistributionBill *ProfitDistributionBillClient
 	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
 	ProfitDistributionRule *ProfitDistributionRuleClient
-	// Province is the client for interacting with the Province builders.
-	Province *ProvinceClient
+	// RefundOrder is the client for interacting with the RefundOrder builders.
+	RefundOrder *RefundOrderClient
+	// RefundOrderProduct is the client for interacting with the RefundOrderProduct builders.
+	RefundOrderProduct *RefundOrderProductClient
 	// Remark is the client for interacting with the Remark builders.
 	Remark *RemarkClient
-	// RemarkCategory is the client for interacting with the RemarkCategory builders.
-	RemarkCategory *RemarkCategoryClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// RoleMenu is the client for interacting with the RoleMenu builders.
@@ -240,11 +234,8 @@ func (tx *Tx) init() {
 	tx.BackendUser = NewBackendUserClient(tx.config)
 	tx.BusinessConfig = NewBusinessConfigClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
-	tx.City = NewCityClient(tx.config)
-	tx.Country = NewCountryClient(tx.config)
 	tx.Department = NewDepartmentClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
-	tx.District = NewDistrictClient(tx.config)
 	tx.Menu = NewMenuClient(tx.config)
 	tx.MenuItem = NewMenuItemClient(tx.config)
 	tx.Merchant = NewMerchantClient(tx.config)
@@ -265,9 +256,9 @@ func (tx *Tx) init() {
 	tx.ProductUnit = NewProductUnitClient(tx.config)
 	tx.ProfitDistributionBill = NewProfitDistributionBillClient(tx.config)
 	tx.ProfitDistributionRule = NewProfitDistributionRuleClient(tx.config)
-	tx.Province = NewProvinceClient(tx.config)
+	tx.RefundOrder = NewRefundOrderClient(tx.config)
+	tx.RefundOrderProduct = NewRefundOrderProductClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
-	tx.RemarkCategory = NewRemarkCategoryClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.RoleMenu = NewRoleMenuClient(tx.config)
 	tx.RolePermission = NewRolePermissionClient(tx.config)

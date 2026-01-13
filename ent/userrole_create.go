@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
@@ -127,6 +128,11 @@ func (urc *UserRoleCreate) SetNillableID(u *uuid.UUID) *UserRoleCreate {
 	return urc
 }
 
+// SetRole sets the "role" edge to the Role entity.
+func (urc *UserRoleCreate) SetRole(r *Role) *UserRoleCreate {
+	return urc.SetRoleID(r.ID)
+}
+
 // Mutation returns the UserRoleMutation object of the builder.
 func (urc *UserRoleCreate) Mutation() *UserRoleMutation {
 	return urc.mutation
@@ -217,6 +223,9 @@ func (urc *UserRoleCreate) check() error {
 	if _, ok := urc.mutation.RoleID(); !ok {
 		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "UserRole.role_id"`)}
 	}
+	if len(urc.mutation.RoleIDs()) == 0 {
+		return &ValidationError{Name: "role", err: errors.New(`ent: missing required edge "UserRole.role"`)}
+	}
 	return nil
 }
 
@@ -273,10 +282,6 @@ func (urc *UserRoleCreate) createSpec() (*UserRole, *sqlgraph.CreateSpec) {
 		_spec.SetField(userrole.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
-	if value, ok := urc.mutation.RoleID(); ok {
-		_spec.SetField(userrole.FieldRoleID, field.TypeUUID, value)
-		_node.RoleID = value
-	}
 	if value, ok := urc.mutation.MerchantID(); ok {
 		_spec.SetField(userrole.FieldMerchantID, field.TypeUUID, value)
 		_node.MerchantID = value
@@ -284,6 +289,23 @@ func (urc *UserRoleCreate) createSpec() (*UserRole, *sqlgraph.CreateSpec) {
 	if value, ok := urc.mutation.StoreID(); ok {
 		_spec.SetField(userrole.FieldStoreID, field.TypeUUID, value)
 		_node.StoreID = value
+	}
+	if nodes := urc.mutation.RoleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userrole.RoleTable,
+			Columns: []string{userrole.RoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.RoleID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

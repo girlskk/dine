@@ -2,16 +2,11 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
-)
-
-var (
-	ErrMismatchedHashAndPassword = errors.New("mismatched hash and password")
 )
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/admin_user_repository.go -package=mock . AdminUserRepository

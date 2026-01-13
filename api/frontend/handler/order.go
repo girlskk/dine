@@ -63,11 +63,11 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromFrontendUserContext(ctx)
 		o := &domain.Order{
 			ID:            uuid.New(),
 			MerchantID:    user.MerchantID,
-			StoreID:       user.GetStoreID(),
+			StoreID:       user.StoreID,
 			BusinessDate:  req.BusinessDate,
 			ShiftNo:       req.ShiftNo,
 			OrderNo:       req.OrderNo,
@@ -317,11 +317,11 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromBackendUserContext(ctx)
+		user := domain.FromFrontendUserContext(ctx)
 
 		params := domain.OrderListParams{
 			MerchantID:    user.MerchantID,
-			StoreID:       user.GetStoreID(),
+			StoreID:       user.StoreID,
 			BusinessDate:  req.BusinessDate,
 			OrderNo:       req.OrderNo,
 			OrderType:     domain.OrderType(req.OrderType),

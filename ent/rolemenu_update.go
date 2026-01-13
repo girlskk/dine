@@ -56,6 +56,20 @@ func (rmu *RoleMenuUpdate) AddDeletedAt(i int64) *RoleMenuUpdate {
 	return rmu
 }
 
+// SetPath sets the "path" field.
+func (rmu *RoleMenuUpdate) SetPath(s string) *RoleMenuUpdate {
+	rmu.mutation.SetPath(s)
+	return rmu
+}
+
+// SetNillablePath sets the "path" field if the given value is not nil.
+func (rmu *RoleMenuUpdate) SetNillablePath(s *string) *RoleMenuUpdate {
+	if s != nil {
+		rmu.SetPath(*s)
+	}
+	return rmu
+}
+
 // Mutation returns the RoleMenuMutation object of the builder.
 func (rmu *RoleMenuUpdate) Mutation() *RoleMenuMutation {
 	return rmu.mutation
@@ -127,6 +141,9 @@ func (rmu *RoleMenuUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := rmu.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(rolemenu.FieldDeletedAt, field.TypeInt64, value)
 	}
+	if value, ok := rmu.mutation.Path(); ok {
+		_spec.SetField(rolemenu.FieldPath, field.TypeString, value)
+	}
 	if rmu.mutation.MerchantIDCleared() {
 		_spec.ClearField(rolemenu.FieldMerchantID, field.TypeUUID)
 	}
@@ -179,6 +196,20 @@ func (rmuo *RoleMenuUpdateOne) SetNillableDeletedAt(i *int64) *RoleMenuUpdateOne
 // AddDeletedAt adds i to the "deleted_at" field.
 func (rmuo *RoleMenuUpdateOne) AddDeletedAt(i int64) *RoleMenuUpdateOne {
 	rmuo.mutation.AddDeletedAt(i)
+	return rmuo
+}
+
+// SetPath sets the "path" field.
+func (rmuo *RoleMenuUpdateOne) SetPath(s string) *RoleMenuUpdateOne {
+	rmuo.mutation.SetPath(s)
+	return rmuo
+}
+
+// SetNillablePath sets the "path" field if the given value is not nil.
+func (rmuo *RoleMenuUpdateOne) SetNillablePath(s *string) *RoleMenuUpdateOne {
+	if s != nil {
+		rmuo.SetPath(*s)
+	}
 	return rmuo
 }
 
@@ -282,6 +313,9 @@ func (rmuo *RoleMenuUpdateOne) sqlSave(ctx context.Context) (_node *RoleMenu, er
 	}
 	if value, ok := rmuo.mutation.AddedDeletedAt(); ok {
 		_spec.AddField(rolemenu.FieldDeletedAt, field.TypeInt64, value)
+	}
+	if value, ok := rmuo.mutation.Path(); ok {
+		_spec.SetField(rolemenu.FieldPath, field.TypeString, value)
 	}
 	if rmuo.mutation.MerchantIDCleared() {
 		_spec.ClearField(rolemenu.FieldMerchantID, field.TypeUUID)

@@ -86,13 +86,11 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			ShiftTimes:              req.ShiftTimes,
 		}
 		domainStore.Address = &domain.Address{
-			CountryID:  req.Address.CountryID,
-			ProvinceID: req.Address.ProvinceID,
-			CityID:     req.Address.CityID,
-			DistrictID: req.Address.DistrictID,
-			Address:    req.Address.Address,
-			Lng:        req.Address.Lng,
-			Lat:        req.Address.Lat,
+			Country:  req.Address.Country,
+			Province: req.Address.Province,
+			Address:  req.Address.Address,
+			Lng:      req.Address.Lng,
+			Lat:      req.Address.Lat,
 		}
 
 		if err := h.StoreInteractor.CreateStore(ctx, domainStore); err != nil {
@@ -159,13 +157,11 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			ShiftTimes:              req.ShiftTimes,
 		}
 		domainStore.Address = &domain.Address{
-			CountryID:  req.Address.CountryID,
-			ProvinceID: req.Address.ProvinceID,
-			CityID:     req.Address.CityID,
-			DistrictID: req.Address.DistrictID,
-			Address:    req.Address.Address,
-			Lng:        req.Address.Lng,
-			Lat:        req.Address.Lat,
+			Country:  req.Address.Country,
+			Province: req.Address.Province,
+			Address:  req.Address.Address,
+			Lng:      req.Address.Lng,
+			Lat:      req.Address.Lat,
 		}
 
 		if err := h.StoreInteractor.UpdateStore(ctx, domainStore); err != nil {
@@ -286,6 +282,7 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 			AdminPhoneNumber: req.AdminPhoneNumber,
 			Status:           req.Status,
 			BusinessModel:    req.BusinessModel,
+			Province:         req.Province,
 		}
 
 		// parse MerchantID if provided
@@ -296,16 +293,6 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 				return
 			}
 			filter.MerchantID = mid
-		}
-
-		// parse ProvinceID if provided
-		if req.ProvinceID != "" {
-			pid, err := uuid.Parse(req.ProvinceID)
-			if err != nil {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			filter.ProvinceID = pid
 		}
 
 		if req.CreatedAtGte != "" || req.CreatedAtLte != "" {
@@ -410,6 +397,10 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 
 func (h *StoreHandler) checkEditErr(err error) error {
 	switch {
+	case errors.Is(err, domain.ErrUserExists):
+		return errorx.New(http.StatusConflict, errcode.UserNameExists, err)
+	case errors.Is(err, domain.ErrStoreNameExists):
+		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursConflict):
 		return errorx.New(http.StatusBadRequest, errcode.StoreBusinessHoursConflict, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursTimeInvalid):
@@ -428,8 +419,6 @@ func (h *StoreHandler) checkEditErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.StoreShiftTimeNameExists, err)
 	case domain.IsNotFound(err):
 		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
-	case domain.IsConflict(err):
-		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
 	case domain.IsParamsError(err):
 		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
 

@@ -320,3 +320,66 @@ func (s *OrderTestSuite) TestOrder_List() {
 		require.Equal(t, o1.ID, items[1].ID)
 	})
 }
+
+func (s *OrderTestSuite) TestOrder_CreateWithProducts() {
+	s.T().Run("创建订单含商品明细", func(t *testing.T) {
+		storeID := uuid.NewString()
+		storeUUID := uuid.MustParse(storeID)
+		merchantUUID := uuid.New()
+		categoryID := uuid.New()
+
+		order := &domain.Order{
+			ID:           uuid.New(),
+			MerchantID:   merchantUUID,
+			StoreID:      storeUUID,
+			BusinessDate: "2025-12-22",
+			OrderNo:      "NO-PROD-001",
+			DiningMode:   domain.DiningModeDineIn,
+			Channel:      domain.ChannelPOS,
+			Store:        domain.OrderStore{ID: storeUUID, MerchantID: merchantUUID},
+			Pos:          domain.OrderPOS{ID: uuid.New(), Name: "test-pos"},
+			Cashier:      domain.OrderCashier{CashierID: uuid.New(), CashierName: "test-cashier"},
+			Amount:       domain.OrderAmount{AmountDue: decimal.NewFromInt(100)},
+			Remark:       "订单备注",
+			OrderProducts: []domain.OrderProduct{
+				{
+					ID:          uuid.New(),
+					OrderItemID: "item-001",
+					Index:       1,
+					ProductID:   uuid.New(),
+					ProductName: "测试商品",
+					ProductType: domain.ProductTypeNormal,
+					Category: domain.Category{
+						ID:         categoryID,
+						Name:       "测试分类",
+						MerchantID: merchantUUID,
+						StoreID:    storeUUID,
+					},
+					UnitID:     uuid.New(),
+					Qty:        2,
+					Price:      decimal.NewFromInt(50),
+					Subtotal:   decimal.NewFromInt(100),
+					Total:      decimal.NewFromInt(100),
+					AttrAmount: decimal.NewFromInt(5),
+					GiftAmount: decimal.NewFromInt(10),
+				},
+			},
+		}
+
+		err := s.repo.Create(s.ctx, order)
+		require.NoError(t, err)
+
+		// 查询验证
+		found, err := s.repo.FindByID(s.ctx, order.ID)
+		require.NoError(t, err)
+		require.Equal(t, "订单备注", found.Remark)
+		require.Len(t, found.OrderProducts, 1)
+
+		op := found.OrderProducts[0]
+		require.Equal(t, "测试商品", op.ProductName)
+		require.Equal(t, categoryID, op.Category.ID)
+		require.Equal(t, "测试分类", op.Category.Name)
+		require.True(t, op.AttrAmount.Equal(decimal.NewFromInt(5)))
+		require.True(t, op.GiftAmount.Equal(decimal.NewFromInt(10)))
+	})
+}

@@ -144,5 +144,14 @@ other = "用户部门类型不匹配"
 [PASSWORD_CANNOT_BE_EMPTY]
 other = "密码不能为空"
 
+[ROLE_ASSIGNED_CANNOT_DISABLE]
+other = "角色已分配用户，无法禁用"
+
+[ROLE_ASSIGNED_CANNOT_DELETE]
+other = "角色已分配用户，无法删除"
+
+[USER_ROLE_NOT_EXISTS]
+other = "该用户未分配角色"
+
 [TIME_FORMAT_INVALID]
 other = "时间格式错误"

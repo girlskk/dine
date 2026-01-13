@@ -55,14 +55,18 @@ func (repo *StoreRepository) Create(ctx context.Context, domainStore *domain.Sto
 		SetBusinessHours(domainStore.BusinessHours).
 		SetDiningPeriods(domainStore.DiningPeriods).
 		SetShiftTimes(domainStore.ShiftTimes).
-		SetCountryID(domainStore.Address.CountryID).
-		SetProvinceID(domainStore.Address.ProvinceID).
-		SetCityID(domainStore.Address.CityID).
-		SetDistrictID(domainStore.Address.DistrictID).
-		SetAddress(domainStore.Address.Address).
-		SetLng(domainStore.Address.Lng).
-		SetLat(domainStore.Address.Lat).
 		SetSuperAccount(domainStore.LoginAccount)
+	if domainStore.Address != nil {
+		if domainStore.Address.Country != "" {
+			builder = builder.SetCountry(domainStore.Address.Country)
+		}
+		if domainStore.Address.Province != "" {
+			builder = builder.SetProvince(domainStore.Address.Province)
+		}
+		builder = builder.SetAddress(domainStore.Address.Address).
+			SetLng(domainStore.Address.Lng).
+			SetLat(domainStore.Address.Lat)
+	}
 	created, err := builder.Save(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to create store: %w", err)
@@ -106,14 +110,22 @@ func (repo *StoreRepository) Update(ctx context.Context, domainStore *domain.Sto
 		SetFoodOperationLicenseURL(domainStore.FoodOperationLicenseURL).
 		SetBusinessHours(domainStore.BusinessHours).
 		SetDiningPeriods(domainStore.DiningPeriods).
-		SetShiftTimes(domainStore.ShiftTimes).
-		SetCountryID(domainStore.Address.CountryID).
-		SetProvinceID(domainStore.Address.ProvinceID).
-		SetCityID(domainStore.Address.CityID).
-		SetDistrictID(domainStore.Address.DistrictID).
-		SetAddress(domainStore.Address.Address).
-		SetLng(domainStore.Address.Lng).
-		SetLat(domainStore.Address.Lat)
+		SetShiftTimes(domainStore.ShiftTimes)
+	if domainStore.Address != nil {
+		if domainStore.Address.Country != "" {
+			builder = builder.SetCountry(domainStore.Address.Country)
+		} else {
+			builder = builder.ClearCountry()
+		}
+		if domainStore.Address.Province != "" {
+			builder = builder.SetProvince(domainStore.Address.Province)
+		} else {
+			builder = builder.ClearProvince()
+		}
+		builder = builder.SetAddress(domainStore.Address.Address).
+			SetLng(domainStore.Address.Lng).
+			SetLat(domainStore.Address.Lat)
+	}
 	updated, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -155,10 +167,6 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 	em, err := repo.Client.Store.Query().
 		Where(store.ID(id)).
 		WithMerchant().
-		WithCountry().
-		WithProvince().
-		WithCity().
-		WithDistrict().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -185,10 +193,6 @@ func (repo *StoreRepository) FindStoreMerchant(ctx context.Context, merchantID u
 
 	em, err := repo.Client.Store.Query().
 		Where(store.MerchantIDEQ(merchantID)).
-		WithCountry().
-		WithProvince().
-		WithCity().
-		WithDistrict().
 		Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, domain.NotFoundError(domain.ErrStoreNotExists)
@@ -217,9 +221,8 @@ func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.P
 	}
 
 	query := repo.filterBuildQuery(filter)
-	query.
-		WithMerchant(). // 加载商户信息
-		WithProvince()  // 加载省信息
+	query.WithMerchant() // 加载商户信息
+
 	total, err = query.Clone().Count(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to count: %w", err)
@@ -308,25 +311,11 @@ func (repo *StoreRepository) ExistsStore(ctx context.Context, existsStoreParams 
 
 func convertStore(es *ent.Store) *domain.Store {
 	address := &domain.Address{
-		CountryID:  es.CountryID,
-		ProvinceID: es.ProvinceID,
-		CityID:     es.CityID,
-		DistrictID: es.DistrictID,
-		Address:    es.Address,
-		Lng:        es.Lng,
-		Lat:        es.Lat,
-	}
-	if es.Edges.Country != nil {
-		address.CountryName = es.Edges.Country.Name
-	}
-	if es.Edges.Province != nil {
-		address.ProvinceName = es.Edges.Province.Name
-	}
-	if es.Edges.City != nil {
-		address.CityName = es.Edges.City.Name
-	}
-	if es.Edges.District != nil {
-		address.DistrictName = es.Edges.District.Name
+		Country:  es.Country,
+		Province: es.Province,
+		Address:  es.Address,
+		Lng:      es.Lng,
+		Lat:      es.Lat,
 	}
 	repoStore := &domain.Store{
 		ID:                      es.ID,
@@ -412,8 +401,8 @@ func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *e
 	if filter.CreatedAtLte != nil {
 		query = query.Where(store.CreatedAtLTE(*filter.CreatedAtLte))
 	}
-	if filter.ProvinceID != uuid.Nil {
-		query = query.Where(store.ProvinceIDEQ(filter.ProvinceID))
+	if filter.Province != "" {
+		query = query.Where(store.ProvinceEQ(filter.Province))
 	}
 
 	return query

@@ -62,12 +62,12 @@ func (h *RemarkHandler) Create() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		remark := &domain.CreateRemarkParams{
-			Name:       req.Name,
-			RemarkType: domain.RemarkTypeBrand,
-			Enabled:    req.Enabled,
-			SortOrder:  req.SortOrder,
-			CategoryID: req.CategoryID,
-			MerchantID: user.MerchantID,
+			Name:        req.Name,
+			RemarkType:  domain.RemarkTypeBrand,
+			Enabled:     req.Enabled,
+			SortOrder:   req.SortOrder,
+			RemarkScene: req.RemarkScene,
+			MerchantID:  user.MerchantID,
 		}
 
 		if err := h.RemarkInteractor.Create(ctx, remark); err != nil {
@@ -129,6 +129,10 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 		if err := h.RemarkInteractor.Update(ctx, remark); err != nil {
 			if errors.Is(err, domain.ErrRemarkNameExists) {
 				c.Error(errorx.New(http.StatusConflict, errcode.RemarkNameExists, err))
+				return
+			}
+			if errors.Is(err, domain.ErrRemarkNotExists) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
 			}
 			if domain.IsParamsError(err) {
@@ -251,18 +255,10 @@ func (h *RemarkHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.RemarkListFilter{
-			MerchantID: user.MerchantID,
-			Enabled:    req.Enabled,
-			RemarkType: domain.RemarkTypeBrand,
-		}
-		// parse CategoryID if provided
-		if req.CategoryID != "" {
-			pid, err := uuid.Parse(req.CategoryID)
-			if err != nil {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			filter.CategoryID = pid
+			MerchantID:  user.MerchantID,
+			Enabled:     req.Enabled,
+			RemarkType:  domain.RemarkTypeBrand,
+			RemarkScene: req.RemarkScene,
 		}
 
 		// parse StoreID if provided

@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
@@ -24,6 +25,7 @@ type UserRoleQuery struct {
 	order      []userrole.OrderOption
 	inters     []Interceptor
 	predicates []predicate.UserRole
+	withRole   *RoleQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -59,6 +61,28 @@ func (urq *UserRoleQuery) Unique(unique bool) *UserRoleQuery {
 func (urq *UserRoleQuery) Order(o ...userrole.OrderOption) *UserRoleQuery {
 	urq.order = append(urq.order, o...)
 	return urq
+}
+
+// QueryRole chains the current query on the "role" edge.
+func (urq *UserRoleQuery) QueryRole() *RoleQuery {
+	query := (&RoleClient{config: urq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := urq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := urq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userrole.Table, userrole.FieldID, selector),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userrole.RoleTable, userrole.RoleColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(urq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first UserRole entity from the query.
@@ -253,11 +277,23 @@ func (urq *UserRoleQuery) Clone() *UserRoleQuery {
 		order:      append([]userrole.OrderOption{}, urq.order...),
 		inters:     append([]Interceptor{}, urq.inters...),
 		predicates: append([]predicate.UserRole{}, urq.predicates...),
+		withRole:   urq.withRole.Clone(),
 		// clone intermediate query.
 		sql:       urq.sql.Clone(),
 		path:      urq.path,
 		modifiers: append([]func(*sql.Selector){}, urq.modifiers...),
 	}
+}
+
+// WithRole tells the query-builder to eager-load the nodes that are connected to
+// the "role" edge. The optional arguments are used to configure the query builder of the edge.
+func (urq *UserRoleQuery) WithRole(opts ...func(*RoleQuery)) *UserRoleQuery {
+	query := (&RoleClient{config: urq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	urq.withRole = query
+	return urq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +372,11 @@ func (urq *UserRoleQuery) prepareQuery(ctx context.Context) error {
 
 func (urq *UserRoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*UserRole, error) {
 	var (
-		nodes = []*UserRole{}
-		_spec = urq.querySpec()
+		nodes       = []*UserRole{}
+		_spec       = urq.querySpec()
+		loadedTypes = [1]bool{
+			urq.withRole != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*UserRole).scanValues(nil, columns)
@@ -345,6 +384,7 @@ func (urq *UserRoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Us
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &UserRole{config: urq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(urq.modifiers) > 0 {
@@ -359,7 +399,43 @@ func (urq *UserRoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Us
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := urq.withRole; query != nil {
+		if err := urq.loadRole(ctx, query, nodes, nil,
+			func(n *UserRole, e *Role) { n.Edges.Role = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (urq *UserRoleQuery) loadRole(ctx context.Context, query *RoleQuery, nodes []*UserRole, init func(*UserRole), assign func(*UserRole, *Role)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserRole)
+	for i := range nodes {
+		fk := nodes[i].RoleID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(role.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "role_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (urq *UserRoleQuery) sqlCount(ctx context.Context) (int, error) {
@@ -389,6 +465,9 @@ func (urq *UserRoleQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != userrole.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if urq.withRole != nil {
+			_spec.Node.AddColumnOnce(userrole.FieldRoleID)
 		}
 	}
 	if ps := urq.predicates; len(ps) > 0 {
