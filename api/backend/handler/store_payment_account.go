@@ -226,7 +226,7 @@ func (h *StorePaymentAccountHandler) List() gin.HandlerFunc {
 		var startAt, endAt time.Time
 		var err error
 		if req.CreatedAtStart != "" {
-			startAt, err = time.Parse(time.DateOnly, req.CreatedAtStart)
+			startAt, err = time.ParseInLocation(time.DateOnly, req.CreatedAtStart, time.Local)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
@@ -234,7 +234,7 @@ func (h *StorePaymentAccountHandler) List() gin.HandlerFunc {
 			params.CreatedAtStart = &startAt
 		}
 		if req.CreatedAtEnd != "" {
-			endAt, err = time.Parse(time.DateOnly, req.CreatedAtEnd)
+			endAt, err = time.ParseInLocation(time.DateOnly, req.CreatedAtEnd, time.Local)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
