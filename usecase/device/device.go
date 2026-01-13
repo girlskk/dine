@@ -159,6 +159,7 @@ func (interactor *DeviceInteractor) Update(ctx context.Context, domainDevice *do
 				return domain.ErrDeviceCodeExists
 			}
 		}
+		domainDevice.Status = old.Status
 		err = ds.DeviceRepo().Update(ctx, domainDevice)
 		if err != nil {
 			return err

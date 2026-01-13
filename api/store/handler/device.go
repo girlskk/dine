@@ -72,6 +72,7 @@ func (h *DeviceHandler) Create() gin.HandlerFunc {
 			Location:    req.Location,
 			Enabled:     req.Enabled,
 			SortOrder:   req.SortOrder,
+			Status:      domain.DeviceStatusOffline,
 		}
 		switch req.DeviceType {
 		case domain.DeviceTypeCashier:
