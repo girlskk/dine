@@ -152,9 +152,6 @@ func (repo *RefundOrderRepository) createRefundProduct(ctx context.Context, rp *
 	if rp.Category.ID != uuid.Nil {
 		builder = builder.SetCategory(rp.Category)
 	}
-	if rp.UnitID != uuid.Nil {
-		builder = builder.SetUnitID(rp.UnitID)
-	}
 	if rp.MainImage != "" {
 		builder = builder.SetMainImage(rp.MainImage)
 	}
@@ -291,9 +288,7 @@ func (repo *RefundOrderRepository) List(ctx context.Context, params domain.Refun
 	if params.OriginOrderID != uuid.Nil {
 		query = query.Where(entrefundorder.OriginOrderID(params.OriginOrderID))
 	}
-	if params.BusinessDate != "" {
-		query = query.Where(entrefundorder.BusinessDate(params.BusinessDate))
-	}
+
 	if params.RefundNo != "" {
 		query = query.Where(entrefundorder.RefundNo(params.RefundNo))
 	}
@@ -414,7 +409,6 @@ func convertRefundProductToDomain(ep *ent.RefundOrderProduct) domain.RefundOrder
 		ProductName:          ep.ProductName,
 		ProductType:          ep.ProductType,
 		Category:             ep.Category,
-		UnitID:               ep.UnitID,
 		MainImage:            ep.MainImage,
 		Description:          ep.Description,
 		OriginQty:            ep.OriginQty,
