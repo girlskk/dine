@@ -37,19 +37,19 @@ func (m *MockRemarkRepository) EXPECT() *MockRemarkRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CountRemarkByCategories mocks base method.
-func (m *MockRemarkRepository) CountRemarkByCategories(arg0 context.Context, arg1 domain.CountRemarkParams) (map[uuid.UUID]int, error) {
+// CountRemarkByScene mocks base method.
+func (m *MockRemarkRepository) CountRemarkByScene(arg0 context.Context, arg1 domain.CountRemarkParams) (map[domain.RemarkScene]int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CountRemarkByCategories", arg0, arg1)
-	ret0, _ := ret[0].(map[uuid.UUID]int)
+	ret := m.ctrl.Call(m, "CountRemarkByScene", arg0, arg1)
+	ret0, _ := ret[0].(map[domain.RemarkScene]int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CountRemarkByCategories indicates an expected call of CountRemarkByCategories.
-func (mr *MockRemarkRepositoryMockRecorder) CountRemarkByCategories(arg0, arg1 interface{}) *gomock.Call {
+// CountRemarkByScene indicates an expected call of CountRemarkByScene.
+func (mr *MockRemarkRepositoryMockRecorder) CountRemarkByScene(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountRemarkByCategories", reflect.TypeOf((*MockRemarkRepository)(nil).CountRemarkByCategories), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountRemarkByScene", reflect.TypeOf((*MockRemarkRepository)(nil).CountRemarkByScene), arg0, arg1)
 }
 
 // Create mocks base method.

@@ -30,8 +30,8 @@ type RoleMenu struct {
 	RoleType domain.RoleType `json:"role_type,omitempty"`
 	// 角色ID
 	RoleID uuid.UUID `json:"role_id,omitempty"`
-	// 菜单ID
-	MenuID uuid.UUID `json:"menu_id,omitempty"`
+	// path 作为唯一标识
+	Path string `json:"path,omitempty"`
 	// 商户ID，可为空表示全局/非商户
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 门店ID，可为空表示商户级
@@ -46,11 +46,11 @@ func (*RoleMenu) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case rolemenu.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case rolemenu.FieldRoleType:
+		case rolemenu.FieldRoleType, rolemenu.FieldPath:
 			values[i] = new(sql.NullString)
 		case rolemenu.FieldCreatedAt, rolemenu.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case rolemenu.FieldID, rolemenu.FieldRoleID, rolemenu.FieldMenuID, rolemenu.FieldMerchantID, rolemenu.FieldStoreID:
+		case rolemenu.FieldID, rolemenu.FieldRoleID, rolemenu.FieldMerchantID, rolemenu.FieldStoreID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -103,11 +103,11 @@ func (rm *RoleMenu) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				rm.RoleID = *value
 			}
-		case rolemenu.FieldMenuID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field menu_id", values[i])
-			} else if value != nil {
-				rm.MenuID = *value
+		case rolemenu.FieldPath:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field path", values[i])
+			} else if value.Valid {
+				rm.Path = value.String
 			}
 		case rolemenu.FieldMerchantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -172,8 +172,8 @@ func (rm *RoleMenu) String() string {
 	builder.WriteString("role_id=")
 	builder.WriteString(fmt.Sprintf("%v", rm.RoleID))
 	builder.WriteString(", ")
-	builder.WriteString("menu_id=")
-	builder.WriteString(fmt.Sprintf("%v", rm.MenuID))
+	builder.WriteString("path=")
+	builder.WriteString(rm.Path)
 	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", rm.MerchantID))

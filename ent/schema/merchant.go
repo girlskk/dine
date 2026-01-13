@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
 )
@@ -51,6 +50,7 @@ func (Merchant) Fields() []ent.Field {
 			Nillable().
 			Comment("UTC 时区的过期时间"),
 		field.String("business_type_code").
+			GoType(domain.BusinessType("")).
 			Comment("业态类型"),
 		field.String("merchant_logo").
 			Default("").
@@ -66,18 +66,14 @@ func (Merchant) Fields() []ent.Field {
 			Comment("状态: 正常,停用,过期"),
 
 		// 地区信息
-		field.UUID("country_id", uuid.UUID{}).
+		field.Enum("country").
+			GoType(domain.Country("")).
 			Optional().
-			Comment("国家/地区id"),
-		field.UUID("province_id", uuid.UUID{}).
+			Comment("国家/地区"),
+		field.Enum("province").
+			GoType(domain.Province("")).
 			Optional().
-			Comment("省份 id"),
-		field.UUID("city_id", uuid.UUID{}).
-			Optional().
-			Comment("城市 id"),
-		field.UUID("district_id", uuid.UUID{}).
-			Optional().
-			Comment("区县 id"),
+			Comment("省份"),
 		field.String("address").
 			Optional().
 			Default("").
@@ -100,27 +96,9 @@ func (Merchant) Fields() []ent.Field {
 // Edges of the Merchant.
 func (Merchant) Edges() []ent.Edge {
 	return []ent.Edge{
-		// 地区关联（绑定已有外键字段）
-		edge.From("country", Country.Type).
-			Ref("merchants").
-			Field("country_id").
-			Unique(),
-		edge.From("province", Province.Type).
-			Ref("merchants").
-			Field("province_id").
-			Unique(),
-		edge.From("city", City.Type).
-			Ref("merchants").
-			Field("city_id").
-			Unique(),
-		edge.From("district", District.Type).
-			Ref("merchants").
-			Field("district_id").
-			Unique(),
 		edge.To("backend_users", BackendUser.Type),
 		edge.To("stores", Store.Type),
 		edge.To("merchant_renewals", MerchantRenewal.Type),
-		edge.To("remark_categories", RemarkCategory.Type),
 		edge.To("remarks", Remark.Type),
 		edge.To("stalls", Stall.Type),
 		edge.To("additional_fees", AdditionalFee.Type),

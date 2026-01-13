@@ -57,9 +57,11 @@ type RoleEdges struct {
 	Merchant *Merchant `json:"merchant,omitempty"`
 	// Store holds the value of the store edge.
 	Store *Store `json:"store,omitempty"`
+	// UserRoles holds the value of the user_roles edge.
+	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -82,6 +84,15 @@ func (e RoleEdges) StoreOrErr() (*Store, error) {
 		return nil, &NotFoundError{label: store.Label}
 	}
 	return nil, &NotLoadedError{edge: "store"}
+}
+
+// UserRolesOrErr returns the UserRoles value or an error if the edge
+// was not loaded in eager-loading.
+func (e RoleEdges) UserRolesOrErr() ([]*UserRole, error) {
+	if e.loadedTypes[2] {
+		return e.UserRoles, nil
+	}
+	return nil, &NotLoadedError{edge: "user_roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -211,6 +222,11 @@ func (r *Role) QueryMerchant() *MerchantQuery {
 // QueryStore queries the "store" edge of the Role entity.
 func (r *Role) QueryStore() *StoreQuery {
 	return NewRoleClient(r.config).QueryStore(r)
+}
+
+// QueryUserRoles queries the "user_roles" edge of the Role entity.
+func (r *Role) QueryUserRoles() *UserRoleQuery {
+	return NewRoleClient(r.config).QueryUserRoles(r)
 }
 
 // Update returns a builder for updating this Role.

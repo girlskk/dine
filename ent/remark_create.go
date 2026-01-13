@@ -16,7 +16,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 )
 
@@ -110,9 +109,9 @@ func (rc *RemarkCreate) SetNillableSortOrder(i *int) *RemarkCreate {
 	return rc
 }
 
-// SetCategoryID sets the "category_id" field.
-func (rc *RemarkCreate) SetCategoryID(u uuid.UUID) *RemarkCreate {
-	rc.mutation.SetCategoryID(u)
+// SetRemarkScene sets the "remark_scene" field.
+func (rc *RemarkCreate) SetRemarkScene(ds domain.RemarkScene) *RemarkCreate {
+	rc.mutation.SetRemarkScene(ds)
 	return rc
 }
 
@@ -156,17 +155,6 @@ func (rc *RemarkCreate) SetNillableID(u *uuid.UUID) *RemarkCreate {
 		rc.SetID(*u)
 	}
 	return rc
-}
-
-// SetRemarkCategoryID sets the "remark_category" edge to the RemarkCategory entity by ID.
-func (rc *RemarkCreate) SetRemarkCategoryID(id uuid.UUID) *RemarkCreate {
-	rc.mutation.SetRemarkCategoryID(id)
-	return rc
-}
-
-// SetRemarkCategory sets the "remark_category" edge to the RemarkCategory entity.
-func (rc *RemarkCreate) SetRemarkCategory(r *RemarkCategory) *RemarkCreate {
-	return rc.SetRemarkCategoryID(r.ID)
 }
 
 // SetMerchant sets the "merchant" edge to the Merchant entity.
@@ -285,11 +273,13 @@ func (rc *RemarkCreate) check() error {
 	if _, ok := rc.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Remark.sort_order"`)}
 	}
-	if _, ok := rc.mutation.CategoryID(); !ok {
-		return &ValidationError{Name: "category_id", err: errors.New(`ent: missing required field "Remark.category_id"`)}
+	if _, ok := rc.mutation.RemarkScene(); !ok {
+		return &ValidationError{Name: "remark_scene", err: errors.New(`ent: missing required field "Remark.remark_scene"`)}
 	}
-	if len(rc.mutation.RemarkCategoryIDs()) == 0 {
-		return &ValidationError{Name: "remark_category", err: errors.New(`ent: missing required edge "Remark.remark_category"`)}
+	if v, ok := rc.mutation.RemarkScene(); ok {
+		if err := remark.RemarkSceneValidator(v); err != nil {
+			return &ValidationError{Name: "remark_scene", err: fmt.Errorf(`ent: validator failed for field "Remark.remark_scene": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -355,22 +345,9 @@ func (rc *RemarkCreate) createSpec() (*Remark, *sqlgraph.CreateSpec) {
 		_spec.SetField(remark.FieldSortOrder, field.TypeInt, value)
 		_node.SortOrder = value
 	}
-	if nodes := rc.mutation.RemarkCategoryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   remark.RemarkCategoryTable,
-			Columns: []string{remark.RemarkCategoryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.CategoryID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := rc.mutation.RemarkScene(); ok {
+		_spec.SetField(remark.FieldRemarkScene, field.TypeEnum, value)
+		_node.RemarkScene = value
 	}
 	if nodes := rc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -530,6 +507,18 @@ func (u *RemarkUpsert) AddSortOrder(v int) *RemarkUpsert {
 	return u
 }
 
+// SetRemarkScene sets the "remark_scene" field.
+func (u *RemarkUpsert) SetRemarkScene(v domain.RemarkScene) *RemarkUpsert {
+	u.Set(remark.FieldRemarkScene, v)
+	return u
+}
+
+// UpdateRemarkScene sets the "remark_scene" field to the value that was provided on create.
+func (u *RemarkUpsert) UpdateRemarkScene() *RemarkUpsert {
+	u.SetExcluded(remark.FieldRemarkScene)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -552,9 +541,6 @@ func (u *RemarkUpsertOne) UpdateNewValues() *RemarkUpsertOne {
 		}
 		if _, exists := u.create.mutation.RemarkType(); exists {
 			s.SetIgnore(remark.FieldRemarkType)
-		}
-		if _, exists := u.create.mutation.CategoryID(); exists {
-			s.SetIgnore(remark.FieldCategoryID)
 		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(remark.FieldMerchantID)
@@ -674,6 +660,20 @@ func (u *RemarkUpsertOne) AddSortOrder(v int) *RemarkUpsertOne {
 func (u *RemarkUpsertOne) UpdateSortOrder() *RemarkUpsertOne {
 	return u.Update(func(s *RemarkUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// SetRemarkScene sets the "remark_scene" field.
+func (u *RemarkUpsertOne) SetRemarkScene(v domain.RemarkScene) *RemarkUpsertOne {
+	return u.Update(func(s *RemarkUpsert) {
+		s.SetRemarkScene(v)
+	})
+}
+
+// UpdateRemarkScene sets the "remark_scene" field to the value that was provided on create.
+func (u *RemarkUpsertOne) UpdateRemarkScene() *RemarkUpsertOne {
+	return u.Update(func(s *RemarkUpsert) {
+		s.UpdateRemarkScene()
 	})
 }
 
@@ -866,9 +866,6 @@ func (u *RemarkUpsertBulk) UpdateNewValues() *RemarkUpsertBulk {
 			if _, exists := b.mutation.RemarkType(); exists {
 				s.SetIgnore(remark.FieldRemarkType)
 			}
-			if _, exists := b.mutation.CategoryID(); exists {
-				s.SetIgnore(remark.FieldCategoryID)
-			}
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(remark.FieldMerchantID)
 			}
@@ -988,6 +985,20 @@ func (u *RemarkUpsertBulk) AddSortOrder(v int) *RemarkUpsertBulk {
 func (u *RemarkUpsertBulk) UpdateSortOrder() *RemarkUpsertBulk {
 	return u.Update(func(s *RemarkUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// SetRemarkScene sets the "remark_scene" field.
+func (u *RemarkUpsertBulk) SetRemarkScene(v domain.RemarkScene) *RemarkUpsertBulk {
+	return u.Update(func(s *RemarkUpsert) {
+		s.SetRemarkScene(v)
+	})
+}
+
+// UpdateRemarkScene sets the "remark_scene" field to the value that was provided on create.
+func (u *RemarkUpsertBulk) UpdateRemarkScene() *RemarkUpsertBulk {
+	return u.Update(func(s *RemarkUpsert) {
+		s.UpdateRemarkScene()
 	})
 }
 

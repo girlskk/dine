@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
@@ -12,6 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	entorder "gitlab.jiguang.dev/pos-dine/dine/ent/order"
 	entorderproduct "gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
@@ -357,8 +359,8 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	if op.ID != uuid.Nil {
 		builder = builder.SetID(op.ID)
 	}
-	if op.CategoryID != uuid.Nil {
-		builder = builder.SetCategoryID(op.CategoryID)
+	if op.Category.ID != uuid.Nil {
+		builder = builder.SetCategory(op.Category)
 	}
 	if op.UnitID != uuid.Nil {
 		builder = builder.SetUnitID(op.UnitID)
@@ -397,6 +399,14 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	}
 	if !op.PromotionDiscount.IsZero() {
 		builder = builder.SetPromotionDiscount(op.PromotionDiscount)
+	}
+
+	// 做法金额与赠送金额
+	if !op.AttrAmount.IsZero() {
+		builder = builder.SetAttrAmount(op.AttrAmount)
+	}
+	if !op.GiftAmount.IsZero() {
+		builder = builder.SetGiftAmount(op.GiftAmount)
 	}
 
 	// 退菜信息
@@ -522,7 +532,7 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 	}
 
 	var subtotal, discountAmount, amountBeforeTax, taxRate, tax, amountAfterTax, total decimal.Decimal
-	var promotionDiscount, voidAmount, price decimal.Decimal
+	var promotionDiscount, voidAmount, price, attrAmount, giftAmount decimal.Decimal
 
 	if eop.Subtotal != nil {
 		subtotal = *eop.Subtotal
@@ -548,6 +558,12 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 	if eop.PromotionDiscount != nil {
 		promotionDiscount = *eop.PromotionDiscount
 	}
+	if eop.AttrAmount != nil {
+		attrAmount = *eop.AttrAmount
+	}
+	if eop.GiftAmount != nil {
+		giftAmount = *eop.GiftAmount
+	}
 	if eop.VoidAmount != nil {
 		voidAmount = *eop.VoidAmount
 	}
@@ -567,7 +583,7 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 		ProductID:   eop.ProductID,
 		ProductName: eop.ProductName,
 		ProductType: eop.ProductType,
-		CategoryID:  eop.CategoryID,
+		Category:    eop.Category,
 		UnitID:      eop.UnitID,
 		MainImage:   eop.MainImage,
 		Description: eop.Description,
@@ -585,6 +601,9 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 
 		PromotionDiscount: promotionDiscount,
 
+		AttrAmount: attrAmount,
+		GiftAmount: giftAmount,
+
 		VoidQty:      eop.VoidQty,
 		VoidAmount:   voidAmount,
 		RefundReason: eop.RefundReason,
@@ -597,4 +616,307 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 		SpecRelations: eop.SpecRelations,
 		AttrRelations: eop.AttrRelations,
 	}
+}
+
+func (repo *OrderRepository) SalesReport(ctx context.Context, params domain.OrderSalesReportParams) (res []*domain.OrderSalesReportItem, total int, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "OrderRepository.SalesReport")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	// 函数内部结构体，用于接收 SQL 结果（包含分页总数）
+	type salesReportRow struct {
+		domain.OrderSalesReportItem
+		Total int `json:"total"`
+	}
+
+	// 构建基础查询条件
+	predicates := []predicate.Order{
+		entorder.MerchantID(params.MerchantID),
+		entorder.OrderTypeEQ(domain.OrderTypeSale),
+		entorder.PaymentStatusEQ(domain.PaymentStatusPaid),
+	}
+	if len(params.StoreIDs) > 0 {
+		predicates = append(predicates, entorder.StoreIDIn(params.StoreIDs...))
+	}
+	if params.BusinessDateStart != "" {
+		predicates = append(predicates, entorder.BusinessDateGTE(params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		predicates = append(predicates, entorder.BusinessDateLTE(params.BusinessDateEnd))
+	}
+
+	pageInfo := upagination.New(params.Page, params.Size)
+	cashMethod := string(domain.PaymentMethodTypeCash)
+
+	// 构建退款单子查询条件
+	refundConditions := []string{
+		fmt.Sprintf("ro.merchant_id = '%s'", params.MerchantID.String()),
+		"ro.refund_status = 'COMPLETED'",
+		"ro.deleted_at = 0",
+	}
+	if len(params.StoreIDs) > 0 {
+		storeIDStrs := make([]string, len(params.StoreIDs))
+		for i, id := range params.StoreIDs {
+			storeIDStrs[i] = fmt.Sprintf("'%s'", id.String())
+		}
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.store_id IN (%s)", strings.Join(storeIDStrs, ",")))
+	}
+	refundWhereClause := strings.Join(refundConditions, " AND ")
+
+	// 退款单数子查询
+	refundCountSubquery := fmt.Sprintf(`COALESCE((
+		SELECT COUNT(*) 
+		FROM refund_orders ro 
+		WHERE ro.store_id = orders.store_id 
+		AND ro.business_date = orders.business_date 
+		AND %s
+	), 0)`, refundWhereClause)
+
+	// 退款金额子查询
+	refundAmountSubquery := fmt.Sprintf(`COALESCE((
+		SELECT SUM(JSON_EXTRACT(ro.refund_amount, '$.refund_total')) 
+		FROM refund_orders ro 
+		WHERE ro.store_id = orders.store_id 
+		AND ro.business_date = orders.business_date 
+		AND %s
+	), 0)`, refundWhereClause)
+
+	// 现金金额：遍历 payments 数组，累加 payment_method = CASH 的金额
+	cashExpr := fmt.Sprintf(`CEILING(COALESCE(SUM(
+		(SELECT IFNULL(SUM(
+			CASE WHEN JSON_UNQUOTE(JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_method'))) = '%s'
+			THEN JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_amount'))
+			ELSE 0 END
+		), 0)
+		FROM (SELECT 0 AS i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+		      UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) n
+		WHERE n.i < JSON_LENGTH(payments))
+	), 0) * 100) / 100`, cashMethod)
+
+	// 三方支付金额：遍历 payments 数组，累加 payment_method != CASH 的金额
+	thirdPartyExpr := fmt.Sprintf(`CEILING(COALESCE(SUM(
+		(SELECT IFNULL(SUM(
+			CASE WHEN JSON_UNQUOTE(JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_method'))) != '%s'
+			     AND JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_method')) IS NOT NULL
+			THEN JSON_EXTRACT(payments, CONCAT('$[', n.i, '].payment_amount'))
+			ELSE 0 END
+		), 0)
+		FROM (SELECT 0 AS i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+		      UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) n
+		WHERE n.i < JSON_LENGTH(payments))
+	), 0) * 100) / 100`, cashMethod)
+
+	var rows []salesReportRow
+	err = repo.Client.Order.Query().
+		Where(predicates...).
+		Modify(func(s *entsql.Selector) {
+			s.Select(
+				s.C(entorder.FieldBusinessDate),
+				s.C(entorder.FieldStoreID),
+			).
+				AppendSelectExprAs(entsql.Raw("MAX(JSON_UNQUOTE(JSON_EXTRACT(`store`, '$.store_name')))"), "store_name").
+				AppendSelectExprAs(entsql.Raw("COUNT(*)"), "order_count").
+				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`guest_count`), 0)"), "guest_count").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_due')), 0) * 100) / 100"), "amount_due").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.discount_total')), 0) * 100) / 100"), "discount_total").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.fee_total')), 0) * 100) / 100"), "fee_total").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_paid')), 0) * 100) / 100"), "amount_paid").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.change_amount')), 0) * 100) / 100"), "change_amount").
+				AppendSelectExprAs(entsql.Raw(cashExpr), "cash_amount").
+				AppendSelectExprAs(entsql.Raw(thirdPartyExpr), "third_party_amount").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_paid')), 0) / NULLIF(SUM(`guest_count`), 0) * 100) / 100"), "amount_paid_per_guest").
+				// 退款单数
+				AppendSelectExprAs(entsql.Raw(refundCountSubquery), "refund_count").
+				// 退款金额
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING(%s * 100) / 100", refundAmountSubquery)), "refund_amount").
+				// 净收金额（实收 - 退款）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(JSON_EXTRACT(`amount`, '$.amount_paid')), 0) - %s) * 100) / 100", refundAmountSubquery)), "net_amount").
+				AppendSelectExprAs(entsql.Raw("COUNT(*) OVER()"), "total").
+				GroupBy(s.C(entorder.FieldBusinessDate), s.C(entorder.FieldStoreID)).
+				OrderBy(entsql.Desc(s.C(entorder.FieldBusinessDate))).
+				Limit(pageInfo.Size).
+				Offset(pageInfo.Offset())
+		}).
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query sales report: %w", err)
+	}
+
+	if len(rows) == 0 {
+		return []*domain.OrderSalesReportItem{}, 0, nil
+	}
+
+	total = rows[0].Total
+	res = make([]*domain.OrderSalesReportItem, len(rows))
+	for i := range rows {
+		res[i] = &rows[i].OrderSalesReportItem
+	}
+	return res, total, nil
+}
+
+func (repo *OrderRepository) ProductSalesSummary(ctx context.Context, params domain.ProductSalesSummaryParams) (res []*domain.ProductSalesSummaryItem, total int, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "OrderRepository.ProductSalesSummary")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	type productSalesSummaryRow struct {
+		domain.ProductSalesSummaryItem
+		Total int `json:"total"`
+	}
+
+	// 构建订单条件
+	orderPredicates := []predicate.Order{
+		entorder.MerchantID(params.MerchantID),
+		entorder.OrderTypeEQ(domain.OrderTypeSale),
+		entorder.PaymentStatusEQ(domain.PaymentStatusPaid),
+	}
+	if len(params.StoreIDs) > 0 {
+		orderPredicates = append(orderPredicates, entorder.StoreIDIn(params.StoreIDs...))
+	}
+	if params.BusinessDateStart != "" {
+		orderPredicates = append(orderPredicates, entorder.BusinessDateGTE(params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		orderPredicates = append(orderPredicates, entorder.BusinessDateLTE(params.BusinessDateEnd))
+	}
+	if params.OrderChannel != "" {
+		orderPredicates = append(orderPredicates, entorder.ChannelEQ(params.OrderChannel))
+	}
+
+	// 构建商品条件
+	productPredicates := []predicate.OrderProduct{}
+	if params.ProductName != "" {
+		productPredicates = append(productPredicates, entorderproduct.ProductNameContains(params.ProductName))
+	}
+	if params.ProductType != "" {
+		productPredicates = append(productPredicates, entorderproduct.ProductTypeEQ(params.ProductType))
+	}
+
+	pageInfo := upagination.New(params.Page, params.Size)
+
+	// 分类过滤条件
+	categoryID := params.CategoryID.String()
+
+	// 构建退款单子查询条件
+	refundConditions := []string{
+		fmt.Sprintf("ro.merchant_id = '%s'", params.MerchantID.String()),
+		"ro.refund_status = 'COMPLETED'",
+		"ro.deleted_at = 0",
+		"rop.deleted_at = 0",
+	}
+	if len(params.StoreIDs) > 0 {
+		storeIDStrs := make([]string, len(params.StoreIDs))
+		for i, id := range params.StoreIDs {
+			storeIDStrs[i] = fmt.Sprintf("'%s'", id.String())
+		}
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.store_id IN (%s)", strings.Join(storeIDStrs, ",")))
+	}
+	if params.BusinessDateStart != "" {
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.business_date >= '%s'", params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		refundConditions = append(refundConditions, fmt.Sprintf("ro.business_date <= '%s'", params.BusinessDateEnd))
+	}
+	refundWhereClause := strings.Join(refundConditions, " AND ")
+
+	// 退款数量子查询（从逆向单获取）
+	refundQtySubquery := fmt.Sprintf(`COALESCE((
+		SELECT SUM(rop.refund_qty) 
+		FROM refund_order_products rop 
+		INNER JOIN refund_orders ro ON rop.refund_order_id = ro.id 
+		WHERE rop.product_id = order_products.product_id AND %s
+	), 0)`, refundWhereClause)
+
+	// 退款金额子查询（从逆向单获取）
+	refundAmountSubquery := fmt.Sprintf(`COALESCE((
+		SELECT SUM(rop.refund_subtotal) 
+		FROM refund_order_products rop 
+		INNER JOIN refund_orders ro ON rop.refund_order_id = ro.id 
+		WHERE rop.product_id = order_products.product_id AND %s
+	), 0)`, refundWhereClause)
+
+	var rows []productSalesSummaryRow
+	err = repo.Client.OrderProduct.Query().
+		Where(entorderproduct.HasOrderWith(orderPredicates...)).
+		Where(productPredicates...).
+		Modify(func(s *entsql.Selector) {
+			// 添加分类过滤条件（支持一级或二级分类匹配）
+			if params.CategoryID != uuid.Nil {
+				s.Where(entsql.P(func(b *entsql.Builder) {
+					b.WriteString("(JSON_UNQUOTE(JSON_EXTRACT(`category`, '$.id')) = ")
+					b.Arg(categoryID)
+					b.WriteString(" OR JSON_UNQUOTE(JSON_EXTRACT(`category`, '$.parent_id')) = ")
+					b.Arg(categoryID)
+					b.WriteString(")")
+				}))
+			}
+			s.Select(
+				s.C(entorderproduct.FieldProductID),
+				s.C(entorderproduct.FieldProductName),
+				s.C(entorderproduct.FieldProductType),
+			).
+				// 一级分类名称：如果有parent则取parent.name，否则取当前分类name（使用ANY_VALUE避免GROUP BY问题）
+				AppendSelectExprAs(entsql.Raw(`ANY_VALUE(CASE 
+					WHEN JSON_EXTRACT(category, '$.parent') IS NOT NULL
+					THEN COALESCE(JSON_UNQUOTE(JSON_EXTRACT(category, '$.parent.name')), '')
+					ELSE COALESCE(JSON_UNQUOTE(JSON_EXTRACT(category, '$.name')), '')
+				END)`), "category_name").
+				// 二级分类名称：如果有parent则取当前分类name，否则为空
+				AppendSelectExprAs(entsql.Raw(`ANY_VALUE(CASE 
+					WHEN JSON_EXTRACT(category, '$.parent') IS NOT NULL
+					THEN COALESCE(JSON_UNQUOTE(JSON_EXTRACT(category, '$.name')), '')
+					ELSE '' 
+				END)`), "category_name_2").
+				// 规格名称：从spec_relations中提取第一个规格名称
+				AppendSelectExprAs(entsql.Raw("ANY_VALUE(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(`spec_relations`, '$[0].spec_name')), ''))"), "spec_name").
+				// 销售数量（正向销售 - 逆向退款）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("COALESCE(SUM(`qty`), 0) - %s", refundQtySubquery)), "sales_qty").
+				// 销售金额（正向销售 - 逆向退款）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(`subtotal`), 0) - %s) * 100) / 100", refundAmountSubquery)), "sales_amount").
+				// 销售均价（净销售额 / 净销量）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(`subtotal`), 0) - %s) / NULLIF(COALESCE(SUM(`qty`), 0) - %s, 0) * 100) / 100", refundAmountSubquery, refundQtySubquery)), "avg_price").
+				// 商品应收金额（税后金额）
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`amount_after_tax`), 0) * 100) / 100"), "amount_due").
+				// 商品金额（小计）
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`subtotal`), 0) * 100) / 100"), "subtotal").
+				// 优惠金额
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`discount_amount`), 0) * 100) / 100"), "discount_amount").
+				// 赠送金额
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`gift_amount`), 0) * 100) / 100"), "gift_amount").
+				// 退款数量（正向void_qty + 逆向退款数量）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("COALESCE(SUM(`void_qty`), 0) + %s", refundQtySubquery)), "refund_qty").
+				// 退款金额（正向void_amount + 逆向退款金额）
+				AppendSelectExprAs(entsql.Raw(fmt.Sprintf("CEILING((COALESCE(SUM(`void_amount`), 0) + %s) * 100) / 100", refundAmountSubquery)), "refund_amount").
+				// 赠送数量
+				AppendSelectExprAs(entsql.Raw("COALESCE(SUM(`gift_qty`), 0)"), "gift_qty").
+				// 做法金额
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(SUM(`attr_amount`), 0) * 100) / 100"), "attr_amount").
+				// 分页总数
+				AppendSelectExprAs(entsql.Raw("COUNT(*) OVER()"), "total").
+				GroupBy(
+					s.C(entorderproduct.FieldProductID),
+					s.C(entorderproduct.FieldProductName),
+					s.C(entorderproduct.FieldProductType),
+				).
+				OrderBy(entsql.Desc("sales_amount")).
+				Limit(pageInfo.Size).
+				Offset(pageInfo.Offset())
+		}).
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query product sales summary: %w", err)
+	}
+
+	if len(rows) == 0 {
+		return []*domain.ProductSalesSummaryItem{}, 0, nil
+	}
+
+	total = rows[0].Total
+	res = make([]*domain.ProductSalesSummaryItem, len(rows))
+	for i := range rows {
+		res[i] = &rows[i].ProductSalesSummaryItem
+	}
+	return res, total, nil
 }

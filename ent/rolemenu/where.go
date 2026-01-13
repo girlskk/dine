@@ -76,9 +76,9 @@ func RoleID(v uuid.UUID) predicate.RoleMenu {
 	return predicate.RoleMenu(sql.FieldEQ(FieldRoleID, v))
 }
 
-// MenuID applies equality check predicate on the "menu_id" field. It's identical to MenuIDEQ.
-func MenuID(v uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldEQ(FieldMenuID, v))
+// Path applies equality check predicate on the "path" field. It's identical to PathEQ.
+func Path(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldEQ(FieldPath, v))
 }
 
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
@@ -281,44 +281,69 @@ func RoleIDLTE(v uuid.UUID) predicate.RoleMenu {
 	return predicate.RoleMenu(sql.FieldLTE(FieldRoleID, v))
 }
 
-// MenuIDEQ applies the EQ predicate on the "menu_id" field.
-func MenuIDEQ(v uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldEQ(FieldMenuID, v))
+// PathEQ applies the EQ predicate on the "path" field.
+func PathEQ(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldEQ(FieldPath, v))
 }
 
-// MenuIDNEQ applies the NEQ predicate on the "menu_id" field.
-func MenuIDNEQ(v uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldNEQ(FieldMenuID, v))
+// PathNEQ applies the NEQ predicate on the "path" field.
+func PathNEQ(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldNEQ(FieldPath, v))
 }
 
-// MenuIDIn applies the In predicate on the "menu_id" field.
-func MenuIDIn(vs ...uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldIn(FieldMenuID, vs...))
+// PathIn applies the In predicate on the "path" field.
+func PathIn(vs ...string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldIn(FieldPath, vs...))
 }
 
-// MenuIDNotIn applies the NotIn predicate on the "menu_id" field.
-func MenuIDNotIn(vs ...uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldNotIn(FieldMenuID, vs...))
+// PathNotIn applies the NotIn predicate on the "path" field.
+func PathNotIn(vs ...string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldNotIn(FieldPath, vs...))
 }
 
-// MenuIDGT applies the GT predicate on the "menu_id" field.
-func MenuIDGT(v uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldGT(FieldMenuID, v))
+// PathGT applies the GT predicate on the "path" field.
+func PathGT(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldGT(FieldPath, v))
 }
 
-// MenuIDGTE applies the GTE predicate on the "menu_id" field.
-func MenuIDGTE(v uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldGTE(FieldMenuID, v))
+// PathGTE applies the GTE predicate on the "path" field.
+func PathGTE(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldGTE(FieldPath, v))
 }
 
-// MenuIDLT applies the LT predicate on the "menu_id" field.
-func MenuIDLT(v uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldLT(FieldMenuID, v))
+// PathLT applies the LT predicate on the "path" field.
+func PathLT(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldLT(FieldPath, v))
 }
 
-// MenuIDLTE applies the LTE predicate on the "menu_id" field.
-func MenuIDLTE(v uuid.UUID) predicate.RoleMenu {
-	return predicate.RoleMenu(sql.FieldLTE(FieldMenuID, v))
+// PathLTE applies the LTE predicate on the "path" field.
+func PathLTE(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldLTE(FieldPath, v))
+}
+
+// PathContains applies the Contains predicate on the "path" field.
+func PathContains(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldContains(FieldPath, v))
+}
+
+// PathHasPrefix applies the HasPrefix predicate on the "path" field.
+func PathHasPrefix(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldHasPrefix(FieldPath, v))
+}
+
+// PathHasSuffix applies the HasSuffix predicate on the "path" field.
+func PathHasSuffix(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldHasSuffix(FieldPath, v))
+}
+
+// PathEqualFold applies the EqualFold predicate on the "path" field.
+func PathEqualFold(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldEqualFold(FieldPath, v))
+}
+
+// PathContainsFold applies the ContainsFold predicate on the "path" field.
+func PathContainsFold(v string) predicate.RoleMenu {
+	return predicate.RoleMenu(sql.FieldContainsFold(FieldPath, v))
 }
 
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.

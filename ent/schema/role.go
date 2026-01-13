@@ -63,6 +63,7 @@ func (Role) Edges() []ent.Edge {
 			Field("store_id").
 			Immutable().
 			Unique(),
+		edge.To("user_roles", UserRole.Type),
 	}
 }
 

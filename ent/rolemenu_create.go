@@ -79,9 +79,9 @@ func (rmc *RoleMenuCreate) SetRoleID(u uuid.UUID) *RoleMenuCreate {
 	return rmc
 }
 
-// SetMenuID sets the "menu_id" field.
-func (rmc *RoleMenuCreate) SetMenuID(u uuid.UUID) *RoleMenuCreate {
-	rmc.mutation.SetMenuID(u)
+// SetPath sets the "path" field.
+func (rmc *RoleMenuCreate) SetPath(s string) *RoleMenuCreate {
+	rmc.mutation.SetPath(s)
 	return rmc
 }
 
@@ -214,8 +214,8 @@ func (rmc *RoleMenuCreate) check() error {
 	if _, ok := rmc.mutation.RoleID(); !ok {
 		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "RoleMenu.role_id"`)}
 	}
-	if _, ok := rmc.mutation.MenuID(); !ok {
-		return &ValidationError{Name: "menu_id", err: errors.New(`ent: missing required field "RoleMenu.menu_id"`)}
+	if _, ok := rmc.mutation.Path(); !ok {
+		return &ValidationError{Name: "path", err: errors.New(`ent: missing required field "RoleMenu.path"`)}
 	}
 	return nil
 }
@@ -273,9 +273,9 @@ func (rmc *RoleMenuCreate) createSpec() (*RoleMenu, *sqlgraph.CreateSpec) {
 		_spec.SetField(rolemenu.FieldRoleID, field.TypeUUID, value)
 		_node.RoleID = value
 	}
-	if value, ok := rmc.mutation.MenuID(); ok {
-		_spec.SetField(rolemenu.FieldMenuID, field.TypeUUID, value)
-		_node.MenuID = value
+	if value, ok := rmc.mutation.Path(); ok {
+		_spec.SetField(rolemenu.FieldPath, field.TypeString, value)
+		_node.Path = value
 	}
 	if value, ok := rmc.mutation.MerchantID(); ok {
 		_spec.SetField(rolemenu.FieldMerchantID, field.TypeUUID, value)
@@ -367,6 +367,18 @@ func (u *RoleMenuUpsert) AddDeletedAt(v int64) *RoleMenuUpsert {
 	return u
 }
 
+// SetPath sets the "path" field.
+func (u *RoleMenuUpsert) SetPath(v string) *RoleMenuUpsert {
+	u.Set(rolemenu.FieldPath, v)
+	return u
+}
+
+// UpdatePath sets the "path" field to the value that was provided on create.
+func (u *RoleMenuUpsert) UpdatePath() *RoleMenuUpsert {
+	u.SetExcluded(rolemenu.FieldPath)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -392,9 +404,6 @@ func (u *RoleMenuUpsertOne) UpdateNewValues() *RoleMenuUpsertOne {
 		}
 		if _, exists := u.create.mutation.RoleID(); exists {
 			s.SetIgnore(rolemenu.FieldRoleID)
-		}
-		if _, exists := u.create.mutation.MenuID(); exists {
-			s.SetIgnore(rolemenu.FieldMenuID)
 		}
 		if _, exists := u.create.mutation.MerchantID(); exists {
 			s.SetIgnore(rolemenu.FieldMerchantID)
@@ -465,6 +474,20 @@ func (u *RoleMenuUpsertOne) AddDeletedAt(v int64) *RoleMenuUpsertOne {
 func (u *RoleMenuUpsertOne) UpdateDeletedAt() *RoleMenuUpsertOne {
 	return u.Update(func(s *RoleMenuUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetPath sets the "path" field.
+func (u *RoleMenuUpsertOne) SetPath(v string) *RoleMenuUpsertOne {
+	return u.Update(func(s *RoleMenuUpsert) {
+		s.SetPath(v)
+	})
+}
+
+// UpdatePath sets the "path" field to the value that was provided on create.
+func (u *RoleMenuUpsertOne) UpdatePath() *RoleMenuUpsertOne {
+	return u.Update(func(s *RoleMenuUpsert) {
+		s.UpdatePath()
 	})
 }
 
@@ -660,9 +683,6 @@ func (u *RoleMenuUpsertBulk) UpdateNewValues() *RoleMenuUpsertBulk {
 			if _, exists := b.mutation.RoleID(); exists {
 				s.SetIgnore(rolemenu.FieldRoleID)
 			}
-			if _, exists := b.mutation.MenuID(); exists {
-				s.SetIgnore(rolemenu.FieldMenuID)
-			}
 			if _, exists := b.mutation.MerchantID(); exists {
 				s.SetIgnore(rolemenu.FieldMerchantID)
 			}
@@ -733,6 +753,20 @@ func (u *RoleMenuUpsertBulk) AddDeletedAt(v int64) *RoleMenuUpsertBulk {
 func (u *RoleMenuUpsertBulk) UpdateDeletedAt() *RoleMenuUpsertBulk {
 	return u.Update(func(s *RoleMenuUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetPath sets the "path" field.
+func (u *RoleMenuUpsertBulk) SetPath(v string) *RoleMenuUpsertBulk {
+	return u.Update(func(s *RoleMenuUpsert) {
+		s.SetPath(v)
+	})
+}
+
+// UpdatePath sets the "path" field to the value that was provided on create.
+func (u *RoleMenuUpsertBulk) UpdatePath() *RoleMenuUpsertBulk {
+	return u.Update(func(s *RoleMenuUpsert) {
+		s.UpdatePath()
 	})
 }
 

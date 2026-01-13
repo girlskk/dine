@@ -148,7 +148,13 @@ func (h *UserHandler) Info() gin.HandlerFunc {
 		c.Request = c.Request.Clone(ctx)
 
 		user := domain.FromAdminUserContext(ctx)
-		response.Ok(c, user)
+
+		userDetail, err := h.UserInteractor.GetUser(ctx, user.ID)
+		if err != nil {
+			c.Error(h.checkErr(err))
+			return
+		}
+		response.Ok(c, userDetail)
 	}
 }
 

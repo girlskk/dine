@@ -1,23 +1,16 @@
 package types
 
 import (
-	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 type Address struct {
-	CountryID    uuid.UUID `json:"country_id" binding:"omitempty"`      // 国家/地区 ID
-	ProvinceID   uuid.UUID `json:"province_id" binding:"omitempty"`     // 省份 ID
-	CityID       uuid.UUID `json:"city_id" binding:"omitempty"`         // 城市 ID
-	DistrictID   uuid.UUID `json:"district_id" binding:"omitempty"`     // 区县 ID
-	CountryName  string    `json:"country_name" binding:"omitempty"`    // 国家/地区 名称
-	ProvinceName string    `json:"province_name" binding:"omitempty"`   // 省份名称
-	CityName     string    `json:"city_name" binding:"omitempty"`       // 城市名称
-	DistrictName string    `json:"district_name" binding:"omitempty"`   // 区县名称
-	Address      string    `json:"address" binding:"omitempty,max=100"` // 详细地址
-	Lng          string    `json:"lng" binding:"omitempty,max=50"`      // 经度
-	Lat          string    `json:"lat" binding:"omitempty,max=50"`      // 纬度
+	Country  domain.Country  `json:"country" binding:"omitempty"`         // 国家/地区
+	Province domain.Province `json:"province" binding:"omitempty"`        // 省份
+	Address  string          `json:"address" binding:"omitempty,max=100"` // 详细地址
+	Lng      string          `json:"lng" binding:"omitempty,max=50"`      // 经度
+	Lat      string          `json:"lat" binding:"omitempty,max=50"`      // 纬度
 }
 
 type UpdateStoreReq struct {
@@ -27,7 +20,7 @@ type UpdateStoreReq struct {
 	StoreCode               string                 `json:"store_code" binding:"omitempty,max=50"`                  // 门店编码(保留字段)
 	Status                  domain.StoreStatus     `json:"status" binding:"required"`                              // 营业/停业
 	BusinessModel           domain.BusinessModel   `json:"business_model" binding:"required"`                      // 直营/加盟
-	BusinessTypeCode        string                 `json:"business_type_code" binding:"required"`                  // 业态类型
+	BusinessTypeCode        domain.BusinessType    `json:"business_type_code" binding:"required"`                  // 业态类型
 	LocationNumber          string                 `json:"location_number" binding:"required,max=255"`             // 门店位置编号
 	ContactName             string                 `json:"contact_name" binding:"omitempty,max=255"`               // 联系人
 	ContactPhone            string                 `json:"contact_phone" binding:"omitempty,max=255"`              // 联系电话
@@ -52,7 +45,7 @@ type StoreListReq struct {
 	Status           domain.StoreStatus   `form:"status" binding:"omitempty"`             // 营业/停业
 	BusinessModel    domain.BusinessModel `form:"business_model" binding:"omitempty"`     // 直营/加盟
 	BusinessTypeCode string               `form:"business_type_code" binding:"omitempty"` // 业态类型
-	ProvinceID       uuid.UUID            `form:"province_id" binding:"omitempty"`        // 省份 ID
+	Province         domain.Province      `form:"province" binding:"omitempty"`           // 省份
 	CreatedAtGte     string               `form:"created_at_gte" binding:"omitempty"`     // 创建时间 yyyy-mm-dd 2026-01-01
 	CreatedAtLte     string               `form:"created_at_lte" binding:"omitempty"`     // 创建时间 yyyy-mm-dd 2026-01-01
 }

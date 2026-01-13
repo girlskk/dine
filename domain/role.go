@@ -2,17 +2,10 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
-)
-
-var (
-	ErrRoleNotExists  = errors.New("角色不存在")
-	ErrRoleNameExists = errors.New("角色名称已存在")
-	ErrRoleCodeExists = errors.New("角色编码已存在")
 )
 
 // RoleRepository 角色仓储接口
@@ -123,6 +116,8 @@ type Role struct {
 	LoginChannels []LoginChannel    `json:"login_channels"` // 允许登录渠道，取自 login_channel，多选
 	CreatedAt     time.Time         `json:"created_at"`
 	UpdatedAt     time.Time         `json:"updated_at"`
+
+	Paths []string `json:"paths,omitempty"` // 前端路由菜单列表
 }
 
 type RoleListFilter struct {

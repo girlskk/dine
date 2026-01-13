@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
@@ -29,16 +28,12 @@ func (s *MerchantRepositoryTestSuite) SetupTest() {
 	s.ctx = context.Background()
 }
 
-func (s *MerchantRepositoryTestSuite) createBusinessType(tag string) *ent.MerchantBusinessType {
-	return s.client.MerchantBusinessType.Create().SetTypeCode("bt-" + tag).SetTypeName("业态-" + tag).SaveX(s.ctx)
-}
-
 func (s *MerchantRepositoryTestSuite) newMerchant(tag string) *domain.Merchant {
 	suffix := tag
 	if len(tag) > 4 {
 		suffix = tag[len(tag)-4:]
 	}
-	bt := s.createBusinessType(tag)
+
 	return &domain.Merchant{
 		ID:                uuid.New(),
 		MerchantCode:      "MC-" + tag,
@@ -47,19 +42,17 @@ func (s *MerchantRepositoryTestSuite) newMerchant(tag string) *domain.Merchant {
 		MerchantType:      domain.MerchantTypeBrand,
 		BrandName:         "品牌-" + tag,
 		AdminPhoneNumber:  "1380000" + suffix,
-		BusinessTypeCode:  bt.TypeCode,
+		BusinessTypeCode:  domain.BusinessTypeBakery,
 		MerchantLogo:      "logo-" + tag,
 		Description:       "描述-" + tag,
 		Status:            domain.MerchantStatusActive,
 		LoginAccount:      "login-" + tag,
 		Address: &domain.Address{
-			CountryID:  uuid.New(),
-			ProvinceID: uuid.New(),
-			CityID:     uuid.New(),
-			DistrictID: uuid.New(),
-			Address:    "地址-" + tag,
-			Lng:        "120.0",
-			Lat:        "30.0",
+			Country:  domain.CountryMY,
+			Province: domain.ProvinceMY01,
+			Address:  "地址-" + tag,
+			Lng:      "120.0",
+			Lat:      "30.0",
 		},
 	}
 }

@@ -2,18 +2,10 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
-)
-
-var (
-	ErrUserRoleNotExists         = errors.New("用户角色关系不存在")
-	ErrUserRoleExists            = errors.New("用户角色关系已存在")
-	ErrRoleAssignedCannotDisable = errors.New("角色已分配用户，无法禁用")
-	ErrRoleAssignedCannotDelete  = errors.New("角色已分配用户，无法删除")
 )
 
 // UserRoleRepository 用户角色关系仓储接口
@@ -65,6 +57,7 @@ type UserRole struct {
 	StoreID    uuid.UUID `json:"store_id"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+	Role       *Role     `json:"role,omitempty"`
 }
 
 type UserRoleListFilter struct {

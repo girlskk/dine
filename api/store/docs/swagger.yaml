@@ -111,36 +111,20 @@ definitions:
       address:
         description: 详细地址
         type: string
-      city_id:
-        description: 城市 ID
-        type: string
-      city_name:
-        description: 城市名称
-        type: string
-      country_id:
-        description: 国家/地区 ID
-        type: string
-      country_name:
-        description: 国家/地区 名称
-        type: string
-      district_id:
-        description: 区县 ID
-        type: string
-      district_name:
-        description: 区县名称
-        type: string
+      country:
+        allOf:
+        - $ref: '#/definitions/domain.Country'
+        description: 国家/地区
       lat:
         description: 纬度
         type: string
       lng:
         description: 经度
         type: string
-      province_id:
-        description: 省份 ID
-        type: string
-      province_name:
-        description: 省份名称
-        type: string
+      province:
+        allOf:
+        - $ref: '#/definitions/domain.Province'
+        description: 省份
     type: object
   domain.BusinessConfig:
     properties:
@@ -271,6 +255,26 @@ definitions:
     x-enum-varnames:
     - BusinessModelDirect
     - BusinessModelFranchisee
+  domain.BusinessType:
+    enum:
+    - noodle
+    - bakery
+    - snack
+    - drink
+    - chinese_food
+    type: string
+    x-enum-comments:
+      BusinessTypeBakery: 烘焙
+      BusinessTypeChineseFood: 中餐
+      BusinessTypeDrink: 饮品
+      BusinessTypeNoodle: 面馆
+      BusinessTypeSnack: 小吃
+    x-enum-varnames:
+    - BusinessTypeNoodle
+    - BusinessTypeBakery
+    - BusinessTypeSnack
+    - BusinessTypeDrink
+    - BusinessTypeChineseFood
   domain.Category:
     properties:
       children:
@@ -331,14 +335,13 @@ definitions:
         type: string
     type: object
   domain.Country:
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-      sort:
-        type: integer
-    type: object
+    enum:
+    - MY
+    - SG
+    type: string
+    x-enum-varnames:
+    - CountryMY
+    - CountrySG
   domain.Department:
     properties:
       code:
@@ -722,6 +725,57 @@ definitions:
     - OrderChannelMobileOrder
     - OrderChannelScanOrder
     - OrderChannelThirdDelivery
+  domain.OrderSalesReportItem:
+    properties:
+      amount_due:
+        description: 应收金额
+        type: number
+      amount_paid:
+        description: 实收金额
+        type: number
+      amount_paid_per_guest:
+        description: 人均实收
+        type: number
+      business_date:
+        description: 营业日
+        type: string
+      cash_amount:
+        description: 现金金额
+        type: number
+      change_amount:
+        description: 零钱实收
+        type: number
+      discount_total:
+        description: 优惠金额
+        type: number
+      fee_total:
+        description: 附加费金额
+        type: number
+      guest_count:
+        description: 用餐人数
+        type: integer
+      net_amount:
+        description: 净收金额（实收-退款）
+        type: number
+      order_count:
+        description: 单量
+        type: integer
+      refund_amount:
+        description: 退款金额
+        type: number
+      refund_count:
+        description: 退款单数
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      store_name:
+        description: 门店名称
+        type: string
+      third_party_amount:
+        description: 三方支付金额
+        type: number
+    type: object
   domain.PaperSize:
     enum:
     - 58mm
@@ -1118,6 +1172,61 @@ definitions:
     x-enum-varnames:
     - ProductSaleStatusOnSale
     - ProductSaleStatusOffSale
+  domain.ProductSalesSummaryItem:
+    properties:
+      amount_due:
+        description: 商品应收金额
+        type: number
+      attr_amount:
+        description: 做法金额
+        type: number
+      avg_price:
+        description: 销售均价
+        type: number
+      category_name:
+        description: 一级分类名称
+        type: string
+      category_name_2:
+        description: 二级分类名称
+        type: string
+      discount_amount:
+        description: 优惠金额
+        type: number
+      gift_amount:
+        description: 赠送金额
+        type: number
+      gift_qty:
+        description: 赠送数量
+        type: integer
+      product_id:
+        description: 商品ID
+        type: string
+      product_name:
+        description: 商品名称
+        type: string
+      product_type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductType'
+        description: 商品类型
+      refund_amount:
+        description: 退款金额
+        type: number
+      refund_qty:
+        description: 退款数量
+        type: integer
+      sales_amount:
+        description: 销售金额
+        type: number
+      sales_qty:
+        description: 销售数量
+        type: integer
+      spec_name:
+        description: 规格名称
+        type: string
+      subtotal:
+        description: 商品金额（小计）
+        type: number
+    type: object
   domain.ProductSearchRes:
     properties:
       items:
@@ -1438,16 +1547,73 @@ definitions:
         type: number
     type: object
   domain.Province:
-    properties:
-      country_id:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      sort:
-        type: integer
-    type: object
+    enum:
+    - MY-01
+    - MY-02
+    - MY-03
+    - MY-04
+    - MY-05
+    - MY-06
+    - MY-07
+    - MY-08
+    - MY-09
+    - MY-10
+    - MY-11
+    - MY-12
+    - MY-13
+    - MY-14
+    - MY-15
+    - MY-16
+    - SG-01
+    - SG-02
+    - SG-03
+    - SG-04
+    - SG-05
+    type: string
+    x-enum-comments:
+      ProvinceMY01: 柔佛州
+      ProvinceMY02: 吉打州
+      ProvinceMY03: 吉兰丹州
+      ProvinceMY04: 马六甲州
+      ProvinceMY05: 森美兰州
+      ProvinceMY06: 彭亨州
+      ProvinceMY07: 槟城州
+      ProvinceMY08: 霹雳州
+      ProvinceMY09: 玻璃市州
+      ProvinceMY10: 雪兰莪州
+      ProvinceMY11: 登嘉楼州
+      ProvinceMY12: 沙巴州
+      ProvinceMY13: 砂拉越州
+      ProvinceMY14: 吉隆坡联邦直辖区
+      ProvinceMY15: 纳闽联邦直辖区
+      ProvinceMY16: 布城联邦直辖区
+      ProvinceSG01: 中区社区发展理事会
+      ProvinceSG02: 东北社区发展理事会
+      ProvinceSG03: 西北社区发展理事会
+      ProvinceSG04: 东南社区发展理事会
+      ProvinceSG05: 西南社区发展理事会
+    x-enum-varnames:
+    - ProvinceMY01
+    - ProvinceMY02
+    - ProvinceMY03
+    - ProvinceMY04
+    - ProvinceMY05
+    - ProvinceMY06
+    - ProvinceMY07
+    - ProvinceMY08
+    - ProvinceMY09
+    - ProvinceMY10
+    - ProvinceMY11
+    - ProvinceMY12
+    - ProvinceMY13
+    - ProvinceMY14
+    - ProvinceMY15
+    - ProvinceMY16
+    - ProvinceSG01
+    - ProvinceSG02
+    - ProvinceSG03
+    - ProvinceSG04
+    - ProvinceSG05
   domain.Role:
     properties:
       code:
@@ -1475,6 +1641,11 @@ definitions:
       name:
         description: 角色名称
         type: string
+      paths:
+        description: 前端路由菜单列表
+        items:
+          type: string
+        type: array
       role_type:
         allOf:
         - $ref: '#/definitions/domain.RoleType'
@@ -1729,11 +1900,9 @@ definitions:
         - $ref: '#/definitions/domain.BusinessModel'
         description: 经营模式：直营 加盟
       business_type_code:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessType'
         description: 业态类型
-        type: string
-      business_type_name:
-        description: 业务类型名称
-        type: string
       cashier_desk_url:
         description: 收银台照片地址
         type: string
@@ -1993,24 +2162,10 @@ definitions:
         description: 详细地址
         maxLength: 100
         type: string
-      city_id:
-        description: 城市 ID
-        type: string
-      city_name:
-        description: 城市名称
-        type: string
-      country_id:
-        description: 国家/地区 ID
-        type: string
-      country_name:
-        description: 国家/地区 名称
-        type: string
-      district_id:
-        description: 区县 ID
-        type: string
-      district_name:
-        description: 区县名称
-        type: string
+      country:
+        allOf:
+        - $ref: '#/definitions/domain.Country'
+        description: 国家/地区
       lat:
         description: 纬度
         maxLength: 50
@@ -2019,12 +2174,10 @@ definitions:
         description: 经度
         maxLength: 50
         type: string
-      province_id:
-        description: 省份 ID
-        type: string
-      province_name:
-        description: 省份名称
-        type: string
+      province:
+        allOf:
+        - $ref: '#/definitions/domain.Province'
+        description: 省份
     type: object
   types.BusinessConfig:
     properties:
@@ -2153,13 +2306,6 @@ definitions:
         type: string
     required:
     - category_ids
-    type: object
-  types.CountryListResp:
-    properties:
-      countries:
-        items:
-          $ref: '#/definitions/domain.Country'
-        type: array
     type: object
   types.DepartmentCreateReq:
     properties:
@@ -2772,6 +2918,18 @@ definitions:
     - spec_relations
     - unit_id
     type: object
+  types.ProductSalesSummaryResp:
+    properties:
+      items:
+        description: 汇总数据
+        items:
+          $ref: '#/definitions/domain.ProductSalesSummaryItem'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/upagination.Pagination'
+        description: 分页信息
+    type: object
   types.ProductSpecCreateReq:
     properties:
       name:
@@ -2980,13 +3138,6 @@ definitions:
     - spec_relations
     - unit_id
     type: object
-  types.ProvinceListResp:
-    properties:
-      provinces:
-        items:
-          $ref: '#/definitions/domain.Province'
-        type: array
-    type: object
   types.ResetPasswordReq:
     properties:
       new_password:
@@ -3032,6 +3183,18 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  types.SalesReportResp:
+    properties:
+      items:
+        description: 报表数据
+        items:
+          $ref: '#/definitions/domain.OrderSalesReportItem'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/upagination.Pagination'
+        description: 分页信息
     type: object
   types.SetMealCreateReq:
     properties:
@@ -3435,8 +3598,9 @@ definitions:
         - $ref: '#/definitions/domain.BusinessModel'
         description: 直营/加盟
       business_type_code:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessType'
         description: 业态类型
-        type: string
       cashier_desk_url:
         description: 收银台照片地址
         maxLength: 500
@@ -3510,6 +3674,18 @@ definitions:
     - shift_times
     - status
     - store_name
+    type: object
+  upagination.Pagination:
+    properties:
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
     type: object
 info:
   contact: {}
@@ -3999,6 +4175,98 @@ paths:
       summary: 更新菜单
       tags:
       - 菜单管理
+  /order/product-sales-summary:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 营业日开始
+        in: query
+        name: business_date_start
+        required: true
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
+        required: true
+        type: string
+      - description: 订单来源
+        in: query
+        name: order_channel
+        type: string
+      - description: 商品分类ID
+        in: query
+        name: category_id
+        type: string
+      - description: 商品名称（模糊搜索）
+        in: query
+        name: product_name
+        type: string
+      - description: 商品类型：normal/set_meal
+        in: query
+        name: product_type
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.ProductSalesSummaryResp'
+      summary: 商品销售汇总表
+      tags:
+      - 数据分析
+  /order/sales-report:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 品牌商ID
+        in: query
+        name: merchant_id
+        required: true
+        type: string
+      - description: 门店ID
+        in: query
+        name: store_id
+        required: true
+        type: string
+      - description: 营业日开始
+        in: query
+        name: business_date_start
+        required: true
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.SalesReportResp'
+      summary: 销售汇总表
+      tags:
+      - 数据分析
   /oss/token:
     post:
       consumes:
@@ -4851,45 +5119,6 @@ paths:
       summary: 查询分账账单列表
       tags:
       - 分账账单
-  /region/countries:
-    get:
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/types.CountryListResp'
-              type: object
-      security:
-      - BearerAuth: []
-      summary: 获取国家/地区列表
-      tags:
-      - 地区
-  /region/provinces:
-    get:
-      parameters:
-      - description: 国家/地区ID
-        in: query
-        name: country_id
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/types.ProvinceListResp'
-              type: object
-      security:
-      - BearerAuth: []
-      summary: 获取省份列表
-      tags:
-      - 地区
   /restaurant/device:
     get:
       description: 分页查询设备列表

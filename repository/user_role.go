@@ -31,10 +31,6 @@ func (repo *UserRoleRepository) FindByID(ctx context.Context, id uuid.UUID) (ur 
 
 	eur, err := repo.Client.UserRole.Get(ctx, id)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			err = domain.NotFoundError(domain.ErrUserRoleNotExists)
-			return
-		}
 		return
 	}
 	ur = convertUserRoleToDomain(eur)
@@ -54,6 +50,7 @@ func (repo *UserRoleRepository) FindOneByUser(ctx context.Context, user domain.U
 			userrole.UserTypeEQ(user.GetUserType()),
 			userrole.UserID(user.GetUserID()),
 		).
+		WithRole().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -377,7 +374,8 @@ func convertUserRoleToDomain(eur *ent.UserRole) *domain.UserRole {
 	if eur == nil {
 		return nil
 	}
-	return &domain.UserRole{
+
+	dur := &domain.UserRole{
 		ID:         eur.ID,
 		UserType:   eur.UserType,
 		UserID:     eur.UserID,
@@ -387,4 +385,8 @@ func convertUserRoleToDomain(eur *ent.UserRole) *domain.UserRole {
 		CreatedAt:  eur.CreatedAt,
 		UpdatedAt:  eur.UpdatedAt,
 	}
+	if eur.Edges.Role != nil {
+		dur.Role = convertRoleToDomain(eur.Edges.Role)
+	}
+	return dur
 }

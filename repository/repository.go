@@ -32,17 +32,13 @@ type Repository struct {
 	merchantRepo               *MerchantRepository
 	storeRepo                  *StoreRepository
 	merchantRenewalRepo        *MerchantRenewalRepository
-	merchantBusinessTypeRepo   *MerchantBusinessTypeRepository
 	remarkRepo                 *RemarkRepository
-	remarkCategoryRepo         *RemarkCategoryRepository
 	orderRepo                  *OrderRepository
 	menuRepo                   *MenuRepository
 	stallRepo                  *StallRepository
 	additionalFeeRepo          *AdditionalFeeRepository
 	taxFeeRepo                 *TaxFeeRepository
 	deviceRepo                 *DeviceRepository
-	countryRepo                *CountryRepository
-	provinceRepo               *ProvinceRepository
 	departmentRepo             *DepartmentRepository
 	paymentMethodRepo          *PaymentMethodRepository
 	roleRepo                   *RoleRepository
@@ -54,6 +50,7 @@ type Repository struct {
 	profitDistributionBillRepo *ProfitDistributionBillRepository
 	paymentAccountRepo         *PaymentAccountRepository
 	storePaymentAccountRepo    *StorePaymentAccountRepository
+	refundOrderRepo            *RefundOrderRepository
 	businessConfigRepo         *BusinessConfigRepository
 }
 
@@ -255,15 +252,6 @@ func (repo *Repository) MerchantRenewalRepo() domain.MerchantRenewalRepository {
 	return repo.merchantRenewalRepo
 }
 
-func (repo *Repository) MerchantBusinessTypeRepo() domain.MerchantBusinessTypeRepository {
-	repo.mu.Lock()
-	defer repo.mu.Unlock()
-	if repo.merchantBusinessTypeRepo == nil {
-		repo.merchantBusinessTypeRepo = NewMerchantBusinessTypeRepository(repo.client)
-	}
-	return repo.merchantBusinessTypeRepo
-}
-
 func (repo *Repository) RemarkRepo() domain.RemarkRepository {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -271,15 +259,6 @@ func (repo *Repository) RemarkRepo() domain.RemarkRepository {
 		repo.remarkRepo = NewRemarkRepository(repo.client)
 	}
 	return repo.remarkRepo
-}
-
-func (repo *Repository) RemarkCategoryRepo() domain.RemarkCategoryRepository {
-	repo.mu.Lock()
-	defer repo.mu.Unlock()
-	if repo.remarkCategoryRepo == nil {
-		repo.remarkCategoryRepo = NewRemarkCategoryRepository(repo.client)
-	}
-	return repo.remarkCategoryRepo
 }
 
 func (repo *Repository) OrderRepo() domain.OrderRepository {
@@ -356,26 +335,6 @@ func (repo *Repository) DeviceRepo() domain.DeviceRepository {
 		repo.deviceRepo = NewDeviceRepository(repo.client)
 	}
 	return repo.deviceRepo
-}
-
-func (repo *Repository) CountryRepo() domain.CountryRepository {
-	repo.mu.Lock()
-	defer repo.mu.Unlock()
-
-	if repo.countryRepo == nil {
-		repo.countryRepo = NewCountryRepository(repo.client)
-	}
-	return repo.countryRepo
-}
-
-func (repo *Repository) ProvinceRepo() domain.ProvinceRepository {
-	repo.mu.Lock()
-	defer repo.mu.Unlock()
-
-	if repo.provinceRepo == nil {
-		repo.provinceRepo = NewProvinceRepository(repo.client)
-	}
-	return repo.provinceRepo
 }
 
 func (repo *Repository) DepartmentRepo() domain.DepartmentRepository {
@@ -472,6 +431,15 @@ func (repo *Repository) StorePaymentAccountRepo() domain.StorePaymentAccountRepo
 		repo.storePaymentAccountRepo = NewStorePaymentAccountRepository(repo.client)
 	}
 	return repo.storePaymentAccountRepo
+}
+
+func (repo *Repository) RefundOrderRepo() domain.RefundOrderRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.refundOrderRepo == nil {
+		repo.refundOrderRepo = NewRefundOrderRepository(repo.client)
+	}
+	return repo.refundOrderRepo
 }
 
 func (repo *Repository) BusinessConfigRepo() domain.BusinessConfigRepository {

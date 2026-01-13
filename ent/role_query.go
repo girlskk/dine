@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -17,18 +18,20 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
 // RoleQuery is the builder for querying Role entities.
 type RoleQuery struct {
 	config
-	ctx          *QueryContext
-	order        []role.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Role
-	withMerchant *MerchantQuery
-	withStore    *StoreQuery
-	modifiers    []func(*sql.Selector)
+	ctx           *QueryContext
+	order         []role.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Role
+	withMerchant  *MerchantQuery
+	withStore     *StoreQuery
+	withUserRoles *UserRoleQuery
+	modifiers     []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +105,28 @@ func (rq *RoleQuery) QueryStore() *StoreQuery {
 			sqlgraph.From(role.Table, role.FieldID, selector),
 			sqlgraph.To(store.Table, store.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, role.StoreTable, role.StoreColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUserRoles chains the current query on the "user_roles" edge.
+func (rq *RoleQuery) QueryUserRoles() *UserRoleQuery {
+	query := (&UserRoleClient{config: rq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := rq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := rq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(role.Table, role.FieldID, selector),
+			sqlgraph.To(userrole.Table, userrole.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, role.UserRolesTable, role.UserRolesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -296,13 +321,14 @@ func (rq *RoleQuery) Clone() *RoleQuery {
 		return nil
 	}
 	return &RoleQuery{
-		config:       rq.config,
-		ctx:          rq.ctx.Clone(),
-		order:        append([]role.OrderOption{}, rq.order...),
-		inters:       append([]Interceptor{}, rq.inters...),
-		predicates:   append([]predicate.Role{}, rq.predicates...),
-		withMerchant: rq.withMerchant.Clone(),
-		withStore:    rq.withStore.Clone(),
+		config:        rq.config,
+		ctx:           rq.ctx.Clone(),
+		order:         append([]role.OrderOption{}, rq.order...),
+		inters:        append([]Interceptor{}, rq.inters...),
+		predicates:    append([]predicate.Role{}, rq.predicates...),
+		withMerchant:  rq.withMerchant.Clone(),
+		withStore:     rq.withStore.Clone(),
+		withUserRoles: rq.withUserRoles.Clone(),
 		// clone intermediate query.
 		sql:       rq.sql.Clone(),
 		path:      rq.path,
@@ -329,6 +355,17 @@ func (rq *RoleQuery) WithStore(opts ...func(*StoreQuery)) *RoleQuery {
 		opt(query)
 	}
 	rq.withStore = query
+	return rq
+}
+
+// WithUserRoles tells the query-builder to eager-load the nodes that are connected to
+// the "user_roles" edge. The optional arguments are used to configure the query builder of the edge.
+func (rq *RoleQuery) WithUserRoles(opts ...func(*UserRoleQuery)) *RoleQuery {
+	query := (&UserRoleClient{config: rq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	rq.withUserRoles = query
 	return rq
 }
 
@@ -410,9 +447,10 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 	var (
 		nodes       = []*Role{}
 		_spec       = rq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			rq.withMerchant != nil,
 			rq.withStore != nil,
+			rq.withUserRoles != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -445,6 +483,13 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 	if query := rq.withStore; query != nil {
 		if err := rq.loadStore(ctx, query, nodes, nil,
 			func(n *Role, e *Store) { n.Edges.Store = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := rq.withUserRoles; query != nil {
+		if err := rq.loadUserRoles(ctx, query, nodes,
+			func(n *Role) { n.Edges.UserRoles = []*UserRole{} },
+			func(n *Role, e *UserRole) { n.Edges.UserRoles = append(n.Edges.UserRoles, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -506,6 +551,36 @@ func (rq *RoleQuery) loadStore(ctx context.Context, query *StoreQuery, nodes []*
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (rq *RoleQuery) loadUserRoles(ctx context.Context, query *UserRoleQuery, nodes []*Role, init func(*Role), assign func(*Role, *UserRole)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Role)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userrole.FieldRoleID)
+	}
+	query.Where(predicate.UserRole(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(role.UserRolesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RoleID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "role_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

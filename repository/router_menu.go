@@ -10,7 +10,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/routermenu"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
 )
 
@@ -119,7 +118,7 @@ func (repo *RouterMenuRepository) Delete(ctx context.Context, id uuid.UUID) (err
 	return nil
 }
 
-func (repo *RouterMenuRepository) GetRouterMenus(ctx context.Context, pager *upagination.Pagination, filter *domain.RouterMenuListFilter, orderBys ...domain.RouterMenuListOrderBy) (menus []*domain.RouterMenu, total int, err error) {
+func (repo *RouterMenuRepository) GetRouterMenus(ctx context.Context, filter *domain.RouterMenuListFilter, orderBys ...domain.RouterMenuListOrderBy) (menus []*domain.RouterMenu, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "RouterMenuRepository.GetRouterMenus")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -133,8 +132,6 @@ func (repo *RouterMenuRepository) GetRouterMenus(ctx context.Context, pager *upa
 
 	list, err := query.
 		Order(repo.orderBy(orderBys...)...).
-		Offset(pager.Offset()).
-		Limit(pager.Size).
 		All(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to query router menu: %w", err)

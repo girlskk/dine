@@ -84,9 +84,12 @@ const (
 	RoleDisabled               ErrCode = "ROLE_DISABLED"                 // 用户所属角色已被禁用
 	UserRoleRequired           ErrCode = "USER_ROLE_REQUIRED"            // 用户至少需要分配一个角色
 	UserDepartmentRequired     ErrCode = "USER_DEPARTMENT_REQUIRED"      // 用户所属部门不能为空
-	UserRoleTypeMismatch       ErrCode = "USER_ROLE_TYPE_MISMATCH"       // 用户角色类型不匹配
-	UserDepartmentTypeMismatch ErrCode = "USER_DEPARTMENT_TYPE_MISMATCH" // 用户部门类型不匹配
+	UserRoleTypeMismatch       ErrCode = "USER_ROLE_TYPE_MISMATCH"       // 用户的角色类型不匹配
+	UserDepartmentTypeMismatch ErrCode = "USER_DEPARTMENT_TYPE_MISMATCH" // 用户的部门类型不匹配
 	PasswordCannotBeEmpty      ErrCode = "PASSWORD_CANNOT_BE_EMPTY"      // 密码不能为空
+	RoleAssignedCannotDisable  ErrCode = "ROLE_ASSIGNED_CANNOT_DISABLE"  // 角色已分配用户，无法禁用
+	RoleAssignedCannotDelete   ErrCode = "ROLE_ASSIGNED_CANNOT_DELETE"   // 角色已分配用户，无法删除
+	UserRoleNotExists          ErrCode = "USER_ROLE_NOT_EXISTS"          // 该用户未分配角色
 
 	// 时间相关
 	TimeFormatInvalid ErrCode = "TIME_FORMAT_INVALID" // 时间格式错误
