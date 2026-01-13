@@ -35,7 +35,7 @@ type Department struct {
 	// 部门类型
 	DepartmentType domain.DepartmentType `json:"department_type,omitempty"`
 	// 是否启用
-	Enable bool `json:"enable,omitempty"`
+	Enabled bool `json:"enabled,omitempty"`
 	// 所属商户 ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 所属门店 ID，若为空则表示为商户级部门
@@ -117,7 +117,7 @@ func (*Department) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case department.FieldEnable:
+		case department.FieldEnabled:
 			values[i] = new(sql.NullBool)
 		case department.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
@@ -184,11 +184,11 @@ func (d *Department) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				d.DepartmentType = domain.DepartmentType(value.String)
 			}
-		case department.FieldEnable:
+		case department.FieldEnabled:
 			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field enable", values[i])
+				return fmt.Errorf("unexpected type %T for field enabled", values[i])
 			} else if value.Valid {
-				d.Enable = value.Bool
+				d.Enabled = value.Bool
 			}
 		case department.FieldMerchantID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -281,8 +281,8 @@ func (d *Department) String() string {
 	builder.WriteString("department_type=")
 	builder.WriteString(fmt.Sprintf("%v", d.DepartmentType))
 	builder.WriteString(", ")
-	builder.WriteString("enable=")
-	builder.WriteString(fmt.Sprintf("%v", d.Enable))
+	builder.WriteString("enabled=")
+	builder.WriteString(fmt.Sprintf("%v", d.Enabled))
 	builder.WriteString(", ")
 	builder.WriteString("merchant_id=")
 	builder.WriteString(fmt.Sprintf("%v", d.MerchantID))

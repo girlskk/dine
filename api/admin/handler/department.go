@@ -77,28 +77,16 @@ func (h *DepartmentHandler) Create() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromAdminUserContext(ctx)
 		dept := &domain.CreateDepartmentParams{
 			Name:           req.Name,
 			Code:           deptCode,
 			DepartmentType: domain.DepartmentAdmin,
-			Enable:         req.Enable,
+			Enabled:        req.Enabled,
 		}
 
-		if err := h.Interactor.CreateDepartment(ctx, dept); err != nil {
-			if errors.Is(err, domain.ErrDepartmentNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if errors.Is(err, domain.ErrDepartmentCodeExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create department: %w", err)
-			c.Error(err)
+		if err := h.Interactor.CreateDepartment(ctx, dept, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -137,31 +125,14 @@ func (h *DepartmentHandler) Update() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromAdminUserContext(ctx)
 		dept := &domain.UpdateDepartmentParams{
-			ID:     id,
-			Name:   req.Name,
-			Enable: req.Enable,
+			ID:      id,
+			Name:    req.Name,
+			Enabled: req.Enabled,
 		}
-
-		if err := h.Interactor.UpdateDepartment(ctx, dept); err != nil {
-			if errors.Is(err, domain.ErrDepartmentNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if errors.Is(err, domain.ErrDepartmentCodeExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.Conflict, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to update department: %w", err)
-			c.Error(err)
+		if err := h.Interactor.UpdateDepartment(ctx, dept, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -193,17 +164,9 @@ func (h *DepartmentHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.Interactor.DeleteDepartment(ctx, id); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete department: %w", err)
-			c.Error(err)
+		user := domain.FromAdminUserContext(ctx)
+		if err := h.Interactor.DeleteDepartment(ctx, id, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -235,14 +198,10 @@ func (h *DepartmentHandler) Get() gin.HandlerFunc {
 			return
 		}
 
-		dept, err := h.Interactor.GetDepartment(ctx, id)
+		user := domain.FromAdminUserContext(ctx)
+		dept, err := h.Interactor.GetDepartment(ctx, id, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to get department: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -279,7 +238,7 @@ func (h *DepartmentHandler) List() gin.HandlerFunc {
 			Name:           req.Name,
 			Code:           req.Code,
 			DepartmentType: domain.DepartmentAdmin,
-			Enable:         req.Enable,
+			Enabled:        req.Enabled,
 		}
 
 		depts, total, err := h.Interactor.GetDepartments(ctx, pager, filter, domain.NewDepartmentListOrderByCreatedAt(true))
@@ -303,7 +262,7 @@ func (h *DepartmentHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"部门ID"
 //	@Success		200	"No Content"
-//	@Router			/common/department/{id}/enable [put]
+//	@Router			/common/department/{id}/Enable [put]
 func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -317,18 +276,10 @@ func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnable, domain.DepartmentSimpleUpdateParams{ID: id, Enable: true})
+		user := domain.FromAdminUserContext(ctx)
+		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, domain.DepartmentSimpleUpdateParams{ID: id, Enabled: true}, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to enable department: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -360,18 +311,10 @@ func (h *DepartmentHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnable, domain.DepartmentSimpleUpdateParams{ID: id, Enable: false})
+		user := domain.FromAdminUserContext(ctx)
+		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, domain.DepartmentSimpleUpdateParams{ID: id, Enabled: false}, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to disable department: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -388,4 +331,23 @@ func (h *DepartmentHandler) generateDepartmentCode(ctx context.Context) (string,
 		return "", err
 	}
 	return seq, nil
+}
+
+func (h *DepartmentHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrDepartmentNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.DepartmentNotExists, err)
+	case errors.Is(err, domain.ErrDepartmentNameExists):
+		return errorx.New(http.StatusConflict, errcode.DepartmentNameExists, err)
+	case errors.Is(err, domain.ErrDepartmentCodeExists):
+		return errorx.New(http.StatusConflict, errcode.DepartmentCodeExists, err)
+	case errors.Is(err, domain.ErrDepartmentHasUsersCannotDelete):
+		return errorx.New(http.StatusForbidden, errcode.DepartmentHasUserCannotDelete, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("department handler error: %w", err)
+	}
 }

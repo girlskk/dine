@@ -1,13 +1,11 @@
 package types
 
 import (
-	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 type CreateStoreReq struct {
-	MerchantID              uuid.UUID              `json:"merchant_id" binding:"required"`                         // 所属商户 ID
 	AdminPhoneNumber        string                 `json:"admin_phone_number" binding:"required,max=20"`           // 管理员手机号
 	StoreName               string                 `json:"store_name" binding:"required,max=30"`                   // 门店名称,长度不超过30个字
 	StoreShortName          string                 `json:"store_short_name" binding:"omitempty,max=30"`            // 门店简称
@@ -59,7 +57,6 @@ type UpdateStoreReq struct {
 
 type StoreListReq struct {
 	upagination.RequestPagination
-	MerchantID       string               `form:"merchant_id" binding:"omitempty"`        // 商户 ID
 	AdminPhoneNumber string               `form:"admin_phone_number" binding:"omitempty"` // 管理员手机号
 	StoreName        string               `form:"store_name" binding:"omitempty"`         // 门店名称
 	Status           domain.StoreStatus   `form:"status" binding:"omitempty"`             // 营业/停业

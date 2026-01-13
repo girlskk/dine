@@ -43,7 +43,7 @@ func (h *UserHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/Enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 	r.PUT("/:id/reset_password", h.ResetPassword())
 }
@@ -403,7 +403,7 @@ func (h *UserHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"管理员用户ID"
 //	@Success		200	"No Content"
-//	@Router			/user/{id}/enable [put]
+//	@Router			/user/{id}/Enable [put]
 func (h *UserHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -417,7 +417,7 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnable, domain.AdminUserSimpleUpdateParams{
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, domain.AdminUserSimpleUpdateParams{
 			ID:      id,
 			Enabled: true,
 		})
@@ -454,7 +454,7 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnable, domain.AdminUserSimpleUpdateParams{
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, domain.AdminUserSimpleUpdateParams{
 			ID:      id,
 			Enabled: false,
 		})

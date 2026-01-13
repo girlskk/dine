@@ -25,13 +25,7 @@ func NewRouterMenuHandler(interactor domain.RouterMenuInteractor) *RouterMenuHan
 
 func (h *RouterMenuHandler) Routes(r gin.IRouter) {
 	r = r.Group("/common/router_menu")
-	r.POST("", h.Create())
-	r.PUT("/:id", h.Update())
-	r.DELETE("/:id", h.Delete())
-	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/enable", h.Enable())
-	r.PUT("/:id/disable", h.Disable())
 }
 
 // Create 创建菜单
@@ -260,10 +254,10 @@ func (h *RouterMenuHandler) List() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		enable := true
+		Enabled := true
 		filter := &domain.RouterMenuListFilter{
 			UserType: domain.UserTypeAdmin,
-			Enabled:  &enable,
+			Enabled:  &Enabled,
 		}
 
 		menus, total, err := h.Interactor.GetRouterMenus(ctx, filter, domain.NewRouterMenuListOrderBySort(false))
@@ -277,7 +271,7 @@ func (h *RouterMenuHandler) List() gin.HandlerFunc {
 	}
 }
 
-// Enable 启用菜单
+// Enabled 启用菜单
 //
 //	@Tags			菜单管理
 //	@Summary		启用菜单
@@ -286,11 +280,11 @@ func (h *RouterMenuHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"菜单ID"
 //	@Success		200	"No Content"
-//	@Router			/common/router_menu/{id}/enable [put]
-func (h *RouterMenuHandler) Enable() gin.HandlerFunc {
+//	@Router			/common/router_menu/{id}/Enabled [put]
+func (h *RouterMenuHandler) Enabled() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("RouterMenuHandler.Enable")
+		logger := logging.FromContext(ctx).Named("RouterMenuHandler.Enabled")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
@@ -310,7 +304,7 @@ func (h *RouterMenuHandler) Enable() gin.HandlerFunc {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
 			}
-			err = fmt.Errorf("failed to enable router menu: %w", err)
+			err = fmt.Errorf("failed to Enabled router menu: %w", err)
 			c.Error(err)
 			return
 		}

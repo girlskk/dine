@@ -296,7 +296,7 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "code", Type: field.TypeString},
 		{Name: "department_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
-		{Name: "enable", Type: field.TypeBool, Default: true},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 	}
@@ -1465,7 +1465,7 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "code", Type: field.TypeString},
 		{Name: "role_type", Type: field.TypeEnum, Enums: []string{"admin", "backend", "store"}},
-		{Name: "enable", Type: field.TypeBool, Default: true},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "login_channels", Type: field.TypeJSON, Nullable: true},
 		{Name: "data_scope", Type: field.TypeEnum, Nullable: true, Enums: []string{"all", "merchant", "store", "department", "self", "custom"}, Default: "all"},
 		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},

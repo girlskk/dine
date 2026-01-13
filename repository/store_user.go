@@ -234,6 +234,12 @@ func (repo *StoreUserRepository) buildFilterQuery(filter *domain.StoreUserListFi
 	if filter.Enabled != nil {
 		query = query.Where(storeuser.EnabledEQ(*filter.Enabled))
 	}
+	if filter.MerchantID != uuid.Nil {
+		query = query.Where(storeuser.MerchantIDEQ(filter.MerchantID))
+	}
+	if filter.StoreID != uuid.Nil {
+		query = query.Where(storeuser.StoreIDEQ(filter.StoreID))
+	}
 
 	return query
 }

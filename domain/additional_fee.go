@@ -32,12 +32,12 @@ type AdditionalFeeRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/additional_fee_interactor.go -package=mock . AdditionalFeeInteractor
 type AdditionalFeeInteractor interface {
-	Create(ctx context.Context, fee *AdditionalFee) (err error)
-	Update(ctx context.Context, fee *AdditionalFee) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetAdditionalFee(ctx context.Context, id uuid.UUID) (fee *AdditionalFee, err error)
+	Create(ctx context.Context, fee *AdditionalFee, user User) (err error)
+	Update(ctx context.Context, fee *AdditionalFee, user User) (err error)
+	Delete(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetAdditionalFee(ctx context.Context, id uuid.UUID, user User) (fee *AdditionalFee, err error)
 	GetAdditionalFees(ctx context.Context, pager *upagination.Pagination, filter *AdditionalFeeListFilter, orderBys ...AdditionalFeeOrderBy) (fees []*AdditionalFee, total int, err error)
-	AdditionalFeeSimpleUpdate(ctx context.Context, updateField AdditionalFeeSimpleUpdateType, fee *AdditionalFee) (err error)
+	AdditionalFeeSimpleUpdate(ctx context.Context, updateField AdditionalFeeSimpleUpdateType, fee *AdditionalFee, user User) (err error)
 }
 type DiningWay string
 

@@ -49,7 +49,7 @@ type AccountListReq struct {
 	Gender      domain.Gender `form:"gender"`
 	Email       string        `form:"email"`
 	PhoneNumber string        `form:"phone_number"`
-	Enabled     *bool         `form:"enable"`
+	Enabled     *bool         `form:"enabled"`
 }
 
 type AccountListResp struct {

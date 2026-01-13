@@ -41,7 +41,7 @@ func (h *RoleHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/Enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 	r.POST("/:id/menus", h.SetMenus())
 	r.GET("/:id/menus", h.RoleMenuList())
@@ -78,15 +78,16 @@ func (h *RoleHandler) Create() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromAdminUserContext(ctx)
 		params := &domain.CreateRoleParams{
 			Name:      req.Name,
 			Code:      roleCode,
 			RoleType:  domain.RoleTypeAdmin,
 			DataScope: domain.RoleDataScopeAll,
-			Enable:    req.Enable,
+			Enabled:   req.Enabled,
 		}
 
-		if err := h.Interactor.CreateRole(ctx, params); err != nil {
+		if err := h.Interactor.CreateRole(ctx, params, user); err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -126,15 +127,16 @@ func (h *RoleHandler) Update() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromAdminUserContext(ctx)
 		params := &domain.UpdateRoleParams{
 			ID:        id,
 			Name:      req.Name,
 			RoleType:  domain.RoleTypeAdmin,
 			DataScope: domain.RoleDataScopeAll,
-			Enable:    req.Enable,
+			Enabled:   req.Enabled,
 		}
 
-		if err := h.Interactor.UpdateRole(ctx, params); err != nil {
+		if err := h.Interactor.UpdateRole(ctx, params, user); err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -167,7 +169,8 @@ func (h *RoleHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.Interactor.DeleteRole(ctx, id); err != nil {
+		user := domain.FromAdminUserContext(ctx)
+		if err := h.Interactor.DeleteRole(ctx, id, user); err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -200,7 +203,8 @@ func (h *RoleHandler) Get() gin.HandlerFunc {
 			return
 		}
 
-		role, err := h.Interactor.GetRole(ctx, id)
+		user := domain.FromAdminUserContext(ctx)
+		role, err := h.Interactor.GetRole(ctx, id, user)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -238,7 +242,7 @@ func (h *RoleHandler) List() gin.HandlerFunc {
 		filter := &domain.RoleListFilter{
 			Name:     req.Name,
 			RoleType: domain.RoleTypeAdmin,
-			Enable:   req.Enable,
+			Enabled:  req.Enabled,
 		}
 
 		roles, total, err := h.Interactor.GetRoles(ctx, pager, filter, domain.NewRoleListOrderByCreatedAt(true))
@@ -261,7 +265,7 @@ func (h *RoleHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"角色ID"
 //	@Success		200	"No Content"
-//	@Router			/common/role/{id}/enable [put]
+//	@Router			/common/role/{id}/Enable [put]
 func (h *RoleHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -275,10 +279,11 @@ func (h *RoleHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnable, domain.RoleSimpleUpdateParams{
-			ID:     id,
-			Enable: true,
-		})
+		user := domain.FromAdminUserContext(ctx)
+		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnabled, domain.RoleSimpleUpdateParams{
+			ID:      id,
+			Enabled: true,
+		}, user)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -311,10 +316,12 @@ func (h *RoleHandler) Disable() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnable, domain.RoleSimpleUpdateParams{
-			ID:     id,
-			Enable: false,
-		})
+
+		user := domain.FromAdminUserContext(ctx)
+		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnabled, domain.RoleSimpleUpdateParams{
+			ID:      id,
+			Enabled: false,
+		}, user)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -411,14 +418,14 @@ func (h *RoleHandler) generateRoleCode(ctx context.Context) (string, error) {
 
 func (h *RoleHandler) checkErr(err error) error {
 	switch {
-	case errors.Is(err, domain.ErrRoleAssignedCannotDisable):
-		return errorx.New(http.StatusBadRequest, errcode.RoleAssignedCannotDisable, err)
-	case errors.Is(err, domain.ErrRoleAssignedCannotDelete):
-		return errorx.New(http.StatusBadRequest, errcode.RoleAssignedCannotDelete, err)
 	case errors.Is(err, domain.ErrUserRoleNotExists):
 		return errorx.New(http.StatusBadRequest, errcode.UserRoleNotExists, err)
 	case errors.Is(err, domain.ErrRoleNameExists), errors.Is(err, domain.ErrRoleCodeExists):
 		return errorx.New(http.StatusConflict, errcode.Conflict, err)
+	case errors.Is(err, domain.ErrRoleAssignedCannotDisable):
+		return errorx.New(http.StatusForbidden, errcode.RoleAssignedCannotDisable, err)
+	case errors.Is(err, domain.ErrRoleAssignedCannotDelete):
+		return errorx.New(http.StatusForbidden, errcode.RoleAssignedCannotDelete, err)
 	case domain.IsNotFound(err):
 		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
 	case domain.IsParamsError(err):

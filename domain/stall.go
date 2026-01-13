@@ -10,8 +10,10 @@ import (
 )
 
 var (
-	ErrStallNotExists  = errors.New("出品部门不存在")
-	ErrStallNameExists = errors.New("出品部门名称已存在")
+	ErrStallNotExists          = errors.New("出品部门不存在")
+	ErrStallNameExists         = errors.New("出品部门名称已存在")
+	ErrStallCannotDeleteSystem = errors.New("默认出品部门不能删除")
+	ErrStallCannotUpdateSystem = errors.New("默认出品部门不能修改")
 )
 
 // StallRepository 出品部门仓储接口
@@ -30,12 +32,12 @@ type StallRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/stall_interactor.go -package=mock . StallInteractor
 type StallInteractor interface {
-	Create(ctx context.Context, stall *Stall) (err error)
-	Update(ctx context.Context, stall *Stall) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetStall(ctx context.Context, id uuid.UUID) (*Stall, error)
+	Create(ctx context.Context, stall *Stall, user User) (err error)
+	Update(ctx context.Context, stall *Stall, user User) (err error)
+	Delete(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetStall(ctx context.Context, id uuid.UUID, user User) (*Stall, error)
 	GetStalls(ctx context.Context, pager *upagination.Pagination, filter *StallListFilter, orderBys ...StallOrderBy) (stalls []*Stall, total int, err error)
-	StallSimpleUpdate(ctx context.Context, updateField StallSimpleUpdateField, stall *Stall) (err error)
+	StallSimpleUpdate(ctx context.Context, updateField StallSimpleUpdateField, stall *Stall, user User) (err error)
 }
 
 type StallSimpleUpdateField string

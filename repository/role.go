@@ -54,7 +54,7 @@ func (repo *RoleRepository) Create(ctx context.Context, domainRole *domain.Role)
 		SetCode(domainRole.Code).
 		SetRoleType(domainRole.RoleType).
 		SetDataScope(domainRole.DataScope).
-		SetEnable(domainRole.Enable).
+		SetEnabled(domainRole.Enabled).
 		SetMerchantID(domainRole.MerchantID).
 		SetStoreID(domainRole.StoreID).
 		SetLoginChannels(domainRole.LoginChannels)
@@ -81,7 +81,7 @@ func (repo *RoleRepository) Update(ctx context.Context, domainRole *domain.Role)
 	builder := repo.Client.Role.UpdateOneID(domainRole.ID).
 		SetName(domainRole.Name).
 		SetDataScope(domainRole.DataScope).
-		SetEnable(domainRole.Enable).
+		SetEnabled(domainRole.Enabled).
 		SetLoginChannels(domainRole.LoginChannels)
 
 	updated, err := builder.Save(ctx)
@@ -197,8 +197,8 @@ func (repo *RoleRepository) buildFilterQuery(filter *domain.RoleListFilter) *ent
 	if filter.RoleType != "" {
 		query = query.Where(role.RoleTypeEQ(filter.RoleType))
 	}
-	if filter.Enable != nil {
-		query = query.Where(role.EnableEQ(*filter.Enable))
+	if filter.Enabled != nil {
+		query = query.Where(role.EnabledEQ(*filter.Enabled))
 	}
 	if filter.Name != "" {
 		query = query.Where(role.NameContains(filter.Name))
@@ -234,7 +234,7 @@ func convertRoleToDomain(er *ent.Role) *domain.Role {
 		Code:          er.Code,
 		RoleType:      er.RoleType,
 		DataScope:     er.DataScope,
-		Enable:        er.Enable,
+		Enabled:       er.Enabled,
 		MerchantID:    er.MerchantID,
 		StoreID:       er.StoreID,
 		LoginChannels: er.LoginChannels,

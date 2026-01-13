@@ -45,6 +45,7 @@ func (interactor *AdminUserInteractor) Login(ctx context.Context, username, pass
 	}
 	if !user.Enabled {
 		err = domain.ErrUserDisabled
+		return
 	}
 	expAt = time.Now().Add(time.Duration(interactor.AuthConfig.Expire) * time.Second)
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, AuthToken{
@@ -124,9 +125,12 @@ func (interactor *AdminUserInteractor) Create(ctx context.Context, user *domain.
 		}
 		department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrDepartmentNotExists
+			}
 			return err
 		}
-		if !department.Enable {
+		if !department.Enabled {
 			return domain.ErrDepartmentDisabled
 		}
 		if string(department.DepartmentType) != string(domain.UserTypeAdmin) {
@@ -140,7 +144,7 @@ func (interactor *AdminUserInteractor) Create(ctx context.Context, user *domain.
 		if err != nil {
 			return err
 		}
-		if !role.Enable {
+		if !role.Enabled {
 			return domain.ErrRoleDisabled
 		}
 		if string(role.RoleType) != string(domain.UserTypeAdmin) {
@@ -193,9 +197,12 @@ func (interactor *AdminUserInteractor) Update(ctx context.Context, user *domain.
 		if user.DepartmentID != oldUser.DepartmentID {
 			department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
 			if err != nil {
+				if domain.IsNotFound(err) {
+					return domain.ErrDepartmentNotExists
+				}
 				return err
 			}
-			if !department.Enable {
+			if !department.Enabled {
 				return domain.ErrDepartmentDisabled
 			}
 			if string(department.DepartmentType) != string(domain.UserTypeAdmin) {
@@ -211,7 +218,7 @@ func (interactor *AdminUserInteractor) Update(ctx context.Context, user *domain.
 		if err != nil {
 			return err
 		}
-		if !role.Enable {
+		if !role.Enabled {
 			return domain.ErrRoleDisabled
 		}
 		if string(role.RoleType) != string(domain.UserTypeAdmin) {
@@ -388,7 +395,7 @@ func (interactor *AdminUserInteractor) GetUsers(ctx context.Context, pager *upag
 	return
 }
 
-// SimpleUpdate implements toggling simple fields for AdminUser (e.g., enabled)
+// SimpleUpdate implements toggling simple fields for AdminUser (e.g., Enabled)
 func (interactor *AdminUserInteractor) SimpleUpdate(ctx context.Context, updateField domain.AdminUserSimpleUpdateField, params domain.AdminUserSimpleUpdateParams) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdminUserInteractor.SimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
@@ -402,7 +409,7 @@ func (interactor *AdminUserInteractor) SimpleUpdate(ctx context.Context, updateF
 			return err
 		}
 		switch updateField {
-		case domain.AdminUserSimpleUpdateFieldEnable:
+		case domain.AdminUserSimpleUpdateFieldEnabled:
 			if user.Enabled == params.Enabled {
 				return nil
 			}

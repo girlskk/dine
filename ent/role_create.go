@@ -88,16 +88,16 @@ func (rc *RoleCreate) SetRoleType(dt domain.RoleType) *RoleCreate {
 	return rc
 }
 
-// SetEnable sets the "enable" field.
-func (rc *RoleCreate) SetEnable(b bool) *RoleCreate {
-	rc.mutation.SetEnable(b)
+// SetEnabled sets the "enabled" field.
+func (rc *RoleCreate) SetEnabled(b bool) *RoleCreate {
+	rc.mutation.SetEnabled(b)
 	return rc
 }
 
-// SetNillableEnable sets the "enable" field if the given value is not nil.
-func (rc *RoleCreate) SetNillableEnable(b *bool) *RoleCreate {
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableEnabled(b *bool) *RoleCreate {
 	if b != nil {
-		rc.SetEnable(*b)
+		rc.SetEnabled(*b)
 	}
 	return rc
 }
@@ -244,9 +244,9 @@ func (rc *RoleCreate) defaults() error {
 		v := role.DefaultDeletedAt
 		rc.mutation.SetDeletedAt(v)
 	}
-	if _, ok := rc.mutation.Enable(); !ok {
-		v := role.DefaultEnable
-		rc.mutation.SetEnable(v)
+	if _, ok := rc.mutation.Enabled(); !ok {
+		v := role.DefaultEnabled
+		rc.mutation.SetEnabled(v)
 	}
 	if _, ok := rc.mutation.DataScope(); !ok {
 		v := role.DefaultDataScope
@@ -292,8 +292,8 @@ func (rc *RoleCreate) check() error {
 			return &ValidationError{Name: "role_type", err: fmt.Errorf(`ent: validator failed for field "Role.role_type": %w`, err)}
 		}
 	}
-	if _, ok := rc.mutation.Enable(); !ok {
-		return &ValidationError{Name: "enable", err: errors.New(`ent: missing required field "Role.enable"`)}
+	if _, ok := rc.mutation.Enabled(); !ok {
+		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "Role.enabled"`)}
 	}
 	if v, ok := rc.mutation.DataScope(); ok {
 		if err := role.DataScopeValidator(v); err != nil {
@@ -360,9 +360,9 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_spec.SetField(role.FieldRoleType, field.TypeEnum, value)
 		_node.RoleType = value
 	}
-	if value, ok := rc.mutation.Enable(); ok {
-		_spec.SetField(role.FieldEnable, field.TypeBool, value)
-		_node.Enable = value
+	if value, ok := rc.mutation.Enabled(); ok {
+		_spec.SetField(role.FieldEnabled, field.TypeBool, value)
+		_node.Enabled = value
 	}
 	if value, ok := rc.mutation.LoginChannels(); ok {
 		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
@@ -516,15 +516,15 @@ func (u *RoleUpsert) UpdateName() *RoleUpsert {
 	return u
 }
 
-// SetEnable sets the "enable" field.
-func (u *RoleUpsert) SetEnable(v bool) *RoleUpsert {
-	u.Set(role.FieldEnable, v)
+// SetEnabled sets the "enabled" field.
+func (u *RoleUpsert) SetEnabled(v bool) *RoleUpsert {
+	u.Set(role.FieldEnabled, v)
 	return u
 }
 
-// UpdateEnable sets the "enable" field to the value that was provided on create.
-func (u *RoleUpsert) UpdateEnable() *RoleUpsert {
-	u.SetExcluded(role.FieldEnable)
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateEnabled() *RoleUpsert {
+	u.SetExcluded(role.FieldEnabled)
 	return u
 }
 
@@ -676,17 +676,17 @@ func (u *RoleUpsertOne) UpdateName() *RoleUpsertOne {
 	})
 }
 
-// SetEnable sets the "enable" field.
-func (u *RoleUpsertOne) SetEnable(v bool) *RoleUpsertOne {
+// SetEnabled sets the "enabled" field.
+func (u *RoleUpsertOne) SetEnabled(v bool) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetEnable(v)
+		s.SetEnabled(v)
 	})
 }
 
-// UpdateEnable sets the "enable" field to the value that was provided on create.
-func (u *RoleUpsertOne) UpdateEnable() *RoleUpsertOne {
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateEnabled() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateEnable()
+		s.UpdateEnabled()
 	})
 }
 
@@ -1011,17 +1011,17 @@ func (u *RoleUpsertBulk) UpdateName() *RoleUpsertBulk {
 	})
 }
 
-// SetEnable sets the "enable" field.
-func (u *RoleUpsertBulk) SetEnable(v bool) *RoleUpsertBulk {
+// SetEnabled sets the "enabled" field.
+func (u *RoleUpsertBulk) SetEnabled(v bool) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetEnable(v)
+		s.SetEnabled(v)
 	})
 }
 
-// UpdateEnable sets the "enable" field to the value that was provided on create.
-func (u *RoleUpsertBulk) UpdateEnable() *RoleUpsertBulk {
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateEnabled() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateEnable()
+		s.UpdateEnabled()
 	})
 }
 

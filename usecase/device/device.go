@@ -2,7 +2,6 @@ package device
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -25,98 +24,186 @@ func NewDeviceInteractor(ds domain.DataStore) *DeviceInteractor {
 func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context,
 	updateField domain.DeviceSimpleUpdateType,
 	device *domain.Device,
+	user domain.User,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.DeviceSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
-
-	if device == nil {
-		return fmt.Errorf("device is nil")
-	}
-	oldDevice, err := interactor.DS.DeviceRepo().FindByID(ctx, device.ID)
-	if err != nil {
-		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrDeviceNotExists)
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		oldDevice, err := ds.DeviceRepo().FindByID(ctx, device.ID)
+		if err != nil {
+			return err
 		}
-		return fmt.Errorf("failed to fetch device: %w", err)
-	}
 
-	switch updateField {
-	case domain.DeviceSimpleUpdateTypeEnabled:
-		if oldDevice.Enabled == device.Enabled {
-			return
+		if err = verifyDeviceOwnership(user, oldDevice); err != nil {
+			return err
 		}
-		oldDevice.Enabled = device.Enabled
-	default:
-		return domain.ParamsError(errors.New("unsupported update field"))
-	}
 
-	err = interactor.DS.DeviceRepo().Update(ctx, oldDevice)
+		switch updateField {
+		case domain.DeviceSimpleUpdateTypeEnabled:
+			if oldDevice.Enabled == device.Enabled {
+				return nil
+			}
+			oldDevice.Enabled = device.Enabled
+		default:
+			return fmt.Errorf("unsupported simple update field: %s", updateField)
+		}
+
+		err = ds.DeviceRepo().Update(ctx, oldDevice)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to update device: %w", err)
-	}
-	return
-}
-
-func (interactor *DeviceInteractor) Create(ctx context.Context, domainDevice *domain.Device) (err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.Create")
-	defer func() { util.SpanErrFinish(span, err) }()
-	if domainDevice == nil {
-		return fmt.Errorf("device is nil")
-	}
-
-	if err = interactor.checkExists(ctx, domainDevice); err != nil {
 		return err
 	}
-	domainDevice.ID = uuid.New()
-	err = interactor.DS.DeviceRepo().Create(ctx, domainDevice)
-	if err != nil {
-		return fmt.Errorf("failed to create device: %w", err)
-	}
-	return
+	return nil
 }
 
-func (interactor *DeviceInteractor) Update(ctx context.Context, domainDevice *domain.Device) (err error) {
+func (interactor *DeviceInteractor) Create(ctx context.Context, domainDevice *domain.Device, user domain.User) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.Create")
+	defer func() { util.SpanErrFinish(span, err) }()
+	if err = verifyDeviceOwnership(user, domainDevice); err != nil {
+		return err
+	}
+
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		exists, err := ds.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
+			MerchantID: domainDevice.MerchantID,
+			StoreID:    domainDevice.StoreID,
+			Name:       domainDevice.Name,
+			ExcludeID:  domainDevice.ID,
+		})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return domain.ErrDeviceNameExists
+		}
+
+		if domainDevice.DeviceCode != "" {
+			exists, err = ds.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
+				MerchantID: domainDevice.MerchantID,
+				StoreID:    domainDevice.StoreID,
+				DeviceCode: domainDevice.DeviceCode,
+				ExcludeID:  domainDevice.ID,
+			})
+			if err != nil {
+				return err
+			}
+			if exists {
+				return domain.ErrDeviceCodeExists
+			}
+		}
+		domainDevice.ID = uuid.New()
+		err = ds.DeviceRepo().Create(ctx, domainDevice)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (interactor *DeviceInteractor) Update(ctx context.Context, domainDevice *domain.Device, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.Update")
 	defer func() { util.SpanErrFinish(span, err) }()
 	if domainDevice == nil {
 		return fmt.Errorf("device is nil")
 	}
-	if err = interactor.checkExists(ctx, domainDevice); err != nil {
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		old, err := ds.DeviceRepo().FindByID(ctx, domainDevice.ID)
+		if err != nil {
+
+			return err
+		}
+		if err = verifyDeviceOwnership(user, old); err != nil {
+			return err
+		}
+
+		exists, err := ds.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
+			MerchantID: domainDevice.MerchantID,
+			StoreID:    domainDevice.StoreID,
+			Name:       domainDevice.Name,
+			ExcludeID:  domainDevice.ID,
+		})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return domain.ErrDeviceNameExists
+		}
+
+		if domainDevice.DeviceCode != "" {
+			exists, err = ds.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
+				MerchantID: domainDevice.MerchantID,
+				StoreID:    domainDevice.StoreID,
+				DeviceCode: domainDevice.DeviceCode,
+				ExcludeID:  domainDevice.ID,
+			})
+			if err != nil {
+				return err
+			}
+			if exists {
+				return domain.ErrDeviceCodeExists
+			}
+		}
+		err = ds.DeviceRepo().Update(ctx, domainDevice)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
 		return err
 	}
-	err = interactor.DS.DeviceRepo().Update(ctx, domainDevice)
-	if err != nil {
-		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrDeviceNotExists)
-		}
-		return fmt.Errorf("failed to update device: %w", err)
-	}
-	return
+
+	return nil
 }
 
-func (interactor *DeviceInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (interactor *DeviceInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
-	err = interactor.DS.DeviceRepo().Delete(ctx, id)
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		device, err := ds.DeviceRepo().FindByID(ctx, id)
+		if err != nil {
+			return err
+		}
+		if err = verifyDeviceOwnership(user, device); err != nil {
+			return err
+		}
+		err = ds.DeviceRepo().Delete(ctx, id)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to delete device: %w", err)
+		return err
 	}
-	return
+
+	return nil
 }
 
-func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID) (domainDevice *domain.Device, err error) {
+func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID, user domain.User) (domainDevice *domain.Device, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.GetDevice")
 	defer func() { util.SpanErrFinish(span, err) }()
 	domainDevice, err = interactor.DS.DeviceRepo().FindByID(ctx, id)
 	if err != nil {
-		if domain.IsNotFound(err) {
-			err = domain.ParamsError(domain.ErrDeviceNotExists)
-			return
-		}
-		err = fmt.Errorf("failed to fetch device: %w", err)
-		return
+		return nil, err
 	}
-	return
+	if err = verifyDeviceOwnership(user, domainDevice); err != nil {
+		return nil, err
+	}
+	return domainDevice, nil
 }
 
 func (interactor *DeviceInteractor) GetDevices(ctx context.Context,
@@ -126,43 +213,24 @@ func (interactor *DeviceInteractor) GetDevices(ctx context.Context,
 ) (domainDevices []*domain.Device, total int, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.GetDevices")
 	defer func() { util.SpanErrFinish(span, err) }()
-	if filter == nil {
-		err = domain.ParamsError(errors.New("filter is required"))
-	}
 	domainDevices, total, err = interactor.DS.DeviceRepo().GetDevices(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get devices: %w", err)
 		return
 	}
-	return
+	return domainDevices, total, nil
 }
 
-func (interactor *DeviceInteractor) checkExists(ctx context.Context, domainDevice *domain.Device) (err error) {
-	exists, err := interactor.DS.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
-		MerchantID: domainDevice.MerchantID,
-		StoreID:    domainDevice.StoreID,
-		Name:       domainDevice.Name,
-		ExcludeID:  domainDevice.ID,
-	})
-	if err != nil {
-		return err
-	}
-	if exists {
-		return domain.ParamsError(domain.ErrDeviceNameExists)
-	}
-
-	if domainDevice.DeviceCode != "" {
-		exists, err = interactor.DS.DeviceRepo().Exists(ctx, domain.DeviceExistsParams{
-			MerchantID: domainDevice.MerchantID,
-			StoreID:    domainDevice.StoreID,
-			DeviceCode: domainDevice.DeviceCode,
-			ExcludeID:  domainDevice.ID,
-		})
-		if err != nil {
-			return err
+func verifyDeviceOwnership(user domain.User, device *domain.Device) error {
+	switch user.GetUserType() {
+	case domain.UserTypeAdmin:
+	case domain.UserTypeBackend:
+		if !domain.VerifyOwnerMerchant(user, device.MerchantID) {
+			return domain.ErrDeviceNotExists
 		}
-		if exists {
-			return domain.ParamsError(domain.ErrDeviceCodeExists)
+	case domain.UserTypeStore:
+		if !domain.VerifyOwnerShip(user, device.MerchantID, device.StoreID) {
+			return domain.ErrDeviceNotExists
 		}
 	}
 	return nil

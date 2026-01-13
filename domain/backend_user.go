@@ -157,7 +157,7 @@ type BackendUserExistsParams struct {
 type BackendUserSimpleUpdateField string
 
 const (
-	BackendUserSimpleUpdateFieldEnable   BackendUserSimpleUpdateField = "enable"
+	BackendUserSimpleUpdateFieldEnabled  BackendUserSimpleUpdateField = "enabled"
 	BackendUserSimpleUpdateFieldPassword BackendUserSimpleUpdateField = "password" // 密码
 )
 

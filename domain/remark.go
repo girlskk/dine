@@ -34,12 +34,12 @@ type RemarkRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/remark_interactor.go -package=mock . RemarkInteractor
 type RemarkInteractor interface {
-	Create(ctx context.Context, remark *CreateRemarkParams) (err error)
-	Update(ctx context.Context, remark *UpdateRemarkParams) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetRemark(ctx context.Context, id uuid.UUID) (remark *Remark, err error)
+	Create(ctx context.Context, remark *CreateRemarkParams, user User) (err error)
+	Update(ctx context.Context, remark *UpdateRemarkParams, user User) (err error)
+	Delete(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetRemark(ctx context.Context, id uuid.UUID, user User) (remark *Remark, err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
-	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateField, remark *Remark) (err error)
+	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateField, remark *Remark, user User) (err error)
 }
 type RemarkType string // 备注归属方
 

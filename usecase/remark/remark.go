@@ -16,7 +16,7 @@ type RemarkInteractor struct {
 	DS domain.DataStore
 }
 
-func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.CreateRemarkParams) (err error) {
+func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.CreateRemarkParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.Create")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -29,7 +29,9 @@ func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.C
 		MerchantID:  remark.MerchantID,
 		StoreID:     remark.StoreID,
 	}
-
+	if err = verifyRemarkOwnership(user, domainRemark); err != nil {
+		return err
+	}
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		exists, err := ds.RemarkRepo().Exists(ctx, domain.RemarkExistsParams{
 			RemarkType:  domainRemark.RemarkType,
@@ -59,7 +61,7 @@ func (interactor *RemarkInteractor) Create(ctx context.Context, remark *domain.C
 	return
 }
 
-func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.UpdateRemarkParams) (err error) {
+func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.UpdateRemarkParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.Update")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -81,7 +83,9 @@ func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.U
 			MerchantID:  oldRemark.MerchantID,
 			StoreID:     oldRemark.StoreID,
 		}
-
+		if err = verifyRemarkOwnership(user, domainRemark); err != nil {
+			return err
+		}
 		exists, err := ds.RemarkRepo().Exists(ctx, domain.RemarkExistsParams{
 			RemarkType:  domainRemark.RemarkType,
 			RemarkScene: domainRemark.RemarkScene,
@@ -109,7 +113,7 @@ func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.U
 	return
 }
 
-func (interactor *RemarkInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (interactor *RemarkInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -118,6 +122,9 @@ func (interactor *RemarkInteractor) Delete(ctx context.Context, id uuid.UUID) (e
 		if domain.IsNotFound(err) {
 			return domain.ErrRemarkNotExists
 		}
+		return err
+	}
+	if err = verifyRemarkOwnership(user, remark); err != nil {
 		return err
 	}
 	if remark.RemarkType == domain.RemarkTypeSystem {
@@ -131,7 +138,7 @@ func (interactor *RemarkInteractor) Delete(ctx context.Context, id uuid.UUID) (e
 	return
 }
 
-func (interactor *RemarkInteractor) GetRemark(ctx context.Context, id uuid.UUID) (remark *domain.Remark, err error) {
+func (interactor *RemarkInteractor) GetRemark(ctx context.Context, id uuid.UUID, user domain.User) (remark *domain.Remark, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.GetRemark")
 	defer func() { util.SpanErrFinish(span, err) }()
 	remark, err = interactor.DS.RemarkRepo().FindByID(ctx, id)
@@ -140,6 +147,9 @@ func (interactor *RemarkInteractor) GetRemark(ctx context.Context, id uuid.UUID)
 			return nil, domain.ErrRemarkNotExists
 		}
 		return
+	}
+	if err = verifyRemarkOwnership(user, remark); err != nil {
+		return nil, err
 	}
 	return
 }
@@ -157,6 +167,7 @@ func (interactor *RemarkInteractor) GetRemarks(ctx context.Context,
 func (interactor *RemarkInteractor) RemarkSimpleUpdate(ctx context.Context,
 	updateField domain.RemarkSimpleUpdateField,
 	remark *domain.Remark,
+	user domain.User,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.RemarkSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
@@ -169,7 +180,9 @@ func (interactor *RemarkInteractor) RemarkSimpleUpdate(ctx context.Context,
 			}
 			return err
 		}
-
+		if err = verifyRemarkOwnership(user, oldRemark); err != nil {
+			return err
+		}
 		switch updateField {
 		case domain.RemarkSimpleUpdateFieldEnabled:
 			if oldRemark.Enabled == remark.Enabled {
@@ -191,6 +204,21 @@ func (interactor *RemarkInteractor) RemarkSimpleUpdate(ctx context.Context,
 		return err
 	}
 	return
+}
+
+func verifyRemarkOwnership(user domain.User, remark *domain.Remark) error {
+	switch user.GetUserType() {
+	case domain.UserTypeAdmin:
+	case domain.UserTypeBackend:
+		if !domain.VerifyOwnerMerchant(user, remark.MerchantID) {
+			return domain.ErrRemarkNotExists
+		}
+	case domain.UserTypeStore:
+		if !domain.VerifyOwnerShip(user, remark.MerchantID, remark.StoreID) {
+			return domain.ErrRemarkNotExists
+		}
+	}
+	return nil
 }
 
 func NewRemarkInteractor(ds domain.DataStore) *RemarkInteractor {

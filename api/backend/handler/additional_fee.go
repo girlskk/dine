@@ -32,7 +32,7 @@ func (h *AdditionalFeeHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/Enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 }
 
@@ -76,17 +76,8 @@ func (h *AdditionalFeeHandler) Create() gin.HandlerFunc {
 			MerchantID:          user.MerchantID,
 		}
 
-		if err := h.AdditionalFeeInteractor.Create(ctx, fee); err != nil {
-			if errors.Is(err, domain.ErrAdditionalFeeNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.AdditionalNameExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create additional fee: %w", err)
-			c.Error(err)
+		if err := h.AdditionalFeeInteractor.Create(ctx, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -124,6 +115,7 @@ func (h *AdditionalFeeHandler) Update() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.AdditionalFee{
 			ID:                  id,
 			Name:                req.Name,
@@ -140,21 +132,8 @@ func (h *AdditionalFeeHandler) Update() gin.HandlerFunc {
 			SortOrder:           req.SortOrder,
 		}
 
-		if err := h.AdditionalFeeInteractor.Update(ctx, fee); err != nil {
-			if errors.Is(err, domain.ErrAdditionalFeeNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.AdditionalNameExists, err))
-				return
-			}
-			if errors.Is(err, domain.ErrAdditionalFeeNotExists) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to update additional fee: %w", err)
-			c.Error(err)
+		if err := h.AdditionalFeeInteractor.Update(ctx, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -185,13 +164,9 @@ func (h *AdditionalFeeHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.AdditionalFeeInteractor.Delete(ctx, id); err != nil {
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete additional fee: %w", err)
-			c.Error(err)
+		user := domain.FromBackendUserContext(ctx)
+		if err := h.AdditionalFeeInteractor.Delete(ctx, id, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -222,18 +197,10 @@ func (h *AdditionalFeeHandler) Get() gin.HandlerFunc {
 			return
 		}
 
-		fee, err := h.AdditionalFeeInteractor.GetAdditionalFee(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		fee, err := h.AdditionalFeeInteractor.GetAdditionalFee(ctx, id, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to get additional fee: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -311,18 +278,10 @@ func (h *AdditionalFeeHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.AdditionalFee{ID: id, Enabled: true}
-		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update additional fee: %w", err)
-			c.Error(err)
+		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -353,21 +312,28 @@ func (h *AdditionalFeeHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.AdditionalFee{ID: id, Enabled: false}
-		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update additional fee: %w", err)
-			c.Error(err)
+		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+func (h *AdditionalFeeHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrAdditionalFeeNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.AdditinalFeeNotExists, err)
+	case errors.Is(err, domain.ErrAdditionalFeeNameExists):
+		return errorx.New(http.StatusConflict, errcode.AdditionalFeeNameExists, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("additional fee handler error: %w", err)
 	}
 }

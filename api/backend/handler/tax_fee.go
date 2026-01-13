@@ -40,7 +40,7 @@ func (h *TaxFeeHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/Enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 }
 
@@ -83,17 +83,8 @@ func (h *TaxFeeHandler) Create() gin.HandlerFunc {
 			MerchantID:  user.MerchantID,
 		}
 
-		if err := h.TaxFeeInteractor.Create(ctx, fee); err != nil {
-			if errors.Is(err, domain.ErrTaxFeeNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.TaxFeeNameExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create tax fee: %w", err)
-			c.Error(err)
+		if err := h.TaxFeeInteractor.Create(ctx, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -131,6 +122,7 @@ func (h *TaxFeeHandler) Update() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.TaxFee{
 			ID:          id,
 			Name:        req.Name,
@@ -139,17 +131,8 @@ func (h *TaxFeeHandler) Update() gin.HandlerFunc {
 			DefaultTax:  false,
 		}
 
-		if err := h.TaxFeeInteractor.Update(ctx, fee); err != nil {
-			if errors.Is(err, domain.ErrTaxFeeNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.TaxFeeNameExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to update tax fee: %w", err)
-			c.Error(err)
+		if err := h.TaxFeeInteractor.Update(ctx, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -181,13 +164,9 @@ func (h *TaxFeeHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.TaxFeeInteractor.Delete(ctx, id); err != nil {
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete tax fee: %w", err)
-			c.Error(err)
+		user := domain.FromBackendUserContext(ctx)
+		if err := h.TaxFeeInteractor.Delete(ctx, id, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -218,18 +197,10 @@ func (h *TaxFeeHandler) Get() gin.HandlerFunc {
 			return
 		}
 
-		fee, err := h.TaxFeeInteractor.GetTaxFee(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		fee, err := h.TaxFeeInteractor.GetTaxFee(ctx, id, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to get tax fee: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -306,18 +277,10 @@ func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.TaxFee{ID: id, DefaultTax: true}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update tax fee: %w", err)
-			c.Error(err)
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -348,18 +311,10 @@ func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.TaxFee{ID: id, DefaultTax: false}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update tax fee: %w", err)
-			c.Error(err)
+		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -376,4 +331,19 @@ func (h *TaxFeeHandler) generateTaxCode(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return seq, nil
+}
+
+func (h *TaxFeeHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrTaxFeeNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.TaxFeeNotExists, err)
+	case errors.Is(err, domain.ErrTaxFeeNameExists):
+		return errorx.New(http.StatusConflict, errcode.TaxFeeNameExists, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("tax fee handler error: %w", err)
+	}
 }

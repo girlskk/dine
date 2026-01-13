@@ -31,12 +31,12 @@ type TaxFeeRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/tax_fee_interactor.go -package=mock . TaxFeeInteractor
 type TaxFeeInteractor interface {
-	Create(ctx context.Context, fee *TaxFee) (err error)
-	Update(ctx context.Context, fee *TaxFee) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetTaxFee(ctx context.Context, id uuid.UUID) (fee *TaxFee, err error)
+	Create(ctx context.Context, fee *TaxFee, user User) (err error)
+	Update(ctx context.Context, fee *TaxFee, user User) (err error)
+	Delete(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetTaxFee(ctx context.Context, id uuid.UUID, user User) (fee *TaxFee, err error)
 	GetTaxFees(ctx context.Context, pager *upagination.Pagination, filter *TaxFeeListFilter, orderBys ...TaxFeeOrderBy) (fees []*TaxFee, total int, err error)
-	TaxFeeSimpleUpdate(ctx context.Context, updateField TaxFeeSimpleUpdateField, fee *TaxFee) (err error)
+	TaxFeeSimpleUpdate(ctx context.Context, updateField TaxFeeSimpleUpdateField, fee *TaxFee, user User) (err error)
 }
 type TaxFeeType string
 

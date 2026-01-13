@@ -21,9 +21,13 @@ func NewTaxFeeInteractor(ds domain.DataStore) *TaxFeeInteractor {
 	return &TaxFeeInteractor{DS: ds}
 }
 
-func (interactor *TaxFeeInteractor) Create(ctx context.Context, fee *domain.TaxFee) (err error) {
+func (interactor *TaxFeeInteractor) Create(ctx context.Context, fee *domain.TaxFee, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.Create")
 	defer func() { util.SpanErrFinish(span, err) }()
+
+	if err = verifyTaxFeeOwnership(user, fee); err != nil {
+		return err
+	}
 
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		exists, err := ds.TaxFeeRepo().Exists(ctx, domain.TaxFeeExistsParams{
@@ -50,7 +54,7 @@ func (interactor *TaxFeeInteractor) Create(ctx context.Context, fee *domain.TaxF
 	return nil
 }
 
-func (interactor *TaxFeeInteractor) Update(ctx context.Context, fee *domain.TaxFee) (err error) {
+func (interactor *TaxFeeInteractor) Update(ctx context.Context, fee *domain.TaxFee, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.Update")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -60,6 +64,10 @@ func (interactor *TaxFeeInteractor) Update(ctx context.Context, fee *domain.TaxF
 			if domain.IsNotFound(err) {
 				return domain.ErrTaxFeeNotExists
 			}
+			return err
+		}
+
+		if err = verifyTaxFeeOwnership(user, oldFee); err != nil {
 			return err
 		}
 
@@ -99,18 +107,36 @@ func (interactor *TaxFeeInteractor) Update(ctx context.Context, fee *domain.TaxF
 	return nil
 }
 
-func (interactor *TaxFeeInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (interactor *TaxFeeInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
+
+	fee, err := interactor.DS.TaxFeeRepo().FindByID(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ParamsError(domain.ErrTaxFeeNotExists)
+		}
+		return err
+	}
+	if err = verifyTaxFeeOwnership(user, fee); err != nil {
+		return err
+	}
 
 	return interactor.DS.TaxFeeRepo().Delete(ctx, id)
 }
 
-func (interactor *TaxFeeInteractor) GetTaxFee(ctx context.Context, id uuid.UUID) (fee *domain.TaxFee, err error) {
+func (interactor *TaxFeeInteractor) GetTaxFee(ctx context.Context, id uuid.UUID, user domain.User) (fee *domain.TaxFee, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.GetTaxFee")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	return interactor.DS.TaxFeeRepo().FindByID(ctx, id)
+	fee, err = interactor.DS.TaxFeeRepo().FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err = verifyTaxFeeOwnership(user, fee); err != nil {
+		return nil, err
+	}
+	return fee, nil
 }
 
 func (interactor *TaxFeeInteractor) GetTaxFees(ctx context.Context,
@@ -127,6 +153,7 @@ func (interactor *TaxFeeInteractor) GetTaxFees(ctx context.Context,
 func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
 	updateField domain.TaxFeeSimpleUpdateField,
 	fee *domain.TaxFee,
+	user domain.User,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeInteractor.TaxFeeSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
@@ -137,6 +164,10 @@ func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
 			if domain.IsNotFound(err) {
 				return domain.ErrTaxFeeNotExists
 			}
+			return err
+		}
+
+		if err = verifyTaxFeeOwnership(user, oldFee); err != nil {
 			return err
 		}
 
@@ -158,6 +189,22 @@ func (interactor *TaxFeeInteractor) TaxFeeSimpleUpdate(ctx context.Context,
 	})
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func verifyTaxFeeOwnership(user domain.User, fee *domain.TaxFee) error {
+	switch user.GetUserType() {
+	case domain.UserTypeAdmin:
+	case domain.UserTypeBackend:
+		if !domain.VerifyOwnerMerchant(user, fee.MerchantID) {
+			return domain.ErrTaxFeeNotExists
+		}
+	case domain.UserTypeStore:
+		if !domain.VerifyOwnerShip(user, fee.MerchantID, fee.StoreID) {
+			return domain.ErrTaxFeeNotExists
+		}
 	}
 
 	return nil

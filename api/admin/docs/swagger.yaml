@@ -93,7 +93,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -143,7 +143,7 @@ definitions:
         type: string
       department_type:
         $ref: '#/definitions/domain.DepartmentType'
-      enable:
+      enabled:
         type: boolean
       id:
         type: string
@@ -412,7 +412,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.RoleDataScopeType'
         description: 数据权限范围
-      enable:
+      enabled:
         description: 是否启用
         type: boolean
       id:
@@ -660,24 +660,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.Address:
     properties:
       address:
@@ -1071,7 +1053,7 @@ definitions:
     type: object
   types.DepartmentCreateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
@@ -1090,7 +1072,7 @@ definitions:
     type: object
   types.DepartmentUpdateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
@@ -1218,7 +1200,7 @@ definitions:
     type: object
   types.RoleCreateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
@@ -1244,7 +1226,7 @@ definitions:
     type: object
   types.RoleUpdateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
@@ -1597,7 +1579,7 @@ paths:
         name: code
         type: string
       - in: query
-        name: enable
+        name: enabled
         type: boolean
       - in: query
         name: name
@@ -1712,6 +1694,27 @@ paths:
       summary: 更新部门
       tags:
       - 部门管理
+  /common/department/{id}/Enable:
+    put:
+      consumes:
+      - application/json
+      description: 将部门设置为启用
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用部门
+      tags:
+      - 部门管理
   /common/department/{id}/disable:
     put:
       consumes:
@@ -1733,27 +1736,6 @@ paths:
       summary: 禁用部门
       tags:
       - 部门管理
-  /common/department/{id}/enable:
-    put:
-      consumes:
-      - application/json
-      description: 将部门设置为启用
-      parameters:
-      - description: 部门ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 启用部门
-      tags:
-      - 部门管理
   /common/role:
     get:
       consumes:
@@ -1761,7 +1743,7 @@ paths:
       description: 分页查询角色
       parameters:
       - in: query
-        name: enable
+        name: enabled
         type: boolean
       - in: query
         name: name
@@ -1876,6 +1858,27 @@ paths:
       summary: 更新角色
       tags:
       - 角色管理
+  /common/role/{id}/Enable:
+    put:
+      consumes:
+      - application/json
+      description: 启用指定角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用角色
+      tags:
+      - 角色管理
   /common/role/{id}/disable:
     put:
       consumes:
@@ -1895,27 +1898,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 禁用角色
-      tags:
-      - 角色管理
-  /common/role/{id}/enable:
-    put:
-      consumes:
-      - application/json
-      description: 启用指定角色
-      parameters:
-      - description: 角色ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 启用角色
       tags:
       - 角色管理
   /common/role/{id}/menus:
@@ -2068,6 +2050,25 @@ paths:
       summary: 更新菜单
       tags:
       - 菜单管理
+  /common/router_menu/{id}/Enabled:
+    put:
+      description: 启用指定菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用菜单
+      tags:
+      - 菜单管理
   /common/router_menu/{id}/disable:
     put:
       description: 禁用指定菜单
@@ -2085,25 +2086,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 禁用菜单
-      tags:
-      - 菜单管理
-  /common/router_menu/{id}/enable:
-    put:
-      description: 启用指定菜单
-      parameters:
-      - description: 菜单ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 启用菜单
       tags:
       - 菜单管理
   /merchant/merchant/{id}:
@@ -2154,6 +2136,25 @@ paths:
       summary: 获取商户信息
       tags:
       - 商户管理-商户
+  /merchant/merchant/{id}/Enable:
+    put:
+      description: 将商户状态置为激活
+      parameters:
+      - description: 商户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用商户
+      tags:
+      - 商户管理-商户
   /merchant/merchant/{id}/disable:
     put:
       description: 将商户状态置为禁用
@@ -2171,25 +2172,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 禁用商户
-      tags:
-      - 商户管理-商户
-  /merchant/merchant/{id}/enable:
-    put:
-      description: 将商户状态置为激活
-      parameters:
-      - description: 商户ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 启用商户
       tags:
       - 商户管理-商户
   /merchant/merchant/brand:
@@ -2574,6 +2556,25 @@ paths:
       summary: 更新门店
       tags:
       - 商户管理-门店
+  /merchant/store/{id}/Enable:
+    put:
+      description: 将门店状态置为营业
+      parameters:
+      - description: 门店ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用门店
+      tags:
+      - 商户管理-门店
   /merchant/store/{id}/disable:
     put:
       description: 将门店状态置为停业
@@ -2591,25 +2592,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 禁用门店
-      tags:
-      - 商户管理-门店
-  /merchant/store/{id}/enable:
-    put:
-      description: 将门店状态置为营业
-      parameters:
-      - description: 门店ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 启用门店
       tags:
       - 商户管理-门店
   /merchant/store/list:
@@ -2961,6 +2943,27 @@ paths:
       summary: 更新管理员用户
       tags:
       - 用户管理
+  /user/{id}/Enable:
+    put:
+      consumes:
+      - application/json
+      description: 启用指定管理员用户
+      parameters:
+      - description: 管理员用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用管理员用户
+      tags:
+      - 用户管理
   /user/{id}/disable:
     put:
       consumes:
@@ -2980,27 +2983,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 禁用管理员用户
-      tags:
-      - 用户管理
-  /user/{id}/enable:
-    put:
-      consumes:
-      - application/json
-      description: 启用指定管理员用户
-      parameters:
-      - description: 管理员用户ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 启用管理员用户
       tags:
       - 用户管理
   /user/{id}/reset_password:

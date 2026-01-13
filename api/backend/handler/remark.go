@@ -32,7 +32,7 @@ func (h *RemarkHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.Delete())
 	r.GET("/:id", h.Get())
 	r.GET("", h.List())
-	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/Enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 }
 
@@ -70,17 +70,8 @@ func (h *RemarkHandler) Create() gin.HandlerFunc {
 			MerchantID:  user.MerchantID,
 		}
 
-		if err := h.RemarkInteractor.Create(ctx, remark); err != nil {
-			if errors.Is(err, domain.ErrRemarkNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.RemarkNameExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create remark: %w", err)
-			c.Error(err)
+		if err := h.RemarkInteractor.Create(ctx, remark, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -118,7 +109,7 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		user := domain.FromBackendUserContext(ctx)
 		remark := &domain.UpdateRemarkParams{
 			ID:        id,
 			Name:      req.Name,
@@ -126,21 +117,8 @@ func (h *RemarkHandler) Update() gin.HandlerFunc {
 			SortOrder: req.SortOrder,
 		}
 
-		if err := h.RemarkInteractor.Update(ctx, remark); err != nil {
-			if errors.Is(err, domain.ErrRemarkNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.RemarkNameExists, err))
-				return
-			}
-			if errors.Is(err, domain.ErrRemarkNotExists) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to update remark: %w", err)
-			c.Error(err)
+		if err := h.RemarkInteractor.Update(ctx, remark, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -170,22 +148,9 @@ func (h *RemarkHandler) Delete() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		if err := h.RemarkInteractor.Delete(ctx, id); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNoContent, errcode.NotFound, err))
-				return
-			}
-			if errors.Is(err, domain.ErrRemarkDeleteSystem) {
-				c.Error(errorx.New(http.StatusForbidden, errcode.RemarkDeleteSystem, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete remark: %w", err)
-			c.Error(err)
+		user := domain.FromBackendUserContext(ctx)
+		if err := h.RemarkInteractor.Delete(ctx, id, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -214,15 +179,10 @@ func (h *RemarkHandler) Get() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		remark, err := h.RemarkInteractor.GetRemark(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		remark, err := h.RemarkInteractor.GetRemark(ctx, id, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to get remark: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -270,7 +230,7 @@ func (h *RemarkHandler) List() gin.HandlerFunc {
 			}
 			filter.StoreID = pid
 		}
-		remarks, total, err := h.RemarkInteractor.GetRemarks(ctx, pager, filter, domain.NewRemarkOrderByCreatedAt(true))
+		remarks, total, err := h.RemarkInteractor.GetRemarks(ctx, pager, filter)
 		if err != nil {
 			err = fmt.Errorf("failed to get remarks: %w", err)
 			c.Error(err)
@@ -306,19 +266,10 @@ func (h *RemarkHandler) Enable() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		user := domain.FromBackendUserContext(ctx)
 		remark := &domain.Remark{ID: id, Enabled: true}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to toggle enabled: %w", err)
-			c.Error(err)
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -348,22 +299,30 @@ func (h *RemarkHandler) Disable() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		user := domain.FromBackendUserContext(ctx)
 		remark := &domain.Remark{ID: id, Enabled: false}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to toggle enabled: %w", err)
-			c.Error(err)
+		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+func (h *RemarkHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrRemarkNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.RemarkNotExists, err)
+	case errors.Is(err, domain.ErrRemarkNameExists):
+		return errorx.New(http.StatusConflict, errcode.RemarkNameExists, err)
+	case errors.Is(err, domain.ErrRemarkDeleteSystem):
+		return errorx.New(http.StatusForbidden, errcode.RemarkDeleteSystem, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("remark handler error: %w", err)
 	}
 }

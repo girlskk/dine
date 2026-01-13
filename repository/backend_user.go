@@ -270,5 +270,8 @@ func (repo *BackendUserRepository) buildFilterQuery(filter *domain.BackendUserLi
 	if filter.Enabled != nil {
 		query = query.Where(backenduser.EnabledEQ(*filter.Enabled))
 	}
+	if filter.MerchantID != uuid.Nil {
+		query = query.Where(backenduser.MerchantIDEQ(filter.MerchantID))
+	}
 	return query
 }

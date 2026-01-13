@@ -2,7 +2,6 @@ package department
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -22,92 +21,88 @@ func NewDepartmentInteractor(ds domain.DataStore) *DepartmentInteractor {
 	return &DepartmentInteractor{DS: ds}
 }
 
-func (interactor *DepartmentInteractor) CreateDepartment(ctx context.Context, params *domain.CreateDepartmentParams) (err error) {
+func (interactor *DepartmentInteractor) CreateDepartment(ctx context.Context, params *domain.CreateDepartmentParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.CreateDepartment")
 	defer func() { util.SpanErrFinish(span, err) }()
-
-	if params == nil {
-		return fmt.Errorf("params is nil")
-	}
 
 	department := &domain.Department{
 		ID:             uuid.New(),
 		Name:           params.Name,
 		Code:           params.Code,
 		DepartmentType: params.DepartmentType,
-		Enable:         params.Enable,
+		Enabled:        params.Enabled,
 		MerchantID:     params.MerchantID,
 		StoreID:        params.StoreID,
 	}
 
-	if err = interactor.checkExists(ctx, department); err != nil {
+	if err = verifyDepartmentOwnership(user, department); err != nil {
 		return err
 	}
 
-	if err = interactor.DS.DepartmentRepo().Create(ctx, department); err != nil {
-		return fmt.Errorf("failed to create department: %w", err)
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		exists, err := ds.DepartmentRepo().Exists(ctx, domain.DepartmentExistsParams{
+			Name:       department.Name,
+			ExcludeID:  department.ID,
+			MerchantID: department.MerchantID,
+			StoreID:    department.StoreID,
+		})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return domain.ErrDepartmentNameExists
+		}
+		err = ds.DepartmentRepo().Create(ctx, department)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
-
-	return
+	return nil
 }
 
-func (interactor *DepartmentInteractor) UpdateDepartment(ctx context.Context, params *domain.UpdateDepartmentParams) (err error) {
+func (interactor *DepartmentInteractor) UpdateDepartment(ctx context.Context, params *domain.UpdateDepartmentParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.UpdateDepartment")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if params == nil {
-		return fmt.Errorf("params is nil")
-	}
-
-	old, err := interactor.DS.DepartmentRepo().FindByID(ctx, params.ID)
-	if err != nil {
-		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrDepartmentNotExists)
-		}
-		return fmt.Errorf("failed to fetch department: %w", err)
-	}
-
-	department := &domain.Department{
-		ID:             old.ID,
-		Name:           params.Name,
-		Code:           old.Code,
-		DepartmentType: old.DepartmentType,
-		Enable:         params.Enable,
-		MerchantID:     old.MerchantID,
-		StoreID:        old.StoreID,
-	}
-
-	if err = interactor.checkExists(ctx, department); err != nil {
-		return err
-	}
-
-	if err = interactor.DS.DepartmentRepo().Update(ctx, department); err != nil {
-		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrDepartmentNotExists)
-		}
-		return fmt.Errorf("failed to update department: %w", err)
-	}
-
-	return
-}
-
-func (interactor *DepartmentInteractor) DeleteDepartment(ctx context.Context, id uuid.UUID) (err error) {
-	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.DeleteDepartment")
-	defer func() { util.SpanErrFinish(span, err) }()
-
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		hasUsers, err := ds.DepartmentRepo().CheckUserInDepartment(ctx, id)
+		old, err := ds.DepartmentRepo().FindByID(ctx, params.ID)
 		if err != nil {
-			return fmt.Errorf("failed to check user in department: %w", err)
-		}
-		if hasUsers {
-			return domain.ParamsError(domain.ErrDepartmentHasUsersCannotDelete)
-		}
-		if err = ds.DepartmentRepo().Delete(ctx, id); err != nil {
 			if domain.IsNotFound(err) {
-				return domain.ParamsError(domain.ErrDepartmentNotExists)
+				return domain.ErrDepartmentNotExists
 			}
-			return fmt.Errorf("failed to delete department: %w", err)
+			return err
+		}
+		if err = verifyDepartmentOwnership(user, old); err != nil {
+			return err
+		}
+		department := &domain.Department{
+			ID:             old.ID,
+			Name:           params.Name,
+			Code:           old.Code,
+			DepartmentType: old.DepartmentType,
+			Enabled:        params.Enabled,
+			MerchantID:     old.MerchantID,
+			StoreID:        old.StoreID,
+		}
+		exists, err := ds.DepartmentRepo().Exists(ctx, domain.DepartmentExistsParams{
+			Name:       department.Name,
+			ExcludeID:  department.ID,
+			MerchantID: department.MerchantID,
+			StoreID:    department.StoreID,
+		})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return domain.ErrDepartmentNameExists
+		}
+		err = ds.DepartmentRepo().Update(ctx, department)
+		if err != nil {
+			return err
 		}
 		return nil
 	})
@@ -115,24 +110,60 @@ func (interactor *DepartmentInteractor) DeleteDepartment(ctx context.Context, id
 		return err
 	}
 
-	return
+	return nil
 }
 
-func (interactor *DepartmentInteractor) GetDepartment(ctx context.Context, id uuid.UUID) (department *domain.Department, err error) {
+func (interactor *DepartmentInteractor) DeleteDepartment(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.DeleteDepartment")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		hasUsers, err := ds.DepartmentRepo().CheckUserInDepartment(ctx, id)
+		if err != nil {
+			return err
+		}
+		if hasUsers {
+			return domain.ErrDepartmentHasUsersCannotDelete
+		}
+		dept, err := ds.DepartmentRepo().FindByID(ctx, id)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrDepartmentNotExists
+			}
+			return err
+		}
+		if err = verifyDepartmentOwnership(user, dept); err != nil {
+			return err
+		}
+		err = ds.DepartmentRepo().Delete(ctx, id)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (interactor *DepartmentInteractor) GetDepartment(ctx context.Context, id uuid.UUID, user domain.User) (department *domain.Department, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.GetDepartment")
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	department, err = interactor.DS.DepartmentRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-			err = domain.ParamsError(domain.ErrDepartmentNotExists)
-			return
+			return nil, domain.ErrDepartmentNotExists
 		}
-		err = fmt.Errorf("failed to fetch department: %w", err)
-		return
+		return nil, err
+	}
+	if err = verifyDepartmentOwnership(user, department); err != nil {
+		return nil, err
 	}
 
-	return
+	return department, nil
 }
 
 func (interactor *DepartmentInteractor) GetDepartments(ctx context.Context,
@@ -143,46 +174,16 @@ func (interactor *DepartmentInteractor) GetDepartments(ctx context.Context,
 	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.GetDepartments")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if pager == nil {
-		err = domain.ParamsError(errors.New("pager is required"))
-		return
-	}
-	if filter == nil {
-		err = domain.ParamsError(errors.New("filter is required"))
-		return
-	}
-
 	departments, total, err = interactor.DS.DepartmentRepo().GetDepartments(ctx, pager, filter, orderBys...)
 	if err != nil {
 		err = fmt.Errorf("failed to get departments: %w", err)
 		return
 	}
 
-	return
+	return departments, total, nil
 }
 
-func (interactor *DepartmentInteractor) checkExists(ctx context.Context, department *domain.Department) (err error) {
-	if department == nil {
-		return fmt.Errorf("department is nil")
-	}
-
-	exists, existsErr := interactor.DS.DepartmentRepo().Exists(ctx, domain.DepartmentExistsParams{
-		Name:       department.Name,
-		ExcludeID:  department.ID,
-		MerchantID: department.MerchantID,
-		StoreID:    department.StoreID,
-	})
-	if existsErr != nil {
-		return fmt.Errorf("failed to check department exists: %w", existsErr)
-	}
-	if exists {
-		return domain.ParamsError(domain.ErrDepartmentNameExists)
-	}
-
-	return nil
-}
-
-func (interactor *DepartmentInteractor) SimpleUpdate(ctx context.Context, updateField domain.DepartmentSimpleUpdateField, params domain.DepartmentSimpleUpdateParams) (err error) {
+func (interactor *DepartmentInteractor) SimpleUpdate(ctx context.Context, updateField domain.DepartmentSimpleUpdateField, params domain.DepartmentSimpleUpdateParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DepartmentInteractor.SimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -190,36 +191,55 @@ func (interactor *DepartmentInteractor) SimpleUpdate(ctx context.Context, update
 		oldDept, err := ds.DepartmentRepo().FindByID(ctx, params.ID)
 		if err != nil {
 			if domain.IsNotFound(err) {
-				return domain.ParamsError(domain.ErrDepartmentNotExists)
+				return domain.ErrDepartmentNotExists
 			}
-			return fmt.Errorf("failed to fetch department: %w", err)
+			return err
+		}
+
+		if err = verifyDepartmentOwnership(user, oldDept); err != nil {
+			return err
 		}
 
 		switch updateField {
-		case domain.DepartmentSimpleUpdateFieldEnable:
-			if oldDept.Enable == params.Enable {
+		case domain.DepartmentSimpleUpdateFieldEnabled:
+			if oldDept.Enabled == params.Enabled {
 				return nil
 			}
-			if !params.Enable {
+			if !params.Enabled {
 				// If disabling, ensure no users exist in department
 				hasUsers, err := ds.DepartmentRepo().CheckUserInDepartment(ctx, params.ID)
 				if err != nil {
 					return fmt.Errorf("failed to check users in department: %w", err)
 				}
 				if hasUsers {
-					return domain.ParamsError(domain.ErrDepartmentHasUsersCannotDelete)
+					return domain.ErrDepartmentHasUsersCannotDelete
 				}
 			}
-			oldDept.Enable = params.Enable
+			oldDept.Enabled = params.Enabled
 		default:
-			return domain.ParamsError(fmt.Errorf("unsupported simple update field: %s", updateField))
+			return fmt.Errorf("unsupported simple update field: %s", updateField)
 		}
-
-		if err = ds.DepartmentRepo().Update(ctx, oldDept); err != nil {
+		err = ds.DepartmentRepo().Update(ctx, oldDept)
+		if err != nil {
 			return err
 		}
 		return nil
 	})
 
-	return
+	return nil
+}
+
+func verifyDepartmentOwnership(user domain.User, dept *domain.Department) error {
+	switch user.GetUserType() {
+	case domain.UserTypeAdmin:
+	case domain.UserTypeBackend:
+		if !domain.VerifyOwnerMerchant(user, dept.MerchantID) {
+			return domain.ErrDepartmentNotExists
+		}
+	case domain.UserTypeStore:
+		if !domain.VerifyOwnerShip(user, dept.MerchantID, dept.StoreID) {
+			return domain.ErrDepartmentNotExists
+		}
+	}
+	return nil
 }

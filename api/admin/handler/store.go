@@ -32,7 +32,7 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 	r.DELETE("/:id", h.DeleteStore())
 	r.GET("/:id", h.GetStore())
 	r.GET("/list", h.GetStores())
-	r.PUT("/:id/enable", h.Enable())
+	r.PUT("/:id/Enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
 }
 
@@ -59,6 +59,8 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
+
+		user := domain.FromAdminUserContext(ctx)
 
 		domainStore := &domain.CreateStoreParams{
 			MerchantID:              req.MerchantID,
@@ -93,8 +95,8 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			Lat:      req.Address.Lat,
 		}
 
-		if err := h.StoreInteractor.CreateStore(ctx, domainStore); err != nil {
-			c.Error(h.checkEditErr(err))
+		if err := h.StoreInteractor.CreateStore(ctx, domainStore, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -133,6 +135,7 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromAdminUserContext(ctx)
 		domainStore := &domain.UpdateStoreParams{
 			ID:                      storeID,
 			AdminPhoneNumber:        req.AdminPhoneNumber,
@@ -164,12 +167,12 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			Lat:      req.Address.Lat,
 		}
 
-		if err := h.StoreInteractor.UpdateStore(ctx, domainStore); err != nil {
+		if err := h.StoreInteractor.UpdateStore(ctx, domainStore, user); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
 			}
-			c.Error(h.checkEditErr(err))
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -202,7 +205,8 @@ func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.StoreInteractor.DeleteStore(ctx, storeID); err != nil {
+		user := domain.FromAdminUserContext(ctx)
+		if err := h.StoreInteractor.DeleteStore(ctx, storeID, user); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNoContent, errcode.NotFound, err))
 				return
@@ -238,8 +242,8 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		domainStore, err := h.StoreInteractor.GetStore(ctx, storeID)
+		user := domain.FromAdminUserContext(ctx)
+		domainStore, err := h.StoreInteractor.GetStore(ctx, storeID, user)
 		if err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
@@ -330,7 +334,7 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Router			/merchant/store/{id}/enable [put]
+//	@Router			/merchant/store/{id}/Enable [put]
 func (h *StoreHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -345,7 +349,8 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 		}
 
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusOpen}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
+		user := domain.FromAdminUserContext(ctx)
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -382,7 +387,8 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 		}
 
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusClosed}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
+		user := domain.FromAdminUserContext(ctx)
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
 				return
@@ -395,12 +401,14 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 	}
 }
 
-func (h *StoreHandler) checkEditErr(err error) error {
+func (h *StoreHandler) checkErr(err error) error {
 	switch {
-	case errors.Is(err, domain.ErrUserExists):
-		return errorx.New(http.StatusConflict, errcode.UserNameExists, err)
+	case errors.Is(err, domain.ErrStoreNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.StoreNotExists, err)
 	case errors.Is(err, domain.ErrStoreNameExists):
 		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
+	case errors.Is(err, domain.ErrUserExists):
+		return errorx.New(http.StatusConflict, errcode.UserNameExists, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursConflict):
 		return errorx.New(http.StatusBadRequest, errcode.StoreBusinessHoursConflict, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursTimeInvalid):
