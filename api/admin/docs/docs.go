@@ -1083,6 +1083,29 @@ const docTemplate = `{
                             "ProvinceSG04": "东南社区发展理事会",
                             "ProvinceSG05": "西南社区发展理事会"
                         },
+                        "x-enum-descriptions": [
+                            "柔佛州",
+                            "吉打州",
+                            "吉兰丹州",
+                            "马六甲州",
+                            "森美兰州",
+                            "彭亨州",
+                            "槟城州",
+                            "霹雳州",
+                            "玻璃市州",
+                            "雪兰莪州",
+                            "登嘉楼州",
+                            "沙巴州",
+                            "砂拉越州",
+                            "吉隆坡联邦直辖区",
+                            "纳闽联邦直辖区",
+                            "布城联邦直辖区",
+                            "中区社区发展理事会",
+                            "东北社区发展理事会",
+                            "西北社区发展理事会",
+                            "东南社区发展理事会",
+                            "西南社区发展理事会"
+                        ],
                         "x-enum-varnames": [
                             "ProvinceMY01",
                             "ProvinceMY02",
@@ -1519,6 +1542,13 @@ const docTemplate = `{
                             "BusinessTypeNoodle": "面馆",
                             "BusinessTypeSnack": "小吃"
                         },
+                        "x-enum-descriptions": [
+                            "面馆",
+                            "烘焙",
+                            "小吃",
+                            "饮品",
+                            "中餐"
+                        ],
                         "x-enum-varnames": [
                             "BusinessTypeNoodle",
                             "BusinessTypeBakery",
@@ -1602,6 +1632,29 @@ const docTemplate = `{
                             "ProvinceSG04": "东南社区发展理事会",
                             "ProvinceSG05": "西南社区发展理事会"
                         },
+                        "x-enum-descriptions": [
+                            "柔佛州",
+                            "吉打州",
+                            "吉兰丹州",
+                            "马六甲州",
+                            "森美兰州",
+                            "彭亨州",
+                            "槟城州",
+                            "霹雳州",
+                            "玻璃市州",
+                            "雪兰莪州",
+                            "登嘉楼州",
+                            "沙巴州",
+                            "砂拉越州",
+                            "吉隆坡联邦直辖区",
+                            "纳闽联邦直辖区",
+                            "布城联邦直辖区",
+                            "中区社区发展理事会",
+                            "东北社区发展理事会",
+                            "西北社区发展理事会",
+                            "东南社区发展理事会",
+                            "西南社区发展理事会"
+                        ],
                         "x-enum-varnames": [
                             "ProvinceMY01",
                             "ProvinceMY02",
@@ -2545,6 +2598,13 @@ const docTemplate = `{
                 "BusinessTypeNoodle": "面馆",
                 "BusinessTypeSnack": "小吃"
             },
+            "x-enum-descriptions": [
+                "面馆",
+                "烘焙",
+                "小吃",
+                "饮品",
+                "中餐"
+            ],
             "x-enum-varnames": [
                 "BusinessTypeNoodle",
                 "BusinessTypeBakery",
@@ -2895,6 +2955,29 @@ const docTemplate = `{
                 "ProvinceSG04": "东南社区发展理事会",
                 "ProvinceSG05": "西南社区发展理事会"
             },
+            "x-enum-descriptions": [
+                "柔佛州",
+                "吉打州",
+                "吉兰丹州",
+                "马六甲州",
+                "森美兰州",
+                "彭亨州",
+                "槟城州",
+                "霹雳州",
+                "玻璃市州",
+                "雪兰莪州",
+                "登嘉楼州",
+                "沙巴州",
+                "砂拉越州",
+                "吉隆坡联邦直辖区",
+                "纳闽联邦直辖区",
+                "布城联邦直辖区",
+                "中区社区发展理事会",
+                "东北社区发展理事会",
+                "西北社区发展理事会",
+                "东南社区发展理事会",
+                "西南社区发展理事会"
+            ],
             "x-enum-varnames": [
                 "ProvinceMY01",
                 "ProvinceMY02",

@@ -2470,6 +2470,11 @@ const docTemplate = `{
                 "RefundChannelCash": "现金退款",
                 "RefundChannelOriginal": "原路退回"
             },
+            "x-enum-descriptions": [
+                "原路退回",
+                "现金退款",
+                "余额退款"
+            ],
             "x-enum-varnames": [
                 "RefundChannelOriginal",
                 "RefundChannelCash",
@@ -2723,6 +2728,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
                 "refund_discount": {
                     "description": "退款优惠分摊",
                     "type": "number"
@@ -2757,10 +2770,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
-                },
-                "unit_id": {
-                    "description": "单位ID",
-                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -2850,6 +2859,12 @@ const docTemplate = `{
                 "RefundPaymentStatusProcessing": "退款中",
                 "RefundPaymentStatusSuccess": "退款成功"
             },
+            "x-enum-descriptions": [
+                "待退款",
+                "退款中",
+                "退款成功",
+                "退款失败"
+            ],
             "x-enum-varnames": [
                 "RefundPaymentStatusPending",
                 "RefundPaymentStatusProcessing",
@@ -2875,6 +2890,14 @@ const docTemplate = `{
                 "RefundReasonServiceIssue": "服务问题",
                 "RefundReasonWrongOrder": "下错单"
             },
+            "x-enum-descriptions": [
+                "顾客要求",
+                "质量问题",
+                "下错单",
+                "缺货",
+                "服务问题",
+                "其他"
+            ],
             "x-enum-varnames": [
                 "RefundReasonCustomerRequest",
                 "RefundReasonQualityIssue",
@@ -2900,6 +2923,13 @@ const docTemplate = `{
                 "RefundStatusPending": "待处理",
                 "RefundStatusProcessing": "处理中"
             },
+            "x-enum-descriptions": [
+                "待处理",
+                "处理中",
+                "已完成",
+                "退款失败",
+                "已取消"
+            ],
             "x-enum-varnames": [
                 "RefundStatusPending",
                 "RefundStatusProcessing",
@@ -2918,6 +2948,10 @@ const docTemplate = `{
                 "RefundTypeFull": "全额退款",
                 "RefundTypePartial": "部分退款"
             },
+            "x-enum-descriptions": [
+                "全额退款",
+                "部分退款"
+            ],
             "x-enum-varnames": [
                 "RefundTypeFull",
                 "RefundTypePartial"
@@ -2962,16 +2996,16 @@ const docTemplate = `{
                 "三方外卖"
             ],
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {

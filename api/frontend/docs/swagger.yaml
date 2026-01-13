@@ -1350,6 +1350,10 @@ definitions:
       RefundChannelBalance: 余额退款
       RefundChannelCash: 现金退款
       RefundChannelOriginal: 原路退回
+    x-enum-descriptions:
+    - 原路退回
+    - 现金退款
+    - 余额退款
     x-enum-varnames:
     - RefundChannelOriginal
     - RefundChannelCash
@@ -1516,6 +1520,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.ProductType'
         description: 商品类型
+      product_unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 商品单位信息
       refund_discount:
         description: 退款优惠分摊
         type: number
@@ -1542,9 +1550,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
-      unit_id:
-        description: 单位ID
-        type: string
       updated_at:
         type: string
     type: object
@@ -1601,6 +1606,11 @@ definitions:
       RefundPaymentStatusPending: 待退款
       RefundPaymentStatusProcessing: 退款中
       RefundPaymentStatusSuccess: 退款成功
+    x-enum-descriptions:
+    - 待退款
+    - 退款中
+    - 退款成功
+    - 退款失败
     x-enum-varnames:
     - RefundPaymentStatusPending
     - RefundPaymentStatusProcessing
@@ -1622,6 +1632,13 @@ definitions:
       RefundReasonQualityIssue: 质量问题
       RefundReasonServiceIssue: 服务问题
       RefundReasonWrongOrder: 下错单
+    x-enum-descriptions:
+    - 顾客要求
+    - 质量问题
+    - 下错单
+    - 缺货
+    - 服务问题
+    - 其他
     x-enum-varnames:
     - RefundReasonCustomerRequest
     - RefundReasonQualityIssue
@@ -1643,6 +1660,12 @@ definitions:
       RefundStatusFailed: 退款失败
       RefundStatusPending: 待处理
       RefundStatusProcessing: 处理中
+    x-enum-descriptions:
+    - 待处理
+    - 处理中
+    - 已完成
+    - 退款失败
+    - 已取消
     x-enum-varnames:
     - RefundStatusPending
     - RefundStatusProcessing
@@ -1657,6 +1680,9 @@ definitions:
     x-enum-comments:
       RefundTypeFull: 全额退款
       RefundTypePartial: 部分退款
+    x-enum-descriptions:
+    - 全额退款
+    - 部分退款
     x-enum-varnames:
     - RefundTypeFull
     - RefundTypePartial
@@ -1696,16 +1722,16 @@ definitions:
     - 自助点餐
     - 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
