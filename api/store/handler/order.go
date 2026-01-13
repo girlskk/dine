@@ -29,10 +29,11 @@ func (h *OrderHandler) Routes(r gin.IRouter) {
 	r = r.Group("/order")
 	r.GET("/sales-report", h.SalesReport())
 	r.GET("/product-sales-summary", h.ProductSalesSummary())
+	r.GET("/product-sales-detail", h.ProductSalesDetail())
 }
 
 func (h *OrderHandler) NoAuths() []string {
-	return []string{"/order/sales-report", "/order/product-sales-summary"}
+	return []string{}
 }
 
 // SalesReport 销售报表
@@ -144,6 +145,71 @@ func (h *OrderHandler) ProductSalesSummary() gin.HandlerFunc {
 		p.SetTotal(total)
 
 		response.Ok(c, &types.ProductSalesSummaryResp{
+			Items:      items,
+			Pagination: p,
+		})
+	}
+}
+
+// ProductSalesDetail 商品销售明细
+//
+//	@Tags		数据分析
+//	@Summary	商品销售明细表
+//	@Accept		json
+//	@Produce	json
+//	@Param		business_date_start	query		string							true	"营业日开始"
+//	@Param		business_date_end	query		string							true	"营业日结束"
+//	@Param		order_channel		query		string							false	"订单来源"
+//	@Param		category_id			query		string							false	"商品分类ID"
+//	@Param		product_name		query		string							false	"商品名称（模糊搜索）"
+//	@Param		product_type		query		string							false	"商品类型：normal/set_meal"
+//	@Param		order_no			query		string							false	"订单号"
+//	@Param		page				query		int								false	"页码"
+//	@Param		size				query		int								false	"每页数量"
+//	@Success	200					{object}	types.ProductSalesDetailResp	"成功"
+//	@Router		/order/product-sales-detail [get]
+func (h *OrderHandler) ProductSalesDetail() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("OrderHandler.ProductSalesDetail")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.ProductSalesDetailReq
+		if err := c.ShouldBindQuery(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := domain.FromStoreUserContext(ctx)
+		var categoryID uuid.UUID
+		if req.CategoryID != "" {
+			categoryID, _ = uuid.Parse(req.CategoryID)
+		}
+		params := domain.ProductSalesDetailParams{
+			MerchantID:        user.MerchantID,
+			StoreIDs:          []uuid.UUID{user.StoreID},
+			BusinessDateStart: req.BusinessDateStart,
+			BusinessDateEnd:   req.BusinessDateEnd,
+			OrderChannel:      domain.Channel(req.OrderChannel),
+			CategoryID:        categoryID,
+			ProductName:       req.ProductName,
+			ProductType:       domain.ProductType(req.ProductType),
+			OrderNo:           req.OrderNo,
+			Page:              req.Page,
+			Size:              req.Size,
+		}
+
+		items, total, err := h.OrderInteractor.ProductSalesDetail(ctx, params)
+		if err != nil {
+			c.Error(fmt.Errorf("failed to get product sales detail: %w", err))
+			return
+		}
+
+		p := req.ToPagination()
+		p.SetTotal(total)
+
+		response.Ok(c, &types.ProductSalesDetailResp{
 			Items:      items,
 			Pagination: p,
 		})

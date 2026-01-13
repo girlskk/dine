@@ -76,6 +76,7 @@ func (h *RefundOrderHandler) Create() gin.HandlerFunc {
 				ProductName:          rp.ProductName,
 				ProductType:          rp.ProductType,
 				Category:             rp.Category,
+				ProductUnit:          rp.ProductUnit,
 				MainImage:            rp.MainImage,
 				Description:          rp.Description,
 				OriginQty:            rp.OriginQty,
@@ -336,12 +337,14 @@ func (h *RefundOrderHandler) List() gin.HandlerFunc {
 
 		user := domain.FromFrontendUserContext(ctx)
 		params := domain.RefundOrderListParams{
-			MerchantID:    user.MerchantID,
-			StoreID:       user.StoreID,
-			OriginOrderID: req.OriginOrderID,
-			RefundNo:      req.RefundNo,
-			Page:          req.Page,
-			Size:          req.Size,
+			MerchantID:        user.MerchantID,
+			StoreID:           user.StoreID,
+			OriginOrderID:     req.OriginOrderID,
+			BusinessDateStart: req.BusinessDateStart,
+			BusinessDateEnd:   req.BusinessDateEnd,
+			RefundNo:          req.RefundNo,
+			Page:              req.Page,
+			Size:              req.Size,
 		}
 		if req.RefundType != "" {
 			params.RefundType = domain.RefundType(req.RefundType)

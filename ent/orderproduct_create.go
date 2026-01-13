@@ -135,16 +135,16 @@ func (opc *OrderProductCreate) SetNillableCategory(d *domain.Category) *OrderPro
 	return opc
 }
 
-// SetUnitID sets the "unit_id" field.
-func (opc *OrderProductCreate) SetUnitID(u uuid.UUID) *OrderProductCreate {
-	opc.mutation.SetUnitID(u)
+// SetProductUnit sets the "product_unit" field.
+func (opc *OrderProductCreate) SetProductUnit(du domain.ProductUnit) *OrderProductCreate {
+	opc.mutation.SetProductUnit(du)
 	return opc
 }
 
-// SetNillableUnitID sets the "unit_id" field if the given value is not nil.
-func (opc *OrderProductCreate) SetNillableUnitID(u *uuid.UUID) *OrderProductCreate {
-	if u != nil {
-		opc.SetUnitID(*u)
+// SetNillableProductUnit sets the "product_unit" field if the given value is not nil.
+func (opc *OrderProductCreate) SetNillableProductUnit(du *domain.ProductUnit) *OrderProductCreate {
+	if du != nil {
+		opc.SetProductUnit(*du)
 	}
 	return opc
 }
@@ -738,9 +738,9 @@ func (opc *OrderProductCreate) createSpec() (*OrderProduct, *sqlgraph.CreateSpec
 		_spec.SetField(orderproduct.FieldCategory, field.TypeJSON, value)
 		_node.Category = value
 	}
-	if value, ok := opc.mutation.UnitID(); ok {
-		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
-		_node.UnitID = value
+	if value, ok := opc.mutation.ProductUnit(); ok {
+		_spec.SetField(orderproduct.FieldProductUnit, field.TypeJSON, value)
+		_node.ProductUnit = value
 	}
 	if value, ok := opc.mutation.MainImage(); ok {
 		_spec.SetField(orderproduct.FieldMainImage, field.TypeString, value)
@@ -1037,21 +1037,21 @@ func (u *OrderProductUpsert) ClearCategory() *OrderProductUpsert {
 	return u
 }
 
-// SetUnitID sets the "unit_id" field.
-func (u *OrderProductUpsert) SetUnitID(v uuid.UUID) *OrderProductUpsert {
-	u.Set(orderproduct.FieldUnitID, v)
+// SetProductUnit sets the "product_unit" field.
+func (u *OrderProductUpsert) SetProductUnit(v domain.ProductUnit) *OrderProductUpsert {
+	u.Set(orderproduct.FieldProductUnit, v)
 	return u
 }
 
-// UpdateUnitID sets the "unit_id" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateUnitID() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldUnitID)
+// UpdateProductUnit sets the "product_unit" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdateProductUnit() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldProductUnit)
 	return u
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (u *OrderProductUpsert) ClearUnitID() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldUnitID)
+// ClearProductUnit clears the value of the "product_unit" field.
+func (u *OrderProductUpsert) ClearProductUnit() *OrderProductUpsert {
+	u.SetNull(orderproduct.FieldProductUnit)
 	return u
 }
 
@@ -1685,24 +1685,24 @@ func (u *OrderProductUpsertOne) ClearCategory() *OrderProductUpsertOne {
 	})
 }
 
-// SetUnitID sets the "unit_id" field.
-func (u *OrderProductUpsertOne) SetUnitID(v uuid.UUID) *OrderProductUpsertOne {
+// SetProductUnit sets the "product_unit" field.
+func (u *OrderProductUpsertOne) SetProductUnit(v domain.ProductUnit) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetUnitID(v)
+		s.SetProductUnit(v)
 	})
 }
 
-// UpdateUnitID sets the "unit_id" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateUnitID() *OrderProductUpsertOne {
+// UpdateProductUnit sets the "product_unit" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdateProductUnit() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateUnitID()
+		s.UpdateProductUnit()
 	})
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (u *OrderProductUpsertOne) ClearUnitID() *OrderProductUpsertOne {
+// ClearProductUnit clears the value of the "product_unit" field.
+func (u *OrderProductUpsertOne) ClearProductUnit() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearUnitID()
+		s.ClearProductUnit()
 	})
 }
 
@@ -2575,24 +2575,24 @@ func (u *OrderProductUpsertBulk) ClearCategory() *OrderProductUpsertBulk {
 	})
 }
 
-// SetUnitID sets the "unit_id" field.
-func (u *OrderProductUpsertBulk) SetUnitID(v uuid.UUID) *OrderProductUpsertBulk {
+// SetProductUnit sets the "product_unit" field.
+func (u *OrderProductUpsertBulk) SetProductUnit(v domain.ProductUnit) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetUnitID(v)
+		s.SetProductUnit(v)
 	})
 }
 
-// UpdateUnitID sets the "unit_id" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateUnitID() *OrderProductUpsertBulk {
+// UpdateProductUnit sets the "product_unit" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdateProductUnit() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateUnitID()
+		s.UpdateProductUnit()
 	})
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (u *OrderProductUpsertBulk) ClearUnitID() *OrderProductUpsertBulk {
+// ClearProductUnit clears the value of the "product_unit" field.
+func (u *OrderProductUpsertBulk) ClearProductUnit() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearUnitID()
+		s.ClearProductUnit()
 	})
 }
 

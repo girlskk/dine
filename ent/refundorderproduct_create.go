@@ -135,16 +135,16 @@ func (ropc *RefundOrderProductCreate) SetNillableCategory(d *domain.Category) *R
 	return ropc
 }
 
-// SetUnitID sets the "unit_id" field.
-func (ropc *RefundOrderProductCreate) SetUnitID(u uuid.UUID) *RefundOrderProductCreate {
-	ropc.mutation.SetUnitID(u)
+// SetProductUnit sets the "product_unit" field.
+func (ropc *RefundOrderProductCreate) SetProductUnit(du domain.ProductUnit) *RefundOrderProductCreate {
+	ropc.mutation.SetProductUnit(du)
 	return ropc
 }
 
-// SetNillableUnitID sets the "unit_id" field if the given value is not nil.
-func (ropc *RefundOrderProductCreate) SetNillableUnitID(u *uuid.UUID) *RefundOrderProductCreate {
-	if u != nil {
-		ropc.SetUnitID(*u)
+// SetNillableProductUnit sets the "product_unit" field if the given value is not nil.
+func (ropc *RefundOrderProductCreate) SetNillableProductUnit(du *domain.ProductUnit) *RefundOrderProductCreate {
+	if du != nil {
+		ropc.SetProductUnit(*du)
 	}
 	return ropc
 }
@@ -576,9 +576,9 @@ func (ropc *RefundOrderProductCreate) createSpec() (*RefundOrderProduct, *sqlgra
 		_spec.SetField(refundorderproduct.FieldCategory, field.TypeJSON, value)
 		_node.Category = value
 	}
-	if value, ok := ropc.mutation.UnitID(); ok {
-		_spec.SetField(refundorderproduct.FieldUnitID, field.TypeUUID, value)
-		_node.UnitID = value
+	if value, ok := ropc.mutation.ProductUnit(); ok {
+		_spec.SetField(refundorderproduct.FieldProductUnit, field.TypeJSON, value)
+		_node.ProductUnit = value
 	}
 	if value, ok := ropc.mutation.MainImage(); ok {
 		_spec.SetField(refundorderproduct.FieldMainImage, field.TypeString, value)
@@ -843,21 +843,21 @@ func (u *RefundOrderProductUpsert) ClearCategory() *RefundOrderProductUpsert {
 	return u
 }
 
-// SetUnitID sets the "unit_id" field.
-func (u *RefundOrderProductUpsert) SetUnitID(v uuid.UUID) *RefundOrderProductUpsert {
-	u.Set(refundorderproduct.FieldUnitID, v)
+// SetProductUnit sets the "product_unit" field.
+func (u *RefundOrderProductUpsert) SetProductUnit(v domain.ProductUnit) *RefundOrderProductUpsert {
+	u.Set(refundorderproduct.FieldProductUnit, v)
 	return u
 }
 
-// UpdateUnitID sets the "unit_id" field to the value that was provided on create.
-func (u *RefundOrderProductUpsert) UpdateUnitID() *RefundOrderProductUpsert {
-	u.SetExcluded(refundorderproduct.FieldUnitID)
+// UpdateProductUnit sets the "product_unit" field to the value that was provided on create.
+func (u *RefundOrderProductUpsert) UpdateProductUnit() *RefundOrderProductUpsert {
+	u.SetExcluded(refundorderproduct.FieldProductUnit)
 	return u
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (u *RefundOrderProductUpsert) ClearUnitID() *RefundOrderProductUpsert {
-	u.SetNull(refundorderproduct.FieldUnitID)
+// ClearProductUnit clears the value of the "product_unit" field.
+func (u *RefundOrderProductUpsert) ClearProductUnit() *RefundOrderProductUpsert {
+	u.SetNull(refundorderproduct.FieldProductUnit)
 	return u
 }
 
@@ -1353,24 +1353,24 @@ func (u *RefundOrderProductUpsertOne) ClearCategory() *RefundOrderProductUpsertO
 	})
 }
 
-// SetUnitID sets the "unit_id" field.
-func (u *RefundOrderProductUpsertOne) SetUnitID(v uuid.UUID) *RefundOrderProductUpsertOne {
+// SetProductUnit sets the "product_unit" field.
+func (u *RefundOrderProductUpsertOne) SetProductUnit(v domain.ProductUnit) *RefundOrderProductUpsertOne {
 	return u.Update(func(s *RefundOrderProductUpsert) {
-		s.SetUnitID(v)
+		s.SetProductUnit(v)
 	})
 }
 
-// UpdateUnitID sets the "unit_id" field to the value that was provided on create.
-func (u *RefundOrderProductUpsertOne) UpdateUnitID() *RefundOrderProductUpsertOne {
+// UpdateProductUnit sets the "product_unit" field to the value that was provided on create.
+func (u *RefundOrderProductUpsertOne) UpdateProductUnit() *RefundOrderProductUpsertOne {
 	return u.Update(func(s *RefundOrderProductUpsert) {
-		s.UpdateUnitID()
+		s.UpdateProductUnit()
 	})
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (u *RefundOrderProductUpsertOne) ClearUnitID() *RefundOrderProductUpsertOne {
+// ClearProductUnit clears the value of the "product_unit" field.
+func (u *RefundOrderProductUpsertOne) ClearProductUnit() *RefundOrderProductUpsertOne {
 	return u.Update(func(s *RefundOrderProductUpsert) {
-		s.ClearUnitID()
+		s.ClearProductUnit()
 	})
 }
 
@@ -2082,24 +2082,24 @@ func (u *RefundOrderProductUpsertBulk) ClearCategory() *RefundOrderProductUpsert
 	})
 }
 
-// SetUnitID sets the "unit_id" field.
-func (u *RefundOrderProductUpsertBulk) SetUnitID(v uuid.UUID) *RefundOrderProductUpsertBulk {
+// SetProductUnit sets the "product_unit" field.
+func (u *RefundOrderProductUpsertBulk) SetProductUnit(v domain.ProductUnit) *RefundOrderProductUpsertBulk {
 	return u.Update(func(s *RefundOrderProductUpsert) {
-		s.SetUnitID(v)
+		s.SetProductUnit(v)
 	})
 }
 
-// UpdateUnitID sets the "unit_id" field to the value that was provided on create.
-func (u *RefundOrderProductUpsertBulk) UpdateUnitID() *RefundOrderProductUpsertBulk {
+// UpdateProductUnit sets the "product_unit" field to the value that was provided on create.
+func (u *RefundOrderProductUpsertBulk) UpdateProductUnit() *RefundOrderProductUpsertBulk {
 	return u.Update(func(s *RefundOrderProductUpsert) {
-		s.UpdateUnitID()
+		s.UpdateProductUnit()
 	})
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (u *RefundOrderProductUpsertBulk) ClearUnitID() *RefundOrderProductUpsertBulk {
+// ClearProductUnit clears the value of the "product_unit" field.
+func (u *RefundOrderProductUpsertBulk) ClearProductUnit() *RefundOrderProductUpsertBulk {
 	return u.Update(func(s *RefundOrderProductUpsert) {
-		s.ClearUnitID()
+		s.ClearProductUnit()
 	})
 }
 

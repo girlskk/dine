@@ -35,8 +35,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "营业日",
-                        "name": "business_date",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
                         "in": "query"
                     },
                     {
@@ -1288,6 +1294,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
                 "promotion_discount": {
                     "description": "促销信息",
                     "type": "number"
@@ -1330,10 +1344,6 @@ const docTemplate = `{
                 "total": {
                     "description": "合计",
                     "type": "number"
-                },
-                "unit_id": {
-                    "description": "单位ID",
-                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -2482,6 +2492,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
                 "refund_discount": {
                     "description": "退款优惠分摊",
                     "type": "number"
@@ -2516,10 +2534,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
-                },
-                "unit_id": {
-                    "description": "单位ID",
-                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -3351,6 +3365,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
                 "refund_discount": {
                     "description": "退款优惠分摊",
                     "type": "number"
@@ -3381,10 +3403,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
-                },
-                "unit_id": {
-                    "description": "单位ID",
-                    "type": "string"
                 }
             }
         },

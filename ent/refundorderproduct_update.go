@@ -171,23 +171,23 @@ func (ropu *RefundOrderProductUpdate) ClearCategory() *RefundOrderProductUpdate 
 	return ropu
 }
 
-// SetUnitID sets the "unit_id" field.
-func (ropu *RefundOrderProductUpdate) SetUnitID(u uuid.UUID) *RefundOrderProductUpdate {
-	ropu.mutation.SetUnitID(u)
+// SetProductUnit sets the "product_unit" field.
+func (ropu *RefundOrderProductUpdate) SetProductUnit(du domain.ProductUnit) *RefundOrderProductUpdate {
+	ropu.mutation.SetProductUnit(du)
 	return ropu
 }
 
-// SetNillableUnitID sets the "unit_id" field if the given value is not nil.
-func (ropu *RefundOrderProductUpdate) SetNillableUnitID(u *uuid.UUID) *RefundOrderProductUpdate {
-	if u != nil {
-		ropu.SetUnitID(*u)
+// SetNillableProductUnit sets the "product_unit" field if the given value is not nil.
+func (ropu *RefundOrderProductUpdate) SetNillableProductUnit(du *domain.ProductUnit) *RefundOrderProductUpdate {
+	if du != nil {
+		ropu.SetProductUnit(*du)
 	}
 	return ropu
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (ropu *RefundOrderProductUpdate) ClearUnitID() *RefundOrderProductUpdate {
-	ropu.mutation.ClearUnitID()
+// ClearProductUnit clears the value of the "product_unit" field.
+func (ropu *RefundOrderProductUpdate) ClearProductUnit() *RefundOrderProductUpdate {
+	ropu.mutation.ClearProductUnit()
 	return ropu
 }
 
@@ -652,11 +652,11 @@ func (ropu *RefundOrderProductUpdate) sqlSave(ctx context.Context) (n int, err e
 	if ropu.mutation.CategoryCleared() {
 		_spec.ClearField(refundorderproduct.FieldCategory, field.TypeJSON)
 	}
-	if value, ok := ropu.mutation.UnitID(); ok {
-		_spec.SetField(refundorderproduct.FieldUnitID, field.TypeUUID, value)
+	if value, ok := ropu.mutation.ProductUnit(); ok {
+		_spec.SetField(refundorderproduct.FieldProductUnit, field.TypeJSON, value)
 	}
-	if ropu.mutation.UnitIDCleared() {
-		_spec.ClearField(refundorderproduct.FieldUnitID, field.TypeUUID)
+	if ropu.mutation.ProductUnitCleared() {
+		_spec.ClearField(refundorderproduct.FieldProductUnit, field.TypeJSON)
 	}
 	if value, ok := ropu.mutation.MainImage(); ok {
 		_spec.SetField(refundorderproduct.FieldMainImage, field.TypeString, value)
@@ -957,23 +957,23 @@ func (ropuo *RefundOrderProductUpdateOne) ClearCategory() *RefundOrderProductUpd
 	return ropuo
 }
 
-// SetUnitID sets the "unit_id" field.
-func (ropuo *RefundOrderProductUpdateOne) SetUnitID(u uuid.UUID) *RefundOrderProductUpdateOne {
-	ropuo.mutation.SetUnitID(u)
+// SetProductUnit sets the "product_unit" field.
+func (ropuo *RefundOrderProductUpdateOne) SetProductUnit(du domain.ProductUnit) *RefundOrderProductUpdateOne {
+	ropuo.mutation.SetProductUnit(du)
 	return ropuo
 }
 
-// SetNillableUnitID sets the "unit_id" field if the given value is not nil.
-func (ropuo *RefundOrderProductUpdateOne) SetNillableUnitID(u *uuid.UUID) *RefundOrderProductUpdateOne {
-	if u != nil {
-		ropuo.SetUnitID(*u)
+// SetNillableProductUnit sets the "product_unit" field if the given value is not nil.
+func (ropuo *RefundOrderProductUpdateOne) SetNillableProductUnit(du *domain.ProductUnit) *RefundOrderProductUpdateOne {
+	if du != nil {
+		ropuo.SetProductUnit(*du)
 	}
 	return ropuo
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (ropuo *RefundOrderProductUpdateOne) ClearUnitID() *RefundOrderProductUpdateOne {
-	ropuo.mutation.ClearUnitID()
+// ClearProductUnit clears the value of the "product_unit" field.
+func (ropuo *RefundOrderProductUpdateOne) ClearProductUnit() *RefundOrderProductUpdateOne {
+	ropuo.mutation.ClearProductUnit()
 	return ropuo
 }
 
@@ -1468,11 +1468,11 @@ func (ropuo *RefundOrderProductUpdateOne) sqlSave(ctx context.Context) (_node *R
 	if ropuo.mutation.CategoryCleared() {
 		_spec.ClearField(refundorderproduct.FieldCategory, field.TypeJSON)
 	}
-	if value, ok := ropuo.mutation.UnitID(); ok {
-		_spec.SetField(refundorderproduct.FieldUnitID, field.TypeUUID, value)
+	if value, ok := ropuo.mutation.ProductUnit(); ok {
+		_spec.SetField(refundorderproduct.FieldProductUnit, field.TypeJSON, value)
 	}
-	if ropuo.mutation.UnitIDCleared() {
-		_spec.ClearField(refundorderproduct.FieldUnitID, field.TypeUUID)
+	if ropuo.mutation.ProductUnitCleared() {
+		_spec.ClearField(refundorderproduct.FieldProductUnit, field.TypeJSON)
 	}
 	if value, ok := ropuo.mutation.MainImage(); ok {
 		_spec.SetField(refundorderproduct.FieldMainImage, field.TypeString, value)

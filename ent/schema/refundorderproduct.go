@@ -40,7 +40,7 @@ func (RefundOrderProduct) Fields() []ent.Field {
 		field.Enum("product_type").GoType(domain.ProductType("")).
 			Default(string(domain.ProductTypeNormal)).Comment("商品类型"),
 		field.JSON("category", domain.Category{}).Optional().Comment("分类信息"),
-		field.UUID("unit_id", uuid.UUID{}).Optional().Comment("单位ID"),
+		field.JSON("product_unit", domain.ProductUnit{}).Optional().Comment("商品单位信息"),
 		field.String("main_image").MaxLen(512).Default("").Comment("商品主图"),
 		field.String("description").MaxLen(2000).Default("").Comment("菜品描述"),
 

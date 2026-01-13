@@ -98,11 +98,6 @@ func ProductName(v string) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldProductName, v))
 }
 
-// UnitID applies equality check predicate on the "unit_id" field. It's identical to UnitIDEQ.
-func UnitID(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldUnitID, v))
-}
-
 // MainImage applies equality check predicate on the "main_image" field. It's identical to MainImageEQ.
 func MainImage(v string) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldMainImage, v))
@@ -603,54 +598,14 @@ func CategoryNotNil() predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNotNull(FieldCategory))
 }
 
-// UnitIDEQ applies the EQ predicate on the "unit_id" field.
-func UnitIDEQ(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldUnitID, v))
+// ProductUnitIsNil applies the IsNil predicate on the "product_unit" field.
+func ProductUnitIsNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIsNull(FieldProductUnit))
 }
 
-// UnitIDNEQ applies the NEQ predicate on the "unit_id" field.
-func UnitIDNEQ(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNEQ(FieldUnitID, v))
-}
-
-// UnitIDIn applies the In predicate on the "unit_id" field.
-func UnitIDIn(vs ...uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIn(FieldUnitID, vs...))
-}
-
-// UnitIDNotIn applies the NotIn predicate on the "unit_id" field.
-func UnitIDNotIn(vs ...uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotIn(FieldUnitID, vs...))
-}
-
-// UnitIDGT applies the GT predicate on the "unit_id" field.
-func UnitIDGT(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGT(FieldUnitID, v))
-}
-
-// UnitIDGTE applies the GTE predicate on the "unit_id" field.
-func UnitIDGTE(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGTE(FieldUnitID, v))
-}
-
-// UnitIDLT applies the LT predicate on the "unit_id" field.
-func UnitIDLT(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLT(FieldUnitID, v))
-}
-
-// UnitIDLTE applies the LTE predicate on the "unit_id" field.
-func UnitIDLTE(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLTE(FieldUnitID, v))
-}
-
-// UnitIDIsNil applies the IsNil predicate on the "unit_id" field.
-func UnitIDIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldUnitID))
-}
-
-// UnitIDNotNil applies the NotNil predicate on the "unit_id" field.
-func UnitIDNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldUnitID))
+// ProductUnitNotNil applies the NotNil predicate on the "product_unit" field.
+func ProductUnitNotNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotNull(FieldProductUnit))
 }
 
 // MainImageEQ applies the EQ predicate on the "main_image" field.

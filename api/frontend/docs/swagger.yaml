@@ -525,6 +525,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.ProductType'
         description: 商品类型
+      product_unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 商品单位信息
       promotion_discount:
         description: 促销信息
         type: number
@@ -557,9 +561,6 @@ definitions:
       total:
         description: 合计
         type: number
-      unit_id:
-        description: 单位ID
-        type: string
       updated_at:
         type: string
       void_amount:
@@ -1357,6 +1358,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.ProductType'
         description: 商品类型
+      product_unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 商品单位信息
       refund_discount:
         description: 退款优惠分摊
         type: number
@@ -1383,9 +1388,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
-      unit_id:
-        description: 单位ID
-        type: string
       updated_at:
         type: string
     type: object
@@ -1959,6 +1961,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.ProductType'
         description: 商品类型
+      product_unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 商品单位信息
       refund_discount:
         description: 退款优惠分摊
         type: number
@@ -1982,9 +1988,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
-      unit_id:
-        description: 单位ID
-        type: string
     required:
     - origin_order_product_id
     - origin_qty
@@ -2173,9 +2176,13 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 营业日
+      - description: 营业日开始
         in: query
-        name: business_date
+        name: business_date_start
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
         type: string
       - description: 订单号
         in: query

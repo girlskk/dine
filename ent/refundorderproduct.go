@@ -43,8 +43,8 @@ type RefundOrderProduct struct {
 	ProductType domain.ProductType `json:"product_type,omitempty"`
 	// 分类信息
 	Category domain.Category `json:"category,omitempty"`
-	// 单位ID
-	UnitID uuid.UUID `json:"unit_id,omitempty"`
+	// 商品单位信息
+	ProductUnit domain.ProductUnit `json:"product_unit,omitempty"`
 	// 商品主图
 	MainImage string `json:"main_image,omitempty"`
 	// 菜品描述
@@ -112,7 +112,7 @@ func (*RefundOrderProduct) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case refundorderproduct.FieldOriginPrice, refundorderproduct.FieldOriginSubtotal, refundorderproduct.FieldOriginDiscount, refundorderproduct.FieldOriginTax, refundorderproduct.FieldOriginTotal, refundorderproduct.FieldRefundSubtotal, refundorderproduct.FieldRefundDiscount, refundorderproduct.FieldRefundTax, refundorderproduct.FieldRefundTotal:
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
-		case refundorderproduct.FieldCategory, refundorderproduct.FieldGroups, refundorderproduct.FieldSpecRelations, refundorderproduct.FieldAttrRelations:
+		case refundorderproduct.FieldCategory, refundorderproduct.FieldProductUnit, refundorderproduct.FieldGroups, refundorderproduct.FieldSpecRelations, refundorderproduct.FieldAttrRelations:
 			values[i] = new([]byte)
 		case refundorderproduct.FieldDeletedAt, refundorderproduct.FieldOriginQty, refundorderproduct.FieldRefundQty:
 			values[i] = new(sql.NullInt64)
@@ -120,7 +120,7 @@ func (*RefundOrderProduct) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case refundorderproduct.FieldCreatedAt, refundorderproduct.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case refundorderproduct.FieldID, refundorderproduct.FieldRefundOrderID, refundorderproduct.FieldOriginOrderProductID, refundorderproduct.FieldProductID, refundorderproduct.FieldUnitID:
+		case refundorderproduct.FieldID, refundorderproduct.FieldRefundOrderID, refundorderproduct.FieldOriginOrderProductID, refundorderproduct.FieldProductID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -205,11 +205,13 @@ func (rop *RefundOrderProduct) assignValues(columns []string, values []any) erro
 					return fmt.Errorf("unmarshal field category: %w", err)
 				}
 			}
-		case refundorderproduct.FieldUnitID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field unit_id", values[i])
-			} else if value != nil {
-				rop.UnitID = *value
+		case refundorderproduct.FieldProductUnit:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field product_unit", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &rop.ProductUnit); err != nil {
+					return fmt.Errorf("unmarshal field product_unit: %w", err)
+				}
 			}
 		case refundorderproduct.FieldMainImage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -399,8 +401,8 @@ func (rop *RefundOrderProduct) String() string {
 	builder.WriteString("category=")
 	builder.WriteString(fmt.Sprintf("%v", rop.Category))
 	builder.WriteString(", ")
-	builder.WriteString("unit_id=")
-	builder.WriteString(fmt.Sprintf("%v", rop.UnitID))
+	builder.WriteString("product_unit=")
+	builder.WriteString(fmt.Sprintf("%v", rop.ProductUnit))
 	builder.WriteString(", ")
 	builder.WriteString("main_image=")
 	builder.WriteString(rop.MainImage)

@@ -36,3 +36,22 @@ type ProductSalesSummaryResp struct {
 	Items      []*domain.ProductSalesSummaryItem `json:"items"`      // 汇总数据
 	Pagination *upagination.Pagination           `json:"pagination"` // 分页信息
 }
+
+// ProductSalesDetailReq 商品销售明细请求
+type ProductSalesDetailReq struct {
+	BusinessDateStart string `form:"business_date_start" binding:"required"`                 // 营业日开始
+	BusinessDateEnd   string `form:"business_date_end" binding:"required"`                   // 营业日结束
+	OrderChannel      string `form:"order_channel"`                                          // 订单来源
+	CategoryID        string `form:"category_id"`                                            // 商品分类ID
+	ProductName       string `form:"product_name"`                                           // 商品名称（模糊搜索）
+	ProductType       string `form:"product_type" binding:"omitempty,oneof=normal set_meal"` // 商品类型
+	OrderNo           string `form:"order_no"`                                               // 订单号
+
+	upagination.RequestPagination
+}
+
+// ProductSalesDetailResp 商品销售明细响应
+type ProductSalesDetailResp struct {
+	Items      []*domain.ProductSalesDetailItem `json:"items"`      // 明细数据
+	Pagination *upagination.Pagination          `json:"pagination"` // 分页信息
+}

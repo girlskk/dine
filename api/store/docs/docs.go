@@ -743,6 +743,86 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/product-sales-detail": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "数据分析"
+                ],
+                "summary": "商品销售明细表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "订单来源",
+                        "name": "order_channel",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品分类ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品名称（模糊搜索）",
+                        "name": "product_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品类型：normal/set_meal",
+                        "name": "product_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "订单号",
+                        "name": "order_no",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductSalesDetailResp"
+                        }
+                    }
+                }
+            }
+        },
         "/order/product-sales-summary": {
             "get": {
                 "consumes": [
@@ -4199,6 +4279,24 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.OrderType": {
+            "type": "string",
+            "enum": [
+                "SALE",
+                "REFUND",
+                "PARTIAL_REFUND"
+            ],
+            "x-enum-comments": {
+                "OrderTypePartialRefund": "部分退款单",
+                "OrderTypeRefund": "退单",
+                "OrderTypeSale": "销售单"
+            },
+            "x-enum-varnames": [
+                "OrderTypeSale",
+                "OrderTypeRefund",
+                "OrderTypePartialRefund"
+            ]
+        },
         "domain.PaperSize": {
             "type": "string",
             "enum": [
@@ -4769,6 +4867,91 @@ const docTemplate = `{
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
             ]
+        },
+        "domain.ProductSalesDetailItem": {
+            "type": "object",
+            "properties": {
+                "amount_due": {
+                    "description": "应收金额",
+                    "type": "number"
+                },
+                "attr_amount": {
+                    "description": "做法金额",
+                    "type": "number"
+                },
+                "business_date": {
+                    "description": "营业日期",
+                    "type": "string"
+                },
+                "category_name": {
+                    "description": "一级分类名称",
+                    "type": "string"
+                },
+                "category_name_2": {
+                    "description": "二级分类名称",
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "description": "优惠金额",
+                    "type": "number"
+                },
+                "order_no": {
+                    "description": "订单号",
+                    "type": "string"
+                },
+                "order_type": {
+                    "description": "订单类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderType"
+                        }
+                    ]
+                },
+                "paid_at": {
+                    "description": "支付时间",
+                    "type": "string"
+                },
+                "placed_at": {
+                    "description": "下单时间",
+                    "type": "string"
+                },
+                "product_name": {
+                    "description": "商品名称",
+                    "type": "string"
+                },
+                "product_type": {
+                    "description": "商品类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductType"
+                        }
+                    ]
+                },
+                "refund_amount": {
+                    "description": "退款金额",
+                    "type": "number"
+                },
+                "refund_qty": {
+                    "description": "退款数量",
+                    "type": "integer"
+                },
+                "sales_amount": {
+                    "description": "销售金额",
+                    "type": "number"
+                },
+                "sales_qty": {
+                    "description": "销售数量",
+                    "type": "integer"
+                },
+                "store_name": {
+                    "description": "门店名称",
+                    "type": "string"
+                },
+                "subtotal": {
+                    "description": "商品金额",
+                    "type": "number"
+                }
+            }
         },
         "domain.ProductSalesSummaryItem": {
             "type": "object",
@@ -7139,6 +7322,26 @@ const docTemplate = `{
                 "unit_id": {
                     "description": "属性关联",
                     "type": "string"
+                }
+            }
+        },
+        "types.ProductSalesDetailResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "明细数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSalesDetailItem"
+                    }
+                },
+                "pagination": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/upagination.Pagination"
+                        }
+                    ]
                 }
             }
         },

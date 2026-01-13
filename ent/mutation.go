@@ -18356,7 +18356,7 @@ type OrderProductMutation struct {
 	product_name         *string
 	product_type         *domain.ProductType
 	category             *domain.Category
-	unit_id              *uuid.UUID
+	product_unit         *domain.ProductUnit
 	main_image           *string
 	description          *string
 	is_gift              *bool
@@ -18913,53 +18913,53 @@ func (m *OrderProductMutation) ResetCategory() {
 	delete(m.clearedFields, orderproduct.FieldCategory)
 }
 
-// SetUnitID sets the "unit_id" field.
-func (m *OrderProductMutation) SetUnitID(u uuid.UUID) {
-	m.unit_id = &u
+// SetProductUnit sets the "product_unit" field.
+func (m *OrderProductMutation) SetProductUnit(du domain.ProductUnit) {
+	m.product_unit = &du
 }
 
-// UnitID returns the value of the "unit_id" field in the mutation.
-func (m *OrderProductMutation) UnitID() (r uuid.UUID, exists bool) {
-	v := m.unit_id
+// ProductUnit returns the value of the "product_unit" field in the mutation.
+func (m *OrderProductMutation) ProductUnit() (r domain.ProductUnit, exists bool) {
+	v := m.product_unit
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUnitID returns the old "unit_id" field's value of the OrderProduct entity.
+// OldProductUnit returns the old "product_unit" field's value of the OrderProduct entity.
 // If the OrderProduct object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrderProductMutation) OldUnitID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *OrderProductMutation) OldProductUnit(ctx context.Context) (v domain.ProductUnit, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUnitID is only allowed on UpdateOne operations")
+		return v, errors.New("OldProductUnit is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUnitID requires an ID field in the mutation")
+		return v, errors.New("OldProductUnit requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUnitID: %w", err)
+		return v, fmt.Errorf("querying old value for OldProductUnit: %w", err)
 	}
-	return oldValue.UnitID, nil
+	return oldValue.ProductUnit, nil
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (m *OrderProductMutation) ClearUnitID() {
-	m.unit_id = nil
-	m.clearedFields[orderproduct.FieldUnitID] = struct{}{}
+// ClearProductUnit clears the value of the "product_unit" field.
+func (m *OrderProductMutation) ClearProductUnit() {
+	m.product_unit = nil
+	m.clearedFields[orderproduct.FieldProductUnit] = struct{}{}
 }
 
-// UnitIDCleared returns if the "unit_id" field was cleared in this mutation.
-func (m *OrderProductMutation) UnitIDCleared() bool {
-	_, ok := m.clearedFields[orderproduct.FieldUnitID]
+// ProductUnitCleared returns if the "product_unit" field was cleared in this mutation.
+func (m *OrderProductMutation) ProductUnitCleared() bool {
+	_, ok := m.clearedFields[orderproduct.FieldProductUnit]
 	return ok
 }
 
-// ResetUnitID resets all changes to the "unit_id" field.
-func (m *OrderProductMutation) ResetUnitID() {
-	m.unit_id = nil
-	delete(m.clearedFields, orderproduct.FieldUnitID)
+// ResetProductUnit resets all changes to the "product_unit" field.
+func (m *OrderProductMutation) ResetProductUnit() {
+	m.product_unit = nil
+	delete(m.clearedFields, orderproduct.FieldProductUnit)
 }
 
 // SetMainImage sets the "main_image" field.
@@ -20309,8 +20309,8 @@ func (m *OrderProductMutation) Fields() []string {
 	if m.category != nil {
 		fields = append(fields, orderproduct.FieldCategory)
 	}
-	if m.unit_id != nil {
-		fields = append(fields, orderproduct.FieldUnitID)
+	if m.product_unit != nil {
+		fields = append(fields, orderproduct.FieldProductUnit)
 	}
 	if m.main_image != nil {
 		fields = append(fields, orderproduct.FieldMainImage)
@@ -20415,8 +20415,8 @@ func (m *OrderProductMutation) Field(name string) (ent.Value, bool) {
 		return m.ProductType()
 	case orderproduct.FieldCategory:
 		return m.Category()
-	case orderproduct.FieldUnitID:
-		return m.UnitID()
+	case orderproduct.FieldProductUnit:
+		return m.ProductUnit()
 	case orderproduct.FieldMainImage:
 		return m.MainImage()
 	case orderproduct.FieldDescription:
@@ -20496,8 +20496,8 @@ func (m *OrderProductMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldProductType(ctx)
 	case orderproduct.FieldCategory:
 		return m.OldCategory(ctx)
-	case orderproduct.FieldUnitID:
-		return m.OldUnitID(ctx)
+	case orderproduct.FieldProductUnit:
+		return m.OldProductUnit(ctx)
 	case orderproduct.FieldMainImage:
 		return m.OldMainImage(ctx)
 	case orderproduct.FieldDescription:
@@ -20627,12 +20627,12 @@ func (m *OrderProductMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCategory(v)
 		return nil
-	case orderproduct.FieldUnitID:
-		v, ok := value.(uuid.UUID)
+	case orderproduct.FieldProductUnit:
+		v, ok := value.(domain.ProductUnit)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUnitID(v)
+		m.SetProductUnit(v)
 		return nil
 	case orderproduct.FieldMainImage:
 		v, ok := value.(string)
@@ -20905,8 +20905,8 @@ func (m *OrderProductMutation) ClearedFields() []string {
 	if m.FieldCleared(orderproduct.FieldCategory) {
 		fields = append(fields, orderproduct.FieldCategory)
 	}
-	if m.FieldCleared(orderproduct.FieldUnitID) {
-		fields = append(fields, orderproduct.FieldUnitID)
+	if m.FieldCleared(orderproduct.FieldProductUnit) {
+		fields = append(fields, orderproduct.FieldProductUnit)
 	}
 	if m.FieldCleared(orderproduct.FieldSubtotal) {
 		fields = append(fields, orderproduct.FieldSubtotal)
@@ -20982,8 +20982,8 @@ func (m *OrderProductMutation) ClearField(name string) error {
 	case orderproduct.FieldCategory:
 		m.ClearCategory()
 		return nil
-	case orderproduct.FieldUnitID:
-		m.ClearUnitID()
+	case orderproduct.FieldProductUnit:
+		m.ClearProductUnit()
 		return nil
 	case orderproduct.FieldSubtotal:
 		m.ClearSubtotal()
@@ -21080,8 +21080,8 @@ func (m *OrderProductMutation) ResetField(name string) error {
 	case orderproduct.FieldCategory:
 		m.ResetCategory()
 		return nil
-	case orderproduct.FieldUnitID:
-		m.ResetUnitID()
+	case orderproduct.FieldProductUnit:
+		m.ResetProductUnit()
 		return nil
 	case orderproduct.FieldMainImage:
 		m.ResetMainImage()
@@ -38182,7 +38182,7 @@ type RefundOrderProductMutation struct {
 	product_name            *string
 	product_type            *domain.ProductType
 	category                *domain.Category
-	unit_id                 *uuid.UUID
+	product_unit            *domain.ProductUnit
 	main_image              *string
 	description             *string
 	origin_qty              *int
@@ -38723,53 +38723,53 @@ func (m *RefundOrderProductMutation) ResetCategory() {
 	delete(m.clearedFields, refundorderproduct.FieldCategory)
 }
 
-// SetUnitID sets the "unit_id" field.
-func (m *RefundOrderProductMutation) SetUnitID(u uuid.UUID) {
-	m.unit_id = &u
+// SetProductUnit sets the "product_unit" field.
+func (m *RefundOrderProductMutation) SetProductUnit(du domain.ProductUnit) {
+	m.product_unit = &du
 }
 
-// UnitID returns the value of the "unit_id" field in the mutation.
-func (m *RefundOrderProductMutation) UnitID() (r uuid.UUID, exists bool) {
-	v := m.unit_id
+// ProductUnit returns the value of the "product_unit" field in the mutation.
+func (m *RefundOrderProductMutation) ProductUnit() (r domain.ProductUnit, exists bool) {
+	v := m.product_unit
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUnitID returns the old "unit_id" field's value of the RefundOrderProduct entity.
+// OldProductUnit returns the old "product_unit" field's value of the RefundOrderProduct entity.
 // If the RefundOrderProduct object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RefundOrderProductMutation) OldUnitID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *RefundOrderProductMutation) OldProductUnit(ctx context.Context) (v domain.ProductUnit, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUnitID is only allowed on UpdateOne operations")
+		return v, errors.New("OldProductUnit is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUnitID requires an ID field in the mutation")
+		return v, errors.New("OldProductUnit requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUnitID: %w", err)
+		return v, fmt.Errorf("querying old value for OldProductUnit: %w", err)
 	}
-	return oldValue.UnitID, nil
+	return oldValue.ProductUnit, nil
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (m *RefundOrderProductMutation) ClearUnitID() {
-	m.unit_id = nil
-	m.clearedFields[refundorderproduct.FieldUnitID] = struct{}{}
+// ClearProductUnit clears the value of the "product_unit" field.
+func (m *RefundOrderProductMutation) ClearProductUnit() {
+	m.product_unit = nil
+	m.clearedFields[refundorderproduct.FieldProductUnit] = struct{}{}
 }
 
-// UnitIDCleared returns if the "unit_id" field was cleared in this mutation.
-func (m *RefundOrderProductMutation) UnitIDCleared() bool {
-	_, ok := m.clearedFields[refundorderproduct.FieldUnitID]
+// ProductUnitCleared returns if the "product_unit" field was cleared in this mutation.
+func (m *RefundOrderProductMutation) ProductUnitCleared() bool {
+	_, ok := m.clearedFields[refundorderproduct.FieldProductUnit]
 	return ok
 }
 
-// ResetUnitID resets all changes to the "unit_id" field.
-func (m *RefundOrderProductMutation) ResetUnitID() {
-	m.unit_id = nil
-	delete(m.clearedFields, refundorderproduct.FieldUnitID)
+// ResetProductUnit resets all changes to the "product_unit" field.
+func (m *RefundOrderProductMutation) ResetProductUnit() {
+	m.product_unit = nil
+	delete(m.clearedFields, refundorderproduct.FieldProductUnit)
 }
 
 // SetMainImage sets the "main_image" field.
@@ -39733,8 +39733,8 @@ func (m *RefundOrderProductMutation) Fields() []string {
 	if m.category != nil {
 		fields = append(fields, refundorderproduct.FieldCategory)
 	}
-	if m.unit_id != nil {
-		fields = append(fields, refundorderproduct.FieldUnitID)
+	if m.product_unit != nil {
+		fields = append(fields, refundorderproduct.FieldProductUnit)
 	}
 	if m.main_image != nil {
 		fields = append(fields, refundorderproduct.FieldMainImage)
@@ -39815,8 +39815,8 @@ func (m *RefundOrderProductMutation) Field(name string) (ent.Value, bool) {
 		return m.ProductType()
 	case refundorderproduct.FieldCategory:
 		return m.Category()
-	case refundorderproduct.FieldUnitID:
-		return m.UnitID()
+	case refundorderproduct.FieldProductUnit:
+		return m.ProductUnit()
 	case refundorderproduct.FieldMainImage:
 		return m.MainImage()
 	case refundorderproduct.FieldDescription:
@@ -39880,8 +39880,8 @@ func (m *RefundOrderProductMutation) OldField(ctx context.Context, name string) 
 		return m.OldProductType(ctx)
 	case refundorderproduct.FieldCategory:
 		return m.OldCategory(ctx)
-	case refundorderproduct.FieldUnitID:
-		return m.OldUnitID(ctx)
+	case refundorderproduct.FieldProductUnit:
+		return m.OldProductUnit(ctx)
 	case refundorderproduct.FieldMainImage:
 		return m.OldMainImage(ctx)
 	case refundorderproduct.FieldDescription:
@@ -39995,12 +39995,12 @@ func (m *RefundOrderProductMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetCategory(v)
 		return nil
-	case refundorderproduct.FieldUnitID:
-		v, ok := value.(uuid.UUID)
+	case refundorderproduct.FieldProductUnit:
+		v, ok := value.(domain.ProductUnit)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUnitID(v)
+		m.SetProductUnit(v)
 		return nil
 	case refundorderproduct.FieldMainImage:
 		v, ok := value.(string)
@@ -40196,8 +40196,8 @@ func (m *RefundOrderProductMutation) ClearedFields() []string {
 	if m.FieldCleared(refundorderproduct.FieldCategory) {
 		fields = append(fields, refundorderproduct.FieldCategory)
 	}
-	if m.FieldCleared(refundorderproduct.FieldUnitID) {
-		fields = append(fields, refundorderproduct.FieldUnitID)
+	if m.FieldCleared(refundorderproduct.FieldProductUnit) {
+		fields = append(fields, refundorderproduct.FieldProductUnit)
 	}
 	if m.FieldCleared(refundorderproduct.FieldOriginPrice) {
 		fields = append(fields, refundorderproduct.FieldOriginPrice)
@@ -40258,8 +40258,8 @@ func (m *RefundOrderProductMutation) ClearField(name string) error {
 	case refundorderproduct.FieldCategory:
 		m.ClearCategory()
 		return nil
-	case refundorderproduct.FieldUnitID:
-		m.ClearUnitID()
+	case refundorderproduct.FieldProductUnit:
+		m.ClearProductUnit()
 		return nil
 	case refundorderproduct.FieldOriginPrice:
 		m.ClearOriginPrice()
@@ -40338,8 +40338,8 @@ func (m *RefundOrderProductMutation) ResetField(name string) error {
 	case refundorderproduct.FieldCategory:
 		m.ResetCategory()
 		return nil
-	case refundorderproduct.FieldUnitID:
-		m.ResetUnitID()
+	case refundorderproduct.FieldProductUnit:
+		m.ResetProductUnit()
 		return nil
 	case refundorderproduct.FieldMainImage:
 		m.ResetMainImage()

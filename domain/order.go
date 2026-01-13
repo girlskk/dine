@@ -119,6 +119,7 @@ type OrderRepository interface {
 	List(ctx context.Context, params OrderListParams) ([]*Order, int, error)
 	SalesReport(ctx context.Context, params OrderSalesReportParams) ([]*OrderSalesReportItem, int, error)
 	ProductSalesSummary(ctx context.Context, params ProductSalesSummaryParams) ([]*ProductSalesSummaryItem, int, error)
+	ProductSalesDetail(ctx context.Context, params ProductSalesDetailParams) ([]*ProductSalesDetailItem, int, error)
 }
 
 type OrderInteractor interface {
@@ -129,6 +130,7 @@ type OrderInteractor interface {
 	List(ctx context.Context, params OrderListParams) ([]*Order, int, error)
 	SalesReport(ctx context.Context, params OrderSalesReportParams) ([]*OrderSalesReportItem, int, error)
 	ProductSalesSummary(ctx context.Context, params ProductSalesSummaryParams) ([]*ProductSalesSummaryItem, int, error)
+	ProductSalesDetail(ctx context.Context, params ProductSalesDetailParams) ([]*ProductSalesDetailItem, int, error)
 }
 
 // OrderCashier 收银员信息
@@ -254,9 +256,10 @@ type OrderListParams struct {
 	MerchantID uuid.UUID
 	StoreID    uuid.UUID
 
-	BusinessDate string
-	OrderNo      string
-	OrderType    OrderType
+	BusinessDateStart string
+	BusinessDateEnd   string
+	OrderNo           string
+	OrderType         OrderType
 
 	OrderStatus   OrderStatus
 	PaymentStatus PaymentStatus
@@ -330,4 +333,42 @@ type ProductSalesSummaryItem struct {
 	RefundAmount   decimal.Decimal `json:"refund_amount"`   // 退款金额
 	GiftQty        int             `json:"gift_qty"`        // 赠送数量
 	AttrAmount     decimal.Decimal `json:"attr_amount"`     // 做法金额
+}
+
+// ProductSalesDetailParams 商品销售明细查询参数
+type ProductSalesDetailParams struct {
+	MerchantID        uuid.UUID   // 品牌商ID
+	StoreIDs          []uuid.UUID // 门店ID列表
+	BusinessDateStart string      // 营业日开始
+	BusinessDateEnd   string      // 营业日结束
+	OrderChannel      Channel     // 订单来源
+	CategoryID        uuid.UUID   // 商品分类ID
+	ProductName       string      // 商品名称（模糊搜索）
+	ProductType       ProductType // 商品类型
+	OrderNo           string      // 订单号
+
+	Page int
+	Size int
+}
+
+// ProductSalesDetailItem 商品销售明细单条记录
+type ProductSalesDetailItem struct {
+	BusinessDate   string          `json:"business_date"`   // 营业日期
+	StoreName      string          `json:"store_name"`      // 门店名称
+	ProductName    string          `json:"product_name"`    // 商品名称
+	CategoryName   string          `json:"category_name"`   // 一级分类名称
+	CategoryName2  string          `json:"category_name_2"` // 二级分类名称
+	ProductType    ProductType     `json:"product_type"`    // 商品类型
+	OrderNo        string          `json:"order_no"`        // 订单号
+	OrderType      OrderType       `json:"order_type"`      // 订单类型
+	PlacedAt       time.Time       `json:"placed_at"`       // 下单时间
+	PaidAt         time.Time       `json:"paid_at"`         // 支付时间
+	SalesQty       int             `json:"sales_qty"`       // 销售数量
+	SalesAmount    decimal.Decimal `json:"sales_amount"`    // 销售金额
+	AmountDue      decimal.Decimal `json:"amount_due"`      // 应收金额
+	Subtotal       decimal.Decimal `json:"subtotal"`        // 商品金额
+	DiscountAmount decimal.Decimal `json:"discount_amount"` // 优惠金额
+	AttrAmount     decimal.Decimal `json:"attr_amount"`     // 做法金额
+	RefundQty      int             `json:"refund_qty"`      // 退款数量
+	RefundAmount   decimal.Decimal `json:"refund_amount"`   // 退款金额
 }
