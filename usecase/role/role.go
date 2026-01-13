@@ -86,6 +86,14 @@ func (interactor *RoleInteractor) UpdateRole(ctx context.Context, params *domain
 			return err
 		}
 
+		userRoles, err := ds.UserRoleRepo().GetByRoleIDs(ctx, domain.UserType(old.RoleType), params.ID)
+		if err != nil {
+			return err
+		}
+		if len(userRoles) > 0 {
+			return domain.ErrRoleAssignedCannotDisable
+		}
+
 		role := &domain.Role{
 			ID:            old.ID,
 			Name:          params.Name,
