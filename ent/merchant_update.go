@@ -15,18 +15,13 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -198,15 +193,15 @@ func (mu *MerchantUpdate) ClearExpireUtc() *MerchantUpdate {
 }
 
 // SetBusinessTypeCode sets the "business_type_code" field.
-func (mu *MerchantUpdate) SetBusinessTypeCode(s string) *MerchantUpdate {
-	mu.mutation.SetBusinessTypeCode(s)
+func (mu *MerchantUpdate) SetBusinessTypeCode(dt domain.BusinessType) *MerchantUpdate {
+	mu.mutation.SetBusinessTypeCode(dt)
 	return mu
 }
 
 // SetNillableBusinessTypeCode sets the "business_type_code" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableBusinessTypeCode(s *string) *MerchantUpdate {
-	if s != nil {
-		mu.SetBusinessTypeCode(*s)
+func (mu *MerchantUpdate) SetNillableBusinessTypeCode(dt *domain.BusinessType) *MerchantUpdate {
+	if dt != nil {
+		mu.SetBusinessTypeCode(*dt)
 	}
 	return mu
 }
@@ -259,83 +254,43 @@ func (mu *MerchantUpdate) SetNillableStatus(ds *domain.MerchantStatus) *Merchant
 	return mu
 }
 
-// SetCountryID sets the "country_id" field.
-func (mu *MerchantUpdate) SetCountryID(u uuid.UUID) *MerchantUpdate {
-	mu.mutation.SetCountryID(u)
+// SetCountry sets the "country" field.
+func (mu *MerchantUpdate) SetCountry(d domain.Country) *MerchantUpdate {
+	mu.mutation.SetCountry(d)
 	return mu
 }
 
-// SetNillableCountryID sets the "country_id" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableCountryID(u *uuid.UUID) *MerchantUpdate {
-	if u != nil {
-		mu.SetCountryID(*u)
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (mu *MerchantUpdate) SetNillableCountry(d *domain.Country) *MerchantUpdate {
+	if d != nil {
+		mu.SetCountry(*d)
 	}
 	return mu
 }
 
-// ClearCountryID clears the value of the "country_id" field.
-func (mu *MerchantUpdate) ClearCountryID() *MerchantUpdate {
-	mu.mutation.ClearCountryID()
+// ClearCountry clears the value of the "country" field.
+func (mu *MerchantUpdate) ClearCountry() *MerchantUpdate {
+	mu.mutation.ClearCountry()
 	return mu
 }
 
-// SetProvinceID sets the "province_id" field.
-func (mu *MerchantUpdate) SetProvinceID(u uuid.UUID) *MerchantUpdate {
-	mu.mutation.SetProvinceID(u)
+// SetProvince sets the "province" field.
+func (mu *MerchantUpdate) SetProvince(d domain.Province) *MerchantUpdate {
+	mu.mutation.SetProvince(d)
 	return mu
 }
 
-// SetNillableProvinceID sets the "province_id" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableProvinceID(u *uuid.UUID) *MerchantUpdate {
-	if u != nil {
-		mu.SetProvinceID(*u)
+// SetNillableProvince sets the "province" field if the given value is not nil.
+func (mu *MerchantUpdate) SetNillableProvince(d *domain.Province) *MerchantUpdate {
+	if d != nil {
+		mu.SetProvince(*d)
 	}
 	return mu
 }
 
-// ClearProvinceID clears the value of the "province_id" field.
-func (mu *MerchantUpdate) ClearProvinceID() *MerchantUpdate {
-	mu.mutation.ClearProvinceID()
-	return mu
-}
-
-// SetCityID sets the "city_id" field.
-func (mu *MerchantUpdate) SetCityID(u uuid.UUID) *MerchantUpdate {
-	mu.mutation.SetCityID(u)
-	return mu
-}
-
-// SetNillableCityID sets the "city_id" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableCityID(u *uuid.UUID) *MerchantUpdate {
-	if u != nil {
-		mu.SetCityID(*u)
-	}
-	return mu
-}
-
-// ClearCityID clears the value of the "city_id" field.
-func (mu *MerchantUpdate) ClearCityID() *MerchantUpdate {
-	mu.mutation.ClearCityID()
-	return mu
-}
-
-// SetDistrictID sets the "district_id" field.
-func (mu *MerchantUpdate) SetDistrictID(u uuid.UUID) *MerchantUpdate {
-	mu.mutation.SetDistrictID(u)
-	return mu
-}
-
-// SetNillableDistrictID sets the "district_id" field if the given value is not nil.
-func (mu *MerchantUpdate) SetNillableDistrictID(u *uuid.UUID) *MerchantUpdate {
-	if u != nil {
-		mu.SetDistrictID(*u)
-	}
-	return mu
-}
-
-// ClearDistrictID clears the value of the "district_id" field.
-func (mu *MerchantUpdate) ClearDistrictID() *MerchantUpdate {
-	mu.mutation.ClearDistrictID()
+// ClearProvince clears the value of the "province" field.
+func (mu *MerchantUpdate) ClearProvince() *MerchantUpdate {
+	mu.mutation.ClearProvince()
 	return mu
 }
 
@@ -399,26 +354,6 @@ func (mu *MerchantUpdate) ClearLat() *MerchantUpdate {
 	return mu
 }
 
-// SetCountry sets the "country" edge to the Country entity.
-func (mu *MerchantUpdate) SetCountry(c *Country) *MerchantUpdate {
-	return mu.SetCountryID(c.ID)
-}
-
-// SetProvince sets the "province" edge to the Province entity.
-func (mu *MerchantUpdate) SetProvince(p *Province) *MerchantUpdate {
-	return mu.SetProvinceID(p.ID)
-}
-
-// SetCity sets the "city" edge to the City entity.
-func (mu *MerchantUpdate) SetCity(c *City) *MerchantUpdate {
-	return mu.SetCityID(c.ID)
-}
-
-// SetDistrict sets the "district" edge to the District entity.
-func (mu *MerchantUpdate) SetDistrict(d *District) *MerchantUpdate {
-	return mu.SetDistrictID(d.ID)
-}
-
 // AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
 func (mu *MerchantUpdate) AddBackendUserIDs(ids ...uuid.UUID) *MerchantUpdate {
 	mu.mutation.AddBackendUserIDs(ids...)
@@ -462,21 +397,6 @@ func (mu *MerchantUpdate) AddMerchantRenewals(m ...*MerchantRenewal) *MerchantUp
 		ids[i] = m[i].ID
 	}
 	return mu.AddMerchantRenewalIDs(ids...)
-}
-
-// AddRemarkCategoryIDs adds the "remark_categories" edge to the RemarkCategory entity by IDs.
-func (mu *MerchantUpdate) AddRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdate {
-	mu.mutation.AddRemarkCategoryIDs(ids...)
-	return mu
-}
-
-// AddRemarkCategories adds the "remark_categories" edges to the RemarkCategory entity.
-func (mu *MerchantUpdate) AddRemarkCategories(r ...*RemarkCategory) *MerchantUpdate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return mu.AddRemarkCategoryIDs(ids...)
 }
 
 // AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
@@ -619,30 +539,6 @@ func (mu *MerchantUpdate) Mutation() *MerchantMutation {
 	return mu.mutation
 }
 
-// ClearCountry clears the "country" edge to the Country entity.
-func (mu *MerchantUpdate) ClearCountry() *MerchantUpdate {
-	mu.mutation.ClearCountry()
-	return mu
-}
-
-// ClearProvince clears the "province" edge to the Province entity.
-func (mu *MerchantUpdate) ClearProvince() *MerchantUpdate {
-	mu.mutation.ClearProvince()
-	return mu
-}
-
-// ClearCity clears the "city" edge to the City entity.
-func (mu *MerchantUpdate) ClearCity() *MerchantUpdate {
-	mu.mutation.ClearCity()
-	return mu
-}
-
-// ClearDistrict clears the "district" edge to the District entity.
-func (mu *MerchantUpdate) ClearDistrict() *MerchantUpdate {
-	mu.mutation.ClearDistrict()
-	return mu
-}
-
 // ClearBackendUsers clears all "backend_users" edges to the BackendUser entity.
 func (mu *MerchantUpdate) ClearBackendUsers() *MerchantUpdate {
 	mu.mutation.ClearBackendUsers()
@@ -704,27 +600,6 @@ func (mu *MerchantUpdate) RemoveMerchantRenewals(m ...*MerchantRenewal) *Merchan
 		ids[i] = m[i].ID
 	}
 	return mu.RemoveMerchantRenewalIDs(ids...)
-}
-
-// ClearRemarkCategories clears all "remark_categories" edges to the RemarkCategory entity.
-func (mu *MerchantUpdate) ClearRemarkCategories() *MerchantUpdate {
-	mu.mutation.ClearRemarkCategories()
-	return mu
-}
-
-// RemoveRemarkCategoryIDs removes the "remark_categories" edge to RemarkCategory entities by IDs.
-func (mu *MerchantUpdate) RemoveRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdate {
-	mu.mutation.RemoveRemarkCategoryIDs(ids...)
-	return mu
-}
-
-// RemoveRemarkCategories removes "remark_categories" edges to RemarkCategory entities.
-func (mu *MerchantUpdate) RemoveRemarkCategories(r ...*RemarkCategory) *MerchantUpdate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return mu.RemoveRemarkCategoryIDs(ids...)
 }
 
 // ClearRemarks clears all "remarks" edges to the Remark entity.
@@ -1005,6 +880,16 @@ func (mu *MerchantUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Merchant.status": %w`, err)}
 		}
 	}
+	if v, ok := mu.mutation.Country(); ok {
+		if err := merchant.CountryValidator(v); err != nil {
+			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "Merchant.country": %w`, err)}
+		}
+	}
+	if v, ok := mu.mutation.Province(); ok {
+		if err := merchant.ProvinceValidator(v); err != nil {
+			return &ValidationError{Name: "province", err: fmt.Errorf(`ent: validator failed for field "Merchant.province": %w`, err)}
+		}
+	}
 	if v, ok := mu.mutation.Address(); ok {
 		if err := merchant.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Merchant.address": %w`, err)}
@@ -1088,6 +973,18 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.Status(); ok {
 		_spec.SetField(merchant.FieldStatus, field.TypeEnum, value)
 	}
+	if value, ok := mu.mutation.Country(); ok {
+		_spec.SetField(merchant.FieldCountry, field.TypeEnum, value)
+	}
+	if mu.mutation.CountryCleared() {
+		_spec.ClearField(merchant.FieldCountry, field.TypeEnum)
+	}
+	if value, ok := mu.mutation.Province(); ok {
+		_spec.SetField(merchant.FieldProvince, field.TypeEnum, value)
+	}
+	if mu.mutation.ProvinceCleared() {
+		_spec.ClearField(merchant.FieldProvince, field.TypeEnum)
+	}
 	if value, ok := mu.mutation.Address(); ok {
 		_spec.SetField(merchant.FieldAddress, field.TypeString, value)
 	}
@@ -1105,122 +1002,6 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if mu.mutation.LatCleared() {
 		_spec.ClearField(merchant.FieldLat, field.TypeString)
-	}
-	if mu.mutation.CountryCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CountryTable,
-			Columns: []string{merchant.CountryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.CountryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CountryTable,
-			Columns: []string{merchant.CountryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if mu.mutation.ProvinceCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.ProvinceTable,
-			Columns: []string{merchant.ProvinceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.ProvinceIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.ProvinceTable,
-			Columns: []string{merchant.ProvinceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if mu.mutation.CityCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CityTable,
-			Columns: []string{merchant.CityColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.CityIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CityTable,
-			Columns: []string{merchant.CityColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if mu.mutation.DistrictCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.DistrictTable,
-			Columns: []string{merchant.DistrictColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.DistrictIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.DistrictTable,
-			Columns: []string{merchant.DistrictColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if mu.mutation.BackendUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1350,51 +1131,6 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if mu.mutation.RemarkCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.RemarkCategoriesTable,
-			Columns: []string{merchant.RemarkCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.RemovedRemarkCategoriesIDs(); len(nodes) > 0 && !mu.mutation.RemarkCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.RemarkCategoriesTable,
-			Columns: []string{merchant.RemarkCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.RemarkCategoriesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.RemarkCategoriesTable,
-			Columns: []string{merchant.RemarkCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1979,15 +1715,15 @@ func (muo *MerchantUpdateOne) ClearExpireUtc() *MerchantUpdateOne {
 }
 
 // SetBusinessTypeCode sets the "business_type_code" field.
-func (muo *MerchantUpdateOne) SetBusinessTypeCode(s string) *MerchantUpdateOne {
-	muo.mutation.SetBusinessTypeCode(s)
+func (muo *MerchantUpdateOne) SetBusinessTypeCode(dt domain.BusinessType) *MerchantUpdateOne {
+	muo.mutation.SetBusinessTypeCode(dt)
 	return muo
 }
 
 // SetNillableBusinessTypeCode sets the "business_type_code" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableBusinessTypeCode(s *string) *MerchantUpdateOne {
-	if s != nil {
-		muo.SetBusinessTypeCode(*s)
+func (muo *MerchantUpdateOne) SetNillableBusinessTypeCode(dt *domain.BusinessType) *MerchantUpdateOne {
+	if dt != nil {
+		muo.SetBusinessTypeCode(*dt)
 	}
 	return muo
 }
@@ -2040,83 +1776,43 @@ func (muo *MerchantUpdateOne) SetNillableStatus(ds *domain.MerchantStatus) *Merc
 	return muo
 }
 
-// SetCountryID sets the "country_id" field.
-func (muo *MerchantUpdateOne) SetCountryID(u uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.SetCountryID(u)
+// SetCountry sets the "country" field.
+func (muo *MerchantUpdateOne) SetCountry(d domain.Country) *MerchantUpdateOne {
+	muo.mutation.SetCountry(d)
 	return muo
 }
 
-// SetNillableCountryID sets the "country_id" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableCountryID(u *uuid.UUID) *MerchantUpdateOne {
-	if u != nil {
-		muo.SetCountryID(*u)
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (muo *MerchantUpdateOne) SetNillableCountry(d *domain.Country) *MerchantUpdateOne {
+	if d != nil {
+		muo.SetCountry(*d)
 	}
 	return muo
 }
 
-// ClearCountryID clears the value of the "country_id" field.
-func (muo *MerchantUpdateOne) ClearCountryID() *MerchantUpdateOne {
-	muo.mutation.ClearCountryID()
+// ClearCountry clears the value of the "country" field.
+func (muo *MerchantUpdateOne) ClearCountry() *MerchantUpdateOne {
+	muo.mutation.ClearCountry()
 	return muo
 }
 
-// SetProvinceID sets the "province_id" field.
-func (muo *MerchantUpdateOne) SetProvinceID(u uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.SetProvinceID(u)
+// SetProvince sets the "province" field.
+func (muo *MerchantUpdateOne) SetProvince(d domain.Province) *MerchantUpdateOne {
+	muo.mutation.SetProvince(d)
 	return muo
 }
 
-// SetNillableProvinceID sets the "province_id" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableProvinceID(u *uuid.UUID) *MerchantUpdateOne {
-	if u != nil {
-		muo.SetProvinceID(*u)
+// SetNillableProvince sets the "province" field if the given value is not nil.
+func (muo *MerchantUpdateOne) SetNillableProvince(d *domain.Province) *MerchantUpdateOne {
+	if d != nil {
+		muo.SetProvince(*d)
 	}
 	return muo
 }
 
-// ClearProvinceID clears the value of the "province_id" field.
-func (muo *MerchantUpdateOne) ClearProvinceID() *MerchantUpdateOne {
-	muo.mutation.ClearProvinceID()
-	return muo
-}
-
-// SetCityID sets the "city_id" field.
-func (muo *MerchantUpdateOne) SetCityID(u uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.SetCityID(u)
-	return muo
-}
-
-// SetNillableCityID sets the "city_id" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableCityID(u *uuid.UUID) *MerchantUpdateOne {
-	if u != nil {
-		muo.SetCityID(*u)
-	}
-	return muo
-}
-
-// ClearCityID clears the value of the "city_id" field.
-func (muo *MerchantUpdateOne) ClearCityID() *MerchantUpdateOne {
-	muo.mutation.ClearCityID()
-	return muo
-}
-
-// SetDistrictID sets the "district_id" field.
-func (muo *MerchantUpdateOne) SetDistrictID(u uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.SetDistrictID(u)
-	return muo
-}
-
-// SetNillableDistrictID sets the "district_id" field if the given value is not nil.
-func (muo *MerchantUpdateOne) SetNillableDistrictID(u *uuid.UUID) *MerchantUpdateOne {
-	if u != nil {
-		muo.SetDistrictID(*u)
-	}
-	return muo
-}
-
-// ClearDistrictID clears the value of the "district_id" field.
-func (muo *MerchantUpdateOne) ClearDistrictID() *MerchantUpdateOne {
-	muo.mutation.ClearDistrictID()
+// ClearProvince clears the value of the "province" field.
+func (muo *MerchantUpdateOne) ClearProvince() *MerchantUpdateOne {
+	muo.mutation.ClearProvince()
 	return muo
 }
 
@@ -2180,26 +1876,6 @@ func (muo *MerchantUpdateOne) ClearLat() *MerchantUpdateOne {
 	return muo
 }
 
-// SetCountry sets the "country" edge to the Country entity.
-func (muo *MerchantUpdateOne) SetCountry(c *Country) *MerchantUpdateOne {
-	return muo.SetCountryID(c.ID)
-}
-
-// SetProvince sets the "province" edge to the Province entity.
-func (muo *MerchantUpdateOne) SetProvince(p *Province) *MerchantUpdateOne {
-	return muo.SetProvinceID(p.ID)
-}
-
-// SetCity sets the "city" edge to the City entity.
-func (muo *MerchantUpdateOne) SetCity(c *City) *MerchantUpdateOne {
-	return muo.SetCityID(c.ID)
-}
-
-// SetDistrict sets the "district" edge to the District entity.
-func (muo *MerchantUpdateOne) SetDistrict(d *District) *MerchantUpdateOne {
-	return muo.SetDistrictID(d.ID)
-}
-
 // AddBackendUserIDs adds the "backend_users" edge to the BackendUser entity by IDs.
 func (muo *MerchantUpdateOne) AddBackendUserIDs(ids ...uuid.UUID) *MerchantUpdateOne {
 	muo.mutation.AddBackendUserIDs(ids...)
@@ -2243,21 +1919,6 @@ func (muo *MerchantUpdateOne) AddMerchantRenewals(m ...*MerchantRenewal) *Mercha
 		ids[i] = m[i].ID
 	}
 	return muo.AddMerchantRenewalIDs(ids...)
-}
-
-// AddRemarkCategoryIDs adds the "remark_categories" edge to the RemarkCategory entity by IDs.
-func (muo *MerchantUpdateOne) AddRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.AddRemarkCategoryIDs(ids...)
-	return muo
-}
-
-// AddRemarkCategories adds the "remark_categories" edges to the RemarkCategory entity.
-func (muo *MerchantUpdateOne) AddRemarkCategories(r ...*RemarkCategory) *MerchantUpdateOne {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return muo.AddRemarkCategoryIDs(ids...)
 }
 
 // AddRemarkIDs adds the "remarks" edge to the Remark entity by IDs.
@@ -2400,30 +2061,6 @@ func (muo *MerchantUpdateOne) Mutation() *MerchantMutation {
 	return muo.mutation
 }
 
-// ClearCountry clears the "country" edge to the Country entity.
-func (muo *MerchantUpdateOne) ClearCountry() *MerchantUpdateOne {
-	muo.mutation.ClearCountry()
-	return muo
-}
-
-// ClearProvince clears the "province" edge to the Province entity.
-func (muo *MerchantUpdateOne) ClearProvince() *MerchantUpdateOne {
-	muo.mutation.ClearProvince()
-	return muo
-}
-
-// ClearCity clears the "city" edge to the City entity.
-func (muo *MerchantUpdateOne) ClearCity() *MerchantUpdateOne {
-	muo.mutation.ClearCity()
-	return muo
-}
-
-// ClearDistrict clears the "district" edge to the District entity.
-func (muo *MerchantUpdateOne) ClearDistrict() *MerchantUpdateOne {
-	muo.mutation.ClearDistrict()
-	return muo
-}
-
 // ClearBackendUsers clears all "backend_users" edges to the BackendUser entity.
 func (muo *MerchantUpdateOne) ClearBackendUsers() *MerchantUpdateOne {
 	muo.mutation.ClearBackendUsers()
@@ -2485,27 +2122,6 @@ func (muo *MerchantUpdateOne) RemoveMerchantRenewals(m ...*MerchantRenewal) *Mer
 		ids[i] = m[i].ID
 	}
 	return muo.RemoveMerchantRenewalIDs(ids...)
-}
-
-// ClearRemarkCategories clears all "remark_categories" edges to the RemarkCategory entity.
-func (muo *MerchantUpdateOne) ClearRemarkCategories() *MerchantUpdateOne {
-	muo.mutation.ClearRemarkCategories()
-	return muo
-}
-
-// RemoveRemarkCategoryIDs removes the "remark_categories" edge to RemarkCategory entities by IDs.
-func (muo *MerchantUpdateOne) RemoveRemarkCategoryIDs(ids ...uuid.UUID) *MerchantUpdateOne {
-	muo.mutation.RemoveRemarkCategoryIDs(ids...)
-	return muo
-}
-
-// RemoveRemarkCategories removes "remark_categories" edges to RemarkCategory entities.
-func (muo *MerchantUpdateOne) RemoveRemarkCategories(r ...*RemarkCategory) *MerchantUpdateOne {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return muo.RemoveRemarkCategoryIDs(ids...)
 }
 
 // ClearRemarks clears all "remarks" edges to the Remark entity.
@@ -2799,6 +2415,16 @@ func (muo *MerchantUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Merchant.status": %w`, err)}
 		}
 	}
+	if v, ok := muo.mutation.Country(); ok {
+		if err := merchant.CountryValidator(v); err != nil {
+			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "Merchant.country": %w`, err)}
+		}
+	}
+	if v, ok := muo.mutation.Province(); ok {
+		if err := merchant.ProvinceValidator(v); err != nil {
+			return &ValidationError{Name: "province", err: fmt.Errorf(`ent: validator failed for field "Merchant.province": %w`, err)}
+		}
+	}
 	if v, ok := muo.mutation.Address(); ok {
 		if err := merchant.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Merchant.address": %w`, err)}
@@ -2899,6 +2525,18 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	if value, ok := muo.mutation.Status(); ok {
 		_spec.SetField(merchant.FieldStatus, field.TypeEnum, value)
 	}
+	if value, ok := muo.mutation.Country(); ok {
+		_spec.SetField(merchant.FieldCountry, field.TypeEnum, value)
+	}
+	if muo.mutation.CountryCleared() {
+		_spec.ClearField(merchant.FieldCountry, field.TypeEnum)
+	}
+	if value, ok := muo.mutation.Province(); ok {
+		_spec.SetField(merchant.FieldProvince, field.TypeEnum, value)
+	}
+	if muo.mutation.ProvinceCleared() {
+		_spec.ClearField(merchant.FieldProvince, field.TypeEnum)
+	}
 	if value, ok := muo.mutation.Address(); ok {
 		_spec.SetField(merchant.FieldAddress, field.TypeString, value)
 	}
@@ -2916,122 +2554,6 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	}
 	if muo.mutation.LatCleared() {
 		_spec.ClearField(merchant.FieldLat, field.TypeString)
-	}
-	if muo.mutation.CountryCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CountryTable,
-			Columns: []string{merchant.CountryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.CountryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CountryTable,
-			Columns: []string{merchant.CountryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if muo.mutation.ProvinceCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.ProvinceTable,
-			Columns: []string{merchant.ProvinceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.ProvinceIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.ProvinceTable,
-			Columns: []string{merchant.ProvinceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if muo.mutation.CityCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CityTable,
-			Columns: []string{merchant.CityColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.CityIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.CityTable,
-			Columns: []string{merchant.CityColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if muo.mutation.DistrictCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.DistrictTable,
-			Columns: []string{merchant.DistrictColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.DistrictIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   merchant.DistrictTable,
-			Columns: []string{merchant.DistrictColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if muo.mutation.BackendUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -3161,51 +2683,6 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(merchantrenewal.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if muo.mutation.RemarkCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.RemarkCategoriesTable,
-			Columns: []string{merchant.RemarkCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.RemovedRemarkCategoriesIDs(); len(nodes) > 0 && !muo.mutation.RemarkCategoriesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.RemarkCategoriesTable,
-			Columns: []string{merchant.RemarkCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.RemarkCategoriesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.RemarkCategoriesTable,
-			Columns: []string{merchant.RemarkCategoriesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(remarkcategory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

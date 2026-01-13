@@ -16,18 +16,13 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
@@ -42,14 +37,9 @@ type MerchantQuery struct {
 	order                       []merchant.OrderOption
 	inters                      []Interceptor
 	predicates                  []predicate.Merchant
-	withCountry                 *CountryQuery
-	withProvince                *ProvinceQuery
-	withCity                    *CityQuery
-	withDistrict                *DistrictQuery
 	withBackendUsers            *BackendUserQuery
 	withStores                  *StoreQuery
 	withMerchantRenewals        *MerchantRenewalQuery
-	withRemarkCategories        *RemarkCategoryQuery
 	withRemarks                 *RemarkQuery
 	withStalls                  *StallQuery
 	withAdditionalFees          *AdditionalFeeQuery
@@ -94,94 +84,6 @@ func (mq *MerchantQuery) Unique(unique bool) *MerchantQuery {
 func (mq *MerchantQuery) Order(o ...merchant.OrderOption) *MerchantQuery {
 	mq.order = append(mq.order, o...)
 	return mq
-}
-
-// QueryCountry chains the current query on the "country" edge.
-func (mq *MerchantQuery) QueryCountry() *CountryQuery {
-	query := (&CountryClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(country.Table, country.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.CountryTable, merchant.CountryColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryProvince chains the current query on the "province" edge.
-func (mq *MerchantQuery) QueryProvince() *ProvinceQuery {
-	query := (&ProvinceClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(province.Table, province.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.ProvinceTable, merchant.ProvinceColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryCity chains the current query on the "city" edge.
-func (mq *MerchantQuery) QueryCity() *CityQuery {
-	query := (&CityClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(city.Table, city.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.CityTable, merchant.CityColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryDistrict chains the current query on the "district" edge.
-func (mq *MerchantQuery) QueryDistrict() *DistrictQuery {
-	query := (&DistrictClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(district.Table, district.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, merchant.DistrictTable, merchant.DistrictColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryBackendUsers chains the current query on the "backend_users" edge.
@@ -243,28 +145,6 @@ func (mq *MerchantQuery) QueryMerchantRenewals() *MerchantRenewalQuery {
 			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
 			sqlgraph.To(merchantrenewal.Table, merchantrenewal.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, merchant.MerchantRenewalsTable, merchant.MerchantRenewalsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryRemarkCategories chains the current query on the "remark_categories" edge.
-func (mq *MerchantQuery) QueryRemarkCategories() *RemarkCategoryQuery {
-	query := (&RemarkCategoryClient{config: mq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := mq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
-			sqlgraph.To(remarkcategory.Table, remarkcategory.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.RemarkCategoriesTable, merchant.RemarkCategoriesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -662,14 +542,9 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		order:                       append([]merchant.OrderOption{}, mq.order...),
 		inters:                      append([]Interceptor{}, mq.inters...),
 		predicates:                  append([]predicate.Merchant{}, mq.predicates...),
-		withCountry:                 mq.withCountry.Clone(),
-		withProvince:                mq.withProvince.Clone(),
-		withCity:                    mq.withCity.Clone(),
-		withDistrict:                mq.withDistrict.Clone(),
 		withBackendUsers:            mq.withBackendUsers.Clone(),
 		withStores:                  mq.withStores.Clone(),
 		withMerchantRenewals:        mq.withMerchantRenewals.Clone(),
-		withRemarkCategories:        mq.withRemarkCategories.Clone(),
 		withRemarks:                 mq.withRemarks.Clone(),
 		withStalls:                  mq.withStalls.Clone(),
 		withAdditionalFees:          mq.withAdditionalFees.Clone(),
@@ -684,50 +559,6 @@ func (mq *MerchantQuery) Clone() *MerchantQuery {
 		path:      mq.path,
 		modifiers: append([]func(*sql.Selector){}, mq.modifiers...),
 	}
-}
-
-// WithCountry tells the query-builder to eager-load the nodes that are connected to
-// the "country" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithCountry(opts ...func(*CountryQuery)) *MerchantQuery {
-	query := (&CountryClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withCountry = query
-	return mq
-}
-
-// WithProvince tells the query-builder to eager-load the nodes that are connected to
-// the "province" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithProvince(opts ...func(*ProvinceQuery)) *MerchantQuery {
-	query := (&ProvinceClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withProvince = query
-	return mq
-}
-
-// WithCity tells the query-builder to eager-load the nodes that are connected to
-// the "city" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithCity(opts ...func(*CityQuery)) *MerchantQuery {
-	query := (&CityClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withCity = query
-	return mq
-}
-
-// WithDistrict tells the query-builder to eager-load the nodes that are connected to
-// the "district" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithDistrict(opts ...func(*DistrictQuery)) *MerchantQuery {
-	query := (&DistrictClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withDistrict = query
-	return mq
 }
 
 // WithBackendUsers tells the query-builder to eager-load the nodes that are connected to
@@ -760,17 +591,6 @@ func (mq *MerchantQuery) WithMerchantRenewals(opts ...func(*MerchantRenewalQuery
 		opt(query)
 	}
 	mq.withMerchantRenewals = query
-	return mq
-}
-
-// WithRemarkCategories tells the query-builder to eager-load the nodes that are connected to
-// the "remark_categories" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MerchantQuery) WithRemarkCategories(opts ...func(*RemarkCategoryQuery)) *MerchantQuery {
-	query := (&RemarkCategoryClient{config: mq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	mq.withRemarkCategories = query
 	return mq
 }
 
@@ -951,15 +771,10 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	var (
 		nodes       = []*Merchant{}
 		_spec       = mq.querySpec()
-		loadedTypes = [17]bool{
-			mq.withCountry != nil,
-			mq.withProvince != nil,
-			mq.withCity != nil,
-			mq.withDistrict != nil,
+		loadedTypes = [12]bool{
 			mq.withBackendUsers != nil,
 			mq.withStores != nil,
 			mq.withMerchantRenewals != nil,
-			mq.withRemarkCategories != nil,
 			mq.withRemarks != nil,
 			mq.withStalls != nil,
 			mq.withAdditionalFees != nil,
@@ -992,30 +807,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := mq.withCountry; query != nil {
-		if err := mq.loadCountry(ctx, query, nodes, nil,
-			func(n *Merchant, e *Country) { n.Edges.Country = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := mq.withProvince; query != nil {
-		if err := mq.loadProvince(ctx, query, nodes, nil,
-			func(n *Merchant, e *Province) { n.Edges.Province = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := mq.withCity; query != nil {
-		if err := mq.loadCity(ctx, query, nodes, nil,
-			func(n *Merchant, e *City) { n.Edges.City = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := mq.withDistrict; query != nil {
-		if err := mq.loadDistrict(ctx, query, nodes, nil,
-			func(n *Merchant, e *District) { n.Edges.District = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := mq.withBackendUsers; query != nil {
 		if err := mq.loadBackendUsers(ctx, query, nodes,
 			func(n *Merchant) { n.Edges.BackendUsers = []*BackendUser{} },
@@ -1034,13 +825,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 		if err := mq.loadMerchantRenewals(ctx, query, nodes,
 			func(n *Merchant) { n.Edges.MerchantRenewals = []*MerchantRenewal{} },
 			func(n *Merchant, e *MerchantRenewal) { n.Edges.MerchantRenewals = append(n.Edges.MerchantRenewals, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := mq.withRemarkCategories; query != nil {
-		if err := mq.loadRemarkCategories(ctx, query, nodes,
-			func(n *Merchant) { n.Edges.RemarkCategories = []*RemarkCategory{} },
-			func(n *Merchant, e *RemarkCategory) { n.Edges.RemarkCategories = append(n.Edges.RemarkCategories, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1112,122 +896,6 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 	return nodes, nil
 }
 
-func (mq *MerchantQuery) loadCountry(ctx context.Context, query *CountryQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Country)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Merchant)
-	for i := range nodes {
-		fk := nodes[i].CountryID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(country.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "country_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (mq *MerchantQuery) loadProvince(ctx context.Context, query *ProvinceQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *Province)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Merchant)
-	for i := range nodes {
-		fk := nodes[i].ProvinceID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(province.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "province_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (mq *MerchantQuery) loadCity(ctx context.Context, query *CityQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *City)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Merchant)
-	for i := range nodes {
-		fk := nodes[i].CityID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(city.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "city_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (mq *MerchantQuery) loadDistrict(ctx context.Context, query *DistrictQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *District)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Merchant)
-	for i := range nodes {
-		fk := nodes[i].DistrictID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(district.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "district_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (mq *MerchantQuery) loadBackendUsers(ctx context.Context, query *BackendUserQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *BackendUser)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*Merchant)
@@ -1303,36 +971,6 @@ func (mq *MerchantQuery) loadMerchantRenewals(ctx context.Context, query *Mercha
 	}
 	query.Where(predicate.MerchantRenewal(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(merchant.MerchantRenewalsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.MerchantID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "merchant_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (mq *MerchantQuery) loadRemarkCategories(ctx context.Context, query *RemarkCategoryQuery, nodes []*Merchant, init func(*Merchant), assign func(*Merchant, *RemarkCategory)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Merchant)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(remarkcategory.FieldMerchantID)
-	}
-	query.Where(predicate.RemarkCategory(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(merchant.RemarkCategoriesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -1646,18 +1284,6 @@ func (mq *MerchantQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != merchant.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if mq.withCountry != nil {
-			_spec.Node.AddColumnOnce(merchant.FieldCountryID)
-		}
-		if mq.withProvince != nil {
-			_spec.Node.AddColumnOnce(merchant.FieldProvinceID)
-		}
-		if mq.withCity != nil {
-			_spec.Node.AddColumnOnce(merchant.FieldCityID)
-		}
-		if mq.withDistrict != nil {
-			_spec.Node.AddColumnOnce(merchant.FieldDistrictID)
 		}
 	}
 	if ps := mq.predicates; len(ps) > 0 {

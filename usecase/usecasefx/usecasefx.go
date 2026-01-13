@@ -21,7 +21,6 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionrule"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/refundorder"
-	"gitlab.jiguang.dev/pos-dine/dine/usecase/region"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/role"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/routermenu"
@@ -85,10 +84,6 @@ var Module = fx.Module(
 			fx.As(new(domain.RemarkInteractor)),
 		),
 		fx.Annotate(
-			remark.NewRemarkCategoryInteractor,
-			fx.As(new(domain.RemarkCategoryInteractor)),
-		),
-		fx.Annotate(
 			stall.NewStallInteractor,
 			fx.As(new(domain.StallInteractor)),
 		),
@@ -105,24 +100,12 @@ var Module = fx.Module(
 			fx.As(new(domain.DeviceInteractor)),
 		),
 		fx.Annotate(
-			region.NewCountryInteractor,
-			fx.As(new(domain.CountryInteractor)),
-		),
-		fx.Annotate(
-			region.NewProvinceInteractor,
-			fx.As(new(domain.ProvinceInteractor)),
-		),
-		fx.Annotate(
 			menu.NewMenuInteractor,
 			fx.As(new(domain.MenuInteractor)),
 		),
 		fx.Annotate(
 			userauth.NewStoreUserInteractor,
 			fx.As(new(domain.StoreUserInteractor)),
-		),
-		fx.Annotate(
-			merchant.NewMerchantBusinessTypeInteractor,
-			fx.As(new(domain.MerchantBusinessTypeInteractor)),
 		),
 		fx.Annotate(
 			department.NewDepartmentInteractor,

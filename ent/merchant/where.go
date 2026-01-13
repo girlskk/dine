@@ -103,8 +103,9 @@ func ExpireUtc(v time.Time) predicate.Merchant {
 }
 
 // BusinessTypeCode applies equality check predicate on the "business_type_code" field. It's identical to BusinessTypeCodeEQ.
-func BusinessTypeCode(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldBusinessTypeCode, v))
+func BusinessTypeCode(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldEQ(FieldBusinessTypeCode, vc))
 }
 
 // MerchantLogo applies equality check predicate on the "merchant_logo" field. It's identical to MerchantLogoEQ.
@@ -115,26 +116,6 @@ func MerchantLogo(v string) predicate.Merchant {
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldDescription, v))
-}
-
-// CountryID applies equality check predicate on the "country_id" field. It's identical to CountryIDEQ.
-func CountryID(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldCountryID, v))
-}
-
-// ProvinceID applies equality check predicate on the "province_id" field. It's identical to ProvinceIDEQ.
-func ProvinceID(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldProvinceID, v))
-}
-
-// CityID applies equality check predicate on the "city_id" field. It's identical to CityIDEQ.
-func CityID(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldCityID, v))
-}
-
-// DistrictID applies equality check predicate on the "district_id" field. It's identical to DistrictIDEQ.
-func DistrictID(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldDistrictID, v))
 }
 
 // Address applies equality check predicate on the "address" field. It's identical to AddressEQ.
@@ -713,68 +694,87 @@ func ExpireUtcNotNil() predicate.Merchant {
 }
 
 // BusinessTypeCodeEQ applies the EQ predicate on the "business_type_code" field.
-func BusinessTypeCodeEQ(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldBusinessTypeCode, v))
+func BusinessTypeCodeEQ(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldEQ(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeNEQ applies the NEQ predicate on the "business_type_code" field.
-func BusinessTypeCodeNEQ(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldBusinessTypeCode, v))
+func BusinessTypeCodeNEQ(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldNEQ(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeIn applies the In predicate on the "business_type_code" field.
-func BusinessTypeCodeIn(vs ...string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldBusinessTypeCode, vs...))
+func BusinessTypeCodeIn(vs ...domain.BusinessType) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.Merchant(sql.FieldIn(FieldBusinessTypeCode, v...))
 }
 
 // BusinessTypeCodeNotIn applies the NotIn predicate on the "business_type_code" field.
-func BusinessTypeCodeNotIn(vs ...string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldBusinessTypeCode, vs...))
+func BusinessTypeCodeNotIn(vs ...domain.BusinessType) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.Merchant(sql.FieldNotIn(FieldBusinessTypeCode, v...))
 }
 
 // BusinessTypeCodeGT applies the GT predicate on the "business_type_code" field.
-func BusinessTypeCodeGT(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldGT(FieldBusinessTypeCode, v))
+func BusinessTypeCodeGT(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldGT(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeGTE applies the GTE predicate on the "business_type_code" field.
-func BusinessTypeCodeGTE(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldGTE(FieldBusinessTypeCode, v))
+func BusinessTypeCodeGTE(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldGTE(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeLT applies the LT predicate on the "business_type_code" field.
-func BusinessTypeCodeLT(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldLT(FieldBusinessTypeCode, v))
+func BusinessTypeCodeLT(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldLT(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeLTE applies the LTE predicate on the "business_type_code" field.
-func BusinessTypeCodeLTE(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldLTE(FieldBusinessTypeCode, v))
+func BusinessTypeCodeLTE(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldLTE(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeContains applies the Contains predicate on the "business_type_code" field.
-func BusinessTypeCodeContains(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldContains(FieldBusinessTypeCode, v))
+func BusinessTypeCodeContains(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldContains(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeHasPrefix applies the HasPrefix predicate on the "business_type_code" field.
-func BusinessTypeCodeHasPrefix(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldHasPrefix(FieldBusinessTypeCode, v))
+func BusinessTypeCodeHasPrefix(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldHasPrefix(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeHasSuffix applies the HasSuffix predicate on the "business_type_code" field.
-func BusinessTypeCodeHasSuffix(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldHasSuffix(FieldBusinessTypeCode, v))
+func BusinessTypeCodeHasSuffix(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldHasSuffix(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeEqualFold applies the EqualFold predicate on the "business_type_code" field.
-func BusinessTypeCodeEqualFold(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEqualFold(FieldBusinessTypeCode, v))
+func BusinessTypeCodeEqualFold(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldEqualFold(FieldBusinessTypeCode, vc))
 }
 
 // BusinessTypeCodeContainsFold applies the ContainsFold predicate on the "business_type_code" field.
-func BusinessTypeCodeContainsFold(v string) predicate.Merchant {
-	return predicate.Merchant(sql.FieldContainsFold(FieldBusinessTypeCode, v))
+func BusinessTypeCodeContainsFold(v domain.BusinessType) predicate.Merchant {
+	vc := string(v)
+	return predicate.Merchant(sql.FieldContainsFold(FieldBusinessTypeCode, vc))
 }
 
 // MerchantLogoEQ applies the EQ predicate on the "merchant_logo" field.
@@ -947,124 +947,84 @@ func StatusNotIn(vs ...domain.MerchantStatus) predicate.Merchant {
 	return predicate.Merchant(sql.FieldNotIn(FieldStatus, v...))
 }
 
-// CountryIDEQ applies the EQ predicate on the "country_id" field.
-func CountryIDEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldCountryID, v))
+// CountryEQ applies the EQ predicate on the "country" field.
+func CountryEQ(v domain.Country) predicate.Merchant {
+	vc := v
+	return predicate.Merchant(sql.FieldEQ(FieldCountry, vc))
 }
 
-// CountryIDNEQ applies the NEQ predicate on the "country_id" field.
-func CountryIDNEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldCountryID, v))
+// CountryNEQ applies the NEQ predicate on the "country" field.
+func CountryNEQ(v domain.Country) predicate.Merchant {
+	vc := v
+	return predicate.Merchant(sql.FieldNEQ(FieldCountry, vc))
 }
 
-// CountryIDIn applies the In predicate on the "country_id" field.
-func CountryIDIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldCountryID, vs...))
+// CountryIn applies the In predicate on the "country" field.
+func CountryIn(vs ...domain.Country) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Merchant(sql.FieldIn(FieldCountry, v...))
 }
 
-// CountryIDNotIn applies the NotIn predicate on the "country_id" field.
-func CountryIDNotIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldCountryID, vs...))
+// CountryNotIn applies the NotIn predicate on the "country" field.
+func CountryNotIn(vs ...domain.Country) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Merchant(sql.FieldNotIn(FieldCountry, v...))
 }
 
-// CountryIDIsNil applies the IsNil predicate on the "country_id" field.
-func CountryIDIsNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldIsNull(FieldCountryID))
+// CountryIsNil applies the IsNil predicate on the "country" field.
+func CountryIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldCountry))
 }
 
-// CountryIDNotNil applies the NotNil predicate on the "country_id" field.
-func CountryIDNotNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotNull(FieldCountryID))
+// CountryNotNil applies the NotNil predicate on the "country" field.
+func CountryNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldCountry))
 }
 
-// ProvinceIDEQ applies the EQ predicate on the "province_id" field.
-func ProvinceIDEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldProvinceID, v))
+// ProvinceEQ applies the EQ predicate on the "province" field.
+func ProvinceEQ(v domain.Province) predicate.Merchant {
+	vc := v
+	return predicate.Merchant(sql.FieldEQ(FieldProvince, vc))
 }
 
-// ProvinceIDNEQ applies the NEQ predicate on the "province_id" field.
-func ProvinceIDNEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldProvinceID, v))
+// ProvinceNEQ applies the NEQ predicate on the "province" field.
+func ProvinceNEQ(v domain.Province) predicate.Merchant {
+	vc := v
+	return predicate.Merchant(sql.FieldNEQ(FieldProvince, vc))
 }
 
-// ProvinceIDIn applies the In predicate on the "province_id" field.
-func ProvinceIDIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldProvinceID, vs...))
+// ProvinceIn applies the In predicate on the "province" field.
+func ProvinceIn(vs ...domain.Province) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Merchant(sql.FieldIn(FieldProvince, v...))
 }
 
-// ProvinceIDNotIn applies the NotIn predicate on the "province_id" field.
-func ProvinceIDNotIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldProvinceID, vs...))
+// ProvinceNotIn applies the NotIn predicate on the "province" field.
+func ProvinceNotIn(vs ...domain.Province) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Merchant(sql.FieldNotIn(FieldProvince, v...))
 }
 
-// ProvinceIDIsNil applies the IsNil predicate on the "province_id" field.
-func ProvinceIDIsNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldIsNull(FieldProvinceID))
+// ProvinceIsNil applies the IsNil predicate on the "province" field.
+func ProvinceIsNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldIsNull(FieldProvince))
 }
 
-// ProvinceIDNotNil applies the NotNil predicate on the "province_id" field.
-func ProvinceIDNotNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotNull(FieldProvinceID))
-}
-
-// CityIDEQ applies the EQ predicate on the "city_id" field.
-func CityIDEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldCityID, v))
-}
-
-// CityIDNEQ applies the NEQ predicate on the "city_id" field.
-func CityIDNEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldCityID, v))
-}
-
-// CityIDIn applies the In predicate on the "city_id" field.
-func CityIDIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldCityID, vs...))
-}
-
-// CityIDNotIn applies the NotIn predicate on the "city_id" field.
-func CityIDNotIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldCityID, vs...))
-}
-
-// CityIDIsNil applies the IsNil predicate on the "city_id" field.
-func CityIDIsNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldIsNull(FieldCityID))
-}
-
-// CityIDNotNil applies the NotNil predicate on the "city_id" field.
-func CityIDNotNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotNull(FieldCityID))
-}
-
-// DistrictIDEQ applies the EQ predicate on the "district_id" field.
-func DistrictIDEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldEQ(FieldDistrictID, v))
-}
-
-// DistrictIDNEQ applies the NEQ predicate on the "district_id" field.
-func DistrictIDNEQ(v uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNEQ(FieldDistrictID, v))
-}
-
-// DistrictIDIn applies the In predicate on the "district_id" field.
-func DistrictIDIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldIn(FieldDistrictID, vs...))
-}
-
-// DistrictIDNotIn applies the NotIn predicate on the "district_id" field.
-func DistrictIDNotIn(vs ...uuid.UUID) predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotIn(FieldDistrictID, vs...))
-}
-
-// DistrictIDIsNil applies the IsNil predicate on the "district_id" field.
-func DistrictIDIsNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldIsNull(FieldDistrictID))
-}
-
-// DistrictIDNotNil applies the NotNil predicate on the "district_id" field.
-func DistrictIDNotNil() predicate.Merchant {
-	return predicate.Merchant(sql.FieldNotNull(FieldDistrictID))
+// ProvinceNotNil applies the NotNil predicate on the "province" field.
+func ProvinceNotNil() predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotNull(FieldProvince))
 }
 
 // AddressEQ applies the EQ predicate on the "address" field.
@@ -1357,98 +1317,6 @@ func SuperAccountContainsFold(v string) predicate.Merchant {
 	return predicate.Merchant(sql.FieldContainsFold(FieldSuperAccount, v))
 }
 
-// HasCountry applies the HasEdge predicate on the "country" edge.
-func HasCountry() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, CountryTable, CountryColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasCountryWith applies the HasEdge predicate on the "country" edge with a given conditions (other predicates).
-func HasCountryWith(preds ...predicate.Country) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newCountryStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasProvince applies the HasEdge predicate on the "province" edge.
-func HasProvince() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ProvinceTable, ProvinceColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasProvinceWith applies the HasEdge predicate on the "province" edge with a given conditions (other predicates).
-func HasProvinceWith(preds ...predicate.Province) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newProvinceStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasCity applies the HasEdge predicate on the "city" edge.
-func HasCity() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, CityTable, CityColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasCityWith applies the HasEdge predicate on the "city" edge with a given conditions (other predicates).
-func HasCityWith(preds ...predicate.City) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newCityStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasDistrict applies the HasEdge predicate on the "district" edge.
-func HasDistrict() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasDistrictWith applies the HasEdge predicate on the "district" edge with a given conditions (other predicates).
-func HasDistrictWith(preds ...predicate.District) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newDistrictStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasBackendUsers applies the HasEdge predicate on the "backend_users" edge.
 func HasBackendUsers() predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
@@ -1510,29 +1378,6 @@ func HasMerchantRenewals() predicate.Merchant {
 func HasMerchantRenewalsWith(preds ...predicate.MerchantRenewal) predicate.Merchant {
 	return predicate.Merchant(func(s *sql.Selector) {
 		step := newMerchantRenewalsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasRemarkCategories applies the HasEdge predicate on the "remark_categories" edge.
-func HasRemarkCategories() predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, RemarkCategoriesTable, RemarkCategoriesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasRemarkCategoriesWith applies the HasEdge predicate on the "remark_categories" edge with a given conditions (other predicates).
-func HasRemarkCategoriesWith(preds ...predicate.RemarkCategory) predicate.Merchant {
-	return predicate.Merchant(func(s *sql.Selector) {
-		step := newRemarkCategoriesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

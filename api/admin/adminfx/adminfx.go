@@ -46,8 +46,6 @@ var Module = fx.Module(
 		asHandler(handler.NewUserHandler),
 		asHandler(handler.NewMerchantHandler),
 		asHandler(handler.NewStoreHandler),
-		asHandler(handler.NewRegionHandler),
-		asHandler(handler.NewMerchantBusinessTypeHandler),
 		asHandler(handler.NewDepartmentHandler),
 		asHandler(handler.NewRoleHandler),
 		asHandler(handler.NewRouterMenuHandler),

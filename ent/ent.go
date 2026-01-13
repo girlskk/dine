@@ -17,11 +17,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
@@ -42,11 +39,9 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorder"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/remarkcategory"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/rolepermission"
@@ -124,11 +119,8 @@ func checkColumn(table, column string) error {
 			backenduser.Table:            backenduser.ValidColumn,
 			businessconfig.Table:         businessconfig.ValidColumn,
 			category.Table:               category.ValidColumn,
-			city.Table:                   city.ValidColumn,
-			country.Table:                country.ValidColumn,
 			department.Table:             department.ValidColumn,
 			device.Table:                 device.ValidColumn,
-			district.Table:               district.ValidColumn,
 			menu.Table:                   menu.ValidColumn,
 			menuitem.Table:               menuitem.ValidColumn,
 			merchant.Table:               merchant.ValidColumn,
@@ -149,11 +141,9 @@ func checkColumn(table, column string) error {
 			productunit.Table:            productunit.ValidColumn,
 			profitdistributionbill.Table: profitdistributionbill.ValidColumn,
 			profitdistributionrule.Table: profitdistributionrule.ValidColumn,
-			province.Table:               province.ValidColumn,
 			refundorder.Table:            refundorder.ValidColumn,
 			refundorderproduct.Table:     refundorderproduct.ValidColumn,
 			remark.Table:                 remark.ValidColumn,
-			remarkcategory.Table:         remarkcategory.ValidColumn,
 			role.Table:                   role.ValidColumn,
 			rolemenu.Table:               rolemenu.ValidColumn,
 			rolepermission.Table:         rolepermission.ValidColumn,

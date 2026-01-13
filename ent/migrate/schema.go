@@ -287,71 +287,6 @@ var (
 			},
 		},
 	}
-	// CitiesColumns holds the columns for the "cities" table.
-	CitiesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "sort", Type: field.TypeInt, Default: 0},
-		{Name: "country_id", Type: field.TypeUUID},
-		{Name: "province_id", Type: field.TypeUUID},
-	}
-	// CitiesTable holds the schema information for the "cities" table.
-	CitiesTable = &schema.Table{
-		Name:       "cities",
-		Columns:    CitiesColumns,
-		PrimaryKey: []*schema.Column{CitiesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "cities_countries_cities",
-				Columns:    []*schema.Column{CitiesColumns[6]},
-				RefColumns: []*schema.Column{CountriesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "cities_provinces_cities",
-				Columns:    []*schema.Column{CitiesColumns[7]},
-				RefColumns: []*schema.Column{ProvincesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "city_deleted_at",
-				Unique:  false,
-				Columns: []*schema.Column{CitiesColumns[3]},
-			},
-			{
-				Name:    "city_province_id_country_id",
-				Unique:  false,
-				Columns: []*schema.Column{CitiesColumns[7], CitiesColumns[6]},
-			},
-		},
-	}
-	// CountriesColumns holds the columns for the "countries" table.
-	CountriesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "sort", Type: field.TypeInt, Default: 0},
-	}
-	// CountriesTable holds the schema information for the "countries" table.
-	CountriesTable = &schema.Table{
-		Name:       "countries",
-		Columns:    CountriesColumns,
-		PrimaryKey: []*schema.Column{CountriesColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "country_deleted_at",
-				Unique:  false,
-				Columns: []*schema.Column{CountriesColumns[3]},
-			},
-		},
-	}
 	// DepartmentsColumns holds the columns for the "departments" table.
 	DepartmentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -487,56 +422,6 @@ var (
 			},
 		},
 	}
-	// DistrictsColumns holds the columns for the "districts" table.
-	DistrictsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "sort", Type: field.TypeInt, Default: 0},
-		{Name: "city_id", Type: field.TypeUUID},
-		{Name: "country_id", Type: field.TypeUUID},
-		{Name: "province_id", Type: field.TypeUUID},
-	}
-	// DistrictsTable holds the schema information for the "districts" table.
-	DistrictsTable = &schema.Table{
-		Name:       "districts",
-		Columns:    DistrictsColumns,
-		PrimaryKey: []*schema.Column{DistrictsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "districts_cities_districts",
-				Columns:    []*schema.Column{DistrictsColumns[6]},
-				RefColumns: []*schema.Column{CitiesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "districts_countries_districts",
-				Columns:    []*schema.Column{DistrictsColumns[7]},
-				RefColumns: []*schema.Column{CountriesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "districts_provinces_districts",
-				Columns:    []*schema.Column{DistrictsColumns[8]},
-				RefColumns: []*schema.Column{ProvincesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "district_deleted_at",
-				Unique:  false,
-				Columns: []*schema.Column{DistrictsColumns[3]},
-			},
-			{
-				Name:    "district_city_id_province_id_country_id",
-				Unique:  false,
-				Columns: []*schema.Column{DistrictsColumns[6], DistrictsColumns[8], DistrictsColumns[7]},
-			},
-		},
-	}
 	// MenusColumns holds the columns for the "menus" table.
 	MenusColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -642,46 +527,18 @@ var (
 		{Name: "merchant_logo", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "expired", "disabled"}},
+		{Name: "country", Type: field.TypeEnum, Nullable: true, Enums: []string{"MY", "SG"}},
+		{Name: "province", Type: field.TypeEnum, Nullable: true, Enums: []string{"MY-01", "MY-02", "MY-03", "MY-04", "MY-05", "MY-06", "MY-07", "MY-08", "MY-09", "MY-10", "MY-11", "MY-12", "MY-13", "MY-14", "MY-15", "MY-16", "SG-01", "SG-02", "SG-03", "SG-04", "SG-05"}},
 		{Name: "address", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "lat", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "super_account", Type: field.TypeString},
-		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "province_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// MerchantsTable holds the schema information for the "merchants" table.
 	MerchantsTable = &schema.Table{
 		Name:       "merchants",
 		Columns:    MerchantsColumns,
 		PrimaryKey: []*schema.Column{MerchantsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "merchants_cities_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[19]},
-				RefColumns: []*schema.Column{CitiesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "merchants_countries_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[20]},
-				RefColumns: []*schema.Column{CountriesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "merchants_districts_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[21]},
-				RefColumns: []*schema.Column{DistrictsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "merchants_provinces_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[22]},
-				RefColumns: []*schema.Column{ProvincesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "merchant_deleted_at",
@@ -1545,37 +1402,6 @@ var (
 			},
 		},
 	}
-	// ProvincesColumns holds the columns for the "provinces" table.
-	ProvincesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "sort", Type: field.TypeInt, Default: 0},
-		{Name: "country_id", Type: field.TypeUUID},
-	}
-	// ProvincesTable holds the schema information for the "provinces" table.
-	ProvincesTable = &schema.Table{
-		Name:       "provinces",
-		Columns:    ProvincesColumns,
-		PrimaryKey: []*schema.Column{ProvincesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "provinces_countries_provinces",
-				Columns:    []*schema.Column{ProvincesColumns[6]},
-				RefColumns: []*schema.Column{CountriesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "province_deleted_at",
-				Unique:  false,
-				Columns: []*schema.Column{ProvincesColumns[3]},
-			},
-		},
-	}
 	// RefundOrdersColumns holds the columns for the "refund_orders" table.
 	RefundOrdersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -1778,44 +1604,6 @@ var (
 				Name:    "remark_store_id",
 				Unique:  false,
 				Columns: []*schema.Column{RemarksColumns[10]},
-			},
-		},
-	}
-	// RemarkCategoriesColumns holds the columns for the "remark_categories" table.
-	RemarkCategoriesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
-		{Name: "name", Type: field.TypeString, Size: 50},
-		{Name: "remark_scene", Type: field.TypeEnum, Enums: []string{"whole_order", "item", "cancel_reason", "discount", "gift", "rebill", "refund_reject"}},
-		{Name: "description", Type: field.TypeString, Size: 255, Default: ""},
-		{Name: "sort_order", Type: field.TypeInt, Default: 1000},
-		{Name: "merchant_id", Type: field.TypeUUID, Nullable: true},
-	}
-	// RemarkCategoriesTable holds the schema information for the "remark_categories" table.
-	RemarkCategoriesTable = &schema.Table{
-		Name:       "remark_categories",
-		Columns:    RemarkCategoriesColumns,
-		PrimaryKey: []*schema.Column{RemarkCategoriesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "remark_categories_merchants_remark_categories",
-				Columns:    []*schema.Column{RemarkCategoriesColumns[8]},
-				RefColumns: []*schema.Column{MerchantsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "remarkcategory_deleted_at",
-				Unique:  false,
-				Columns: []*schema.Column{RemarkCategoriesColumns[3]},
-			},
-			{
-				Name:    "remarkcategory_merchant_id",
-				Unique:  false,
-				Columns: []*schema.Column{RemarkCategoriesColumns[8]},
 			},
 		},
 	}
@@ -2162,15 +1950,13 @@ var (
 		{Name: "business_hours", Type: field.TypeJSON},
 		{Name: "dining_periods", Type: field.TypeJSON},
 		{Name: "shift_times", Type: field.TypeJSON},
+		{Name: "country", Type: field.TypeEnum, Nullable: true, Enums: []string{"MY", "SG"}},
+		{Name: "province", Type: field.TypeEnum, Nullable: true, Enums: []string{"MY-01", "MY-02", "MY-03", "MY-04", "MY-05", "MY-06", "MY-07", "MY-08", "MY-09", "MY-10", "MY-11", "MY-12", "MY-13", "MY-14", "MY-15", "MY-16", "SG-01", "SG-02", "SG-03", "SG-04", "SG-05"}},
 		{Name: "address", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
 		{Name: "lng", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "lat", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "super_account", Type: field.TypeString},
-		{Name: "city_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "country_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "district_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "merchant_id", Type: field.TypeUUID},
-		{Name: "province_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// StoresTable holds the schema information for the "stores" table.
 	StoresTable = &schema.Table{
@@ -2179,34 +1965,10 @@ var (
 		PrimaryKey: []*schema.Column{StoresColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "stores_cities_stores",
-				Columns:    []*schema.Column{StoresColumns[28]},
-				RefColumns: []*schema.Column{CitiesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "stores_countries_stores",
-				Columns:    []*schema.Column{StoresColumns[29]},
-				RefColumns: []*schema.Column{CountriesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "stores_districts_stores",
-				Columns:    []*schema.Column{StoresColumns[30]},
-				RefColumns: []*schema.Column{DistrictsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
 				Symbol:     "stores_merchants_stores",
-				Columns:    []*schema.Column{StoresColumns[31]},
+				Columns:    []*schema.Column{StoresColumns[30]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "stores_provinces_stores",
-				Columns:    []*schema.Column{StoresColumns[32]},
-				RefColumns: []*schema.Column{ProvincesColumns[0]},
-				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -2218,7 +1980,7 @@ var (
 			{
 				Name:    "store_merchant_id",
 				Unique:  false,
-				Columns: []*schema.Column{StoresColumns[31]},
+				Columns: []*schema.Column{StoresColumns[30]},
 			},
 		},
 	}
@@ -2520,11 +2282,8 @@ var (
 		BackendUsersTable,
 		BusinessConfigsTable,
 		CategoriesTable,
-		CitiesTable,
-		CountriesTable,
 		DepartmentsTable,
 		DevicesTable,
-		DistrictsTable,
 		MenusTable,
 		MenuItemsTable,
 		MerchantsTable,
@@ -2545,11 +2304,9 @@ var (
 		ProductUnitsTable,
 		ProfitDistributionBillsTable,
 		ProfitDistributionRulesTable,
-		ProvincesTable,
 		RefundOrdersTable,
 		RefundOrderProductsTable,
 		RemarksTable,
-		RemarkCategoriesTable,
 		RolesTable,
 		RoleMenusTable,
 		RolePermissionsTable,
@@ -2579,22 +2336,13 @@ func init() {
 	CategoriesTable.ForeignKeys[2].RefTable = StallsTable
 	CategoriesTable.ForeignKeys[3].RefTable = StallsTable
 	CategoriesTable.ForeignKeys[4].RefTable = TaxFeesTable
-	CitiesTable.ForeignKeys[0].RefTable = CountriesTable
-	CitiesTable.ForeignKeys[1].RefTable = ProvincesTable
 	DepartmentsTable.ForeignKeys[0].RefTable = MerchantsTable
 	DepartmentsTable.ForeignKeys[1].RefTable = StoresTable
 	DevicesTable.ForeignKeys[0].RefTable = MerchantsTable
 	DevicesTable.ForeignKeys[1].RefTable = StallsTable
 	DevicesTable.ForeignKeys[2].RefTable = StoresTable
-	DistrictsTable.ForeignKeys[0].RefTable = CitiesTable
-	DistrictsTable.ForeignKeys[1].RefTable = CountriesTable
-	DistrictsTable.ForeignKeys[2].RefTable = ProvincesTable
 	MenuItemsTable.ForeignKeys[0].RefTable = MenusTable
 	MenuItemsTable.ForeignKeys[1].RefTable = ProductsTable
-	MerchantsTable.ForeignKeys[0].RefTable = CitiesTable
-	MerchantsTable.ForeignKeys[1].RefTable = CountriesTable
-	MerchantsTable.ForeignKeys[2].RefTable = DistrictsTable
-	MerchantsTable.ForeignKeys[3].RefTable = ProvincesTable
 	MerchantRenewalsTable.ForeignKeys[0].RefTable = MerchantsTable
 	OrderProductsTable.ForeignKeys[0].RefTable = OrdersTable
 	PermissionsTable.ForeignKeys[0].RefTable = RouterMenusTable
@@ -2611,11 +2359,9 @@ func init() {
 	ProductSpecRelationsTable.ForeignKeys[2].RefTable = ProductSpecsTable
 	ProfitDistributionBillsTable.ForeignKeys[0].RefTable = MerchantsTable
 	ProfitDistributionBillsTable.ForeignKeys[1].RefTable = StoresTable
-	ProvincesTable.ForeignKeys[0].RefTable = CountriesTable
 	RefundOrderProductsTable.ForeignKeys[0].RefTable = RefundOrdersTable
 	RemarksTable.ForeignKeys[0].RefTable = MerchantsTable
 	RemarksTable.ForeignKeys[1].RefTable = StoresTable
-	RemarkCategoriesTable.ForeignKeys[0].RefTable = MerchantsTable
 	RolesTable.ForeignKeys[0].RefTable = MerchantsTable
 	RolesTable.ForeignKeys[1].RefTable = StoresTable
 	SetMealDetailsTable.ForeignKeys[0].RefTable = ProductsTable
@@ -2623,11 +2369,7 @@ func init() {
 	SetMealGroupsTable.ForeignKeys[0].RefTable = ProductsTable
 	StallsTable.ForeignKeys[0].RefTable = MerchantsTable
 	StallsTable.ForeignKeys[1].RefTable = StoresTable
-	StoresTable.ForeignKeys[0].RefTable = CitiesTable
-	StoresTable.ForeignKeys[1].RefTable = CountriesTable
-	StoresTable.ForeignKeys[2].RefTable = DistrictsTable
-	StoresTable.ForeignKeys[3].RefTable = MerchantsTable
-	StoresTable.ForeignKeys[4].RefTable = ProvincesTable
+	StoresTable.ForeignKeys[0].RefTable = MerchantsTable
 	StorePaymentAccountsTable.ForeignKeys[0].RefTable = PaymentAccountsTable
 	StorePaymentAccountsTable.ForeignKeys[1].RefTable = StoresTable
 	StoreUsersTable.ForeignKeys[0].RefTable = DepartmentsTable

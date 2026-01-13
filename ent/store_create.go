@@ -15,16 +15,12 @@ import (
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/city"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/country"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/district"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/province"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
@@ -159,8 +155,8 @@ func (sc *StoreCreate) SetBusinessModel(dm domain.BusinessModel) *StoreCreate {
 }
 
 // SetBusinessTypeCode sets the "business_type_code" field.
-func (sc *StoreCreate) SetBusinessTypeCode(s string) *StoreCreate {
-	sc.mutation.SetBusinessTypeCode(s)
+func (sc *StoreCreate) SetBusinessTypeCode(dt domain.BusinessType) *StoreCreate {
+	sc.mutation.SetBusinessTypeCode(dt)
 	return sc
 }
 
@@ -314,58 +310,30 @@ func (sc *StoreCreate) SetShiftTimes(dt []domain.ShiftTime) *StoreCreate {
 	return sc
 }
 
-// SetCountryID sets the "country_id" field.
-func (sc *StoreCreate) SetCountryID(u uuid.UUID) *StoreCreate {
-	sc.mutation.SetCountryID(u)
+// SetCountry sets the "country" field.
+func (sc *StoreCreate) SetCountry(d domain.Country) *StoreCreate {
+	sc.mutation.SetCountry(d)
 	return sc
 }
 
-// SetNillableCountryID sets the "country_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableCountryID(u *uuid.UUID) *StoreCreate {
-	if u != nil {
-		sc.SetCountryID(*u)
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (sc *StoreCreate) SetNillableCountry(d *domain.Country) *StoreCreate {
+	if d != nil {
+		sc.SetCountry(*d)
 	}
 	return sc
 }
 
-// SetProvinceID sets the "province_id" field.
-func (sc *StoreCreate) SetProvinceID(u uuid.UUID) *StoreCreate {
-	sc.mutation.SetProvinceID(u)
+// SetProvince sets the "province" field.
+func (sc *StoreCreate) SetProvince(d domain.Province) *StoreCreate {
+	sc.mutation.SetProvince(d)
 	return sc
 }
 
-// SetNillableProvinceID sets the "province_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableProvinceID(u *uuid.UUID) *StoreCreate {
-	if u != nil {
-		sc.SetProvinceID(*u)
-	}
-	return sc
-}
-
-// SetCityID sets the "city_id" field.
-func (sc *StoreCreate) SetCityID(u uuid.UUID) *StoreCreate {
-	sc.mutation.SetCityID(u)
-	return sc
-}
-
-// SetNillableCityID sets the "city_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableCityID(u *uuid.UUID) *StoreCreate {
-	if u != nil {
-		sc.SetCityID(*u)
-	}
-	return sc
-}
-
-// SetDistrictID sets the "district_id" field.
-func (sc *StoreCreate) SetDistrictID(u uuid.UUID) *StoreCreate {
-	sc.mutation.SetDistrictID(u)
-	return sc
-}
-
-// SetNillableDistrictID sets the "district_id" field if the given value is not nil.
-func (sc *StoreCreate) SetNillableDistrictID(u *uuid.UUID) *StoreCreate {
-	if u != nil {
-		sc.SetDistrictID(*u)
+// SetNillableProvince sets the "province" field if the given value is not nil.
+func (sc *StoreCreate) SetNillableProvince(d *domain.Province) *StoreCreate {
+	if d != nil {
+		sc.SetProvince(*d)
 	}
 	return sc
 }
@@ -435,26 +403,6 @@ func (sc *StoreCreate) SetNillableID(u *uuid.UUID) *StoreCreate {
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (sc *StoreCreate) SetMerchant(m *Merchant) *StoreCreate {
 	return sc.SetMerchantID(m.ID)
-}
-
-// SetCountry sets the "country" edge to the Country entity.
-func (sc *StoreCreate) SetCountry(c *Country) *StoreCreate {
-	return sc.SetCountryID(c.ID)
-}
-
-// SetProvince sets the "province" edge to the Province entity.
-func (sc *StoreCreate) SetProvince(p *Province) *StoreCreate {
-	return sc.SetProvinceID(p.ID)
-}
-
-// SetCity sets the "city" edge to the City entity.
-func (sc *StoreCreate) SetCity(c *City) *StoreCreate {
-	return sc.SetCityID(c.ID)
-}
-
-// SetDistrict sets the "district" edge to the District entity.
-func (sc *StoreCreate) SetDistrict(d *District) *StoreCreate {
-	return sc.SetDistrictID(d.ID)
 }
 
 // AddStoreUserIDs adds the "store_users" edge to the StoreUser entity by IDs.
@@ -882,6 +830,16 @@ func (sc *StoreCreate) check() error {
 	if _, ok := sc.mutation.ShiftTimes(); !ok {
 		return &ValidationError{Name: "shift_times", err: errors.New(`ent: missing required field "Store.shift_times"`)}
 	}
+	if v, ok := sc.mutation.Country(); ok {
+		if err := store.CountryValidator(v); err != nil {
+			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "Store.country": %w`, err)}
+		}
+	}
+	if v, ok := sc.mutation.Province(); ok {
+		if err := store.ProvinceValidator(v); err != nil {
+			return &ValidationError{Name: "province", err: fmt.Errorf(`ent: validator failed for field "Store.province": %w`, err)}
+		}
+	}
 	if v, ok := sc.mutation.Address(); ok {
 		if err := store.AddressValidator(v); err != nil {
 			return &ValidationError{Name: "address", err: fmt.Errorf(`ent: validator failed for field "Store.address": %w`, err)}
@@ -1031,6 +989,14 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 		_spec.SetField(store.FieldShiftTimes, field.TypeJSON, value)
 		_node.ShiftTimes = value
 	}
+	if value, ok := sc.mutation.Country(); ok {
+		_spec.SetField(store.FieldCountry, field.TypeEnum, value)
+		_node.Country = value
+	}
+	if value, ok := sc.mutation.Province(); ok {
+		_spec.SetField(store.FieldProvince, field.TypeEnum, value)
+		_node.Province = value
+	}
 	if value, ok := sc.mutation.Address(); ok {
 		_spec.SetField(store.FieldAddress, field.TypeString, value)
 		_node.Address = value
@@ -1062,74 +1028,6 @@ func (sc *StoreCreate) createSpec() (*Store, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.MerchantID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := sc.mutation.CountryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.CountryTable,
-			Columns: []string{store.CountryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(country.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.CountryID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := sc.mutation.ProvinceIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.ProvinceTable,
-			Columns: []string{store.ProvinceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.ProvinceID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := sc.mutation.CityIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.CityTable,
-			Columns: []string{store.CityColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.CityID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := sc.mutation.DistrictIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   store.DistrictTable,
-			Columns: []string{store.DistrictColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(district.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.DistrictID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.StoreUsersIDs(); len(nodes) > 0 {
@@ -1491,7 +1389,7 @@ func (u *StoreUpsert) UpdateBusinessModel() *StoreUpsert {
 }
 
 // SetBusinessTypeCode sets the "business_type_code" field.
-func (u *StoreUpsert) SetBusinessTypeCode(v string) *StoreUpsert {
+func (u *StoreUpsert) SetBusinessTypeCode(v domain.BusinessType) *StoreUpsert {
 	u.Set(store.FieldBusinessTypeCode, v)
 	return u
 }
@@ -1712,75 +1610,39 @@ func (u *StoreUpsert) UpdateShiftTimes() *StoreUpsert {
 	return u
 }
 
-// SetCountryID sets the "country_id" field.
-func (u *StoreUpsert) SetCountryID(v uuid.UUID) *StoreUpsert {
-	u.Set(store.FieldCountryID, v)
+// SetCountry sets the "country" field.
+func (u *StoreUpsert) SetCountry(v domain.Country) *StoreUpsert {
+	u.Set(store.FieldCountry, v)
 	return u
 }
 
-// UpdateCountryID sets the "country_id" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateCountryID() *StoreUpsert {
-	u.SetExcluded(store.FieldCountryID)
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *StoreUpsert) UpdateCountry() *StoreUpsert {
+	u.SetExcluded(store.FieldCountry)
 	return u
 }
 
-// ClearCountryID clears the value of the "country_id" field.
-func (u *StoreUpsert) ClearCountryID() *StoreUpsert {
-	u.SetNull(store.FieldCountryID)
+// ClearCountry clears the value of the "country" field.
+func (u *StoreUpsert) ClearCountry() *StoreUpsert {
+	u.SetNull(store.FieldCountry)
 	return u
 }
 
-// SetProvinceID sets the "province_id" field.
-func (u *StoreUpsert) SetProvinceID(v uuid.UUID) *StoreUpsert {
-	u.Set(store.FieldProvinceID, v)
+// SetProvince sets the "province" field.
+func (u *StoreUpsert) SetProvince(v domain.Province) *StoreUpsert {
+	u.Set(store.FieldProvince, v)
 	return u
 }
 
-// UpdateProvinceID sets the "province_id" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateProvinceID() *StoreUpsert {
-	u.SetExcluded(store.FieldProvinceID)
+// UpdateProvince sets the "province" field to the value that was provided on create.
+func (u *StoreUpsert) UpdateProvince() *StoreUpsert {
+	u.SetExcluded(store.FieldProvince)
 	return u
 }
 
-// ClearProvinceID clears the value of the "province_id" field.
-func (u *StoreUpsert) ClearProvinceID() *StoreUpsert {
-	u.SetNull(store.FieldProvinceID)
-	return u
-}
-
-// SetCityID sets the "city_id" field.
-func (u *StoreUpsert) SetCityID(v uuid.UUID) *StoreUpsert {
-	u.Set(store.FieldCityID, v)
-	return u
-}
-
-// UpdateCityID sets the "city_id" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateCityID() *StoreUpsert {
-	u.SetExcluded(store.FieldCityID)
-	return u
-}
-
-// ClearCityID clears the value of the "city_id" field.
-func (u *StoreUpsert) ClearCityID() *StoreUpsert {
-	u.SetNull(store.FieldCityID)
-	return u
-}
-
-// SetDistrictID sets the "district_id" field.
-func (u *StoreUpsert) SetDistrictID(v uuid.UUID) *StoreUpsert {
-	u.Set(store.FieldDistrictID, v)
-	return u
-}
-
-// UpdateDistrictID sets the "district_id" field to the value that was provided on create.
-func (u *StoreUpsert) UpdateDistrictID() *StoreUpsert {
-	u.SetExcluded(store.FieldDistrictID)
-	return u
-}
-
-// ClearDistrictID clears the value of the "district_id" field.
-func (u *StoreUpsert) ClearDistrictID() *StoreUpsert {
-	u.SetNull(store.FieldDistrictID)
+// ClearProvince clears the value of the "province" field.
+func (u *StoreUpsert) ClearProvince() *StoreUpsert {
+	u.SetNull(store.FieldProvince)
 	return u
 }
 
@@ -2029,7 +1891,7 @@ func (u *StoreUpsertOne) UpdateBusinessModel() *StoreUpsertOne {
 }
 
 // SetBusinessTypeCode sets the "business_type_code" field.
-func (u *StoreUpsertOne) SetBusinessTypeCode(v string) *StoreUpsertOne {
+func (u *StoreUpsertOne) SetBusinessTypeCode(v domain.BusinessType) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetBusinessTypeCode(v)
 	})
@@ -2287,87 +2149,45 @@ func (u *StoreUpsertOne) UpdateShiftTimes() *StoreUpsertOne {
 	})
 }
 
-// SetCountryID sets the "country_id" field.
-func (u *StoreUpsertOne) SetCountryID(v uuid.UUID) *StoreUpsertOne {
+// SetCountry sets the "country" field.
+func (u *StoreUpsertOne) SetCountry(v domain.Country) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetCountryID(v)
+		s.SetCountry(v)
 	})
 }
 
-// UpdateCountryID sets the "country_id" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateCountryID() *StoreUpsertOne {
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *StoreUpsertOne) UpdateCountry() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCountryID()
+		s.UpdateCountry()
 	})
 }
 
-// ClearCountryID clears the value of the "country_id" field.
-func (u *StoreUpsertOne) ClearCountryID() *StoreUpsertOne {
+// ClearCountry clears the value of the "country" field.
+func (u *StoreUpsertOne) ClearCountry() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.ClearCountryID()
+		s.ClearCountry()
 	})
 }
 
-// SetProvinceID sets the "province_id" field.
-func (u *StoreUpsertOne) SetProvinceID(v uuid.UUID) *StoreUpsertOne {
+// SetProvince sets the "province" field.
+func (u *StoreUpsertOne) SetProvince(v domain.Province) *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetProvinceID(v)
+		s.SetProvince(v)
 	})
 }
 
-// UpdateProvinceID sets the "province_id" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateProvinceID() *StoreUpsertOne {
+// UpdateProvince sets the "province" field to the value that was provided on create.
+func (u *StoreUpsertOne) UpdateProvince() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.UpdateProvinceID()
+		s.UpdateProvince()
 	})
 }
 
-// ClearProvinceID clears the value of the "province_id" field.
-func (u *StoreUpsertOne) ClearProvinceID() *StoreUpsertOne {
+// ClearProvince clears the value of the "province" field.
+func (u *StoreUpsertOne) ClearProvince() *StoreUpsertOne {
 	return u.Update(func(s *StoreUpsert) {
-		s.ClearProvinceID()
-	})
-}
-
-// SetCityID sets the "city_id" field.
-func (u *StoreUpsertOne) SetCityID(v uuid.UUID) *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetCityID(v)
-	})
-}
-
-// UpdateCityID sets the "city_id" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateCityID() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCityID()
-	})
-}
-
-// ClearCityID clears the value of the "city_id" field.
-func (u *StoreUpsertOne) ClearCityID() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.ClearCityID()
-	})
-}
-
-// SetDistrictID sets the "district_id" field.
-func (u *StoreUpsertOne) SetDistrictID(v uuid.UUID) *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetDistrictID(v)
-	})
-}
-
-// UpdateDistrictID sets the "district_id" field to the value that was provided on create.
-func (u *StoreUpsertOne) UpdateDistrictID() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateDistrictID()
-	})
-}
-
-// ClearDistrictID clears the value of the "district_id" field.
-func (u *StoreUpsertOne) ClearDistrictID() *StoreUpsertOne {
-	return u.Update(func(s *StoreUpsert) {
-		s.ClearDistrictID()
+		s.ClearProvince()
 	})
 }
 
@@ -2792,7 +2612,7 @@ func (u *StoreUpsertBulk) UpdateBusinessModel() *StoreUpsertBulk {
 }
 
 // SetBusinessTypeCode sets the "business_type_code" field.
-func (u *StoreUpsertBulk) SetBusinessTypeCode(v string) *StoreUpsertBulk {
+func (u *StoreUpsertBulk) SetBusinessTypeCode(v domain.BusinessType) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
 		s.SetBusinessTypeCode(v)
 	})
@@ -3050,87 +2870,45 @@ func (u *StoreUpsertBulk) UpdateShiftTimes() *StoreUpsertBulk {
 	})
 }
 
-// SetCountryID sets the "country_id" field.
-func (u *StoreUpsertBulk) SetCountryID(v uuid.UUID) *StoreUpsertBulk {
+// SetCountry sets the "country" field.
+func (u *StoreUpsertBulk) SetCountry(v domain.Country) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetCountryID(v)
+		s.SetCountry(v)
 	})
 }
 
-// UpdateCountryID sets the "country_id" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateCountryID() *StoreUpsertBulk {
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *StoreUpsertBulk) UpdateCountry() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCountryID()
+		s.UpdateCountry()
 	})
 }
 
-// ClearCountryID clears the value of the "country_id" field.
-func (u *StoreUpsertBulk) ClearCountryID() *StoreUpsertBulk {
+// ClearCountry clears the value of the "country" field.
+func (u *StoreUpsertBulk) ClearCountry() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.ClearCountryID()
+		s.ClearCountry()
 	})
 }
 
-// SetProvinceID sets the "province_id" field.
-func (u *StoreUpsertBulk) SetProvinceID(v uuid.UUID) *StoreUpsertBulk {
+// SetProvince sets the "province" field.
+func (u *StoreUpsertBulk) SetProvince(v domain.Province) *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.SetProvinceID(v)
+		s.SetProvince(v)
 	})
 }
 
-// UpdateProvinceID sets the "province_id" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateProvinceID() *StoreUpsertBulk {
+// UpdateProvince sets the "province" field to the value that was provided on create.
+func (u *StoreUpsertBulk) UpdateProvince() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.UpdateProvinceID()
+		s.UpdateProvince()
 	})
 }
 
-// ClearProvinceID clears the value of the "province_id" field.
-func (u *StoreUpsertBulk) ClearProvinceID() *StoreUpsertBulk {
+// ClearProvince clears the value of the "province" field.
+func (u *StoreUpsertBulk) ClearProvince() *StoreUpsertBulk {
 	return u.Update(func(s *StoreUpsert) {
-		s.ClearProvinceID()
-	})
-}
-
-// SetCityID sets the "city_id" field.
-func (u *StoreUpsertBulk) SetCityID(v uuid.UUID) *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetCityID(v)
-	})
-}
-
-// UpdateCityID sets the "city_id" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateCityID() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateCityID()
-	})
-}
-
-// ClearCityID clears the value of the "city_id" field.
-func (u *StoreUpsertBulk) ClearCityID() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.ClearCityID()
-	})
-}
-
-// SetDistrictID sets the "district_id" field.
-func (u *StoreUpsertBulk) SetDistrictID(v uuid.UUID) *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.SetDistrictID(v)
-	})
-}
-
-// UpdateDistrictID sets the "district_id" field to the value that was provided on create.
-func (u *StoreUpsertBulk) UpdateDistrictID() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.UpdateDistrictID()
-	})
-}
-
-// ClearDistrictID clears the value of the "district_id" field.
-func (u *StoreUpsertBulk) ClearDistrictID() *StoreUpsertBulk {
-	return u.Update(func(s *StoreUpsert) {
-		s.ClearDistrictID()
+		s.ClearProvince()
 	})
 }
 
