@@ -37,8 +37,10 @@ func (interactor *AdminUserInteractor) Login(ctx context.Context, username, pass
 
 	user, err := interactor.DS.AdminUserRepo().FindByUsername(ctx, username)
 	if err != nil {
-		err = fmt.Errorf("failed to find user by username: %w", err)
-		return
+		if domain.IsNotFound(err) {
+			err = domain.ErrUserNotExists
+			return
+		}
 	}
 	if err = user.CheckPassword(password); err != nil {
 		return
@@ -142,6 +144,9 @@ func (interactor *AdminUserInteractor) Create(ctx context.Context, user *domain.
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
 		if !role.Enabled {
@@ -185,6 +190,9 @@ func (interactor *AdminUserInteractor) Update(ctx context.Context, user *domain.
 		}
 		oldUser, err := ds.AdminUserRepo().Find(ctx, user.ID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrUserNotExists
+			}
 			return err
 		}
 		if oldUser.IsSuperAdmin {
@@ -216,6 +224,9 @@ func (interactor *AdminUserInteractor) Update(ctx context.Context, user *domain.
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
 		if !role.Enabled {
@@ -260,6 +271,9 @@ func (interactor *AdminUserInteractor) Delete(ctx context.Context, id uuid.UUID)
 	return interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		user, err := ds.AdminUserRepo().Find(ctx, id)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrUserNotExists
+			}
 			return err
 		}
 		if user.IsSuperAdmin {
@@ -284,6 +298,10 @@ func (interactor *AdminUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	// 查询用户信息
 	user, err = interactor.DS.AdminUserRepo().Find(ctx, id)
 	if err != nil {
+		if domain.IsNotFound(err) {
+			err = domain.ErrUserNotExists
+			return
+		}
 		return
 	}
 	if user.IsSuperAdmin {
@@ -311,6 +329,9 @@ func (interactor *AdminUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	} else {
 		role, err = interactor.DS.RoleRepo().FindByID(ctx, userRole.RoleID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return nil, domain.ErrRoleNotExists
+			}
 			return
 		}
 	}
@@ -404,7 +425,7 @@ func (interactor *AdminUserInteractor) SimpleUpdate(ctx context.Context, updateF
 		user, err := ds.AdminUserRepo().Find(ctx, params.ID)
 		if err != nil {
 			if domain.IsNotFound(err) {
-				return domain.ParamsError(domain.ErrUserNotExists)
+				return domain.ErrUserNotExists
 			}
 			return err
 		}

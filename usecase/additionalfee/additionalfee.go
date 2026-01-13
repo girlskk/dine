@@ -40,7 +40,7 @@ func (interactor *AdditionalFeeInteractor) Create(ctx context.Context, fee *doma
 			return err
 		}
 		if exists {
-			return domain.ErrRemarkNameExists
+			return domain.ErrAdditionalFeeNameExists
 		}
 		fee.ID = uuid.New()
 		err = ds.AdditionalFeeRepo().Create(ctx, fee)
@@ -102,7 +102,7 @@ func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *doma
 			return err
 		}
 		if exists {
-			return domain.ErrRemarkNameExists
+			return domain.ErrAdditionalFeeNameExists
 		}
 		err = ds.AdditionalFeeRepo().Update(ctx, updatedFee)
 		if err != nil {

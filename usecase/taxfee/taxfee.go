@@ -114,7 +114,7 @@ func (interactor *TaxFeeInteractor) Delete(ctx context.Context, id uuid.UUID, us
 	fee, err := interactor.DS.TaxFeeRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrTaxFeeNotExists)
+			return domain.ErrTaxFeeNotExists
 		}
 		return err
 	}
@@ -131,6 +131,9 @@ func (interactor *TaxFeeInteractor) GetTaxFee(ctx context.Context, id uuid.UUID,
 
 	fee, err = interactor.DS.TaxFeeRepo().FindByID(ctx, id)
 	if err != nil {
+		if domain.IsNotFound(err) {
+			return nil, domain.ErrTaxFeeNotExists
+		}
 		return nil, err
 	}
 	if err = verifyTaxFeeOwnership(user, fee); err != nil {

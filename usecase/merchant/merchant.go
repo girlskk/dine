@@ -221,10 +221,6 @@ func (interactor *MerchantInteractor) UpdateMerchant(ctx context.Context, domain
 		util.SpanErrFinish(span, err)
 	}()
 
-	if domainUMerchant == nil {
-		return domain.ParamsError(errors.New("domainUMerchant is required"))
-	}
-
 	domainMerchant, err := interactor.CheckUpdateMerchantFields(ctx, domainUMerchant)
 	if err != nil {
 		return
@@ -382,7 +378,7 @@ func (interactor *MerchantInteractor) DeleteMerchant(ctx context.Context, id uui
 	_, err = interactor.DS.MerchantRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrMerchantNotExists)
+			return domain.ErrMerchantNotExists
 		}
 		return
 	}
@@ -405,7 +401,7 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 	domainMerchant, err = interactor.DS.MerchantRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-			return nil, domain.ParamsError(domain.ErrMerchantNotExists)
+			return nil, domain.ErrMerchantNotExists
 		}
 		return nil, err
 	}
@@ -492,6 +488,9 @@ func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merch
 		}
 		m, err := ds.MerchantRepo().FindByID(ctx, merchantRenewal.MerchantID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrMerchantNotExists
+			}
 			return err
 		}
 		oldExpireTime := time.Now().UTC()

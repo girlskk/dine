@@ -31,6 +31,10 @@ func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context,
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		oldDevice, err := ds.DeviceRepo().FindByID(ctx, device.ID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+
+				return domain.ErrDeviceNotExists
+			}
 			return err
 		}
 
@@ -120,7 +124,10 @@ func (interactor *DeviceInteractor) Update(ctx context.Context, domainDevice *do
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		old, err := ds.DeviceRepo().FindByID(ctx, domainDevice.ID)
 		if err != nil {
+			if domain.IsNotFound(err) {
 
+				return domain.ErrDeviceNotExists
+			}
 			return err
 		}
 		if err = verifyDeviceOwnership(user, old); err != nil {
@@ -174,6 +181,10 @@ func (interactor *DeviceInteractor) Delete(ctx context.Context, id uuid.UUID, us
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		device, err := ds.DeviceRepo().FindByID(ctx, id)
 		if err != nil {
+			if domain.IsNotFound(err) {
+
+				return domain.ErrDeviceNotExists
+			}
 			return err
 		}
 		if err = verifyDeviceOwnership(user, device); err != nil {
@@ -198,6 +209,10 @@ func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID,
 	defer func() { util.SpanErrFinish(span, err) }()
 	domainDevice, err = interactor.DS.DeviceRepo().FindByID(ctx, id)
 	if err != nil {
+		if domain.IsNotFound(err) {
+
+			return nil, domain.ErrDeviceNotExists
+		}
 		return nil, err
 	}
 	if err = verifyDeviceOwnership(user, domainDevice); err != nil {

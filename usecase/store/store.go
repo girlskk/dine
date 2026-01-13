@@ -135,6 +135,9 @@ func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id uuid.UUID
 
 	store, err := interactor.DS.StoreRepo().FindByID(ctx, id)
 	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ErrStoreNotExists
+		}
 		return err
 	}
 	if err = verifyStoreOwnership(user, store); err != nil {
@@ -152,6 +155,9 @@ func (interactor *StoreInteractor) GetStore(ctx context.Context, id uuid.UUID, u
 
 	domainStore, err = interactor.DS.StoreRepo().FindByID(ctx, id)
 	if err != nil {
+		if domain.IsNotFound(err) {
+			return nil, domain.ErrStoreNotExists
+		}
 		return
 	}
 	if err = verifyStoreOwnership(user, domainStore); err != nil {

@@ -117,7 +117,7 @@ func (interactor *StoreUserInteractor) Create(ctx context.Context, user *domain.
 			return err
 		}
 		if exists {
-			return fmt.Errorf("%w", domain.ErrUsernameExist)
+			return domain.ErrUsernameExist
 		}
 
 		// check department assigned
@@ -143,6 +143,9 @@ func (interactor *StoreUserInteractor) Create(ctx context.Context, user *domain.
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
 		if !role.Enabled {
@@ -218,6 +221,9 @@ func (interactor *StoreUserInteractor) Update(ctx context.Context, user *domain.
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
 		if !role.Enabled {
@@ -314,6 +320,9 @@ func (interactor *StoreUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	} else {
 		role, err = interactor.DS.RoleRepo().FindByID(ctx, userRole.RoleID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return nil, domain.ErrRoleNotExists
+			}
 			return
 		}
 	}

@@ -145,6 +145,9 @@ func (interactor *BackendUserInteractor) Create(ctx context.Context, user *domai
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
 		if !role.Enabled {
@@ -221,6 +224,9 @@ func (interactor *BackendUserInteractor) Update(ctx context.Context, user *domai
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
 		if !role.Enabled {
@@ -320,6 +326,9 @@ func (interactor *BackendUserInteractor) GetUser(ctx context.Context, id uuid.UU
 	} else {
 		role, err = interactor.DS.RoleRepo().FindByID(ctx, userRole.RoleID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return nil, domain.ErrRoleNotExists
+			}
 			return
 		}
 	}

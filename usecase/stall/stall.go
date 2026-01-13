@@ -68,9 +68,9 @@ func (interactor *StallInteractor) Update(ctx context.Context, domainStall *doma
 		old, err := ds.StallRepo().FindByID(ctx, domainStall.ID)
 		if err != nil {
 			if domain.IsNotFound(err) {
-				return domain.ParamsError(domain.ErrStallNotExists)
+				return domain.ErrStallNotExists
 			}
-			return fmt.Errorf("failed to fetch stall: %w", err)
+			return err
 		}
 		if err = verifyStallOwnership(user, old); err != nil {
 			return err
@@ -92,7 +92,7 @@ func (interactor *StallInteractor) Update(ctx context.Context, domainStall *doma
 			return err
 		}
 		if exists {
-			return domain.ParamsError(domain.ErrStallNameExists)
+			return domain.ErrStallNameExists
 		}
 		err = ds.StallRepo().Update(ctx, domainStall)
 		if err != nil {
@@ -112,9 +112,9 @@ func (interactor *StallInteractor) Delete(ctx context.Context, id uuid.UUID, use
 	domainStall, err := interactor.DS.StallRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-			return domain.ParamsError(domain.ErrStallNotExists)
+			return domain.ErrStallNotExists
 		}
-		return fmt.Errorf("failed to fetch stall: %w", err)
+		return err
 	}
 	if err = verifyStallOwnership(user, domainStall); err != nil {
 		return err
@@ -135,9 +135,10 @@ func (interactor *StallInteractor) GetStall(ctx context.Context, id uuid.UUID, u
 	domainStall, err = interactor.DS.StallRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-			return nil, domain.ParamsError(domain.ErrStallNotExists)
+			err = domain.ErrStallNotExists
+			return
 		}
-		return nil, fmt.Errorf("failed to fetch stall: %w", err)
+		return
 	}
 	if err = verifyStallOwnership(user, domainStall); err != nil {
 		return nil, err
