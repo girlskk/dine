@@ -39,7 +39,6 @@ func (repo *BackendUserRepository) Create(ctx context.Context, user *domain.Back
 		SetMerchantID(user.MerchantID).
 		SetCode(user.Code).
 		SetRealName(user.RealName).
-		SetGender(user.Gender).
 		SetEmail(user.Email).
 		SetPhoneNumber(user.PhoneNumber).
 		SetEnabled(user.Enabled).
@@ -48,7 +47,11 @@ func (repo *BackendUserRepository) Create(ctx context.Context, user *domain.Back
 	if user.DepartmentID != uuid.Nil {
 		builder = builder.SetDepartmentID(user.DepartmentID)
 	}
-
+	if user.Gender != "" {
+		builder = builder.SetGender(user.Gender)
+	} else {
+		builder = builder.SetGender(domain.GenderUnknown)
+	}
 	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
@@ -130,7 +133,6 @@ func (repo *BackendUserRepository) Update(ctx context.Context, user *domain.Back
 		SetNickname(user.Nickname).
 		SetHashedPassword(user.HashedPassword).
 		SetRealName(user.RealName).
-		SetGender(user.Gender).
 		SetEmail(user.Email).
 		SetPhoneNumber(user.PhoneNumber).
 		SetEnabled(user.Enabled).
@@ -138,6 +140,11 @@ func (repo *BackendUserRepository) Update(ctx context.Context, user *domain.Back
 
 	if user.DepartmentID != uuid.Nil {
 		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+	if user.Gender != "" {
+		builder = builder.SetGender(user.Gender)
+	} else {
+		builder = builder.SetGender(domain.GenderUnknown)
 	}
 	_, err = builder.Save(ctx)
 	if err != nil {
