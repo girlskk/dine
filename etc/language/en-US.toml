@@ -185,5 +185,8 @@ other = "Department name already exists"
 [DEPARTMENT_CODE_EXISTS]
 other = "Department code already exists"
 
+[DEPARTMENT_HAS_USER_CANNOT_DISABLE]
+other = "Department has users, cannot disable"
+
 [DEPARTMENT_HAS_USER_CANNOT_DELETE]
 other = "Department has users, cannot delete"

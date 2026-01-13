@@ -98,10 +98,11 @@ const (
 	UserRoleNotExists          ErrCode = "USER_ROLE_NOT_EXISTS"          // 该用户未分配角色
 
 	// 部门相关
-	DepartmentNotExists           ErrCode = "DEPARTMENT_NOT_EXISTS"             // 部门不存在
-	DepartmentNameExists          ErrCode = "DEPARTMENT_NAME_EXISTS"            // 部门名称已存在
-	DepartmentCodeExists          ErrCode = "DEPARTMENT_CODE_EXISTS"            // 部门编码已存在
-	DepartmentHasUserCannotDelete ErrCode = "DEPARTMENT_HAS_USER_CANNOT_DELETE" // 部门下有用户，不能删除
+	DepartmentNotExists            ErrCode = "DEPARTMENT_NOT_EXISTS"              // 部门不存在
+	DepartmentNameExists           ErrCode = "DEPARTMENT_NAME_EXISTS"             // 部门名称已存在
+	DepartmentCodeExists           ErrCode = "DEPARTMENT_CODE_EXISTS"             // 部门编码已存在
+	DepartmentHasUserCannotDisable ErrCode = "DEPARTMENT_HAS_USER_CANNOT_DISABLE" // 部门下有用户，不能禁用
+	DepartmentHasUserCannotDelete  ErrCode = "DEPARTMENT_HAS_USER_CANNOT_DELETE"  // 部门下有用户，不能删除
 
 	// 时间相关
 	TimeFormatInvalid ErrCode = "TIME_FORMAT_INVALID" // 时间格式错误

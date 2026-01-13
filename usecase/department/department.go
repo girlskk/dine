@@ -69,6 +69,16 @@ func (interactor *DepartmentInteractor) UpdateDepartment(ctx context.Context, pa
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		if !params.Enabled {
+			hasUsers, err := ds.DepartmentRepo().CheckUserInDepartment(ctx, params.ID)
+			if err != nil {
+				return err
+			}
+			if hasUsers {
+				return domain.ErrDepartmentHasUsersCannotDisable
+			}
+		}
+
 		old, err := ds.DepartmentRepo().FindByID(ctx, params.ID)
 		if err != nil {
 			if domain.IsNotFound(err) {

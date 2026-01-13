@@ -76,6 +76,8 @@ func (h *DepartmentHandler) Create() gin.HandlerFunc {
 
 		user := domain.FromStoreUserContext(ctx)
 		params := &domain.CreateDepartmentParams{
+			MerchantID:     user.MerchantID,
+			StoreID:        user.StoreID,
 			Name:           req.Name,
 			Code:           deptCode,
 			DepartmentType: domain.DepartmentStore,
@@ -225,9 +227,11 @@ func (h *DepartmentHandler) List() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
+		user := domain.FromStoreUserContext(ctx)
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.DepartmentListFilter{
+			MerchantID:     user.MerchantID,
+			StoreID:        user.StoreID,
 			Name:           req.Name,
 			Code:           req.Code,
 			DepartmentType: domain.DepartmentStore,
@@ -333,6 +337,8 @@ func (h *DepartmentHandler) checkErr(err error) error {
 		return errorx.New(http.StatusConflict, errcode.DepartmentNameExists, err)
 	case errors.Is(err, domain.ErrDepartmentCodeExists):
 		return errorx.New(http.StatusConflict, errcode.DepartmentCodeExists, err)
+	case errors.Is(err, domain.ErrDepartmentHasUsersCannotDisable):
+		return errorx.New(http.StatusForbidden, errcode.DepartmentHasUserCannotDisable, err)
 	case errors.Is(err, domain.ErrDepartmentHasUsersCannotDelete):
 		return errorx.New(http.StatusForbidden, errcode.DepartmentHasUserCannotDelete, err)
 	case domain.IsNotFound(err):

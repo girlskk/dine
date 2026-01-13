@@ -341,6 +341,8 @@ func (h *DepartmentHandler) checkErr(err error) error {
 		return errorx.New(http.StatusConflict, errcode.DepartmentNameExists, err)
 	case errors.Is(err, domain.ErrDepartmentCodeExists):
 		return errorx.New(http.StatusConflict, errcode.DepartmentCodeExists, err)
+	case errors.Is(err, domain.ErrDepartmentHasUsersCannotDisable):
+		return errorx.New(http.StatusForbidden, errcode.DepartmentHasUserCannotDisable, err)
 	case errors.Is(err, domain.ErrDepartmentHasUsersCannotDelete):
 		return errorx.New(http.StatusForbidden, errcode.DepartmentHasUserCannotDelete, err)
 	case domain.IsNotFound(err):

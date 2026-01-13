@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	ErrDepartmentNotExists            = errors.New("部门不存在")
-	ErrDepartmentNameExists           = errors.New("部门名称已存在")
-	ErrDepartmentCodeExists           = errors.New("部门编码已存在")
-	ErrDepartmentHasUsersCannotDelete = errors.New("部门下存在用户，无法删除")
+	ErrDepartmentNotExists             = errors.New("部门不存在")
+	ErrDepartmentNameExists            = errors.New("部门名称已存在")
+	ErrDepartmentCodeExists            = errors.New("部门编码已存在")
+	ErrDepartmentHasUsersCannotDelete  = errors.New("部门下存在用户，无法删除")
+	ErrDepartmentHasUsersCannotDisable = errors.New("部门下存在用户，无法禁用")
 )
 
 // DepartmentRepository 部门仓储接口
