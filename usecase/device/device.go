@@ -32,7 +32,6 @@ func (interactor *DeviceInteractor) DeviceSimpleUpdate(ctx context.Context,
 		oldDevice, err := ds.DeviceRepo().FindByID(ctx, device.ID)
 		if err != nil {
 			if domain.IsNotFound(err) {
-
 				return domain.ErrDeviceNotExists
 			}
 			return err
@@ -125,7 +124,6 @@ func (interactor *DeviceInteractor) Update(ctx context.Context, domainDevice *do
 		old, err := ds.DeviceRepo().FindByID(ctx, domainDevice.ID)
 		if err != nil {
 			if domain.IsNotFound(err) {
-
 				return domain.ErrDeviceNotExists
 			}
 			return err
@@ -182,7 +180,6 @@ func (interactor *DeviceInteractor) Delete(ctx context.Context, id uuid.UUID, us
 		device, err := ds.DeviceRepo().FindByID(ctx, id)
 		if err != nil {
 			if domain.IsNotFound(err) {
-
 				return domain.ErrDeviceNotExists
 			}
 			return err
@@ -210,7 +207,6 @@ func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID,
 	domainDevice, err = interactor.DS.DeviceRepo().FindByID(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
-
 			return nil, domain.ErrDeviceNotExists
 		}
 		return nil, err
