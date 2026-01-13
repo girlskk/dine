@@ -2482,6 +2482,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
                 "refund_discount": {
                     "description": "退款优惠分摊",
                     "type": "number"
@@ -2516,10 +2524,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.ProductSpecRelation"
                     }
-                },
-                "unit_id": {
-                    "description": "单位ID",
-                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"

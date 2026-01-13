@@ -1357,6 +1357,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.ProductType'
         description: 商品类型
+      product_unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 商品单位信息
       refund_discount:
         description: 退款优惠分摊
         type: number
@@ -1383,9 +1387,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.ProductSpecRelation'
         type: array
-      unit_id:
-        description: 单位ID
-        type: string
       updated_at:
         type: string
     type: object
