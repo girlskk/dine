@@ -285,8 +285,10 @@ func (repo *RemarkRepository) convertMerchantIDFilter(remarkType domain.RemarkTy
 		switch remarkType {
 		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
 			query = query.Where(remark.Or(remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeEQ(domain.RemarkTypeSystem))
 		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
 			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeIn(domain.RemarkTypeSystem, domain.RemarkTypeBrand))
 		case domain.RemarkTypeStore: // 门店备注查询门店所属品牌和系统级别的备注
 			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
 		default:
