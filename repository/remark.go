@@ -311,8 +311,10 @@ func (repo *RemarkRepository) convertStoreIDFilter(remarkType domain.RemarkType,
 		switch remarkType {
 		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
 			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeEQ(domain.RemarkTypeSystem))
 		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
 			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeIn(domain.RemarkTypeSystem, domain.RemarkTypeBrand))
 		case domain.RemarkTypeStore: // 门店备注查询门店和系统级别的备注
 			query = query.Where(remark.Or(remark.StoreID(storeID), remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
 		default: // Remark Type为空时只查询当前门店的备注
