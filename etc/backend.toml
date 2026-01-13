@@ -2,7 +2,7 @@
 RunMode = "dev"
 
 [HTTP]
-Port = "8081"
+Port = "8080"
 RequestTimeout = 15
 
 [Database]
@@ -19,7 +19,7 @@ MaxOpenConns = 150
 MaxIdleConns = 50
 
 [Redis]
-Addr = "127.0.0.1:6379"
+Addr = "127.0.0.1:63791"
 Username = ""
 Password = ""
 DB = 0

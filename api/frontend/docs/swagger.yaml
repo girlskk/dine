@@ -461,14 +461,18 @@ definitions:
       amount_before_tax:
         description: 税前金额
         type: number
+      attr_amount:
+        description: 做法金额与赠送金额
+        type: number
       attr_relations:
         description: 口味做法信息
         items:
           $ref: '#/definitions/domain.ProductAttrRelation'
         type: array
-      category_id:
-        description: 分类ID
-        type: string
+      category:
+        allOf:
+        - $ref: '#/definitions/domain.Category'
+        description: 分类信息
       created_at:
         type: string
       description:
@@ -476,6 +480,9 @@ definitions:
         type: string
       discount_amount:
         description: 优惠金额
+        type: number
+      gift_amount:
+        description: 赠送金额
         type: number
       gift_qty:
         description: 赠送数量
@@ -1153,6 +1160,347 @@ definitions:
     x-enum-varnames:
     - ProductUnitTypeQuantity
     - ProductUnitTypeWeight
+  domain.RefundAmount:
+    properties:
+      discount_total:
+        description: 优惠退款分摊
+        type: number
+      fee_total:
+        description: 其他费用退款
+        type: number
+      items_subtotal:
+        description: 商品退款小计
+        type: number
+      refund_total:
+        description: 退款总额
+        type: number
+      service_fee_total:
+        description: 服务费退款
+        type: number
+      tax_total:
+        description: 税费退款
+        type: number
+    type: object
+  domain.RefundChannel:
+    enum:
+    - ORIGINAL
+    - CASH
+    - BALANCE
+    type: string
+    x-enum-comments:
+      RefundChannelBalance: 余额退款
+      RefundChannelCash: 现金退款
+      RefundChannelOriginal: 原路退回
+    x-enum-varnames:
+    - RefundChannelOriginal
+    - RefundChannelCash
+    - RefundChannelBalance
+  domain.RefundOrder:
+    properties:
+      approved_at:
+        description: 审批时间
+        type: string
+      approved_by:
+        description: 审批人ID
+        type: string
+      approved_by_name:
+        description: 审批人名称
+        type: string
+      business_date:
+        description: 营业信息
+        type: string
+      cashier:
+        allOf:
+        - $ref: '#/definitions/domain.OrderCashier'
+        description: 收银员信息
+      channel:
+        allOf:
+        - $ref: '#/definitions/domain.Channel'
+        description: 退款渠道
+      created_at:
+        type: string
+      id:
+        type: string
+      merchant_id:
+        description: 租户信息
+        type: string
+      origin_amount_paid:
+        description: 原订单实付金额
+        type: number
+      origin_order_id:
+        description: 原订单关联
+        type: string
+      origin_order_no:
+        description: 原订单号
+        type: string
+      origin_paid_at:
+        description: 原订单支付时间
+        type: string
+      pos:
+        allOf:
+        - $ref: '#/definitions/domain.OrderPOS'
+        description: POS终端信息
+      refund_amount:
+        allOf:
+        - $ref: '#/definitions/domain.RefundAmount'
+        description: 金额与支付
+      refund_no:
+        description: 退款单号
+        type: string
+      refund_payments:
+        description: 退款支付记录
+        items:
+          $ref: '#/definitions/domain.RefundPayment'
+        type: array
+      refund_products:
+        description: 退款商品明细
+        items:
+          $ref: '#/definitions/domain.RefundOrderProduct'
+        type: array
+      refund_reason:
+        description: 退款原因描述
+        type: string
+      refund_reason_code:
+        allOf:
+        - $ref: '#/definitions/domain.RefundReasonCode'
+        description: 退款原因
+      refund_status:
+        allOf:
+        - $ref: '#/definitions/domain.RefundStatus'
+        description: 退款状态
+      refund_type:
+        allOf:
+        - $ref: '#/definitions/domain.RefundType'
+        description: 退款类型与状态
+      refunded_at:
+        description: 时间节点
+        type: string
+      refunded_by:
+        description: 操作人信息
+        type: string
+      refunded_by_name:
+        description: 退款操作人名称
+        type: string
+      remark:
+        description: 备注
+        type: string
+      shift_no:
+        description: 班次号
+        type: string
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.OrderStore'
+        description: 终端信息
+      store_id:
+        description: 门店ID
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.RefundOrderProduct:
+    properties:
+      attr_relations:
+        description: 口味做法
+        items:
+          $ref: '#/definitions/domain.ProductAttrRelation'
+        type: array
+      category:
+        allOf:
+        - $ref: '#/definitions/domain.Category'
+        description: 分类信息
+      created_at:
+        type: string
+      description:
+        description: 菜品描述
+        type: string
+      groups:
+        description: 规格/口味/套餐快照
+        items:
+          $ref: '#/definitions/domain.SetMealGroup'
+        type: array
+      id:
+        type: string
+      main_image:
+        description: 商品主图
+        type: string
+      origin_discount:
+        description: 原优惠金额
+        type: number
+      origin_order_item_id:
+        description: 原订单内明细ID
+        type: string
+      origin_order_product_id:
+        description: 原订单商品关联
+        type: string
+      origin_price:
+        description: 原单价
+        type: number
+      origin_qty:
+        description: 原订单数量与金额
+        type: integer
+      origin_subtotal:
+        description: 原小计
+        type: number
+      origin_tax:
+        description: 原税额
+        type: number
+      origin_total:
+        description: 原合计
+        type: number
+      product_id:
+        description: 商品信息快照
+        type: string
+      product_name:
+        description: 商品名称
+        type: string
+      product_type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductType'
+        description: 商品类型
+      refund_discount:
+        description: 退款优惠分摊
+        type: number
+      refund_order_id:
+        description: 退款单关联
+        type: string
+      refund_qty:
+        description: 退款数量与金额
+        type: integer
+      refund_reason:
+        description: 退款原因
+        type: string
+      refund_subtotal:
+        description: 退款小计
+        type: number
+      refund_tax:
+        description: 退款税额
+        type: number
+      refund_total:
+        description: 退款合计
+        type: number
+      spec_relations:
+        description: 规格信息
+        items:
+          $ref: '#/definitions/domain.ProductSpecRelation'
+        type: array
+      unit_id:
+        description: 单位ID
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.RefundPayment:
+    properties:
+      cashier:
+        allOf:
+        - $ref: '#/definitions/domain.OrderCashier'
+        description: 收银员信息
+      failure_reason:
+        description: 失败原因
+        type: string
+      origin_payment_no:
+        description: 原支付流水号
+        type: string
+      payment_method:
+        allOf:
+        - $ref: '#/definitions/domain.PaymentMethodPayType'
+        description: 支付方式
+      pos:
+        allOf:
+        - $ref: '#/definitions/domain.OrderPOS'
+        description: POS 终端信息
+      refund_amount:
+        description: 退款金额
+        type: number
+      refund_channel:
+        allOf:
+        - $ref: '#/definitions/domain.RefundChannel'
+        description: 退款渠道
+      refund_payment_no:
+        description: 退款流水号
+        type: string
+      refund_status:
+        allOf:
+        - $ref: '#/definitions/domain.RefundPaymentStatus'
+        description: 退款状态
+      refunded_at:
+        description: 退款完成时间
+        type: string
+      third_party_refund_no:
+        description: 第三方退款单号
+        type: string
+    type: object
+  domain.RefundPaymentStatus:
+    enum:
+    - PENDING
+    - PROCESSING
+    - SUCCESS
+    - FAILED
+    type: string
+    x-enum-comments:
+      RefundPaymentStatusFailed: 退款失败
+      RefundPaymentStatusPending: 待退款
+      RefundPaymentStatusProcessing: 退款中
+      RefundPaymentStatusSuccess: 退款成功
+    x-enum-varnames:
+    - RefundPaymentStatusPending
+    - RefundPaymentStatusProcessing
+    - RefundPaymentStatusSuccess
+    - RefundPaymentStatusFailed
+  domain.RefundReasonCode:
+    enum:
+    - CUSTOMER_REQUEST
+    - QUALITY_ISSUE
+    - WRONG_ORDER
+    - OUT_OF_STOCK
+    - SERVICE_ISSUE
+    - OTHER
+    type: string
+    x-enum-comments:
+      RefundReasonCustomerRequest: 顾客要求
+      RefundReasonOther: 其他
+      RefundReasonOutOfStock: 缺货
+      RefundReasonQualityIssue: 质量问题
+      RefundReasonServiceIssue: 服务问题
+      RefundReasonWrongOrder: 下错单
+    x-enum-varnames:
+    - RefundReasonCustomerRequest
+    - RefundReasonQualityIssue
+    - RefundReasonWrongOrder
+    - RefundReasonOutOfStock
+    - RefundReasonServiceIssue
+    - RefundReasonOther
+  domain.RefundStatus:
+    enum:
+    - PENDING
+    - PROCESSING
+    - COMPLETED
+    - FAILED
+    - CANCELLED
+    type: string
+    x-enum-comments:
+      RefundStatusCancelled: 已取消
+      RefundStatusCompleted: 已完成
+      RefundStatusFailed: 退款失败
+      RefundStatusPending: 待处理
+      RefundStatusProcessing: 处理中
+    x-enum-varnames:
+    - RefundStatusPending
+    - RefundStatusProcessing
+    - RefundStatusCompleted
+    - RefundStatusFailed
+    - RefundStatusCancelled
+  domain.RefundType:
+    enum:
+    - FULL
+    - PARTIAL
+    type: string
+    x-enum-comments:
+      RefundTypeFull: 全额退款
+      RefundTypePartial: 部分退款
+    x-enum-varnames:
+    - RefundTypeFull
+    - RefundTypePartial
   domain.SaleChannel:
     enum:
     - POS
@@ -1384,6 +1732,12 @@ definitions:
     x-enum-varnames:
     - TaxRateTypeUnified
     - TaxRateTypeCustom
+  response.Response:
+    properties:
+      code:
+        type: string
+      data: {}
+    type: object
   types.CreateOrderReq:
     properties:
       amount:
@@ -1485,6 +1839,159 @@ definitions:
     - business_date
     - dining_mode
     type: object
+  types.CreateRefundOrderReq:
+    properties:
+      business_date:
+        description: 营业日
+        type: string
+      cashier:
+        allOf:
+        - $ref: '#/definitions/domain.OrderCashier'
+        description: 收银员信息
+      origin_order_id:
+        description: 原订单ID
+        type: string
+      pos:
+        allOf:
+        - $ref: '#/definitions/domain.OrderPOS'
+        description: POS终端信息
+      refund_amount:
+        allOf:
+        - $ref: '#/definitions/domain.RefundAmount'
+        description: 退款金额明细
+      refund_no:
+        description: 退款单号（可选，不传则自动生成）
+        type: string
+      refund_payments:
+        description: 退款支付记录
+        items:
+          $ref: '#/definitions/domain.RefundPayment'
+        type: array
+      refund_products:
+        description: 退款商品明细
+        items:
+          $ref: '#/definitions/types.CreateRefundProductReq'
+        type: array
+      refund_reason:
+        description: 退款原因描述
+        type: string
+      refund_reason_code:
+        allOf:
+        - $ref: '#/definitions/domain.RefundReasonCode'
+        description: 退款原因代码
+      refund_type:
+        allOf:
+        - $ref: '#/definitions/domain.RefundType'
+        description: 退款类型
+      remark:
+        description: 备注
+        type: string
+      shift_no:
+        description: 班次号
+        type: string
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.OrderStore'
+        description: 门店信息
+    required:
+    - business_date
+    - cashier
+    - origin_order_id
+    - pos
+    - refund_amount
+    - refund_products
+    - refund_type
+    - store
+    type: object
+  types.CreateRefundProductReq:
+    properties:
+      attr_relations:
+        description: 口味做法
+        items:
+          $ref: '#/definitions/domain.ProductAttrRelation'
+        type: array
+      category:
+        allOf:
+        - $ref: '#/definitions/domain.Category'
+        description: 分类信息
+      description:
+        description: 菜品描述
+        type: string
+      groups:
+        description: 套餐组信息
+        items:
+          $ref: '#/definitions/domain.SetMealGroup'
+        type: array
+      main_image:
+        description: 商品主图
+        type: string
+      origin_discount:
+        description: 原优惠金额
+        type: number
+      origin_order_item_id:
+        description: 原订单内明细ID
+        type: string
+      origin_order_product_id:
+        description: 原订单商品明细ID
+        type: string
+      origin_price:
+        description: 原单价
+        type: number
+      origin_qty:
+        description: 原购买数量
+        type: integer
+      origin_subtotal:
+        description: 原小计
+        type: number
+      origin_tax:
+        description: 原税额
+        type: number
+      origin_total:
+        description: 原合计
+        type: number
+      product_id:
+        description: 商品ID
+        type: string
+      product_name:
+        description: 商品名称
+        type: string
+      product_type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductType'
+        description: 商品类型
+      refund_discount:
+        description: 退款优惠分摊
+        type: number
+      refund_qty:
+        description: 退款数量
+        type: integer
+      refund_reason:
+        description: 单品退款原因
+        type: string
+      refund_subtotal:
+        description: 退款小计
+        type: number
+      refund_tax:
+        description: 退款税额
+        type: number
+      refund_total:
+        description: 退款合计
+        type: number
+      spec_relations:
+        description: 规格信息
+        items:
+          $ref: '#/definitions/domain.ProductSpecRelation'
+        type: array
+      unit_id:
+        description: 单位ID
+        type: string
+    required:
+    - origin_order_product_id
+    - origin_qty
+    - product_id
+    - product_name
+    - refund_qty
+    type: object
   types.ListOrderResp:
     properties:
       items:
@@ -1496,6 +2003,17 @@ definitions:
         allOf:
         - $ref: '#/definitions/upagination.Pagination'
         description: 分页信息
+    type: object
+  types.RefundOrderListResp:
+    properties:
+      items:
+        description: 退款订单列表
+        items:
+          $ref: '#/definitions/domain.RefundOrder'
+        type: array
+      total:
+        description: 总数
+        type: integer
     type: object
   types.UpdateOrderReq:
     properties:
@@ -1597,6 +2115,40 @@ definitions:
         items:
           $ref: '#/definitions/domain.OrderTaxRate'
         type: array
+    type: object
+  types.UpdateRefundOrderReq:
+    properties:
+      approved_at:
+        description: 审批时间
+        type: string
+      approved_by:
+        description: 审批人ID
+        type: string
+      approved_by_name:
+        description: 审批人名称
+        type: string
+      refund_payments:
+        description: 退款支付记录
+        items:
+          $ref: '#/definitions/domain.RefundPayment'
+        type: array
+      refund_reason:
+        description: 退款原因描述
+        type: string
+      refund_reason_code:
+        allOf:
+        - $ref: '#/definitions/domain.RefundReasonCode'
+        description: 退款原因代码
+      refund_status:
+        allOf:
+        - $ref: '#/definitions/domain.RefundStatus'
+        description: 退款状态
+      refunded_at:
+        description: 退款完成时间
+        type: string
+      remark:
+        description: 备注
+        type: string
     type: object
   upagination.Pagination:
     properties:
@@ -1789,6 +2341,144 @@ paths:
       summary: 查询结算方式列表
       tags:
       - 结算方式管理
+  /refund-order:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 原订单ID
+        in: query
+        name: origin_order_id
+        type: string
+      - description: 营业日
+        in: query
+        name: business_date
+        type: string
+      - description: 退款单号
+        in: query
+        name: refund_no
+        type: string
+      - description: 退款类型
+        in: query
+        name: refund_type
+        type: string
+      - description: 退款状态
+        in: query
+        name: refund_status
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.RefundOrderListResp'
+      security:
+      - BearerAuth: []
+      summary: 退款订单列表
+      tags:
+      - 退款订单
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateRefundOrderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.RefundOrder'
+      security:
+      - BearerAuth: []
+      summary: 创建退款订单
+      tags:
+      - 退款订单
+  /refund-order/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 退款订单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.RefundOrder'
+      security:
+      - BearerAuth: []
+      summary: 获取退款订单详情
+      tags:
+      - 退款订单
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 退款订单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.UpdateRefundOrderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.RefundOrder'
+      security:
+      - BearerAuth: []
+      summary: 更新退款订单
+      tags:
+      - 退款订单
+  /refund-order/{id}/cancel:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 退款订单ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 取消退款订单
+      tags:
+      - 退款订单
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT token.

@@ -37,7 +37,7 @@ func (OrderProduct) Fields() []ent.Field {
 		field.UUID("product_id", uuid.UUID{}).Comment("商品ID"),
 		field.String("product_name").NotEmpty().Comment("商品名称"),
 		field.Enum("product_type").GoType(domain.ProductType("")).Default(string(domain.ProductTypeNormal)).Comment("商品类型：normal（普通商品）、set_meal（套餐商品）"),
-		field.UUID("category_id", uuid.UUID{}).Optional().Comment("分类ID"),
+		field.JSON("category", domain.Category{}).Optional().Comment("分类信息"),
 		field.UUID("unit_id", uuid.UUID{}).Optional().Comment("单位ID"),
 		field.String("main_image").MaxLen(512).Default("").Comment("商品主图"),
 		field.String("description").MaxLen(2000).Default("").Comment("菜品描述"),
@@ -111,6 +111,24 @@ func (OrderProduct) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("促销优惠金额"),
+
+		// ========== 做法金额与赠送金额 ==========
+		field.Other("attr_amount", decimal.Decimal{}).
+			SchemaType(map[string]string{
+				dialect.MySQL:  "DECIMAL(10,4)",
+				dialect.SQLite: "NUMERIC",
+			}).
+			Optional().
+			Nillable().
+			Comment("做法金额"),
+		field.Other("gift_amount", decimal.Decimal{}).
+			SchemaType(map[string]string{
+				dialect.MySQL:  "DECIMAL(10,4)",
+				dialect.SQLite: "NUMERIC",
+			}).
+			Optional().
+			Nillable().
+			Comment("赠送金额"),
 
 		// ========== 退菜信息 ==========
 		field.Int("void_qty").Default(0).Comment("已退菜数量汇总"),

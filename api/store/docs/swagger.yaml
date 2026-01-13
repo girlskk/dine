@@ -238,7 +238,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -722,6 +722,57 @@ definitions:
     - OrderChannelMobileOrder
     - OrderChannelScanOrder
     - OrderChannelThirdDelivery
+  domain.OrderSalesReportItem:
+    properties:
+      amount_due:
+        description: 应收金额
+        type: number
+      amount_paid:
+        description: 实收金额
+        type: number
+      amount_paid_per_guest:
+        description: 人均实收
+        type: number
+      business_date:
+        description: 营业日
+        type: string
+      cash_amount:
+        description: 现金金额
+        type: number
+      change_amount:
+        description: 零钱实收
+        type: number
+      discount_total:
+        description: 优惠金额
+        type: number
+      fee_total:
+        description: 附加费金额
+        type: number
+      guest_count:
+        description: 用餐人数
+        type: integer
+      net_amount:
+        description: 净收金额（实收-退款）
+        type: number
+      order_count:
+        description: 单量
+        type: integer
+      refund_amount:
+        description: 退款金额
+        type: number
+      refund_count:
+        description: 退款单数
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      store_name:
+        description: 门店名称
+        type: string
+      third_party_amount:
+        description: 三方支付金额
+        type: number
+    type: object
   domain.PaperSize:
     enum:
     - 58mm
@@ -1118,6 +1169,61 @@ definitions:
     x-enum-varnames:
     - ProductSaleStatusOnSale
     - ProductSaleStatusOffSale
+  domain.ProductSalesSummaryItem:
+    properties:
+      amount_due:
+        description: 商品应收金额
+        type: number
+      attr_amount:
+        description: 做法金额
+        type: number
+      avg_price:
+        description: 销售均价
+        type: number
+      category_name:
+        description: 一级分类名称
+        type: string
+      category_name_2:
+        description: 二级分类名称
+        type: string
+      discount_amount:
+        description: 优惠金额
+        type: number
+      gift_amount:
+        description: 赠送金额
+        type: number
+      gift_qty:
+        description: 赠送数量
+        type: integer
+      product_id:
+        description: 商品ID
+        type: string
+      product_name:
+        description: 商品名称
+        type: string
+      product_type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductType'
+        description: 商品类型
+      refund_amount:
+        description: 退款金额
+        type: number
+      refund_qty:
+        description: 退款数量
+        type: integer
+      sales_amount:
+        description: 销售金额
+        type: number
+      sales_qty:
+        description: 销售数量
+        type: integer
+      spec_name:
+        description: 规格名称
+        type: string
+      subtotal:
+        description: 商品金额（小计）
+        type: number
+    type: object
   domain.ProductSearchRes:
     properties:
       items:
@@ -1724,16 +1830,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - PaymentMethodDisplayChannelPOS
-    - PaymentMethodDisplayChannelMobileOrdering
-    - PaymentMethodDisplayChannelScanOrdering
-    - PaymentMethodDisplayChannelSelfService
-    - PaymentMethodDisplayChannelThirdPartyDelivery
     - SaleChannelPOS
     - SaleChannelMobileOrdering
     - SaleChannelScanOrdering
     - SaleChannelSelfService
     - SaleChannelThirdPartyDelivery
+    - PaymentMethodDisplayChannelPOS
+    - PaymentMethodDisplayChannelMobileOrdering
+    - PaymentMethodDisplayChannelScanOrdering
+    - PaymentMethodDisplayChannelSelfService
+    - PaymentMethodDisplayChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -2135,24 +2241,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.AccountListResp:
     properties:
       total:
@@ -2988,6 +3076,18 @@ definitions:
     - spec_relations
     - unit_id
     type: object
+  types.ProductSalesSummaryResp:
+    properties:
+      items:
+        description: 汇总数据
+        items:
+          $ref: '#/definitions/domain.ProductSalesSummaryItem'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/upagination.Pagination'
+        description: 分页信息
+    type: object
   types.ProductSpecCreateReq:
     properties:
       name:
@@ -3373,6 +3473,18 @@ definitions:
         type: integer
     required:
     - name
+    type: object
+  types.SalesReportResp:
+    properties:
+      items:
+        description: 报表数据
+        items:
+          $ref: '#/definitions/domain.OrderSalesReportItem'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/upagination.Pagination'
+        description: 分页信息
     type: object
   types.SetMealCreateReq:
     properties:
@@ -3953,6 +4065,18 @@ definitions:
     - shift_times
     - status
     - store_name
+    type: object
+  upagination.Pagination:
+    properties:
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
     type: object
 info:
   contact: {}
@@ -4764,6 +4888,98 @@ paths:
       summary: 更新菜单
       tags:
       - 菜单管理
+  /order/product-sales-summary:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 营业日开始
+        in: query
+        name: business_date_start
+        required: true
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
+        required: true
+        type: string
+      - description: 订单来源
+        in: query
+        name: order_channel
+        type: string
+      - description: 商品分类ID
+        in: query
+        name: category_id
+        type: string
+      - description: 商品名称（模糊搜索）
+        in: query
+        name: product_name
+        type: string
+      - description: 商品类型：normal/set_meal
+        in: query
+        name: product_type
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.ProductSalesSummaryResp'
+      summary: 商品销售汇总表
+      tags:
+      - 数据分析
+  /order/sales-report:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 品牌商ID
+        in: query
+        name: merchant_id
+        required: true
+        type: string
+      - description: 门店ID
+        in: query
+        name: store_id
+        required: true
+        type: string
+      - description: 营业日开始
+        in: query
+        name: business_date_start
+        required: true
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.SalesReportResp'
+      summary: 销售汇总表
+      tags:
+      - 数据分析
   /oss/token:
     post:
       consumes:

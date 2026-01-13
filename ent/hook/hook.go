@@ -333,6 +333,30 @@ func (f ProfitDistributionRuleFunc) Mutate(ctx context.Context, m ent.Mutation) 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProfitDistributionRuleMutation", m)
 }
 
+// The RefundOrderFunc type is an adapter to allow the use of ordinary
+// function as RefundOrder mutator.
+type RefundOrderFunc func(context.Context, *ent.RefundOrderMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RefundOrderFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RefundOrderMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RefundOrderMutation", m)
+}
+
+// The RefundOrderProductFunc type is an adapter to allow the use of ordinary
+// function as RefundOrderProduct mutator.
+type RefundOrderProductFunc func(context.Context, *ent.RefundOrderProductMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RefundOrderProductFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RefundOrderProductMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RefundOrderProductMutation", m)
+}
+
 // The RemarkFunc type is an adapter to allow the use of ordinary
 // function as Remark mutator.
 type RemarkFunc func(context.Context, *ent.RemarkMutation) (ent.Value, error)
