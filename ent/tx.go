@@ -66,6 +66,10 @@ type Tx struct {
 	ProfitDistributionBill *ProfitDistributionBillClient
 	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
 	ProfitDistributionRule *ProfitDistributionRuleClient
+	// RefundOrder is the client for interacting with the RefundOrder builders.
+	RefundOrder *RefundOrderClient
+	// RefundOrderProduct is the client for interacting with the RefundOrderProduct builders.
+	RefundOrderProduct *RefundOrderProductClient
 	// Remark is the client for interacting with the Remark builders.
 	Remark *RemarkClient
 	// Role is the client for interacting with the Role builders.
@@ -250,6 +254,8 @@ func (tx *Tx) init() {
 	tx.ProductUnit = NewProductUnitClient(tx.config)
 	tx.ProfitDistributionBill = NewProfitDistributionBillClient(tx.config)
 	tx.ProfitDistributionRule = NewProfitDistributionRuleClient(tx.config)
+	tx.RefundOrder = NewRefundOrderClient(tx.config)
+	tx.RefundOrderProduct = NewRefundOrderProductClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.RoleMenu = NewRoleMenuClient(tx.config)

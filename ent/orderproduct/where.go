@@ -98,11 +98,6 @@ func ProductName(v string) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldProductName, v))
 }
 
-// CategoryID applies equality check predicate on the "category_id" field. It's identical to CategoryIDEQ.
-func CategoryID(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldCategoryID, v))
-}
-
 // UnitID applies equality check predicate on the "unit_id" field. It's identical to UnitIDEQ.
 func UnitID(v uuid.UUID) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldUnitID, v))
@@ -171,6 +166,16 @@ func Total(v decimal.Decimal) predicate.OrderProduct {
 // PromotionDiscount applies equality check predicate on the "promotion_discount" field. It's identical to PromotionDiscountEQ.
 func PromotionDiscount(v decimal.Decimal) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldEQ(FieldPromotionDiscount, v))
+}
+
+// AttrAmount applies equality check predicate on the "attr_amount" field. It's identical to AttrAmountEQ.
+func AttrAmount(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldAttrAmount, v))
+}
+
+// GiftAmount applies equality check predicate on the "gift_amount" field. It's identical to GiftAmountEQ.
+func GiftAmount(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldGiftAmount, v))
 }
 
 // VoidQty applies equality check predicate on the "void_qty" field. It's identical to VoidQtyEQ.
@@ -588,54 +593,14 @@ func ProductTypeNotIn(vs ...domain.ProductType) predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNotIn(FieldProductType, v...))
 }
 
-// CategoryIDEQ applies the EQ predicate on the "category_id" field.
-func CategoryIDEQ(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldEQ(FieldCategoryID, v))
+// CategoryIsNil applies the IsNil predicate on the "category" field.
+func CategoryIsNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIsNull(FieldCategory))
 }
 
-// CategoryIDNEQ applies the NEQ predicate on the "category_id" field.
-func CategoryIDNEQ(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNEQ(FieldCategoryID, v))
-}
-
-// CategoryIDIn applies the In predicate on the "category_id" field.
-func CategoryIDIn(vs ...uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIn(FieldCategoryID, vs...))
-}
-
-// CategoryIDNotIn applies the NotIn predicate on the "category_id" field.
-func CategoryIDNotIn(vs ...uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotIn(FieldCategoryID, vs...))
-}
-
-// CategoryIDGT applies the GT predicate on the "category_id" field.
-func CategoryIDGT(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGT(FieldCategoryID, v))
-}
-
-// CategoryIDGTE applies the GTE predicate on the "category_id" field.
-func CategoryIDGTE(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldGTE(FieldCategoryID, v))
-}
-
-// CategoryIDLT applies the LT predicate on the "category_id" field.
-func CategoryIDLT(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLT(FieldCategoryID, v))
-}
-
-// CategoryIDLTE applies the LTE predicate on the "category_id" field.
-func CategoryIDLTE(v uuid.UUID) predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldLTE(FieldCategoryID, v))
-}
-
-// CategoryIDIsNil applies the IsNil predicate on the "category_id" field.
-func CategoryIDIsNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldIsNull(FieldCategoryID))
-}
-
-// CategoryIDNotNil applies the NotNil predicate on the "category_id" field.
-func CategoryIDNotNil() predicate.OrderProduct {
-	return predicate.OrderProduct(sql.FieldNotNull(FieldCategoryID))
+// CategoryNotNil applies the NotNil predicate on the "category" field.
+func CategoryNotNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotNull(FieldCategory))
 }
 
 // UnitIDEQ applies the EQ predicate on the "unit_id" field.
@@ -1306,6 +1271,106 @@ func PromotionDiscountIsNil() predicate.OrderProduct {
 // PromotionDiscountNotNil applies the NotNil predicate on the "promotion_discount" field.
 func PromotionDiscountNotNil() predicate.OrderProduct {
 	return predicate.OrderProduct(sql.FieldNotNull(FieldPromotionDiscount))
+}
+
+// AttrAmountEQ applies the EQ predicate on the "attr_amount" field.
+func AttrAmountEQ(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldAttrAmount, v))
+}
+
+// AttrAmountNEQ applies the NEQ predicate on the "attr_amount" field.
+func AttrAmountNEQ(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNEQ(FieldAttrAmount, v))
+}
+
+// AttrAmountIn applies the In predicate on the "attr_amount" field.
+func AttrAmountIn(vs ...decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIn(FieldAttrAmount, vs...))
+}
+
+// AttrAmountNotIn applies the NotIn predicate on the "attr_amount" field.
+func AttrAmountNotIn(vs ...decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotIn(FieldAttrAmount, vs...))
+}
+
+// AttrAmountGT applies the GT predicate on the "attr_amount" field.
+func AttrAmountGT(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGT(FieldAttrAmount, v))
+}
+
+// AttrAmountGTE applies the GTE predicate on the "attr_amount" field.
+func AttrAmountGTE(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGTE(FieldAttrAmount, v))
+}
+
+// AttrAmountLT applies the LT predicate on the "attr_amount" field.
+func AttrAmountLT(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLT(FieldAttrAmount, v))
+}
+
+// AttrAmountLTE applies the LTE predicate on the "attr_amount" field.
+func AttrAmountLTE(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLTE(FieldAttrAmount, v))
+}
+
+// AttrAmountIsNil applies the IsNil predicate on the "attr_amount" field.
+func AttrAmountIsNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIsNull(FieldAttrAmount))
+}
+
+// AttrAmountNotNil applies the NotNil predicate on the "attr_amount" field.
+func AttrAmountNotNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotNull(FieldAttrAmount))
+}
+
+// GiftAmountEQ applies the EQ predicate on the "gift_amount" field.
+func GiftAmountEQ(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldEQ(FieldGiftAmount, v))
+}
+
+// GiftAmountNEQ applies the NEQ predicate on the "gift_amount" field.
+func GiftAmountNEQ(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNEQ(FieldGiftAmount, v))
+}
+
+// GiftAmountIn applies the In predicate on the "gift_amount" field.
+func GiftAmountIn(vs ...decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIn(FieldGiftAmount, vs...))
+}
+
+// GiftAmountNotIn applies the NotIn predicate on the "gift_amount" field.
+func GiftAmountNotIn(vs ...decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotIn(FieldGiftAmount, vs...))
+}
+
+// GiftAmountGT applies the GT predicate on the "gift_amount" field.
+func GiftAmountGT(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGT(FieldGiftAmount, v))
+}
+
+// GiftAmountGTE applies the GTE predicate on the "gift_amount" field.
+func GiftAmountGTE(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldGTE(FieldGiftAmount, v))
+}
+
+// GiftAmountLT applies the LT predicate on the "gift_amount" field.
+func GiftAmountLT(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLT(FieldGiftAmount, v))
+}
+
+// GiftAmountLTE applies the LTE predicate on the "gift_amount" field.
+func GiftAmountLTE(v decimal.Decimal) predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldLTE(FieldGiftAmount, v))
+}
+
+// GiftAmountIsNil applies the IsNil predicate on the "gift_amount" field.
+func GiftAmountIsNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldIsNull(FieldGiftAmount))
+}
+
+// GiftAmountNotNil applies the NotNil predicate on the "gift_amount" field.
+func GiftAmountNotNil() predicate.OrderProduct {
+	return predicate.OrderProduct(sql.FieldNotNull(FieldGiftAmount))
 }
 
 // VoidQtyEQ applies the EQ predicate on the "void_qty" field.

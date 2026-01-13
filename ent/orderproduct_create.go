@@ -121,16 +121,16 @@ func (opc *OrderProductCreate) SetNillableProductType(dt *domain.ProductType) *O
 	return opc
 }
 
-// SetCategoryID sets the "category_id" field.
-func (opc *OrderProductCreate) SetCategoryID(u uuid.UUID) *OrderProductCreate {
-	opc.mutation.SetCategoryID(u)
+// SetCategory sets the "category" field.
+func (opc *OrderProductCreate) SetCategory(d domain.Category) *OrderProductCreate {
+	opc.mutation.SetCategory(d)
 	return opc
 }
 
-// SetNillableCategoryID sets the "category_id" field if the given value is not nil.
-func (opc *OrderProductCreate) SetNillableCategoryID(u *uuid.UUID) *OrderProductCreate {
-	if u != nil {
-		opc.SetCategoryID(*u)
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (opc *OrderProductCreate) SetNillableCategory(d *domain.Category) *OrderProductCreate {
+	if d != nil {
+		opc.SetCategory(*d)
 	}
 	return opc
 }
@@ -327,6 +327,34 @@ func (opc *OrderProductCreate) SetPromotionDiscount(d decimal.Decimal) *OrderPro
 func (opc *OrderProductCreate) SetNillablePromotionDiscount(d *decimal.Decimal) *OrderProductCreate {
 	if d != nil {
 		opc.SetPromotionDiscount(*d)
+	}
+	return opc
+}
+
+// SetAttrAmount sets the "attr_amount" field.
+func (opc *OrderProductCreate) SetAttrAmount(d decimal.Decimal) *OrderProductCreate {
+	opc.mutation.SetAttrAmount(d)
+	return opc
+}
+
+// SetNillableAttrAmount sets the "attr_amount" field if the given value is not nil.
+func (opc *OrderProductCreate) SetNillableAttrAmount(d *decimal.Decimal) *OrderProductCreate {
+	if d != nil {
+		opc.SetAttrAmount(*d)
+	}
+	return opc
+}
+
+// SetGiftAmount sets the "gift_amount" field.
+func (opc *OrderProductCreate) SetGiftAmount(d decimal.Decimal) *OrderProductCreate {
+	opc.mutation.SetGiftAmount(d)
+	return opc
+}
+
+// SetNillableGiftAmount sets the "gift_amount" field if the given value is not nil.
+func (opc *OrderProductCreate) SetNillableGiftAmount(d *decimal.Decimal) *OrderProductCreate {
+	if d != nil {
+		opc.SetGiftAmount(*d)
 	}
 	return opc
 }
@@ -706,9 +734,9 @@ func (opc *OrderProductCreate) createSpec() (*OrderProduct, *sqlgraph.CreateSpec
 		_spec.SetField(orderproduct.FieldProductType, field.TypeEnum, value)
 		_node.ProductType = value
 	}
-	if value, ok := opc.mutation.CategoryID(); ok {
-		_spec.SetField(orderproduct.FieldCategoryID, field.TypeUUID, value)
-		_node.CategoryID = value
+	if value, ok := opc.mutation.Category(); ok {
+		_spec.SetField(orderproduct.FieldCategory, field.TypeJSON, value)
+		_node.Category = value
 	}
 	if value, ok := opc.mutation.UnitID(); ok {
 		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
@@ -765,6 +793,14 @@ func (opc *OrderProductCreate) createSpec() (*OrderProduct, *sqlgraph.CreateSpec
 	if value, ok := opc.mutation.PromotionDiscount(); ok {
 		_spec.SetField(orderproduct.FieldPromotionDiscount, field.TypeOther, value)
 		_node.PromotionDiscount = &value
+	}
+	if value, ok := opc.mutation.AttrAmount(); ok {
+		_spec.SetField(orderproduct.FieldAttrAmount, field.TypeOther, value)
+		_node.AttrAmount = &value
+	}
+	if value, ok := opc.mutation.GiftAmount(); ok {
+		_spec.SetField(orderproduct.FieldGiftAmount, field.TypeOther, value)
+		_node.GiftAmount = &value
 	}
 	if value, ok := opc.mutation.VoidQty(); ok {
 		_spec.SetField(orderproduct.FieldVoidQty, field.TypeInt, value)
@@ -983,21 +1019,21 @@ func (u *OrderProductUpsert) UpdateProductType() *OrderProductUpsert {
 	return u
 }
 
-// SetCategoryID sets the "category_id" field.
-func (u *OrderProductUpsert) SetCategoryID(v uuid.UUID) *OrderProductUpsert {
-	u.Set(orderproduct.FieldCategoryID, v)
+// SetCategory sets the "category" field.
+func (u *OrderProductUpsert) SetCategory(v domain.Category) *OrderProductUpsert {
+	u.Set(orderproduct.FieldCategory, v)
 	return u
 }
 
-// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
-func (u *OrderProductUpsert) UpdateCategoryID() *OrderProductUpsert {
-	u.SetExcluded(orderproduct.FieldCategoryID)
+// UpdateCategory sets the "category" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdateCategory() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldCategory)
 	return u
 }
 
-// ClearCategoryID clears the value of the "category_id" field.
-func (u *OrderProductUpsert) ClearCategoryID() *OrderProductUpsert {
-	u.SetNull(orderproduct.FieldCategoryID)
+// ClearCategory clears the value of the "category" field.
+func (u *OrderProductUpsert) ClearCategory() *OrderProductUpsert {
+	u.SetNull(orderproduct.FieldCategory)
 	return u
 }
 
@@ -1232,6 +1268,42 @@ func (u *OrderProductUpsert) UpdatePromotionDiscount() *OrderProductUpsert {
 // ClearPromotionDiscount clears the value of the "promotion_discount" field.
 func (u *OrderProductUpsert) ClearPromotionDiscount() *OrderProductUpsert {
 	u.SetNull(orderproduct.FieldPromotionDiscount)
+	return u
+}
+
+// SetAttrAmount sets the "attr_amount" field.
+func (u *OrderProductUpsert) SetAttrAmount(v decimal.Decimal) *OrderProductUpsert {
+	u.Set(orderproduct.FieldAttrAmount, v)
+	return u
+}
+
+// UpdateAttrAmount sets the "attr_amount" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdateAttrAmount() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldAttrAmount)
+	return u
+}
+
+// ClearAttrAmount clears the value of the "attr_amount" field.
+func (u *OrderProductUpsert) ClearAttrAmount() *OrderProductUpsert {
+	u.SetNull(orderproduct.FieldAttrAmount)
+	return u
+}
+
+// SetGiftAmount sets the "gift_amount" field.
+func (u *OrderProductUpsert) SetGiftAmount(v decimal.Decimal) *OrderProductUpsert {
+	u.Set(orderproduct.FieldGiftAmount, v)
+	return u
+}
+
+// UpdateGiftAmount sets the "gift_amount" field to the value that was provided on create.
+func (u *OrderProductUpsert) UpdateGiftAmount() *OrderProductUpsert {
+	u.SetExcluded(orderproduct.FieldGiftAmount)
+	return u
+}
+
+// ClearGiftAmount clears the value of the "gift_amount" field.
+func (u *OrderProductUpsert) ClearGiftAmount() *OrderProductUpsert {
+	u.SetNull(orderproduct.FieldGiftAmount)
 	return u
 }
 
@@ -1592,24 +1664,24 @@ func (u *OrderProductUpsertOne) UpdateProductType() *OrderProductUpsertOne {
 	})
 }
 
-// SetCategoryID sets the "category_id" field.
-func (u *OrderProductUpsertOne) SetCategoryID(v uuid.UUID) *OrderProductUpsertOne {
+// SetCategory sets the "category" field.
+func (u *OrderProductUpsertOne) SetCategory(v domain.Category) *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetCategoryID(v)
+		s.SetCategory(v)
 	})
 }
 
-// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
-func (u *OrderProductUpsertOne) UpdateCategoryID() *OrderProductUpsertOne {
+// UpdateCategory sets the "category" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdateCategory() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateCategoryID()
+		s.UpdateCategory()
 	})
 }
 
-// ClearCategoryID clears the value of the "category_id" field.
-func (u *OrderProductUpsertOne) ClearCategoryID() *OrderProductUpsertOne {
+// ClearCategory clears the value of the "category" field.
+func (u *OrderProductUpsertOne) ClearCategory() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearCategoryID()
+		s.ClearCategory()
 	})
 }
 
@@ -1883,6 +1955,48 @@ func (u *OrderProductUpsertOne) UpdatePromotionDiscount() *OrderProductUpsertOne
 func (u *OrderProductUpsertOne) ClearPromotionDiscount() *OrderProductUpsertOne {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.ClearPromotionDiscount()
+	})
+}
+
+// SetAttrAmount sets the "attr_amount" field.
+func (u *OrderProductUpsertOne) SetAttrAmount(v decimal.Decimal) *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetAttrAmount(v)
+	})
+}
+
+// UpdateAttrAmount sets the "attr_amount" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdateAttrAmount() *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateAttrAmount()
+	})
+}
+
+// ClearAttrAmount clears the value of the "attr_amount" field.
+func (u *OrderProductUpsertOne) ClearAttrAmount() *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.ClearAttrAmount()
+	})
+}
+
+// SetGiftAmount sets the "gift_amount" field.
+func (u *OrderProductUpsertOne) SetGiftAmount(v decimal.Decimal) *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetGiftAmount(v)
+	})
+}
+
+// UpdateGiftAmount sets the "gift_amount" field to the value that was provided on create.
+func (u *OrderProductUpsertOne) UpdateGiftAmount() *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateGiftAmount()
+	})
+}
+
+// ClearGiftAmount clears the value of the "gift_amount" field.
+func (u *OrderProductUpsertOne) ClearGiftAmount() *OrderProductUpsertOne {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.ClearGiftAmount()
 	})
 }
 
@@ -2440,24 +2554,24 @@ func (u *OrderProductUpsertBulk) UpdateProductType() *OrderProductUpsertBulk {
 	})
 }
 
-// SetCategoryID sets the "category_id" field.
-func (u *OrderProductUpsertBulk) SetCategoryID(v uuid.UUID) *OrderProductUpsertBulk {
+// SetCategory sets the "category" field.
+func (u *OrderProductUpsertBulk) SetCategory(v domain.Category) *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.SetCategoryID(v)
+		s.SetCategory(v)
 	})
 }
 
-// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
-func (u *OrderProductUpsertBulk) UpdateCategoryID() *OrderProductUpsertBulk {
+// UpdateCategory sets the "category" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdateCategory() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.UpdateCategoryID()
+		s.UpdateCategory()
 	})
 }
 
-// ClearCategoryID clears the value of the "category_id" field.
-func (u *OrderProductUpsertBulk) ClearCategoryID() *OrderProductUpsertBulk {
+// ClearCategory clears the value of the "category" field.
+func (u *OrderProductUpsertBulk) ClearCategory() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
-		s.ClearCategoryID()
+		s.ClearCategory()
 	})
 }
 
@@ -2731,6 +2845,48 @@ func (u *OrderProductUpsertBulk) UpdatePromotionDiscount() *OrderProductUpsertBu
 func (u *OrderProductUpsertBulk) ClearPromotionDiscount() *OrderProductUpsertBulk {
 	return u.Update(func(s *OrderProductUpsert) {
 		s.ClearPromotionDiscount()
+	})
+}
+
+// SetAttrAmount sets the "attr_amount" field.
+func (u *OrderProductUpsertBulk) SetAttrAmount(v decimal.Decimal) *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetAttrAmount(v)
+	})
+}
+
+// UpdateAttrAmount sets the "attr_amount" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdateAttrAmount() *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateAttrAmount()
+	})
+}
+
+// ClearAttrAmount clears the value of the "attr_amount" field.
+func (u *OrderProductUpsertBulk) ClearAttrAmount() *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.ClearAttrAmount()
+	})
+}
+
+// SetGiftAmount sets the "gift_amount" field.
+func (u *OrderProductUpsertBulk) SetGiftAmount(v decimal.Decimal) *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.SetGiftAmount(v)
+	})
+}
+
+// UpdateGiftAmount sets the "gift_amount" field to the value that was provided on create.
+func (u *OrderProductUpsertBulk) UpdateGiftAmount() *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.UpdateGiftAmount()
+	})
+}
+
+// ClearGiftAmount clears the value of the "gift_amount" field.
+func (u *OrderProductUpsertBulk) ClearGiftAmount() *OrderProductUpsertBulk {
+	return u.Update(func(s *OrderProductUpsert) {
+		s.ClearGiftAmount()
 	})
 }
 

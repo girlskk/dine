@@ -43,6 +43,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorder"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
@@ -117,6 +119,10 @@ type Client struct {
 	ProfitDistributionBill *ProfitDistributionBillClient
 	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
 	ProfitDistributionRule *ProfitDistributionRuleClient
+	// RefundOrder is the client for interacting with the RefundOrder builders.
+	RefundOrder *RefundOrderClient
+	// RefundOrderProduct is the client for interacting with the RefundOrderProduct builders.
+	RefundOrderProduct *RefundOrderProductClient
 	// Remark is the client for interacting with the Remark builders.
 	Remark *RemarkClient
 	// Role is the client for interacting with the Role builders.
@@ -181,6 +187,8 @@ func (c *Client) init() {
 	c.ProductUnit = NewProductUnitClient(c.config)
 	c.ProfitDistributionBill = NewProfitDistributionBillClient(c.config)
 	c.ProfitDistributionRule = NewProfitDistributionRuleClient(c.config)
+	c.RefundOrder = NewRefundOrderClient(c.config)
+	c.RefundOrderProduct = NewRefundOrderProductClient(c.config)
 	c.Remark = NewRemarkClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.RoleMenu = NewRoleMenuClient(c.config)
@@ -313,6 +321,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ProductUnit:            NewProductUnitClient(cfg),
 		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
 		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
+		RefundOrder:            NewRefundOrderClient(cfg),
+		RefundOrderProduct:     NewRefundOrderProductClient(cfg),
 		Remark:                 NewRemarkClient(cfg),
 		Role:                   NewRoleClient(cfg),
 		RoleMenu:               NewRoleMenuClient(cfg),
@@ -372,6 +382,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ProductUnit:            NewProductUnitClient(cfg),
 		ProfitDistributionBill: NewProfitDistributionBillClient(cfg),
 		ProfitDistributionRule: NewProfitDistributionRuleClient(cfg),
+		RefundOrder:            NewRefundOrderClient(cfg),
+		RefundOrderProduct:     NewRefundOrderProductClient(cfg),
 		Remark:                 NewRemarkClient(cfg),
 		Role:                   NewRoleClient(cfg),
 		RoleMenu:               NewRoleMenuClient(cfg),
@@ -419,10 +431,10 @@ func (c *Client) Use(hooks ...Hook) {
 		c.MerchantRenewal, c.Order, c.OrderProduct, c.PaymentAccount, c.PaymentMethod,
 		c.Permission, c.Product, c.ProductAttr, c.ProductAttrItem,
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
-		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Remark,
-		c.Role, c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail,
-		c.SetMealGroup, c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
-		c.UserRole,
+		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule,
+		c.RefundOrder, c.RefundOrderProduct, c.Remark, c.Role, c.RoleMenu,
+		c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup, c.Stall,
+		c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -437,10 +449,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.MerchantRenewal, c.Order, c.OrderProduct, c.PaymentAccount, c.PaymentMethod,
 		c.Permission, c.Product, c.ProductAttr, c.ProductAttrItem,
 		c.ProductAttrRelation, c.ProductSpec, c.ProductSpecRelation, c.ProductTag,
-		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule, c.Remark,
-		c.Role, c.RoleMenu, c.RolePermission, c.RouterMenu, c.SetMealDetail,
-		c.SetMealGroup, c.Stall, c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee,
-		c.UserRole,
+		c.ProductUnit, c.ProfitDistributionBill, c.ProfitDistributionRule,
+		c.RefundOrder, c.RefundOrderProduct, c.Remark, c.Role, c.RoleMenu,
+		c.RolePermission, c.RouterMenu, c.SetMealDetail, c.SetMealGroup, c.Stall,
+		c.Store, c.StorePaymentAccount, c.StoreUser, c.TaxFee, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -503,6 +515,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ProfitDistributionBill.mutate(ctx, m)
 	case *ProfitDistributionRuleMutation:
 		return c.ProfitDistributionRule.mutate(ctx, m)
+	case *RefundOrderMutation:
+		return c.RefundOrder.mutate(ctx, m)
+	case *RefundOrderProductMutation:
+		return c.RefundOrderProduct.mutate(ctx, m)
 	case *RemarkMutation:
 		return c.Remark.mutate(ctx, m)
 	case *RoleMutation:
@@ -5235,6 +5251,308 @@ func (c *ProfitDistributionRuleClient) mutate(ctx context.Context, m *ProfitDist
 	}
 }
 
+// RefundOrderClient is a client for the RefundOrder schema.
+type RefundOrderClient struct {
+	config
+}
+
+// NewRefundOrderClient returns a client for the RefundOrder from the given config.
+func NewRefundOrderClient(c config) *RefundOrderClient {
+	return &RefundOrderClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `refundorder.Hooks(f(g(h())))`.
+func (c *RefundOrderClient) Use(hooks ...Hook) {
+	c.hooks.RefundOrder = append(c.hooks.RefundOrder, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `refundorder.Intercept(f(g(h())))`.
+func (c *RefundOrderClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RefundOrder = append(c.inters.RefundOrder, interceptors...)
+}
+
+// Create returns a builder for creating a RefundOrder entity.
+func (c *RefundOrderClient) Create() *RefundOrderCreate {
+	mutation := newRefundOrderMutation(c.config, OpCreate)
+	return &RefundOrderCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RefundOrder entities.
+func (c *RefundOrderClient) CreateBulk(builders ...*RefundOrderCreate) *RefundOrderCreateBulk {
+	return &RefundOrderCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RefundOrderClient) MapCreateBulk(slice any, setFunc func(*RefundOrderCreate, int)) *RefundOrderCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RefundOrderCreateBulk{err: fmt.Errorf("calling to RefundOrderClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RefundOrderCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RefundOrderCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RefundOrder.
+func (c *RefundOrderClient) Update() *RefundOrderUpdate {
+	mutation := newRefundOrderMutation(c.config, OpUpdate)
+	return &RefundOrderUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RefundOrderClient) UpdateOne(ro *RefundOrder) *RefundOrderUpdateOne {
+	mutation := newRefundOrderMutation(c.config, OpUpdateOne, withRefundOrder(ro))
+	return &RefundOrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RefundOrderClient) UpdateOneID(id uuid.UUID) *RefundOrderUpdateOne {
+	mutation := newRefundOrderMutation(c.config, OpUpdateOne, withRefundOrderID(id))
+	return &RefundOrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RefundOrder.
+func (c *RefundOrderClient) Delete() *RefundOrderDelete {
+	mutation := newRefundOrderMutation(c.config, OpDelete)
+	return &RefundOrderDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RefundOrderClient) DeleteOne(ro *RefundOrder) *RefundOrderDeleteOne {
+	return c.DeleteOneID(ro.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RefundOrderClient) DeleteOneID(id uuid.UUID) *RefundOrderDeleteOne {
+	builder := c.Delete().Where(refundorder.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RefundOrderDeleteOne{builder}
+}
+
+// Query returns a query builder for RefundOrder.
+func (c *RefundOrderClient) Query() *RefundOrderQuery {
+	return &RefundOrderQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRefundOrder},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RefundOrder entity by its id.
+func (c *RefundOrderClient) Get(ctx context.Context, id uuid.UUID) (*RefundOrder, error) {
+	return c.Query().Where(refundorder.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RefundOrderClient) GetX(ctx context.Context, id uuid.UUID) *RefundOrder {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRefundProducts queries the refund_products edge of a RefundOrder.
+func (c *RefundOrderClient) QueryRefundProducts(ro *RefundOrder) *RefundOrderProductQuery {
+	query := (&RefundOrderProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ro.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(refundorder.Table, refundorder.FieldID, id),
+			sqlgraph.To(refundorderproduct.Table, refundorderproduct.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, refundorder.RefundProductsTable, refundorder.RefundProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ro.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RefundOrderClient) Hooks() []Hook {
+	hooks := c.hooks.RefundOrder
+	return append(hooks[:len(hooks):len(hooks)], refundorder.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RefundOrderClient) Interceptors() []Interceptor {
+	inters := c.inters.RefundOrder
+	return append(inters[:len(inters):len(inters)], refundorder.Interceptors[:]...)
+}
+
+func (c *RefundOrderClient) mutate(ctx context.Context, m *RefundOrderMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RefundOrderCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RefundOrderUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RefundOrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RefundOrderDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RefundOrder mutation op: %q", m.Op())
+	}
+}
+
+// RefundOrderProductClient is a client for the RefundOrderProduct schema.
+type RefundOrderProductClient struct {
+	config
+}
+
+// NewRefundOrderProductClient returns a client for the RefundOrderProduct from the given config.
+func NewRefundOrderProductClient(c config) *RefundOrderProductClient {
+	return &RefundOrderProductClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `refundorderproduct.Hooks(f(g(h())))`.
+func (c *RefundOrderProductClient) Use(hooks ...Hook) {
+	c.hooks.RefundOrderProduct = append(c.hooks.RefundOrderProduct, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `refundorderproduct.Intercept(f(g(h())))`.
+func (c *RefundOrderProductClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RefundOrderProduct = append(c.inters.RefundOrderProduct, interceptors...)
+}
+
+// Create returns a builder for creating a RefundOrderProduct entity.
+func (c *RefundOrderProductClient) Create() *RefundOrderProductCreate {
+	mutation := newRefundOrderProductMutation(c.config, OpCreate)
+	return &RefundOrderProductCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RefundOrderProduct entities.
+func (c *RefundOrderProductClient) CreateBulk(builders ...*RefundOrderProductCreate) *RefundOrderProductCreateBulk {
+	return &RefundOrderProductCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RefundOrderProductClient) MapCreateBulk(slice any, setFunc func(*RefundOrderProductCreate, int)) *RefundOrderProductCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RefundOrderProductCreateBulk{err: fmt.Errorf("calling to RefundOrderProductClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RefundOrderProductCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RefundOrderProductCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RefundOrderProduct.
+func (c *RefundOrderProductClient) Update() *RefundOrderProductUpdate {
+	mutation := newRefundOrderProductMutation(c.config, OpUpdate)
+	return &RefundOrderProductUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RefundOrderProductClient) UpdateOne(rop *RefundOrderProduct) *RefundOrderProductUpdateOne {
+	mutation := newRefundOrderProductMutation(c.config, OpUpdateOne, withRefundOrderProduct(rop))
+	return &RefundOrderProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RefundOrderProductClient) UpdateOneID(id uuid.UUID) *RefundOrderProductUpdateOne {
+	mutation := newRefundOrderProductMutation(c.config, OpUpdateOne, withRefundOrderProductID(id))
+	return &RefundOrderProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RefundOrderProduct.
+func (c *RefundOrderProductClient) Delete() *RefundOrderProductDelete {
+	mutation := newRefundOrderProductMutation(c.config, OpDelete)
+	return &RefundOrderProductDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RefundOrderProductClient) DeleteOne(rop *RefundOrderProduct) *RefundOrderProductDeleteOne {
+	return c.DeleteOneID(rop.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RefundOrderProductClient) DeleteOneID(id uuid.UUID) *RefundOrderProductDeleteOne {
+	builder := c.Delete().Where(refundorderproduct.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RefundOrderProductDeleteOne{builder}
+}
+
+// Query returns a query builder for RefundOrderProduct.
+func (c *RefundOrderProductClient) Query() *RefundOrderProductQuery {
+	return &RefundOrderProductQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRefundOrderProduct},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RefundOrderProduct entity by its id.
+func (c *RefundOrderProductClient) Get(ctx context.Context, id uuid.UUID) (*RefundOrderProduct, error) {
+	return c.Query().Where(refundorderproduct.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RefundOrderProductClient) GetX(ctx context.Context, id uuid.UUID) *RefundOrderProduct {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRefundOrder queries the refund_order edge of a RefundOrderProduct.
+func (c *RefundOrderProductClient) QueryRefundOrder(rop *RefundOrderProduct) *RefundOrderQuery {
+	query := (&RefundOrderClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := rop.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(refundorderproduct.Table, refundorderproduct.FieldID, id),
+			sqlgraph.To(refundorder.Table, refundorder.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, refundorderproduct.RefundOrderTable, refundorderproduct.RefundOrderColumn),
+		)
+		fromV = sqlgraph.Neighbors(rop.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RefundOrderProductClient) Hooks() []Hook {
+	hooks := c.hooks.RefundOrderProduct
+	return append(hooks[:len(hooks):len(hooks)], refundorderproduct.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RefundOrderProductClient) Interceptors() []Interceptor {
+	inters := c.inters.RefundOrderProduct
+	return append(inters[:len(inters):len(inters)], refundorderproduct.Interceptors[:]...)
+}
+
+func (c *RefundOrderProductClient) mutate(ctx context.Context, m *RefundOrderProductMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RefundOrderProductCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RefundOrderProductUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RefundOrderProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RefundOrderProductDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RefundOrderProduct mutation op: %q", m.Op())
+	}
+}
+
 // RemarkClient is a client for the Remark schema.
 type RemarkClient struct {
 	config
@@ -7606,9 +7924,9 @@ type (
 		OrderProduct, PaymentAccount, PaymentMethod, Permission, Product, ProductAttr,
 		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
 		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
-		Remark, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
-		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
-		UserRole []ent.Hook
+		RefundOrder, RefundOrderProduct, Remark, Role, RoleMenu, RolePermission,
+		RouterMenu, SetMealDetail, SetMealGroup, Stall, Store, StorePaymentAccount,
+		StoreUser, TaxFee, UserRole []ent.Hook
 	}
 	inters struct {
 		AdditionalFee, AdminUser, BackendUser, BusinessConfig, Category, Department,
@@ -7616,8 +7934,8 @@ type (
 		OrderProduct, PaymentAccount, PaymentMethod, Permission, Product, ProductAttr,
 		ProductAttrItem, ProductAttrRelation, ProductSpec, ProductSpecRelation,
 		ProductTag, ProductUnit, ProfitDistributionBill, ProfitDistributionRule,
-		Remark, Role, RoleMenu, RolePermission, RouterMenu, SetMealDetail,
-		SetMealGroup, Stall, Store, StorePaymentAccount, StoreUser, TaxFee,
-		UserRole []ent.Interceptor
+		RefundOrder, RefundOrderProduct, Remark, Role, RoleMenu, RolePermission,
+		RouterMenu, SetMealDetail, SetMealGroup, Stall, Store, StorePaymentAccount,
+		StoreUser, TaxFee, UserRole []ent.Interceptor
 	}
 )

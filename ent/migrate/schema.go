@@ -700,7 +700,7 @@ var (
 		{Name: "product_id", Type: field.TypeUUID},
 		{Name: "product_name", Type: field.TypeString},
 		{Name: "product_type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
-		{Name: "category_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "category", Type: field.TypeJSON, Nullable: true},
 		{Name: "unit_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
@@ -715,6 +715,8 @@ var (
 		{Name: "amount_after_tax", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "total", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "promotion_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "attr_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "gift_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "void_qty", Type: field.TypeInt, Default: 0},
 		{Name: "void_amount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
 		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
@@ -735,7 +737,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "order_products_orders_order_products",
-				Columns:    []*schema.Column{OrderProductsColumns[34]},
+				Columns:    []*schema.Column{OrderProductsColumns[36]},
 				RefColumns: []*schema.Column{OrdersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -749,7 +751,7 @@ var (
 			{
 				Name:    "orderproduct_order_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrderProductsColumns[34]},
+				Columns: []*schema.Column{OrderProductsColumns[36]},
 			},
 			{
 				Name:    "orderproduct_product_id",
@@ -759,7 +761,7 @@ var (
 			{
 				Name:    "orderproduct_order_id_order_item_id",
 				Unique:  true,
-				Columns: []*schema.Column{OrderProductsColumns[34], OrderProductsColumns[4]},
+				Columns: []*schema.Column{OrderProductsColumns[36], OrderProductsColumns[4]},
 			},
 		},
 	}
@@ -1397,6 +1399,155 @@ var (
 				Name:    "profitdistributionrule_merchant_id_name_deleted_at",
 				Unique:  true,
 				Columns: []*schema.Column{ProfitDistributionRulesColumns[4], ProfitDistributionRulesColumns[5], ProfitDistributionRulesColumns[3]},
+			},
+		},
+	}
+	// RefundOrdersColumns holds the columns for the "refund_orders" table.
+	RefundOrdersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "merchant_id", Type: field.TypeUUID},
+		{Name: "store_id", Type: field.TypeUUID},
+		{Name: "business_date", Type: field.TypeString},
+		{Name: "shift_no", Type: field.TypeString, Nullable: true},
+		{Name: "refund_no", Type: field.TypeString},
+		{Name: "origin_order_id", Type: field.TypeUUID},
+		{Name: "origin_order_no", Type: field.TypeString},
+		{Name: "origin_paid_at", Type: field.TypeTime, Nullable: true},
+		{Name: "origin_amount_paid", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "refund_type", Type: field.TypeEnum, Enums: []string{"FULL", "PARTIAL"}},
+		{Name: "refund_status", Type: field.TypeEnum, Enums: []string{"PENDING", "PROCESSING", "COMPLETED", "FAILED", "CANCELLED"}, Default: "PENDING"},
+		{Name: "refund_reason_code", Type: field.TypeString, Nullable: true},
+		{Name: "refund_reason", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "refunded_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "refunded_by_name", Type: field.TypeString, Nullable: true},
+		{Name: "approved_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "approved_by_name", Type: field.TypeString, Nullable: true},
+		{Name: "approved_at", Type: field.TypeTime, Nullable: true},
+		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "store", Type: field.TypeJSON},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS"}, Default: "POS"},
+		{Name: "pos", Type: field.TypeJSON},
+		{Name: "cashier", Type: field.TypeJSON},
+		{Name: "refund_amount", Type: field.TypeJSON},
+		{Name: "refund_payments", Type: field.TypeJSON, Nullable: true},
+		{Name: "remark", Type: field.TypeString, Nullable: true, Size: 255},
+	}
+	// RefundOrdersTable holds the schema information for the "refund_orders" table.
+	RefundOrdersTable = &schema.Table{
+		Name:       "refund_orders",
+		Columns:    RefundOrdersColumns,
+		PrimaryKey: []*schema.Column{RefundOrdersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "refundorder_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrdersColumns[3]},
+			},
+			{
+				Name:    "refundorder_merchant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrdersColumns[4]},
+			},
+			{
+				Name:    "refundorder_store_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrdersColumns[5]},
+			},
+			{
+				Name:    "refundorder_origin_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrdersColumns[9]},
+			},
+			{
+				Name:    "refundorder_business_date",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrdersColumns[6]},
+			},
+			{
+				Name:    "refundorder_refund_status",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrdersColumns[14]},
+			},
+			{
+				Name:    "refundorder_store_id_refund_no_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{RefundOrdersColumns[5], RefundOrdersColumns[8], RefundOrdersColumns[3]},
+			},
+		},
+	}
+	// RefundOrderProductsColumns holds the columns for the "refund_order_products" table.
+	RefundOrderProductsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
+		{Name: "origin_order_product_id", Type: field.TypeUUID},
+		{Name: "origin_order_item_id", Type: field.TypeString, Nullable: true},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "product_name", Type: field.TypeString},
+		{Name: "product_type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
+		{Name: "category", Type: field.TypeJSON, Nullable: true},
+		{Name: "unit_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
+		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
+		{Name: "origin_qty", Type: field.TypeInt},
+		{Name: "origin_price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "origin_subtotal", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "origin_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "origin_tax", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "origin_total", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "refund_qty", Type: field.TypeInt},
+		{Name: "refund_subtotal", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "refund_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "refund_tax", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "refund_total", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"mysql": "DECIMAL(10,4)", "sqlite3": "NUMERIC"}},
+		{Name: "groups", Type: field.TypeJSON, Nullable: true},
+		{Name: "spec_relations", Type: field.TypeJSON, Nullable: true},
+		{Name: "attr_relations", Type: field.TypeJSON, Nullable: true},
+		{Name: "refund_reason", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "refund_order_id", Type: field.TypeUUID},
+	}
+	// RefundOrderProductsTable holds the schema information for the "refund_order_products" table.
+	RefundOrderProductsTable = &schema.Table{
+		Name:       "refund_order_products",
+		Columns:    RefundOrderProductsColumns,
+		PrimaryKey: []*schema.Column{RefundOrderProductsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "refund_order_products_refund_orders_refund_products",
+				Columns:    []*schema.Column{RefundOrderProductsColumns[28]},
+				RefColumns: []*schema.Column{RefundOrdersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "refundorderproduct_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrderProductsColumns[3]},
+			},
+			{
+				Name:    "refundorderproduct_refund_order_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrderProductsColumns[28]},
+			},
+			{
+				Name:    "refundorderproduct_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrderProductsColumns[6]},
+			},
+			{
+				Name:    "refundorderproduct_origin_order_product_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefundOrderProductsColumns[4]},
+			},
+			{
+				Name:    "refundorderproduct_refund_order_id_origin_order_product_id_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{RefundOrderProductsColumns[28], RefundOrderProductsColumns[4], RefundOrderProductsColumns[3]},
 			},
 		},
 	}
@@ -2153,6 +2304,8 @@ var (
 		ProductUnitsTable,
 		ProfitDistributionBillsTable,
 		ProfitDistributionRulesTable,
+		RefundOrdersTable,
+		RefundOrderProductsTable,
 		RemarksTable,
 		RolesTable,
 		RoleMenusTable,
@@ -2206,6 +2359,7 @@ func init() {
 	ProductSpecRelationsTable.ForeignKeys[2].RefTable = ProductSpecsTable
 	ProfitDistributionBillsTable.ForeignKeys[0].RefTable = MerchantsTable
 	ProfitDistributionBillsTable.ForeignKeys[1].RefTable = StoresTable
+	RefundOrderProductsTable.ForeignKeys[0].RefTable = RefundOrdersTable
 	RemarksTable.ForeignKeys[0].RefTable = MerchantsTable
 	RemarksTable.ForeignKeys[1].RefTable = StoresTable
 	RolesTable.ForeignKeys[0].RefTable = MerchantsTable
