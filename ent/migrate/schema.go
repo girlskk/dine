@@ -177,12 +177,12 @@ var (
 		{Name: "store_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "group", Type: field.TypeEnum, Nullable: true, Enums: []string{"print"}},
 		{Name: "name", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(100)"}},
-		{Name: "config_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"string", "int", "uint", "datetime", "date"}},
+		{Name: "config_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"string", "int", "uint", "datetime", "date", "bool"}},
 		{Name: "key", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(100)"}},
 		{Name: "value", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(500)"}},
 		{Name: "sort", Type: field.TypeInt32, Default: 0, SchemaType: map[string]string{"mysql": "int"}},
 		{Name: "tip", Type: field.TypeString, Nullable: true, Default: "", SchemaType: map[string]string{"mysql": "varchar(500)"}},
-		{Name: "is_default", Type: field.TypeBool, Default: true},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
 		{Name: "status", Type: field.TypeBool, Default: true},
 	}
 	// BusinessConfigsTable holds the schema information for the "business_configs" table.
@@ -197,14 +197,14 @@ var (
 				Columns: []*schema.Column{BusinessConfigsColumns[3]},
 			},
 			{
-				Name:    "businessconfig_group",
-				Unique:  false,
-				Columns: []*schema.Column{BusinessConfigsColumns[7]},
+				Name:    "businessconfig_merchant_id_group_key_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{BusinessConfigsColumns[5], BusinessConfigsColumns[7], BusinessConfigsColumns[10], BusinessConfigsColumns[3]},
 			},
 			{
-				Name:    "businessconfig_key",
-				Unique:  false,
-				Columns: []*schema.Column{BusinessConfigsColumns[10]},
+				Name:    "businessconfig_store_id_group_key_deleted_at",
+				Unique:  true,
+				Columns: []*schema.Column{BusinessConfigsColumns[6], BusinessConfigsColumns[7], BusinessConfigsColumns[10], BusinessConfigsColumns[3]},
 			},
 		},
 	}

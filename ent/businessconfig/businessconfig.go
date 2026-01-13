@@ -128,7 +128,7 @@ func GroupValidator(gr domain.BusinessConfigGroup) error {
 // ConfigTypeValidator is a validator for the "config_type" field enum values. It is called by the builders before save.
 func ConfigTypeValidator(ct domain.BusinessConfigConfigType) error {
 	switch ct {
-	case "string", "int", "uint", "datetime", "date":
+	case "string", "int", "uint", "datetime", "date", "bool":
 		return nil
 	default:
 		return fmt.Errorf("businessconfig: invalid enum value for config_type field: %q", ct)

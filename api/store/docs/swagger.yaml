@@ -198,8 +198,10 @@ definitions:
     - uint
     - datetime
     - date
+    - bool
     type: string
     x-enum-comments:
+      BusinessConfigConfigTypeBool: bool
       BusinessConfigConfigTypeDate: date
       BusinessConfigConfigTypeDatetime: datetime
       BusinessConfigConfigTypeInt: int
@@ -211,6 +213,7 @@ definitions:
     - BusinessConfigConfigTypeUint
     - BusinessConfigConfigTypeDatetime
     - BusinessConfigConfigTypeDate
+    - BusinessConfigConfigTypeBool
   domain.BusinessConfigGroup:
     enum:
     - print
@@ -2023,6 +2026,79 @@ definitions:
         description: 省份名称
         type: string
     type: object
+  types.BusinessConfig:
+    properties:
+      config_type:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessConfigConfigType'
+        description: 键值类型
+        enum:
+        - string
+        - int
+        - uint
+        - bool
+        - datetime
+        - date
+      group:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessConfigGroup'
+        description: 配置分组
+        enum:
+        - print
+      id:
+        description: 记录ID
+        type: string
+      key:
+        description: 参数键名
+        type: string
+      name:
+        description: 参数名称
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      source_config_id:
+        description: 来源配置ID
+        type: string
+      tip:
+        description: 变量描述
+        type: string
+      value:
+        description: 参数键值
+        type: string
+    required:
+    - config_type
+    - group
+    - id
+    type: object
+  types.BusinessConfigDistributeReq:
+    properties:
+      ids:
+        description: 记录ID列表
+        items:
+          type: string
+        type: array
+      store_ids:
+        description: 门店ID列表（必选，多选）
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - ids
+    - store_ids
+    type: object
+  types.BusinessConfigUpsertReq:
+    properties:
+      configs:
+        description: 配置分组
+        items:
+          $ref: '#/definitions/types.BusinessConfig'
+        minItems: 1
+        type: array
+    required:
+    - configs
+    type: object
   types.CategoryCreateChildReq:
     properties:
       inherit_stall:
@@ -3466,6 +3542,39 @@ paths:
       security:
       - BearerAuth: []
       summary: 经营设置列表
+      tags:
+      - 经营管理
+    put:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.BusinessConfigUpsertReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新经营设置
+      tags:
+      - 经营管理
+  /business/config/distribute:
+    post:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.BusinessConfigDistributeReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 下发门店
       tags:
       - 经营管理
   /common/department:

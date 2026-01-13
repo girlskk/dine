@@ -41,6 +41,7 @@ const (
 	BusinessConfigConfigTypeUint     BusinessConfigConfigType = "uint"     // uint
 	BusinessConfigConfigTypeDatetime BusinessConfigConfigType = "datetime" // datetime
 	BusinessConfigConfigTypeDate     BusinessConfigConfigType = "date"     // date
+	BusinessConfigConfigTypeBool     BusinessConfigConfigType = "bool"     // bool
 )
 
 func (BusinessConfigConfigType) Values() []string {
@@ -50,6 +51,7 @@ func (BusinessConfigConfigType) Values() []string {
 		string(BusinessConfigConfigTypeUint),
 		string(BusinessConfigConfigTypeDatetime),
 		string(BusinessConfigConfigTypeDate),
+		string(BusinessConfigConfigTypeBool),
 	}
 }
 
@@ -73,9 +75,11 @@ type BusinessConfig struct {
 
 type BusinessConfigs []*BusinessConfig
 type BusinessConfigSearchParams struct {
+	Ids        []uuid.UUID
 	MerchantID uuid.UUID
 	StoreID    uuid.UUID
-	Name       string // 结算方式名称（模糊匹配）
+	Name       string              // 结算方式名称（模糊匹配）
+	Group      BusinessConfigGroup // 配置分组
 }
 
 // BusinessConfigSearchRes 查询结果
@@ -87,9 +91,12 @@ type BusinessConfigSearchRes struct {
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/business_config_repository.go -package=mock . BusinessConfigRepository
 type BusinessConfigRepository interface {
 	ListBySearch(ctx context.Context, params BusinessConfigSearchParams) (*BusinessConfigSearchRes, error)
+	UpsertConfig(ctx context.Context, configs []*BusinessConfig) error
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/business_config_interactor.go -package=mock . BusinessConfigInteractor
 type BusinessConfigInteractor interface {
 	ListBySearch(ctx context.Context, params BusinessConfigSearchParams) (*BusinessConfigSearchRes, error)
+	UpsertConfig(ctx context.Context, configs []*BusinessConfig, user User) error
+	Distribute(ctx context.Context, ids, storeIDs []uuid.UUID, user User) error
 }

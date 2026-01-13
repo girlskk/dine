@@ -52,15 +52,15 @@ func (BusinessConfig) Fields() []ent.Field {
 		field.String("tip").SchemaType(map[string]string{
 			dialect.MySQL: "varchar(500)",
 		}).Optional().Default("").Comment("变量描述"),
-		field.Bool("is_default").Default(true).Comment("是否为系统默认: true-是, false-否）"),
+		field.Bool("is_default").Default(false).Comment("是否为系统默认: true-是, false-否）"),
 		field.Bool("status").Default(true).Comment("启用/停用状态: true-启用, false-停用（必选）"),
 	}
 }
 
 func (BusinessConfig) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("group"),
-		index.Fields("key"),
+		index.Fields("merchant_id", "group", "key", "deleted_at").Unique(),
+		index.Fields("store_id", "group", "key", "deleted_at").Unique(),
 	}
 }
 

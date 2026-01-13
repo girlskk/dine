@@ -310,6 +310,21 @@ const docTemplate = `{
                 "summary": "经营设置列表",
                 "parameters": [
                     {
+                        "enum": [
+                            "print"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "BusinessConfigGroupPrint": "print"
+                        },
+                        "x-enum-varnames": [
+                            "BusinessConfigGroupPrint"
+                        ],
+                        "description": "配置分组",
+                        "name": "group",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "设置名称（模糊匹配）",
                         "name": "name",
@@ -322,6 +337,62 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.BusinessConfigSearchRes"
                         }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "经营管理"
+                ],
+                "summary": "更新经营设置",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.BusinessConfigUpsertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/business/config/distribute": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "经营管理"
+                ],
+                "summary": "下发门店",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.BusinessConfigDistributeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -5727,9 +5798,11 @@ const docTemplate = `{
                 "int",
                 "uint",
                 "datetime",
-                "date"
+                "date",
+                "bool"
             ],
             "x-enum-comments": {
+                "BusinessConfigConfigTypeBool": "bool",
                 "BusinessConfigConfigTypeDate": "date",
                 "BusinessConfigConfigTypeDatetime": "datetime",
                 "BusinessConfigConfigTypeInt": "int",
@@ -5741,7 +5814,8 @@ const docTemplate = `{
                 "BusinessConfigConfigTypeInt",
                 "BusinessConfigConfigTypeUint",
                 "BusinessConfigConfigTypeDatetime",
-                "BusinessConfigConfigTypeDate"
+                "BusinessConfigConfigTypeDate",
+                "BusinessConfigConfigTypeBool"
             ]
         },
         "domain.BusinessConfigGroup": {
@@ -8139,16 +8213,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -8703,9 +8777,23 @@ const docTemplate = `{
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -9096,6 +9184,111 @@ const docTemplate = `{
                 "username": {
                     "description": "用户登陆账号",
                     "type": "string"
+                }
+            }
+        },
+        "types.BusinessConfig": {
+            "type": "object",
+            "required": [
+                "config_type",
+                "group",
+                "id"
+            ],
+            "properties": {
+                "config_type": {
+                    "description": "键值类型",
+                    "enum": [
+                        "string",
+                        "int",
+                        "uint",
+                        "bool",
+                        "datetime",
+                        "date"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigConfigType"
+                        }
+                    ]
+                },
+                "group": {
+                    "description": "配置分组",
+                    "enum": [
+                        "print"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigGroup"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "记录ID",
+                    "type": "string"
+                },
+                "key": {
+                    "description": "参数键名",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "参数名称",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "source_config_id": {
+                    "description": "来源配置ID",
+                    "type": "string"
+                },
+                "tip": {
+                    "description": "变量描述",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "参数键值",
+                    "type": "string"
+                }
+            }
+        },
+        "types.BusinessConfigDistributeReq": {
+            "type": "object",
+            "required": [
+                "ids",
+                "store_ids"
+            ],
+            "properties": {
+                "ids": {
+                    "description": "记录ID列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.BusinessConfigUpsertReq": {
+            "type": "object",
+            "required": [
+                "configs"
+            ],
+            "properties": {
+                "configs": {
+                    "description": "配置分组",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.BusinessConfig"
+                    }
                 }
             }
         },
