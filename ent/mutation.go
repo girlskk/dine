@@ -16071,6 +16071,8 @@ type OrderMutation struct {
 	appendpayments        []domain.OrderPayment
 	amount                *domain.OrderAmount
 	remark                *string
+	operation_logs        *[]domain.OrderOperationLog
+	appendoperation_logs  []domain.OrderOperationLog
 	clearedFields         map[string]struct{}
 	order_products        map[uuid.UUID]struct{}
 	removedorder_products map[uuid.UUID]struct{}
@@ -17486,6 +17488,71 @@ func (m *OrderMutation) ResetRemark() {
 	delete(m.clearedFields, order.FieldRemark)
 }
 
+// SetOperationLogs sets the "operation_logs" field.
+func (m *OrderMutation) SetOperationLogs(dol []domain.OrderOperationLog) {
+	m.operation_logs = &dol
+	m.appendoperation_logs = nil
+}
+
+// OperationLogs returns the value of the "operation_logs" field in the mutation.
+func (m *OrderMutation) OperationLogs() (r []domain.OrderOperationLog, exists bool) {
+	v := m.operation_logs
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOperationLogs returns the old "operation_logs" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldOperationLogs(ctx context.Context) (v []domain.OrderOperationLog, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOperationLogs is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOperationLogs requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOperationLogs: %w", err)
+	}
+	return oldValue.OperationLogs, nil
+}
+
+// AppendOperationLogs adds dol to the "operation_logs" field.
+func (m *OrderMutation) AppendOperationLogs(dol []domain.OrderOperationLog) {
+	m.appendoperation_logs = append(m.appendoperation_logs, dol...)
+}
+
+// AppendedOperationLogs returns the list of values that were appended to the "operation_logs" field in this mutation.
+func (m *OrderMutation) AppendedOperationLogs() ([]domain.OrderOperationLog, bool) {
+	if len(m.appendoperation_logs) == 0 {
+		return nil, false
+	}
+	return m.appendoperation_logs, true
+}
+
+// ClearOperationLogs clears the value of the "operation_logs" field.
+func (m *OrderMutation) ClearOperationLogs() {
+	m.operation_logs = nil
+	m.appendoperation_logs = nil
+	m.clearedFields[order.FieldOperationLogs] = struct{}{}
+}
+
+// OperationLogsCleared returns if the "operation_logs" field was cleared in this mutation.
+func (m *OrderMutation) OperationLogsCleared() bool {
+	_, ok := m.clearedFields[order.FieldOperationLogs]
+	return ok
+}
+
+// ResetOperationLogs resets all changes to the "operation_logs" field.
+func (m *OrderMutation) ResetOperationLogs() {
+	m.operation_logs = nil
+	m.appendoperation_logs = nil
+	delete(m.clearedFields, order.FieldOperationLogs)
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by ids.
 func (m *OrderMutation) AddOrderProductIDs(ids ...uuid.UUID) {
 	if m.order_products == nil {
@@ -17574,7 +17641,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 29)
+	fields := make([]string, 0, 30)
 	if m.created_at != nil {
 		fields = append(fields, order.FieldCreatedAt)
 	}
@@ -17662,6 +17729,9 @@ func (m *OrderMutation) Fields() []string {
 	if m.remark != nil {
 		fields = append(fields, order.FieldRemark)
 	}
+	if m.operation_logs != nil {
+		fields = append(fields, order.FieldOperationLogs)
+	}
 	return fields
 }
 
@@ -17728,6 +17798,8 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.Amount()
 	case order.FieldRemark:
 		return m.Remark()
+	case order.FieldOperationLogs:
+		return m.OperationLogs()
 	}
 	return nil, false
 }
@@ -17795,6 +17867,8 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldAmount(ctx)
 	case order.FieldRemark:
 		return m.OldRemark(ctx)
+	case order.FieldOperationLogs:
+		return m.OldOperationLogs(ctx)
 	}
 	return nil, fmt.Errorf("unknown Order field %s", name)
 }
@@ -18007,6 +18081,13 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRemark(v)
 		return nil
+	case order.FieldOperationLogs:
+		v, ok := value.([]domain.OrderOperationLog)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOperationLogs(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Order field %s", name)
 }
@@ -18103,6 +18184,9 @@ func (m *OrderMutation) ClearedFields() []string {
 	if m.FieldCleared(order.FieldRemark) {
 		fields = append(fields, order.FieldRemark)
 	}
+	if m.FieldCleared(order.FieldOperationLogs) {
+		fields = append(fields, order.FieldOperationLogs)
+	}
 	return fields
 }
 
@@ -18155,6 +18239,9 @@ func (m *OrderMutation) ClearField(name string) error {
 		return nil
 	case order.FieldRemark:
 		m.ClearRemark()
+		return nil
+	case order.FieldOperationLogs:
+		m.ClearOperationLogs()
 		return nil
 	}
 	return fmt.Errorf("unknown Order nullable field %s", name)
@@ -18250,6 +18337,9 @@ func (m *OrderMutation) ResetField(name string) error {
 		return nil
 	case order.FieldRemark:
 		m.ResetRemark()
+		return nil
+	case order.FieldOperationLogs:
+		m.ResetOperationLogs()
 		return nil
 	}
 	return fmt.Errorf("unknown Order field %s", name)

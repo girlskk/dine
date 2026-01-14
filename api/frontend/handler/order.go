@@ -65,7 +65,7 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 		}
 		user := domain.FromFrontendUserContext(ctx)
 		o := &domain.Order{
-			ID:            uuid.New(),
+			ID:            req.ID,
 			MerchantID:    user.MerchantID,
 			StoreID:       user.StoreID,
 			BusinessDate:  req.BusinessDate,
@@ -86,6 +86,7 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			Payments:      req.Payments,
 			Amount:        req.Amount,
 			Remark:        req.Remark,
+			OperationLogs: req.OperationLogs,
 		}
 
 		if req.OrderType != "" {
@@ -216,6 +217,7 @@ func (h *OrderHandler) Update() gin.HandlerFunc {
 			Payments:      req.Payments,
 			Amount:        req.Amount,
 			Remark:        req.Remark,
+			OperationLogs: req.OperationLogs,
 		}
 
 		if req.OrderType != "" {

@@ -637,7 +637,7 @@ var (
 		{Name: "table_name", Type: field.TypeString, Nullable: true},
 		{Name: "guest_count", Type: field.TypeInt, Nullable: true},
 		{Name: "store", Type: field.TypeJSON},
-		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS"}, Default: "POS"},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS", "H5", "APP"}, Default: "POS"},
 		{Name: "pos", Type: field.TypeJSON},
 		{Name: "cashier", Type: field.TypeJSON},
 		{Name: "tax_rates", Type: field.TypeJSON, Nullable: true},
@@ -645,6 +645,7 @@ var (
 		{Name: "payments", Type: field.TypeJSON, Nullable: true},
 		{Name: "amount", Type: field.TypeJSON},
 		{Name: "remark", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "operation_logs", Type: field.TypeJSON, Nullable: true},
 	}
 	// OrdersTable holds the schema information for the "orders" table.
 	OrdersTable = &schema.Table{
@@ -1428,7 +1429,7 @@ var (
 		{Name: "approved_at", Type: field.TypeTime, Nullable: true},
 		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
 		{Name: "store", Type: field.TypeJSON},
-		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS"}, Default: "POS"},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS", "H5", "APP"}, Default: "POS"},
 		{Name: "pos", Type: field.TypeJSON},
 		{Name: "cashier", Type: field.TypeJSON},
 		{Name: "refund_amount", Type: field.TypeJSON},

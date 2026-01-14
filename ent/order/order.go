@@ -76,6 +76,8 @@ const (
 	FieldAmount = "amount"
 	// FieldRemark holds the string denoting the remark field in the database.
 	FieldRemark = "remark"
+	// FieldOperationLogs holds the string denoting the operation_logs field in the database.
+	FieldOperationLogs = "operation_logs"
 	// EdgeOrderProducts holds the string denoting the order_products edge name in mutations.
 	EdgeOrderProducts = "order_products"
 	// Table holds the table name of the order in the database.
@@ -121,6 +123,7 @@ var Columns = []string{
 	FieldPayments,
 	FieldAmount,
 	FieldRemark,
+	FieldOperationLogs,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -212,7 +215,7 @@ const DefaultChannel domain.Channel = "POS"
 // ChannelValidator is a validator for the "channel" field enum values. It is called by the builders before save.
 func ChannelValidator(c domain.Channel) error {
 	switch c {
-	case "POS":
+	case "POS", "H5", "APP":
 		return nil
 	default:
 		return fmt.Errorf("order: invalid enum value for channel field: %q", c)
