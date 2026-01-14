@@ -419,7 +419,7 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnable, domain.StoreUserSimpleUpdateParams{ID: id, Enabled: true})
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnabled, domain.StoreUserSimpleUpdateParams{ID: id, Enabled: true})
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -455,7 +455,7 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnable, domain.StoreUserSimpleUpdateParams{ID: id, Enabled: false})
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnabled, domain.StoreUserSimpleUpdateParams{ID: id, Enabled: false})
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return

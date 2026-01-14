@@ -26,6 +26,9 @@ func (interactor *RoleMenuInteractor) SetRoleMenu(ctx context.Context, roleID uu
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		role, err := ds.RoleRepo().FindByID(ctx, roleID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
 

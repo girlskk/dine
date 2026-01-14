@@ -11,8 +11,10 @@ import (
 )
 
 var (
-	ErrTaxFeeNotExists  = errors.New("税费不存在")
-	ErrTaxFeeNameExists = errors.New("税费名称已存在")
+	ErrTaxFeeNotExists          = errors.New("税费不存在")
+	ErrTaxFeeNameExists         = errors.New("税费名称已存在")
+	ErrTaxFeeSystemCannotUpdate = errors.New("系统内置税费不能修改")
+	ErrTaxFeeSystemCannotDelete = errors.New("默认税费不能删除")
 )
 
 // TaxFeeRepository 税费仓储接口
@@ -31,22 +33,27 @@ type TaxFeeRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/tax_fee_interactor.go -package=mock . TaxFeeInteractor
 type TaxFeeInteractor interface {
-	Create(ctx context.Context, fee *TaxFee) (err error)
-	Update(ctx context.Context, fee *TaxFee) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetTaxFee(ctx context.Context, id uuid.UUID) (fee *TaxFee, err error)
+	Create(ctx context.Context, fee *TaxFee, user User) (err error)
+	Update(ctx context.Context, fee *TaxFee, user User) (err error)
+	Delete(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetTaxFee(ctx context.Context, id uuid.UUID, user User) (fee *TaxFee, err error)
 	GetTaxFees(ctx context.Context, pager *upagination.Pagination, filter *TaxFeeListFilter, orderBys ...TaxFeeOrderBy) (fees []*TaxFee, total int, err error)
-	TaxFeeSimpleUpdate(ctx context.Context, updateField TaxFeeSimpleUpdateField, fee *TaxFee) (err error)
+	TaxFeeSimpleUpdate(ctx context.Context, updateField TaxFeeSimpleUpdateField, fee *TaxFee, user User) (err error)
 }
 type TaxFeeType string
 
 const (
+	TaxFeeTypeSystem   TaxFeeType = "system"   // 系统内置
 	TaxFeeTypeMerchant TaxFeeType = "merchant" // 商户
 	TaxFeeTypeStore    TaxFeeType = "store"    // 门店
 )
 
 func (TaxFeeType) Values() []string {
-	return []string{string(TaxFeeTypeMerchant), string(TaxFeeTypeStore)}
+	return []string{
+		string(TaxFeeTypeSystem),
+		string(TaxFeeTypeMerchant),
+		string(TaxFeeTypeStore),
+	}
 }
 
 type TaxRateType string

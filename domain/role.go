@@ -25,18 +25,18 @@ type RoleRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/role_interactor.go -package=mock . RoleInteractor
 type RoleInteractor interface {
-	CreateRole(ctx context.Context, params *CreateRoleParams) error
-	UpdateRole(ctx context.Context, params *UpdateRoleParams) error
-	DeleteRole(ctx context.Context, id uuid.UUID) error
-	GetRole(ctx context.Context, id uuid.UUID) (*Role, error)
+	CreateRole(ctx context.Context, params *CreateRoleParams, user User) error
+	UpdateRole(ctx context.Context, params *UpdateRoleParams, user User) error
+	DeleteRole(ctx context.Context, id uuid.UUID, user User) error
+	GetRole(ctx context.Context, id uuid.UUID, user User) (*Role, error)
 	GetRoles(ctx context.Context, pager *upagination.Pagination, filter *RoleListFilter, orderBys ...RoleListOrderBy) ([]*Role, int, error)
-	SimpleUpdate(ctx context.Context, updateField RoleSimpleUpdateField, params RoleSimpleUpdateParams) error
+	SimpleUpdate(ctx context.Context, updateField RoleSimpleUpdateField, params RoleSimpleUpdateParams, user User) error
 }
 
 type RoleSimpleUpdateField string
 
 const (
-	RoleSimpleUpdateFieldEnable RoleSimpleUpdateField = "enable"
+	RoleSimpleUpdateFieldEnabled RoleSimpleUpdateField = "enabled"
 )
 
 type RoleDataScopeType string
@@ -110,7 +110,7 @@ type Role struct {
 	Code          string            `json:"code"`           // 角色编码
 	RoleType      RoleType          `json:"role_type"`      // 角色类型
 	DataScope     RoleDataScopeType `json:"data_scope"`     // 数据权限范围
-	Enable        bool              `json:"enable"`         // 是否启用
+	Enabled       bool              `json:"enabled"`        // 是否启用
 	MerchantID    uuid.UUID         `json:"merchant_id"`    // 所属商户 ID
 	StoreID       uuid.UUID         `json:"store_id"`       // 所属门店 ID
 	LoginChannels []LoginChannel    `json:"login_channels"` // 允许登录渠道，取自 login_channel，多选
@@ -123,7 +123,7 @@ type Role struct {
 type RoleListFilter struct {
 	Name       string    `json:"name"`
 	RoleType   RoleType  `json:"role_type"`
-	Enable     *bool     `json:"enable"`
+	Enabled    *bool     `json:"enabled"`
 	MerchantID uuid.UUID `json:"merchant_id"`
 	StoreID    uuid.UUID `json:"store_id"`
 }
@@ -133,7 +133,7 @@ type CreateRoleParams struct {
 	Code          string            `json:"code"`
 	RoleType      RoleType          `json:"role_type"`
 	DataScope     RoleDataScopeType `json:"data_scope"`
-	Enable        bool              `json:"enable"`
+	Enabled       bool              `json:"enabled"`
 	LoginChannels []LoginChannel    `json:"login_channels"` // 允许登录渠道，取自 login_channel，多选
 	MerchantID    uuid.UUID         `json:"merchant_id"`
 	StoreID       uuid.UUID         `json:"store_id"`
@@ -144,7 +144,7 @@ type UpdateRoleParams struct {
 	Name          string            `json:"name"`
 	RoleType      RoleType          `json:"role_type"`
 	DataScope     RoleDataScopeType `json:"data_scope"`
-	Enable        bool              `json:"enable"`
+	Enabled       bool              `json:"enabled"`
 	LoginChannels []LoginChannel    `json:"login_channels"` // 允许登录渠道，取自 login_channel，多选
 	MerchantID    uuid.UUID         `json:"merchant_id"`
 	StoreID       uuid.UUID         `json:"store_id"`
@@ -159,6 +159,6 @@ type RoleExistsParams struct {
 }
 
 type RoleSimpleUpdateParams struct {
-	ID     uuid.UUID `json:"id"`
-	Enable bool      `json:"enable"`
+	ID      uuid.UUID `json:"id"`
+	Enabled bool      `json:"enabled"`
 }

@@ -68,17 +68,8 @@ func (h *StallHandler) Create() gin.HandlerFunc {
 			MerchantID: user.MerchantID,
 		}
 
-		if err := h.StallInteractor.Create(ctx, stall); err != nil {
-			if errors.Is(err, domain.ErrStallNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.StallNameExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create stall: %w", err)
-			c.Error(err)
+		if err := h.StallInteractor.Create(ctx, stall, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -117,6 +108,7 @@ func (h *StallHandler) Update() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		stall := &domain.Stall{
 			ID:        id,
 			Name:      req.Name,
@@ -125,17 +117,8 @@ func (h *StallHandler) Update() gin.HandlerFunc {
 			SortOrder: req.SortOrder,
 		}
 
-		if err := h.StallInteractor.Update(ctx, stall); err != nil {
-			if errors.Is(err, domain.ErrStallNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.StallNameExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to update stall: %w", err)
-			c.Error(err)
+		if err := h.StallInteractor.Update(ctx, stall, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -166,17 +149,9 @@ func (h *StallHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.StallInteractor.Delete(ctx, id); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNoContent, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete stall: %w", err)
-			c.Error(err)
+		user := domain.FromBackendUserContext(ctx)
+		if err := h.StallInteractor.Delete(ctx, id, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -206,14 +181,10 @@ func (h *StallHandler) Get() gin.HandlerFunc {
 			return
 		}
 
-		stall, err := h.StallInteractor.GetStall(ctx, id)
+		user := domain.FromBackendUserContext(ctx)
+		stall, err := h.StallInteractor.GetStall(ctx, id, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to get stall: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -287,18 +258,10 @@ func (h *StallHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		stall := &domain.Stall{ID: id, Enabled: true}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to toggle enabled: %w", err)
-			c.Error(err)
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -329,21 +292,28 @@ func (h *StallHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		stall := &domain.Stall{ID: id, Enabled: false}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to toggle enabled: %w", err)
-			c.Error(err)
+		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+func (h *StallHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrStallNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.StallNotExists, err)
+	case errors.Is(err, domain.ErrStallNameExists):
+		return errorx.New(http.StatusConflict, errcode.StallNameExists, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("stall handler error: %w", err)
 	}
 }

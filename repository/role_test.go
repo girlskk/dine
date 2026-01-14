@@ -35,7 +35,7 @@ func (s *RoleRepositoryTestSuite) createTestRole(tag string, roleType domain.Rol
 		SetName(tag + "-角色").
 		SetCode(tag + "-CODE").
 		SetRoleType(roleType).
-		SetEnable(true).
+		SetEnabled(true).
 		SetDataScope(domain.RoleDataScopeDepartment).
 		SetMerchantID(merchantID).
 		SetStoreID(storeID).
@@ -51,7 +51,7 @@ func (s *RoleRepositoryTestSuite) TestRole_Create() {
 			Code:          "ROLE-NEW",
 			RoleType:      domain.RoleTypeBackend,
 			DataScope:     domain.RoleDataScopeCustom,
-			Enable:        true,
+			Enabled:       true,
 			MerchantID:    uuid.New(),
 			StoreID:       uuid.New(),
 			LoginChannels: []domain.LoginChannel{domain.LoginChannelStore},
@@ -64,7 +64,7 @@ func (s *RoleRepositoryTestSuite) TestRole_Create() {
 		require.Equal(t, "ROLE-NEW", dbRole.Code)
 		require.Equal(t, domain.RoleTypeBackend, dbRole.RoleType)
 		require.Equal(t, domain.RoleDataScopeCustom, dbRole.DataScope)
-		require.True(t, dbRole.Enable)
+		require.True(t, dbRole.Enabled)
 		require.ElementsMatch(t, []domain.LoginChannel{domain.LoginChannelStore}, dbRole.LoginChannels)
 	})
 
@@ -75,7 +75,7 @@ func (s *RoleRepositoryTestSuite) TestRole_Create() {
 			Code:          "ROLE-DUP",
 			RoleType:      domain.RoleTypeAdmin,
 			DataScope:     domain.RoleDataScopeAll,
-			Enable:        true,
+			Enabled:       true,
 			MerchantID:    uuid.New(),
 			StoreID:       uuid.New(),
 			LoginChannels: []domain.LoginChannel{domain.LoginChannelPos},
@@ -88,7 +88,7 @@ func (s *RoleRepositoryTestSuite) TestRole_Create() {
 			Code:          "ROLE-DUP",
 			RoleType:      domain.RoleTypeAdmin,
 			DataScope:     domain.RoleDataScopeAll,
-			Enable:        true,
+			Enabled:       true,
 			MerchantID:    uuid.New(),
 			StoreID:       uuid.New(),
 			LoginChannels: []domain.LoginChannel{domain.LoginChannelPos},
@@ -108,7 +108,7 @@ func (s *RoleRepositoryTestSuite) TestRole_FindByID() {
 		require.Equal(t, "find-CODE", role.Code)
 		require.Equal(t, domain.RoleTypeStore, role.RoleType)
 		require.Equal(t, domain.RoleDataScopeDepartment, role.DataScope)
-		require.True(t, role.Enable)
+		require.True(t, role.Enabled)
 	})
 
 	s.T().Run("不存在的角色", func(t *testing.T) {
@@ -126,14 +126,14 @@ func (s *RoleRepositoryTestSuite) TestRole_Update() {
 			Name:          "更新后的角色",
 			RoleType:      domain.RoleTypeBackend,
 			DataScope:     domain.RoleDataScopeMerchant,
-			Enable:        false,
+			Enabled:       false,
 			LoginChannels: []domain.LoginChannel{domain.LoginChannelMobile},
 		}
 		require.NoError(t, s.repo.Update(s.ctx, updated))
 
 		dbRole := s.client.Role.GetX(s.ctx, entity.ID)
 		require.Equal(t, "更新后的角色", dbRole.Name)
-		require.False(t, dbRole.Enable)
+		require.False(t, dbRole.Enabled)
 		require.Equal(t, domain.RoleDataScopeMerchant, dbRole.DataScope)
 		require.ElementsMatch(t, []domain.LoginChannel{domain.LoginChannelMobile}, dbRole.LoginChannels)
 	})
@@ -202,7 +202,7 @@ func (s *RoleRepositoryTestSuite) TestRole_Integration() {
 			Code:          "ROLE-INT",
 			RoleType:      domain.RoleTypeStore,
 			DataScope:     domain.RoleDataScopeStore,
-			Enable:        true,
+			Enabled:       true,
 			LoginChannels: []domain.LoginChannel{domain.LoginChannelStore},
 		}
 		require.NoError(t, s.repo.Create(s.ctx, role))

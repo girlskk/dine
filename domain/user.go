@@ -55,6 +55,13 @@ type User interface {
 	GetUserType() UserType
 }
 
+func VerifyOwnerMerchant(user User, merchantID uuid.UUID) bool {
+	if user.GetMerchantID() != merchantID {
+		return false
+	}
+	return true
+}
+
 // VerifyOwnerShip 验证资源是否属于当前用户可操作
 func VerifyOwnerShip(user User, merchantID, storeID uuid.UUID) bool {
 	if user.GetMerchantID() != merchantID || user.GetStoreID() != storeID {

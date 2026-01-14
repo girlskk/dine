@@ -15,6 +15,285 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/additional_fee": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "获取附加费列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "是否启用",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.AdditionalFeeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "创建附加费",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AdditionalFeeCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/additional_fee/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "获取附加费详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.AdditionalFee"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "更新附加费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AdditionalFeeUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "删除附加费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/additional_fee/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将附加费置为禁用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "禁用附加费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/additional_fee/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将附加费置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "启用附加费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/business/config": {
             "get": {
                 "security": [
@@ -35,9 +314,6 @@ const docTemplate = `{
                         "x-enum-comments": {
                             "BusinessConfigGroupPrint": "print"
                         },
-                        "x-enum-descriptions": [
-                            "print"
-                        ],
                         "x-enum-varnames": [
                             "BusinessConfigGroupPrint"
                         ],
@@ -88,7 +364,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -352,7 +628,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -585,6 +861,109 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/role/{id}/menus": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页或非分页获取指定角色的菜单路径列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "角色菜单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.RoleMenusResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "为指定角色设置菜单路径（交集保留，新增/删除按 paths 调整）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "设置角色菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "设置菜单请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.SetMenusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/router_menu": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询菜单",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "菜单列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.RouterMenuListResp"
+                        }
                     }
                 }
             }
@@ -2273,6 +2652,308 @@ const docTemplate = `{
                 }
             }
         },
+        "/remark": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询备注列表",
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "获取备注列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "启用状态",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "whole_order",
+                            "item",
+                            "cancel_reason",
+                            "discount",
+                            "gift",
+                            "rebill",
+                            "refund_reject"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "RemarkSceneCancelReason": "退菜原因",
+                            "RemarkSceneDiscount": "优惠原因",
+                            "RemarkSceneGift": "赠菜原因",
+                            "RemarkSceneItem": "单品备注",
+                            "RemarkSceneRebill": "反结账原因",
+                            "RemarkSceneRefundReject": "拒绝退款",
+                            "RemarkSceneWholeOrder": "整单备注"
+                        },
+                        "x-enum-varnames": [
+                            "RemarkSceneWholeOrder",
+                            "RemarkSceneItem",
+                            "RemarkSceneCancelReason",
+                            "RemarkSceneDiscount",
+                            "RemarkSceneGift",
+                            "RemarkSceneRebill",
+                            "RemarkSceneRefundReject"
+                        ],
+                        "description": "使用场景",
+                        "name": "remark_scene",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.RemarkListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建备注",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "创建备注",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.RemarkCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/remark/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据备注ID获取详情",
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "获取备注详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Remark"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新备注",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "更新备注",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.RemarkUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除备注",
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "删除备注",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/remark/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将备注置为禁用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "禁用备注",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/remark/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将备注置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "启用备注",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/restaurant/device": {
             "get": {
                 "security": [
@@ -2296,10 +2977,6 @@ const docTemplate = `{
                             "DeviceTypeCashier": "收银机",
                             "DeviceTypePrinter": "打印机"
                         },
-                        "x-enum-descriptions": [
-                            "收银机",
-                            "打印机"
-                        ],
                         "x-enum-varnames": [
                             "DeviceTypeCashier",
                             "DeviceTypePrinter"
@@ -2336,10 +3013,6 @@ const docTemplate = `{
                             "DeviceStatusOffline": "离线",
                             "DeviceStatusOnline": "在线"
                         },
-                        "x-enum-descriptions": [
-                            "在线",
-                            "离线"
-                        ],
                         "x-enum-varnames": [
                             "DeviceStatusOnline",
                             "DeviceStatusOffline"
@@ -2580,6 +3253,293 @@ const docTemplate = `{
                 }
             }
         },
+        "/restaurant/stall": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询出品部门列表",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "获取出品部门列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "启用状态",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "名称模糊查询",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "receipt",
+                            "label"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "StallPrintTypeLabel": "标签",
+                            "StallPrintTypeReceipt": "小票/收据"
+                        },
+                        "x-enum-varnames": [
+                            "StallPrintTypeReceipt",
+                            "StallPrintTypeLabel"
+                        ],
+                        "description": "打印类型",
+                        "name": "print_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.StallListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建出品部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "创建出品部门",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StallCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/restaurant/stall/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据出品部门ID获取详情",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "获取出品部门详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Stall"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新出品部门",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "更新出品部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.StallUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除出品部门",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "删除出品部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/restaurant/stall/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将出品部门置为禁用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "禁用出品部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/restaurant/stall/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将出品部门置为启用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "启用出品部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/store": {
             "get": {
                 "security": [
@@ -2714,6 +3674,281 @@ const docTemplate = `{
                 }
             }
         },
+        "/tax_fee": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "获取税费列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.TaxFeeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "创建税费",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TaxFeeCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/tax_fee/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "获取税费详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.TaxFee"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "更新税费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TaxFeeUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "删除税费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/tax_fee/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "取消默认税费标记",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "禁用税费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/tax_fee/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将税费标记为默认",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-税费管理"
+                ],
+                "summary": "启用税费",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "税费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/user": {
             "get": {
                 "security": [
@@ -2745,7 +3980,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -2762,12 +3997,6 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
-                        "x-enum-descriptions": [
-                            "男性",
-                            "女性",
-                            "其他",
-                            "未知"
-                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -3132,11 +4361,6 @@ const docTemplate = `{
                 "AdditionalCategoryPacking": "打包费",
                 "AdditionalCategoryService": "服务费"
             },
-            "x-enum-descriptions": [
-                "服务费",
-                "附加费",
-                "打包费"
-            ],
             "x-enum-varnames": [
                 "AdditionalCategoryService",
                 "AdditionalCategoryAdditional",
@@ -3245,10 +4469,6 @@ const docTemplate = `{
                 "AdditionalFeeChargeModeFixed": "固定金额",
                 "AdditionalFeeChargeModePercent": "百分比"
             },
-            "x-enum-descriptions": [
-                "百分比",
-                "固定金额"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeChargeModePercent",
                 "AdditionalFeeChargeModeFixed"
@@ -3264,10 +4484,6 @@ const docTemplate = `{
                 "AdditionalFeeDiscountScopeAfter": "折后",
                 "AdditionalFeeDiscountScopeBefore": "折前"
             },
-            "x-enum-descriptions": [
-                "折前",
-                "折后"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeDiscountScopeBefore",
                 "AdditionalFeeDiscountScopeAfter"
@@ -3283,10 +4499,6 @@ const docTemplate = `{
                 "AdditionalFeeTypeMerchant": "商户",
                 "AdditionalFeeTypeStore": "门店"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeTypeMerchant",
                 "AdditionalFeeTypeStore"
@@ -3413,13 +4625,6 @@ const docTemplate = `{
                 "BusinessConfigConfigTypeString": "string",
                 "BusinessConfigConfigTypeUint": "uint"
             },
-            "x-enum-descriptions": [
-                "string",
-                "int",
-                "uint",
-                "datetime",
-                "date"
-            ],
             "x-enum-varnames": [
                 "BusinessConfigConfigTypeString",
                 "BusinessConfigConfigTypeInt",
@@ -3436,9 +4641,6 @@ const docTemplate = `{
             "x-enum-comments": {
                 "BusinessConfigGroupPrint": "print"
             },
-            "x-enum-descriptions": [
-                "print"
-            ],
             "x-enum-varnames": [
                 "BusinessConfigGroupPrint"
             ]
@@ -3508,10 +4710,6 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
-            "x-enum-descriptions": [
-                "直营",
-                "加盟"
-            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -3533,13 +4731,6 @@ const docTemplate = `{
                 "BusinessTypeNoodle": "面馆",
                 "BusinessTypeSnack": "小吃"
             },
-            "x-enum-descriptions": [
-                "面馆",
-                "烘焙",
-                "小吃",
-                "饮品",
-                "中餐"
-            ],
             "x-enum-varnames": [
                 "BusinessTypeNoodle",
                 "BusinessTypeBakery",
@@ -3659,7 +4850,7 @@ const docTemplate = `{
                 "department_type": {
                     "$ref": "#/definitions/domain.DepartmentType"
                 },
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "id": {
@@ -3841,10 +5032,6 @@ const docTemplate = `{
                 "DeviceConnectTypeInside": "内置",
                 "DeviceConnectTypeOutside": "外置"
             },
-            "x-enum-descriptions": [
-                "内置",
-                "外置"
-            ],
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
                 "DeviceConnectTypeOutside"
@@ -3860,10 +5047,6 @@ const docTemplate = `{
                 "DeviceLocationBackKitchen": "后厨",
                 "DeviceLocationFrontHall": "前厅"
             },
-            "x-enum-descriptions": [
-                "前厅",
-                "后厨"
-            ],
             "x-enum-varnames": [
                 "DeviceLocationFrontHall",
                 "DeviceLocationBackKitchen"
@@ -3881,11 +5064,6 @@ const docTemplate = `{
                 "DeviceStallPrintTypeCombined": "总单",
                 "DeviceStallPrintTypeSeparate": "分单"
             },
-            "x-enum-descriptions": [
-                "全部打印 总单+分单",
-                "总单",
-                "分单"
-            ],
             "x-enum-varnames": [
                 "DeviceStallPrintTypeAll",
                 "DeviceStallPrintTypeCombined",
@@ -3902,10 +5080,6 @@ const docTemplate = `{
                 "DeviceStallReceiptTypeAll": "全部打印",
                 "DeviceStallReceiptTypeExclude": "剔除部门商户"
             },
-            "x-enum-descriptions": [
-                "全部打印",
-                "剔除部门商户"
-            ],
             "x-enum-varnames": [
                 "DeviceStallReceiptTypeAll",
                 "DeviceStallReceiptTypeExclude"
@@ -3921,10 +5095,6 @@ const docTemplate = `{
                 "DeviceStatusOffline": "离线",
                 "DeviceStatusOnline": "在线"
             },
-            "x-enum-descriptions": [
-                "在线",
-                "离线"
-            ],
             "x-enum-varnames": [
                 "DeviceStatusOnline",
                 "DeviceStatusOffline"
@@ -3940,10 +5110,6 @@ const docTemplate = `{
                 "DeviceTypeCashier": "收银机",
                 "DeviceTypePrinter": "打印机"
             },
-            "x-enum-descriptions": [
-                "收银机",
-                "打印机"
-            ],
             "x-enum-varnames": [
                 "DeviceTypeCashier",
                 "DeviceTypePrinter"
@@ -3978,11 +5144,6 @@ const docTemplate = `{
                 "DiningWayDineIn": "堂食",
                 "DiningWayTakeOut": "外带"
             },
-            "x-enum-descriptions": [
-                "堂食",
-                "外带",
-                "外送"
-            ],
             "x-enum-varnames": [
                 "DiningWayDineIn",
                 "DiningWayTakeOut",
@@ -3999,10 +5160,6 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
-            "x-enum-descriptions": [
-                "按天",
-                "自定义"
-            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -4022,12 +5179,6 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
-            "x-enum-descriptions": [
-                "男性",
-                "女性",
-                "其他",
-                "未知"
-            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -4047,11 +5198,6 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
-            "x-enum-descriptions": [
-                "pos",
-                "移动点餐",
-                "门店管理后台"
-            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -4197,11 +5343,6 @@ const docTemplate = `{
                 "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店",
-                "商品"
-            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
                 "ObjectStorageSceneStore",
@@ -4226,14 +5367,6 @@ const docTemplate = `{
                 "OrderChannelSelfOrder": "自助点餐",
                 "OrderChannelThirdDelivery": "三方外卖"
             },
-            "x-enum-descriptions": [
-                "POS 端",
-                "自助点餐",
-                "小程序",
-                "手机点餐",
-                "扫码点餐",
-                "三方外卖"
-            ],
             "x-enum-varnames": [
                 "OrderChannelPOS",
                 "OrderChannelSelfOrder",
@@ -4416,10 +5549,6 @@ const docTemplate = `{
                 "PaymentMethodAccountingRuleDiscount": "计入优惠",
                 "PaymentMethodAccountingRuleIncome": "计入实收"
             },
-            "x-enum-descriptions": [
-                "计入实收",
-                "计入优惠"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodAccountingRuleIncome",
                 "PaymentMethodAccountingRuleDiscount"
@@ -4435,10 +5564,6 @@ const docTemplate = `{
                 "PaymentMethodInvoiceRuleActualAmount": "按实收金额",
                 "PaymentMethodInvoiceRuleNotInvoice": "不开发票"
             },
-            "x-enum-descriptions": [
-                "不开发票",
-                "按实收金额"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodInvoiceRuleNotInvoice",
                 "PaymentMethodInvoiceRuleActualAmount"
@@ -4462,14 +5587,6 @@ const docTemplate = `{
                 "PaymentMethodPayTypeOnlinePayment": "在线支付",
                 "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
-            "x-enum-descriptions": [
-                "现金",
-                "在线支付",
-                "会员卡",
-                "系统自定义券",
-                "三方合作券",
-                "银行卡"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodPayTypeCash",
                 "PaymentMethodPayTypeOnlinePayment",
@@ -4514,11 +5631,6 @@ const docTemplate = `{
                 "PaymentMethodSourceStore": "门店",
                 "PaymentMethodSourceSystem": "系统"
             },
-            "x-enum-descriptions": [
-                "品牌",
-                "门店",
-                "系统"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodSourceBrand",
                 "PaymentMethodSourceStore",
@@ -4899,10 +6011,6 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
-            "x-enum-descriptions": [
-                "在售",
-                "停售"
-            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -5149,11 +6257,6 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
-            "x-enum-descriptions": [
-                "堂食",
-                "外带",
-                "外卖"
-            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -5226,10 +6329,6 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
-            "x-enum-descriptions": [
-                "普通商品",
-                "套餐商品"
-            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -5309,10 +6408,6 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
-            "x-enum-descriptions": [
-                "数量单位",
-                "重量单位"
-            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
@@ -5432,10 +6527,6 @@ const docTemplate = `{
                 "ProfitDistributionBillStatusPaid": "已打款",
                 "ProfitDistributionBillStatusUnpaid": "未打款"
             },
-            "x-enum-descriptions": [
-                "未打款",
-                "已打款"
-            ],
             "x-enum-varnames": [
                 "ProfitDistributionBillStatusUnpaid",
                 "ProfitDistributionBillStatusPaid"
@@ -5506,29 +6597,6 @@ const docTemplate = `{
                 "ProvinceSG04": "东南社区发展理事会",
                 "ProvinceSG05": "西南社区发展理事会"
             },
-            "x-enum-descriptions": [
-                "柔佛州",
-                "吉打州",
-                "吉兰丹州",
-                "马六甲州",
-                "森美兰州",
-                "彭亨州",
-                "槟城州",
-                "霹雳州",
-                "玻璃市州",
-                "雪兰莪州",
-                "登嘉楼州",
-                "沙巴州",
-                "砂拉越州",
-                "吉隆坡联邦直辖区",
-                "纳闽联邦直辖区",
-                "布城联邦直辖区",
-                "中区社区发展理事会",
-                "东北社区发展理事会",
-                "西北社区发展理事会",
-                "东南社区发展理事会",
-                "西南社区发展理事会"
-            ],
             "x-enum-varnames": [
                 "ProvinceMY01",
                 "ProvinceMY02",
@@ -5553,6 +6621,104 @@ const docTemplate = `{
                 "ProvinceSG05"
             ]
         },
+        "domain.Remark": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID，仅品牌备注需要",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "备注名称",
+                    "type": "string"
+                },
+                "remark_scene": {
+                    "description": "使用场景：整单备注/单品备注/退菜原因等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
+                "remark_type": {
+                    "description": "备注类型：系统/品牌",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序，值越小越靠前",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RemarkScene": {
+            "type": "string",
+            "enum": [
+                "whole_order",
+                "item",
+                "cancel_reason",
+                "discount",
+                "gift",
+                "rebill",
+                "refund_reject"
+            ],
+            "x-enum-comments": {
+                "RemarkSceneCancelReason": "退菜原因",
+                "RemarkSceneDiscount": "优惠原因",
+                "RemarkSceneGift": "赠菜原因",
+                "RemarkSceneItem": "单品备注",
+                "RemarkSceneRebill": "反结账原因",
+                "RemarkSceneRefundReject": "拒绝退款",
+                "RemarkSceneWholeOrder": "整单备注"
+            },
+            "x-enum-varnames": [
+                "RemarkSceneWholeOrder",
+                "RemarkSceneItem",
+                "RemarkSceneCancelReason",
+                "RemarkSceneDiscount",
+                "RemarkSceneGift",
+                "RemarkSceneRebill",
+                "RemarkSceneRefundReject"
+            ]
+        },
+        "domain.RemarkType": {
+            "type": "string",
+            "enum": [
+                "system",
+                "brand",
+                "store"
+            ],
+            "x-enum-comments": {
+                "RemarkTypeBrand": "商户备注",
+                "RemarkTypeStore": "门店备注",
+                "RemarkTypeSystem": "系统备注"
+            },
+            "x-enum-varnames": [
+                "RemarkTypeSystem",
+                "RemarkTypeBrand",
+                "RemarkTypeStore"
+            ]
+        },
         "domain.Role": {
             "type": "object",
             "properties": {
@@ -5571,7 +6737,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "enable": {
+                "enabled": {
                     "description": "是否启用",
                     "type": "boolean"
                 },
@@ -5635,14 +6801,6 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
-            "x-enum-descriptions": [
-                "全部数据权限",
-                "品牌商数据权限",
-                "门店数据权限",
-                "部门数据权限",
-                "仅本人数据权限",
-                "自定义数据权限"
-            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -5667,16 +6825,65 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
-            "x-enum-descriptions": [
-                "admin表用户",
-                "backend用户",
-                "store用户"
-            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
                 "RoleTypeStore"
             ]
+        },
+        "domain.RouterMenu": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "description": "前端组件路径",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "icon": {
+                    "description": "菜单图标",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "layer": {
+                    "description": "菜单层级",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "菜单名称",
+                    "type": "string"
+                },
+                "parent_id": {
+                    "description": "父级菜单ID，根菜单为 uuid.Nil",
+                    "type": "string"
+                },
+                "path": {
+                    "description": "菜单路径",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "菜单排序",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_type": {
+                    "description": "类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.UserType"
+                        }
+                    ]
+                }
+            }
         },
         "domain.SaleChannel": {
             "type": "string",
@@ -5704,18 +6911,6 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
-            "x-enum-descriptions": [
-                "POS",
-                "移动点餐",
-                "扫码点餐",
-                "自助点餐",
-                "三方外卖",
-                "POS",
-                "移动点餐",
-                "扫码点餐",
-                "自助点餐",
-                "三方外卖"
-            ],
             "x-enum-varnames": [
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
@@ -5834,10 +7029,6 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
-            "x-enum-descriptions": [
-                "固定分组",
-                "可选套餐"
-            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -5922,10 +7113,6 @@ const docTemplate = `{
                 "StallPrintTypeLabel": "标签",
                 "StallPrintTypeReceipt": "小票/收据"
             },
-            "x-enum-descriptions": [
-                "小票/收据",
-                "标签"
-            ],
             "x-enum-varnames": [
                 "StallPrintTypeReceipt",
                 "StallPrintTypeLabel"
@@ -5943,11 +7130,6 @@ const docTemplate = `{
                 "StallTypeStore": "门店出品部门",
                 "StallTypeSystem": "系统出品部门"
             },
-            "x-enum-descriptions": [
-                "系统出品部门",
-                "品牌出品部门",
-                "门店出品部门"
-            ],
             "x-enum-varnames": [
                 "StallTypeSystem",
                 "StallTypeBrand",
@@ -6115,10 +7297,6 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
-            "x-enum-descriptions": [
-                "营业",
-                "停业"
-            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -6274,18 +7452,17 @@ const docTemplate = `{
         "domain.TaxFeeType": {
             "type": "string",
             "enum": [
+                "system",
                 "merchant",
                 "store"
             ],
             "x-enum-comments": {
                 "TaxFeeTypeMerchant": "商户",
-                "TaxFeeTypeStore": "门店"
+                "TaxFeeTypeStore": "门店",
+                "TaxFeeTypeSystem": "系统内置"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店"
-            ],
             "x-enum-varnames": [
+                "TaxFeeTypeSystem",
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
             ]
@@ -6300,13 +7477,30 @@ const docTemplate = `{
                 "TaxRateTypeCustom": "自定义比例",
                 "TaxRateTypeUnified": "统一比例"
             },
-            "x-enum-descriptions": [
-                "统一比例",
-                "自定义比例"
-            ],
             "x-enum-varnames": [
                 "TaxRateTypeUnified",
                 "TaxRateTypeCustom"
+            ]
+        },
+        "domain.UserType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store",
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-comments": {
+                "UserTypeAdmin": "admin表用户",
+                "UserTypeBackend": "backend用户",
+                "UserTypeStore": "store用户"
+            },
+            "x-enum-varnames": [
+                "RoleTypeAdmin",
+                "RoleTypeBackend",
+                "RoleTypeStore"
             ]
         },
         "response.Response": {
@@ -6327,9 +7521,23 @@ const docTemplate = `{
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -6350,6 +7558,204 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.StoreUser"
                     }
+                }
+            }
+        },
+        "types.AdditionalFeeCreateReq": {
+            "type": "object",
+            "required": [
+                "charge_mode",
+                "dining_ways",
+                "discount_scope",
+                "fee_category",
+                "fee_value",
+                "name",
+                "order_channels"
+            ],
+            "properties": {
+                "charge_mode": {
+                    "description": "收费模式 (percent/fixed)",
+                    "enum": [
+                        "percent",
+                        "fixed"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "dining_ways": {
+                    "description": "适用用餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣作用范围 (before_discount/after_discount)",
+                    "enum": [
+                        "before_discount",
+                        "after_discount"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费分类 (service_fee/additional_fee/packing_fee)",
+                    "enum": [
+                        "service_fee",
+                        "additional_fee",
+                        "packing_fee"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "费用值，percent 模式示例 0.06 表示 6%",
+                    "type": "number"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "order_channels": {
+                    "description": "允许的下单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序值",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
+                }
+            }
+        },
+        "types.AdditionalFeeListResp": {
+            "type": "object",
+            "properties": {
+                "additional_fees": {
+                    "description": "附加费列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.AdditionalFee"
+                    }
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.AdditionalFeeUpdateReq": {
+            "type": "object",
+            "required": [
+                "charge_mode",
+                "dining_ways",
+                "discount_scope",
+                "fee_category",
+                "fee_value",
+                "name",
+                "order_channels"
+            ],
+            "properties": {
+                "charge_mode": {
+                    "description": "收费模式 (percent/fixed)",
+                    "enum": [
+                        "percent",
+                        "fixed"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "dining_ways": {
+                    "description": "适用用餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣作用范围 (before_discount/after_discount)",
+                    "enum": [
+                        "before_discount",
+                        "after_discount"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费分类 (service_fee/additional_fee/packing_fee)",
+                    "enum": [
+                        "service_fee",
+                        "additional_fee",
+                        "packing_fee"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "费用值，percent 模式示例 0.06 表示 6%",
+                    "type": "number"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "order_channels": {
+                    "description": "允许的下单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序值",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
                 }
             }
         },
@@ -6472,7 +7878,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -6500,7 +7906,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -7665,6 +9071,84 @@ const docTemplate = `{
                 }
             }
         },
+        "types.RemarkCreateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "remark_scene"
+            ],
+            "properties": {
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "备注名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "remark_scene": {
+                    "description": "使用场景",
+                    "enum": [
+                        "whole_order",
+                        "item",
+                        "cancel_reason",
+                        "discount",
+                        "gift",
+                        "rebill",
+                        "refund_reject"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序，越小越靠前",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "types.RemarkListResp": {
+            "type": "object",
+            "properties": {
+                "remarks": {
+                    "description": "备注列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Remark"
+                    }
+                },
+                "total": {
+                    "description": "备注总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.RemarkUpdateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "备注名称",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sort_order": {
+                    "description": "排序，越小越靠前",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "types.ResetPasswordReq": {
             "type": "object",
             "required": [
@@ -7682,7 +9166,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "login_channels": {
@@ -7712,13 +9196,24 @@ const docTemplate = `{
                 }
             }
         },
+        "types.RoleMenusResp": {
+            "type": "object",
+            "properties": {
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "types.RoleUpdateReq": {
             "type": "object",
             "required": [
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "login_channels": {
@@ -7731,6 +9226,20 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "maxLength": 50
+                }
+            }
+        },
+        "types.RouterMenuListResp": {
+            "type": "object",
+            "properties": {
+                "menus": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RouterMenu"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -8131,6 +9640,102 @@ const docTemplate = `{
                 }
             }
         },
+        "types.SetMenusReq": {
+            "type": "object",
+            "required": [
+                "paths"
+            ],
+            "properties": {
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.StallCreateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "print_type"
+            ],
+            "properties": {
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "出品部门名称",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "print_type": {
+                    "description": "打印类型",
+                    "enum": [
+                        "receipt",
+                        "label"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "types.StallListResp": {
+            "type": "object",
+            "properties": {
+                "stalls": {
+                    "description": "出品部门列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Stall"
+                    }
+                },
+                "total": {
+                    "description": "出品部门总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.StallUpdateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "print_type"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "print_type": {
+                    "enum": [
+                        "receipt",
+                        "label"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "types.StoreUserCreateReq": {
             "type": "object",
             "required": [
@@ -8248,6 +9853,58 @@ const docTemplate = `{
                 "username": {
                     "description": "用户登陆账号",
                     "type": "string"
+                }
+            }
+        },
+        "types.TaxFeeCreateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "tax_rate"
+            ],
+            "properties": {
+                "name": {
+                    "description": "税费名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "tax_rate": {
+                    "description": "税率 tax_rate 示例：6% -\u003e 0.06",
+                    "type": "number"
+                }
+            }
+        },
+        "types.TaxFeeListResp": {
+            "type": "object",
+            "properties": {
+                "tax_fees": {
+                    "description": "税费列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TaxFee"
+                    }
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.TaxFeeUpdateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "tax_rate"
+            ],
+            "properties": {
+                "name": {
+                    "description": "税费名称",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "tax_rate": {
+                    "description": "税率 tax_rate 示例：6% -\u003e 0.06",
+                    "type": "number"
                 }
             }
         },

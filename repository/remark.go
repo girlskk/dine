@@ -120,14 +120,6 @@ func (repo *RemarkRepository) GetRemarks(ctx context.Context, pager *upagination
 	span, ctx := util.StartSpan(ctx, "usecase", "RemarkRepository.GetRemarks")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if pager == nil {
-		err = fmt.Errorf("pager is nil")
-		return
-	}
-	if filter == nil {
-		err = fmt.Errorf("filter is nil")
-		return
-	}
 	if filter.StoreID != uuid.Nil && filter.MerchantID == uuid.Nil {
 		err = fmt.Errorf("merchant ID is required when store ID is provided")
 		return
@@ -256,6 +248,9 @@ func (repo *RemarkRepository) filterBuildQuery(filter *domain.RemarkListFilter) 
 	query = repo.convertMerchantIDFilter(filter.RemarkType, filter.MerchantID, query)
 	query = repo.convertStoreIDFilter(filter.RemarkType, filter.StoreID, query)
 
+	if filter.Name != "" {
+		query = query.Where(remark.NameContains(filter.Name))
+	}
 	if filter.RemarkScene != "" {
 		query = query.Where(remark.RemarkSceneEQ(filter.RemarkScene))
 	}
@@ -285,8 +280,10 @@ func (repo *RemarkRepository) convertMerchantIDFilter(remarkType domain.RemarkTy
 		switch remarkType {
 		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
 			query = query.Where(remark.Or(remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeEQ(domain.RemarkTypeSystem))
 		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
 			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeIn(domain.RemarkTypeSystem, domain.RemarkTypeBrand))
 		case domain.RemarkTypeStore: // 门店备注查询门店所属品牌和系统级别的备注
 			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
 		default:
@@ -309,8 +306,10 @@ func (repo *RemarkRepository) convertStoreIDFilter(remarkType domain.RemarkType,
 		switch remarkType {
 		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
 			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeEQ(domain.RemarkTypeSystem))
 		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
 			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+			query = query.Where(remark.RemarkTypeIn(domain.RemarkTypeSystem, domain.RemarkTypeBrand))
 		case domain.RemarkTypeStore: // 门店备注查询门店和系统级别的备注
 			query = query.Where(remark.Or(remark.StoreID(storeID), remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
 		default: // Remark Type为空时只查询当前门店的备注

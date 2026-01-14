@@ -7,21 +7,21 @@ import (
 
 // RoleCreateReq 创建角色请求
 type RoleCreateReq struct {
-	Name   string `json:"name" binding:"required,max=50"`
-	Enable bool   `json:"enable"`
+	Name    string `json:"name" binding:"required,max=50"`
+	Enabled bool   `json:"enabled"`
 }
 
 // RoleUpdateReq 更新角色请求
 type RoleUpdateReq struct {
-	Name   string `json:"name" binding:"required,max=50"`
-	Enable bool   `json:"enable"`
+	Name    string `json:"name" binding:"required,max=50"`
+	Enabled bool   `json:"enabled"`
 }
 
 // RoleListReq 角色列表查询请求
 type RoleListReq struct {
 	upagination.RequestPagination
-	Name   string `form:"name"`
-	Enable *bool  `form:"enable"`
+	Name    string `form:"name"`
+	Enabled *bool  `form:"enabled"`
 }
 
 // RoleListResp 角色列表响应

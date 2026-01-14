@@ -56,7 +56,7 @@ func (repo *DepartmentRepository) Create(ctx context.Context, dept *domain.Depar
 		SetName(dept.Name).
 		SetCode(dept.Code).
 		SetDepartmentType(dept.DepartmentType).
-		SetEnable(dept.Enable)
+		SetEnabled(dept.Enabled)
 	if dept.MerchantID != uuid.Nil {
 		builder = builder.SetMerchantID(dept.MerchantID)
 	}
@@ -84,7 +84,7 @@ func (repo *DepartmentRepository) Update(ctx context.Context, dept *domain.Depar
 
 	builder := repo.Client.Department.UpdateOneID(dept.ID).
 		SetName(dept.Name).
-		SetEnable(dept.Enable)
+		SetEnabled(dept.Enabled)
 
 	updated, err := builder.Save(ctx)
 	if err != nil {
@@ -220,8 +220,8 @@ func (repo *DepartmentRepository) buildFilterQuery(filter *domain.DepartmentList
 	if filter.DepartmentType != "" {
 		query = query.Where(department.DepartmentTypeEQ(filter.DepartmentType))
 	}
-	if filter.Enable != nil {
-		query = query.Where(department.EnableEQ(*filter.Enable))
+	if filter.Enabled != nil {
+		query = query.Where(department.EnabledEQ(*filter.Enabled))
 	}
 	if filter.Name != "" {
 		query = query.Where(department.NameContains(filter.Name))
@@ -259,7 +259,7 @@ func convertDepartmentToDomain(ed *ent.Department) *domain.Department {
 		Name:           ed.Name,
 		Code:           ed.Code,
 		DepartmentType: ed.DepartmentType,
-		Enable:         ed.Enable,
+		Enabled:        ed.Enabled,
 		MerchantID:     ed.MerchantID,
 		StoreID:        ed.StoreID,
 		CreatedAt:      ed.CreatedAt,
