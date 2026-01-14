@@ -2,7 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
@@ -488,6 +491,171 @@ func (repo *ProductRepository) PagedListBySearch(
 		Pagination: page,
 		Items:      items,
 	}, nil
+}
+
+func (repo *ProductRepository) CountByCategoryIDs(ctx context.Context, categoryIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	var results []struct {
+		CategoryID uuid.UUID `sql:"category_id"`
+		Count      int       `sql:"count"`
+	}
+
+	err := repo.Client.Product.Query().
+		Where(product.CategoryIDIn(categoryIDs...)).
+		GroupBy(product.FieldCategoryID).
+		Aggregate(ent.Count()).
+		Scan(ctx, &results)
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.CategoryID] = r.Count
+	}
+	return countMap, err
+}
+
+func (repo *ProductRepository) CountByUnitIDs(ctx context.Context, unitIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	var results []struct {
+		UnitID uuid.UUID `sql:"unit_id"`
+		Count  int       `sql:"count"`
+	}
+
+	err := repo.Client.Product.Query().
+		Where(product.UnitIDIn(unitIDs...)).
+		GroupBy(product.FieldUnitID).
+		Aggregate(ent.Count()).
+		Scan(ctx, &results)
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.UnitID] = r.Count
+	}
+	return countMap, err
+}
+
+func (repo *ProductRepository) CountBySpecIDs(ctx context.Context, specIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(specIDs) == 0 {
+		return make(map[uuid.UUID]int), nil
+	}
+
+	var results []struct {
+		SpecID uuid.UUID `sql:"spec_id"`
+		Count  int       `sql:"count"`
+	}
+
+	err := repo.Client.ProductSpecRelation.Query().
+		Where(productspecrelation.SpecIDIn(specIDs...)).
+		GroupBy(productspecrelation.FieldSpecID).
+		Aggregate(
+			ent.As(
+				func(s *sql.Selector) string {
+					return fmt.Sprintf("COUNT(DISTINCT %s)", s.C(productspecrelation.FieldProductID))
+				},
+				"count",
+			),
+		).
+		Scan(ctx, &results)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.SpecID] = r.Count
+	}
+
+	return countMap, nil
+}
+
+func (repo *ProductRepository) CountByAttrItemIDs(ctx context.Context, attrItemIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(attrItemIDs) == 0 {
+		return make(map[uuid.UUID]int), nil
+	}
+
+	var results []struct {
+		AttrItemID uuid.UUID `sql:"attr_item_id"`
+		Count      int       `sql:"count"`
+	}
+
+	err := repo.Client.ProductAttrRelation.Query().
+		Where(productattrrelation.AttrItemIDIn(attrItemIDs...)).
+		GroupBy(productattrrelation.FieldAttrItemID).
+		Aggregate(
+			ent.As(
+				func(s *sql.Selector) string {
+					return fmt.Sprintf("COUNT(DISTINCT %s)", s.C(productattrrelation.FieldProductID))
+				},
+				"count",
+			),
+		).
+		Scan(ctx, &results)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.AttrItemID] = r.Count
+	}
+
+	return countMap, nil
+}
+
+func (repo *ProductRepository) CountByTagIDs(ctx context.Context, tagIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(tagIDs) == 0 {
+		return make(map[uuid.UUID]int), nil
+	}
+
+	var results []struct {
+		TagID uuid.UUID `sql:"tag_id"`
+		Count int       `sql:"count"`
+	}
+
+	// 构建 IN 子句的占位符
+	placeholders := make([]string, len(tagIDs))
+	args := make([]any, len(tagIDs))
+	for i, id := range tagIDs {
+		placeholders[i] = "?"
+		args[i] = id
+	}
+
+	// 使用原生 SQL 查询 product_tag_relations 表
+	query := fmt.Sprintf(`
+		SELECT tag_id, COUNT(DISTINCT product_id) as count
+		FROM product_tag_relations
+		WHERE tag_id IN (%s)
+		GROUP BY tag_id
+	`, strings.Join(placeholders, ","))
+
+	// 使用 Ent Client 的 QueryContext 执行查询
+	rows, err := repo.Client.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r struct {
+			TagID uuid.UUID `sql:"tag_id"`
+			Count int       `sql:"count"`
+		}
+		if err := rows.Scan(&r.TagID, &r.Count); err != nil {
+			return nil, err
+		}
+		results = append(results, r)
+	}
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.TagID] = r.Count
+	}
+
+	return countMap, nil
 }
 
 // ============================================
