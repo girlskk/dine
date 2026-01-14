@@ -19,7 +19,11 @@ func NewRoleMenuInteractor(ds domain.DataStore) *RoleMenuInteractor {
 	return &RoleMenuInteractor{DS: ds}
 }
 
-func (interactor *RoleMenuInteractor) SetRoleMenu(ctx context.Context, roleID uuid.UUID, paths []string) (err error) {
+func (interactor *RoleMenuInteractor) SetRoleMenu(ctx context.Context,
+	roleID uuid.UUID,
+	paths []string,
+	user domain.User,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "RoleMenuInteractor.SetRoleMenu")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -31,7 +35,9 @@ func (interactor *RoleMenuInteractor) SetRoleMenu(ctx context.Context, roleID uu
 			}
 			return err
 		}
-
+		if err = verifyRoleOwnership(user, role); err != nil {
+			return err
+		}
 		// fetch existing role-menu relations
 		oldRelations, err := ds.RoleMenuRepo().GetByRoleID(ctx, roleID)
 		if err != nil {

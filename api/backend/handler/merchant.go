@@ -291,8 +291,13 @@ func (h *MerchantHandler) Enable() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		updateParams := &domain.Merchant{ID: user.MerchantID, Status: domain.MerchantStatusActive}
-
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams, user); err != nil {
+		err := h.MerchantInteractor.MerchantSimpleUpdate(
+			ctx,
+			domain.MerchantSimpleUpdateTypeStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -320,8 +325,13 @@ func (h *MerchantHandler) Disable() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		updateParams := &domain.Merchant{ID: user.MerchantID, Status: domain.MerchantStatusDisabled}
-
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams, user); err != nil {
+		err := h.MerchantInteractor.MerchantSimpleUpdate(
+			ctx,
+			domain.MerchantSimpleUpdateTypeStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}

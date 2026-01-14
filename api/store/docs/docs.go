@@ -2695,7 +2695,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "x-enum-comments": {
-                            "RemarkSceneCancelReason": "退菜原因",
+                            "RemarkSceneCancelReason": "退款原因",
                             "RemarkSceneDiscount": "优惠原因",
                             "RemarkSceneGift": "赠菜原因",
                             "RemarkSceneItem": "单品备注",
@@ -2775,6 +2775,43 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/remark/category_count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "统计各备注分类下的备注数量",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "备注分类统计",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.RemarkCountResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 }
             }
@@ -4075,9 +4112,18 @@ const docTemplate = `{
         },
         "/user/info": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取当前用户信息",
                 "responses": {
                     "200": {
                         "description": "成功",
@@ -5008,12 +5054,16 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "store": {
+                    "description": "所属门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    ]
+                },
                 "store_id": {
                     "description": "所属门店 ID",
-                    "type": "string"
-                },
-                "store_name": {
-                    "description": "门店名称",
                     "type": "string"
                 },
                 "updated_at": {
@@ -5026,15 +5076,18 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "inside",
-                "outside"
+                "outside",
+                "network"
             ],
             "x-enum-comments": {
                 "DeviceConnectTypeInside": "内置",
+                "DeviceConnectTypeNetWork": "网络",
                 "DeviceConnectTypeOutside": "外置"
             },
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
-                "DeviceConnectTypeOutside"
+                "DeviceConnectTypeOutside",
+                "DeviceConnectTypeNetWork"
             ]
         },
         "domain.DeviceLocation": {
@@ -6683,7 +6736,7 @@ const docTemplate = `{
                 "refund_reject"
             ],
             "x-enum-comments": {
-                "RemarkSceneCancelReason": "退菜原因",
+                "RemarkSceneCancelReason": "退款原因",
                 "RemarkSceneDiscount": "优惠原因",
                 "RemarkSceneGift": "赠菜原因",
                 "RemarkSceneItem": "单品备注",
@@ -6816,6 +6869,7 @@ const docTemplate = `{
                 "admin",
                 "backend",
                 "store",
+                "frontend",
                 "admin",
                 "backend",
                 "store"
@@ -6823,6 +6877,7 @@ const docTemplate = `{
             "x-enum-comments": {
                 "UserTypeAdmin": "admin表用户",
                 "UserTypeBackend": "backend用户",
+                "UserTypeFrontend": "frontend用户",
                 "UserTypeStore": "store用户"
             },
             "x-enum-varnames": [
@@ -6912,16 +6967,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -7488,6 +7543,7 @@ const docTemplate = `{
                 "admin",
                 "backend",
                 "store",
+                "frontend",
                 "admin",
                 "backend",
                 "store"
@@ -7495,6 +7551,7 @@ const docTemplate = `{
             "x-enum-comments": {
                 "UserTypeAdmin": "admin表用户",
                 "UserTypeBackend": "backend用户",
+                "UserTypeFrontend": "frontend用户",
                 "UserTypeStore": "store用户"
             },
             "x-enum-varnames": [
@@ -8036,7 +8093,8 @@ const docTemplate = `{
                     "description": "设备连接类型 inside内置 / outside外置",
                     "enum": [
                         "inside",
-                        "outside"
+                        "outside",
+                        "network"
                     ],
                     "allOf": [
                         {
@@ -9068,6 +9126,35 @@ const docTemplate = `{
                 "unit_id": {
                     "description": "属性关联",
                     "type": "string"
+                }
+            }
+        },
+        "types.RemarkCountItem": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "description": "备注数量",
+                    "type": "integer"
+                },
+                "remark_scene": {
+                    "description": "使用场景",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.RemarkCountResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "备注数量列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.RemarkCountItem"
+                    }
                 }
             }
         },

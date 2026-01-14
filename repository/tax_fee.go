@@ -144,15 +144,6 @@ func (repo *TaxFeeRepository) GetTaxFees(ctx context.Context, pager *upagination
 	span, ctx := util.StartSpan(ctx, "usecase", "TaxFeeRepository.GetTaxFees")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	if pager == nil {
-		err = fmt.Errorf("pager is nil")
-		return
-	}
-	if filter == nil {
-		err = fmt.Errorf("filter is nil")
-		return
-	}
-
 	query := repo.filterBuildQuery(filter)
 
 	total, err = query.Clone().Count(ctx)
@@ -177,17 +168,45 @@ func (repo *TaxFeeRepository) GetTaxFees(ctx context.Context, pager *upagination
 
 func (repo *TaxFeeRepository) filterBuildQuery(filter *domain.TaxFeeListFilter) *ent.TaxFeeQuery {
 	query := repo.Client.TaxFee.Query()
-	if filter.MerchantID != uuid.Nil {
-		query = query.Where(taxfee.MerchantIDEQ(filter.MerchantID))
-	}
-	if filter.StoreID != uuid.Nil {
-		query = query.Where(taxfee.StoreIDEQ(filter.StoreID))
-	}
+
 	if filter.Name != "" {
 		query = query.Where(taxfee.NameContains(filter.Name))
 	}
-	if filter.TaxFeeType != "" {
+	switch filter.TaxFeeType {
+	case domain.TaxFeeTypeSystem:
 		query = query.Where(taxfee.TaxFeeTypeEQ(filter.TaxFeeType))
+	case domain.TaxFeeTypeMerchant:
+		query = query.Where(taxfee.Or(
+			taxfee.MerchantID(filter.MerchantID),
+			taxfee.MerchantIDIsNil(),
+			taxfee.MerchantID(uuid.Nil),
+		))
+		query = query.Where(taxfee.Or(
+			taxfee.TaxFeeTypeEQ(filter.TaxFeeType),
+			taxfee.TaxFeeTypeEQ(domain.TaxFeeTypeSystem),
+		))
+	case domain.TaxFeeTypeStore:
+		query = query.Where(taxfee.Or(
+			taxfee.MerchantID(filter.MerchantID),
+			taxfee.MerchantIDIsNil(),
+			taxfee.MerchantID(uuid.Nil),
+		))
+		query = query.Where(taxfee.Or(
+			taxfee.StoreID(filter.StoreID),
+			taxfee.StoreIDIsNil(),
+			taxfee.StoreID(uuid.Nil),
+		))
+		query = query.Where(taxfee.Or(
+			taxfee.TaxFeeTypeEQ(filter.TaxFeeType),
+			taxfee.TaxFeeTypeEQ(domain.TaxFeeTypeSystem),
+		))
+	default:
+		if filter.MerchantID != uuid.Nil {
+			query = query.Where(taxfee.MerchantIDEQ(filter.MerchantID))
+		}
+		if filter.StoreID != uuid.Nil {
+			query = query.Where(taxfee.StoreIDEQ(filter.StoreID))
+		}
 	}
 	return query
 }

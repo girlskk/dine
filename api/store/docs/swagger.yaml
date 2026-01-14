@@ -449,11 +449,12 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.DeviceStatus'
         description: 设备状态
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.Store'
+        description: 所属门店
       store_id:
         description: 所属门店 ID
-        type: string
-      store_name:
-        description: 门店名称
         type: string
       updated_at:
         description: 更新时间
@@ -463,13 +464,16 @@ definitions:
     enum:
     - inside
     - outside
+    - network
     type: string
     x-enum-comments:
       DeviceConnectTypeInside: 内置
+      DeviceConnectTypeNetWork: 网络
       DeviceConnectTypeOutside: 外置
     x-enum-varnames:
     - DeviceConnectTypeInside
     - DeviceConnectTypeOutside
+    - DeviceConnectTypeNetWork
   domain.DeviceLocation:
     enum:
     - front_hall
@@ -1654,7 +1658,7 @@ definitions:
     - refund_reject
     type: string
     x-enum-comments:
-      RemarkSceneCancelReason: 退菜原因
+      RemarkSceneCancelReason: 退款原因
       RemarkSceneDiscount: 优惠原因
       RemarkSceneGift: 赠菜原因
       RemarkSceneItem: 单品备注
@@ -1753,6 +1757,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -1760,6 +1765,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -1827,16 +1833,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -2223,6 +2229,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -2230,6 +2237,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -2603,6 +2611,7 @@ definitions:
         enum:
         - inside
         - outside
+        - network
       device_stall_print_type:
         allOf:
         - $ref: '#/definitions/domain.DeviceStallPrintType'
@@ -3327,6 +3336,24 @@ definitions:
     - sale_status
     - spec_relations
     - unit_id
+    type: object
+  types.RemarkCountItem:
+    properties:
+      count:
+        description: 备注数量
+        type: integer
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景
+    type: object
+  types.RemarkCountResp:
+    properties:
+      items:
+        description: 备注数量列表
+        items:
+          $ref: '#/definitions/types.RemarkCountItem'
+        type: array
     type: object
   types.RemarkCreateReq:
     properties:
@@ -5709,7 +5736,7 @@ paths:
         name: remark_scene
         type: string
         x-enum-comments:
-          RemarkSceneCancelReason: 退菜原因
+          RemarkSceneCancelReason: 退款原因
           RemarkSceneDiscount: 优惠原因
           RemarkSceneGift: 赠菜原因
           RemarkSceneItem: 单品备注
@@ -5868,6 +5895,26 @@ paths:
       security:
       - BearerAuth: []
       summary: 启用备注
+      tags:
+      - 前厅管理
+  /remark/category_count:
+    get:
+      description: 统计各备注分类下的备注数量
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.RemarkCountResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 备注分类统计
       tags:
       - 前厅管理
   /restaurant/device:
@@ -6700,6 +6747,11 @@ paths:
           description: 成功
           schema:
             $ref: '#/definitions/domain.StoreUser'
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户信息
+      tags:
+      - 用户管理
   /user/login:
     post:
       parameters:

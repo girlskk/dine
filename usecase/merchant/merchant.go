@@ -26,7 +26,10 @@ func NewMerchantInteractor(dataStore domain.DataStore) *MerchantInteractor {
 	}
 }
 
-func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domainCMerchant *domain.CreateMerchantParams, user domain.User) (err error) {
+func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context,
+	domainCMerchant *domain.CreateMerchantParams,
+	user domain.User,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.CreateMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -49,7 +52,11 @@ func (interactor *MerchantInteractor) CreateMerchant(ctx context.Context, domain
 		PurchaseDurationUnit: domainCMerchant.PurchaseDurationUnit,
 	}
 
-	expireTime := domain.CalculateExpireTime(time.Now().UTC(), domainCMerchant.PurchaseDuration, domainCMerchant.PurchaseDurationUnit)
+	expireTime := domain.CalculateExpireTime(
+		time.Now().UTC(),
+		domainCMerchant.PurchaseDuration,
+		domainCMerchant.PurchaseDurationUnit,
+	)
 	domainMerchant.ExpireUTC = expireTime
 	domainMerchant.Status = domain.MerchantStatusActive
 	err = interactor.createMerchant(ctx, domainMerchant, nil)
@@ -92,7 +99,11 @@ func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context
 		return err
 	}
 
-	expireTime := domain.CalculateExpireTime(time.Now().UTC(), domainCMerchant.PurchaseDuration, domainCMerchant.PurchaseDurationUnit)
+	expireTime := domain.CalculateExpireTime(
+		time.Now().UTC(),
+		domainCMerchant.PurchaseDuration,
+		domainCMerchant.PurchaseDurationUnit,
+	)
 	domainMerchant.ExpireUTC = expireTime
 	domainMerchant.Status = domain.MerchantStatusActive
 	err = interactor.createMerchant(ctx, domainMerchant, domainStore)
@@ -102,7 +113,10 @@ func (interactor *MerchantInteractor) CreateMerchantAndStore(ctx context.Context
 	return
 }
 
-func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domainMerchant *domain.Merchant, domainStore *domain.Store) (err error) {
+func (interactor *MerchantInteractor) createMerchant(ctx context.Context,
+	domainMerchant *domain.Merchant,
+	domainStore *domain.Store,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.createMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -215,7 +229,10 @@ func (interactor *MerchantInteractor) createMerchant(ctx context.Context, domain
 	return
 }
 
-func (interactor *MerchantInteractor) UpdateMerchant(ctx context.Context, domainUMerchant *domain.UpdateMerchantParams, user domain.User) (err error) {
+func (interactor *MerchantInteractor) UpdateMerchant(ctx context.Context,
+	domainUMerchant *domain.UpdateMerchantParams,
+	user domain.User,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.UpdateMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -308,6 +325,11 @@ func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context,
 				return nil
 			}
 			merchant.Status = domainMerchant.Status
+			if domainMerchant.Status == domain.MerchantStatusActive {
+				if merchant.ExpireUTC.Before(time.Now()) {
+					merchant.Status = domain.MerchantStatusExpired
+				}
+			}
 
 		default:
 			return fmt.Errorf("unsupported update field: %v", updateField)
@@ -324,7 +346,10 @@ func (interactor *MerchantInteractor) MerchantSimpleUpdate(ctx context.Context,
 	return
 }
 
-func (interactor *MerchantInteractor) updateMerchant(ctx context.Context, domainMerchant *domain.Merchant, domainStore *domain.Store) (err error) {
+func (interactor *MerchantInteractor) updateMerchant(ctx context.Context,
+	domainMerchant *domain.Merchant,
+	domainStore *domain.Store,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.updateMerchant")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -390,7 +415,10 @@ func (interactor *MerchantInteractor) DeleteMerchant(ctx context.Context, id uui
 	return
 }
 
-func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.UUID, user domain.User) (domainMerchant *domain.Merchant, err error) {
+func (interactor *MerchantInteractor) GetMerchant(ctx context.Context,
+	id uuid.UUID,
+	user domain.User,
+) (domainMerchant *domain.Merchant, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.GetMerchant")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -406,7 +434,8 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context, id uuid.U
 		return nil, err
 	}
 
-	if renewals, err := interactor.DS.MerchantRenewalRepo().GetByMerchant(ctx, id); err == nil && len(renewals) > 0 {
+	renewals, _ := interactor.DS.MerchantRenewalRepo().GetByMerchant(ctx, id)
+	if len(renewals) > 0 {
 		latestRenewal := renewals[0]
 		domainMerchant.PurchaseDuration = latestRenewal.PurchaseDuration
 		domainMerchant.PurchaseDurationUnit = latestRenewal.PurchaseDurationUnit
@@ -436,13 +465,13 @@ func (interactor *MerchantInteractor) GetMerchants(ctx context.Context,
 	if len(merchantIds) == 0 {
 		return
 	}
-	merchantStoreCounts, err := interactor.DS.StoreRepo().CountStoresByMerchantID(ctx, merchantIds)
+	storeCounts, err := interactor.DS.StoreRepo().CountStoresByMerchantID(ctx, merchantIds)
 	if err != nil {
 		err = fmt.Errorf("failed to count stores by merchant ids: %w", err)
 		return
 	}
 
-	storeCountMap := lo.SliceToMap(merchantStoreCounts, func(item *domain.MerchantStoreCount) (uuid.UUID, int) {
+	storeCountMap := lo.SliceToMap(storeCounts, func(item *domain.MerchantStoreCount) (uuid.UUID, int) {
 		return item.MerchantID, item.StoreCount
 	})
 
@@ -468,7 +497,10 @@ func (interactor *MerchantInteractor) CountMerchant(ctx context.Context) (mercha
 	return
 }
 
-func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merchantRenewal *domain.MerchantRenewal, user domain.User) (err error) {
+func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context,
+	merchantRenewal *domain.MerchantRenewal,
+	user domain.User,
+) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "MerchantInteractor.MerchantRenewal")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -493,14 +525,13 @@ func (interactor *MerchantInteractor) MerchantRenewal(ctx context.Context, merch
 			}
 			return err
 		}
-		oldExpireTime := time.Now().UTC()
-		if m.ExpireUTC != nil {
-			if m.ExpireUTC.After(oldExpireTime) {
-				oldExpireTime = *m.ExpireUTC
-			}
-		}
+
 		m.Status = domain.MerchantStatusActive
-		m.ExpireUTC = domain.CalculateExpireTime(oldExpireTime, merchantRenewal.PurchaseDuration, merchantRenewal.PurchaseDurationUnit)
+		m.ExpireUTC = domain.CalculateExpireTime(
+			*m.ExpireUTC,
+			merchantRenewal.PurchaseDuration,
+			merchantRenewal.PurchaseDurationUnit,
+		)
 		err = ds.MerchantRepo().Update(ctx, m)
 		if err != nil {
 			return err

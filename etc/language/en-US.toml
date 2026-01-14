@@ -106,7 +106,6 @@ other = "Stall does not exist"
 [STALL_NAME_EXISTS]
 other = "Stall name already exists"
 
-
 [SUPER_USER_CANNOT_DELETE]
 other = "Super administrator user cannot be deleted"
 
@@ -199,3 +198,12 @@ other = "Department has users, cannot disable"
 
 [DEPARTMENT_HAS_USER_CANNOT_DELETE]
 other = "Department has users, cannot delete"
+
+[ROLE_NOT_EXISTS]
+other = "Role does not exist"
+
+[ROLE_NAME_EXISTS]
+other = "Role name already exists"
+
+[ROLE_CODE_EXISTS]
+other = "Role code already exists"

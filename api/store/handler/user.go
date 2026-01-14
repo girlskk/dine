@@ -425,7 +425,8 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnabled, domain.StoreUserSimpleUpdateParams{ID: id, Enabled: true})
+		params := domain.StoreUserSimpleUpdateParams{ID: id, Enabled: true}
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnabled, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -461,7 +462,8 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnabled, domain.StoreUserSimpleUpdateParams{ID: id, Enabled: false})
+		params := domain.StoreUserSimpleUpdateParams{ID: id, Enabled: false}
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldEnabled, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -501,10 +503,11 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldPassword, domain.StoreUserSimpleUpdateParams{
+		params := domain.StoreUserSimpleUpdateParams{
 			ID:       id,
 			Password: req.NewPassword,
-		})
+		}
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.StoreUserSimpleUpdateFieldPassword, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return

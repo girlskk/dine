@@ -331,7 +331,13 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusOpen}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
+		err = h.StoreInteractor.StoreSimpleUpdate(
+			ctx,
+			domain.StoreSimpleUpdateFieldStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -365,7 +371,13 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusClosed}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
+		err = h.StoreInteractor.StoreSimpleUpdate(
+			ctx,
+			domain.StoreSimpleUpdateFieldStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}

@@ -421,10 +421,12 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldPassword, domain.BackendUserSimpleUpdateParams{
+		params := domain.BackendUserSimpleUpdateParams{
 			ID:       id,
 			Password: req.NewPassword,
-		})
+		}
+
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldPassword, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -432,14 +434,6 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
-}
-
-func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
-	seq, err := h.UserSeq.Next(ctx)
-	if err != nil {
-		return "", err
-	}
-	return seq, nil
 }
 
 // Enable 启用后台用户
@@ -468,7 +462,16 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldEnabled, domain.BackendUserSimpleUpdateParams{ID: id, Enabled: true})
+		params := domain.BackendUserSimpleUpdateParams{
+			ID:      id,
+			Enabled: true,
+		}
+
+		err = h.UserInteractor.SimpleUpdate(
+			ctx,
+			domain.BackendUserSimpleUpdateFieldEnabled,
+			params,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -504,7 +507,16 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldEnabled, domain.BackendUserSimpleUpdateParams{ID: id, Enabled: false})
+		params := domain.BackendUserSimpleUpdateParams{
+			ID:      id,
+			Enabled: false,
+		}
+
+		err = h.UserInteractor.SimpleUpdate(
+			ctx,
+			domain.BackendUserSimpleUpdateFieldEnabled,
+			params,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -512,6 +524,14 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
+}
+
+func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
+	seq, err := h.UserSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }
 
 func (h *UserHandler) checkErr(err error) error {

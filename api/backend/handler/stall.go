@@ -260,8 +260,12 @@ func (h *StallHandler) Enable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		stall := &domain.Stall{ID: id, Enabled: true}
-
-		err = h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user)
+		err = h.StallInteractor.StallSimpleUpdate(
+			ctx,
+			domain.StallSimpleUpdateFieldEnabled,
+			stall,
+			user,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -296,7 +300,12 @@ func (h *StallHandler) Disable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		stall := &domain.Stall{ID: id, Enabled: false}
-		err = h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user)
+		err = h.StallInteractor.StallSimpleUpdate(
+			ctx,
+			domain.StallSimpleUpdateFieldEnabled,
+			stall,
+			user,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return

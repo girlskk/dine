@@ -212,7 +212,7 @@ func PaperSizeValidator(ps domain.PaperSize) error {
 // ConnectTypeValidator is a validator for the "connect_type" field enum values. It is called by the builders before save.
 func ConnectTypeValidator(ct domain.DeviceConnectType) error {
 	switch ct {
-	case "inside", "outside":
+	case "inside", "outside", "network":
 		return nil
 	default:
 		return fmt.Errorf("device: invalid enum value for connect_type field: %q", ct)

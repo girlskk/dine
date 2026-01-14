@@ -155,12 +155,14 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 
 		updateParams := &domain.UpdateStoreParams{ID: user.StoreID, Status: domain.StoreStatusOpen}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			c.Error(fmt.Errorf("failed to simple update store: %w", err))
+		err := h.StoreInteractor.StoreSimpleUpdate(
+			ctx,
+			domain.StoreSimpleUpdateFieldStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -187,12 +189,14 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 		user := domain.FromStoreUserContext(ctx)
 
 		updateParams := &domain.UpdateStoreParams{ID: user.StoreID, Status: domain.StoreStatusClosed}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			c.Error(fmt.Errorf("failed to simple update store: %w", err))
+		err := h.StoreInteractor.StoreSimpleUpdate(
+			ctx,
+			domain.StoreSimpleUpdateFieldStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 

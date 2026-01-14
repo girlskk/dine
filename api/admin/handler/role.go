@@ -361,8 +361,9 @@ func (h *RoleHandler) SetMenus() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		if err := h.RoleMenuInteractor.SetRoleMenu(ctx, id, req.Paths); err != nil {
+		user := domain.FromAdminUserContext(ctx)
+		err = h.RoleMenuInteractor.SetRoleMenu(ctx, id, req.Paths, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -418,10 +419,14 @@ func (h *RoleHandler) generateRoleCode(ctx context.Context) (string, error) {
 
 func (h *RoleHandler) checkErr(err error) error {
 	switch {
+	case errors.Is(err, domain.ErrRoleNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.RoleNotExists, err)
 	case errors.Is(err, domain.ErrUserRoleNotExists):
 		return errorx.New(http.StatusBadRequest, errcode.UserRoleNotExists, err)
-	case errors.Is(err, domain.ErrRoleNameExists), errors.Is(err, domain.ErrRoleCodeExists):
-		return errorx.New(http.StatusConflict, errcode.Conflict, err)
+	case errors.Is(err, domain.ErrRoleNameExists):
+		return errorx.New(http.StatusConflict, errcode.RoleNameExists, err)
+	case errors.Is(err, domain.ErrRoleCodeExists):
+		return errorx.New(http.StatusConflict, errcode.RoleCodeExists, err)
 	case errors.Is(err, domain.ErrRoleAssignedCannotDisable):
 		return errorx.New(http.StatusForbidden, errcode.RoleAssignedCannotDisable, err)
 	case errors.Is(err, domain.ErrRoleAssignedCannotDelete):

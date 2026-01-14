@@ -359,7 +359,7 @@ var (
 		{Name: "ip", Type: field.TypeString, Nullable: true, Size: 50, Default: ""},
 		{Name: "sort_order", Type: field.TypeInt, Nullable: true, Default: 1000},
 		{Name: "paper_size", Type: field.TypeEnum, Nullable: true, Enums: []string{"58mm", "80mm"}},
-		{Name: "connect_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"inside", "outside"}},
+		{Name: "connect_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"inside", "outside", "network"}},
 		{Name: "order_channels", Type: field.TypeJSON, Nullable: true},
 		{Name: "dining_ways", Type: field.TypeJSON, Nullable: true},
 		{Name: "device_stall_print_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"all", "combined", "separate"}},

@@ -210,6 +210,12 @@ func (interactor *RemarkInteractor) RemarkSimpleUpdate(ctx context.Context,
 	return
 }
 
+func (interactor *RemarkInteractor) CountRemarkByScene(ctx context.Context, params domain.CountRemarkParams) (countRemark map[domain.RemarkScene]int, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "RemarkInteractor.CountRemarkByScene")
+	defer func() { util.SpanErrFinish(span, err) }()
+	return interactor.DS.RemarkRepo().CountRemarkByScene(ctx, params)
+}
+
 func verifyRemarkOwnership(user domain.User, remark *domain.Remark) error {
 	switch user.GetUserType() {
 	case domain.UserTypeAdmin:

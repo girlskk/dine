@@ -34,3 +34,12 @@ type RemarkListResp struct {
 	Remarks []*domain.Remark `json:"remarks"` // 备注列表
 	Total   int              `json:"total"`   // 备注总数
 }
+
+type RemarkCountResp struct {
+	Items []RemarkCountItem `json:"items"` // 备注数量列表
+}
+
+type RemarkCountItem struct {
+	RemarkScene domain.RemarkScene `json:"remark_scene"` // 使用场景
+	Count       int                `json:"count"`        // 备注数量
+}

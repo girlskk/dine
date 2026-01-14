@@ -1113,7 +1113,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant": {
+        "/merchant/merchant": {
             "get": {
                 "security": [
                     {
@@ -1162,7 +1162,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/brand": {
+        "/merchant/merchant/brand": {
             "put": {
                 "security": [
                     {
@@ -1205,7 +1205,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/disable": {
+        "/merchant/merchant/disable": {
             "put": {
                 "security": [
                     {
@@ -1227,7 +1227,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/enable": {
+        "/merchant/merchant/enable": {
             "put": {
                 "security": [
                     {
@@ -1249,7 +1249,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/renewal": {
+        "/merchant/merchant/renewal": {
             "post": {
                 "security": [
                     {
@@ -1285,7 +1285,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/merchant/store": {
+        "/merchant/merchant/store": {
             "put": {
                 "security": [
                     {
@@ -1326,7 +1326,9 @@ const docTemplate = `{
                         "description": "No Content"
                     }
                 }
-            },
+            }
+        },
+        "/merchant/store": {
             "post": {
                 "security": [
                     {
@@ -3910,7 +3912,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "x-enum-comments": {
-                            "RemarkSceneCancelReason": "退菜原因",
+                            "RemarkSceneCancelReason": "退款原因",
                             "RemarkSceneDiscount": "优惠原因",
                             "RemarkSceneGift": "赠菜原因",
                             "RemarkSceneItem": "单品备注",
@@ -3996,6 +3998,43 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/remark/category_count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "统计各备注分类下的备注数量",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "备注分类统计",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.RemarkCountResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 }
             }
@@ -6254,12 +6293,16 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "store": {
+                    "description": "所属门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    ]
+                },
                 "store_id": {
                     "description": "所属门店 ID",
-                    "type": "string"
-                },
-                "store_name": {
-                    "description": "门店名称",
                     "type": "string"
                 },
                 "updated_at": {
@@ -6272,15 +6315,18 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "inside",
-                "outside"
+                "outside",
+                "network"
             ],
             "x-enum-comments": {
                 "DeviceConnectTypeInside": "内置",
+                "DeviceConnectTypeNetWork": "网络",
                 "DeviceConnectTypeOutside": "外置"
             },
             "x-enum-varnames": [
                 "DeviceConnectTypeInside",
-                "DeviceConnectTypeOutside"
+                "DeviceConnectTypeOutside",
+                "DeviceConnectTypeNetWork"
             ]
         },
         "domain.DeviceLocation": {
@@ -8286,7 +8332,7 @@ const docTemplate = `{
                 "refund_reject"
             ],
             "x-enum-comments": {
-                "RemarkSceneCancelReason": "退菜原因",
+                "RemarkSceneCancelReason": "退款原因",
                 "RemarkSceneDiscount": "优惠原因",
                 "RemarkSceneGift": "赠菜原因",
                 "RemarkSceneItem": "单品备注",
@@ -8419,6 +8465,7 @@ const docTemplate = `{
                 "admin",
                 "backend",
                 "store",
+                "frontend",
                 "admin",
                 "backend",
                 "store"
@@ -8426,6 +8473,7 @@ const docTemplate = `{
             "x-enum-comments": {
                 "UserTypeAdmin": "admin表用户",
                 "UserTypeBackend": "backend用户",
+                "UserTypeFrontend": "frontend用户",
                 "UserTypeStore": "store用户"
             },
             "x-enum-varnames": [
@@ -8515,16 +8563,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -9070,6 +9118,7 @@ const docTemplate = `{
                 "admin",
                 "backend",
                 "store",
+                "frontend",
                 "admin",
                 "backend",
                 "store"
@@ -9077,6 +9126,7 @@ const docTemplate = `{
             "x-enum-comments": {
                 "UserTypeAdmin": "admin表用户",
                 "UserTypeBackend": "backend用户",
+                "UserTypeFrontend": "frontend用户",
                 "UserTypeStore": "store用户"
             },
             "x-enum-varnames": [
@@ -9103,23 +9153,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -9893,7 +9929,8 @@ const docTemplate = `{
                     "description": "设备连接类型 inside内置 / outside外置",
                     "enum": [
                         "inside",
-                        "outside"
+                        "outside",
+                        "network"
                     ],
                     "allOf": [
                         {
@@ -11181,6 +11218,35 @@ const docTemplate = `{
                     "minItems": 1,
                     "items": {
                         "type": "string"
+                    }
+                }
+            }
+        },
+        "types.RemarkCountItem": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "description": "备注数量",
+                    "type": "integer"
+                },
+                "remark_scene": {
+                    "description": "使用场景",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.RemarkCountResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "备注数量列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.RemarkCountItem"
                     }
                 }
             }

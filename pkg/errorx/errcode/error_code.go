@@ -106,6 +106,11 @@ const (
 	DepartmentHasUserCannotDisable ErrCode = "DEPARTMENT_HAS_USER_CANNOT_DISABLE" // 部门下有用户，不能禁用
 	DepartmentHasUserCannotDelete  ErrCode = "DEPARTMENT_HAS_USER_CANNOT_DELETE"  // 部门下有用户，不能删除
 
+	// 角色相关
+	RoleNotExists  ErrCode = "ROLE_NOT_EXISTS"  // 角色不存在
+	RoleNameExists ErrCode = "ROLE_NAME_EXISTS" // 角色名称已存在
+	RoleCodeExists ErrCode = "ROLE_CODE_EXISTS" // 角色编码已存在
+
 	// 时间相关
 	TimeFormatInvalid ErrCode = "TIME_FORMAT_INVALID" // 时间格式错误
 )
