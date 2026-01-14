@@ -35,6 +35,20 @@ func (m *MockBusinessConfigInteractor) EXPECT() *MockBusinessConfigInteractorMoc
 	return m.recorder
 }
 
+// Distribute mocks base method.
+func (m *MockBusinessConfigInteractor) Distribute(arg0 context.Context, arg1 domain.BusinessConfigDistributeParams, arg2 domain.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Distribute", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Distribute indicates an expected call of Distribute.
+func (mr *MockBusinessConfigInteractorMockRecorder) Distribute(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Distribute", reflect.TypeOf((*MockBusinessConfigInteractor)(nil).Distribute), arg0, arg1, arg2)
+}
+
 // ListBySearch mocks base method.
 func (m *MockBusinessConfigInteractor) ListBySearch(arg0 context.Context, arg1 domain.BusinessConfigSearchParams) (*domain.BusinessConfigSearchRes, error) {
 	m.ctrl.T.Helper()
@@ -48,4 +62,18 @@ func (m *MockBusinessConfigInteractor) ListBySearch(arg0 context.Context, arg1 d
 func (mr *MockBusinessConfigInteractorMockRecorder) ListBySearch(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockBusinessConfigInteractor)(nil).ListBySearch), arg0, arg1)
+}
+
+// UpsertConfig mocks base method.
+func (m *MockBusinessConfigInteractor) UpsertConfig(arg0 context.Context, arg1 []*domain.BusinessConfig, arg2 domain.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertConfig", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertConfig indicates an expected call of UpsertConfig.
+func (mr *MockBusinessConfigInteractorMockRecorder) UpsertConfig(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertConfig", reflect.TypeOf((*MockBusinessConfigInteractor)(nil).UpsertConfig), arg0, arg1, arg2)
 }

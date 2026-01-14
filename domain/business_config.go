@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
 // 错误定义
@@ -24,11 +23,19 @@ var (
 type BusinessConfigGroup string
 
 const (
-	BusinessConfigGroupPrint BusinessConfigGroup = "print" // print
+	BusinessConfigGroupOrder   BusinessConfigGroup = "order"   // 点餐设置
+	BusinessConfigGroupPayment BusinessConfigGroup = "payment" // 收单设置
+	BusinessConfigGroupKitchen BusinessConfigGroup = "kitchen" // 后厨设置
+	BusinessConfigGroupRefund  BusinessConfigGroup = "refund"  // 退款设置
+	BusinessConfigGroupPrint   BusinessConfigGroup = "print"   // 退款设置
 )
 
 func (BusinessConfigGroup) Values() []string {
 	return []string{
+		string(BusinessConfigGroupOrder),
+		string(BusinessConfigGroupPayment),
+		string(BusinessConfigGroupKitchen),
+		string(BusinessConfigGroupRefund),
 		string(BusinessConfigGroupPrint),
 	}
 }
@@ -41,6 +48,7 @@ const (
 	BusinessConfigConfigTypeUint     BusinessConfigConfigType = "uint"     // uint
 	BusinessConfigConfigTypeDatetime BusinessConfigConfigType = "datetime" // datetime
 	BusinessConfigConfigTypeDate     BusinessConfigConfigType = "date"     // date
+	BusinessConfigConfigTypeBool     BusinessConfigConfigType = "bool"     // bool
 )
 
 func (BusinessConfigConfigType) Values() []string {
@@ -50,6 +58,7 @@ func (BusinessConfigConfigType) Values() []string {
 		string(BusinessConfigConfigTypeUint),
 		string(BusinessConfigConfigTypeDatetime),
 		string(BusinessConfigConfigTypeDate),
+		string(BusinessConfigConfigTypeBool),
 	}
 }
 
@@ -67,29 +76,40 @@ type BusinessConfig struct {
 	Tip            string                   `json:"tip"`              // 变量描述
 	IsDefault      bool                     `json:"is_default"`       // 是否为系统默认
 	Status         bool                     `json:"status"`           // 状态
+	ModifyStatus   bool                     `json:"modify_status"`    // 下发后是否可以进行修改: true-可以, false-不可以
 	CreatedAt      time.Time                `json:"created_at"`       // 创建时间
 	UpdatedAt      time.Time                `json:"updated_at"`       // 更新时间
 }
 
 type BusinessConfigs []*BusinessConfig
 type BusinessConfigSearchParams struct {
+	Ids        []uuid.UUID
 	MerchantID uuid.UUID
 	StoreID    uuid.UUID
-	Name       string // 结算方式名称（模糊匹配）
+	Name       string              // 结算方式名称（模糊匹配）
+	Group      BusinessConfigGroup // 配置分组
 }
 
 // BusinessConfigSearchRes 查询结果
 type BusinessConfigSearchRes struct {
-	*upagination.Pagination
 	Items BusinessConfigs `json:"items"`
+}
+
+type BusinessConfigDistributeParams struct {
+	Ids          []uuid.UUID
+	StoreIDs     []uuid.UUID
+	ModifyStatus bool
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/business_config_repository.go -package=mock . BusinessConfigRepository
 type BusinessConfigRepository interface {
 	ListBySearch(ctx context.Context, params BusinessConfigSearchParams) (*BusinessConfigSearchRes, error)
+	UpsertConfig(ctx context.Context, configs []*BusinessConfig) error
 }
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/business_config_interactor.go -package=mock . BusinessConfigInteractor
 type BusinessConfigInteractor interface {
 	ListBySearch(ctx context.Context, params BusinessConfigSearchParams) (*BusinessConfigSearchRes, error)
+	UpsertConfig(ctx context.Context, configs []*BusinessConfig, user User) error
+	Distribute(ctx context.Context, params BusinessConfigDistributeParams, user User) error
 }

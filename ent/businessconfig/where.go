@@ -82,7 +82,7 @@ func MerchantID(v uuid.UUID) predicate.BusinessConfig {
 }
 
 // StoreID applies equality check predicate on the "store_id" field. It's identical to StoreIDEQ.
-func StoreID(v uuid.UUID) predicate.BusinessConfig {
+func StoreID(v string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldEQ(FieldStoreID, v))
 }
 
@@ -114,6 +114,11 @@ func Tip(v string) predicate.BusinessConfig {
 // IsDefault applies equality check predicate on the "is_default" field. It's identical to IsDefaultEQ.
 func IsDefault(v bool) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldEQ(FieldIsDefault, v))
+}
+
+// ModifyStatus applies equality check predicate on the "modify_status" field. It's identical to ModifyStatusEQ.
+func ModifyStatus(v bool) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldEQ(FieldModifyStatus, v))
 }
 
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
@@ -342,53 +347,68 @@ func MerchantIDNotNil() predicate.BusinessConfig {
 }
 
 // StoreIDEQ applies the EQ predicate on the "store_id" field.
-func StoreIDEQ(v uuid.UUID) predicate.BusinessConfig {
+func StoreIDEQ(v string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldEQ(FieldStoreID, v))
 }
 
 // StoreIDNEQ applies the NEQ predicate on the "store_id" field.
-func StoreIDNEQ(v uuid.UUID) predicate.BusinessConfig {
+func StoreIDNEQ(v string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldNEQ(FieldStoreID, v))
 }
 
 // StoreIDIn applies the In predicate on the "store_id" field.
-func StoreIDIn(vs ...uuid.UUID) predicate.BusinessConfig {
+func StoreIDIn(vs ...string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldIn(FieldStoreID, vs...))
 }
 
 // StoreIDNotIn applies the NotIn predicate on the "store_id" field.
-func StoreIDNotIn(vs ...uuid.UUID) predicate.BusinessConfig {
+func StoreIDNotIn(vs ...string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldNotIn(FieldStoreID, vs...))
 }
 
 // StoreIDGT applies the GT predicate on the "store_id" field.
-func StoreIDGT(v uuid.UUID) predicate.BusinessConfig {
+func StoreIDGT(v string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldGT(FieldStoreID, v))
 }
 
 // StoreIDGTE applies the GTE predicate on the "store_id" field.
-func StoreIDGTE(v uuid.UUID) predicate.BusinessConfig {
+func StoreIDGTE(v string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldGTE(FieldStoreID, v))
 }
 
 // StoreIDLT applies the LT predicate on the "store_id" field.
-func StoreIDLT(v uuid.UUID) predicate.BusinessConfig {
+func StoreIDLT(v string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldLT(FieldStoreID, v))
 }
 
 // StoreIDLTE applies the LTE predicate on the "store_id" field.
-func StoreIDLTE(v uuid.UUID) predicate.BusinessConfig {
+func StoreIDLTE(v string) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldLTE(FieldStoreID, v))
 }
 
-// StoreIDIsNil applies the IsNil predicate on the "store_id" field.
-func StoreIDIsNil() predicate.BusinessConfig {
-	return predicate.BusinessConfig(sql.FieldIsNull(FieldStoreID))
+// StoreIDContains applies the Contains predicate on the "store_id" field.
+func StoreIDContains(v string) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldContains(FieldStoreID, v))
 }
 
-// StoreIDNotNil applies the NotNil predicate on the "store_id" field.
-func StoreIDNotNil() predicate.BusinessConfig {
-	return predicate.BusinessConfig(sql.FieldNotNull(FieldStoreID))
+// StoreIDHasPrefix applies the HasPrefix predicate on the "store_id" field.
+func StoreIDHasPrefix(v string) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldHasPrefix(FieldStoreID, v))
+}
+
+// StoreIDHasSuffix applies the HasSuffix predicate on the "store_id" field.
+func StoreIDHasSuffix(v string) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldHasSuffix(FieldStoreID, v))
+}
+
+// StoreIDEqualFold applies the EqualFold predicate on the "store_id" field.
+func StoreIDEqualFold(v string) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldEqualFold(FieldStoreID, v))
+}
+
+// StoreIDContainsFold applies the ContainsFold predicate on the "store_id" field.
+func StoreIDContainsFold(v string) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldContainsFold(FieldStoreID, v))
 }
 
 // GroupEQ applies the EQ predicate on the "group" field.
@@ -819,6 +839,16 @@ func IsDefaultEQ(v bool) predicate.BusinessConfig {
 // IsDefaultNEQ applies the NEQ predicate on the "is_default" field.
 func IsDefaultNEQ(v bool) predicate.BusinessConfig {
 	return predicate.BusinessConfig(sql.FieldNEQ(FieldIsDefault, v))
+}
+
+// ModifyStatusEQ applies the EQ predicate on the "modify_status" field.
+func ModifyStatusEQ(v bool) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldEQ(FieldModifyStatus, v))
+}
+
+// ModifyStatusNEQ applies the NEQ predicate on the "modify_status" field.
+func ModifyStatusNEQ(v bool) predicate.BusinessConfig {
+	return predicate.BusinessConfig(sql.FieldNEQ(FieldModifyStatus, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

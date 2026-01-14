@@ -302,6 +302,10 @@ func init() {
 	businessconfigDescDeletedAt := businessconfigMixinFields2[0].Descriptor()
 	// businessconfig.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	businessconfig.DefaultDeletedAt = businessconfigDescDeletedAt.Default.(int64)
+	// businessconfigDescStoreID is the schema descriptor for store_id field.
+	businessconfigDescStoreID := businessconfigFields[2].Descriptor()
+	// businessconfig.DefaultStoreID holds the default value on creation for the store_id field.
+	businessconfig.DefaultStoreID = businessconfigDescStoreID.Default.(string)
 	// businessconfigDescName is the schema descriptor for name field.
 	businessconfigDescName := businessconfigFields[4].Descriptor()
 	// businessconfig.DefaultName holds the default value on creation for the name field.
@@ -326,8 +330,12 @@ func init() {
 	businessconfigDescIsDefault := businessconfigFields[10].Descriptor()
 	// businessconfig.DefaultIsDefault holds the default value on creation for the is_default field.
 	businessconfig.DefaultIsDefault = businessconfigDescIsDefault.Default.(bool)
+	// businessconfigDescModifyStatus is the schema descriptor for modify_status field.
+	businessconfigDescModifyStatus := businessconfigFields[11].Descriptor()
+	// businessconfig.DefaultModifyStatus holds the default value on creation for the modify_status field.
+	businessconfig.DefaultModifyStatus = businessconfigDescModifyStatus.Default.(bool)
 	// businessconfigDescStatus is the schema descriptor for status field.
-	businessconfigDescStatus := businessconfigFields[11].Descriptor()
+	businessconfigDescStatus := businessconfigFields[12].Descriptor()
 	// businessconfig.DefaultStatus holds the default value on creation for the status field.
 	businessconfig.DefaultStatus = businessconfigDescStatus.Default.(bool)
 	// businessconfigDescID is the schema descriptor for id field.

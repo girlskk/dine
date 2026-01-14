@@ -554,11 +554,6 @@ const docTemplate = `{
                 "AdditionalCategoryPacking": "打包费",
                 "AdditionalCategoryService": "服务费"
             },
-            "x-enum-descriptions": [
-                "服务费",
-                "附加费",
-                "打包费"
-            ],
             "x-enum-varnames": [
                 "AdditionalCategoryService",
                 "AdditionalCategoryAdditional",
@@ -667,10 +662,6 @@ const docTemplate = `{
                 "AdditionalFeeChargeModeFixed": "固定金额",
                 "AdditionalFeeChargeModePercent": "百分比"
             },
-            "x-enum-descriptions": [
-                "百分比",
-                "固定金额"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeChargeModePercent",
                 "AdditionalFeeChargeModeFixed"
@@ -686,10 +677,6 @@ const docTemplate = `{
                 "AdditionalFeeDiscountScopeAfter": "折后",
                 "AdditionalFeeDiscountScopeBefore": "折前"
             },
-            "x-enum-descriptions": [
-                "折前",
-                "折后"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeDiscountScopeBefore",
                 "AdditionalFeeDiscountScopeAfter"
@@ -705,10 +692,6 @@ const docTemplate = `{
                 "AdditionalFeeTypeMerchant": "商户",
                 "AdditionalFeeTypeStore": "门店"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店"
-            ],
             "x-enum-varnames": [
                 "AdditionalFeeTypeMerchant",
                 "AdditionalFeeTypeStore"
@@ -810,9 +793,6 @@ const docTemplate = `{
             "x-enum-comments": {
                 "ChannelPOS": "POS终端"
             },
-            "x-enum-descriptions": [
-                "POS终端"
-            ],
             "x-enum-varnames": [
                 "ChannelPOS"
             ]
@@ -825,9 +805,6 @@ const docTemplate = `{
             "x-enum-comments": {
                 "DiningModeDineIn": "堂食"
             },
-            "x-enum-descriptions": [
-                "堂食"
-            ],
             "x-enum-varnames": [
                 "DiningModeDineIn"
             ]
@@ -844,11 +821,6 @@ const docTemplate = `{
                 "DiningWayDineIn": "堂食",
                 "DiningWayTakeOut": "外带"
             },
-            "x-enum-descriptions": [
-                "堂食",
-                "外带",
-                "外送"
-            ],
             "x-enum-varnames": [
                 "DiningWayDineIn",
                 "DiningWayTakeOut",
@@ -865,10 +837,6 @@ const docTemplate = `{
                 "EffectiveDateTypeCustom": "自定义",
                 "EffectiveDateTypeDaily": "按天"
             },
-            "x-enum-descriptions": [
-                "按天",
-                "自定义"
-            ],
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
@@ -884,10 +852,6 @@ const docTemplate = `{
                 "FeeTypePackaging": "打包费",
                 "FeeTypeService": "服务费"
             },
-            "x-enum-descriptions": [
-                "服务费",
-                "打包费"
-            ],
             "x-enum-varnames": [
                 "FeeTypeService",
                 "FeeTypePackaging"
@@ -1262,14 +1226,6 @@ const docTemplate = `{
                 "OrderChannelSelfOrder": "自助点餐",
                 "OrderChannelThirdDelivery": "三方外卖"
             },
-            "x-enum-descriptions": [
-                "POS 端",
-                "自助点餐",
-                "小程序",
-                "手机点餐",
-                "扫码点餐",
-                "三方外卖"
-            ],
             "x-enum-varnames": [
                 "OrderChannelPOS",
                 "OrderChannelSelfOrder",
@@ -1548,11 +1504,6 @@ const docTemplate = `{
                 "OrderStatusCompleted": "已完成",
                 "OrderStatusPlaced": "已下单"
             },
-            "x-enum-descriptions": [
-                "已下单",
-                "已完成",
-                "已取消"
-            ],
             "x-enum-varnames": [
                 "OrderStatusPlaced",
                 "OrderStatusCompleted",
@@ -1627,11 +1578,6 @@ const docTemplate = `{
                 "OrderTypeRefund": "退单",
                 "OrderTypeSale": "销售单"
             },
-            "x-enum-descriptions": [
-                "销售单",
-                "退单",
-                "部分退款单"
-            ],
             "x-enum-varnames": [
                 "OrderTypeSale",
                 "OrderTypeRefund",
@@ -1731,10 +1677,6 @@ const docTemplate = `{
                 "PaymentMethodAccountingRuleDiscount": "计入优惠",
                 "PaymentMethodAccountingRuleIncome": "计入实收"
             },
-            "x-enum-descriptions": [
-                "计入实收",
-                "计入优惠"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodAccountingRuleIncome",
                 "PaymentMethodAccountingRuleDiscount"
@@ -1750,10 +1692,6 @@ const docTemplate = `{
                 "PaymentMethodInvoiceRuleActualAmount": "按实收金额",
                 "PaymentMethodInvoiceRuleNotInvoice": "不开发票"
             },
-            "x-enum-descriptions": [
-                "不开发票",
-                "按实收金额"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodInvoiceRuleNotInvoice",
                 "PaymentMethodInvoiceRuleActualAmount"
@@ -1777,14 +1715,6 @@ const docTemplate = `{
                 "PaymentMethodPayTypeOnlinePayment": "在线支付",
                 "PaymentMethodPayTypePartnerCoupon": "三方合作券"
             },
-            "x-enum-descriptions": [
-                "现金",
-                "在线支付",
-                "会员卡",
-                "系统自定义券",
-                "三方合作券",
-                "银行卡"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodPayTypeCash",
                 "PaymentMethodPayTypeOnlinePayment",
@@ -1829,11 +1759,6 @@ const docTemplate = `{
                 "PaymentMethodSourceStore": "门店",
                 "PaymentMethodSourceSystem": "系统"
             },
-            "x-enum-descriptions": [
-                "品牌",
-                "门店",
-                "系统"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodSourceBrand",
                 "PaymentMethodSourceStore",
@@ -1854,12 +1779,6 @@ const docTemplate = `{
                 "PaymentStatusRefunded": "全额退款",
                 "PaymentStatusUnpaid": "未支付"
             },
-            "x-enum-descriptions": [
-                "未支付",
-                "支付中",
-                "已支付",
-                "全额退款"
-            ],
             "x-enum-varnames": [
                 "PaymentStatusUnpaid",
                 "PaymentStatusPaying",
@@ -2212,10 +2131,6 @@ const docTemplate = `{
                 "ProductSaleStatusOffSale": "停售",
                 "ProductSaleStatusOnSale": "在售"
             },
-            "x-enum-descriptions": [
-                "在售",
-                "停售"
-            ],
             "x-enum-varnames": [
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
@@ -2306,11 +2221,6 @@ const docTemplate = `{
                 "ProductSupportTypeDine": "堂食",
                 "ProductSupportTypeTakeaway": "外带"
             },
-            "x-enum-descriptions": [
-                "堂食",
-                "外带",
-                "外卖"
-            ],
             "x-enum-varnames": [
                 "ProductSupportTypeDine",
                 "ProductSupportTypeTakeaway",
@@ -2360,10 +2270,6 @@ const docTemplate = `{
                 "ProductTypeNormal": "普通商品",
                 "ProductTypeSetMeal": "套餐商品"
             },
-            "x-enum-descriptions": [
-                "普通商品",
-                "套餐商品"
-            ],
             "x-enum-varnames": [
                 "ProductTypeNormal",
                 "ProductTypeSetMeal"
@@ -2420,10 +2326,6 @@ const docTemplate = `{
                 "ProductUnitTypeQuantity": "数量单位",
                 "ProductUnitTypeWeight": "重量单位"
             },
-            "x-enum-descriptions": [
-                "数量单位",
-                "重量单位"
-            ],
             "x-enum-varnames": [
                 "ProductUnitTypeQuantity",
                 "ProductUnitTypeWeight"
@@ -2470,11 +2372,6 @@ const docTemplate = `{
                 "RefundChannelCash": "现金退款",
                 "RefundChannelOriginal": "原路退回"
             },
-            "x-enum-descriptions": [
-                "原路退回",
-                "现金退款",
-                "余额退款"
-            ],
             "x-enum-varnames": [
                 "RefundChannelOriginal",
                 "RefundChannelCash",
@@ -2859,12 +2756,6 @@ const docTemplate = `{
                 "RefundPaymentStatusProcessing": "退款中",
                 "RefundPaymentStatusSuccess": "退款成功"
             },
-            "x-enum-descriptions": [
-                "待退款",
-                "退款中",
-                "退款成功",
-                "退款失败"
-            ],
             "x-enum-varnames": [
                 "RefundPaymentStatusPending",
                 "RefundPaymentStatusProcessing",
@@ -2890,14 +2781,6 @@ const docTemplate = `{
                 "RefundReasonServiceIssue": "服务问题",
                 "RefundReasonWrongOrder": "下错单"
             },
-            "x-enum-descriptions": [
-                "顾客要求",
-                "质量问题",
-                "下错单",
-                "缺货",
-                "服务问题",
-                "其他"
-            ],
             "x-enum-varnames": [
                 "RefundReasonCustomerRequest",
                 "RefundReasonQualityIssue",
@@ -2923,13 +2806,6 @@ const docTemplate = `{
                 "RefundStatusPending": "待处理",
                 "RefundStatusProcessing": "处理中"
             },
-            "x-enum-descriptions": [
-                "待处理",
-                "处理中",
-                "已完成",
-                "退款失败",
-                "已取消"
-            ],
             "x-enum-varnames": [
                 "RefundStatusPending",
                 "RefundStatusProcessing",
@@ -2948,10 +2824,6 @@ const docTemplate = `{
                 "RefundTypeFull": "全额退款",
                 "RefundTypePartial": "部分退款"
             },
-            "x-enum-descriptions": [
-                "全额退款",
-                "部分退款"
-            ],
             "x-enum-varnames": [
                 "RefundTypeFull",
                 "RefundTypePartial"
@@ -2983,18 +2855,6 @@ const docTemplate = `{
                 "SaleChannelSelfService": "自助点餐",
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
-            "x-enum-descriptions": [
-                "POS",
-                "移动点餐",
-                "扫码点餐",
-                "自助点餐",
-                "三方外卖",
-                "POS",
-                "移动点餐",
-                "扫码点餐",
-                "自助点餐",
-                "三方外卖"
-            ],
             "x-enum-varnames": [
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
@@ -3113,10 +2973,6 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeFixed": "固定分组",
                 "SetMealGroupSelectionTypeOptional": "可选套餐"
             },
-            "x-enum-descriptions": [
-                "固定分组",
-                "可选套餐"
-            ],
             "x-enum-varnames": [
                 "SetMealGroupSelectionTypeFixed",
                 "SetMealGroupSelectionTypeOptional"
@@ -3184,10 +3040,6 @@ const docTemplate = `{
                 "StallPrintTypeLabel": "标签",
                 "StallPrintTypeReceipt": "小票/收据"
             },
-            "x-enum-descriptions": [
-                "小票/收据",
-                "标签"
-            ],
             "x-enum-varnames": [
                 "StallPrintTypeReceipt",
                 "StallPrintTypeLabel"
@@ -3205,11 +3057,6 @@ const docTemplate = `{
                 "StallTypeStore": "门店出品部门",
                 "StallTypeSystem": "系统出品部门"
             },
-            "x-enum-descriptions": [
-                "系统出品部门",
-                "品牌出品部门",
-                "门店出品部门"
-            ],
             "x-enum-varnames": [
                 "StallTypeSystem",
                 "StallTypeBrand",
@@ -3285,18 +3132,17 @@ const docTemplate = `{
         "domain.TaxFeeType": {
             "type": "string",
             "enum": [
+                "system",
                 "merchant",
                 "store"
             ],
             "x-enum-comments": {
                 "TaxFeeTypeMerchant": "商户",
-                "TaxFeeTypeStore": "门店"
+                "TaxFeeTypeStore": "门店",
+                "TaxFeeTypeSystem": "系统内置"
             },
-            "x-enum-descriptions": [
-                "商户",
-                "门店"
-            ],
             "x-enum-varnames": [
+                "TaxFeeTypeSystem",
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
             ]
@@ -3311,10 +3157,6 @@ const docTemplate = `{
                 "TaxRateTypeCustom": "自定义比例",
                 "TaxRateTypeUnified": "统一比例"
             },
-            "x-enum-descriptions": [
-                "统一比例",
-                "自定义比例"
-            ],
             "x-enum-varnames": [
                 "TaxRateTypeUnified",
                 "TaxRateTypeCustom"
