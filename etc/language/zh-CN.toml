@@ -93,6 +93,9 @@ other = "门店班次名称已存在"
 [REMARK_NAME_EXISTS]
 other = "备注名称已存在"
 
+[REMARK_UPDATE_SYSTEM]
+other = "不能修改系统内置备注"
+
 [REMARK_DELETE_SYSTEM]
 other = "不能删除系统内置备注"
 
@@ -170,6 +173,12 @@ other = "税费不存在"
 
 [TAX_FEE_NAME_EXISTS]
 other = "税费名称已存在"
+
+[TAX_FEE_SYSTEM_CANNOT_UPDATE]
+other = "系统内置税费不能修改"
+
+[TAX_FEE_SYSTEM_CANNOT_DELETE]
+other = "系统内置税费不能删除"
 
 [USER_NAME_EXISTS]
 other = "用户账号已存在"

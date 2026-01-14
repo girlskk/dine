@@ -66,7 +66,9 @@ func (interactor *TaxFeeInteractor) Update(ctx context.Context, fee *domain.TaxF
 			}
 			return err
 		}
-
+		if oldFee.TaxFeeType == domain.TaxFeeTypeSystem {
+			return domain.ErrTaxFeeSystemCannotUpdate
+		}
 		if err = verifyTaxFeeOwnership(user, oldFee); err != nil {
 			return err
 		}
@@ -117,6 +119,9 @@ func (interactor *TaxFeeInteractor) Delete(ctx context.Context, id uuid.UUID, us
 			return domain.ErrTaxFeeNotExists
 		}
 		return err
+	}
+	if fee.TaxFeeType == domain.TaxFeeTypeSystem {
+		return domain.ErrTaxFeeSystemCannotDelete
 	}
 	if err = verifyTaxFeeOwnership(user, fee); err != nil {
 		return err

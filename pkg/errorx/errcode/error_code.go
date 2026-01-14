@@ -61,8 +61,8 @@ const (
 	// 备注
 	RemarkNotExists    ErrCode = "REMARK_NOT_EXISTS"    // 备注不存在
 	RemarkNameExists   ErrCode = "REMARK_NAME_EXISTS"   // 备注名称已存在
+	RemarkUpdateSystem ErrCode = "REMARK_UPDATE_SYSTEM" // 不能修改系统内置备注
 	RemarkDeleteSystem ErrCode = "REMARK_DELETE_SYSTEM" // 不能删除系统内置备注
-	//RemarkCategoryNameExists ErrCode = "REMARK_CATEGORY_NAME_EXISTS" // 备注分类名称已存在
 
 	// 出品部门
 	StallNotExists  ErrCode = "STALL_NOT_EXISTS"  // 出品部门不存在
@@ -74,10 +74,12 @@ const (
 	DeviceCodeExists ErrCode = "DEVICE_CODE_EXISTS" // 设备编号已存在
 
 	// 税费与附加费
-	AdditinalFeeNotExists   ErrCode = "ADDITIONAL_FEE_NOT_EXISTS" // 附加费不存在
-	AdditionalFeeNameExists ErrCode = "ADDITIONAL_NAME_EXISTS"    // 附加费费名称已存在
-	TaxFeeNotExists         ErrCode = "TAX_FEE_NOT_EXISTS"        // 税费不存在
-	TaxFeeNameExists        ErrCode = "TAX_FEE_NAME_EXISTS"       // 税费名称已存在
+	AdditinalFeeNotExists    ErrCode = "ADDITIONAL_FEE_NOT_EXISTS"    // 附加费不存在
+	AdditionalFeeNameExists  ErrCode = "ADDITIONAL_NAME_EXISTS"       // 附加费费名称已存在
+	TaxFeeNotExists          ErrCode = "TAX_FEE_NOT_EXISTS"           // 税费不存在
+	TaxFeeNameExists         ErrCode = "TAX_FEE_NAME_EXISTS"          // 税费名称已存在
+	TaxFeeSystemCannotUpdate ErrCode = "TAX_FEE_SYSTEM_CANNOT_UPDATE" // 系统内置税费不能被修改
+	TaxFeeSystemCannotDelete ErrCode = "TAX_FEE_SYSTEM_CANNOT_DELETE" // 系统内置税费不能被删除
 
 	// 用户相关
 	UserNotFound               ErrCode = "USER_NOT_FOUND"                // 用户不存在

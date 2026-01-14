@@ -73,6 +73,9 @@ func (interactor *RemarkInteractor) Update(ctx context.Context, remark *domain.U
 			}
 			return err
 		}
+		if oldRemark.RemarkType == domain.RemarkTypeSystem {
+			return domain.ErrRemarkUpdateSystem
+		}
 		domainRemark := &domain.Remark{
 			ID:          remark.ID,
 			Name:        remark.Name,
@@ -124,13 +127,14 @@ func (interactor *RemarkInteractor) Delete(ctx context.Context, id uuid.UUID, us
 		}
 		return err
 	}
-	if err = verifyRemarkOwnership(user, remark); err != nil {
-		return err
-	}
 	if remark.RemarkType == domain.RemarkTypeSystem {
 		err = domain.ErrRemarkDeleteSystem
 		return
 	}
+	if err = verifyRemarkOwnership(user, remark); err != nil {
+		return err
+	}
+
 	err = interactor.DS.RemarkRepo().Delete(ctx, id)
 	if err != nil {
 		return err

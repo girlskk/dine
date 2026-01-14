@@ -216,6 +216,7 @@ func (h *RemarkHandler) List() gin.HandlerFunc {
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.RemarkListFilter{
 			MerchantID:  user.MerchantID,
+			Name:        req.Name,
 			Enabled:     req.Enabled,
 			RemarkType:  domain.RemarkTypeBrand,
 			RemarkScene: req.RemarkScene,
@@ -316,6 +317,8 @@ func (h *RemarkHandler) checkErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.RemarkNotExists, err)
 	case errors.Is(err, domain.ErrRemarkNameExists):
 		return errorx.New(http.StatusConflict, errcode.RemarkNameExists, err)
+	case errors.Is(err, domain.ErrRemarkUpdateSystem):
+		return errorx.New(http.StatusForbidden, errcode.RemarkUpdateSystem, err)
 	case errors.Is(err, domain.ErrRemarkDeleteSystem):
 		return errorx.New(http.StatusForbidden, errcode.RemarkDeleteSystem, err)
 	case domain.IsNotFound(err):

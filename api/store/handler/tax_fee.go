@@ -341,6 +341,10 @@ func (h *TaxFeeHandler) checkErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.TaxFeeNotExists, err)
 	case errors.Is(err, domain.ErrTaxFeeNameExists):
 		return errorx.New(http.StatusConflict, errcode.TaxFeeNameExists, err)
+	case errors.Is(err, domain.ErrTaxFeeSystemCannotUpdate):
+		return errorx.New(http.StatusForbidden, errcode.TaxFeeSystemCannotUpdate, err)
+	case errors.Is(err, domain.ErrTaxFeeSystemCannotDelete):
+		return errorx.New(http.StatusForbidden, errcode.TaxFeeSystemCannotDelete, err)
 	case domain.IsNotFound(err):
 		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
 	case domain.IsParamsError(err):
