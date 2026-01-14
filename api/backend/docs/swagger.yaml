@@ -2135,16 +2135,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - PaymentMethodDisplayChannelPOS
-    - PaymentMethodDisplayChannelMobileOrdering
-    - PaymentMethodDisplayChannelScanOrdering
-    - PaymentMethodDisplayChannelSelfService
-    - PaymentMethodDisplayChannelThirdPartyDelivery
     - SaleChannelPOS
     - SaleChannelMobileOrdering
     - SaleChannelScanOrdering
     - SaleChannelSelfService
     - SaleChannelThirdPartyDelivery
+    - PaymentMethodDisplayChannelPOS
+    - PaymentMethodDisplayChannelMobileOrdering
+    - PaymentMethodDisplayChannelScanOrdering
+    - PaymentMethodDisplayChannelSelfService
+    - PaymentMethodDisplayChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -5531,7 +5531,7 @@ paths:
       summary: 禁用商户
       tags:
       - 商户管理
-  /merchant/enabled:
+  /merchant/enable:
     put:
       description: 将商户状态置为激活
       produces:

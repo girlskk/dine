@@ -32,7 +32,7 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 	r.PUT("/store", h.UpdateStoreMerchant())
 	r.GET("", h.GetMerchant())
 	r.POST("/renewal", h.MerchantRenewal())
-	r.PUT("/enabled", h.Enabled())
+	r.PUT("/enable", h.Enable())
 	r.PUT("/disable", h.Disable())
 }
 
@@ -272,7 +272,7 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 	}
 }
 
-// Enabled 启用商户
+// Enable 启用商户
 //
 //	@Summary		启用商户
 //	@Description	将商户状态置为激活
@@ -280,11 +280,11 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	"No Content"
-//	@Router			/merchant/enabled [put]
-func (h *MerchantHandler) Enabled() gin.HandlerFunc {
+//	@Router			/merchant/enable [put]
+func (h *MerchantHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("MerchantHandler.Enabled")
+		logger := logging.FromContext(ctx).Named("MerchantHandler.Enable")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
