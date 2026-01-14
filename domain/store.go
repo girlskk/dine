@@ -27,6 +27,7 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_repository.go -package=mock . StoreRepository
 type StoreRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
+	GetDetail(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
 	FindStoreMerchant(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
 	Create(ctx context.Context, domainStore *Store) (err error)
 	Update(ctx context.Context, domainStore *Store) (err error)
@@ -136,7 +137,6 @@ const (
 type Store struct {
 	ID                      uuid.UUID       `json:"id"`
 	MerchantID              uuid.UUID       `json:"merchant_id"`                // 商户 ID
-	MerchantName            string          `json:"merchant_name"`              // 商户名称
 	AdminPhoneNumber        string          `json:"admin_phone_number"`         // 管理员手机号
 	StoreName               string          `json:"store_name"`                 // 门店名称,长度不超过30个字
 	StoreShortName          string          `json:"store_short_name"`           // 门店简称
@@ -162,6 +162,8 @@ type Store struct {
 	Address                 *Address        `json:"address"`                    // 地址
 	CreatedAt               time.Time       `json:"created_at"`
 	UpdatedAt               time.Time       `json:"updated_at"`
+
+	Merchant *Merchant `json:"merchant,omitempty"` // 关联商户信息
 }
 
 type StoreSimple struct {

@@ -205,7 +205,7 @@ func (interactor *DeviceInteractor) Delete(ctx context.Context, id uuid.UUID, us
 func (interactor *DeviceInteractor) GetDevice(ctx context.Context, id uuid.UUID, user domain.User) (domainDevice *domain.Device, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.GetDevice")
 	defer func() { util.SpanErrFinish(span, err) }()
-	domainDevice, err = interactor.DS.DeviceRepo().FindByID(ctx, id)
+	domainDevice, err = interactor.DS.DeviceRepo().GetDetail(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return nil, domain.ErrDeviceNotExists

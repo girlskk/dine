@@ -20,6 +20,7 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/device_repository.go -package=mock . DeviceRepository
 type DeviceRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (device *Device, err error)
+	GetDetail(ctx context.Context, id uuid.UUID) (device *Device, err error)
 	Create(ctx context.Context, device *Device) (err error)
 	Update(ctx context.Context, device *Device) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)
@@ -155,7 +156,6 @@ type Device struct {
 	PaperSize              PaperSize              `json:"paper_size"`                // 打印纸张尺寸
 	ConnectType            DeviceConnectType      `json:"connect_type"`              // 设备连接类型 inside内置 / outside外置
 	StallID                uuid.UUID              `json:"stall_id"`                  // 出品部门 ID
-	StallName              string                 `json:"stall_name"`                // 出品部门名称
 	OrderChannels          []OrderChannel         `json:"order_channels"`            // 订单来源
 	DiningWays             []DiningWay            `json:"dining_ways"`               // 订单类型/就餐方式
 	DeviceStallPrintType   DeviceStallPrintType   `json:"device_stall_print_type"`   // 出品部门总分单
@@ -166,6 +166,7 @@ type Device struct {
 	UpdatedAt              time.Time              `json:"updated_at"`                // 更新时间
 
 	Store *Store `json:"store,omitempty"` // 所属门店
+	Stall *Stall `json:"stall,omitempty"` // 出品部门
 }
 
 // DeviceExistsParams 存在性检查参数

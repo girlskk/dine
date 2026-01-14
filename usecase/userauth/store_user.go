@@ -291,7 +291,7 @@ func (interactor *StoreUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	// 查询用户信息
-	user, err = interactor.DS.StoreUserRepo().Find(ctx, id)
+	user, err = interactor.DS.StoreUserRepo().GetDetail(ctx, id)
 	if err != nil {
 		return
 	}

@@ -296,7 +296,7 @@ func (interactor *AdminUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	// 查询用户信息
-	user, err = interactor.DS.AdminUserRepo().Find(ctx, id)
+	user, err = interactor.DS.AdminUserRepo().GetDetail(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ErrUserNotExists

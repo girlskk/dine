@@ -159,6 +159,28 @@ func (repo *MerchantRepository) FindByID(ctx context.Context, id uuid.UUID) (dom
 
 	em, err := repo.Client.Merchant.Query().
 		Where(merchant.ID(id)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(domain.ErrMerchantNotExists)
+			return
+		}
+		err = fmt.Errorf("failed to find merchant by id: %w", err)
+		return
+	}
+
+	domainMerchant = convertMerchant(em)
+	return
+}
+
+func (repo *MerchantRepository) GetDetail(ctx context.Context, id uuid.UUID) (domainMerchant *domain.Merchant, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	em, err := repo.Client.Merchant.Query().
+		Where(merchant.ID(id)).
 		WithMerchantRenewals().
 		Only(ctx)
 	if err != nil {

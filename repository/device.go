@@ -31,7 +31,26 @@ func (repo *DeviceRepository) FindByID(ctx context.Context, id uuid.UUID) (domai
 
 	es, err := repo.Client.Device.Query().
 		Where(device.ID(id)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(domain.ErrDeviceNotExists)
+			return
+		}
+		return
+	}
+	domainDevice = convertDeviceToDomain(es)
+	return
+}
+
+func (repo *DeviceRepository) GetDetail(ctx context.Context, id uuid.UUID) (domainDevice *domain.Device, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "DeviceRepository.GetDetail")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	es, err := repo.Client.Device.Query().
+		Where(device.ID(id)).
 		WithStore().
+		WithStall().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -275,6 +294,9 @@ func convertDeviceToDomain(es *ent.Device) (d *domain.Device) {
 	}
 	if es.Edges.Store != nil {
 		d.Store = convertStore(es.Edges.Store)
+	}
+	if es.Edges.Stall != nil {
+		d.Stall = convertStallToDomain(es.Edges.Stall)
 	}
 	return d
 }

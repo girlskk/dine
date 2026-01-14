@@ -56,7 +56,6 @@ func (repo *AdminUserRepository) Find(ctx context.Context, id uuid.UUID) (u *dom
 
 	eu, err := repo.Client.AdminUser.Query().
 		Where(adminuser.ID(id)).
-		WithDepartment().
 		Only(ctx)
 
 	if err != nil {
@@ -68,6 +67,28 @@ func (repo *AdminUserRepository) Find(ctx context.Context, id uuid.UUID) (u *dom
 
 	u = convertAdminUser(eu)
 
+	return
+}
+
+func (repo *AdminUserRepository) GetDetail(ctx context.Context, id uuid.UUID) (u *domain.AdminUser, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "AdminUserRepository.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	eu, err := repo.Client.AdminUser.Query().
+		Where(adminuser.ID(id)).
+		WithDepartment().
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(err)
+		}
+		return
+	}
+
+	u = convertAdminUser(eu)
 	return
 }
 

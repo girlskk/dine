@@ -426,7 +426,7 @@ func (interactor *MerchantInteractor) GetMerchant(ctx context.Context,
 	if err = verifyMerchantOwnership(user, id); err != nil {
 		return nil, err
 	}
-	domainMerchant, err = interactor.DS.MerchantRepo().FindByID(ctx, id)
+	domainMerchant, err = interactor.DS.MerchantRepo().GetDetail(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return nil, domain.ErrMerchantNotExists

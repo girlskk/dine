@@ -153,7 +153,7 @@ func (interactor *StoreInteractor) GetStore(ctx context.Context, id uuid.UUID, u
 		util.SpanErrFinish(span, err)
 	}()
 
-	domainStore, err = interactor.DS.StoreRepo().FindByID(ctx, id)
+	domainStore, err = interactor.DS.StoreRepo().GetDetail(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			return nil, domain.ErrStoreNotExists

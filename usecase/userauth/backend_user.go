@@ -297,7 +297,7 @@ func (interactor *BackendUserInteractor) GetUser(ctx context.Context, id uuid.UU
 	}()
 
 	// 查询用户信息
-	user, err = interactor.DS.BackendUserRepo().Find(ctx, id)
+	user, err = interactor.DS.BackendUserRepo().GetDetail(ctx, id)
 	if err != nil {
 		return
 	}
@@ -325,7 +325,7 @@ func (interactor *BackendUserInteractor) GetUser(ctx context.Context, id uuid.UU
 			return
 		}
 	}
-	
+
 	// 查询角色关联的菜单权限
 	roleMenus, err := interactor.DS.RoleMenuRepo().GetByRoleID(ctx, userRole.RoleID)
 	if err != nil {

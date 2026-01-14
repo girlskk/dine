@@ -94,7 +94,6 @@ func (repo *BackendUserRepository) Find(ctx context.Context, id uuid.UUID) (u *d
 
 	eu, err := repo.Client.BackendUser.Query().
 		Where(backenduser.ID(id)).
-		WithDepartment().
 		Only(ctx)
 
 	if err != nil {
@@ -109,6 +108,28 @@ func (repo *BackendUserRepository) Find(ctx context.Context, id uuid.UUID) (u *d
 	return
 }
 
+func (repo *BackendUserRepository) GetDetail(ctx context.Context, id uuid.UUID) (u *domain.BackendUser, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "BackendUserRepository.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	eu, err := repo.Client.BackendUser.Query().
+		Where(backenduser.ID(id)).
+		WithDepartment().
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(err)
+		}
+		return
+	}
+
+	u = convertBackendUser(eu)
+
+	return
+}
 func (repo *BackendUserRepository) Exists(ctx context.Context, params domain.BackendUserExistsParams) (exists bool, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "BackendUserRepository.Exists")
 	defer func() {
