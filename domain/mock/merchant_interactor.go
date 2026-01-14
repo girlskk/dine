@@ -53,60 +53,60 @@ func (mr *MockMerchantInteractorMockRecorder) CountMerchant(arg0 interface{}) *g
 }
 
 // CreateMerchant mocks base method.
-func (m *MockMerchantInteractor) CreateMerchant(arg0 context.Context, arg1 *domain.CreateMerchantParams) error {
+func (m *MockMerchantInteractor) CreateMerchant(arg0 context.Context, arg1 *domain.CreateMerchantParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateMerchant", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateMerchant", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateMerchant indicates an expected call of CreateMerchant.
-func (mr *MockMerchantInteractorMockRecorder) CreateMerchant(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) CreateMerchant(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).CreateMerchant), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).CreateMerchant), arg0, arg1, arg2)
 }
 
 // CreateMerchantAndStore mocks base method.
-func (m *MockMerchantInteractor) CreateMerchantAndStore(arg0 context.Context, arg1 *domain.CreateMerchantParams, arg2 *domain.CreateStoreParams) error {
+func (m *MockMerchantInteractor) CreateMerchantAndStore(arg0 context.Context, arg1 *domain.CreateMerchantParams, arg2 *domain.CreateStoreParams, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateMerchantAndStore", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "CreateMerchantAndStore", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateMerchantAndStore indicates an expected call of CreateMerchantAndStore.
-func (mr *MockMerchantInteractorMockRecorder) CreateMerchantAndStore(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) CreateMerchantAndStore(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMerchantAndStore", reflect.TypeOf((*MockMerchantInteractor)(nil).CreateMerchantAndStore), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMerchantAndStore", reflect.TypeOf((*MockMerchantInteractor)(nil).CreateMerchantAndStore), arg0, arg1, arg2, arg3)
 }
 
 // DeleteMerchant mocks base method.
-func (m *MockMerchantInteractor) DeleteMerchant(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockMerchantInteractor) DeleteMerchant(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteMerchant", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteMerchant", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteMerchant indicates an expected call of DeleteMerchant.
-func (mr *MockMerchantInteractorMockRecorder) DeleteMerchant(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) DeleteMerchant(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).DeleteMerchant), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).DeleteMerchant), arg0, arg1, arg2)
 }
 
 // GetMerchant mocks base method.
-func (m *MockMerchantInteractor) GetMerchant(arg0 context.Context, arg1 uuid.UUID) (*domain.Merchant, error) {
+func (m *MockMerchantInteractor) GetMerchant(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.Merchant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMerchant", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetMerchant", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Merchant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMerchant indicates an expected call of GetMerchant.
-func (mr *MockMerchantInteractorMockRecorder) GetMerchant(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) GetMerchant(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).GetMerchant), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).GetMerchant), arg0, arg1, arg2)
 }
 
 // GetMerchants mocks base method.
@@ -131,57 +131,57 @@ func (mr *MockMerchantInteractorMockRecorder) GetMerchants(arg0, arg1, arg2 inte
 }
 
 // MerchantRenewal mocks base method.
-func (m *MockMerchantInteractor) MerchantRenewal(arg0 context.Context, arg1 *domain.MerchantRenewal) error {
+func (m *MockMerchantInteractor) MerchantRenewal(arg0 context.Context, arg1 *domain.MerchantRenewal, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MerchantRenewal", arg0, arg1)
+	ret := m.ctrl.Call(m, "MerchantRenewal", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // MerchantRenewal indicates an expected call of MerchantRenewal.
-func (mr *MockMerchantInteractorMockRecorder) MerchantRenewal(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) MerchantRenewal(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantRenewal", reflect.TypeOf((*MockMerchantInteractor)(nil).MerchantRenewal), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantRenewal", reflect.TypeOf((*MockMerchantInteractor)(nil).MerchantRenewal), arg0, arg1, arg2)
 }
 
 // MerchantSimpleUpdate mocks base method.
-func (m *MockMerchantInteractor) MerchantSimpleUpdate(arg0 context.Context, arg1 domain.MerchantSimpleUpdateField, arg2 *domain.Merchant) error {
+func (m *MockMerchantInteractor) MerchantSimpleUpdate(arg0 context.Context, arg1 domain.MerchantSimpleUpdateField, arg2 *domain.Merchant, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MerchantSimpleUpdate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "MerchantSimpleUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // MerchantSimpleUpdate indicates an expected call of MerchantSimpleUpdate.
-func (mr *MockMerchantInteractorMockRecorder) MerchantSimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) MerchantSimpleUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantSimpleUpdate", reflect.TypeOf((*MockMerchantInteractor)(nil).MerchantSimpleUpdate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MerchantSimpleUpdate", reflect.TypeOf((*MockMerchantInteractor)(nil).MerchantSimpleUpdate), arg0, arg1, arg2, arg3)
 }
 
 // UpdateMerchant mocks base method.
-func (m *MockMerchantInteractor) UpdateMerchant(arg0 context.Context, arg1 *domain.UpdateMerchantParams) error {
+func (m *MockMerchantInteractor) UpdateMerchant(arg0 context.Context, arg1 *domain.UpdateMerchantParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateMerchant", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateMerchant", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateMerchant indicates an expected call of UpdateMerchant.
-func (mr *MockMerchantInteractorMockRecorder) UpdateMerchant(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) UpdateMerchant(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).UpdateMerchant), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMerchant", reflect.TypeOf((*MockMerchantInteractor)(nil).UpdateMerchant), arg0, arg1, arg2)
 }
 
 // UpdateMerchantAndStore mocks base method.
-func (m *MockMerchantInteractor) UpdateMerchantAndStore(arg0 context.Context, arg1 *domain.UpdateMerchantParams, arg2 *domain.UpdateStoreParams) error {
+func (m *MockMerchantInteractor) UpdateMerchantAndStore(arg0 context.Context, arg1 *domain.UpdateMerchantParams, arg2 *domain.UpdateStoreParams, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateMerchantAndStore", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateMerchantAndStore", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateMerchantAndStore indicates an expected call of UpdateMerchantAndStore.
-func (mr *MockMerchantInteractorMockRecorder) UpdateMerchantAndStore(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockMerchantInteractorMockRecorder) UpdateMerchantAndStore(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMerchantAndStore", reflect.TypeOf((*MockMerchantInteractor)(nil).UpdateMerchantAndStore), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMerchantAndStore", reflect.TypeOf((*MockMerchantInteractor)(nil).UpdateMerchantAndStore), arg0, arg1, arg2, arg3)
 }

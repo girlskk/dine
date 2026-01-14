@@ -9,7 +9,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
@@ -37,17 +36,17 @@ func (m *MockBusinessConfigInteractor) EXPECT() *MockBusinessConfigInteractorMoc
 }
 
 // Distribute mocks base method.
-func (m *MockBusinessConfigInteractor) Distribute(arg0 context.Context, arg1, arg2 []uuid.UUID, arg3 domain.User) error {
+func (m *MockBusinessConfigInteractor) Distribute(arg0 context.Context, arg1 domain.BusinessConfigDistributeParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Distribute", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "Distribute", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Distribute indicates an expected call of Distribute.
-func (mr *MockBusinessConfigInteractorMockRecorder) Distribute(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockBusinessConfigInteractorMockRecorder) Distribute(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Distribute", reflect.TypeOf((*MockBusinessConfigInteractor)(nil).Distribute), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Distribute", reflect.TypeOf((*MockBusinessConfigInteractor)(nil).Distribute), arg0, arg1, arg2)
 }
 
 // ListBySearch mocks base method.

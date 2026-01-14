@@ -9,7 +9,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	uuid "github.com/google/uuid"
 	domain "gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
@@ -36,49 +35,6 @@ func (m *MockRouterMenuInteractor) EXPECT() *MockRouterMenuInteractorMockRecorde
 	return m.recorder
 }
 
-// CreateRouterMenu mocks base method.
-func (m *MockRouterMenuInteractor) CreateRouterMenu(arg0 context.Context, arg1 *domain.CreateRouterMenuParams) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateRouterMenu", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreateRouterMenu indicates an expected call of CreateRouterMenu.
-func (mr *MockRouterMenuInteractorMockRecorder) CreateRouterMenu(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRouterMenu", reflect.TypeOf((*MockRouterMenuInteractor)(nil).CreateRouterMenu), arg0, arg1)
-}
-
-// DeleteRouterMenu mocks base method.
-func (m *MockRouterMenuInteractor) DeleteRouterMenu(arg0 context.Context, arg1 uuid.UUID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteRouterMenu", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteRouterMenu indicates an expected call of DeleteRouterMenu.
-func (mr *MockRouterMenuInteractorMockRecorder) DeleteRouterMenu(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRouterMenu", reflect.TypeOf((*MockRouterMenuInteractor)(nil).DeleteRouterMenu), arg0, arg1)
-}
-
-// GetRouterMenu mocks base method.
-func (m *MockRouterMenuInteractor) GetRouterMenu(arg0 context.Context, arg1 uuid.UUID) (*domain.RouterMenu, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRouterMenu", arg0, arg1)
-	ret0, _ := ret[0].(*domain.RouterMenu)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetRouterMenu indicates an expected call of GetRouterMenu.
-func (mr *MockRouterMenuInteractorMockRecorder) GetRouterMenu(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouterMenu", reflect.TypeOf((*MockRouterMenuInteractor)(nil).GetRouterMenu), arg0, arg1)
-}
-
 // GetRouterMenus mocks base method.
 func (m *MockRouterMenuInteractor) GetRouterMenus(arg0 context.Context, arg1 *domain.RouterMenuListFilter, arg2 ...domain.RouterMenuListOrderBy) ([]*domain.RouterMenu, int, error) {
 	m.ctrl.T.Helper()
@@ -98,18 +54,4 @@ func (mr *MockRouterMenuInteractorMockRecorder) GetRouterMenus(arg0, arg1 interf
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouterMenus", reflect.TypeOf((*MockRouterMenuInteractor)(nil).GetRouterMenus), varargs...)
-}
-
-// UpdateRouterMenu mocks base method.
-func (m *MockRouterMenuInteractor) UpdateRouterMenu(arg0 context.Context, arg1 *domain.UpdateRouterMenuParams) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateRouterMenu", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateRouterMenu indicates an expected call of UpdateRouterMenu.
-func (mr *MockRouterMenuInteractorMockRecorder) UpdateRouterMenu(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRouterMenu", reflect.TypeOf((*MockRouterMenuInteractor)(nil).UpdateRouterMenu), arg0, arg1)
 }

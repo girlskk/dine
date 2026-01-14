@@ -30,6 +30,7 @@ type BusinessConfig struct {
 
 // BusinessConfigDistributeReq 下发门店
 type BusinessConfigDistributeReq struct {
-	Ids      []uuid.UUID `json:"ids" binding:"required" binding:"required,min=1"` // 记录ID列表
-	StoreIDs []uuid.UUID `json:"store_ids" binding:"required,min=1"`              // 门店ID列表（必选，多选）
+	Ids          []uuid.UUID `json:"ids"  binding:"required,min=1"`      // 记录ID列表
+	StoreIDs     []uuid.UUID `json:"store_ids" binding:"required,min=1"` // 门店ID列表（必选，多选）
+	ModifyStatus bool        `json:"modify_status" binding:"required"`   // 下发后是否可以进行修改: true-可以, false-不可以
 }

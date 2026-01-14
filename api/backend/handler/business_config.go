@@ -55,7 +55,6 @@ func (h *BusinessConfigHandler) List() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
 		user := domain.FromBackendUserContext(ctx)
 		params := domain.BusinessConfigSearchParams{
 			MerchantID: user.MerchantID,
@@ -100,27 +99,17 @@ func (h *BusinessConfigHandler) UpsertConfig() gin.HandlerFunc {
 		var configs []*domain.BusinessConfig
 		for _, config := range req.Configs {
 			var (
-				configID       uuid.UUID
-				sourceConfigID uuid.UUID
-				err            error
+				configID uuid.UUID
+				err      error
 			)
 			configID, err = uuid.Parse(config.ID)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
 			}
-			if config.SourceConfigID != "" {
-				sourceConfigID, err = uuid.Parse(config.SourceConfigID)
-				if err != nil {
-					c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-					return
-				}
-			} else {
-				sourceConfigID = configID
-			}
 			configs = append(configs, &domain.BusinessConfig{
 				ID:             uuid.New(),
-				SourceConfigID: sourceConfigID,
+				SourceConfigID: configID,
 				MerchantID:     user.MerchantID,
 				Name:           config.Name,
 				Group:          config.Group,
@@ -129,6 +118,7 @@ func (h *BusinessConfigHandler) UpsertConfig() gin.HandlerFunc {
 				Value:          config.Value,
 				IsDefault:      false,
 				Status:         true,
+				ModifyStatus:   true,
 				Sort:           config.Sort,
 				Tip:            config.Tip,
 			})
@@ -167,7 +157,12 @@ func (h *BusinessConfigHandler) Distribute() gin.HandlerFunc {
 			return
 		}
 		user := domain.FromBackendUserContext(ctx)
-		err := h.BusinessConfigInteractor.Distribute(ctx, req.Ids, req.StoreIDs, user)
+		params := domain.BusinessConfigDistributeParams{
+			Ids:          req.Ids,
+			StoreIDs:     req.StoreIDs,
+			ModifyStatus: req.ModifyStatus,
+		}
+		err := h.BusinessConfigInteractor.Distribute(ctx, params, user)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))

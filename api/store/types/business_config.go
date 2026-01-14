@@ -1,7 +1,6 @@
 package types
 
 import (
-	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 )
 
@@ -26,10 +25,4 @@ type BusinessConfig struct {
 	Value          string                          `json:"value"`                                                                   // 参数键值
 	Sort           int32                           `json:"sort"`                                                                    // 排序
 	Tip            string                          `json:"tip"`                                                                     // 变量描述
-}
-
-// BusinessConfigDistributeReq 下发门店
-type BusinessConfigDistributeReq struct {
-	Ids      []uuid.UUID `json:"ids" binding:"required" binding:"required,min=1"` // 记录ID列表
-	StoreIDs []uuid.UUID `json:"store_ids" binding:"required,min=1"`              // 门店ID列表（必选，多选）
 }

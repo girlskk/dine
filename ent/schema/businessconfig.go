@@ -28,7 +28,12 @@ func (BusinessConfig) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("source_config_id", uuid.UUID{}).Optional().Comment("配置来源ID"),
 		field.UUID("merchant_id", uuid.UUID{}).Optional().Comment("品牌商ID"),
-		field.UUID("store_id", uuid.UUID{}).Optional().Comment("门店ID"),
+		field.String("store_id").
+			SchemaType(map[string]string{
+				dialect.MySQL: "char(36)",
+			}).
+			Default("").
+			Comment("门店ID"),
 		field.Enum("group").
 			GoType(domain.BusinessConfigGroup("")).
 			Optional().
@@ -53,14 +58,14 @@ func (BusinessConfig) Fields() []ent.Field {
 			dialect.MySQL: "varchar(500)",
 		}).Optional().Default("").Comment("变量描述"),
 		field.Bool("is_default").Default(false).Comment("是否为系统默认: true-是, false-否）"),
+		field.Bool("modify_status").Default(true).Comment("下发后是否可以进行修改: true-可以, false-不可以）"),
 		field.Bool("status").Default(true).Comment("启用/停用状态: true-启用, false-停用（必选）"),
 	}
 }
 
 func (BusinessConfig) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("merchant_id", "group", "key", "deleted_at").Unique(),
-		index.Fields("store_id", "group", "key", "deleted_at").Unique(),
+		index.Fields("merchant_id", "store_id", "group", "key", "deleted_at").Unique(),
 	}
 }
 

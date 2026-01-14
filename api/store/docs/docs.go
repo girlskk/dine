@@ -308,13 +308,25 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
+                            "order",
+                            "payment",
+                            "kitchen",
+                            "refund",
                             "print"
                         ],
                         "type": "string",
                         "x-enum-comments": {
-                            "BusinessConfigGroupPrint": "print"
+                            "BusinessConfigGroupKitchen": "后厨设置",
+                            "BusinessConfigGroupOrder": "点餐设置",
+                            "BusinessConfigGroupPayment": "收单设置",
+                            "BusinessConfigGroupPrint": "退款设置",
+                            "BusinessConfigGroupRefund": "退款设置"
                         },
                         "x-enum-varnames": [
+                            "BusinessConfigGroupOrder",
+                            "BusinessConfigGroupPayment",
+                            "BusinessConfigGroupKitchen",
+                            "BusinessConfigGroupRefund",
                             "BusinessConfigGroupPrint"
                         ],
                         "description": "配置分组",
@@ -355,35 +367,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/types.BusinessConfigUpsertReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/business/config/distribute": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "经营管理"
-                ],
-                "summary": "下发门店",
-                "parameters": [
-                    {
-                        "description": "请求信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.BusinessConfigDistributeReq"
                         }
                     }
                 ],
@@ -4631,6 +4614,10 @@ const docTemplate = `{
                     "description": "品牌商ID",
                     "type": "string"
                 },
+                "modify_status": {
+                    "description": "下发后是否可以进行修改: true-可以, false-不可以",
+                    "type": "boolean"
+                },
                 "name": {
                     "description": "参数名称",
                     "type": "string"
@@ -4695,12 +4682,24 @@ const docTemplate = `{
         "domain.BusinessConfigGroup": {
             "type": "string",
             "enum": [
+                "order",
+                "payment",
+                "kitchen",
+                "refund",
                 "print"
             ],
             "x-enum-comments": {
-                "BusinessConfigGroupPrint": "print"
+                "BusinessConfigGroupKitchen": "后厨设置",
+                "BusinessConfigGroupOrder": "点餐设置",
+                "BusinessConfigGroupPayment": "收单设置",
+                "BusinessConfigGroupPrint": "退款设置",
+                "BusinessConfigGroupRefund": "退款设置"
             },
             "x-enum-varnames": [
+                "BusinessConfigGroupOrder",
+                "BusinessConfigGroupPayment",
+                "BusinessConfigGroupKitchen",
+                "BusinessConfigGroupRefund",
                 "BusinessConfigGroupPrint"
             ]
         },
@@ -4712,18 +4711,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.BusinessConfig"
                     }
-                },
-                "page": {
-                    "description": "页码",
-                    "type": "integer"
-                },
-                "size": {
-                    "description": "每页数量",
-                    "type": "integer"
-                },
-                "total": {
-                    "description": "总页数",
-                    "type": "integer"
                 }
             }
         },
@@ -7881,30 +7868,6 @@ const docTemplate = `{
                 "value": {
                     "description": "参数键值",
                     "type": "string"
-                }
-            }
-        },
-        "types.BusinessConfigDistributeReq": {
-            "type": "object",
-            "required": [
-                "ids",
-                "store_ids"
-            ],
-            "properties": {
-                "ids": {
-                    "description": "记录ID列表",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "store_ids": {
-                    "description": "门店ID列表（必选，多选）",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

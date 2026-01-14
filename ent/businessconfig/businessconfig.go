@@ -45,6 +45,8 @@ const (
 	FieldTip = "tip"
 	// FieldIsDefault holds the string denoting the is_default field in the database.
 	FieldIsDefault = "is_default"
+	// FieldModifyStatus holds the string denoting the modify_status field in the database.
+	FieldModifyStatus = "modify_status"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// Table holds the table name of the businessconfig in the database.
@@ -68,6 +70,7 @@ var Columns = []string{
 	FieldSort,
 	FieldTip,
 	FieldIsDefault,
+	FieldModifyStatus,
 	FieldStatus,
 }
 
@@ -97,6 +100,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt int64
+	// DefaultStoreID holds the default value on creation for the "store_id" field.
+	DefaultStoreID string
 	// DefaultName holds the default value on creation for the "name" field.
 	DefaultName string
 	// DefaultKey holds the default value on creation for the "key" field.
@@ -109,6 +114,8 @@ var (
 	DefaultTip string
 	// DefaultIsDefault holds the default value on creation for the "is_default" field.
 	DefaultIsDefault bool
+	// DefaultModifyStatus holds the default value on creation for the "modify_status" field.
+	DefaultModifyStatus bool
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus bool
 	// DefaultID holds the default value on creation for the "id" field.
@@ -118,7 +125,7 @@ var (
 // GroupValidator is a validator for the "group" field enum values. It is called by the builders before save.
 func GroupValidator(gr domain.BusinessConfigGroup) error {
 	switch gr {
-	case "print":
+	case "order", "payment", "kitchen", "refund", "print":
 		return nil
 	default:
 		return fmt.Errorf("businessconfig: invalid enum value for group field: %q", gr)
@@ -211,6 +218,11 @@ func ByTip(opts ...sql.OrderTermOption) OrderOption {
 // ByIsDefault orders the results by the is_default field.
 func ByIsDefault(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsDefault, opts...).ToFunc()
+}
+
+// ByModifyStatus orders the results by the modify_status field.
+func ByModifyStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldModifyStatus, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

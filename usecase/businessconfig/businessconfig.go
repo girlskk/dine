@@ -42,13 +42,14 @@ func (i *BusinessConfigInteractor) UpsertConfig(ctx context.Context, configs []*
 		return ds.BusinessConfigRepo().UpsertConfig(ctx, configs)
 	})
 }
-func (i *BusinessConfigInteractor) Distribute(ctx context.Context, ids, storeIDs []uuid.UUID, user domain.User) (err error) {
+func (i *BusinessConfigInteractor) Distribute(ctx context.Context, params domain.BusinessConfigDistributeParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "BusinessConfigInteractor.UpsertConfig")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 	configList, err := i.DS.BusinessConfigRepo().ListBySearch(ctx, domain.BusinessConfigSearchParams{
-		Ids: ids,
+		MerchantID: user.GetMerchantID(),
+		Ids:        params.Ids,
 	})
 	if err != nil {
 		return err
@@ -58,17 +59,15 @@ func (i *BusinessConfigInteractor) Distribute(ctx context.Context, ids, storeIDs
 	}
 	configs := make([]*domain.BusinessConfig, 0, len(configList.Items))
 	for _, config := range configList.Items {
-		for _, storeID := range storeIDs {
+		for _, storeID := range params.StoreIDs {
 			config.MerchantID = user.GetMerchantID()
 			config.StoreID = storeID
+			config.SourceConfigID = config.ID
+			config.ModifyStatus = params.ModifyStatus
+			config.ID = uuid.New()
 			config.IsDefault = false
-			if config.SourceConfigID == uuid.Nil {
-				config.SourceConfigID = config.ID
-			}
 			configs = append(configs, config)
 		}
 	}
-	return i.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
-		return ds.BusinessConfigRepo().UpsertConfig(ctx, configs)
-	})
+	return i.UpsertConfig(ctx, configs, user)
 }

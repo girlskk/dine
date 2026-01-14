@@ -40,7 +40,9 @@ func (repo *BusinessConfigRepository) ListBySearch(
 		businessconfig.And(businessconfig.MerchantIDIsNil(), businessconfig.IsDefaultEQ(true)),
 	))
 	if params.StoreID != uuid.Nil {
-		query.Where(businessconfig.StoreID(params.StoreID))
+		query.Where(businessconfig.StoreID(params.StoreID.String()))
+	} else {
+		query.Where(businessconfig.StoreID(""))
 	}
 	if params.Name != "" {
 		query.Where(businessconfig.NameContains(params.Name))
@@ -79,7 +81,7 @@ func convertBusinessConfigToDomain(pm *ent.BusinessConfig) *domain.BusinessConfi
 		ID:             pm.ID,
 		SourceConfigID: pm.SourceConfigID,
 		MerchantID:     pm.MerchantID,
-		StoreID:        pm.StoreID,
+		StoreID:        uuid.Nil,
 		Group:          pm.Group,
 		Name:           pm.Name,
 		ConfigType:     pm.ConfigType,
@@ -92,6 +94,9 @@ func convertBusinessConfigToDomain(pm *ent.BusinessConfig) *domain.BusinessConfi
 		CreatedAt:      pm.CreatedAt,
 		UpdatedAt:      pm.UpdatedAt,
 	}
+	if pm.StoreID != "" {
+		m.StoreID = uuid.MustParse(pm.StoreID)
+	}
 	return m
 }
 
@@ -103,7 +108,7 @@ func mergeConfigs(configs []*ent.BusinessConfig) map[string]*ent.BusinessConfig 
 	// 分离默认配置和门店配置
 	for _, config := range configs {
 		key := fmt.Sprintf("%s.%s", config.Group, config.Key)
-		if config.MerchantID != uuid.Nil || config.StoreID != uuid.Nil {
+		if config.MerchantID != uuid.Nil || config.StoreID != "" {
 			storeConfigs[key] = config
 		} else if config.IsDefault {
 			defaultConfigs[key] = config
@@ -137,17 +142,20 @@ func (repo *BusinessConfigRepository) UpsertConfig(ctx context.Context, configs 
 			SetTip(c.Tip).
 			SetIsDefault(c.IsDefault).
 			SetStatus(c.Status).
+			SetModifyStatus(c.ModifyStatus).
 			SetCreatedAt(now).
 			SetUpdatedAt(now).
 			SetDeletedAt(0)
 		if c.SourceConfigID != uuid.Nil {
 			builder = builder.SetSourceConfigID(c.SourceConfigID)
 		}
-		if c.StoreID != uuid.Nil {
-			builder = builder.SetStoreID(c.StoreID)
-		}
 		if c.MerchantID != uuid.Nil {
 			builder = builder.SetMerchantID(c.MerchantID)
+		}
+		if c.StoreID != uuid.Nil {
+			builder = builder.SetStoreID(c.StoreID.String())
+		} else {
+			builder = builder.SetStoreID("")
 		}
 		builders = append(builders, builder)
 	}
@@ -155,6 +163,7 @@ func (repo *BusinessConfigRepository) UpsertConfig(ctx context.Context, configs 
 		CreateBulk(builders...).
 		OnConflict().
 		UpdateValue().
+		UpdateModifyStatus().
 		UpdateUpdatedAt().
 		Exec(ctx)
 	return err

@@ -38,60 +38,60 @@ func (m *MockAdditionalFeeInteractor) EXPECT() *MockAdditionalFeeInteractorMockR
 }
 
 // AdditionalFeeSimpleUpdate mocks base method.
-func (m *MockAdditionalFeeInteractor) AdditionalFeeSimpleUpdate(arg0 context.Context, arg1 domain.AdditionalFeeSimpleUpdateType, arg2 *domain.AdditionalFee) error {
+func (m *MockAdditionalFeeInteractor) AdditionalFeeSimpleUpdate(arg0 context.Context, arg1 domain.AdditionalFeeSimpleUpdateType, arg2 *domain.AdditionalFee, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AdditionalFeeSimpleUpdate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "AdditionalFeeSimpleUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AdditionalFeeSimpleUpdate indicates an expected call of AdditionalFeeSimpleUpdate.
-func (mr *MockAdditionalFeeInteractorMockRecorder) AdditionalFeeSimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockAdditionalFeeInteractorMockRecorder) AdditionalFeeSimpleUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AdditionalFeeSimpleUpdate", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).AdditionalFeeSimpleUpdate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AdditionalFeeSimpleUpdate", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).AdditionalFeeSimpleUpdate), arg0, arg1, arg2, arg3)
 }
 
 // Create mocks base method.
-func (m *MockAdditionalFeeInteractor) Create(arg0 context.Context, arg1 *domain.AdditionalFee) error {
+func (m *MockAdditionalFeeInteractor) Create(arg0 context.Context, arg1 *domain.AdditionalFee, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockAdditionalFeeInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockAdditionalFeeInteractorMockRecorder) Create(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).Create), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).Create), arg0, arg1, arg2)
 }
 
 // Delete mocks base method.
-func (m *MockAdditionalFeeInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockAdditionalFeeInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockAdditionalFeeInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockAdditionalFeeInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // GetAdditionalFee mocks base method.
-func (m *MockAdditionalFeeInteractor) GetAdditionalFee(arg0 context.Context, arg1 uuid.UUID) (*domain.AdditionalFee, error) {
+func (m *MockAdditionalFeeInteractor) GetAdditionalFee(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.AdditionalFee, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAdditionalFee", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetAdditionalFee", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.AdditionalFee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAdditionalFee indicates an expected call of GetAdditionalFee.
-func (mr *MockAdditionalFeeInteractorMockRecorder) GetAdditionalFee(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockAdditionalFeeInteractorMockRecorder) GetAdditionalFee(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdditionalFee", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).GetAdditionalFee), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdditionalFee", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).GetAdditionalFee), arg0, arg1, arg2)
 }
 
 // GetAdditionalFees mocks base method.
@@ -116,15 +116,15 @@ func (mr *MockAdditionalFeeInteractorMockRecorder) GetAdditionalFees(arg0, arg1,
 }
 
 // Update mocks base method.
-func (m *MockAdditionalFeeInteractor) Update(arg0 context.Context, arg1 *domain.AdditionalFee) error {
+func (m *MockAdditionalFeeInteractor) Update(arg0 context.Context, arg1 *domain.AdditionalFee, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockAdditionalFeeInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockAdditionalFeeInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockAdditionalFeeInteractor)(nil).Update), arg0, arg1, arg2)
 }

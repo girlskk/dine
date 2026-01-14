@@ -308,13 +308,25 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
+                            "order",
+                            "payment",
+                            "kitchen",
+                            "refund",
                             "print"
                         ],
                         "type": "string",
                         "x-enum-comments": {
-                            "BusinessConfigGroupPrint": "print"
+                            "BusinessConfigGroupKitchen": "后厨设置",
+                            "BusinessConfigGroupOrder": "点餐设置",
+                            "BusinessConfigGroupPayment": "收单设置",
+                            "BusinessConfigGroupPrint": "退款设置",
+                            "BusinessConfigGroupRefund": "退款设置"
                         },
                         "x-enum-varnames": [
+                            "BusinessConfigGroupOrder",
+                            "BusinessConfigGroupPayment",
+                            "BusinessConfigGroupKitchen",
+                            "BusinessConfigGroupRefund",
                             "BusinessConfigGroupPrint"
                         ],
                         "description": "配置分组",
@@ -5892,6 +5904,10 @@ const docTemplate = `{
                     "description": "品牌商ID",
                     "type": "string"
                 },
+                "modify_status": {
+                    "description": "下发后是否可以进行修改: true-可以, false-不可以",
+                    "type": "boolean"
+                },
                 "name": {
                     "description": "参数名称",
                     "type": "string"
@@ -5956,12 +5972,24 @@ const docTemplate = `{
         "domain.BusinessConfigGroup": {
             "type": "string",
             "enum": [
+                "order",
+                "payment",
+                "kitchen",
+                "refund",
                 "print"
             ],
             "x-enum-comments": {
-                "BusinessConfigGroupPrint": "print"
+                "BusinessConfigGroupKitchen": "后厨设置",
+                "BusinessConfigGroupOrder": "点餐设置",
+                "BusinessConfigGroupPayment": "收单设置",
+                "BusinessConfigGroupPrint": "退款设置",
+                "BusinessConfigGroupRefund": "退款设置"
             },
             "x-enum-varnames": [
+                "BusinessConfigGroupOrder",
+                "BusinessConfigGroupPayment",
+                "BusinessConfigGroupKitchen",
+                "BusinessConfigGroupRefund",
                 "BusinessConfigGroupPrint"
             ]
         },
@@ -5973,18 +6001,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.BusinessConfig"
                     }
-                },
-                "page": {
-                    "description": "页码",
-                    "type": "integer"
-                },
-                "size": {
-                    "description": "每页数量",
-                    "type": "integer"
-                },
-                "total": {
-                    "description": "总页数",
-                    "type": "integer"
                 }
             }
         },
@@ -8589,16 +8605,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "SaleChannelPOS",
-                "SaleChannelMobileOrdering",
-                "SaleChannelScanOrdering",
-                "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery",
                 "PaymentMethodDisplayChannelPOS",
                 "PaymentMethodDisplayChannelMobileOrdering",
                 "PaymentMethodDisplayChannelScanOrdering",
                 "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery"
+                "PaymentMethodDisplayChannelThirdPartyDelivery",
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -9177,9 +9193,23 @@ const docTemplate = `{
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -9626,15 +9656,21 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "ids",
+                "modify_status",
                 "store_ids"
             ],
             "properties": {
                 "ids": {
                     "description": "记录ID列表",
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "type": "string"
                     }
+                },
+                "modify_status": {
+                    "description": "下发后是否可以进行修改: true-可以, false-不可以",
+                    "type": "boolean"
                 },
                 "store_ids": {
                     "description": "门店ID列表（必选，多选）",

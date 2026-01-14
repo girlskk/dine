@@ -31,7 +31,7 @@ type BusinessConfig struct {
 	// 品牌商ID
 	MerchantID uuid.UUID `json:"merchant_id,omitempty"`
 	// 门店ID
-	StoreID uuid.UUID `json:"store_id,omitempty"`
+	StoreID string `json:"store_id,omitempty"`
 	// 配置分组
 	Group domain.BusinessConfigGroup `json:"group,omitempty"`
 	// 参数名称
@@ -48,6 +48,8 @@ type BusinessConfig struct {
 	Tip string `json:"tip,omitempty"`
 	// 是否为系统默认: true-是, false-否）
 	IsDefault bool `json:"is_default,omitempty"`
+	// 下发后是否可以进行修改: true-可以, false-不可以）
+	ModifyStatus bool `json:"modify_status,omitempty"`
 	// 启用/停用状态: true-启用, false-停用（必选）
 	Status       bool `json:"status,omitempty"`
 	selectValues sql.SelectValues
@@ -58,15 +60,15 @@ func (*BusinessConfig) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case businessconfig.FieldIsDefault, businessconfig.FieldStatus:
+		case businessconfig.FieldIsDefault, businessconfig.FieldModifyStatus, businessconfig.FieldStatus:
 			values[i] = new(sql.NullBool)
 		case businessconfig.FieldDeletedAt, businessconfig.FieldSort:
 			values[i] = new(sql.NullInt64)
-		case businessconfig.FieldGroup, businessconfig.FieldName, businessconfig.FieldConfigType, businessconfig.FieldKey, businessconfig.FieldValue, businessconfig.FieldTip:
+		case businessconfig.FieldStoreID, businessconfig.FieldGroup, businessconfig.FieldName, businessconfig.FieldConfigType, businessconfig.FieldKey, businessconfig.FieldValue, businessconfig.FieldTip:
 			values[i] = new(sql.NullString)
 		case businessconfig.FieldCreatedAt, businessconfig.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case businessconfig.FieldID, businessconfig.FieldSourceConfigID, businessconfig.FieldMerchantID, businessconfig.FieldStoreID:
+		case businessconfig.FieldID, businessconfig.FieldSourceConfigID, businessconfig.FieldMerchantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -120,10 +122,10 @@ func (bc *BusinessConfig) assignValues(columns []string, values []any) error {
 				bc.MerchantID = *value
 			}
 		case businessconfig.FieldStoreID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field store_id", values[i])
-			} else if value != nil {
-				bc.StoreID = *value
+			} else if value.Valid {
+				bc.StoreID = value.String
 			}
 		case businessconfig.FieldGroup:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -172,6 +174,12 @@ func (bc *BusinessConfig) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_default", values[i])
 			} else if value.Valid {
 				bc.IsDefault = value.Bool
+			}
+		case businessconfig.FieldModifyStatus:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field modify_status", values[i])
+			} else if value.Valid {
+				bc.ModifyStatus = value.Bool
 			}
 		case businessconfig.FieldStatus:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -231,7 +239,7 @@ func (bc *BusinessConfig) String() string {
 	builder.WriteString(fmt.Sprintf("%v", bc.MerchantID))
 	builder.WriteString(", ")
 	builder.WriteString("store_id=")
-	builder.WriteString(fmt.Sprintf("%v", bc.StoreID))
+	builder.WriteString(bc.StoreID)
 	builder.WriteString(", ")
 	builder.WriteString("group=")
 	builder.WriteString(fmt.Sprintf("%v", bc.Group))
@@ -256,6 +264,9 @@ func (bc *BusinessConfig) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_default=")
 	builder.WriteString(fmt.Sprintf("%v", bc.IsDefault))
+	builder.WriteString(", ")
+	builder.WriteString("modify_status=")
+	builder.WriteString(fmt.Sprintf("%v", bc.ModifyStatus))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", bc.Status))

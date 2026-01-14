@@ -38,46 +38,46 @@ func (m *MockTaxFeeInteractor) EXPECT() *MockTaxFeeInteractorMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockTaxFeeInteractor) Create(arg0 context.Context, arg1 *domain.TaxFee) error {
+func (m *MockTaxFeeInteractor) Create(arg0 context.Context, arg1 *domain.TaxFee, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockTaxFeeInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTaxFeeInteractorMockRecorder) Create(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTaxFeeInteractor)(nil).Create), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTaxFeeInteractor)(nil).Create), arg0, arg1, arg2)
 }
 
 // Delete mocks base method.
-func (m *MockTaxFeeInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockTaxFeeInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockTaxFeeInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTaxFeeInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTaxFeeInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTaxFeeInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // GetTaxFee mocks base method.
-func (m *MockTaxFeeInteractor) GetTaxFee(arg0 context.Context, arg1 uuid.UUID) (*domain.TaxFee, error) {
+func (m *MockTaxFeeInteractor) GetTaxFee(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.TaxFee, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTaxFee", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetTaxFee", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.TaxFee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTaxFee indicates an expected call of GetTaxFee.
-func (mr *MockTaxFeeInteractorMockRecorder) GetTaxFee(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTaxFeeInteractorMockRecorder) GetTaxFee(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaxFee", reflect.TypeOf((*MockTaxFeeInteractor)(nil).GetTaxFee), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaxFee", reflect.TypeOf((*MockTaxFeeInteractor)(nil).GetTaxFee), arg0, arg1, arg2)
 }
 
 // GetTaxFees mocks base method.
@@ -102,29 +102,29 @@ func (mr *MockTaxFeeInteractorMockRecorder) GetTaxFees(arg0, arg1, arg2 interfac
 }
 
 // TaxFeeSimpleUpdate mocks base method.
-func (m *MockTaxFeeInteractor) TaxFeeSimpleUpdate(arg0 context.Context, arg1 domain.TaxFeeSimpleUpdateField, arg2 *domain.TaxFee) error {
+func (m *MockTaxFeeInteractor) TaxFeeSimpleUpdate(arg0 context.Context, arg1 domain.TaxFeeSimpleUpdateField, arg2 *domain.TaxFee, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TaxFeeSimpleUpdate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "TaxFeeSimpleUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // TaxFeeSimpleUpdate indicates an expected call of TaxFeeSimpleUpdate.
-func (mr *MockTaxFeeInteractorMockRecorder) TaxFeeSimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockTaxFeeInteractorMockRecorder) TaxFeeSimpleUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TaxFeeSimpleUpdate", reflect.TypeOf((*MockTaxFeeInteractor)(nil).TaxFeeSimpleUpdate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TaxFeeSimpleUpdate", reflect.TypeOf((*MockTaxFeeInteractor)(nil).TaxFeeSimpleUpdate), arg0, arg1, arg2, arg3)
 }
 
 // Update mocks base method.
-func (m *MockTaxFeeInteractor) Update(arg0 context.Context, arg1 *domain.TaxFee) error {
+func (m *MockTaxFeeInteractor) Update(arg0 context.Context, arg1 *domain.TaxFee, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockTaxFeeInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTaxFeeInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTaxFeeInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTaxFeeInteractor)(nil).Update), arg0, arg1, arg2)
 }

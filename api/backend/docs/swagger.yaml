@@ -209,6 +209,9 @@ definitions:
       merchant_id:
         description: 品牌商ID
         type: string
+      modify_status:
+        description: '下发后是否可以进行修改: true-可以, false-不可以'
+        type: boolean
       name:
         description: 参数名称
         type: string
@@ -259,11 +262,23 @@ definitions:
     - BusinessConfigConfigTypeBool
   domain.BusinessConfigGroup:
     enum:
+    - order
+    - payment
+    - kitchen
+    - refund
     - print
     type: string
     x-enum-comments:
-      BusinessConfigGroupPrint: print
+      BusinessConfigGroupKitchen: 后厨设置
+      BusinessConfigGroupOrder: 点餐设置
+      BusinessConfigGroupPayment: 收单设置
+      BusinessConfigGroupPrint: 退款设置
+      BusinessConfigGroupRefund: 退款设置
     x-enum-varnames:
+    - BusinessConfigGroupOrder
+    - BusinessConfigGroupPayment
+    - BusinessConfigGroupKitchen
+    - BusinessConfigGroupRefund
     - BusinessConfigGroupPrint
   domain.BusinessConfigSearchRes:
     properties:
@@ -271,15 +286,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.BusinessConfig'
         type: array
-      page:
-        description: 页码
-        type: integer
-      size:
-        description: 每页数量
-        type: integer
-      total:
-        description: 总页数
-        type: integer
     type: object
   domain.BusinessHour:
     properties:
@@ -2135,16 +2141,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -2545,8 +2551,22 @@ definitions:
     - 4
     - 5
     - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
     type: integer
     x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -2860,7 +2880,11 @@ definitions:
         description: 记录ID列表
         items:
           type: string
+        minItems: 1
         type: array
+      modify_status:
+        description: '下发后是否可以进行修改: true-可以, false-不可以'
+        type: boolean
       store_ids:
         description: 门店ID列表（必选，多选）
         items:
@@ -2869,6 +2893,7 @@ definitions:
         type: array
     required:
     - ids
+    - modify_status
     - store_ids
     type: object
   types.BusinessConfigUpsertReq:
@@ -5039,13 +5064,25 @@ paths:
       parameters:
       - description: 配置分组
         enum:
+        - order
+        - payment
+        - kitchen
+        - refund
         - print
         in: query
         name: group
         type: string
         x-enum-comments:
-          BusinessConfigGroupPrint: print
+          BusinessConfigGroupKitchen: 后厨设置
+          BusinessConfigGroupOrder: 点餐设置
+          BusinessConfigGroupPayment: 收单设置
+          BusinessConfigGroupPrint: 退款设置
+          BusinessConfigGroupRefund: 退款设置
         x-enum-varnames:
+        - BusinessConfigGroupOrder
+        - BusinessConfigGroupPayment
+        - BusinessConfigGroupKitchen
+        - BusinessConfigGroupRefund
         - BusinessConfigGroupPrint
       - description: 设置名称（模糊匹配）
         in: query
