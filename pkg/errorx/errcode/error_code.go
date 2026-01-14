@@ -74,7 +74,7 @@ const (
 	DeviceCodeExists ErrCode = "DEVICE_CODE_EXISTS" // 设备编号已存在
 
 	// 税费与附加费
-	AdditinalFeeNotExists    ErrCode = "ADDITIONAL_FEE_NOT_EXISTS"    // 附加费不存在
+	AdditionalFeeNotExists   ErrCode = "ADDITIONAL_FEE_NOT_EXISTS"    // 附加费不存在
 	AdditionalFeeNameExists  ErrCode = "ADDITIONAL_NAME_EXISTS"       // 附加费费名称已存在
 	TaxFeeNotExists          ErrCode = "TAX_FEE_NOT_EXISTS"           // 税费不存在
 	TaxFeeNameExists         ErrCode = "TAX_FEE_NAME_EXISTS"          // 税费名称已存在

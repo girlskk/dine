@@ -274,7 +274,7 @@ func (h *DeviceHandler) List() gin.HandlerFunc {
 			}
 			filter.StoreID = pid
 		}
-		devices, total, err := h.DeviceInteractor.GetDevices(ctx, pager, filter, domain.NewDeviceOrderByCreatedAt(true))
+		devices, total, err := h.DeviceInteractor.GetDevices(ctx, pager, filter)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))

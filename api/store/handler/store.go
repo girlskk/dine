@@ -224,8 +224,8 @@ func (h *StoreHandler) checkErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.StoreShiftTimeTimeInvalid, err)
 	case errors.Is(err, domain.ErrStoreShiftTimeNameExists):
 		return errorx.New(http.StatusBadRequest, errcode.StoreShiftTimeNameExists, err)
-	case domain.IsConflict(err):
-		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
 	case domain.IsParamsError(err):
 		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
 	default:

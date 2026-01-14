@@ -274,7 +274,7 @@ func convertDeviceToDomain(es *ent.Device) (d *domain.Device) {
 		UpdatedAt:              es.UpdatedAt,
 	}
 	if es.Edges.Store != nil {
-		d.StoreName = es.Edges.Store.StoreName
+		d.Store = convertStore(es.Edges.Store)
 	}
 	return d
 }

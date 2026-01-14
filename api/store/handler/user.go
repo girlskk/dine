@@ -131,7 +131,7 @@ func (h *UserHandler) Logout() gin.HandlerFunc {
 //	@Tags		用户管理
 //	@Security	BearerAuth
 //	@Summary	获取当前用户信息
-
+//
 // @Produce	json
 // @Success	200	{object}	domain.StoreUser	"成功"
 // @Router		/user/info [post]
@@ -145,7 +145,13 @@ func (h *UserHandler) Info() gin.HandlerFunc {
 		c.Request = c.Request.Clone(ctx)
 
 		user := domain.FromStoreUserContext(ctx)
-		response.Ok(c, user)
+
+		userDetail, err := h.UserInteractor.GetUser(ctx, user.ID)
+		if err != nil {
+			c.Error(h.checkErr(err))
+			return
+		}
+		response.Ok(c, userDetail)
 	}
 }
 

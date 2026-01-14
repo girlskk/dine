@@ -37,8 +37,11 @@ func (t *Tenant) Middleware() gin.HandlerFunc {
 
 		storeID, err := uuid.Parse(storeIDStr)
 		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
+			// 解析store ID失败时，检查是否允许 store_id 为空，不影响正常请求
+			if !isStoreIDOptional(c.FullPath()) {
+				c.AbortWithStatus(http.StatusBadRequest)
+				return
+			}
 		}
 
 		user := &domain.FrontendUser{
@@ -52,4 +55,14 @@ func (t *Tenant) Middleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// 检查 full path 是否在允许 store_id 为空的白名单中
+func isStoreIDOptional(fullPath string) bool {
+	optionalPaths := map[string]struct{}{
+		"/store/list": {}, // 获取门店列表接口路由
+	}
+
+	_, exists := optionalPaths[fullPath]
+	return exists
 }

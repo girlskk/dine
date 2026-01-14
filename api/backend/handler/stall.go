@@ -224,7 +224,7 @@ func (h *StallHandler) List() gin.HandlerFunc {
 			Name:       req.Name,
 		}
 
-		stalls, total, err := h.StallInteractor.GetStalls(ctx, pager, filter, domain.NewStallOrderByCreatedAt(true))
+		stalls, total, err := h.StallInteractor.GetStalls(ctx, pager, filter)
 		if err != nil {
 			err = fmt.Errorf("failed to get stalls: %w", err)
 			c.Error(err)
@@ -260,7 +260,9 @@ func (h *StallHandler) Enable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		stall := &domain.Stall{ID: id, Enabled: true}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user); err != nil {
+
+		err = h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -294,7 +296,8 @@ func (h *StallHandler) Disable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		stall := &domain.Stall{ID: id, Enabled: false}
-		if err := h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user); err != nil {
+		err = h.StallInteractor.StallSimpleUpdate(ctx, domain.StallSimpleUpdateFieldEnabled, stall, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}

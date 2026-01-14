@@ -127,12 +127,14 @@ type DeviceConnectType string
 const (
 	DeviceConnectTypeInside  DeviceConnectType = "inside"  // 内置
 	DeviceConnectTypeOutside DeviceConnectType = "outside" // 外置
+	DeviceConnectTypeNetWork DeviceConnectType = "network" // 网络
 )
 
 func (DeviceConnectType) Values() []string {
 	return []string{
 		string(DeviceConnectTypeInside),
 		string(DeviceConnectTypeOutside),
+		string(DeviceConnectTypeNetWork),
 	}
 }
 
@@ -141,7 +143,6 @@ type Device struct {
 	ID                     uuid.UUID              `json:"id"`                        // 设备 ID
 	MerchantID             uuid.UUID              `json:"merchant_id"`               // 所属商户 ID
 	StoreID                uuid.UUID              `json:"store_id"`                  // 所属门店 ID
-	StoreName              string                 `json:"store_name"`                // 门店名称
 	Name                   string                 `json:"name"`                      // 设备名称
 	DeviceType             DeviceType             `json:"device_type"`               // 设备类型
 	DeviceCode             string                 `json:"device_code"`               // 设备编号/序列号
@@ -163,6 +164,8 @@ type Device struct {
 	SortOrder              int                    `json:"sort_order"`                // 排序
 	CreatedAt              time.Time              `json:"created_at"`                // 创建时间
 	UpdatedAt              time.Time              `json:"updated_at"`                // 更新时间
+
+	Store *Store `json:"store,omitempty"` // 所属门店
 }
 
 // DeviceExistsParams 存在性检查参数

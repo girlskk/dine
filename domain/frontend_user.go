@@ -22,6 +22,16 @@ func (u *FrontendUser) GetStoreID() uuid.UUID {
 	return u.StoreID
 }
 
+// GetUserID 实现 User 接口
+func (u *FrontendUser) GetUserID() uuid.UUID {
+	return uuid.Nil
+}
+
+// GetUserType 实现 User 接口
+func (u *FrontendUser) GetUserType() UserType {
+	return UserTypeFrontend
+}
+
 type (
 	frontendUserKey struct{}
 )

@@ -431,6 +431,7 @@ func verifyStoreOwnership(user domain.User, store *domain.Store) error {
 		if !domain.VerifyOwnerShip(user, store.MerchantID, store.ID) {
 			return domain.ErrStoreNotExists
 		}
+	case domain.UserTypeFrontend:
 	}
 
 	return nil

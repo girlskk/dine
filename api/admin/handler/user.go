@@ -416,11 +416,11 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, domain.AdminUserSimpleUpdateParams{
+		params := domain.AdminUserSimpleUpdateParams{
 			ID:      id,
 			Enabled: true,
-		})
+		}
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -454,10 +454,11 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, domain.AdminUserSimpleUpdateParams{
+		params := domain.AdminUserSimpleUpdateParams{
 			ID:      id,
-			Enabled: false,
-		})
+			Enabled: true,
+		}
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -496,16 +497,16 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldPassword, domain.AdminUserSimpleUpdateParams{
+		params := domain.AdminUserSimpleUpdateParams{
 			ID:       id,
 			Password: req.NewPassword,
-		})
+		}
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldPassword, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
-
+		
 		response.Ok(c, nil)
 	}
 }
