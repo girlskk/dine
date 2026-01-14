@@ -71,7 +71,6 @@ var Module = fx.Module(
 		asHandler(handler.NewOssHandler),
 		asHandler(handler.NewBusinessConfigHandler),
 		asHandler(handler.NewRouterMenuHandler),
-		asHandler(handler.NewOrderHandler),
 	),
 )
 
