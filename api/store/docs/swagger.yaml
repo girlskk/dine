@@ -456,11 +456,12 @@ definitions:
       sort_order:
         description: 排序
         type: integer
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 出品部门 ID
-        type: string
-      stall_name:
-        description: 出品部门名称
         type: string
       status:
         allOf:
@@ -717,6 +718,74 @@ definitions:
         description: 总页数
         type: integer
     type: object
+  domain.Merchant:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/domain.Address'
+        description: 地址
+      admin_phone_number:
+        description: 管理员手机号
+        type: string
+      brand_name:
+        description: 品牌名称
+        type: string
+      business_type_code:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessType'
+        description: 业态类型
+      created_at:
+        type: string
+      description:
+        description: 商户描述(保留字段)
+        type: string
+      expire_utc:
+        description: UTC 时区的过期时间
+        type: string
+      id:
+        type: string
+      login_account:
+        description: 登录账号
+        type: string
+      login_password:
+        description: 登录密码(加密存储)
+        type: string
+      merchant_code:
+        description: 商户编号(保留字段)
+        type: string
+      merchant_logo:
+        description: logo 图片地址
+        type: string
+      merchant_name:
+        description: 商户名称,最长不得超过50个字
+        type: string
+      merchant_short_name:
+        description: 商户简称
+        type: string
+      merchant_type:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantType'
+        description: '商户类型: 品牌商户,门店商户'
+      purchase_duration:
+        description: 购买时长
+        type: integer
+      purchase_duration_unit:
+        allOf:
+        - $ref: '#/definitions/domain.PurchaseDurationUnit'
+        description: 购买时长单位
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantStatus'
+        description: '状态: 正常,停用,过期'
+      store_count:
+        description: 关联门店数量(仅品牌商户有效)
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - purchase_duration
+    - purchase_duration_unit
+    type: object
   domain.MerchantSimple:
     properties:
       id:
@@ -725,6 +794,31 @@ definitions:
         description: 商户名称
         type: string
     type: object
+  domain.MerchantStatus:
+    enum:
+    - active
+    - expired
+    - disabled
+    type: string
+    x-enum-comments:
+      MerchantStatusActive: 已激活
+      MerchantStatusDisabled: 已禁用
+      MerchantStatusExpired: 已过期
+    x-enum-varnames:
+    - MerchantStatusActive
+    - MerchantStatusExpired
+    - MerchantStatusDisabled
+  domain.MerchantType:
+    enum:
+    - brand
+    - store
+    type: string
+    x-enum-comments:
+      MerchantTypeBrand: 品牌商户
+      MerchantTypeStore: 门店商户
+    x-enum-varnames:
+    - MerchantTypeBrand
+    - MerchantTypeStore
   domain.ObjectStorageScene:
     enum:
     - merchant
@@ -2065,6 +2159,23 @@ definitions:
     - ProvinceSG03
     - ProvinceSG04
     - ProvinceSG05
+  domain.PurchaseDurationUnit:
+    enum:
+    - day
+    - month
+    - year
+    - week
+    type: string
+    x-enum-comments:
+      PurchaseDurationUnitDay: 日
+      PurchaseDurationUnitMonth: 月
+      PurchaseDurationUnitWeek: 周
+      PurchaseDurationUnitYear: 年
+    x-enum-varnames:
+    - PurchaseDurationUnitDay
+    - PurchaseDurationUnitMonth
+    - PurchaseDurationUnitYear
+    - PurchaseDurationUnitWeek
   domain.Remark:
     properties:
       created_at:
@@ -2283,16 +2394,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -2498,11 +2609,12 @@ definitions:
       login_password:
         description: 登录密码(加密存储)
         type: string
+      merchant:
+        allOf:
+        - $ref: '#/definitions/domain.Merchant'
+        description: 关联商户信息
       merchant_id:
         description: 商户 ID
-        type: string
-      merchant_name:
-        description: 商户名称
         type: string
       shift_times:
         description: 班次时间
@@ -3014,8 +3126,11 @@ definitions:
   types.DepartmentCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
+        maxLength: 50
         type: string
     required:
     - name
@@ -3023,17 +3138,22 @@ definitions:
   types.DepartmentListResp:
     properties:
       departments:
+        description: 部门列表
         items:
           $ref: '#/definitions/domain.Department'
         type: array
       total:
+        description: 部门总数
         type: integer
     type: object
   types.DepartmentUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
+        maxLength: 50
         type: string
     required:
     - name
@@ -3939,6 +4059,7 @@ definitions:
   types.RoleCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       login_channels:
         description: 角色登录渠道pos/mobile/store
@@ -3946,6 +4067,7 @@ definitions:
           $ref: '#/definitions/domain.LoginChannel'
         type: array
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -3963,6 +4085,7 @@ definitions:
   types.RoleMenusResp:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -3970,6 +4093,7 @@ definitions:
   types.RoleUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       login_channels:
         description: 角色登录渠道pos/mobile/store
@@ -3977,6 +4101,7 @@ definitions:
           $ref: '#/definitions/domain.LoginChannel'
         type: array
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -4279,6 +4404,7 @@ definitions:
   types.SetMenusReq:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -4829,13 +4955,16 @@ paths:
       - application/json
       description: 分页查询门店部门
       parameters:
-      - in: query
+      - description: 部门编码
+        in: query
         name: code
         type: string
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 部门名称
+        in: query
         name: name
         type: string
       - description: 页码
@@ -4996,10 +5125,12 @@ paths:
       - application/json
       description: 分页查询门店角色
       parameters:
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 角色名称
+        in: query
         name: name
         type: string
       - description: 页码

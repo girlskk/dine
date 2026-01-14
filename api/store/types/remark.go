@@ -6,8 +6,6 @@ import (
 )
 
 // RemarkCreateReq 创建备注请求
-// 名称、分类、类型为必填；排序为可选；Enabled 默认 true
-// MerchantID 从登录用户上下文取；StoreID 由前端传入（按需）
 type RemarkCreateReq struct {
 	Name        string             `json:"name" binding:"required,max=255"`                                                                         // 备注名称
 	Enabled     bool               `json:"enabled"`                                                                                                 // 是否启用

@@ -36,16 +36,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "部门编码",
                         "name": "code",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
+                        "description": "启用状态",
                         "name": "enabled",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "部门名称",
                         "name": "name",
                         "in": "query"
                     },
@@ -305,11 +308,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "boolean",
+                        "description": "启用状态",
                         "name": "enabled",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "角色名称",
                         "name": "name",
                         "in": "query"
                     },
@@ -2282,7 +2287,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -2960,12 +2965,16 @@ const docTemplate = `{
                     "description": "登录密码(加密存储)",
                     "type": "string"
                 },
+                "merchant": {
+                    "description": "关联商户信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Merchant"
+                        }
+                    ]
+                },
                 "merchant_id": {
                     "description": "商户 ID",
-                    "type": "string"
-                },
-                "merchant_name": {
-                    "description": "商户名称",
                     "type": "string"
                 },
                 "shift_times": {
@@ -3058,27 +3067,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.Address": {
             "type": "object",
@@ -3636,9 +3624,11 @@ const docTemplate = `{
             ],
             "properties": {
                 "enabled": {
+                    "description": "是否启用",
                     "type": "boolean"
                 },
                 "name": {
+                    "description": "部门名称",
                     "type": "string",
                     "maxLength": 50
                 }
@@ -3648,12 +3638,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "departments": {
+                    "description": "部门列表",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Department"
                     }
                 },
                 "total": {
+                    "description": "部门总数",
                     "type": "integer"
                 }
             }
@@ -3665,9 +3657,11 @@ const docTemplate = `{
             ],
             "properties": {
                 "enabled": {
+                    "description": "是否启用",
                     "type": "boolean"
                 },
                 "name": {
+                    "description": "部门名称",
                     "type": "string",
                     "maxLength": 50
                 }
@@ -3862,9 +3856,11 @@ const docTemplate = `{
             ],
             "properties": {
                 "enabled": {
+                    "description": "是否启用",
                     "type": "boolean"
                 },
                 "name": {
+                    "description": "角色名称",
                     "type": "string",
                     "maxLength": 50
                 }
@@ -3888,6 +3884,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "paths": {
+                    "description": "菜单路径列表",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -3902,9 +3899,11 @@ const docTemplate = `{
             ],
             "properties": {
                 "enabled": {
+                    "description": "是否启用",
                     "type": "boolean"
                 },
                 "name": {
+                    "description": "角色名称",
                     "type": "string",
                     "maxLength": 50
                 }
@@ -3931,6 +3930,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "paths": {
+                    "description": "菜单路径列表",
                     "type": "array",
                     "items": {
                         "type": "string"
