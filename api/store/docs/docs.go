@@ -4695,7 +4695,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -6650,10 +6650,6 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "remark_scene_name": {
-                    "description": "使用场景：整单备注/单品备注/退菜原因等",
-                    "type": "string"
-                },
                 "remark_type": {
                     "description": "备注类型：系统/品牌",
                     "allOf": [
@@ -6916,16 +6912,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "PaymentMethodDisplayChannelPOS",
-                "PaymentMethodDisplayChannelMobileOrdering",
-                "PaymentMethodDisplayChannelScanOrdering",
-                "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery",
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",
                 "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery"
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -7456,14 +7452,17 @@ const docTemplate = `{
         "domain.TaxFeeType": {
             "type": "string",
             "enum": [
+                "system",
                 "merchant",
                 "store"
             ],
             "x-enum-comments": {
                 "TaxFeeTypeMerchant": "商户",
-                "TaxFeeTypeStore": "门店"
+                "TaxFeeTypeStore": "门店",
+                "TaxFeeTypeSystem": "系统内置"
             },
             "x-enum-varnames": [
+                "TaxFeeTypeSystem",
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
             ]
@@ -7512,6 +7511,41 @@ const docTemplate = `{
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.AccountListResp": {
             "type": "object",

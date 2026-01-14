@@ -2102,7 +2102,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeInt64, Default: 0},
 		{Name: "name", Type: field.TypeString, Size: 50},
-		{Name: "tax_fee_type", Type: field.TypeEnum, Enums: []string{"merchant", "store"}},
+		{Name: "tax_fee_type", Type: field.TypeEnum, Enums: []string{"system", "merchant", "store"}},
 		{Name: "tax_code", Type: field.TypeString, Size: 50},
 		{Name: "tax_rate_type", Type: field.TypeEnum, Enums: []string{"unified", "custom"}, Default: "unified"},
 		{Name: "tax_rate", Type: field.TypeOther, SchemaType: map[string]string{"mysql": "DECIMAL(19,4)", "sqlite3": "NUMERIC"}},

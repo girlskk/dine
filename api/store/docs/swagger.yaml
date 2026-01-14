@@ -238,7 +238,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          type: integer
+          $ref: '#/definitions/time.Weekday'
         type: array
     type: object
   domain.BusinessModel:
@@ -1630,9 +1630,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.RemarkScene'
         description: 使用场景：整单备注/单品备注/退菜原因等
-      remark_scene_name:
-        description: 使用场景：整单备注/单品备注/退菜原因等
-        type: string
       remark_type:
         allOf:
         - $ref: '#/definitions/domain.RemarkType'
@@ -1830,16 +1827,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - PaymentMethodDisplayChannelPOS
-    - PaymentMethodDisplayChannelMobileOrdering
-    - PaymentMethodDisplayChannelScanOrdering
-    - PaymentMethodDisplayChannelSelfService
-    - PaymentMethodDisplayChannelThirdPartyDelivery
     - SaleChannelPOS
     - SaleChannelMobileOrdering
     - SaleChannelScanOrdering
     - SaleChannelSelfService
     - SaleChannelThirdPartyDelivery
+    - PaymentMethodDisplayChannelPOS
+    - PaymentMethodDisplayChannelMobileOrdering
+    - PaymentMethodDisplayChannelScanOrdering
+    - PaymentMethodDisplayChannelSelfService
+    - PaymentMethodDisplayChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -2198,13 +2195,16 @@ definitions:
     type: object
   domain.TaxFeeType:
     enum:
+    - system
     - merchant
     - store
     type: string
     x-enum-comments:
       TaxFeeTypeMerchant: 商户
       TaxFeeTypeStore: 门店
+      TaxFeeTypeSystem: 系统内置
     x-enum-varnames:
+    - TaxFeeTypeSystem
     - TaxFeeTypeMerchant
     - TaxFeeTypeStore
   domain.TaxRateType:
@@ -2241,6 +2241,38 @@ definitions:
         type: string
       data: {}
     type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   types.AccountListResp:
     properties:
       total:

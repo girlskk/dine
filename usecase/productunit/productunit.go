@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -59,7 +60,21 @@ func (i *ProductUnitInteractor) PagedListBySearch(ctx context.Context,
 		util.SpanErrFinish(span, err)
 	}()
 
-	return i.DS.ProductUnitRepo().PagedListBySearch(ctx, page, params)
+	units, err := i.DS.ProductUnitRepo().PagedListBySearch(ctx, page, params)
+	if err != nil {
+		return nil, err
+	}
+	unitIDs := lo.Map(units.Items, func(unit *domain.ProductUnit, _ int) uuid.UUID {
+		return unit.ID
+	})
+	productCountMap, err := i.DS.ProductRepo().CountByUnitIDs(ctx, unitIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, unit := range units.Items {
+		unit.ProductCount = productCountMap[unit.ID]
+	}
+	return units, nil
 }
 
 func (i *ProductUnitInteractor) Update(ctx context.Context, unit *domain.ProductUnit, user domain.User) (err error) {

@@ -220,9 +220,14 @@ func (repo *MenuRepository) Exists(ctx context.Context, params domain.MenuExists
 		Where(menu.MerchantID(params.MerchantID)).
 		Where(menu.StoreID(params.StoreID))
 
+	if params.Name != "" {
+		query.Where(menu.NameContains(params.Name))
+	}
+
 	if params.ExcludeID != uuid.Nil {
 		query.Where(menu.IDNEQ(params.ExcludeID))
 	}
+
 	return query.Exist(ctx)
 }
 
@@ -237,6 +242,7 @@ func (repo *MenuRepository) PagedListMerchantMenusBySearch(
 	}()
 	query := repo.Client.Menu.Query().Where(
 		menu.MerchantID(params.MerchantID),
+		menu.StoreID(uuid.Nil),
 	)
 
 	// 可选条件：门店ID
@@ -399,4 +405,74 @@ func convertMenuToDomain(em *ent.Menu) *domain.Menu {
 	}
 
 	return m
+}
+
+func (repo *MenuRepository) ListAllStoreMenus(
+	ctx context.Context,
+	params domain.MenuListAllParams,
+) (res domain.Menus, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MenuRepository.ListAllStoreMenus")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Menu.Query().Where(
+		menu.MerchantID(params.MerchantID),
+	)
+
+	// 使用 OR 查询：品牌商级别的菜单（关联了该门店） OR 门店级别的菜单
+	// 1. 品牌商级别的菜单（StoreID == uuid.Nil）并且关联了该门店
+	// 2. 门店级别的菜单（StoreID == params.StoreID）
+	query.Where(menu.Or(
+		// 品牌商级别的菜单，且关联了该门店
+		menu.And(
+			menu.StoreIDEQ(uuid.Nil),
+			menu.HasStoresWith(store.IDEQ(params.StoreID)),
+		),
+		// 门店级别的菜单
+		menu.StoreIDEQ(params.StoreID),
+	))
+
+	// 加载菜单项和商品的完整信息
+	query = query.
+		WithItems(func(query *ent.MenuItemQuery) {
+			query.WithProduct(func(query *ent.ProductQuery) {
+				// 加载单位
+				query.WithUnit()
+				// 加载标签
+				query.WithTags()
+				// 加载规格关系（包含规格和包装费）
+				query.WithProductSpecs(func(query *ent.ProductSpecRelationQuery) {
+					query.WithSpec()
+					query.WithPackingFee()
+				})
+				// 加载属性关系（包含属性组和属性项）
+				query.WithProductAttrs(
+					func(query *ent.ProductAttrRelationQuery) {
+						query.WithAttr()
+					},
+					func(query *ent.ProductAttrRelationQuery) {
+						query.WithAttrItem()
+					},
+				)
+				// 加载套餐组（包含套餐明细）
+				query.WithSetMealGroups(func(query *ent.SetMealGroupQuery) {
+					query.WithDetails()
+				})
+			})
+		})
+
+	// 按创建时间倒序排列
+	entMenus, err := query.Order(ent.Desc(menu.FieldCreatedAt)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.Menus, 0, len(entMenus))
+	for _, m := range entMenus {
+		menuDomain := convertMenuToDomain(m)
+		items = append(items, menuDomain)
+	}
+
+	return items, nil
 }

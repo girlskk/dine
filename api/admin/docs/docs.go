@@ -817,6 +817,10 @@ const docTemplate = `{
                             "MerchantTypeBrand": "品牌商户",
                             "MerchantTypeStore": "门店商户"
                         },
+                        "x-enum-descriptions": [
+                            "品牌商户",
+                            "门店商户"
+                        ],
                         "x-enum-varnames": [
                             "MerchantTypeBrand",
                             "MerchantTypeStore"
@@ -879,6 +883,29 @@ const docTemplate = `{
                             "ProvinceSG04": "东南社区发展理事会",
                             "ProvinceSG05": "西南社区发展理事会"
                         },
+                        "x-enum-descriptions": [
+                            "柔佛州",
+                            "吉打州",
+                            "吉兰丹州",
+                            "马六甲州",
+                            "森美兰州",
+                            "彭亨州",
+                            "槟城州",
+                            "霹雳州",
+                            "玻璃市州",
+                            "雪兰莪州",
+                            "登嘉楼州",
+                            "沙巴州",
+                            "砂拉越州",
+                            "吉隆坡联邦直辖区",
+                            "纳闽联邦直辖区",
+                            "布城联邦直辖区",
+                            "中区社区发展理事会",
+                            "东北社区发展理事会",
+                            "西北社区发展理事会",
+                            "东南社区发展理事会",
+                            "西南社区发展理事会"
+                        ],
                         "x-enum-varnames": [
                             "ProvinceMY01",
                             "ProvinceMY02",
@@ -924,6 +951,11 @@ const docTemplate = `{
                             "MerchantStatusDisabled": "已禁用",
                             "MerchantStatusExpired": "已过期"
                         },
+                        "x-enum-descriptions": [
+                            "已激活",
+                            "已过期",
+                            "已禁用"
+                        ],
                         "x-enum-varnames": [
                             "MerchantStatusActive",
                             "MerchantStatusExpired",
@@ -1282,6 +1314,10 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
+                        "x-enum-descriptions": [
+                            "直营",
+                            "加盟"
+                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -1306,6 +1342,13 @@ const docTemplate = `{
                             "BusinessTypeNoodle": "面馆",
                             "BusinessTypeSnack": "小吃"
                         },
+                        "x-enum-descriptions": [
+                            "面馆",
+                            "烘焙",
+                            "小吃",
+                            "饮品",
+                            "中餐"
+                        ],
                         "x-enum-varnames": [
                             "BusinessTypeNoodle",
                             "BusinessTypeBakery",
@@ -1389,6 +1432,29 @@ const docTemplate = `{
                             "ProvinceSG04": "东南社区发展理事会",
                             "ProvinceSG05": "西南社区发展理事会"
                         },
+                        "x-enum-descriptions": [
+                            "柔佛州",
+                            "吉打州",
+                            "吉兰丹州",
+                            "马六甲州",
+                            "森美兰州",
+                            "彭亨州",
+                            "槟城州",
+                            "霹雳州",
+                            "玻璃市州",
+                            "雪兰莪州",
+                            "登嘉楼州",
+                            "沙巴州",
+                            "砂拉越州",
+                            "吉隆坡联邦直辖区",
+                            "纳闽联邦直辖区",
+                            "布城联邦直辖区",
+                            "中区社区发展理事会",
+                            "东北社区发展理事会",
+                            "西北社区发展理事会",
+                            "东南社区发展理事会",
+                            "西南社区发展理事会"
+                        ],
                         "x-enum-varnames": [
                             "ProvinceMY01",
                             "ProvinceMY02",
@@ -1432,6 +1498,10 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
+                        "x-enum-descriptions": [
+                            "营业",
+                            "停业"
+                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -1745,6 +1815,12 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -2297,6 +2373,10 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
+            "x-enum-descriptions": [
+                "直营",
+                "加盟"
+            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -2318,6 +2398,13 @@ const docTemplate = `{
                 "BusinessTypeNoodle": "面馆",
                 "BusinessTypeSnack": "小吃"
             },
+            "x-enum-descriptions": [
+                "面馆",
+                "烘焙",
+                "小吃",
+                "饮品",
+                "中餐"
+            ],
             "x-enum-varnames": [
                 "BusinessTypeNoodle",
                 "BusinessTypeBakery",
@@ -2413,6 +2500,12 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -2432,6 +2525,11 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -2556,6 +2654,11 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
+            "x-enum-descriptions": [
+                "已激活",
+                "已过期",
+                "已禁用"
+            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -2572,6 +2675,10 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
+            "x-enum-descriptions": [
+                "品牌商户",
+                "门店商户"
+            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -2589,6 +2696,11 @@ const docTemplate = `{
                 "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店",
+                "商品"
+            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
                 "ObjectStorageSceneStore",
@@ -2643,6 +2755,29 @@ const docTemplate = `{
                 "ProvinceSG04": "东南社区发展理事会",
                 "ProvinceSG05": "西南社区发展理事会"
             },
+            "x-enum-descriptions": [
+                "柔佛州",
+                "吉打州",
+                "吉兰丹州",
+                "马六甲州",
+                "森美兰州",
+                "彭亨州",
+                "槟城州",
+                "霹雳州",
+                "玻璃市州",
+                "雪兰莪州",
+                "登嘉楼州",
+                "沙巴州",
+                "砂拉越州",
+                "吉隆坡联邦直辖区",
+                "纳闽联邦直辖区",
+                "布城联邦直辖区",
+                "中区社区发展理事会",
+                "东北社区发展理事会",
+                "西北社区发展理事会",
+                "东南社区发展理事会",
+                "西南社区发展理事会"
+            ],
             "x-enum-varnames": [
                 "ProvinceMY01",
                 "ProvinceMY02",
@@ -2681,6 +2816,12 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
+            "x-enum-descriptions": [
+                "日",
+                "月",
+                "年",
+                "周"
+            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -2770,6 +2911,14 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -2794,6 +2943,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -3020,6 +3174,10 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
+            "x-enum-descriptions": [
+                "营业",
+                "停业"
+            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -3040,6 +3198,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",

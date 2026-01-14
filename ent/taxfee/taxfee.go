@@ -135,7 +135,7 @@ var (
 // TaxFeeTypeValidator is a validator for the "tax_fee_type" field enum values. It is called by the builders before save.
 func TaxFeeTypeValidator(tft domain.TaxFeeType) error {
 	switch tft {
-	case "merchant", "store":
+	case "system", "merchant", "store":
 		return nil
 	default:
 		return fmt.Errorf("taxfee: invalid enum value for tax_fee_type field: %q", tft)
