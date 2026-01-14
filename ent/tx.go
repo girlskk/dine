@@ -4,6 +4,8 @@ package ent
 
 import (
 	"context"
+	stdsql "database/sql"
+	"fmt"
 	"sync"
 
 	"entgo.io/ent/dialect"
@@ -66,6 +68,10 @@ type Tx struct {
 	ProfitDistributionBill *ProfitDistributionBillClient
 	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
 	ProfitDistributionRule *ProfitDistributionRuleClient
+	// RefundOrder is the client for interacting with the RefundOrder builders.
+	RefundOrder *RefundOrderClient
+	// RefundOrderProduct is the client for interacting with the RefundOrderProduct builders.
+	RefundOrderProduct *RefundOrderProductClient
 	// Remark is the client for interacting with the Remark builders.
 	Remark *RemarkClient
 	// Role is the client for interacting with the Role builders.
@@ -250,6 +256,8 @@ func (tx *Tx) init() {
 	tx.ProductUnit = NewProductUnitClient(tx.config)
 	tx.ProfitDistributionBill = NewProfitDistributionBillClient(tx.config)
 	tx.ProfitDistributionRule = NewProfitDistributionRuleClient(tx.config)
+	tx.RefundOrder = NewRefundOrderClient(tx.config)
+	tx.RefundOrderProduct = NewRefundOrderProductClient(tx.config)
 	tx.Remark = NewRemarkClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.RoleMenu = NewRoleMenuClient(tx.config)
@@ -325,3 +333,27 @@ func (tx *txDriver) Query(ctx context.Context, query string, args, v any) error 
 }
 
 var _ dialect.Driver = (*txDriver)(nil)
+
+// ExecContext allows calling the underlying ExecContext method of the transaction if it is supported by it.
+// See, database/sql#Tx.ExecContext for more information.
+func (tx *txDriver) ExecContext(ctx context.Context, query string, args ...any) (stdsql.Result, error) {
+	ex, ok := tx.tx.(interface {
+		ExecContext(context.Context, string, ...any) (stdsql.Result, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("Tx.ExecContext is not supported")
+	}
+	return ex.ExecContext(ctx, query, args...)
+}
+
+// QueryContext allows calling the underlying QueryContext method of the transaction if it is supported by it.
+// See, database/sql#Tx.QueryContext for more information.
+func (tx *txDriver) QueryContext(ctx context.Context, query string, args ...any) (*stdsql.Rows, error) {
+	q, ok := tx.tx.(interface {
+		QueryContext(context.Context, string, ...any) (*stdsql.Rows, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("Tx.QueryContext is not supported")
+	}
+	return q.QueryContext(ctx, query, args...)
+}

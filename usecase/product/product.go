@@ -227,8 +227,12 @@ func (i *ProductInteractor) validateProductBusinessRules(ctx context.Context, ds
 		specIDs := make([]uuid.UUID, 0, len(product.SpecRelations))
 		packingFeeIDs := make([]uuid.UUID, 0, len(product.SpecRelations))
 		for _, specRel := range product.SpecRelations {
-			specIDs = append(specIDs, specRel.SpecID)
-			packingFeeIDs = append(packingFeeIDs, specRel.PackingFeeID)
+			if specRel.PackingFeeID != uuid.Nil {
+				packingFeeIDs = append(packingFeeIDs, specRel.PackingFeeID)
+			}
+			if specRel.SpecID != uuid.Nil {
+				specIDs = append(specIDs, specRel.SpecID)
+			}
 		}
 		specIDs = lo.Uniq(specIDs)
 		packingFeeIDs = lo.Uniq(packingFeeIDs)
@@ -246,20 +250,23 @@ func (i *ProductInteractor) validateProductBusinessRules(ctx context.Context, ds
 				return domain.ParamsError(domain.ErrProductSpecInvalid)
 			}
 		}
-		// 验证打包费
-		packingFees, err := ds.AdditionalFeeRepo().ListByIDs(ctx, packingFeeIDs)
-		if err != nil {
-			return err
-		}
-		if len(packingFees) != len(packingFeeIDs) {
-			return domain.ParamsErrorf("打包费不存在")
-		}
-		for _, packingFee := range packingFees {
-			if !domain.VerifyOwnerShip(user, packingFee.MerchantID, packingFee.StoreID) {
+
+		// 验证打包费，选填
+		if len(packingFeeIDs) > 0 {
+			packingFees, err := ds.AdditionalFeeRepo().ListByIDs(ctx, packingFeeIDs)
+			if err != nil {
+				return err
+			}
+			if len(packingFees) != len(packingFeeIDs) {
 				return domain.ParamsErrorf("打包费不存在")
 			}
-			if packingFee.FeeCategory != domain.AdditionalCategoryPacking {
-				return domain.ParamsErrorf("打包费类型错误")
+			for _, packingFee := range packingFees {
+				if !domain.VerifyOwnerShip(user, packingFee.MerchantID, packingFee.StoreID) {
+					return domain.ParamsErrorf("打包费不存在")
+				}
+				if packingFee.FeeCategory != domain.AdditionalCategoryPacking {
+					return domain.ParamsErrorf("打包费类型错误")
+				}
 			}
 		}
 	}

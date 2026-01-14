@@ -90,16 +90,16 @@ func (dc *DepartmentCreate) SetDepartmentType(dt domain.DepartmentType) *Departm
 	return dc
 }
 
-// SetEnable sets the "enable" field.
-func (dc *DepartmentCreate) SetEnable(b bool) *DepartmentCreate {
-	dc.mutation.SetEnable(b)
+// SetEnabled sets the "enabled" field.
+func (dc *DepartmentCreate) SetEnabled(b bool) *DepartmentCreate {
+	dc.mutation.SetEnabled(b)
 	return dc
 }
 
-// SetNillableEnable sets the "enable" field if the given value is not nil.
-func (dc *DepartmentCreate) SetNillableEnable(b *bool) *DepartmentCreate {
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (dc *DepartmentCreate) SetNillableEnabled(b *bool) *DepartmentCreate {
 	if b != nil {
-		dc.SetEnable(*b)
+		dc.SetEnabled(*b)
 	}
 	return dc
 }
@@ -256,9 +256,9 @@ func (dc *DepartmentCreate) defaults() error {
 		v := department.DefaultDeletedAt
 		dc.mutation.SetDeletedAt(v)
 	}
-	if _, ok := dc.mutation.Enable(); !ok {
-		v := department.DefaultEnable
-		dc.mutation.SetEnable(v)
+	if _, ok := dc.mutation.Enabled(); !ok {
+		v := department.DefaultEnabled
+		dc.mutation.SetEnabled(v)
 	}
 	if _, ok := dc.mutation.ID(); !ok {
 		if department.DefaultID == nil {
@@ -300,8 +300,8 @@ func (dc *DepartmentCreate) check() error {
 			return &ValidationError{Name: "department_type", err: fmt.Errorf(`ent: validator failed for field "Department.department_type": %w`, err)}
 		}
 	}
-	if _, ok := dc.mutation.Enable(); !ok {
-		return &ValidationError{Name: "enable", err: errors.New(`ent: missing required field "Department.enable"`)}
+	if _, ok := dc.mutation.Enabled(); !ok {
+		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "Department.enabled"`)}
 	}
 	return nil
 }
@@ -363,9 +363,9 @@ func (dc *DepartmentCreate) createSpec() (*Department, *sqlgraph.CreateSpec) {
 		_spec.SetField(department.FieldDepartmentType, field.TypeEnum, value)
 		_node.DepartmentType = value
 	}
-	if value, ok := dc.mutation.Enable(); ok {
-		_spec.SetField(department.FieldEnable, field.TypeBool, value)
-		_node.Enable = value
+	if value, ok := dc.mutation.Enabled(); ok {
+		_spec.SetField(department.FieldEnabled, field.TypeBool, value)
+		_node.Enabled = value
 	}
 	if nodes := dc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -543,15 +543,15 @@ func (u *DepartmentUpsert) UpdateName() *DepartmentUpsert {
 	return u
 }
 
-// SetEnable sets the "enable" field.
-func (u *DepartmentUpsert) SetEnable(v bool) *DepartmentUpsert {
-	u.Set(department.FieldEnable, v)
+// SetEnabled sets the "enabled" field.
+func (u *DepartmentUpsert) SetEnabled(v bool) *DepartmentUpsert {
+	u.Set(department.FieldEnabled, v)
 	return u
 }
 
-// UpdateEnable sets the "enable" field to the value that was provided on create.
-func (u *DepartmentUpsert) UpdateEnable() *DepartmentUpsert {
-	u.SetExcluded(department.FieldEnable)
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *DepartmentUpsert) UpdateEnabled() *DepartmentUpsert {
+	u.SetExcluded(department.FieldEnabled)
 	return u
 }
 
@@ -667,17 +667,17 @@ func (u *DepartmentUpsertOne) UpdateName() *DepartmentUpsertOne {
 	})
 }
 
-// SetEnable sets the "enable" field.
-func (u *DepartmentUpsertOne) SetEnable(v bool) *DepartmentUpsertOne {
+// SetEnabled sets the "enabled" field.
+func (u *DepartmentUpsertOne) SetEnabled(v bool) *DepartmentUpsertOne {
 	return u.Update(func(s *DepartmentUpsert) {
-		s.SetEnable(v)
+		s.SetEnabled(v)
 	})
 }
 
-// UpdateEnable sets the "enable" field to the value that was provided on create.
-func (u *DepartmentUpsertOne) UpdateEnable() *DepartmentUpsertOne {
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *DepartmentUpsertOne) UpdateEnabled() *DepartmentUpsertOne {
 	return u.Update(func(s *DepartmentUpsert) {
-		s.UpdateEnable()
+		s.UpdateEnabled()
 	})
 }
 
@@ -960,17 +960,17 @@ func (u *DepartmentUpsertBulk) UpdateName() *DepartmentUpsertBulk {
 	})
 }
 
-// SetEnable sets the "enable" field.
-func (u *DepartmentUpsertBulk) SetEnable(v bool) *DepartmentUpsertBulk {
+// SetEnabled sets the "enabled" field.
+func (u *DepartmentUpsertBulk) SetEnabled(v bool) *DepartmentUpsertBulk {
 	return u.Update(func(s *DepartmentUpsert) {
-		s.SetEnable(v)
+		s.SetEnabled(v)
 	})
 }
 
-// UpdateEnable sets the "enable" field to the value that was provided on create.
-func (u *DepartmentUpsertBulk) UpdateEnable() *DepartmentUpsertBulk {
+// UpdateEnabled sets the "enabled" field to the value that was provided on create.
+func (u *DepartmentUpsertBulk) UpdateEnabled() *DepartmentUpsertBulk {
 	return u.Update(func(s *DepartmentUpsert) {
-		s.UpdateEnable()
+		s.UpdateEnabled()
 	})
 }
 

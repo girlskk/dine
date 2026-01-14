@@ -96,15 +96,15 @@ func (bcc *BusinessConfigCreate) SetNillableMerchantID(u *uuid.UUID) *BusinessCo
 }
 
 // SetStoreID sets the "store_id" field.
-func (bcc *BusinessConfigCreate) SetStoreID(u uuid.UUID) *BusinessConfigCreate {
-	bcc.mutation.SetStoreID(u)
+func (bcc *BusinessConfigCreate) SetStoreID(s string) *BusinessConfigCreate {
+	bcc.mutation.SetStoreID(s)
 	return bcc
 }
 
 // SetNillableStoreID sets the "store_id" field if the given value is not nil.
-func (bcc *BusinessConfigCreate) SetNillableStoreID(u *uuid.UUID) *BusinessConfigCreate {
-	if u != nil {
-		bcc.SetStoreID(*u)
+func (bcc *BusinessConfigCreate) SetNillableStoreID(s *string) *BusinessConfigCreate {
+	if s != nil {
+		bcc.SetStoreID(*s)
 	}
 	return bcc
 }
@@ -221,6 +221,20 @@ func (bcc *BusinessConfigCreate) SetNillableIsDefault(b *bool) *BusinessConfigCr
 	return bcc
 }
 
+// SetModifyStatus sets the "modify_status" field.
+func (bcc *BusinessConfigCreate) SetModifyStatus(b bool) *BusinessConfigCreate {
+	bcc.mutation.SetModifyStatus(b)
+	return bcc
+}
+
+// SetNillableModifyStatus sets the "modify_status" field if the given value is not nil.
+func (bcc *BusinessConfigCreate) SetNillableModifyStatus(b *bool) *BusinessConfigCreate {
+	if b != nil {
+		bcc.SetModifyStatus(*b)
+	}
+	return bcc
+}
+
 // SetStatus sets the "status" field.
 func (bcc *BusinessConfigCreate) SetStatus(b bool) *BusinessConfigCreate {
 	bcc.mutation.SetStatus(b)
@@ -304,6 +318,10 @@ func (bcc *BusinessConfigCreate) defaults() error {
 		v := businessconfig.DefaultDeletedAt
 		bcc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := bcc.mutation.StoreID(); !ok {
+		v := businessconfig.DefaultStoreID
+		bcc.mutation.SetStoreID(v)
+	}
 	if _, ok := bcc.mutation.Name(); !ok {
 		v := businessconfig.DefaultName
 		bcc.mutation.SetName(v)
@@ -327,6 +345,10 @@ func (bcc *BusinessConfigCreate) defaults() error {
 	if _, ok := bcc.mutation.IsDefault(); !ok {
 		v := businessconfig.DefaultIsDefault
 		bcc.mutation.SetIsDefault(v)
+	}
+	if _, ok := bcc.mutation.ModifyStatus(); !ok {
+		v := businessconfig.DefaultModifyStatus
+		bcc.mutation.SetModifyStatus(v)
 	}
 	if _, ok := bcc.mutation.Status(); !ok {
 		v := businessconfig.DefaultStatus
@@ -353,6 +375,9 @@ func (bcc *BusinessConfigCreate) check() error {
 	if _, ok := bcc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "BusinessConfig.deleted_at"`)}
 	}
+	if _, ok := bcc.mutation.StoreID(); !ok {
+		return &ValidationError{Name: "store_id", err: errors.New(`ent: missing required field "BusinessConfig.store_id"`)}
+	}
 	if v, ok := bcc.mutation.Group(); ok {
 		if err := businessconfig.GroupValidator(v); err != nil {
 			return &ValidationError{Name: "group", err: fmt.Errorf(`ent: validator failed for field "BusinessConfig.group": %w`, err)}
@@ -368,6 +393,9 @@ func (bcc *BusinessConfigCreate) check() error {
 	}
 	if _, ok := bcc.mutation.IsDefault(); !ok {
 		return &ValidationError{Name: "is_default", err: errors.New(`ent: missing required field "BusinessConfig.is_default"`)}
+	}
+	if _, ok := bcc.mutation.ModifyStatus(); !ok {
+		return &ValidationError{Name: "modify_status", err: errors.New(`ent: missing required field "BusinessConfig.modify_status"`)}
 	}
 	if _, ok := bcc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "BusinessConfig.status"`)}
@@ -429,7 +457,7 @@ func (bcc *BusinessConfigCreate) createSpec() (*BusinessConfig, *sqlgraph.Create
 		_node.MerchantID = value
 	}
 	if value, ok := bcc.mutation.StoreID(); ok {
-		_spec.SetField(businessconfig.FieldStoreID, field.TypeUUID, value)
+		_spec.SetField(businessconfig.FieldStoreID, field.TypeString, value)
 		_node.StoreID = value
 	}
 	if value, ok := bcc.mutation.Group(); ok {
@@ -463,6 +491,10 @@ func (bcc *BusinessConfigCreate) createSpec() (*BusinessConfig, *sqlgraph.Create
 	if value, ok := bcc.mutation.IsDefault(); ok {
 		_spec.SetField(businessconfig.FieldIsDefault, field.TypeBool, value)
 		_node.IsDefault = value
+	}
+	if value, ok := bcc.mutation.ModifyStatus(); ok {
+		_spec.SetField(businessconfig.FieldModifyStatus, field.TypeBool, value)
+		_node.ModifyStatus = value
 	}
 	if value, ok := bcc.mutation.Status(); ok {
 		_spec.SetField(businessconfig.FieldStatus, field.TypeBool, value)
@@ -587,7 +619,7 @@ func (u *BusinessConfigUpsert) ClearMerchantID() *BusinessConfigUpsert {
 }
 
 // SetStoreID sets the "store_id" field.
-func (u *BusinessConfigUpsert) SetStoreID(v uuid.UUID) *BusinessConfigUpsert {
+func (u *BusinessConfigUpsert) SetStoreID(v string) *BusinessConfigUpsert {
 	u.Set(businessconfig.FieldStoreID, v)
 	return u
 }
@@ -595,12 +627,6 @@ func (u *BusinessConfigUpsert) SetStoreID(v uuid.UUID) *BusinessConfigUpsert {
 // UpdateStoreID sets the "store_id" field to the value that was provided on create.
 func (u *BusinessConfigUpsert) UpdateStoreID() *BusinessConfigUpsert {
 	u.SetExcluded(businessconfig.FieldStoreID)
-	return u
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (u *BusinessConfigUpsert) ClearStoreID() *BusinessConfigUpsert {
-	u.SetNull(businessconfig.FieldStoreID)
 	return u
 }
 
@@ -739,6 +765,18 @@ func (u *BusinessConfigUpsert) SetIsDefault(v bool) *BusinessConfigUpsert {
 // UpdateIsDefault sets the "is_default" field to the value that was provided on create.
 func (u *BusinessConfigUpsert) UpdateIsDefault() *BusinessConfigUpsert {
 	u.SetExcluded(businessconfig.FieldIsDefault)
+	return u
+}
+
+// SetModifyStatus sets the "modify_status" field.
+func (u *BusinessConfigUpsert) SetModifyStatus(v bool) *BusinessConfigUpsert {
+	u.Set(businessconfig.FieldModifyStatus, v)
+	return u
+}
+
+// UpdateModifyStatus sets the "modify_status" field to the value that was provided on create.
+func (u *BusinessConfigUpsert) UpdateModifyStatus() *BusinessConfigUpsert {
+	u.SetExcluded(businessconfig.FieldModifyStatus)
 	return u
 }
 
@@ -883,7 +921,7 @@ func (u *BusinessConfigUpsertOne) ClearMerchantID() *BusinessConfigUpsertOne {
 }
 
 // SetStoreID sets the "store_id" field.
-func (u *BusinessConfigUpsertOne) SetStoreID(v uuid.UUID) *BusinessConfigUpsertOne {
+func (u *BusinessConfigUpsertOne) SetStoreID(v string) *BusinessConfigUpsertOne {
 	return u.Update(func(s *BusinessConfigUpsert) {
 		s.SetStoreID(v)
 	})
@@ -893,13 +931,6 @@ func (u *BusinessConfigUpsertOne) SetStoreID(v uuid.UUID) *BusinessConfigUpsertO
 func (u *BusinessConfigUpsertOne) UpdateStoreID() *BusinessConfigUpsertOne {
 	return u.Update(func(s *BusinessConfigUpsert) {
 		s.UpdateStoreID()
-	})
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (u *BusinessConfigUpsertOne) ClearStoreID() *BusinessConfigUpsertOne {
-	return u.Update(func(s *BusinessConfigUpsert) {
-		s.ClearStoreID()
 	})
 }
 
@@ -1061,6 +1092,20 @@ func (u *BusinessConfigUpsertOne) SetIsDefault(v bool) *BusinessConfigUpsertOne 
 func (u *BusinessConfigUpsertOne) UpdateIsDefault() *BusinessConfigUpsertOne {
 	return u.Update(func(s *BusinessConfigUpsert) {
 		s.UpdateIsDefault()
+	})
+}
+
+// SetModifyStatus sets the "modify_status" field.
+func (u *BusinessConfigUpsertOne) SetModifyStatus(v bool) *BusinessConfigUpsertOne {
+	return u.Update(func(s *BusinessConfigUpsert) {
+		s.SetModifyStatus(v)
+	})
+}
+
+// UpdateModifyStatus sets the "modify_status" field to the value that was provided on create.
+func (u *BusinessConfigUpsertOne) UpdateModifyStatus() *BusinessConfigUpsertOne {
+	return u.Update(func(s *BusinessConfigUpsert) {
+		s.UpdateModifyStatus()
 	})
 }
 
@@ -1374,7 +1419,7 @@ func (u *BusinessConfigUpsertBulk) ClearMerchantID() *BusinessConfigUpsertBulk {
 }
 
 // SetStoreID sets the "store_id" field.
-func (u *BusinessConfigUpsertBulk) SetStoreID(v uuid.UUID) *BusinessConfigUpsertBulk {
+func (u *BusinessConfigUpsertBulk) SetStoreID(v string) *BusinessConfigUpsertBulk {
 	return u.Update(func(s *BusinessConfigUpsert) {
 		s.SetStoreID(v)
 	})
@@ -1384,13 +1429,6 @@ func (u *BusinessConfigUpsertBulk) SetStoreID(v uuid.UUID) *BusinessConfigUpsert
 func (u *BusinessConfigUpsertBulk) UpdateStoreID() *BusinessConfigUpsertBulk {
 	return u.Update(func(s *BusinessConfigUpsert) {
 		s.UpdateStoreID()
-	})
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (u *BusinessConfigUpsertBulk) ClearStoreID() *BusinessConfigUpsertBulk {
-	return u.Update(func(s *BusinessConfigUpsert) {
-		s.ClearStoreID()
 	})
 }
 
@@ -1552,6 +1590,20 @@ func (u *BusinessConfigUpsertBulk) SetIsDefault(v bool) *BusinessConfigUpsertBul
 func (u *BusinessConfigUpsertBulk) UpdateIsDefault() *BusinessConfigUpsertBulk {
 	return u.Update(func(s *BusinessConfigUpsert) {
 		s.UpdateIsDefault()
+	})
+}
+
+// SetModifyStatus sets the "modify_status" field.
+func (u *BusinessConfigUpsertBulk) SetModifyStatus(v bool) *BusinessConfigUpsertBulk {
+	return u.Update(func(s *BusinessConfigUpsert) {
+		s.SetModifyStatus(v)
+	})
+}
+
+// UpdateModifyStatus sets the "modify_status" field to the value that was provided on create.
+func (u *BusinessConfigUpsertBulk) UpdateModifyStatus() *BusinessConfigUpsertBulk {
+	return u.Update(func(s *BusinessConfigUpsert) {
+		s.UpdateModifyStatus()
 	})
 }
 

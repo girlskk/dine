@@ -31,6 +31,7 @@ type DataStore interface {
 	DeviceRepo() DeviceRepository
 	DepartmentRepo() DepartmentRepository
 	PaymentMethodRepo() PaymentMethodRepository
+	RefundOrderRepo() RefundOrderRepository
 	ProfitDistributionBillRepo() ProfitDistributionBillRepository
 	PaymentAccountRepo() PaymentAccountRepository
 	StorePaymentAccountRepo() StorePaymentAccountRepository

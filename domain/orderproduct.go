@@ -22,7 +22,7 @@ type OrderProduct struct {
 	ProductID   uuid.UUID   `json:"product_id"`   // 商品ID
 	ProductName string      `json:"product_name"` // 商品名称
 	ProductType ProductType `json:"product_type"` // 商品类型
-	CategoryID  uuid.UUID   `json:"category_id"`  // 分类ID
+	Category    Category    `json:"category"`     // 分类信息
 	UnitID      uuid.UUID   `json:"unit_id"`      // 单位ID
 	MainImage   string      `json:"main_image"`   // 商品主图
 	Description string      `json:"description"`  // 菜品描述
@@ -42,6 +42,11 @@ type OrderProduct struct {
 
 	// 促销信息
 	PromotionDiscount decimal.Decimal `json:"promotion_discount"` // 促销优惠金额
+
+	// 做法金额与赠送金额
+	AttrAmount decimal.Decimal `json:"attr_amount"` // 做法金额
+	GiftAmount decimal.Decimal `json:"gift_amount"` // 赠送金额
+
 	// 退菜信息
 	VoidQty      int             `json:"void_qty"`      // 已退菜数量汇总
 	VoidAmount   decimal.Decimal `json:"void_amount"`   // 已退菜金额汇总

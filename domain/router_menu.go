@@ -23,10 +23,6 @@ type RouterMenuRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/router_menu_interactor.go -package=mock . RouterMenuInteractor
 type RouterMenuInteractor interface {
-	CreateRouterMenu(ctx context.Context, params *CreateRouterMenuParams) error
-	UpdateRouterMenu(ctx context.Context, params *UpdateRouterMenuParams) error
-	DeleteRouterMenu(ctx context.Context, id uuid.UUID) error
-	GetRouterMenu(ctx context.Context, id uuid.UUID) (*RouterMenu, error)
 	GetRouterMenus(ctx context.Context, filter *RouterMenuListFilter, orderBys ...RouterMenuListOrderBy) ([]*RouterMenu, int, error)
 }
 

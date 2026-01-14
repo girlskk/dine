@@ -7,22 +7,22 @@ import (
 
 // DepartmentCreateReq 创建部门请求
 type DepartmentCreateReq struct {
-	Name   string `json:"name" binding:"required,max=50"`
-	Enable bool   `json:"enable"`
+	Name    string `json:"name" binding:"required,max=50"`
+	Enabled bool   `json:"enabled"`
 }
 
 // DepartmentUpdateReq 更新部门请求
 type DepartmentUpdateReq struct {
-	Name   string `json:"name" binding:"required,max=50"`
-	Enable bool   `json:"enable"`
+	Name    string `json:"name" binding:"required,max=50"`
+	Enabled bool   `json:"enabled"`
 }
 
 // DepartmentListReq 部门列表查询请求
 type DepartmentListReq struct {
 	upagination.RequestPagination
-	Name   string `form:"name"`
-	Code   string `form:"code"`
-	Enable *bool  `form:"enable"`
+	Name    string `form:"name"`
+	Code    string `form:"code"`
+	Enabled *bool  `form:"enabled"`
 }
 
 // DepartmentListResp 部门列表响应

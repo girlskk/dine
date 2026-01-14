@@ -373,7 +373,7 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 		var startAt, endAt time.Time
 		var err error
 		if req.StartAt != "" {
-			startAt, err = time.Parse(time.DateOnly, req.StartAt)
+			startAt, err = time.ParseInLocation(time.DateOnly, req.StartAt, time.Local)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
@@ -381,7 +381,7 @@ func (h *ProductHandler) List() gin.HandlerFunc {
 			params.StartAt = &startAt
 		}
 		if req.EndAt != "" {
-			endAt, err = time.Parse(time.DateOnly, req.EndAt)
+			endAt, err = time.ParseInLocation(time.DateOnly, req.EndAt, time.Local)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return

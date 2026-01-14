@@ -34,6 +34,8 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorder"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorderproduct"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
@@ -300,6 +302,10 @@ func init() {
 	businessconfigDescDeletedAt := businessconfigMixinFields2[0].Descriptor()
 	// businessconfig.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	businessconfig.DefaultDeletedAt = businessconfigDescDeletedAt.Default.(int64)
+	// businessconfigDescStoreID is the schema descriptor for store_id field.
+	businessconfigDescStoreID := businessconfigFields[2].Descriptor()
+	// businessconfig.DefaultStoreID holds the default value on creation for the store_id field.
+	businessconfig.DefaultStoreID = businessconfigDescStoreID.Default.(string)
 	// businessconfigDescName is the schema descriptor for name field.
 	businessconfigDescName := businessconfigFields[4].Descriptor()
 	// businessconfig.DefaultName holds the default value on creation for the name field.
@@ -324,8 +330,12 @@ func init() {
 	businessconfigDescIsDefault := businessconfigFields[10].Descriptor()
 	// businessconfig.DefaultIsDefault holds the default value on creation for the is_default field.
 	businessconfig.DefaultIsDefault = businessconfigDescIsDefault.Default.(bool)
+	// businessconfigDescModifyStatus is the schema descriptor for modify_status field.
+	businessconfigDescModifyStatus := businessconfigFields[11].Descriptor()
+	// businessconfig.DefaultModifyStatus holds the default value on creation for the modify_status field.
+	businessconfig.DefaultModifyStatus = businessconfigDescModifyStatus.Default.(bool)
 	// businessconfigDescStatus is the schema descriptor for status field.
-	businessconfigDescStatus := businessconfigFields[11].Descriptor()
+	businessconfigDescStatus := businessconfigFields[12].Descriptor()
 	// businessconfig.DefaultStatus holds the default value on creation for the status field.
 	businessconfig.DefaultStatus = businessconfigDescStatus.Default.(bool)
 	// businessconfigDescID is the schema descriptor for id field.
@@ -436,10 +446,10 @@ func init() {
 	departmentDescCode := departmentFields[1].Descriptor()
 	// department.CodeValidator is a validator for the "code" field. It is called by the builders before save.
 	department.CodeValidator = departmentDescCode.Validators[0].(func(string) error)
-	// departmentDescEnable is the schema descriptor for enable field.
-	departmentDescEnable := departmentFields[3].Descriptor()
-	// department.DefaultEnable holds the default value on creation for the enable field.
-	department.DefaultEnable = departmentDescEnable.Default.(bool)
+	// departmentDescEnabled is the schema descriptor for enabled field.
+	departmentDescEnabled := departmentFields[3].Descriptor()
+	// department.DefaultEnabled holds the default value on creation for the enabled field.
+	department.DefaultEnabled = departmentDescEnabled.Default.(bool)
 	// departmentDescID is the schema descriptor for id field.
 	departmentDescID := departmentMixinFields0[0].Descriptor()
 	// department.DefaultID holds the default value on creation for the id field.
@@ -945,7 +955,7 @@ func init() {
 	// orderproduct.DefaultGiftQty holds the default value on creation for the gift_qty field.
 	orderproduct.DefaultGiftQty = orderproductDescGiftQty.Default.(int)
 	// orderproductDescVoidQty is the schema descriptor for void_qty field.
-	orderproductDescVoidQty := orderproductFields[21].Descriptor()
+	orderproductDescVoidQty := orderproductFields[23].Descriptor()
 	// orderproduct.DefaultVoidQty holds the default value on creation for the void_qty field.
 	orderproduct.DefaultVoidQty = orderproductDescVoidQty.Default.(int)
 	// orderproductDescID is the schema descriptor for id field.
@@ -1747,6 +1757,100 @@ func init() {
 	profitdistributionruleDescID := profitdistributionruleMixinFields0[0].Descriptor()
 	// profitdistributionrule.DefaultID holds the default value on creation for the id field.
 	profitdistributionrule.DefaultID = profitdistributionruleDescID.Default.(func() uuid.UUID)
+	refundorderMixin := schema.RefundOrder{}.Mixin()
+	refundorderMixinHooks2 := refundorderMixin[2].Hooks()
+	refundorder.Hooks[0] = refundorderMixinHooks2[0]
+	refundorderMixinInters2 := refundorderMixin[2].Interceptors()
+	refundorder.Interceptors[0] = refundorderMixinInters2[0]
+	refundorderMixinFields0 := refundorderMixin[0].Fields()
+	_ = refundorderMixinFields0
+	refundorderMixinFields1 := refundorderMixin[1].Fields()
+	_ = refundorderMixinFields1
+	refundorderMixinFields2 := refundorderMixin[2].Fields()
+	_ = refundorderMixinFields2
+	refundorderFields := schema.RefundOrder{}.Fields()
+	_ = refundorderFields
+	// refundorderDescCreatedAt is the schema descriptor for created_at field.
+	refundorderDescCreatedAt := refundorderMixinFields1[0].Descriptor()
+	// refundorder.DefaultCreatedAt holds the default value on creation for the created_at field.
+	refundorder.DefaultCreatedAt = refundorderDescCreatedAt.Default.(func() time.Time)
+	// refundorderDescUpdatedAt is the schema descriptor for updated_at field.
+	refundorderDescUpdatedAt := refundorderMixinFields1[1].Descriptor()
+	// refundorder.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	refundorder.DefaultUpdatedAt = refundorderDescUpdatedAt.Default.(func() time.Time)
+	// refundorder.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	refundorder.UpdateDefaultUpdatedAt = refundorderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// refundorderDescDeletedAt is the schema descriptor for deleted_at field.
+	refundorderDescDeletedAt := refundorderMixinFields2[0].Descriptor()
+	// refundorder.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	refundorder.DefaultDeletedAt = refundorderDescDeletedAt.Default.(int64)
+	// refundorderDescBusinessDate is the schema descriptor for business_date field.
+	refundorderDescBusinessDate := refundorderFields[2].Descriptor()
+	// refundorder.BusinessDateValidator is a validator for the "business_date" field. It is called by the builders before save.
+	refundorder.BusinessDateValidator = refundorderDescBusinessDate.Validators[0].(func(string) error)
+	// refundorderDescRefundNo is the schema descriptor for refund_no field.
+	refundorderDescRefundNo := refundorderFields[4].Descriptor()
+	// refundorder.RefundNoValidator is a validator for the "refund_no" field. It is called by the builders before save.
+	refundorder.RefundNoValidator = refundorderDescRefundNo.Validators[0].(func(string) error)
+	// refundorderDescOriginOrderNo is the schema descriptor for origin_order_no field.
+	refundorderDescOriginOrderNo := refundorderFields[6].Descriptor()
+	// refundorder.OriginOrderNoValidator is a validator for the "origin_order_no" field. It is called by the builders before save.
+	refundorder.OriginOrderNoValidator = refundorderDescOriginOrderNo.Validators[0].(func(string) error)
+	// refundorderDescRemark is the schema descriptor for remark field.
+	refundorderDescRemark := refundorderFields[25].Descriptor()
+	// refundorder.RemarkValidator is a validator for the "remark" field. It is called by the builders before save.
+	refundorder.RemarkValidator = refundorderDescRemark.Validators[0].(func(string) error)
+	// refundorderDescID is the schema descriptor for id field.
+	refundorderDescID := refundorderMixinFields0[0].Descriptor()
+	// refundorder.DefaultID holds the default value on creation for the id field.
+	refundorder.DefaultID = refundorderDescID.Default.(func() uuid.UUID)
+	refundorderproductMixin := schema.RefundOrderProduct{}.Mixin()
+	refundorderproductMixinHooks2 := refundorderproductMixin[2].Hooks()
+	refundorderproduct.Hooks[0] = refundorderproductMixinHooks2[0]
+	refundorderproductMixinInters2 := refundorderproductMixin[2].Interceptors()
+	refundorderproduct.Interceptors[0] = refundorderproductMixinInters2[0]
+	refundorderproductMixinFields0 := refundorderproductMixin[0].Fields()
+	_ = refundorderproductMixinFields0
+	refundorderproductMixinFields1 := refundorderproductMixin[1].Fields()
+	_ = refundorderproductMixinFields1
+	refundorderproductMixinFields2 := refundorderproductMixin[2].Fields()
+	_ = refundorderproductMixinFields2
+	refundorderproductFields := schema.RefundOrderProduct{}.Fields()
+	_ = refundorderproductFields
+	// refundorderproductDescCreatedAt is the schema descriptor for created_at field.
+	refundorderproductDescCreatedAt := refundorderproductMixinFields1[0].Descriptor()
+	// refundorderproduct.DefaultCreatedAt holds the default value on creation for the created_at field.
+	refundorderproduct.DefaultCreatedAt = refundorderproductDescCreatedAt.Default.(func() time.Time)
+	// refundorderproductDescUpdatedAt is the schema descriptor for updated_at field.
+	refundorderproductDescUpdatedAt := refundorderproductMixinFields1[1].Descriptor()
+	// refundorderproduct.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	refundorderproduct.DefaultUpdatedAt = refundorderproductDescUpdatedAt.Default.(func() time.Time)
+	// refundorderproduct.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	refundorderproduct.UpdateDefaultUpdatedAt = refundorderproductDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// refundorderproductDescDeletedAt is the schema descriptor for deleted_at field.
+	refundorderproductDescDeletedAt := refundorderproductMixinFields2[0].Descriptor()
+	// refundorderproduct.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	refundorderproduct.DefaultDeletedAt = refundorderproductDescDeletedAt.Default.(int64)
+	// refundorderproductDescProductName is the schema descriptor for product_name field.
+	refundorderproductDescProductName := refundorderproductFields[4].Descriptor()
+	// refundorderproduct.ProductNameValidator is a validator for the "product_name" field. It is called by the builders before save.
+	refundorderproduct.ProductNameValidator = refundorderproductDescProductName.Validators[0].(func(string) error)
+	// refundorderproductDescMainImage is the schema descriptor for main_image field.
+	refundorderproductDescMainImage := refundorderproductFields[8].Descriptor()
+	// refundorderproduct.DefaultMainImage holds the default value on creation for the main_image field.
+	refundorderproduct.DefaultMainImage = refundorderproductDescMainImage.Default.(string)
+	// refundorderproduct.MainImageValidator is a validator for the "main_image" field. It is called by the builders before save.
+	refundorderproduct.MainImageValidator = refundorderproductDescMainImage.Validators[0].(func(string) error)
+	// refundorderproductDescDescription is the schema descriptor for description field.
+	refundorderproductDescDescription := refundorderproductFields[9].Descriptor()
+	// refundorderproduct.DefaultDescription holds the default value on creation for the description field.
+	refundorderproduct.DefaultDescription = refundorderproductDescDescription.Default.(string)
+	// refundorderproduct.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	refundorderproduct.DescriptionValidator = refundorderproductDescDescription.Validators[0].(func(string) error)
+	// refundorderproductDescID is the schema descriptor for id field.
+	refundorderproductDescID := refundorderproductMixinFields0[0].Descriptor()
+	// refundorderproduct.DefaultID holds the default value on creation for the id field.
+	refundorderproduct.DefaultID = refundorderproductDescID.Default.(func() uuid.UUID)
 	remarkMixin := schema.Remark{}.Mixin()
 	remarkMixinHooks2 := remarkMixin[2].Hooks()
 	remark.Hooks[0] = remarkMixinHooks2[0]
@@ -1835,10 +1939,10 @@ func init() {
 	roleDescCode := roleFields[1].Descriptor()
 	// role.CodeValidator is a validator for the "code" field. It is called by the builders before save.
 	role.CodeValidator = roleDescCode.Validators[0].(func(string) error)
-	// roleDescEnable is the schema descriptor for enable field.
-	roleDescEnable := roleFields[3].Descriptor()
-	// role.DefaultEnable holds the default value on creation for the enable field.
-	role.DefaultEnable = roleDescEnable.Default.(bool)
+	// roleDescEnabled is the schema descriptor for enabled field.
+	roleDescEnabled := roleFields[3].Descriptor()
+	// role.DefaultEnabled holds the default value on creation for the enabled field.
+	role.DefaultEnabled = roleDescEnabled.Default.(bool)
 	// roleDescID is the schema descriptor for id field.
 	roleDescID := roleMixinFields0[0].Descriptor()
 	// role.DefaultID holds the default value on creation for the id field.

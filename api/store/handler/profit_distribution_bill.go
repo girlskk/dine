@@ -67,9 +67,9 @@ func (h *ProfitDistributionBillHandler) List() gin.HandlerFunc {
 			Status:        domain.ProfitDistributionBillStatus(req.Status),
 		}
 
-		// 处理日期字符串转换（如果需要）
+		// 处理日期字符串转换
 		if req.BillStartDate != "" {
-			startAt, err := time.Parse(time.DateOnly, req.BillStartDate)
+			startAt, err := time.ParseInLocation(time.DateOnly, req.BillStartDate, time.Local)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return
@@ -77,7 +77,7 @@ func (h *ProfitDistributionBillHandler) List() gin.HandlerFunc {
 			params.BillStartDate = &startAt
 		}
 		if req.BillEndDate != "" {
-			endDate, err := time.Parse(time.DateOnly, req.BillEndDate)
+			endDate, err := time.ParseInLocation(time.DateOnly, req.BillEndDate, time.Local)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 				return

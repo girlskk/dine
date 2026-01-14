@@ -97,20 +97,15 @@ other = "Remark name already exists"
 [REMARK_DELETE_SYSTEM]
 other = "Cannot delete system built-in remark"
 
+[REMARK_UPDATE_SYSTEM]
+other = "Cannot update system built-in remark"
+
 [STALL_NOT_EXISTS]
 other = "Stall does not exist"
 
 [STALL_NAME_EXISTS]
 other = "Stall name already exists"
 
-[Device_NOT_EXISTS]
-other = "Device does not exist"
-
-[Device_NAME_EXISTS]
-other = "Device name already exists"
-
-[TAX_FEE_NAME_EXISTS]
-other = "Tax fee name already exists"
 
 [SUPER_USER_CANNOT_DELETE]
 other = "Super administrator user cannot be deleted"
@@ -157,3 +152,50 @@ other = "User has no assigned roles"
 [TIME_FORMAT_INVALID]
 other = "Time format is invalid"
 
+[REMARK_NOT_EXISTS]
+other = "Remark does not exist"
+
+[DEVICE_NOT_EXISTS]
+other = "Device does not exist"
+
+[DEVICE_NAME_EXISTS]
+other = "Device name already exists"
+
+[DEVICE_CODE_EXISTS]
+other = "Device code already exists"
+
+[ADDITIONAL_FEE_NOT_EXISTS]
+other = "Additional fee does not exist"
+
+[ADDITIONAL_NAME_EXISTS]
+other = "Additional fee name already exists"
+
+[TAX_FEE_NOT_EXISTS]
+other = "Tax fee does not exist"
+
+[TAX_FEE_NAME_EXISTS]
+other = "Tax fee name already exists"
+
+[TAX_FEE_SYSTEM_CANNOT_UPDATE]
+other = "System built-in tax fee cannot be updated"
+
+[TAX_FEE_SYSTEM_CANNOT_DELETE]
+other = "System built-in tax fee cannot be deleted"
+
+[USER_NAME_EXISTS]
+other = "User name already exists"
+
+[DEPARTMENT_NOT_EXISTS]
+other = "Department does not exist"
+
+[DEPARTMENT_NAME_EXISTS]
+other = "Department name already exists"
+
+[DEPARTMENT_CODE_EXISTS]
+other = "Department code already exists"
+
+[DEPARTMENT_HAS_USER_CANNOT_DISABLE]
+other = "Department has users, cannot disable"
+
+[DEPARTMENT_HAS_USER_CANNOT_DELETE]
+other = "Department has users, cannot delete"

@@ -20,6 +20,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/productunit"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionbill"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/profitdistributionrule"
+	"gitlab.jiguang.dev/pos-dine/dine/usecase/refundorder"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/remark"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/role"
 	"gitlab.jiguang.dev/pos-dine/dine/usecase/routermenu"
@@ -141,6 +142,10 @@ var Module = fx.Module(
 		fx.Annotate(
 			storepaymentaccount.NewStorePaymentAccountInteractor,
 			fx.As(new(domain.StorePaymentAccountInteractor)),
+		),
+		fx.Annotate(
+			refundorder.NewRefundOrderInteractor,
+			fx.As(new(domain.RefundOrderInteractor)),
 		),
 		fx.Annotate(
 			businessconfig.NewBusinessConfigInteractor,

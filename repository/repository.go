@@ -50,6 +50,7 @@ type Repository struct {
 	profitDistributionBillRepo *ProfitDistributionBillRepository
 	paymentAccountRepo         *PaymentAccountRepository
 	storePaymentAccountRepo    *StorePaymentAccountRepository
+	refundOrderRepo            *RefundOrderRepository
 	businessConfigRepo         *BusinessConfigRepository
 }
 
@@ -430,6 +431,15 @@ func (repo *Repository) StorePaymentAccountRepo() domain.StorePaymentAccountRepo
 		repo.storePaymentAccountRepo = NewStorePaymentAccountRepository(repo.client)
 	}
 	return repo.storePaymentAccountRepo
+}
+
+func (repo *Repository) RefundOrderRepo() domain.RefundOrderRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.refundOrderRepo == nil {
+		repo.refundOrderRepo = NewRefundOrderRepository(repo.client)
+	}
+	return repo.refundOrderRepo
 }
 
 func (repo *Repository) BusinessConfigRepo() domain.BusinessConfigRepository {

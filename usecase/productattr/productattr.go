@@ -234,7 +234,39 @@ func (i *ProductAttrInteractor) ListBySearch(
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
-	return i.DS.ProductAttrRepo().ListBySearch(ctx, params)
+
+	attrs, err := i.DS.ProductAttrRepo().ListBySearch(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	attrItemIDs := make([]uuid.UUID, 0)
+	for _, attr := range attrs {
+		for _, item := range attr.Items {
+			attrItemIDs = append(attrItemIDs, item.ID)
+		}
+	}
+
+	var itemCountMap map[uuid.UUID]int
+	if len(attrItemIDs) > 0 {
+		itemCountMap, err = i.DS.ProductRepo().CountByAttrItemIDs(ctx, attrItemIDs)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		itemCountMap = make(map[uuid.UUID]int)
+	}
+
+	// 4. 设置每个 item 的商品数量，并累加到对应的 attr 上
+	for _, attr := range attrs {
+		attr.ProductCount = 0 // 重置为 0，然后累加
+		for _, item := range attr.Items {
+			item.ProductCount = itemCountMap[item.ID]
+			attr.ProductCount += item.ProductCount
+		}
+	}
+
+	return attrs, nil
 }
 
 func verifyProductAttrOwnership(user domain.User, attr *domain.ProductAttr) error {

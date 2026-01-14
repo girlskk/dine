@@ -33,7 +33,7 @@ func (s *DepartmentRepositoryTestSuite) createTestDepartment(tag string, deptTyp
 		SetName(tag + "-部门").
 		SetCode(tag + "-CODE").
 		SetDepartmentType(deptType).
-		SetEnable(true).
+		SetEnabled(true).
 		SetMerchantID(uuid.New()).
 		SetStoreID(uuid.New()).
 		SaveX(s.ctx)
@@ -46,7 +46,7 @@ func (s *DepartmentRepositoryTestSuite) TestDepartment_Create() {
 			Name:           "新部门",
 			Code:           "DEPT-001",
 			DepartmentType: domain.DepartmentBackend,
-			Enable:         true,
+			Enabled:        true,
 		}
 		require.NoError(t, s.repo.Create(s.ctx, dept))
 		require.NotEqual(t, uuid.Nil, dept.ID)
@@ -55,7 +55,7 @@ func (s *DepartmentRepositoryTestSuite) TestDepartment_Create() {
 		require.Equal(t, "新部门", db.Name)
 		require.Equal(t, "DEPT-001", db.Code)
 		require.Equal(t, domain.DepartmentBackend, db.DepartmentType)
-		require.True(t, db.Enable)
+		require.True(t, db.Enabled)
 	})
 }
 
@@ -80,15 +80,15 @@ func (s *DepartmentRepositoryTestSuite) TestDepartment_Update() {
 
 	s.T().Run("更新成功", func(t *testing.T) {
 		payload := &domain.Department{
-			ID:     entity.ID,
-			Name:   "更新名称",
-			Enable: false,
+			ID:      entity.ID,
+			Name:    "更新名称",
+			Enabled: false,
 		}
 		require.NoError(t, s.repo.Update(s.ctx, payload))
 
 		db := s.client.Department.GetX(s.ctx, entity.ID)
 		require.Equal(t, "更新名称", db.Name)
-		require.False(t, db.Enable)
+		require.False(t, db.Enabled)
 	})
 }
 
@@ -159,7 +159,7 @@ func (s *DepartmentRepositoryTestSuite) TestDepartment_Integration() {
 			Name:           "integration",
 			Code:           "DEPT-INT",
 			DepartmentType: domain.DepartmentBackend,
-			Enable:         true,
+			Enabled:        true,
 		}
 		require.NoError(t, s.repo.Create(s.ctx, d))
 

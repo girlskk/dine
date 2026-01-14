@@ -31,12 +31,12 @@ type DeviceRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/device_interactor.go -package=mock . DeviceInteractor
 type DeviceInteractor interface {
-	Create(ctx context.Context, device *Device) (err error)
-	Update(ctx context.Context, device *Device) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetDevice(ctx context.Context, id uuid.UUID) (*Device, error)
+	Create(ctx context.Context, device *Device, user User) (err error)
+	Update(ctx context.Context, device *Device, user User) (err error)
+	Delete(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetDevice(ctx context.Context, id uuid.UUID, user User) (*Device, error)
 	GetDevices(ctx context.Context, pager *upagination.Pagination, filter *DeviceListFilter, orderBys ...DeviceOrderBy) (devices []*Device, total int, err error)
-	DeviceSimpleUpdate(ctx context.Context, updateField DeviceSimpleUpdateType, device *Device) (err error)
+	DeviceSimpleUpdate(ctx context.Context, updateField DeviceSimpleUpdateType, device *Device, user User) (err error)
 }
 
 // DeviceType 设备类型

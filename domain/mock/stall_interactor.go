@@ -38,46 +38,46 @@ func (m *MockStallInteractor) EXPECT() *MockStallInteractorMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockStallInteractor) Create(arg0 context.Context, arg1 *domain.Stall) error {
+func (m *MockStallInteractor) Create(arg0 context.Context, arg1 *domain.Stall, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockStallInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStallInteractorMockRecorder) Create(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockStallInteractor)(nil).Create), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockStallInteractor)(nil).Create), arg0, arg1, arg2)
 }
 
 // Delete mocks base method.
-func (m *MockStallInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockStallInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockStallInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStallInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStallInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStallInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // GetStall mocks base method.
-func (m *MockStallInteractor) GetStall(arg0 context.Context, arg1 uuid.UUID) (*domain.Stall, error) {
+func (m *MockStallInteractor) GetStall(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.Stall, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetStall", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetStall", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Stall)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetStall indicates an expected call of GetStall.
-func (mr *MockStallInteractorMockRecorder) GetStall(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStallInteractorMockRecorder) GetStall(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStall", reflect.TypeOf((*MockStallInteractor)(nil).GetStall), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStall", reflect.TypeOf((*MockStallInteractor)(nil).GetStall), arg0, arg1, arg2)
 }
 
 // GetStalls mocks base method.
@@ -102,29 +102,29 @@ func (mr *MockStallInteractorMockRecorder) GetStalls(arg0, arg1, arg2 interface{
 }
 
 // StallSimpleUpdate mocks base method.
-func (m *MockStallInteractor) StallSimpleUpdate(arg0 context.Context, arg1 domain.StallSimpleUpdateField, arg2 *domain.Stall) error {
+func (m *MockStallInteractor) StallSimpleUpdate(arg0 context.Context, arg1 domain.StallSimpleUpdateField, arg2 *domain.Stall, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StallSimpleUpdate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "StallSimpleUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // StallSimpleUpdate indicates an expected call of StallSimpleUpdate.
-func (mr *MockStallInteractorMockRecorder) StallSimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStallInteractorMockRecorder) StallSimpleUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StallSimpleUpdate", reflect.TypeOf((*MockStallInteractor)(nil).StallSimpleUpdate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StallSimpleUpdate", reflect.TypeOf((*MockStallInteractor)(nil).StallSimpleUpdate), arg0, arg1, arg2, arg3)
 }
 
 // Update mocks base method.
-func (m *MockStallInteractor) Update(arg0 context.Context, arg1 *domain.Stall) error {
+func (m *MockStallInteractor) Update(arg0 context.Context, arg1 *domain.Stall, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockStallInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStallInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockStallInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockStallInteractor)(nil).Update), arg0, arg1, arg2)
 }

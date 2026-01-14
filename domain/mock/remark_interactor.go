@@ -38,46 +38,46 @@ func (m *MockRemarkInteractor) EXPECT() *MockRemarkInteractorMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRemarkInteractor) Create(arg0 context.Context, arg1 *domain.CreateRemarkParams) error {
+func (m *MockRemarkInteractor) Create(arg0 context.Context, arg1 *domain.CreateRemarkParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRemarkInteractorMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRemarkInteractorMockRecorder) Create(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRemarkInteractor)(nil).Create), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRemarkInteractor)(nil).Create), arg0, arg1, arg2)
 }
 
 // Delete mocks base method.
-func (m *MockRemarkInteractor) Delete(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockRemarkInteractor) Delete(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockRemarkInteractorMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRemarkInteractorMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRemarkInteractor)(nil).Delete), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRemarkInteractor)(nil).Delete), arg0, arg1, arg2)
 }
 
 // GetRemark mocks base method.
-func (m *MockRemarkInteractor) GetRemark(arg0 context.Context, arg1 uuid.UUID) (*domain.Remark, error) {
+func (m *MockRemarkInteractor) GetRemark(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.Remark, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRemark", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetRemark", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Remark)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRemark indicates an expected call of GetRemark.
-func (mr *MockRemarkInteractorMockRecorder) GetRemark(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRemarkInteractorMockRecorder) GetRemark(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRemark", reflect.TypeOf((*MockRemarkInteractor)(nil).GetRemark), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRemark", reflect.TypeOf((*MockRemarkInteractor)(nil).GetRemark), arg0, arg1, arg2)
 }
 
 // GetRemarks mocks base method.
@@ -102,29 +102,29 @@ func (mr *MockRemarkInteractorMockRecorder) GetRemarks(arg0, arg1, arg2 interfac
 }
 
 // RemarkSimpleUpdate mocks base method.
-func (m *MockRemarkInteractor) RemarkSimpleUpdate(arg0 context.Context, arg1 domain.RemarkSimpleUpdateField, arg2 *domain.Remark) error {
+func (m *MockRemarkInteractor) RemarkSimpleUpdate(arg0 context.Context, arg1 domain.RemarkSimpleUpdateField, arg2 *domain.Remark, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemarkSimpleUpdate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "RemarkSimpleUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemarkSimpleUpdate indicates an expected call of RemarkSimpleUpdate.
-func (mr *MockRemarkInteractorMockRecorder) RemarkSimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockRemarkInteractorMockRecorder) RemarkSimpleUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemarkSimpleUpdate", reflect.TypeOf((*MockRemarkInteractor)(nil).RemarkSimpleUpdate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemarkSimpleUpdate", reflect.TypeOf((*MockRemarkInteractor)(nil).RemarkSimpleUpdate), arg0, arg1, arg2, arg3)
 }
 
 // Update mocks base method.
-func (m *MockRemarkInteractor) Update(arg0 context.Context, arg1 *domain.UpdateRemarkParams) error {
+func (m *MockRemarkInteractor) Update(arg0 context.Context, arg1 *domain.UpdateRemarkParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRemarkInteractorMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRemarkInteractorMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRemarkInteractor)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRemarkInteractor)(nil).Update), arg0, arg1, arg2)
 }

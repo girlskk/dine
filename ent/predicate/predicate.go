@@ -87,6 +87,12 @@ type ProfitDistributionBill func(*sql.Selector)
 // ProfitDistributionRule is the predicate function for profitdistributionrule builders.
 type ProfitDistributionRule func(*sql.Selector)
 
+// RefundOrder is the predicate function for refundorder builders.
+type RefundOrder func(*sql.Selector)
+
+// RefundOrderProduct is the predicate function for refundorderproduct builders.
+type RefundOrderProduct func(*sql.Selector)
+
 // Remark is the predicate function for remark builders.
 type Remark func(*sql.Selector)
 

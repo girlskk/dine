@@ -80,6 +80,21 @@ func (mr *MockMenuInteractorMockRecorder) GetDetail(arg0, arg1, arg2 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockMenuInteractor)(nil).GetDetail), arg0, arg1, arg2)
 }
 
+// ListAllStoreMenus mocks base method.
+func (m *MockMenuInteractor) ListAllStoreMenus(arg0 context.Context, arg1 domain.MenuListAllParams) (domain.Menus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAllStoreMenus", arg0, arg1)
+	ret0, _ := ret[0].(domain.Menus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAllStoreMenus indicates an expected call of ListAllStoreMenus.
+func (mr *MockMenuInteractorMockRecorder) ListAllStoreMenus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAllStoreMenus", reflect.TypeOf((*MockMenuInteractor)(nil).ListAllStoreMenus), arg0, arg1)
+}
+
 // PagedListBySearch mocks base method.
 func (m *MockMenuInteractor) PagedListBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.MenuSearchParams) (*domain.MenuSearchRes, error) {
 	m.ctrl.T.Helper()

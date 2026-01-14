@@ -300,6 +300,33 @@
                 "summary": "经营设置列表",
                 "parameters": [
                     {
+                        "enum": [
+                            "order",
+                            "payment",
+                            "kitchen",
+                            "refund",
+                            "print"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "BusinessConfigGroupKitchen": "后厨设置",
+                            "BusinessConfigGroupOrder": "点餐设置",
+                            "BusinessConfigGroupPayment": "收单设置",
+                            "BusinessConfigGroupPrint": "退款设置",
+                            "BusinessConfigGroupRefund": "退款设置"
+                        },
+                        "x-enum-varnames": [
+                            "BusinessConfigGroupOrder",
+                            "BusinessConfigGroupPayment",
+                            "BusinessConfigGroupKitchen",
+                            "BusinessConfigGroupRefund",
+                            "BusinessConfigGroupPrint"
+                        ],
+                        "description": "配置分组",
+                        "name": "group",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "设置名称（模糊匹配）",
                         "name": "name",
@@ -312,6 +339,62 @@
                         "schema": {
                             "$ref": "#/definitions/domain.BusinessConfigSearchRes"
                         }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "经营管理"
+                ],
+                "summary": "更新经营设置",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.BusinessConfigUpsertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/business/config/distribute": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "经营管理"
+                ],
+                "summary": "下发门店",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.BusinessConfigDistributeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -342,7 +425,7 @@
                     },
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -606,7 +689,7 @@
                 "parameters": [
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -842,6 +925,109 @@
                 "responses": {
                     "200": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/role/{id}/menus": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页或非分页获取指定角色的菜单路径列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "角色菜单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.RoleMenusResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "为指定角色设置菜单路径（交集保留，新增/删除按 paths 调整）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "设置角色菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "设置菜单请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.SetMenusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/common/router_menu": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询菜单",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "菜单列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.RouterMenuListResp"
+                        }
                     }
                 }
             }
@@ -1216,9 +1402,443 @@
                         "description": "No Content"
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建单个门店",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "创建门店",
+                "parameters": [
+                    {
+                        "description": "创建门店请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateStoreReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
             }
         },
-        "/order": {
+        "/merchant/store/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询门店列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "门店列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "管理员手机号",
+                        "name": "admin_phone_number",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "direct",
+                            "franchisee"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "BusinessModelDirect": "直营",
+                            "BusinessModelFranchisee": "加盟"
+                        },
+                        "x-enum-varnames": [
+                            "BusinessModelDirect",
+                            "BusinessModelFranchisee"
+                        ],
+                        "description": "直营/加盟",
+                        "name": "business_model",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "noodle",
+                            "bakery",
+                            "snack",
+                            "drink",
+                            "chinese_food"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "BusinessTypeBakery": "烘焙",
+                            "BusinessTypeChineseFood": "中餐",
+                            "BusinessTypeDrink": "饮品",
+                            "BusinessTypeNoodle": "面馆",
+                            "BusinessTypeSnack": "小吃"
+                        },
+                        "x-enum-varnames": [
+                            "BusinessTypeNoodle",
+                            "BusinessTypeBakery",
+                            "BusinessTypeSnack",
+                            "BusinessTypeDrink",
+                            "BusinessTypeChineseFood"
+                        ],
+                        "description": "业务类型",
+                        "name": "business_type_code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
+                        "name": "created_at_gte",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
+                        "name": "created_at_lte",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "MY-01",
+                            "MY-02",
+                            "MY-03",
+                            "MY-04",
+                            "MY-05",
+                            "MY-06",
+                            "MY-07",
+                            "MY-08",
+                            "MY-09",
+                            "MY-10",
+                            "MY-11",
+                            "MY-12",
+                            "MY-13",
+                            "MY-14",
+                            "MY-15",
+                            "MY-16",
+                            "SG-01",
+                            "SG-02",
+                            "SG-03",
+                            "SG-04",
+                            "SG-05"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "ProvinceMY01": "柔佛州",
+                            "ProvinceMY02": "吉打州",
+                            "ProvinceMY03": "吉兰丹州",
+                            "ProvinceMY04": "马六甲州",
+                            "ProvinceMY05": "森美兰州",
+                            "ProvinceMY06": "彭亨州",
+                            "ProvinceMY07": "槟城州",
+                            "ProvinceMY08": "霹雳州",
+                            "ProvinceMY09": "玻璃市州",
+                            "ProvinceMY10": "雪兰莪州",
+                            "ProvinceMY11": "登嘉楼州",
+                            "ProvinceMY12": "沙巴州",
+                            "ProvinceMY13": "砂拉越州",
+                            "ProvinceMY14": "吉隆坡联邦直辖区",
+                            "ProvinceMY15": "纳闽联邦直辖区",
+                            "ProvinceMY16": "布城联邦直辖区",
+                            "ProvinceSG01": "中区社区发展理事会",
+                            "ProvinceSG02": "东北社区发展理事会",
+                            "ProvinceSG03": "西北社区发展理事会",
+                            "ProvinceSG04": "东南社区发展理事会",
+                            "ProvinceSG05": "西南社区发展理事会"
+                        },
+                        "x-enum-varnames": [
+                            "ProvinceMY01",
+                            "ProvinceMY02",
+                            "ProvinceMY03",
+                            "ProvinceMY04",
+                            "ProvinceMY05",
+                            "ProvinceMY06",
+                            "ProvinceMY07",
+                            "ProvinceMY08",
+                            "ProvinceMY09",
+                            "ProvinceMY10",
+                            "ProvinceMY11",
+                            "ProvinceMY12",
+                            "ProvinceMY13",
+                            "ProvinceMY14",
+                            "ProvinceMY15",
+                            "ProvinceMY16",
+                            "ProvinceSG01",
+                            "ProvinceSG02",
+                            "ProvinceSG03",
+                            "ProvinceSG04",
+                            "ProvinceSG05"
+                        ],
+                        "description": "省份",
+                        "name": "province",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "open",
+                            "closed"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "StoreStatusClosed": "停业",
+                            "StoreStatusOpen": "营业"
+                        },
+                        "x-enum-varnames": [
+                            "StoreStatusOpen",
+                            "StoreStatusClosed"
+                        ],
+                        "description": "营业/停业",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "门店名称",
+                        "name": "store_name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.StoreListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/store/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据门店ID获取门店信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "获取门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Store"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新单个门店",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "更新门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新门店请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateStoreReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除单个门店",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "删除门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/merchant/store/{id}/disable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将门店状态置为停业",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "禁用门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/merchant/store/{id}/enable": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将门店状态置为营业",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "启用门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/order/product-sales-summary": {
             "get": {
                 "security": [
                     {
@@ -1232,54 +1852,52 @@
                     "application/json"
                 ],
                 "tags": [
-                    "订单"
+                    "数据分析"
                 ],
-                "summary": "获取订单列表",
+                "summary": "商品销售汇总表",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "营业日",
-                        "name": "business_date",
+                        "description": "门店ID列表（逗号分隔）",
+                        "name": "store_ids",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "订单号",
-                        "name": "order_no",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "订单来源",
+                        "name": "order_channel",
                         "in": "query"
                     },
                     {
-                        "enum": [
-                            "SALE",
-                            "REFUND",
-                            "PARTIAL_REFUND"
-                        ],
                         "type": "string",
-                        "description": "订单类型",
-                        "name": "order_type",
+                        "description": "商品分类ID",
+                        "name": "category_id",
                         "in": "query"
                     },
                     {
-                        "enum": [
-                            "PLACED",
-                            "COMPLETED",
-                            "CANCELLED"
-                        ],
                         "type": "string",
-                        "description": "订单状态",
-                        "name": "order_status",
+                        "description": "商品名称（模糊搜索）",
+                        "name": "product_name",
                         "in": "query"
                     },
                     {
-                        "enum": [
-                            "UNPAID",
-                            "PAYING",
-                            "PAID",
-                            "REFUNDED"
-                        ],
                         "type": "string",
-                        "description": "支付状态",
-                        "name": "payment_status",
+                        "description": "商品类型：normal/set_meal",
+                        "name": "product_type",
                         "in": "query"
                     },
                     {
@@ -1299,13 +1917,13 @@
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/types.ListOrderResp"
+                            "$ref": "#/definitions/types.ProductSalesSummaryResp"
                         }
                     }
                 }
             }
         },
-        "/order/{id}": {
+        "/order/sales-report": {
             "get": {
                 "security": [
                     {
@@ -1319,23 +1937,55 @@
                     "application/json"
                 ],
                 "tags": [
-                    "订单"
+                    "数据分析"
                 ],
-                "summary": "获取订单详情",
+                "summary": "销售汇总表",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "订单ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "品牌商ID",
+                        "name": "merchant_id",
+                        "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "门店ID列表（逗号分隔）",
+                        "name": "store_ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/domain.Order"
+                            "$ref": "#/definitions/types.SalesReportResp"
                         }
                     }
                 }
@@ -4193,261 +4843,6 @@
                 }
             }
         },
-        "/store": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "创建单个门店",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "创建门店",
-                "parameters": [
-                    {
-                        "description": "创建门店请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.CreateStoreReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/store/list": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "分页查询门店列表",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "门店列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "管理员手机号",
-                        "name": "admin_phone_number",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "direct",
-                            "franchisee"
-                        ],
-                        "type": "string",
-                        "x-enum-comments": {
-                            "BusinessModelDirect": "直营",
-                            "BusinessModelFranchisee": "加盟"
-                        },
-                        "x-enum-varnames": [
-                            "BusinessModelDirect",
-                            "BusinessModelFranchisee"
-                        ],
-                        "description": "直营/加盟",
-                        "name": "business_model",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "noodle",
-                            "bakery",
-                            "snack",
-                            "drink",
-                            "chinese_food"
-                        ],
-                        "type": "string",
-                        "x-enum-comments": {
-                            "BusinessTypeBakery": "烘焙",
-                            "BusinessTypeChineseFood": "中餐",
-                            "BusinessTypeDrink": "饮品",
-                            "BusinessTypeNoodle": "面馆",
-                            "BusinessTypeSnack": "小吃"
-                        },
-                        "x-enum-varnames": [
-                            "BusinessTypeNoodle",
-                            "BusinessTypeBakery",
-                            "BusinessTypeSnack",
-                            "BusinessTypeDrink",
-                            "BusinessTypeChineseFood"
-                        ],
-                        "description": "业务类型",
-                        "name": "business_type_code",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
-                        "name": "created_at_gte",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "创建时间 yyyy-mm-dd 2026-01-01",
-                        "name": "created_at_lte",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "商户 ID",
-                        "name": "merchant_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "MY-01",
-                            "MY-02",
-                            "MY-03",
-                            "MY-04",
-                            "MY-05",
-                            "MY-06",
-                            "MY-07",
-                            "MY-08",
-                            "MY-09",
-                            "MY-10",
-                            "MY-11",
-                            "MY-12",
-                            "MY-13",
-                            "MY-14",
-                            "MY-15",
-                            "MY-16",
-                            "SG-01",
-                            "SG-02",
-                            "SG-03",
-                            "SG-04",
-                            "SG-05"
-                        ],
-                        "type": "string",
-                        "x-enum-comments": {
-                            "ProvinceMY01": "柔佛州",
-                            "ProvinceMY02": "吉打州",
-                            "ProvinceMY03": "吉兰丹州",
-                            "ProvinceMY04": "马六甲州",
-                            "ProvinceMY05": "森美兰州",
-                            "ProvinceMY06": "彭亨州",
-                            "ProvinceMY07": "槟城州",
-                            "ProvinceMY08": "霹雳州",
-                            "ProvinceMY09": "玻璃市州",
-                            "ProvinceMY10": "雪兰莪州",
-                            "ProvinceMY11": "登嘉楼州",
-                            "ProvinceMY12": "沙巴州",
-                            "ProvinceMY13": "砂拉越州",
-                            "ProvinceMY14": "吉隆坡联邦直辖区",
-                            "ProvinceMY15": "纳闽联邦直辖区",
-                            "ProvinceMY16": "布城联邦直辖区",
-                            "ProvinceSG01": "中区社区发展理事会",
-                            "ProvinceSG02": "东北社区发展理事会",
-                            "ProvinceSG03": "西北社区发展理事会",
-                            "ProvinceSG04": "东南社区发展理事会",
-                            "ProvinceSG05": "西南社区发展理事会"
-                        },
-                        "x-enum-varnames": [
-                            "ProvinceMY01",
-                            "ProvinceMY02",
-                            "ProvinceMY03",
-                            "ProvinceMY04",
-                            "ProvinceMY05",
-                            "ProvinceMY06",
-                            "ProvinceMY07",
-                            "ProvinceMY08",
-                            "ProvinceMY09",
-                            "ProvinceMY10",
-                            "ProvinceMY11",
-                            "ProvinceMY12",
-                            "ProvinceMY13",
-                            "ProvinceMY14",
-                            "ProvinceMY15",
-                            "ProvinceMY16",
-                            "ProvinceSG01",
-                            "ProvinceSG02",
-                            "ProvinceSG03",
-                            "ProvinceSG04",
-                            "ProvinceSG05"
-                        ],
-                        "description": "省份",
-                        "name": "province",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "size",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "open",
-                            "closed"
-                        ],
-                        "type": "string",
-                        "x-enum-comments": {
-                            "StoreStatusClosed": "停业",
-                            "StoreStatusOpen": "营业"
-                        },
-                        "x-enum-varnames": [
-                            "StoreStatusOpen",
-                            "StoreStatusClosed"
-                        ],
-                        "description": "营业/停业",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "门店名称",
-                        "name": "store_name",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/types.StoreListResp"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/store/payment/account/{id}": {
             "delete": {
                 "security": [
@@ -4471,193 +4866,6 @@
                 "responses": {
                     "200": {
                         "description": "OK"
-                    }
-                }
-            }
-        },
-        "/store/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "根据门店ID获取门店信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "获取门店",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "门店ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.Store"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "更新单个门店",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "更新门店",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "门店ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "更新门店请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.UpdateStoreReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "删除单个门店",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "删除门店",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "门店ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    },
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/store/{id}/disable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "将门店状态置为停业",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "禁用门店",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "门店ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/store/{id}/enable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "将门店状态置为营业",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "门店管理"
-                ],
-                "summary": "启用门店",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "门店ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
                     }
                 }
             }
@@ -4968,7 +5176,7 @@
                     },
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -5689,6 +5897,10 @@
                     "description": "品牌商ID",
                     "type": "string"
                 },
+                "modify_status": {
+                    "description": "下发后是否可以进行修改: true-可以, false-不可以",
+                    "type": "boolean"
+                },
                 "name": {
                     "description": "参数名称",
                     "type": "string"
@@ -5730,9 +5942,11 @@
                 "int",
                 "uint",
                 "datetime",
-                "date"
+                "date",
+                "bool"
             ],
             "x-enum-comments": {
+                "BusinessConfigConfigTypeBool": "bool",
                 "BusinessConfigConfigTypeDate": "date",
                 "BusinessConfigConfigTypeDatetime": "datetime",
                 "BusinessConfigConfigTypeInt": "int",
@@ -5744,18 +5958,31 @@
                 "BusinessConfigConfigTypeInt",
                 "BusinessConfigConfigTypeUint",
                 "BusinessConfigConfigTypeDatetime",
-                "BusinessConfigConfigTypeDate"
+                "BusinessConfigConfigTypeDate",
+                "BusinessConfigConfigTypeBool"
             ]
         },
         "domain.BusinessConfigGroup": {
             "type": "string",
             "enum": [
+                "order",
+                "payment",
+                "kitchen",
+                "refund",
                 "print"
             ],
             "x-enum-comments": {
-                "BusinessConfigGroupPrint": "print"
+                "BusinessConfigGroupKitchen": "后厨设置",
+                "BusinessConfigGroupOrder": "点餐设置",
+                "BusinessConfigGroupPayment": "收单设置",
+                "BusinessConfigGroupPrint": "退款设置",
+                "BusinessConfigGroupRefund": "退款设置"
             },
             "x-enum-varnames": [
+                "BusinessConfigGroupOrder",
+                "BusinessConfigGroupPayment",
+                "BusinessConfigGroupKitchen",
+                "BusinessConfigGroupRefund",
                 "BusinessConfigGroupPrint"
             ]
         },
@@ -5767,18 +5994,6 @@
                     "items": {
                         "$ref": "#/definitions/domain.BusinessConfig"
                     }
-                },
-                "page": {
-                    "description": "页码",
-                    "type": "integer"
-                },
-                "size": {
-                    "description": "每页数量",
-                    "type": "integer"
-                },
-                "total": {
-                    "description": "总页数",
-                    "type": "integer"
                 }
             }
         },
@@ -5941,18 +6156,6 @@
                 }
             }
         },
-        "domain.Channel": {
-            "type": "string",
-            "enum": [
-                "POS"
-            ],
-            "x-enum-comments": {
-                "ChannelPOS": "POS终端"
-            },
-            "x-enum-varnames": [
-                "ChannelPOS"
-            ]
-        },
         "domain.Country": {
             "type": "string",
             "enum": [
@@ -5976,7 +6179,7 @@
                 "department_type": {
                     "$ref": "#/definitions/domain.DepartmentType"
                 },
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "id": {
@@ -6241,18 +6444,6 @@
                 "DeviceTypePrinter"
             ]
         },
-        "domain.DiningMode": {
-            "type": "string",
-            "enum": [
-                "DINE_IN"
-            ],
-            "x-enum-comments": {
-                "DiningModeDineIn": "堂食"
-            },
-            "x-enum-varnames": [
-                "DiningModeDineIn"
-            ]
-        },
         "domain.DiningPeriod": {
             "type": "object",
             "properties": {
@@ -6301,21 +6492,6 @@
             "x-enum-varnames": [
                 "EffectiveDateTypeDaily",
                 "EffectiveDateTypeCustom"
-            ]
-        },
-        "domain.FeeType": {
-            "type": "string",
-            "enum": [
-                "SERVICE",
-                "PACKAGING"
-            ],
-            "x-enum-comments": {
-                "FeeTypePackaging": "打包费",
-                "FeeTypeService": "服务费"
-            },
-            "x-enum-varnames": [
-                "FeeTypeService",
-                "FeeTypePackaging"
             ]
         },
         "domain.Gender": {
@@ -6641,242 +6817,6 @@
                 "ObjectStorageSceneProduct"
             ]
         },
-        "domain.Order": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "金额汇总",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderAmount"
-                        }
-                    ]
-                },
-                "business_date": {
-                    "description": "营业日",
-                    "type": "string"
-                },
-                "cashier": {
-                    "description": "收银员信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderCashier"
-                        }
-                    ]
-                },
-                "channel": {
-                    "description": "下单渠道",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.Channel"
-                        }
-                    ]
-                },
-                "completed_at": {
-                    "description": "完成时间",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "dining_mode": {
-                    "description": "堂食/外卖",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.DiningMode"
-                        }
-                    ]
-                },
-                "fees": {
-                    "description": "费用",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.OrderFee"
-                    }
-                },
-                "guest_count": {
-                    "description": "用餐人数",
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "merchant_id": {
-                    "description": "品牌商ID",
-                    "type": "string"
-                },
-                "order_no": {
-                    "description": "订单号",
-                    "type": "string"
-                },
-                "order_products": {
-                    "description": "订单商品明细",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.OrderProduct"
-                    }
-                },
-                "order_status": {
-                    "description": "订单状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderStatus"
-                        }
-                    ]
-                },
-                "order_type": {
-                    "description": "订单类型",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderType"
-                        }
-                    ]
-                },
-                "paid_at": {
-                    "description": "支付完成时间",
-                    "type": "string"
-                },
-                "payment_status": {
-                    "description": "支付状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.PaymentStatus"
-                        }
-                    ]
-                },
-                "payments": {
-                    "description": "支付记录",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.OrderPayment"
-                    }
-                },
-                "placed_at": {
-                    "description": "下单时间",
-                    "type": "string"
-                },
-                "placed_by": {
-                    "description": "下单人ID",
-                    "type": "string"
-                },
-                "placed_by_name": {
-                    "description": "下单人名称",
-                    "type": "string"
-                },
-                "pos": {
-                    "description": "POS 终端信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderPOS"
-                        }
-                    ]
-                },
-                "remark": {
-                    "description": "整单备注",
-                    "type": "string"
-                },
-                "shift_no": {
-                    "description": "班次号",
-                    "type": "string"
-                },
-                "store": {
-                    "description": "门店信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderStore"
-                        }
-                    ]
-                },
-                "store_id": {
-                    "description": "门店ID",
-                    "type": "string"
-                },
-                "table_id": {
-                    "description": "桌位ID",
-                    "type": "string"
-                },
-                "table_name": {
-                    "description": "桌位名称",
-                    "type": "string"
-                },
-                "tax_rates": {
-                    "description": "税率",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.OrderTaxRate"
-                    }
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.OrderAmount": {
-            "type": "object",
-            "properties": {
-                "amount_due": {
-                    "description": "应收",
-                    "type": "number"
-                },
-                "amount_paid": {
-                    "description": "实收",
-                    "type": "number"
-                },
-                "amount_refunded": {
-                    "description": "已退款",
-                    "type": "number"
-                },
-                "change_amount": {
-                    "description": "找零",
-                    "type": "number"
-                },
-                "delivery_fee": {
-                    "description": "配送费",
-                    "type": "number"
-                },
-                "discount_total": {
-                    "description": "折扣合计",
-                    "type": "number"
-                },
-                "fee_total": {
-                    "description": "其他费用合计",
-                    "type": "number"
-                },
-                "items_subtotal": {
-                    "description": "商品小计",
-                    "type": "number"
-                },
-                "overpay_amount": {
-                    "description": "溢收",
-                    "type": "number"
-                },
-                "rounding_amount": {
-                    "description": "舍入/抹零",
-                    "type": "number"
-                },
-                "service_fee_total": {
-                    "description": "服务费合计",
-                    "type": "number"
-                },
-                "tax_total": {
-                    "description": "税费合计",
-                    "type": "number"
-                }
-            }
-        },
-        "domain.OrderCashier": {
-            "type": "object",
-            "properties": {
-                "cashier_id": {
-                    "description": "收银员ID",
-                    "type": "string"
-                },
-                "cashier_name": {
-                    "description": "收银员名称",
-                    "type": "string"
-                }
-            }
-        },
         "domain.OrderChannel": {
             "type": "string",
             "enum": [
@@ -6904,342 +6844,74 @@
                 "OrderChannelThirdDelivery"
             ]
         },
-        "domain.OrderFee": {
+        "domain.OrderSalesReportItem": {
             "type": "object",
             "properties": {
-                "amount": {
-                    "description": "费用金额",
+                "amount_due": {
+                    "description": "应收金额",
                     "type": "number"
                 },
-                "fee_id": {
-                    "description": "费用ID",
-                    "type": "string"
-                },
-                "fee_name": {
-                    "description": "费用名称",
-                    "type": "string"
-                },
-                "fee_type": {
-                    "description": "费用类型",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.FeeType"
-                        }
-                    ]
-                },
-                "meta": {
-                    "description": "扩展信息"
-                }
-            }
-        },
-        "domain.OrderPOS": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "POS 设备id",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "POS 设备名称",
-                    "type": "string"
-                }
-            }
-        },
-        "domain.OrderPayment": {
-            "type": "object",
-            "properties": {
-                "cashier": {
-                    "description": "收银员信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderCashier"
-                        }
-                    ]
-                },
-                "paid_at": {
-                    "description": "支付时间",
-                    "type": "string"
-                },
-                "payment_amount": {
-                    "description": "支付金额",
+                "amount_paid": {
+                    "description": "实收金额",
                     "type": "number"
                 },
-                "payment_method": {
-                    "description": "支付方式",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.PaymentMethodPayType"
-                        }
-                    ]
+                "amount_paid_per_guest": {
+                    "description": "人均实收",
+                    "type": "number"
                 },
-                "payment_no": {
-                    "description": "支付号（第三方/外部交易号）",
+                "business_date": {
+                    "description": "营业日",
                     "type": "string"
                 },
-                "payment_status": {
-                    "description": "支付状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.PaymentStatus"
-                        }
-                    ]
+                "cash_amount": {
+                    "description": "现金金额",
+                    "type": "number"
                 },
-                "pos": {
-                    "description": "POS 终端信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.OrderPOS"
-                        }
-                    ]
+                "change_amount": {
+                    "description": "零钱实收",
+                    "type": "number"
+                },
+                "discount_total": {
+                    "description": "优惠金额",
+                    "type": "number"
+                },
+                "fee_total": {
+                    "description": "附加费金额",
+                    "type": "number"
+                },
+                "guest_count": {
+                    "description": "用餐人数",
+                    "type": "integer"
+                },
+                "net_amount": {
+                    "description": "净收金额（实收-退款）",
+                    "type": "number"
+                },
+                "order_count": {
+                    "description": "单量",
+                    "type": "integer"
                 },
                 "refund_amount": {
                     "description": "退款金额",
                     "type": "number"
-                }
-            }
-        },
-        "domain.OrderProduct": {
-            "type": "object",
-            "properties": {
-                "amount_after_tax": {
-                    "description": "税后金额",
-                    "type": "number"
                 },
-                "amount_before_tax": {
-                    "description": "税前金额",
-                    "type": "number"
-                },
-                "attr_relations": {
-                    "description": "口味做法信息",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ProductAttrRelation"
-                    }
-                },
-                "category_id": {
-                    "description": "分类ID",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "description": "菜品描述",
-                    "type": "string"
-                },
-                "discount_amount": {
-                    "description": "优惠金额",
-                    "type": "number"
-                },
-                "gift_qty": {
-                    "description": "赠送数量",
+                "refund_count": {
+                    "description": "退款单数",
                     "type": "integer"
                 },
-                "groups": {
-                    "description": "套餐信息（仅套餐商品使用）",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.SetMealGroup"
-                    }
-                },
-                "id": {
-                    "type": "string"
-                },
-                "index": {
-                    "description": "下单序号（同订单内第几次下单）",
-                    "type": "integer"
-                },
-                "is_gift": {
-                    "description": "是否赠送",
-                    "type": "boolean"
-                },
-                "main_image": {
-                    "description": "商品主图",
-                    "type": "string"
-                },
-                "note": {
-                    "description": "其他信息",
-                    "type": "string"
-                },
-                "order_id": {
-                    "description": "订单关联",
-                    "type": "string"
-                },
-                "order_item_id": {
-                    "description": "订单内明细ID",
-                    "type": "string"
-                },
-                "price": {
-                    "description": "数量与金额",
-                    "type": "number"
-                },
-                "product_id": {
-                    "description": "商品基础信息",
-                    "type": "string"
-                },
-                "product_name": {
-                    "description": "商品名称",
-                    "type": "string"
-                },
-                "product_type": {
-                    "description": "商品类型",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.ProductType"
-                        }
-                    ]
-                },
-                "promotion_discount": {
-                    "description": "促销信息",
-                    "type": "number"
-                },
-                "qty": {
-                    "description": "数量",
-                    "type": "integer"
-                },
-                "refund_reason": {
-                    "description": "退菜原因",
-                    "type": "string"
-                },
-                "refunded_at": {
-                    "description": "退菜时间",
-                    "type": "string"
-                },
-                "refunded_by": {
-                    "description": "退菜操作人",
-                    "type": "string"
-                },
-                "spec_relations": {
-                    "description": "规格信息",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ProductSpecRelation"
-                    }
-                },
-                "subtotal": {
-                    "description": "小计",
-                    "type": "number"
-                },
-                "tax": {
-                    "description": "税额",
-                    "type": "number"
-                },
-                "tax_rate": {
-                    "description": "税率（百分比，如 6.00 表示 6%）",
-                    "type": "number"
-                },
-                "total": {
-                    "description": "合计",
-                    "type": "number"
-                },
-                "unit_id": {
-                    "description": "单位ID",
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "void_amount": {
-                    "description": "已退菜金额汇总",
-                    "type": "number"
-                },
-                "void_qty": {
-                    "description": "退菜信息",
-                    "type": "integer"
-                }
-            }
-        },
-        "domain.OrderStatus": {
-            "type": "string",
-            "enum": [
-                "PLACED",
-                "COMPLETED",
-                "CANCELLED"
-            ],
-            "x-enum-comments": {
-                "OrderStatusCancelled": "已取消",
-                "OrderStatusCompleted": "已完成",
-                "OrderStatusPlaced": "已下单"
-            },
-            "x-enum-varnames": [
-                "OrderStatusPlaced",
-                "OrderStatusCompleted",
-                "OrderStatusCancelled"
-            ]
-        },
-        "domain.OrderStore": {
-            "type": "object",
-            "properties": {
-                "contact_phone": {
-                    "description": "联系电话",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "merchant_id": {
-                    "description": "商户 ID",
-                    "type": "string"
-                },
-                "merchant_name": {
-                    "description": "商户名称",
-                    "type": "string"
-                },
-                "store_code": {
-                    "description": "门店编码(保留字段)",
+                "store_id": {
+                    "description": "门店ID",
                     "type": "string"
                 },
                 "store_name": {
                     "description": "门店名称",
                     "type": "string"
-                }
-            }
-        },
-        "domain.OrderTaxRate": {
-            "type": "object",
-            "properties": {
-                "meta": {
-                    "description": "扩展信息"
                 },
-                "rate": {
-                    "description": "税率（百分比）",
-                    "type": "number"
-                },
-                "tax_amount": {
-                    "description": "税额",
-                    "type": "number"
-                },
-                "tax_rate_id": {
-                    "description": "税率ID",
-                    "type": "string"
-                },
-                "tax_rate_name": {
-                    "description": "税率名称",
-                    "type": "string"
-                },
-                "taxable_amount": {
-                    "description": "计税金额",
+                "third_party_amount": {
+                    "description": "三方支付金额",
                     "type": "number"
                 }
             }
-        },
-        "domain.OrderType": {
-            "type": "string",
-            "enum": [
-                "SALE",
-                "REFUND",
-                "PARTIAL_REFUND"
-            ],
-            "x-enum-comments": {
-                "OrderTypePartialRefund": "部分退款单",
-                "OrderTypeRefund": "退单",
-                "OrderTypeSale": "销售单"
-            },
-            "x-enum-varnames": [
-                "OrderTypeSale",
-                "OrderTypeRefund",
-                "OrderTypePartialRefund"
-            ]
         },
         "domain.PaperSize": {
             "type": "string",
@@ -7537,27 +7209,6 @@
                     "type": "integer"
                 }
             }
-        },
-        "domain.PaymentStatus": {
-            "type": "string",
-            "enum": [
-                "UNPAID",
-                "PAYING",
-                "PAID",
-                "REFUNDED"
-            ],
-            "x-enum-comments": {
-                "PaymentStatusPaid": "已支付",
-                "PaymentStatusPaying": "支付中",
-                "PaymentStatusRefunded": "全额退款",
-                "PaymentStatusUnpaid": "未支付"
-            },
-            "x-enum-varnames": [
-                "PaymentStatusUnpaid",
-                "PaymentStatusPaying",
-                "PaymentStatusPaid",
-                "PaymentStatusRefunded"
-            ]
         },
         "domain.Product": {
             "type": "object",
@@ -7908,6 +7559,83 @@
                 "ProductSaleStatusOnSale",
                 "ProductSaleStatusOffSale"
             ]
+        },
+        "domain.ProductSalesSummaryItem": {
+            "type": "object",
+            "properties": {
+                "amount_due": {
+                    "description": "商品应收金额",
+                    "type": "number"
+                },
+                "attr_amount": {
+                    "description": "做法金额",
+                    "type": "number"
+                },
+                "avg_price": {
+                    "description": "销售均价",
+                    "type": "number"
+                },
+                "category_name": {
+                    "description": "一级分类名称",
+                    "type": "string"
+                },
+                "category_name_2": {
+                    "description": "二级分类名称",
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "description": "优惠金额",
+                    "type": "number"
+                },
+                "gift_amount": {
+                    "description": "赠送金额",
+                    "type": "number"
+                },
+                "gift_qty": {
+                    "description": "赠送数量",
+                    "type": "integer"
+                },
+                "product_id": {
+                    "description": "商品ID",
+                    "type": "string"
+                },
+                "product_name": {
+                    "description": "商品名称",
+                    "type": "string"
+                },
+                "product_type": {
+                    "description": "商品类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductType"
+                        }
+                    ]
+                },
+                "refund_amount": {
+                    "description": "退款金额",
+                    "type": "number"
+                },
+                "refund_qty": {
+                    "description": "退款数量",
+                    "type": "integer"
+                },
+                "sales_amount": {
+                    "description": "销售金额",
+                    "type": "number"
+                },
+                "sales_qty": {
+                    "description": "销售数量",
+                    "type": "integer"
+                },
+                "spec_name": {
+                    "description": "规格名称",
+                    "type": "string"
+                },
+                "subtotal": {
+                    "description": "商品金额（小计）",
+                    "type": "number"
+                }
+            }
         },
         "domain.ProductSearchRes": {
             "type": "object",
@@ -8608,10 +8336,6 @@
                         }
                     ]
                 },
-                "remark_scene_name": {
-                    "description": "使用场景：整单备注/单品备注/退菜原因等",
-                    "type": "string"
-                },
                 "remark_type": {
                     "description": "备注类型：系统/品牌",
                     "allOf": [
@@ -8699,7 +8423,7 @@
                         }
                     ]
                 },
-                "enable": {
+                "enabled": {
                     "description": "是否启用",
                     "type": "boolean"
                 },
@@ -8792,6 +8516,60 @@
                 "RoleTypeBackend",
                 "RoleTypeStore"
             ]
+        },
+        "domain.RouterMenu": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "description": "前端组件路径",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "icon": {
+                    "description": "菜单图标",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "layer": {
+                    "description": "菜单层级",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "菜单名称",
+                    "type": "string"
+                },
+                "parent_id": {
+                    "description": "父级菜单ID，根菜单为 uuid.Nil",
+                    "type": "string"
+                },
+                "path": {
+                    "description": "菜单路径",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "菜单排序",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_type": {
+                    "description": "类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.UserType"
+                        }
+                    ]
+                }
+            }
         },
         "domain.SaleChannel": {
             "type": "string",
@@ -9339,14 +9117,17 @@
         "domain.TaxFeeType": {
             "type": "string",
             "enum": [
+                "system",
                 "merchant",
                 "store"
             ],
             "x-enum-comments": {
                 "TaxFeeTypeMerchant": "商户",
-                "TaxFeeTypeStore": "门店"
+                "TaxFeeTypeStore": "门店",
+                "TaxFeeTypeSystem": "系统内置"
             },
             "x-enum-varnames": [
+                "TaxFeeTypeSystem",
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
             ]
@@ -9364,6 +9145,27 @@
             "x-enum-varnames": [
                 "TaxRateTypeUnified",
                 "TaxRateTypeCustom"
+            ]
+        },
+        "domain.UserType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store",
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-comments": {
+                "UserTypeAdmin": "admin表用户",
+                "UserTypeBackend": "backend用户",
+                "UserTypeStore": "store用户"
+            },
+            "x-enum-varnames": [
+                "RoleTypeAdmin",
+                "RoleTypeBackend",
+                "RoleTypeStore"
             ]
         },
         "response.Response": {
@@ -9384,9 +9186,23 @@
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -9764,6 +9580,117 @@
                 }
             }
         },
+        "types.BusinessConfig": {
+            "type": "object",
+            "required": [
+                "config_type",
+                "group",
+                "id"
+            ],
+            "properties": {
+                "config_type": {
+                    "description": "键值类型",
+                    "enum": [
+                        "string",
+                        "int",
+                        "uint",
+                        "bool",
+                        "datetime",
+                        "date"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigConfigType"
+                        }
+                    ]
+                },
+                "group": {
+                    "description": "配置分组",
+                    "enum": [
+                        "print"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessConfigGroup"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "记录ID",
+                    "type": "string"
+                },
+                "key": {
+                    "description": "参数键名",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "参数名称",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "source_config_id": {
+                    "description": "来源配置ID",
+                    "type": "string"
+                },
+                "tip": {
+                    "description": "变量描述",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "参数键值",
+                    "type": "string"
+                }
+            }
+        },
+        "types.BusinessConfigDistributeReq": {
+            "type": "object",
+            "required": [
+                "ids",
+                "modify_status",
+                "store_ids"
+            ],
+            "properties": {
+                "ids": {
+                    "description": "记录ID列表",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "modify_status": {
+                    "description": "下发后是否可以进行修改: true-可以, false-不可以",
+                    "type": "boolean"
+                },
+                "store_ids": {
+                    "description": "门店ID列表（必选，多选）",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.BusinessConfigUpsertReq": {
+            "type": "object",
+            "required": [
+                "configs"
+            ],
+            "properties": {
+                "configs": {
+                    "description": "配置分组",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/types.BusinessConfig"
+                    }
+                }
+            }
+        },
         "types.CategoryCreateChildReq": {
             "type": "object",
             "required": [
@@ -9853,7 +9780,6 @@
                 "location_number",
                 "login_account",
                 "login_password",
-                "merchant_id",
                 "shift_times",
                 "status",
                 "store_name"
@@ -9945,10 +9871,6 @@
                     "description": "登录密码(加密存储)",
                     "type": "string"
                 },
-                "merchant_id": {
-                    "description": "所属商户 ID",
-                    "type": "string"
-                },
                 "shift_times": {
                     "description": "班次时间",
                     "type": "array",
@@ -10002,7 +9924,7 @@
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -10030,7 +9952,7 @@
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -10316,26 +10238,6 @@
                 "store_id": {
                     "description": "门店 ID",
                     "type": "string"
-                }
-            }
-        },
-        "types.ListOrderResp": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "description": "订单列表",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.Order"
-                    }
-                },
-                "pagination": {
-                    "description": "分页信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/upagination.Pagination"
-                        }
-                    ]
                 }
             }
         },
@@ -11044,6 +10946,26 @@
                 }
             }
         },
+        "types.ProductSalesSummaryResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "汇总数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSalesSummaryItem"
+                    }
+                },
+                "pagination": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/upagination.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
         "types.ProductSpecCreateReq": {
             "type": "object",
             "required": [
@@ -11556,7 +11478,7 @@
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -11579,18 +11501,63 @@
                 }
             }
         },
+        "types.RoleMenusResp": {
+            "type": "object",
+            "properties": {
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "types.RoleUpdateReq": {
             "type": "object",
             "required": [
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 50
+                }
+            }
+        },
+        "types.RouterMenuListResp": {
+            "type": "object",
+            "properties": {
+                "menus": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RouterMenu"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.SalesReportResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "报表数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderSalesReportItem"
+                    }
+                },
+                "pagination": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/upagination.Pagination"
+                        }
+                    ]
                 }
             }
         },
@@ -11961,6 +11928,20 @@
                 "unit_id": {
                     "description": "属性关联",
                     "type": "string"
+                }
+            }
+        },
+        "types.SetMenusReq": {
+            "type": "object",
+            "required": [
+                "paths"
+            ],
+            "properties": {
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

@@ -99,22 +99,16 @@ func (bcu *BusinessConfigUpdate) ClearMerchantID() *BusinessConfigUpdate {
 }
 
 // SetStoreID sets the "store_id" field.
-func (bcu *BusinessConfigUpdate) SetStoreID(u uuid.UUID) *BusinessConfigUpdate {
-	bcu.mutation.SetStoreID(u)
+func (bcu *BusinessConfigUpdate) SetStoreID(s string) *BusinessConfigUpdate {
+	bcu.mutation.SetStoreID(s)
 	return bcu
 }
 
 // SetNillableStoreID sets the "store_id" field if the given value is not nil.
-func (bcu *BusinessConfigUpdate) SetNillableStoreID(u *uuid.UUID) *BusinessConfigUpdate {
-	if u != nil {
-		bcu.SetStoreID(*u)
+func (bcu *BusinessConfigUpdate) SetNillableStoreID(s *string) *BusinessConfigUpdate {
+	if s != nil {
+		bcu.SetStoreID(*s)
 	}
-	return bcu
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (bcu *BusinessConfigUpdate) ClearStoreID() *BusinessConfigUpdate {
-	bcu.mutation.ClearStoreID()
 	return bcu
 }
 
@@ -273,6 +267,20 @@ func (bcu *BusinessConfigUpdate) SetNillableIsDefault(b *bool) *BusinessConfigUp
 	return bcu
 }
 
+// SetModifyStatus sets the "modify_status" field.
+func (bcu *BusinessConfigUpdate) SetModifyStatus(b bool) *BusinessConfigUpdate {
+	bcu.mutation.SetModifyStatus(b)
+	return bcu
+}
+
+// SetNillableModifyStatus sets the "modify_status" field if the given value is not nil.
+func (bcu *BusinessConfigUpdate) SetNillableModifyStatus(b *bool) *BusinessConfigUpdate {
+	if b != nil {
+		bcu.SetModifyStatus(*b)
+	}
+	return bcu
+}
+
 // SetStatus sets the "status" field.
 func (bcu *BusinessConfigUpdate) SetStatus(b bool) *BusinessConfigUpdate {
 	bcu.mutation.SetStatus(b)
@@ -389,10 +397,7 @@ func (bcu *BusinessConfigUpdate) sqlSave(ctx context.Context) (n int, err error)
 		_spec.ClearField(businessconfig.FieldMerchantID, field.TypeUUID)
 	}
 	if value, ok := bcu.mutation.StoreID(); ok {
-		_spec.SetField(businessconfig.FieldStoreID, field.TypeUUID, value)
-	}
-	if bcu.mutation.StoreIDCleared() {
-		_spec.ClearField(businessconfig.FieldStoreID, field.TypeUUID)
+		_spec.SetField(businessconfig.FieldStoreID, field.TypeString, value)
 	}
 	if value, ok := bcu.mutation.Group(); ok {
 		_spec.SetField(businessconfig.FieldGroup, field.TypeEnum, value)
@@ -438,6 +443,9 @@ func (bcu *BusinessConfigUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if value, ok := bcu.mutation.IsDefault(); ok {
 		_spec.SetField(businessconfig.FieldIsDefault, field.TypeBool, value)
+	}
+	if value, ok := bcu.mutation.ModifyStatus(); ok {
+		_spec.SetField(businessconfig.FieldModifyStatus, field.TypeBool, value)
 	}
 	if value, ok := bcu.mutation.Status(); ok {
 		_spec.SetField(businessconfig.FieldStatus, field.TypeBool, value)
@@ -532,22 +540,16 @@ func (bcuo *BusinessConfigUpdateOne) ClearMerchantID() *BusinessConfigUpdateOne 
 }
 
 // SetStoreID sets the "store_id" field.
-func (bcuo *BusinessConfigUpdateOne) SetStoreID(u uuid.UUID) *BusinessConfigUpdateOne {
-	bcuo.mutation.SetStoreID(u)
+func (bcuo *BusinessConfigUpdateOne) SetStoreID(s string) *BusinessConfigUpdateOne {
+	bcuo.mutation.SetStoreID(s)
 	return bcuo
 }
 
 // SetNillableStoreID sets the "store_id" field if the given value is not nil.
-func (bcuo *BusinessConfigUpdateOne) SetNillableStoreID(u *uuid.UUID) *BusinessConfigUpdateOne {
-	if u != nil {
-		bcuo.SetStoreID(*u)
+func (bcuo *BusinessConfigUpdateOne) SetNillableStoreID(s *string) *BusinessConfigUpdateOne {
+	if s != nil {
+		bcuo.SetStoreID(*s)
 	}
-	return bcuo
-}
-
-// ClearStoreID clears the value of the "store_id" field.
-func (bcuo *BusinessConfigUpdateOne) ClearStoreID() *BusinessConfigUpdateOne {
-	bcuo.mutation.ClearStoreID()
 	return bcuo
 }
 
@@ -706,6 +708,20 @@ func (bcuo *BusinessConfigUpdateOne) SetNillableIsDefault(b *bool) *BusinessConf
 	return bcuo
 }
 
+// SetModifyStatus sets the "modify_status" field.
+func (bcuo *BusinessConfigUpdateOne) SetModifyStatus(b bool) *BusinessConfigUpdateOne {
+	bcuo.mutation.SetModifyStatus(b)
+	return bcuo
+}
+
+// SetNillableModifyStatus sets the "modify_status" field if the given value is not nil.
+func (bcuo *BusinessConfigUpdateOne) SetNillableModifyStatus(b *bool) *BusinessConfigUpdateOne {
+	if b != nil {
+		bcuo.SetModifyStatus(*b)
+	}
+	return bcuo
+}
+
 // SetStatus sets the "status" field.
 func (bcuo *BusinessConfigUpdateOne) SetStatus(b bool) *BusinessConfigUpdateOne {
 	bcuo.mutation.SetStatus(b)
@@ -852,10 +868,7 @@ func (bcuo *BusinessConfigUpdateOne) sqlSave(ctx context.Context) (_node *Busine
 		_spec.ClearField(businessconfig.FieldMerchantID, field.TypeUUID)
 	}
 	if value, ok := bcuo.mutation.StoreID(); ok {
-		_spec.SetField(businessconfig.FieldStoreID, field.TypeUUID, value)
-	}
-	if bcuo.mutation.StoreIDCleared() {
-		_spec.ClearField(businessconfig.FieldStoreID, field.TypeUUID)
+		_spec.SetField(businessconfig.FieldStoreID, field.TypeString, value)
 	}
 	if value, ok := bcuo.mutation.Group(); ok {
 		_spec.SetField(businessconfig.FieldGroup, field.TypeEnum, value)
@@ -901,6 +914,9 @@ func (bcuo *BusinessConfigUpdateOne) sqlSave(ctx context.Context) (_node *Busine
 	}
 	if value, ok := bcuo.mutation.IsDefault(); ok {
 		_spec.SetField(businessconfig.FieldIsDefault, field.TypeBool, value)
+	}
+	if value, ok := bcuo.mutation.ModifyStatus(); ok {
+		_spec.SetField(businessconfig.FieldModifyStatus, field.TypeBool, value)
 	}
 	if value, ok := bcuo.mutation.Status(); ok {
 		_spec.SetField(businessconfig.FieldStatus, field.TypeBool, value)

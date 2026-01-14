@@ -12,6 +12,7 @@ import (
 var (
 	ErrRemarkNotExists    = errors.New("备注不存在")
 	ErrRemarkNameExists   = errors.New("备注名称已存在")
+	ErrRemarkUpdateSystem = errors.New("系统备注不能修改")
 	ErrRemarkDeleteSystem = errors.New("系统备注不能删除")
 )
 
@@ -34,12 +35,12 @@ type RemarkRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/remark_interactor.go -package=mock . RemarkInteractor
 type RemarkInteractor interface {
-	Create(ctx context.Context, remark *CreateRemarkParams) (err error)
-	Update(ctx context.Context, remark *UpdateRemarkParams) (err error)
-	Delete(ctx context.Context, id uuid.UUID) (err error)
-	GetRemark(ctx context.Context, id uuid.UUID) (remark *Remark, err error)
+	Create(ctx context.Context, remark *CreateRemarkParams, user User) (err error)
+	Update(ctx context.Context, remark *UpdateRemarkParams, user User) (err error)
+	Delete(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetRemark(ctx context.Context, id uuid.UUID, user User) (remark *Remark, err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
-	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateField, remark *Remark) (err error)
+	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateField, remark *Remark, user User) (err error)
 }
 type RemarkType string // 备注归属方
 
@@ -119,17 +120,16 @@ func NewRemarkOrderBySortOrder(desc bool) RemarkOrderBy {
 }
 
 type Remark struct {
-	ID              uuid.UUID   `json:"id"`
-	Name            string      `json:"name"`              // 备注名称
-	RemarkType      RemarkType  `json:"remark_type"`       // 备注类型：系统/品牌
-	Enabled         bool        `json:"enabled"`           // 是否启用
-	SortOrder       int         `json:"sort_order"`        // 排序，值越小越靠前
-	RemarkScene     RemarkScene `json:"remark_scene"`      // 使用场景：整单备注/单品备注/退菜原因等
-	RemarkSceneName string      `json:"remark_scene_name"` // 使用场景：整单备注/单品备注/退菜原因等
-	MerchantID      uuid.UUID   `json:"merchant_id"`       // 品牌商ID，仅品牌备注需要
-	StoreID         uuid.UUID   `json:"store_id"`          // 门店 ID
-	CreatedAt       time.Time   `json:"created_at"`
-	UpdatedAt       time.Time   `json:"updated_at"`
+	ID          uuid.UUID   `json:"id"`
+	Name        string      `json:"name"`         // 备注名称
+	RemarkType  RemarkType  `json:"remark_type"`  // 备注类型：系统/品牌
+	Enabled     bool        `json:"enabled"`      // 是否启用
+	SortOrder   int         `json:"sort_order"`   // 排序，值越小越靠前
+	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
+	MerchantID  uuid.UUID   `json:"merchant_id"`  // 品牌商ID，仅品牌备注需要
+	StoreID     uuid.UUID   `json:"store_id"`     // 门店 ID
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 type CreateRemarkParams struct {
@@ -160,6 +160,7 @@ type RemarkExistsParams struct {
 // RemarkListFilter merchant ID is required when store ID is provided
 // RemarkListFilter 备注列表过滤条件
 type RemarkListFilter struct {
+	Name        string      `json:"name"`         // 备注名称，支持模糊查询
 	RemarkType  RemarkType  `json:"remark_type"`  // 备注归属方
 	RemarkScene RemarkScene `json:"remark_scene"` // 使用场景：整单备注/单品备注/退菜原因等
 	MerchantID  uuid.UUID   `json:"merchant_id"`  // 商户 ID
