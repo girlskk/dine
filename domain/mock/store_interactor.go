@@ -38,46 +38,46 @@ func (m *MockStoreInteractor) EXPECT() *MockStoreInteractorMockRecorder {
 }
 
 // CreateStore mocks base method.
-func (m *MockStoreInteractor) CreateStore(arg0 context.Context, arg1 *domain.CreateStoreParams) error {
+func (m *MockStoreInteractor) CreateStore(arg0 context.Context, arg1 *domain.CreateStoreParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateStore", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateStore", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateStore indicates an expected call of CreateStore.
-func (mr *MockStoreInteractorMockRecorder) CreateStore(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStoreInteractorMockRecorder) CreateStore(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStore", reflect.TypeOf((*MockStoreInteractor)(nil).CreateStore), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStore", reflect.TypeOf((*MockStoreInteractor)(nil).CreateStore), arg0, arg1, arg2)
 }
 
 // DeleteStore mocks base method.
-func (m *MockStoreInteractor) DeleteStore(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockStoreInteractor) DeleteStore(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteStore", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteStore", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteStore indicates an expected call of DeleteStore.
-func (mr *MockStoreInteractorMockRecorder) DeleteStore(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStoreInteractorMockRecorder) DeleteStore(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteStore", reflect.TypeOf((*MockStoreInteractor)(nil).DeleteStore), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteStore", reflect.TypeOf((*MockStoreInteractor)(nil).DeleteStore), arg0, arg1, arg2)
 }
 
 // GetStore mocks base method.
-func (m *MockStoreInteractor) GetStore(arg0 context.Context, arg1 uuid.UUID) (*domain.Store, error) {
+func (m *MockStoreInteractor) GetStore(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.Store, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetStore", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetStore", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Store)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetStore indicates an expected call of GetStore.
-func (mr *MockStoreInteractorMockRecorder) GetStore(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStoreInteractorMockRecorder) GetStore(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStore", reflect.TypeOf((*MockStoreInteractor)(nil).GetStore), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStore", reflect.TypeOf((*MockStoreInteractor)(nil).GetStore), arg0, arg1, arg2)
 }
 
 // GetStoreByMerchantID mocks base method.
@@ -117,29 +117,29 @@ func (mr *MockStoreInteractorMockRecorder) GetStores(arg0, arg1, arg2 interface{
 }
 
 // StoreSimpleUpdate mocks base method.
-func (m *MockStoreInteractor) StoreSimpleUpdate(arg0 context.Context, arg1 domain.StoreSimpleUpdateField, arg2 *domain.UpdateStoreParams) error {
+func (m *MockStoreInteractor) StoreSimpleUpdate(arg0 context.Context, arg1 domain.StoreSimpleUpdateField, arg2 *domain.UpdateStoreParams, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StoreSimpleUpdate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "StoreSimpleUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // StoreSimpleUpdate indicates an expected call of StoreSimpleUpdate.
-func (mr *MockStoreInteractorMockRecorder) StoreSimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStoreInteractorMockRecorder) StoreSimpleUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreSimpleUpdate", reflect.TypeOf((*MockStoreInteractor)(nil).StoreSimpleUpdate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreSimpleUpdate", reflect.TypeOf((*MockStoreInteractor)(nil).StoreSimpleUpdate), arg0, arg1, arg2, arg3)
 }
 
 // UpdateStore mocks base method.
-func (m *MockStoreInteractor) UpdateStore(arg0 context.Context, arg1 *domain.UpdateStoreParams) error {
+func (m *MockStoreInteractor) UpdateStore(arg0 context.Context, arg1 *domain.UpdateStoreParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStore", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateStore", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateStore indicates an expected call of UpdateStore.
-func (mr *MockStoreInteractorMockRecorder) UpdateStore(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockStoreInteractorMockRecorder) UpdateStore(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStore", reflect.TypeOf((*MockStoreInteractor)(nil).UpdateStore), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStore", reflect.TypeOf((*MockStoreInteractor)(nil).UpdateStore), arg0, arg1, arg2)
 }

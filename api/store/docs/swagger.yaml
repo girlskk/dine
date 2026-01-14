@@ -150,6 +150,9 @@ definitions:
       merchant_id:
         description: 品牌商ID
         type: string
+      modify_status:
+        description: '下发后是否可以进行修改: true-可以, false-不可以'
+        type: boolean
       name:
         description: 参数名称
         type: string
@@ -182,8 +185,10 @@ definitions:
     - uint
     - datetime
     - date
+    - bool
     type: string
     x-enum-comments:
+      BusinessConfigConfigTypeBool: bool
       BusinessConfigConfigTypeDate: date
       BusinessConfigConfigTypeDatetime: datetime
       BusinessConfigConfigTypeInt: int
@@ -195,13 +200,26 @@ definitions:
     - BusinessConfigConfigTypeUint
     - BusinessConfigConfigTypeDatetime
     - BusinessConfigConfigTypeDate
+    - BusinessConfigConfigTypeBool
   domain.BusinessConfigGroup:
     enum:
+    - order
+    - payment
+    - kitchen
+    - refund
     - print
     type: string
     x-enum-comments:
-      BusinessConfigGroupPrint: print
+      BusinessConfigGroupKitchen: 后厨设置
+      BusinessConfigGroupOrder: 点餐设置
+      BusinessConfigGroupPayment: 收单设置
+      BusinessConfigGroupPrint: 退款设置
+      BusinessConfigGroupRefund: 退款设置
     x-enum-varnames:
+    - BusinessConfigGroupOrder
+    - BusinessConfigGroupPayment
+    - BusinessConfigGroupKitchen
+    - BusinessConfigGroupRefund
     - BusinessConfigGroupPrint
   domain.BusinessConfigSearchRes:
     properties:
@@ -209,15 +227,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.BusinessConfig'
         type: array
-      page:
-        description: 页码
-        type: integer
-      size:
-        description: 每页数量
-        type: integer
-      total:
-        description: 总页数
-        type: integer
     type: object
   domain.BusinessHour:
     properties:
@@ -238,7 +247,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -2241,38 +2250,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.AccountListResp:
     properties:
       total:
@@ -2441,6 +2418,62 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.Province'
         description: 省份
+    type: object
+  types.BusinessConfig:
+    properties:
+      config_type:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessConfigConfigType'
+        description: 键值类型
+        enum:
+        - string
+        - int
+        - uint
+        - bool
+        - datetime
+        - date
+      group:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessConfigGroup'
+        description: 配置分组
+        enum:
+        - print
+      id:
+        description: 记录ID
+        type: string
+      key:
+        description: 参数键名
+        type: string
+      name:
+        description: 参数名称
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      source_config_id:
+        description: 来源配置ID
+        type: string
+      tip:
+        description: 变量描述
+        type: string
+      value:
+        description: 参数键值
+        type: string
+    required:
+    - config_type
+    - group
+    - id
+    type: object
+  types.BusinessConfigUpsertReq:
+    properties:
+      configs:
+        description: 配置分组
+        items:
+          $ref: '#/definitions/types.BusinessConfig'
+        minItems: 1
+        type: array
+    required:
+    - configs
     type: object
   types.CategoryCreateChildReq:
     properties:
@@ -4228,13 +4261,25 @@ paths:
       parameters:
       - description: 配置分组
         enum:
+        - order
+        - payment
+        - kitchen
+        - refund
         - print
         in: query
         name: group
         type: string
         x-enum-comments:
-          BusinessConfigGroupPrint: print
+          BusinessConfigGroupKitchen: 后厨设置
+          BusinessConfigGroupOrder: 点餐设置
+          BusinessConfigGroupPayment: 收单设置
+          BusinessConfigGroupPrint: 退款设置
+          BusinessConfigGroupRefund: 退款设置
         x-enum-varnames:
+        - BusinessConfigGroupOrder
+        - BusinessConfigGroupPayment
+        - BusinessConfigGroupKitchen
+        - BusinessConfigGroupRefund
         - BusinessConfigGroupPrint
       - description: 设置名称（模糊匹配）
         in: query
@@ -4248,6 +4293,22 @@ paths:
       security:
       - BearerAuth: []
       summary: 经营设置列表
+      tags:
+      - 经营管理
+    put:
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.BusinessConfigUpsertReq'
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: 更新经营设置
       tags:
       - 经营管理
   /common/department:

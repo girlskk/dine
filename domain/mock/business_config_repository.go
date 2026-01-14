@@ -49,3 +49,17 @@ func (mr *MockBusinessConfigRepositoryMockRecorder) ListBySearch(arg0, arg1 inte
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBySearch", reflect.TypeOf((*MockBusinessConfigRepository)(nil).ListBySearch), arg0, arg1)
 }
+
+// UpsertConfig mocks base method.
+func (m *MockBusinessConfigRepository) UpsertConfig(arg0 context.Context, arg1 []*domain.BusinessConfig) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertConfig", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertConfig indicates an expected call of UpsertConfig.
+func (mr *MockBusinessConfigRepositoryMockRecorder) UpsertConfig(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertConfig", reflect.TypeOf((*MockBusinessConfigRepository)(nil).UpsertConfig), arg0, arg1)
+}
