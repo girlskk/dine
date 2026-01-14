@@ -41,13 +41,13 @@ type StoreRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/store_interactor.go -package=mock . StoreInteractor
 type StoreInteractor interface {
-	CreateStore(ctx context.Context, domainCStoreParams *CreateStoreParams) (err error)
-	UpdateStore(ctx context.Context, domainUStoreParams *UpdateStoreParams) (err error)
-	DeleteStore(ctx context.Context, id uuid.UUID) (err error)
-	GetStore(ctx context.Context, id uuid.UUID) (domainStore *Store, err error)
+	CreateStore(ctx context.Context, domainCStoreParams *CreateStoreParams, user User) (err error)
+	UpdateStore(ctx context.Context, domainUStoreParams *UpdateStoreParams, user User) (err error)
+	DeleteStore(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetStore(ctx context.Context, id uuid.UUID, user User) (domainStore *Store, err error)
 	GetStores(ctx context.Context, pager *upagination.Pagination, filter *StoreListFilter, orderBys ...StoreListOrderBy) (domainStores []*Store, total int, err error)
 	GetStoreByMerchantID(ctx context.Context, merchantID uuid.UUID) (domainStore *Store, err error)
-	StoreSimpleUpdate(ctx context.Context, updateField StoreSimpleUpdateField, domainUStoreParams *UpdateStoreParams) (err error)
+	StoreSimpleUpdate(ctx context.Context, updateField StoreSimpleUpdateField, domainUStoreParams *UpdateStoreParams, user User) (err error)
 }
 
 type StoreListOrderByType int

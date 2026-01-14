@@ -68,6 +68,12 @@ type ProductRepository interface {
 	ListByIDs(ctx context.Context, ids []uuid.UUID) (Products, error)
 	PagedListBySearch(ctx context.Context, page *upagination.Pagination, params ProductSearchParams) (*ProductSearchRes, error)
 	FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (*Product, error)
+	// 统计商品数量
+	CountByCategoryIDs(ctx context.Context, categoryIDs []uuid.UUID) (map[uuid.UUID]int, error)
+	CountByUnitIDs(ctx context.Context, unitIDs []uuid.UUID) (map[uuid.UUID]int, error)
+	CountBySpecIDs(ctx context.Context, specIDs []uuid.UUID) (map[uuid.UUID]int, error)
+	CountByTagIDs(ctx context.Context, tagIDs []uuid.UUID) (map[uuid.UUID]int, error)
+	CountByAttrItemIDs(ctx context.Context, attrItemIDs []uuid.UUID) (map[uuid.UUID]int, error)
 }
 
 // ProductInteractor 商品用例接口

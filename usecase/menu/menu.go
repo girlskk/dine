@@ -198,3 +198,14 @@ func validateMenuBusinessRules(ctx context.Context, ds domain.DataStore,
 	}
 	return nil
 }
+
+func (i *MenuInteractor) ListAllStoreMenus(
+	ctx context.Context,
+	params domain.MenuListAllParams,
+) (res domain.Menus, err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "MenuInteractor.ListAllStoreMenus")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	return i.DS.MenuRepo().ListAllStoreMenus(ctx, params)
+}

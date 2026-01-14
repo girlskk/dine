@@ -18,7 +18,7 @@ type StoreInteractor struct {
 	DS domain.DataStore
 }
 
-func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore *domain.CreateStoreParams) (err error) {
+func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore *domain.CreateStoreParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.CreateStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -27,6 +27,10 @@ func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore
 	domainStore, err := interactor.CheckCreateStoreFields(ctx, domainCStore)
 	if err != nil {
 		return
+	}
+
+	if err = verifyStoreOwnership(user, domainStore); err != nil {
+		return err
 	}
 
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
@@ -84,7 +88,7 @@ func (interactor *StoreInteractor) CreateStore(ctx context.Context, domainCStore
 	return
 }
 
-func (interactor *StoreInteractor) UpdateStore(ctx context.Context, domainUStore *domain.UpdateStoreParams) (err error) {
+func (interactor *StoreInteractor) UpdateStore(ctx context.Context, domainUStore *domain.UpdateStoreParams, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.UpdateStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
@@ -93,6 +97,10 @@ func (interactor *StoreInteractor) UpdateStore(ctx context.Context, domainUStore
 	domainStore, err := interactor.CheckUpdateStoreFields(ctx, domainUStore)
 	if err != nil {
 		return
+	}
+
+	if err = verifyStoreOwnership(user, domainStore); err != nil {
+		return err
 	}
 
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
@@ -119,22 +127,43 @@ func (interactor *StoreInteractor) UpdateStore(ctx context.Context, domainUStore
 	return
 }
 
-func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id uuid.UUID) (err error) {
+func (interactor *StoreInteractor) DeleteStore(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.DeleteStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
+	store, err := interactor.DS.StoreRepo().FindByID(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ErrStoreNotExists
+		}
+		return err
+	}
+	if err = verifyStoreOwnership(user, store); err != nil {
+		return err
+	}
+
 	return interactor.DS.StoreRepo().Delete(ctx, id)
 }
 
-func (interactor *StoreInteractor) GetStore(ctx context.Context, id uuid.UUID) (domainStore *domain.Store, err error) {
+func (interactor *StoreInteractor) GetStore(ctx context.Context, id uuid.UUID, user domain.User) (domainStore *domain.Store, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.GetStore")
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
 
-	return interactor.DS.StoreRepo().FindByID(ctx, id)
+	domainStore, err = interactor.DS.StoreRepo().FindByID(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return nil, domain.ErrStoreNotExists
+		}
+		return
+	}
+	if err = verifyStoreOwnership(user, domainStore); err != nil {
+		return nil, err
+	}
+	return domainStore, nil
 }
 
 func (interactor *StoreInteractor) GetStoreByMerchantID(ctx context.Context, merchantID uuid.UUID) (domainStore *domain.Store, err error) {
@@ -162,6 +191,7 @@ func (interactor *StoreInteractor) GetStores(ctx context.Context,
 func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,
 	updateField domain.StoreSimpleUpdateField,
 	domainUStoreParams *domain.UpdateStoreParams,
+	user domain.User,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "StoreInteractor.StoreSimpleUpdate")
 	defer func() {
@@ -174,6 +204,9 @@ func (interactor *StoreInteractor) StoreSimpleUpdate(ctx context.Context,
 			if domain.IsNotFound(err) {
 				return domain.ErrStoreNotExists
 			}
+			return err
+		}
+		if err = verifyStoreOwnership(user, domainStore); err != nil {
 			return err
 		}
 		switch updateField {
@@ -385,4 +418,20 @@ func NewStoreInteractor(dataStore domain.DataStore) *StoreInteractor {
 	return &StoreInteractor{
 		DS: dataStore,
 	}
+}
+
+func verifyStoreOwnership(user domain.User, store *domain.Store) error {
+	switch user.GetUserType() {
+	case domain.UserTypeAdmin:
+	case domain.UserTypeBackend:
+		if !domain.VerifyOwnerMerchant(user, store.MerchantID) {
+			return domain.ErrStoreNotExists
+		}
+	case domain.UserTypeStore:
+		if !domain.VerifyOwnerShip(user, store.MerchantID, store.ID) {
+			return domain.ErrStoreNotExists
+		}
+	}
+
+	return nil
 }

@@ -74,16 +74,16 @@ func (du *DepartmentUpdate) SetNillableName(s *string) *DepartmentUpdate {
 	return du
 }
 
-// SetEnable sets the "enable" field.
-func (du *DepartmentUpdate) SetEnable(b bool) *DepartmentUpdate {
-	du.mutation.SetEnable(b)
+// SetEnabled sets the "enabled" field.
+func (du *DepartmentUpdate) SetEnabled(b bool) *DepartmentUpdate {
+	du.mutation.SetEnabled(b)
 	return du
 }
 
-// SetNillableEnable sets the "enable" field if the given value is not nil.
-func (du *DepartmentUpdate) SetNillableEnable(b *bool) *DepartmentUpdate {
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (du *DepartmentUpdate) SetNillableEnabled(b *bool) *DepartmentUpdate {
 	if b != nil {
-		du.SetEnable(*b)
+		du.SetEnabled(*b)
 	}
 	return du
 }
@@ -270,8 +270,8 @@ func (du *DepartmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := du.mutation.Name(); ok {
 		_spec.SetField(department.FieldName, field.TypeString, value)
 	}
-	if value, ok := du.mutation.Enable(); ok {
-		_spec.SetField(department.FieldEnable, field.TypeBool, value)
+	if value, ok := du.mutation.Enabled(); ok {
+		_spec.SetField(department.FieldEnabled, field.TypeBool, value)
 	}
 	if du.mutation.AdminUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -471,16 +471,16 @@ func (duo *DepartmentUpdateOne) SetNillableName(s *string) *DepartmentUpdateOne 
 	return duo
 }
 
-// SetEnable sets the "enable" field.
-func (duo *DepartmentUpdateOne) SetEnable(b bool) *DepartmentUpdateOne {
-	duo.mutation.SetEnable(b)
+// SetEnabled sets the "enabled" field.
+func (duo *DepartmentUpdateOne) SetEnabled(b bool) *DepartmentUpdateOne {
+	duo.mutation.SetEnabled(b)
 	return duo
 }
 
-// SetNillableEnable sets the "enable" field if the given value is not nil.
-func (duo *DepartmentUpdateOne) SetNillableEnable(b *bool) *DepartmentUpdateOne {
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (duo *DepartmentUpdateOne) SetNillableEnabled(b *bool) *DepartmentUpdateOne {
 	if b != nil {
-		duo.SetEnable(*b)
+		duo.SetEnabled(*b)
 	}
 	return duo
 }
@@ -697,8 +697,8 @@ func (duo *DepartmentUpdateOne) sqlSave(ctx context.Context) (_node *Department,
 	if value, ok := duo.mutation.Name(); ok {
 		_spec.SetField(department.FieldName, field.TypeString, value)
 	}
-	if value, ok := duo.mutation.Enable(); ok {
-		_spec.SetField(department.FieldEnable, field.TypeBool, value)
+	if value, ok := duo.mutation.Enabled(); ok {
+		_spec.SetField(department.FieldEnabled, field.TypeBool, value)
 	}
 	if duo.mutation.AdminUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{

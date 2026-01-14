@@ -110,6 +110,21 @@ func (mr *MockMenuRepositoryMockRecorder) GetDetail(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockMenuRepository)(nil).GetDetail), arg0, arg1)
 }
 
+// ListAllStoreMenus mocks base method.
+func (m *MockMenuRepository) ListAllStoreMenus(arg0 context.Context, arg1 domain.MenuListAllParams) (domain.Menus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAllStoreMenus", arg0, arg1)
+	ret0, _ := ret[0].(domain.Menus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAllStoreMenus indicates an expected call of ListAllStoreMenus.
+func (mr *MockMenuRepositoryMockRecorder) ListAllStoreMenus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAllStoreMenus", reflect.TypeOf((*MockMenuRepository)(nil).ListAllStoreMenus), arg0, arg1)
+}
+
 // PagedListMerchantMenusBySearch mocks base method.
 func (m *MockMenuRepository) PagedListMerchantMenusBySearch(arg0 context.Context, arg1 *upagination.Pagination, arg2 domain.MenuSearchParams) (*domain.MenuSearchRes, error) {
 	m.ctrl.T.Helper()

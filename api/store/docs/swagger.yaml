@@ -350,7 +350,7 @@ definitions:
         type: string
       department_type:
         $ref: '#/definitions/domain.DepartmentType'
-      enable:
+      enabled:
         type: boolean
       id:
         type: string
@@ -1614,6 +1614,78 @@ definitions:
     - ProvinceSG03
     - ProvinceSG04
     - ProvinceSG05
+  domain.Remark:
+    properties:
+      created_at:
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      id:
+        type: string
+      merchant_id:
+        description: 品牌商ID，仅品牌备注需要
+        type: string
+      name:
+        description: 备注名称
+        type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景：整单备注/单品备注/退菜原因等
+      remark_type:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkType'
+        description: 备注类型：系统/品牌
+      sort_order:
+        description: 排序，值越小越靠前
+        type: integer
+      store_id:
+        description: 门店 ID
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.RemarkScene:
+    enum:
+    - whole_order
+    - item
+    - cancel_reason
+    - discount
+    - gift
+    - rebill
+    - refund_reject
+    type: string
+    x-enum-comments:
+      RemarkSceneCancelReason: 退菜原因
+      RemarkSceneDiscount: 优惠原因
+      RemarkSceneGift: 赠菜原因
+      RemarkSceneItem: 单品备注
+      RemarkSceneRebill: 反结账原因
+      RemarkSceneRefundReject: 拒绝退款
+      RemarkSceneWholeOrder: 整单备注
+    x-enum-varnames:
+    - RemarkSceneWholeOrder
+    - RemarkSceneItem
+    - RemarkSceneCancelReason
+    - RemarkSceneDiscount
+    - RemarkSceneGift
+    - RemarkSceneRebill
+    - RemarkSceneRefundReject
+  domain.RemarkType:
+    enum:
+    - system
+    - brand
+    - store
+    type: string
+    x-enum-comments:
+      RemarkTypeBrand: 商户备注
+      RemarkTypeStore: 门店备注
+      RemarkTypeSystem: 系统备注
+    x-enum-varnames:
+    - RemarkTypeSystem
+    - RemarkTypeBrand
+    - RemarkTypeStore
   domain.Role:
     properties:
       code:
@@ -1625,7 +1697,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.RoleDataScopeType'
         description: 数据权限范围
-      enable:
+      enabled:
         description: 是否启用
         type: boolean
       id:
@@ -1696,6 +1768,43 @@ definitions:
     - RoleTypeAdmin
     - RoleTypeBackend
     - RoleTypeStore
+  domain.RouterMenu:
+    properties:
+      component:
+        description: 前端组件路径
+        type: string
+      created_at:
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      icon:
+        description: 菜单图标
+        type: string
+      id:
+        type: string
+      layer:
+        description: 菜单层级
+        type: integer
+      name:
+        description: 菜单名称
+        type: string
+      parent_id:
+        description: 父级菜单ID，根菜单为 uuid.Nil
+        type: string
+      path:
+        description: 菜单路径
+        type: string
+      sort:
+        description: 菜单排序
+        type: integer
+      updated_at:
+        type: string
+      user_type:
+        allOf:
+        - $ref: '#/definitions/domain.UserType'
+        description: 类型
+    type: object
   domain.SaleChannel:
     enum:
     - POS
@@ -1721,16 +1830,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - PaymentMethodDisplayChannelPOS
-    - PaymentMethodDisplayChannelMobileOrdering
-    - PaymentMethodDisplayChannelScanOrdering
-    - PaymentMethodDisplayChannelSelfService
-    - PaymentMethodDisplayChannelThirdPartyDelivery
     - SaleChannelPOS
     - SaleChannelMobileOrdering
     - SaleChannelScanOrdering
     - SaleChannelSelfService
     - SaleChannelThirdPartyDelivery
+    - PaymentMethodDisplayChannelPOS
+    - PaymentMethodDisplayChannelMobileOrdering
+    - PaymentMethodDisplayChannelScanOrdering
+    - PaymentMethodDisplayChannelSelfService
+    - PaymentMethodDisplayChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -2089,13 +2198,16 @@ definitions:
     type: object
   domain.TaxFeeType:
     enum:
+    - system
     - merchant
     - store
     type: string
     x-enum-comments:
       TaxFeeTypeMerchant: 商户
       TaxFeeTypeStore: 门店
+      TaxFeeTypeSystem: 系统内置
     x-enum-varnames:
+    - TaxFeeTypeSystem
     - TaxFeeTypeMerchant
     - TaxFeeTypeStore
   domain.TaxRateType:
@@ -2109,6 +2221,23 @@ definitions:
     x-enum-varnames:
     - TaxRateTypeUnified
     - TaxRateTypeCustom
+  domain.UserType:
+    enum:
+    - admin
+    - backend
+    - store
+    - admin
+    - backend
+    - store
+    type: string
+    x-enum-comments:
+      UserTypeAdmin: admin表用户
+      UserTypeBackend: backend用户
+      UserTypeStore: store用户
+    x-enum-varnames:
+    - RoleTypeAdmin
+    - RoleTypeBackend
+    - RoleTypeStore
   response.Response:
     properties:
       code:
@@ -2123,6 +2252,143 @@ definitions:
         items:
           $ref: '#/definitions/domain.StoreUser'
         type: array
+    type: object
+  types.AdditionalFeeCreateReq:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 收费模式 (percent/fixed)
+        enum:
+        - percent
+        - fixed
+      dining_ways:
+        description: 适用用餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣作用范围 (before_discount/after_discount)
+        enum:
+        - before_discount
+        - after_discount
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费分类 (service_fee/additional_fee/packing_fee)
+        enum:
+        - service_fee
+        - additional_fee
+        - packing_fee
+      fee_value:
+        description: 费用值，percent 模式示例 0.06 表示 6%
+        type: number
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      name:
+        description: 名称
+        maxLength: 50
+        type: string
+      order_channels:
+        description: 允许的下单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序值
+        minimum: 0
+        type: integer
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+    required:
+    - charge_mode
+    - dining_ways
+    - discount_scope
+    - fee_category
+    - fee_value
+    - name
+    - order_channels
+    type: object
+  types.AdditionalFeeListResp:
+    properties:
+      additional_fees:
+        description: 附加费列表
+        items:
+          $ref: '#/definitions/domain.AdditionalFee'
+        type: array
+      total:
+        description: 总数
+        type: integer
+    type: object
+  types.AdditionalFeeUpdateReq:
+    properties:
+      charge_mode:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeChargeMode'
+        description: 收费模式 (percent/fixed)
+        enum:
+        - percent
+        - fixed
+      dining_ways:
+        description: 适用用餐方式
+        items:
+          $ref: '#/definitions/domain.DiningWay'
+        type: array
+      discount_scope:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalFeeDiscountScope'
+        description: 折扣作用范围 (before_discount/after_discount)
+        enum:
+        - before_discount
+        - after_discount
+      enabled:
+        description: 是否启用
+        type: boolean
+      fee_category:
+        allOf:
+        - $ref: '#/definitions/domain.AdditionalCategory'
+        description: 附加费分类 (service_fee/additional_fee/packing_fee)
+        enum:
+        - service_fee
+        - additional_fee
+        - packing_fee
+      fee_value:
+        description: 费用值，percent 模式示例 0.06 表示 6%
+        type: number
+      include_in_receivable:
+        description: 是否计入实收
+        type: boolean
+      name:
+        description: 名称
+        maxLength: 50
+        type: string
+      order_channels:
+        description: 允许的下单渠道
+        items:
+          $ref: '#/definitions/domain.OrderChannel'
+        type: array
+      sort_order:
+        description: 排序值
+        minimum: 0
+        type: integer
+      taxable:
+        description: 附加费是否收税
+        type: boolean
+    required:
+    - charge_mode
+    - dining_ways
+    - discount_scope
+    - fee_category
+    - fee_value
+    - name
+    - order_channels
     type: object
   types.Address:
     properties:
@@ -2277,7 +2543,7 @@ definitions:
     type: object
   types.DepartmentCreateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         type: string
@@ -2295,7 +2561,7 @@ definitions:
     type: object
   types.DepartmentUpdateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         type: string
@@ -3106,6 +3372,62 @@ definitions:
     - spec_relations
     - unit_id
     type: object
+  types.RemarkCreateReq:
+    properties:
+      enabled:
+        description: 是否启用
+        type: boolean
+      name:
+        description: 备注名称
+        maxLength: 255
+        type: string
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
+      sort_order:
+        description: 排序，越小越靠前
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - remark_scene
+    type: object
+  types.RemarkListResp:
+    properties:
+      remarks:
+        description: 备注列表
+        items:
+          $ref: '#/definitions/domain.Remark'
+        type: array
+      total:
+        description: 备注总数
+        type: integer
+    type: object
+  types.RemarkUpdateReq:
+    properties:
+      enabled:
+        description: 是否启用
+        type: boolean
+      name:
+        description: 备注名称
+        maxLength: 255
+        type: string
+      sort_order:
+        description: 排序，越小越靠前
+        minimum: 0
+        type: integer
+    required:
+    - name
+    type: object
   types.ResetPasswordReq:
     properties:
       new_password:
@@ -3115,7 +3437,7 @@ definitions:
     type: object
   types.RoleCreateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       login_channels:
         description: 角色登录渠道pos/mobile/store
@@ -3137,9 +3459,16 @@ definitions:
       total:
         type: integer
     type: object
+  types.RoleMenusResp:
+    properties:
+      paths:
+        items:
+          type: string
+        type: array
+    type: object
   types.RoleUpdateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       login_channels:
         description: 角色登录渠道pos/mobile/store
@@ -3151,6 +3480,15 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  types.RouterMenuListResp:
+    properties:
+      menus:
+        items:
+          $ref: '#/definitions/domain.RouterMenu'
+        type: array
+      total:
+        type: integer
     type: object
   types.SalesReportResp:
     properties:
@@ -3437,6 +3775,70 @@ definitions:
     - spec_relations
     - unit_id
     type: object
+  types.SetMenusReq:
+    properties:
+      paths:
+        items:
+          type: string
+        type: array
+    required:
+    - paths
+    type: object
+  types.StallCreateReq:
+    properties:
+      enabled:
+        description: 是否启用
+        type: boolean
+      name:
+        description: 出品部门名称
+        maxLength: 20
+        type: string
+      print_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallPrintType'
+        description: 打印类型
+        enum:
+        - receipt
+        - label
+      sort_order:
+        description: 排序
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - print_type
+    type: object
+  types.StallListResp:
+    properties:
+      stalls:
+        description: 出品部门列表
+        items:
+          $ref: '#/definitions/domain.Stall'
+        type: array
+      total:
+        description: 出品部门总数
+        type: integer
+    type: object
+  types.StallUpdateReq:
+    properties:
+      enabled:
+        type: boolean
+      name:
+        maxLength: 20
+        type: string
+      print_type:
+        allOf:
+        - $ref: '#/definitions/domain.StallPrintType'
+        enum:
+        - receipt
+        - label
+      sort_order:
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - print_type
+    type: object
   types.StoreUserCreateReq:
     properties:
       department_id:
@@ -3522,6 +3924,43 @@ definitions:
     - real_name
     - role_ids
     - username
+    type: object
+  types.TaxFeeCreateReq:
+    properties:
+      name:
+        description: 税费名称
+        maxLength: 50
+        type: string
+      tax_rate:
+        description: 税率 tax_rate 示例：6% -> 0.06
+        type: number
+    required:
+    - name
+    - tax_rate
+    type: object
+  types.TaxFeeListResp:
+    properties:
+      tax_fees:
+        description: 税费列表
+        items:
+          $ref: '#/definitions/domain.TaxFee'
+        type: array
+      total:
+        description: 总数
+        type: integer
+    type: object
+  types.TaxFeeUpdateReq:
+    properties:
+      name:
+        description: 税费名称
+        maxLength: 50
+        type: string
+      tax_rate:
+        description: 税率 tax_rate 示例：6% -> 0.06
+        type: number
+    required:
+    - name
+    - tax_rate
     type: object
   types.UpdateCategoryReq:
     properties:
@@ -3661,6 +4100,173 @@ info:
   title: 门店后台 API
   version: "1.0"
 paths:
+  /additional_fee:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 是否启用
+        in: query
+        name: enabled
+        type: boolean
+      - description: 名称
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.AdditionalFeeListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取附加费列表
+      tags:
+      - 费用管理-附加费管理
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.AdditionalFeeCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建附加费
+      tags:
+      - 费用管理-附加费管理
+  /additional_fee/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除附加费
+      tags:
+      - 费用管理-附加费管理
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.AdditionalFee'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取附加费详情
+      tags:
+      - 费用管理-附加费管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.AdditionalFeeUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新附加费
+      tags:
+      - 费用管理-附加费管理
+  /additional_fee/{id}/disable:
+    put:
+      description: 将附加费置为禁用
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用附加费
+      tags:
+      - 费用管理-附加费管理
+  /additional_fee/{id}/enable:
+    put:
+      description: 将附加费置为启用
+      parameters:
+      - description: 附加费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用附加费
+      tags:
+      - 费用管理-附加费管理
   /business/config:
     get:
       parameters:
@@ -3731,7 +4337,7 @@ paths:
         name: code
         type: string
       - in: query
-        name: enable
+        name: enabled
         type: boolean
       - in: query
         name: name
@@ -3895,7 +4501,7 @@ paths:
       description: 分页查询门店角色
       parameters:
       - in: query
-        name: enable
+        name: enabled
         type: boolean
       - in: query
         name: name
@@ -4048,6 +4654,70 @@ paths:
       summary: 启用角色
       tags:
       - 角色管理
+  /common/role/{id}/menus:
+    get:
+      consumes:
+      - application/json
+      description: 分页或非分页获取指定角色的菜单路径列表
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.RoleMenusResp'
+      security:
+      - BearerAuth: []
+      summary: 角色菜单列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 为指定角色设置菜单路径（交集保留，新增/删除按 paths 调整）
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 设置菜单请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.SetMenusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 设置角色菜单
+      tags:
+      - 角色管理
+  /common/router_menu:
+    get:
+      description: 分页查询菜单
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.RouterMenuListResp'
+      security:
+      - BearerAuth: []
+      summary: 菜单列表
+      tags:
+      - 菜单管理
   /menu:
     get:
       parameters:
@@ -5087,6 +5757,196 @@ paths:
       summary: 查询分账账单列表
       tags:
       - 分账账单
+  /remark:
+    get:
+      description: 分页查询备注列表
+      parameters:
+      - description: 启用状态
+        in: query
+        name: enabled
+        type: boolean
+      - description: 备注名称
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 使用场景
+        enum:
+        - whole_order
+        - item
+        - cancel_reason
+        - discount
+        - gift
+        - rebill
+        - refund_reject
+        in: query
+        name: remark_scene
+        type: string
+        x-enum-comments:
+          RemarkSceneCancelReason: 退菜原因
+          RemarkSceneDiscount: 优惠原因
+          RemarkSceneGift: 赠菜原因
+          RemarkSceneItem: 单品备注
+          RemarkSceneRebill: 反结账原因
+          RemarkSceneRefundReject: 拒绝退款
+          RemarkSceneWholeOrder: 整单备注
+        x-enum-varnames:
+        - RemarkSceneWholeOrder
+        - RemarkSceneItem
+        - RemarkSceneCancelReason
+        - RemarkSceneDiscount
+        - RemarkSceneGift
+        - RemarkSceneRebill
+        - RemarkSceneRefundReject
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.RemarkListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取备注列表
+      tags:
+      - 前厅管理
+    post:
+      consumes:
+      - application/json
+      description: 创建备注
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RemarkCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建备注
+      tags:
+      - 前厅管理
+  /remark/{id}:
+    delete:
+      description: 删除备注
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除备注
+      tags:
+      - 前厅管理
+    get:
+      description: 根据备注ID获取详情
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Remark'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取备注详情
+      tags:
+      - 前厅管理
+    put:
+      consumes:
+      - application/json
+      description: 更新备注
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.RemarkUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新备注
+      tags:
+      - 前厅管理
+  /remark/{id}/disable:
+    put:
+      description: 将备注置为禁用
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用备注
+      tags:
+      - 前厅管理
+  /remark/{id}/enable:
+    put:
+      description: 将备注置为启用
+      parameters:
+      - description: 备注ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用备注
+      tags:
+      - 前厅管理
   /restaurant/device:
     get:
       description: 分页查询设备列表
@@ -5271,6 +6131,181 @@ paths:
       summary: 启用设备
       tags:
       - 设备管理
+  /restaurant/stall:
+    get:
+      description: 分页查询出品部门列表
+      parameters:
+      - description: 启用状态
+        in: query
+        name: enabled
+        type: boolean
+      - description: 名称模糊查询
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 打印类型
+        enum:
+        - receipt
+        - label
+        in: query
+        name: print_type
+        type: string
+        x-enum-comments:
+          StallPrintTypeLabel: 标签
+          StallPrintTypeReceipt: 小票/收据
+        x-enum-varnames:
+        - StallPrintTypeReceipt
+        - StallPrintTypeLabel
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.StallListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取出品部门列表
+      tags:
+      - 后厨管理
+    post:
+      consumes:
+      - application/json
+      description: 创建出品部门
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StallCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建出品部门
+      tags:
+      - 后厨管理
+  /restaurant/stall/{id}:
+    delete:
+      description: 删除出品部门
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除出品部门
+      tags:
+      - 后厨管理
+    get:
+      description: 根据出品部门ID获取详情
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Stall'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取出品部门详情
+      tags:
+      - 后厨管理
+    put:
+      consumes:
+      - application/json
+      description: 更新出品部门
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.StallUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新出品部门
+      tags:
+      - 后厨管理
+  /restaurant/stall/{id}/disable:
+    put:
+      description: 将出品部门置为禁用
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用出品部门
+      tags:
+      - 后厨管理
+  /restaurant/stall/{id}/enable:
+    put:
+      description: 将出品部门置为启用
+      parameters:
+      - description: 出品部门ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用出品部门
+      tags:
+      - 后厨管理
   /store:
     get:
       consumes:
@@ -5351,6 +6386,170 @@ paths:
       summary: 启用门店
       tags:
       - 门店管理
+  /tax_fee:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.TaxFeeListResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取税费列表
+      tags:
+      - 费用管理-税费管理
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.TaxFeeCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建税费
+      tags:
+      - 费用管理-税费管理
+  /tax_fee/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 删除税费
+      tags:
+      - 费用管理-税费管理
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.TaxFee'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 获取税费详情
+      tags:
+      - 费用管理-税费管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.TaxFeeUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 更新税费
+      tags:
+      - 费用管理-税费管理
+  /tax_fee/{id}/disable:
+    put:
+      description: 取消默认税费标记
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 禁用税费
+      tags:
+      - 费用管理-税费管理
+  /tax_fee/{id}/enable:
+    put:
+      description: 将税费标记为默认
+      parameters:
+      - description: 税费ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 启用税费
+      tags:
+      - 费用管理-税费管理
   /user:
     get:
       consumes:
@@ -5364,7 +6563,7 @@ paths:
         name: email
         type: string
       - in: query
-        name: enable
+        name: enabled
         type: boolean
       - enum:
         - male

@@ -28,7 +28,21 @@ func (i *CategoryInteractor) ListBySearch(ctx context.Context, params domain.Cat
 		util.SpanErrFinish(span, err)
 	}()
 
-	return i.DS.CategoryRepo().ListBySearch(ctx, params)
+	categories, err := i.DS.CategoryRepo().ListBySearch(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	categoryIDs := lo.Map(categories, func(category *domain.Category, _ int) uuid.UUID {
+		return category.ID
+	})
+	productCountMap, err := i.DS.ProductRepo().CountByCategoryIDs(ctx, categoryIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, category := range categories {
+		category.ProductCount = productCountMap[category.ID]
+	}
+	return categories, nil
 }
 
 // verifyCategoryOwnership 验证分类是否属于当前用户可操作

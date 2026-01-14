@@ -151,7 +151,7 @@ type StoreUserExistsParams struct {
 type StoreUserSimpleUpdateField string
 
 const (
-	StoreUserSimpleUpdateFieldEnable   StoreUserSimpleUpdateField = "enable"
+	StoreUserSimpleUpdateFieldEnabled  StoreUserSimpleUpdateField = "enabled"
 	StoreUserSimpleUpdateFieldPassword StoreUserSimpleUpdateField = "password"
 )
 

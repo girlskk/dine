@@ -28,7 +28,7 @@ func (Role) Fields() []ent.Field {
 			GoType(domain.RoleType("")).
 			Immutable().
 			Comment("角色类型"),
-		field.Bool("enable").
+		field.Bool("enabled").
 			Default(true).
 			Comment("是否启用"),
 		field.UUID("merchant_id", uuid.UUID{}).

@@ -82,9 +82,9 @@ func Code(v string) predicate.Department {
 	return predicate.Department(sql.FieldEQ(FieldCode, v))
 }
 
-// Enable applies equality check predicate on the "enable" field. It's identical to EnableEQ.
-func Enable(v bool) predicate.Department {
-	return predicate.Department(sql.FieldEQ(FieldEnable, v))
+// Enabled applies equality check predicate on the "enabled" field. It's identical to EnabledEQ.
+func Enabled(v bool) predicate.Department {
+	return predicate.Department(sql.FieldEQ(FieldEnabled, v))
 }
 
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
@@ -377,14 +377,14 @@ func DepartmentTypeNotIn(vs ...domain.DepartmentType) predicate.Department {
 	return predicate.Department(sql.FieldNotIn(FieldDepartmentType, v...))
 }
 
-// EnableEQ applies the EQ predicate on the "enable" field.
-func EnableEQ(v bool) predicate.Department {
-	return predicate.Department(sql.FieldEQ(FieldEnable, v))
+// EnabledEQ applies the EQ predicate on the "enabled" field.
+func EnabledEQ(v bool) predicate.Department {
+	return predicate.Department(sql.FieldEQ(FieldEnabled, v))
 }
 
-// EnableNEQ applies the NEQ predicate on the "enable" field.
-func EnableNEQ(v bool) predicate.Department {
-	return predicate.Department(sql.FieldNEQ(FieldEnable, v))
+// EnabledNEQ applies the NEQ predicate on the "enabled" field.
+func EnabledNEQ(v bool) predicate.Department {
+	return predicate.Department(sql.FieldNEQ(FieldEnabled, v))
 }
 
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.

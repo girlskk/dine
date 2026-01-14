@@ -72,6 +72,7 @@ func (h *DeviceHandler) Create() gin.HandlerFunc {
 			Location:    req.Location,
 			Enabled:     req.Enabled,
 			SortOrder:   req.SortOrder,
+			Status:      domain.DeviceStatusOffline,
 		}
 		switch req.DeviceType {
 		case domain.DeviceTypeCashier:
@@ -90,21 +91,8 @@ func (h *DeviceHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.DeviceInteractor.Create(ctx, device); err != nil {
-			if errors.Is(err, domain.ErrDeviceNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.DeviceNameExists, err))
-				return
-			}
-			if errors.Is(err, domain.ErrDeviceCodeExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.DeviceCodeExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to create device: %w", err)
-			c.Error(err)
+		if err := h.DeviceInteractor.Create(ctx, device, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -143,6 +131,7 @@ func (h *DeviceHandler) Update() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromStoreUserContext(ctx)
 		device := &domain.Device{
 			ID:          id,
 			Name:        req.Name,
@@ -170,21 +159,8 @@ func (h *DeviceHandler) Update() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, fmt.Errorf("device type %s is not supported", req.DeviceType)))
 			return
 		}
-		if err := h.DeviceInteractor.Update(ctx, device); err != nil {
-			if errors.Is(err, domain.ErrDeviceNameExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.DeviceNameExists, err))
-				return
-			}
-			if errors.Is(err, domain.ErrDeviceCodeExists) {
-				c.Error(errorx.New(http.StatusConflict, errcode.DeviceCodeExists, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to update device: %w", err)
-			c.Error(err)
+		if err := h.DeviceInteractor.Update(ctx, device, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -214,18 +190,10 @@ func (h *DeviceHandler) Delete() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		err = h.DeviceInteractor.Delete(ctx, id)
+		user := domain.FromStoreUserContext(ctx)
+		err = h.DeviceInteractor.Delete(ctx, id, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNoContent, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to delete device: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -255,14 +223,10 @@ func (h *DeviceHandler) Get() gin.HandlerFunc {
 			return
 		}
 
-		device, err := h.DeviceInteractor.GetDevice(ctx, id)
+		user := domain.FromStoreUserContext(ctx)
+		device, err := h.DeviceInteractor.GetDevice(ctx, id, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			err = fmt.Errorf("failed to get device: %w", err)
-			c.Error(err)
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -340,18 +304,10 @@ func (h *DeviceHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromStoreUserContext(ctx)
 		device := &domain.Device{ID: id, Enabled: true}
-		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update device: %w", err)
-			c.Error(err)
+		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -382,21 +338,29 @@ func (h *DeviceHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromStoreUserContext(ctx)
 		device := &domain.Device{ID: id, Enabled: false}
-		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			if domain.IsParamsError(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			err = fmt.Errorf("failed to simple update device: %w", err)
-			c.Error(err)
+		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
 		response.Ok(c, nil)
+	}
+}
+func (h *DeviceHandler) checkErr(err error) error {
+	switch {
+	case errors.Is(err, domain.ErrDeviceNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.DeviceNotExists, err)
+	case errors.Is(err, domain.ErrDeviceNameExists):
+		return errorx.New(http.StatusConflict, errcode.DeviceNameExists, err)
+	case errors.Is(err, domain.ErrDeviceCodeExists):
+		return errorx.New(http.StatusConflict, errcode.DeviceCodeExists, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
+	case domain.IsParamsError(err):
+		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
+	default:
+		return fmt.Errorf("device handler error: %w", err)
 	}
 }

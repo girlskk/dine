@@ -41,7 +41,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -305,7 +305,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -649,206 +649,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "新建一个菜单",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "创建菜单",
-                "parameters": [
-                    {
-                        "description": "创建菜单请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.RouterMenuCreateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "查询指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "获取菜单详情",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.RouterMenu"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "修改指定菜单",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "更新菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "更新菜单请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.RouterMenuUpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "删除指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "删除菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}/disable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "禁用指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "禁用菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}/enable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "启用指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "启用菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
             }
         },
         "/merchant/merchant/brand": {
@@ -1017,6 +817,10 @@ const docTemplate = `{
                             "MerchantTypeBrand": "品牌商户",
                             "MerchantTypeStore": "门店商户"
                         },
+                        "x-enum-descriptions": [
+                            "品牌商户",
+                            "门店商户"
+                        ],
                         "x-enum-varnames": [
                             "MerchantTypeBrand",
                             "MerchantTypeStore"
@@ -1079,6 +883,29 @@ const docTemplate = `{
                             "ProvinceSG04": "东南社区发展理事会",
                             "ProvinceSG05": "西南社区发展理事会"
                         },
+                        "x-enum-descriptions": [
+                            "柔佛州",
+                            "吉打州",
+                            "吉兰丹州",
+                            "马六甲州",
+                            "森美兰州",
+                            "彭亨州",
+                            "槟城州",
+                            "霹雳州",
+                            "玻璃市州",
+                            "雪兰莪州",
+                            "登嘉楼州",
+                            "沙巴州",
+                            "砂拉越州",
+                            "吉隆坡联邦直辖区",
+                            "纳闽联邦直辖区",
+                            "布城联邦直辖区",
+                            "中区社区发展理事会",
+                            "东北社区发展理事会",
+                            "西北社区发展理事会",
+                            "东南社区发展理事会",
+                            "西南社区发展理事会"
+                        ],
                         "x-enum-varnames": [
                             "ProvinceMY01",
                             "ProvinceMY02",
@@ -1124,6 +951,11 @@ const docTemplate = `{
                             "MerchantStatusDisabled": "已禁用",
                             "MerchantStatusExpired": "已过期"
                         },
+                        "x-enum-descriptions": [
+                            "已激活",
+                            "已过期",
+                            "已禁用"
+                        ],
                         "x-enum-varnames": [
                             "MerchantStatusActive",
                             "MerchantStatusExpired",
@@ -1482,6 +1314,10 @@ const docTemplate = `{
                             "BusinessModelDirect": "直营",
                             "BusinessModelFranchisee": "加盟"
                         },
+                        "x-enum-descriptions": [
+                            "直营",
+                            "加盟"
+                        ],
                         "x-enum-varnames": [
                             "BusinessModelDirect",
                             "BusinessModelFranchisee"
@@ -1506,6 +1342,13 @@ const docTemplate = `{
                             "BusinessTypeNoodle": "面馆",
                             "BusinessTypeSnack": "小吃"
                         },
+                        "x-enum-descriptions": [
+                            "面馆",
+                            "烘焙",
+                            "小吃",
+                            "饮品",
+                            "中餐"
+                        ],
                         "x-enum-varnames": [
                             "BusinessTypeNoodle",
                             "BusinessTypeBakery",
@@ -1589,6 +1432,29 @@ const docTemplate = `{
                             "ProvinceSG04": "东南社区发展理事会",
                             "ProvinceSG05": "西南社区发展理事会"
                         },
+                        "x-enum-descriptions": [
+                            "柔佛州",
+                            "吉打州",
+                            "吉兰丹州",
+                            "马六甲州",
+                            "森美兰州",
+                            "彭亨州",
+                            "槟城州",
+                            "霹雳州",
+                            "玻璃市州",
+                            "雪兰莪州",
+                            "登嘉楼州",
+                            "沙巴州",
+                            "砂拉越州",
+                            "吉隆坡联邦直辖区",
+                            "纳闽联邦直辖区",
+                            "布城联邦直辖区",
+                            "中区社区发展理事会",
+                            "东北社区发展理事会",
+                            "西北社区发展理事会",
+                            "东南社区发展理事会",
+                            "西南社区发展理事会"
+                        ],
                         "x-enum-varnames": [
                             "ProvinceMY01",
                             "ProvinceMY02",
@@ -1632,6 +1498,10 @@ const docTemplate = `{
                             "StoreStatusClosed": "停业",
                             "StoreStatusOpen": "营业"
                         },
+                        "x-enum-descriptions": [
+                            "营业",
+                            "停业"
+                        ],
                         "x-enum-varnames": [
                             "StoreStatusOpen",
                             "StoreStatusClosed"
@@ -1945,6 +1815,12 @@ const docTemplate = `{
                             "GenderOther": "其他",
                             "GenderUnknown": "未知"
                         },
+                        "x-enum-descriptions": [
+                            "男性",
+                            "女性",
+                            "其他",
+                            "未知"
+                        ],
                         "x-enum-varnames": [
                             "GenderMale",
                             "GenderFemale",
@@ -2497,6 +2373,10 @@ const docTemplate = `{
                 "BusinessModelDirect": "直营",
                 "BusinessModelFranchisee": "加盟"
             },
+            "x-enum-descriptions": [
+                "直营",
+                "加盟"
+            ],
             "x-enum-varnames": [
                 "BusinessModelDirect",
                 "BusinessModelFranchisee"
@@ -2518,6 +2398,13 @@ const docTemplate = `{
                 "BusinessTypeNoodle": "面馆",
                 "BusinessTypeSnack": "小吃"
             },
+            "x-enum-descriptions": [
+                "面馆",
+                "烘焙",
+                "小吃",
+                "饮品",
+                "中餐"
+            ],
             "x-enum-varnames": [
                 "BusinessTypeNoodle",
                 "BusinessTypeBakery",
@@ -2549,7 +2436,7 @@ const docTemplate = `{
                 "department_type": {
                     "$ref": "#/definitions/domain.DepartmentType"
                 },
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "id": {
@@ -2613,6 +2500,12 @@ const docTemplate = `{
                 "GenderOther": "其他",
                 "GenderUnknown": "未知"
             },
+            "x-enum-descriptions": [
+                "男性",
+                "女性",
+                "其他",
+                "未知"
+            ],
             "x-enum-varnames": [
                 "GenderMale",
                 "GenderFemale",
@@ -2632,6 +2525,11 @@ const docTemplate = `{
                 "LoginChannelPos": "pos",
                 "LoginChannelStore": "门店管理后台"
             },
+            "x-enum-descriptions": [
+                "pos",
+                "移动点餐",
+                "门店管理后台"
+            ],
             "x-enum-varnames": [
                 "LoginChannelPos",
                 "LoginChannelMobile",
@@ -2756,6 +2654,11 @@ const docTemplate = `{
                 "MerchantStatusDisabled": "已禁用",
                 "MerchantStatusExpired": "已过期"
             },
+            "x-enum-descriptions": [
+                "已激活",
+                "已过期",
+                "已禁用"
+            ],
             "x-enum-varnames": [
                 "MerchantStatusActive",
                 "MerchantStatusExpired",
@@ -2772,6 +2675,10 @@ const docTemplate = `{
                 "MerchantTypeBrand": "品牌商户",
                 "MerchantTypeStore": "门店商户"
             },
+            "x-enum-descriptions": [
+                "品牌商户",
+                "门店商户"
+            ],
             "x-enum-varnames": [
                 "MerchantTypeBrand",
                 "MerchantTypeStore"
@@ -2789,6 +2696,11 @@ const docTemplate = `{
                 "ObjectStorageSceneProduct": "商品",
                 "ObjectStorageSceneStore": "门店"
             },
+            "x-enum-descriptions": [
+                "商户",
+                "门店",
+                "商品"
+            ],
             "x-enum-varnames": [
                 "ObjectStorageSceneMerchant",
                 "ObjectStorageSceneStore",
@@ -2843,6 +2755,29 @@ const docTemplate = `{
                 "ProvinceSG04": "东南社区发展理事会",
                 "ProvinceSG05": "西南社区发展理事会"
             },
+            "x-enum-descriptions": [
+                "柔佛州",
+                "吉打州",
+                "吉兰丹州",
+                "马六甲州",
+                "森美兰州",
+                "彭亨州",
+                "槟城州",
+                "霹雳州",
+                "玻璃市州",
+                "雪兰莪州",
+                "登嘉楼州",
+                "沙巴州",
+                "砂拉越州",
+                "吉隆坡联邦直辖区",
+                "纳闽联邦直辖区",
+                "布城联邦直辖区",
+                "中区社区发展理事会",
+                "东北社区发展理事会",
+                "西北社区发展理事会",
+                "东南社区发展理事会",
+                "西南社区发展理事会"
+            ],
             "x-enum-varnames": [
                 "ProvinceMY01",
                 "ProvinceMY02",
@@ -2881,6 +2816,12 @@ const docTemplate = `{
                 "PurchaseDurationUnitWeek": "周",
                 "PurchaseDurationUnitYear": "年"
             },
+            "x-enum-descriptions": [
+                "日",
+                "月",
+                "年",
+                "周"
+            ],
             "x-enum-varnames": [
                 "PurchaseDurationUnitDay",
                 "PurchaseDurationUnitMonth",
@@ -2906,7 +2847,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "enable": {
+                "enabled": {
                     "description": "是否启用",
                     "type": "boolean"
                 },
@@ -2970,6 +2911,14 @@ const docTemplate = `{
                 "RoleDataScopeSelf": "仅本人数据权限",
                 "RoleDataScopeStore": "门店数据权限"
             },
+            "x-enum-descriptions": [
+                "全部数据权限",
+                "品牌商数据权限",
+                "门店数据权限",
+                "部门数据权限",
+                "仅本人数据权限",
+                "自定义数据权限"
+            ],
             "x-enum-varnames": [
                 "RoleDataScopeAll",
                 "RoleDataScopeMerchant",
@@ -2994,6 +2943,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -3220,6 +3174,10 @@ const docTemplate = `{
                 "StoreStatusClosed": "停业",
                 "StoreStatusOpen": "营业"
             },
+            "x-enum-descriptions": [
+                "营业",
+                "停业"
+            ],
             "x-enum-varnames": [
                 "StoreStatusOpen",
                 "StoreStatusClosed"
@@ -3240,6 +3198,11 @@ const docTemplate = `{
                 "UserTypeBackend": "backend用户",
                 "UserTypeStore": "store用户"
             },
+            "x-enum-descriptions": [
+                "admin表用户",
+                "backend用户",
+                "store用户"
+            ],
             "x-enum-varnames": [
                 "RoleTypeAdmin",
                 "RoleTypeBackend",
@@ -3264,9 +3227,23 @@ const docTemplate = `{
                 3,
                 4,
                 5,
+                6,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
                 6
             ],
             "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",
@@ -3831,7 +3808,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -3860,7 +3837,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -4057,7 +4034,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -4097,52 +4074,12 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 50
-                }
-            }
-        },
-        "types.RouterMenuCreateReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "component": {
-                    "description": "组件路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "enabled": {
-                    "description": "是否启用",
-                    "type": "boolean"
-                },
-                "icon": {
-                    "description": "菜单图标",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "name": {
-                    "description": "菜单名称",
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "parent_id": {
-                    "description": "父级菜单ID",
-                    "type": "string"
-                },
-                "path": {
-                    "description": "路由路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "sort": {
-                    "description": "排序",
-                    "type": "integer"
                 }
             }
         },
@@ -4156,46 +4093,6 @@ const docTemplate = `{
                     }
                 },
                 "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "types.RouterMenuUpdateReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "component": {
-                    "description": "组件路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "enabled": {
-                    "description": "是否启用",
-                    "type": "boolean"
-                },
-                "icon": {
-                    "description": "菜单图标",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "name": {
-                    "description": "菜单名称",
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "parent_id": {
-                    "description": "父级菜单ID",
-                    "type": "string"
-                },
-                "path": {
-                    "description": "路由路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "sort": {
-                    "description": "排序",
                     "type": "integer"
                 }
             }

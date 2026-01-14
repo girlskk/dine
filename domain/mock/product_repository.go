@@ -37,6 +37,81 @@ func (m *MockProductRepository) EXPECT() *MockProductRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CountByAttrItemIDs mocks base method.
+func (m *MockProductRepository) CountByAttrItemIDs(arg0 context.Context, arg1 []uuid.UUID) (map[uuid.UUID]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountByAttrItemIDs", arg0, arg1)
+	ret0, _ := ret[0].(map[uuid.UUID]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountByAttrItemIDs indicates an expected call of CountByAttrItemIDs.
+func (mr *MockProductRepositoryMockRecorder) CountByAttrItemIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByAttrItemIDs", reflect.TypeOf((*MockProductRepository)(nil).CountByAttrItemIDs), arg0, arg1)
+}
+
+// CountByCategoryIDs mocks base method.
+func (m *MockProductRepository) CountByCategoryIDs(arg0 context.Context, arg1 []uuid.UUID) (map[uuid.UUID]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountByCategoryIDs", arg0, arg1)
+	ret0, _ := ret[0].(map[uuid.UUID]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountByCategoryIDs indicates an expected call of CountByCategoryIDs.
+func (mr *MockProductRepositoryMockRecorder) CountByCategoryIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByCategoryIDs", reflect.TypeOf((*MockProductRepository)(nil).CountByCategoryIDs), arg0, arg1)
+}
+
+// CountBySpecIDs mocks base method.
+func (m *MockProductRepository) CountBySpecIDs(arg0 context.Context, arg1 []uuid.UUID) (map[uuid.UUID]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountBySpecIDs", arg0, arg1)
+	ret0, _ := ret[0].(map[uuid.UUID]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountBySpecIDs indicates an expected call of CountBySpecIDs.
+func (mr *MockProductRepositoryMockRecorder) CountBySpecIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountBySpecIDs", reflect.TypeOf((*MockProductRepository)(nil).CountBySpecIDs), arg0, arg1)
+}
+
+// CountByTagIDs mocks base method.
+func (m *MockProductRepository) CountByTagIDs(arg0 context.Context, arg1 []uuid.UUID) (map[uuid.UUID]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountByTagIDs", arg0, arg1)
+	ret0, _ := ret[0].(map[uuid.UUID]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountByTagIDs indicates an expected call of CountByTagIDs.
+func (mr *MockProductRepositoryMockRecorder) CountByTagIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByTagIDs", reflect.TypeOf((*MockProductRepository)(nil).CountByTagIDs), arg0, arg1)
+}
+
+// CountByUnitIDs mocks base method.
+func (m *MockProductRepository) CountByUnitIDs(arg0 context.Context, arg1 []uuid.UUID) (map[uuid.UUID]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountByUnitIDs", arg0, arg1)
+	ret0, _ := ret[0].(map[uuid.UUID]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountByUnitIDs indicates an expected call of CountByUnitIDs.
+func (mr *MockProductRepositoryMockRecorder) CountByUnitIDs(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByUnitIDs", reflect.TypeOf((*MockProductRepository)(nil).CountByUnitIDs), arg0, arg1)
+}
+
 // Create mocks base method.
 func (m *MockProductRepository) Create(arg0 context.Context, arg1 *domain.Product) error {
 	m.ctrl.T.Helper()

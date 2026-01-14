@@ -83,7 +83,6 @@ func (repo *AdminUserRepository) Create(ctx context.Context, user *domain.AdminU
 		SetHashedPassword(user.HashedPassword).
 		SetCode(user.Code).
 		SetRealName(user.RealName).
-		SetGender(user.Gender).
 		SetEmail(user.Email).
 		SetPhoneNumber(user.PhoneNumber).
 		SetEnabled(user.Enabled).
@@ -91,6 +90,11 @@ func (repo *AdminUserRepository) Create(ctx context.Context, user *domain.AdminU
 
 	if user.DepartmentID != uuid.Nil {
 		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+	if user.Gender != "" {
+		builder = builder.SetGender(user.Gender)
+	} else {
+		builder = builder.SetGender(domain.GenderUnknown)
 	}
 	_, err = builder.Save(ctx)
 	if err != nil {
@@ -116,13 +120,17 @@ func (repo *AdminUserRepository) Update(ctx context.Context, user *domain.AdminU
 		SetNickname(user.Nickname).
 		SetHashedPassword(user.HashedPassword).
 		SetRealName(user.RealName).
-		SetGender(user.Gender).
 		SetEmail(user.Email).
 		SetPhoneNumber(user.PhoneNumber).
 		SetEnabled(user.Enabled).
 		SetIsSuperadmin(user.IsSuperAdmin)
 	if user.DepartmentID != uuid.Nil {
 		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+	if user.Gender != "" {
+		builder = builder.SetGender(user.Gender)
+	} else {
+		builder = builder.SetGender(domain.GenderUnknown)
 	}
 	_, err = builder.Save(ctx)
 	if err != nil {
