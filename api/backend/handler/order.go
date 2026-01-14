@@ -229,7 +229,7 @@ func (h *OrderHandler) ProductSalesDetail() gin.HandlerFunc {
 			return
 		}
 
-		//user := domain.FromStoreUserContext(ctx)
+		user := domain.FromStoreUserContext(ctx)
 
 		var storeIDs []uuid.UUID
 		if req.StoreIDs != "" {
@@ -258,10 +258,9 @@ func (h *OrderHandler) ProductSalesDetail() gin.HandlerFunc {
 				return
 			}
 		}
-		t, _ := uuid.Parse("00000000-0000-0000-0000-000000000001")
 		params := domain.ProductSalesDetailParams{
-			MerchantID:        t,
-			StoreIDs:          []uuid.UUID{t},
+			MerchantID:        user.MerchantID,
+			StoreIDs:          []uuid.UUID{user.StoreID},
 			BusinessDateStart: req.BusinessDateStart,
 			BusinessDateEnd:   req.BusinessDateEnd,
 			OrderChannel:      domain.Channel(req.OrderChannel),
