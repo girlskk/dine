@@ -115,7 +115,7 @@ other = "超级管理员用户不能被禁用"
 other = "超级管理员用户信息不能编辑"
 
 [USER_DISABLED]
-other = "用户已被禁用"
+other = "用户 {{.Username}} 已被禁用"
 
 [DEPARTMENT_DISABLED]
 other = "用户所属部门已被禁用"
