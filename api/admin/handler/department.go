@@ -241,7 +241,7 @@ func (h *DepartmentHandler) List() gin.HandlerFunc {
 			Enabled:        req.Enabled,
 		}
 
-		depts, total, err := h.Interactor.GetDepartments(ctx, pager, filter, domain.NewDepartmentListOrderByCreatedAt(true))
+		depts, total, err := h.Interactor.GetDepartments(ctx, pager, filter)
 		if err != nil {
 			err = fmt.Errorf("failed to get departments: %w", err)
 			c.Error(err)
@@ -277,7 +277,8 @@ func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 		}
 
 		user := domain.FromAdminUserContext(ctx)
-		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, domain.DepartmentSimpleUpdateParams{ID: id, Enabled: true}, user)
+		params := domain.DepartmentSimpleUpdateParams{ID: id, Enabled: true}
+		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, params, user)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -312,7 +313,9 @@ func (h *DepartmentHandler) Disable() gin.HandlerFunc {
 		}
 
 		user := domain.FromAdminUserContext(ctx)
-		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, domain.DepartmentSimpleUpdateParams{ID: id, Enabled: false}, user)
+
+		params := domain.DepartmentSimpleUpdateParams{ID: id, Enabled: false}
+		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, params, user)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return

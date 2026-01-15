@@ -74,7 +74,7 @@ const (
 	DeviceCodeExists ErrCode = "DEVICE_CODE_EXISTS" // 设备编号已存在
 
 	// 税费与附加费
-	AdditinalFeeNotExists    ErrCode = "ADDITIONAL_FEE_NOT_EXISTS"    // 附加费不存在
+	AdditionalFeeNotExists   ErrCode = "ADDITIONAL_FEE_NOT_EXISTS"    // 附加费不存在
 	AdditionalFeeNameExists  ErrCode = "ADDITIONAL_NAME_EXISTS"       // 附加费费名称已存在
 	TaxFeeNotExists          ErrCode = "TAX_FEE_NOT_EXISTS"           // 税费不存在
 	TaxFeeNameExists         ErrCode = "TAX_FEE_NAME_EXISTS"          // 税费名称已存在
@@ -105,6 +105,11 @@ const (
 	DepartmentCodeExists           ErrCode = "DEPARTMENT_CODE_EXISTS"             // 部门编码已存在
 	DepartmentHasUserCannotDisable ErrCode = "DEPARTMENT_HAS_USER_CANNOT_DISABLE" // 部门下有用户，不能禁用
 	DepartmentHasUserCannotDelete  ErrCode = "DEPARTMENT_HAS_USER_CANNOT_DELETE"  // 部门下有用户，不能删除
+
+	// 角色相关
+	RoleNotExists  ErrCode = "ROLE_NOT_EXISTS"  // 角色不存在
+	RoleNameExists ErrCode = "ROLE_NAME_EXISTS" // 角色名称已存在
+	RoleCodeExists ErrCode = "ROLE_CODE_EXISTS" // 角色编码已存在
 
 	// 时间相关
 	TimeFormatInvalid ErrCode = "TIME_FORMAT_INVALID" // 时间格式错误

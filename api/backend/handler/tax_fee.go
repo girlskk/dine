@@ -279,7 +279,13 @@ func (h *TaxFeeHandler) Enable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.TaxFee{ID: id, DefaultTax: true}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee, user); err != nil {
+		err = h.TaxFeeInteractor.TaxFeeSimpleUpdate(
+			ctx,
+			domain.TaxFeeSimpleUpdateFieldDefault,
+			fee,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -313,7 +319,13 @@ func (h *TaxFeeHandler) Disable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.TaxFee{ID: id, DefaultTax: false}
-		if err := h.TaxFeeInteractor.TaxFeeSimpleUpdate(ctx, domain.TaxFeeSimpleUpdateFieldDefault, fee, user); err != nil {
+		err = h.TaxFeeInteractor.TaxFeeSimpleUpdate(
+			ctx,
+			domain.TaxFeeSimpleUpdateFieldDefault,
+			fee,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}

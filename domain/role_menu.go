@@ -23,7 +23,7 @@ type RoleMenuRepository interface {
 }
 
 type RoleMenuInteractor interface {
-	SetRoleMenu(ctx context.Context, roleID uuid.UUID, paths []string) error
+	SetRoleMenu(ctx context.Context, roleID uuid.UUID, paths []string, user User) error
 	RoleMenuList(ctx context.Context, roleID uuid.UUID) (paths []string, err error)
 }
 

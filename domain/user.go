@@ -87,9 +87,10 @@ func (Gender) Values() []string {
 type UserType string
 
 const (
-	UserTypeAdmin   UserType = "admin"   // admin表用户
-	UserTypeBackend UserType = "backend" // backend用户
-	UserTypeStore   UserType = "store"   // store用户
+	UserTypeAdmin    UserType = "admin"    // admin表用户
+	UserTypeBackend  UserType = "backend"  // backend用户
+	UserTypeStore    UserType = "store"    // store用户
+	UserTypeFrontend UserType = "frontend" // frontend用户
 )
 
 func (UserType) Values() []string {

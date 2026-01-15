@@ -37,10 +37,7 @@ func (interactor *AdminUserInteractor) Login(ctx context.Context, username, pass
 
 	user, err := interactor.DS.AdminUserRepo().FindByUsername(ctx, username)
 	if err != nil {
-		if domain.IsNotFound(err) {
-			err = domain.ErrUserNotExists
-			return
-		}
+		return
 	}
 	if err = user.CheckPassword(password); err != nil {
 		return
@@ -296,7 +293,7 @@ func (interactor *AdminUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	defer func() { util.SpanErrFinish(span, err) }()
 
 	// 查询用户信息
-	user, err = interactor.DS.AdminUserRepo().Find(ctx, id)
+	user, err = interactor.DS.AdminUserRepo().GetDetail(ctx, id)
 	if err != nil {
 		if domain.IsNotFound(err) {
 			err = domain.ErrUserNotExists
@@ -304,6 +301,8 @@ func (interactor *AdminUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 		}
 		return
 	}
+
+	// 如果是超级管理员，直接返回
 	if user.IsSuperAdmin {
 		return
 	}
@@ -312,15 +311,6 @@ func (interactor *AdminUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	if err != nil {
 		return
 	}
-
-	// 查询角色关联的菜单权限
-	roleMenus, err := interactor.DS.RoleMenuRepo().GetByRoleID(ctx, userRole.RoleID)
-	if err != nil {
-		return
-	}
-	paths := lo.Map(roleMenus, func(item *domain.RoleMenu, _ int) string {
-		return item.Path
-	})
 
 	// 查询角色信息
 	role := &domain.Role{}
@@ -336,7 +326,17 @@ func (interactor *AdminUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 		}
 	}
 
-	role.Paths = paths
+	// 查询角色关联的菜单权限
+	roleMenus, err := interactor.DS.RoleMenuRepo().GetByRoleID(ctx, userRole.RoleID)
+	if err != nil {
+		return
+	}
+	if len(roleMenus) > 0 {
+		role.Paths = lo.Map(roleMenus, func(item *domain.RoleMenu, _ int) string {
+			return item.Path
+		})
+	}
+
 	user.RoleIDs = []uuid.UUID{userRole.RoleID}
 	user.RoleList = []*domain.Role{role}
 

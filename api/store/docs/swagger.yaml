@@ -247,7 +247,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          type: integer
+          $ref: '#/definitions/time.Weekday'
         type: array
     type: object
   domain.BusinessModel:
@@ -456,21 +456,23 @@ definitions:
       sort_order:
         description: 排序
         type: integer
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 出品部门 ID
-        type: string
-      stall_name:
-        description: 出品部门名称
         type: string
       status:
         allOf:
         - $ref: '#/definitions/domain.DeviceStatus'
         description: 设备状态
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.Store'
+        description: 所属门店
       store_id:
         description: 所属门店 ID
-        type: string
-      store_name:
-        description: 门店名称
         type: string
       updated_at:
         description: 更新时间
@@ -480,13 +482,16 @@ definitions:
     enum:
     - inside
     - outside
+    - network
     type: string
     x-enum-comments:
       DeviceConnectTypeInside: 内置
+      DeviceConnectTypeNetWork: 网络
       DeviceConnectTypeOutside: 外置
     x-enum-varnames:
     - DeviceConnectTypeInside
     - DeviceConnectTypeOutside
+    - DeviceConnectTypeNetWork
   domain.DeviceLocation:
     enum:
     - front_hall
@@ -713,6 +718,74 @@ definitions:
         description: 总页数
         type: integer
     type: object
+  domain.Merchant:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/domain.Address'
+        description: 地址
+      admin_phone_number:
+        description: 管理员手机号
+        type: string
+      brand_name:
+        description: 品牌名称
+        type: string
+      business_type_code:
+        allOf:
+        - $ref: '#/definitions/domain.BusinessType'
+        description: 业态类型
+      created_at:
+        type: string
+      description:
+        description: 商户描述(保留字段)
+        type: string
+      expire_utc:
+        description: UTC 时区的过期时间
+        type: string
+      id:
+        type: string
+      login_account:
+        description: 登录账号
+        type: string
+      login_password:
+        description: 登录密码(加密存储)
+        type: string
+      merchant_code:
+        description: 商户编号(保留字段)
+        type: string
+      merchant_logo:
+        description: logo 图片地址
+        type: string
+      merchant_name:
+        description: 商户名称,最长不得超过50个字
+        type: string
+      merchant_short_name:
+        description: 商户简称
+        type: string
+      merchant_type:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantType'
+        description: '商户类型: 品牌商户,门店商户'
+      purchase_duration:
+        description: 购买时长
+        type: integer
+      purchase_duration_unit:
+        allOf:
+        - $ref: '#/definitions/domain.PurchaseDurationUnit'
+        description: 购买时长单位
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.MerchantStatus'
+        description: '状态: 正常,停用,过期'
+      store_count:
+        description: 关联门店数量(仅品牌商户有效)
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - purchase_duration
+    - purchase_duration_unit
+    type: object
   domain.MerchantSimple:
     properties:
       id:
@@ -721,6 +794,31 @@ definitions:
         description: 商户名称
         type: string
     type: object
+  domain.MerchantStatus:
+    enum:
+    - active
+    - expired
+    - disabled
+    type: string
+    x-enum-comments:
+      MerchantStatusActive: 已激活
+      MerchantStatusDisabled: 已禁用
+      MerchantStatusExpired: 已过期
+    x-enum-varnames:
+    - MerchantStatusActive
+    - MerchantStatusExpired
+    - MerchantStatusDisabled
+  domain.MerchantType:
+    enum:
+    - brand
+    - store
+    type: string
+    x-enum-comments:
+      MerchantTypeBrand: 品牌商户
+      MerchantTypeStore: 门店商户
+    x-enum-varnames:
+    - MerchantTypeBrand
+    - MerchantTypeStore
   domain.ObjectStorageScene:
     enum:
     - merchant
@@ -2061,6 +2159,23 @@ definitions:
     - ProvinceSG03
     - ProvinceSG04
     - ProvinceSG05
+  domain.PurchaseDurationUnit:
+    enum:
+    - day
+    - month
+    - year
+    - week
+    type: string
+    x-enum-comments:
+      PurchaseDurationUnitDay: 日
+      PurchaseDurationUnitMonth: 月
+      PurchaseDurationUnitWeek: 周
+      PurchaseDurationUnitYear: 年
+    x-enum-varnames:
+    - PurchaseDurationUnitDay
+    - PurchaseDurationUnitMonth
+    - PurchaseDurationUnitYear
+    - PurchaseDurationUnitWeek
   domain.Remark:
     properties:
       created_at:
@@ -2104,7 +2219,7 @@ definitions:
     - refund_reject
     type: string
     x-enum-comments:
-      RemarkSceneCancelReason: 退菜原因
+      RemarkSceneCancelReason: 退款原因
       RemarkSceneDiscount: 优惠原因
       RemarkSceneGift: 赠菜原因
       RemarkSceneItem: 单品备注
@@ -2203,6 +2318,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -2210,6 +2326,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -2277,16 +2394,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - SaleChannelPOS
-    - SaleChannelMobileOrdering
-    - SaleChannelScanOrdering
-    - SaleChannelSelfService
-    - SaleChannelThirdPartyDelivery
     - PaymentMethodDisplayChannelPOS
     - PaymentMethodDisplayChannelMobileOrdering
     - PaymentMethodDisplayChannelScanOrdering
     - PaymentMethodDisplayChannelSelfService
     - PaymentMethodDisplayChannelThirdPartyDelivery
+    - SaleChannelPOS
+    - SaleChannelMobileOrdering
+    - SaleChannelScanOrdering
+    - SaleChannelSelfService
+    - SaleChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -2395,6 +2512,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.StallPrintType'
         description: 打印类型 ：receipt/label
+      relation_product_numbers:
+        description: 关联商品数量
+        type: integer
       sort_order:
         description: 排序
         type: integer
@@ -2492,11 +2612,12 @@ definitions:
       login_password:
         description: 登录密码(加密存储)
         type: string
+      merchant:
+        allOf:
+        - $ref: '#/definitions/domain.Merchant'
+        description: 关联商户信息
       merchant_id:
         description: 商户 ID
-        type: string
-      merchant_name:
-        description: 商户名称
         type: string
       shift_times:
         description: 班次时间
@@ -2673,6 +2794,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -2680,6 +2802,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -2691,6 +2814,24 @@ definitions:
         type: string
       data: {}
     type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   types.AccountListResp:
     properties:
       total:
@@ -2974,8 +3115,11 @@ definitions:
   types.DepartmentCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
+        maxLength: 50
         type: string
     required:
     - name
@@ -2983,17 +3127,22 @@ definitions:
   types.DepartmentListResp:
     properties:
       departments:
+        description: 部门列表
         items:
           $ref: '#/definitions/domain.Department'
         type: array
       total:
+        description: 部门总数
         type: integer
     type: object
   types.DepartmentUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
+        maxLength: 50
         type: string
     required:
     - name
@@ -3077,6 +3226,7 @@ definitions:
         enum:
         - inside
         - outside
+        - network
       device_stall_print_type:
         allOf:
         - $ref: '#/definitions/domain.DeviceStallPrintType'
@@ -3814,6 +3964,24 @@ definitions:
     - spec_relations
     - unit_id
     type: object
+  types.RemarkCountItem:
+    properties:
+      count:
+        description: 备注数量
+        type: integer
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景
+    type: object
+  types.RemarkCountResp:
+    properties:
+      items:
+        description: 备注数量列表
+        items:
+          $ref: '#/definitions/types.RemarkCountItem'
+        type: array
+    type: object
   types.RemarkCreateReq:
     properties:
       enabled:
@@ -3880,6 +4048,7 @@ definitions:
   types.RoleCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       login_channels:
         description: 角色登录渠道pos/mobile/store
@@ -3887,6 +4056,7 @@ definitions:
           $ref: '#/definitions/domain.LoginChannel'
         type: array
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -3904,6 +4074,7 @@ definitions:
   types.RoleMenusResp:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -3911,6 +4082,7 @@ definitions:
   types.RoleUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       login_channels:
         description: 角色登录渠道pos/mobile/store
@@ -3918,6 +4090,7 @@ definitions:
           $ref: '#/definitions/domain.LoginChannel'
         type: array
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -4220,6 +4393,7 @@ definitions:
   types.SetMenusReq:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -4770,13 +4944,16 @@ paths:
       - application/json
       description: 分页查询门店部门
       parameters:
-      - in: query
+      - description: 部门编码
+        in: query
         name: code
         type: string
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 部门名称
+        in: query
         name: name
         type: string
       - description: 页码
@@ -4937,10 +5114,12 @@ paths:
       - application/json
       description: 分页查询门店角色
       parameters:
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 角色名称
+        in: query
         name: name
         type: string
       - description: 页码
@@ -6303,7 +6482,7 @@ paths:
         name: remark_scene
         type: string
         x-enum-comments:
-          RemarkSceneCancelReason: 退菜原因
+          RemarkSceneCancelReason: 退款原因
           RemarkSceneDiscount: 优惠原因
           RemarkSceneGift: 赠菜原因
           RemarkSceneItem: 单品备注
@@ -6462,6 +6641,26 @@ paths:
       security:
       - BearerAuth: []
       summary: 启用备注
+      tags:
+      - 前厅管理
+  /remark/category_count:
+    get:
+      description: 统计各备注分类下的备注数量
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.RemarkCountResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 备注分类统计
       tags:
       - 前厅管理
   /restaurant/device:
@@ -7294,6 +7493,11 @@ paths:
           description: 成功
           schema:
             $ref: '#/definitions/domain.StoreUser'
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户信息
+      tags:
+      - 用户管理
   /user/login:
     post:
       parameters:
@@ -7310,6 +7514,11 @@ paths:
           description: 成功
           schema:
             $ref: '#/definitions/types.LoginResp'
+      security:
+      - BearerAuth: []
+      summary: 用户登录
+      tags:
+      - 用户管理
   /user/logout:
     post:
       produces:
@@ -7317,6 +7526,11 @@ paths:
       responses:
         "200":
           description: No Content
+      security:
+      - BearerAuth: []
+      summary: 用户登出
+      tags:
+      - 用户管理
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT token.

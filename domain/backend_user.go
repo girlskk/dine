@@ -15,6 +15,7 @@ type BackendUserRepository interface {
 	FindByUsername(ctx context.Context, username string) (*BackendUser, error)
 	Exists(ctx context.Context, params BackendUserExistsParams) (bool, error)
 	Find(ctx context.Context, id uuid.UUID) (*BackendUser, error)
+	GetDetail(ctx context.Context, id uuid.UUID) (*BackendUser, error)
 	Update(ctx context.Context, user *BackendUser) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetUsers(ctx context.Context, pager *upagination.Pagination, filter *BackendUserListFilter, orderBys ...BackendUserOrderBy) (users []*BackendUser, total int, err error)

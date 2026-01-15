@@ -31,7 +31,26 @@ func (repo *DeviceRepository) FindByID(ctx context.Context, id uuid.UUID) (domai
 
 	es, err := repo.Client.Device.Query().
 		Where(device.ID(id)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(domain.ErrDeviceNotExists)
+			return
+		}
+		return
+	}
+	domainDevice = convertDeviceToDomain(es)
+	return
+}
+
+func (repo *DeviceRepository) GetDetail(ctx context.Context, id uuid.UUID) (domainDevice *domain.Device, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "DeviceRepository.GetDetail")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	es, err := repo.Client.Device.Query().
+		Where(device.ID(id)).
 		WithStore().
+		WithStall().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -175,6 +194,26 @@ func (repo *DeviceRepository) GetDevices(ctx context.Context, pager *upagination
 	return
 }
 
+func (repo *DeviceRepository) ListBySearch(ctx context.Context, filter *domain.DeviceListFilter) (devices []*domain.Device, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "DeviceRepository.ListBySearch")
+	defer func() { util.SpanErrFinish(span, err) }()
+
+	query := repo.buildFilterQuery(filter)
+
+	ents, err := query.
+		Order(repo.orderBy()...).
+		All(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to list devices by search: %w", err)
+		return
+	}
+
+	devices = lo.Map(ents, func(item *ent.Device, _ int) *domain.Device {
+		return convertDeviceToDomain(item)
+	})
+	return
+}
+
 func (repo *DeviceRepository) Exists(ctx context.Context, params domain.DeviceExistsParams) (exists bool, err error) {
 	span, ctx := util.StartSpan(ctx, "repository", "DeviceRepository.Exists")
 	defer func() { util.SpanErrFinish(span, err) }()
@@ -199,6 +238,40 @@ func (repo *DeviceRepository) Exists(ctx context.Context, params domain.DeviceEx
 	exists, err = query.Exist(ctx)
 	if err != nil {
 		return false, fmt.Errorf("failed to check device existence: %w", err)
+	}
+	return
+}
+
+func (repo *DeviceRepository) OnLine(ctx context.Context, ids ...uuid.UUID) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "DeviceRepository.OnLine")
+	defer func() { util.SpanErrFinish(span, err) }()
+	if len(ids) == 0 {
+		return
+	}
+	_, err = repo.Client.Device.Update().
+		Where(device.IDIn(ids...)).
+		SetStatus(domain.DeviceStatusOnline).
+		Save(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to set devices online: %w", err)
+		return
+	}
+	return
+}
+
+func (repo *DeviceRepository) OffLine(ctx context.Context, ids ...uuid.UUID) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "DeviceRepository.OffLine")
+	defer func() { util.SpanErrFinish(span, err) }()
+	if len(ids) == 0 {
+		return
+	}
+	_, err = repo.Client.Device.Update().
+		Where(device.IDIn(ids...)).
+		SetStatus(domain.DeviceStatusOffline).
+		Save(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to set devices offline: %w", err)
+		return
 	}
 	return
 }
@@ -274,7 +347,10 @@ func convertDeviceToDomain(es *ent.Device) (d *domain.Device) {
 		UpdatedAt:              es.UpdatedAt,
 	}
 	if es.Edges.Store != nil {
-		d.StoreName = es.Edges.Store.StoreName
+		d.Store = convertStore(es.Edges.Store)
+	}
+	if es.Edges.Stall != nil {
+		d.Stall = convertStallToDomain(es.Edges.Stall)
 	}
 	return d
 }

@@ -24,7 +24,7 @@ type DeviceCreateReq struct {
 type DevicePrint struct {
 	IP                     string                        `json:"ip" binding:"required,max=50"`                                                                                    // 打印机 IP 地址
 	PaperSize              domain.PaperSize              `json:"paper_size" binding:"required,oneof=58mm 80mm"`                                                                   // 纸张大小
-	ConnectType            domain.DeviceConnectType      `json:"connect_type" binding:"required,oneof=inside outside"`                                                            // 设备连接类型 inside内置 / outside外置
+	ConnectType            domain.DeviceConnectType      `json:"connect_type" binding:"required,oneof=inside outside network"`                                                    // 设备连接类型 inside内置 / outside外置
 	StallID                uuid.UUID                     `json:"stall_id" binding:"required"`                                                                                     // 出品部门 ID
 	OrderChannels          []domain.OrderChannel         `json:"order_channels" binding:"required,dive,oneof=pos self_order mini_program mobile_order scan_order third_delivery"` // 订单来源
 	DiningWays             []domain.DiningWay            `json:"dining_ways" binding:"required,dive,oneof=dine_in take_out delivery"`                                             // 用餐方式

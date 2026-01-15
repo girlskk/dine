@@ -21,7 +21,10 @@ type MerchantHandler struct {
 	StoreInteractor    domain.StoreInteractor
 }
 
-func NewMerchantHandler(merchantInteractor domain.MerchantInteractor, storeInteractor domain.StoreInteractor) *MerchantHandler {
+func NewMerchantHandler(
+	merchantInteractor domain.MerchantInteractor,
+	storeInteractor domain.StoreInteractor,
+) *MerchantHandler {
 	return &MerchantHandler{
 		MerchantInteractor: merchantInteractor,
 		StoreInteractor:    storeInteractor,
@@ -184,7 +187,8 @@ func (h *MerchantHandler) CreateStoreMerchant() gin.HandlerFunc {
 			Address:                 address,
 		}
 		user := domain.FromAdminUserContext(ctx)
-		if err := h.MerchantInteractor.CreateMerchantAndStore(ctx, createMerchant, createStore, user); err != nil {
+		err = h.MerchantInteractor.CreateMerchantAndStore(ctx, createMerchant, createStore, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -344,7 +348,8 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 			Address:                 address,
 		}
 		user := domain.FromAdminUserContext(ctx)
-		if err := h.MerchantInteractor.UpdateMerchantAndStore(ctx, updateMerchant, updateStore, user); err != nil {
+		err = h.MerchantInteractor.UpdateMerchantAndStore(ctx, updateMerchant, updateStore, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -544,8 +549,8 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 			OperatorAccount:      user.ID.String(),
 			OperatorName:         user.Username,
 		}
-
-		if err := h.MerchantInteractor.MerchantRenewal(ctx, merchantRenewal, user); err != nil {
+		err := h.MerchantInteractor.MerchantRenewal(ctx, merchantRenewal, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -577,10 +582,10 @@ func (h *MerchantHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		updateParams := &domain.Merchant{ID: id, Status: domain.MerchantStatusActive}
+		params := &domain.Merchant{ID: id, Status: domain.MerchantStatusActive}
 		user := domain.FromAdminUserContext(ctx)
-
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams, user); err != nil {
+		err = h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, params, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -612,10 +617,10 @@ func (h *MerchantHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		updateParams := &domain.Merchant{ID: id, Status: domain.MerchantStatusDisabled}
+		params := &domain.Merchant{ID: id, Status: domain.MerchantStatusDisabled}
 		user := domain.FromAdminUserContext(ctx)
-
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams, user); err != nil {
+		err = h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, params, user)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}

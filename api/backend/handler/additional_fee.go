@@ -280,7 +280,13 @@ func (h *AdditionalFeeHandler) Enable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.AdditionalFee{ID: id, Enabled: true}
-		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee, user); err != nil {
+		err = h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(
+			ctx,
+			domain.AdditionalFeeSimpleUpdateTypeEnabled,
+			fee,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -314,7 +320,13 @@ func (h *AdditionalFeeHandler) Disable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		fee := &domain.AdditionalFee{ID: id, Enabled: false}
-		if err := h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(ctx, domain.AdditionalFeeSimpleUpdateTypeEnabled, fee, user); err != nil {
+		err = h.AdditionalFeeInteractor.AdditionalFeeSimpleUpdate(
+			ctx,
+			domain.AdditionalFeeSimpleUpdateTypeEnabled,
+			fee,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -326,7 +338,7 @@ func (h *AdditionalFeeHandler) Disable() gin.HandlerFunc {
 func (h *AdditionalFeeHandler) checkErr(err error) error {
 	switch {
 	case errors.Is(err, domain.ErrAdditionalFeeNotExists):
-		return errorx.New(http.StatusBadRequest, errcode.AdditinalFeeNotExists, err)
+		return errorx.New(http.StatusBadRequest, errcode.AdditionalFeeNotExists, err)
 	case errors.Is(err, domain.ErrAdditionalFeeNameExists):
 		return errorx.New(http.StatusConflict, errcode.AdditionalFeeNameExists, err)
 	case domain.IsNotFound(err):

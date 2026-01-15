@@ -166,6 +166,27 @@ func (repo *StoreRepository) FindByID(ctx context.Context, id uuid.UUID) (domain
 
 	em, err := repo.Client.Store.Query().
 		Where(store.ID(id)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(domain.ErrStoreNotExists)
+			return
+		}
+		err = fmt.Errorf("failed to find store by id: %w", err)
+		return
+	}
+	domainStore = convertStore(em)
+	return
+}
+
+func (repo *StoreRepository) GetDetail(ctx context.Context, id uuid.UUID) (domainStore *domain.Store, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreRepository.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	em, err := repo.Client.Store.Query().
+		Where(store.ID(id)).
 		WithMerchant().
 		Only(ctx)
 	if err != nil {
@@ -211,15 +232,6 @@ func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.P
 		util.SpanErrFinish(span, err)
 	}()
 
-	if pager == nil {
-		err = fmt.Errorf("pager is nil")
-		return
-	}
-	if filter == nil {
-		err = fmt.Errorf("filter is nil")
-		return
-	}
-
 	query := repo.filterBuildQuery(filter)
 	query.WithMerchant() // 加载商户信息
 
@@ -230,6 +242,7 @@ func (repo *StoreRepository) GetStores(ctx context.Context, pager *upagination.P
 	}
 
 	stores, err := query.Order(repo.orderBy(orderBys...)...).
+		WithMerchant().
 		Offset(pager.Offset()).
 		Limit(pager.Size).
 		All(ctx)
@@ -347,7 +360,7 @@ func convertStore(es *ent.Store) *domain.Store {
 	}
 
 	if es.Edges.Merchant != nil {
-		repoStore.MerchantName = es.Edges.Merchant.MerchantName
+		repoStore.Merchant = convertMerchant(es.Edges.Merchant)
 	}
 
 	return repoStore

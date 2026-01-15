@@ -27,7 +27,7 @@ func NewMerchantHandler(merchantInteractor domain.MerchantInteractor, storeInter
 }
 
 func (h *MerchantHandler) Routes(r gin.IRouter) {
-	r = r.Group("merchant")
+	r = r.Group("merchant/merchant")
 	r.PUT("/brand", h.UpdateBrandMerchant())
 	r.PUT("/store", h.UpdateStoreMerchant())
 	r.GET("", h.GetMerchant())
@@ -47,7 +47,7 @@ func (h *MerchantHandler) Routes(r gin.IRouter) {
 //	@Param			id		path	string					true	"商户ID"
 //	@Param			data	body	types.UpdateMerchantReq	true	"更新品牌商户请求"
 //	@Success		200		"No Content"
-//	@Router			/merchant/brand [put]
+//	@Router			/merchant/merchant/brand [put]
 func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -104,7 +104,7 @@ func (h *MerchantHandler) UpdateBrandMerchant() gin.HandlerFunc {
 //	@Param			id		path	string							true	"商户ID"
 //	@Param			data	body	types.UpdateStoreMerchantReq	true	"更新门店商户请求"
 //	@Success		200		"No Content"
-//	@Router			/merchant/store [put]
+//	@Router			/merchant/merchant/store [put]
 func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -189,7 +189,7 @@ func (h *MerchantHandler) UpdateStoreMerchant() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"商户ID"
 //	@Success		200	{object}	response.Response{data=types.MerchantInfoResp}
-//	@Router			/merchant [get]
+//	@Router			/merchant/merchant [get]
 func (h *MerchantHandler) GetMerchant() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -240,7 +240,7 @@ func (h *MerchantHandler) GetMerchant() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			data	body	types.MerchantRenewalReq	true	"商户续期请求"
 //	@Success		200		"No Content"
-//	@Router			/merchant/renewal [post]
+//	@Router			/merchant/merchant/renewal [post]
 func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -280,7 +280,7 @@ func (h *MerchantHandler) MerchantRenewal() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	"No Content"
-//	@Router			/merchant/enable [put]
+//	@Router			/merchant/merchant/enable [put]
 func (h *MerchantHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -291,8 +291,13 @@ func (h *MerchantHandler) Enable() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		updateParams := &domain.Merchant{ID: user.MerchantID, Status: domain.MerchantStatusActive}
-
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams, user); err != nil {
+		err := h.MerchantInteractor.MerchantSimpleUpdate(
+			ctx,
+			domain.MerchantSimpleUpdateTypeStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -309,7 +314,7 @@ func (h *MerchantHandler) Enable() gin.HandlerFunc {
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	"No Content"
-//	@Router			/merchant/disable [put]
+//	@Router			/merchant/merchant/disable [put]
 func (h *MerchantHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -320,8 +325,13 @@ func (h *MerchantHandler) Disable() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		updateParams := &domain.Merchant{ID: user.MerchantID, Status: domain.MerchantStatusDisabled}
-
-		if err := h.MerchantInteractor.MerchantSimpleUpdate(ctx, domain.MerchantSimpleUpdateTypeStatus, updateParams, user); err != nil {
+		err := h.MerchantInteractor.MerchantSimpleUpdate(
+			ctx,
+			domain.MerchantSimpleUpdateTypeStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}

@@ -34,6 +34,7 @@ func (h *RemarkHandler) Routes(r gin.IRouter) {
 	r.GET("", h.List())
 	r.PUT("/:id/enable", h.Enable())
 	r.PUT("/:id/disable", h.Disable())
+	r.GET("/category_count", h.RemarkCategoryCount())
 }
 
 // Create 创建备注
@@ -269,7 +270,13 @@ func (h *RemarkHandler) Enable() gin.HandlerFunc {
 		}
 		user := domain.FromBackendUserContext(ctx)
 		remark := &domain.Remark{ID: id, Enabled: true}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark, user); err != nil {
+		err = h.RemarkInteractor.RemarkSimpleUpdate(
+			ctx,
+			domain.RemarkSimpleUpdateFieldEnabled,
+			remark,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -302,12 +309,59 @@ func (h *RemarkHandler) Disable() gin.HandlerFunc {
 		}
 		user := domain.FromBackendUserContext(ctx)
 		remark := &domain.Remark{ID: id, Enabled: false}
-		if err := h.RemarkInteractor.RemarkSimpleUpdate(ctx, domain.RemarkSimpleUpdateFieldEnabled, remark, user); err != nil {
+		err = h.RemarkInteractor.RemarkSimpleUpdate(
+			ctx,
+			domain.RemarkSimpleUpdateFieldEnabled,
+			remark,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+// RemarkCategoryCount 备注分类统计
+//
+//	@Tags			前厅管理
+//	@Security		BearerAuth
+//	@Summary		备注分类统计
+//	@Description	统计各备注分类下的备注数量
+//	@Produce		json
+//	@Success		200	{object}	response.Response{data=types.RemarkCountResp}
+//	@Router			/remark/category_count [get]
+func (h *RemarkHandler) RemarkCategoryCount() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("RemarkHandler.RemarkCategoryCount")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		user := domain.FromBackendUserContext(ctx)
+		params := domain.CountRemarkParams{
+			RemarkType:   domain.RemarkTypeBrand,
+			MerchantID:   user.MerchantID,
+			RemarkScenes: domain.RemarkScenesList,
+		}
+		counts, err := h.RemarkInteractor.CountRemarkByScene(ctx, params)
+		if err != nil {
+			c.Error(h.checkErr(err))
+			return
+		}
+
+		itemCountList := make([]types.RemarkCountItem, 0, len(counts))
+		for scene, count := range counts {
+			itemCountList = append(itemCountList, types.RemarkCountItem{
+				RemarkScene: scene,
+				Count:       count,
+			})
+		}
+		response.Ok(c, types.RemarkCountResp{
+			Items: itemCountList,
+		})
 	}
 }
 

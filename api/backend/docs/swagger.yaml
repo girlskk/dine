@@ -306,7 +306,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          type: integer
+          $ref: '#/definitions/time.Weekday'
         type: array
     type: object
   domain.BusinessModel:
@@ -515,21 +515,23 @@ definitions:
       sort_order:
         description: 排序
         type: integer
+      stall:
+        allOf:
+        - $ref: '#/definitions/domain.Stall'
+        description: 出品部门
       stall_id:
         description: 出品部门 ID
-        type: string
-      stall_name:
-        description: 出品部门名称
         type: string
       status:
         allOf:
         - $ref: '#/definitions/domain.DeviceStatus'
         description: 设备状态
+      store:
+        allOf:
+        - $ref: '#/definitions/domain.Store'
+        description: 所属门店
       store_id:
         description: 所属门店 ID
-        type: string
-      store_name:
-        description: 门店名称
         type: string
       updated_at:
         description: 更新时间
@@ -539,13 +541,16 @@ definitions:
     enum:
     - inside
     - outside
+    - network
     type: string
     x-enum-comments:
       DeviceConnectTypeInside: 内置
+      DeviceConnectTypeNetWork: 网络
       DeviceConnectTypeOutside: 外置
     x-enum-varnames:
     - DeviceConnectTypeInside
     - DeviceConnectTypeOutside
+    - DeviceConnectTypeNetWork
   domain.DeviceLocation:
     enum:
     - front_hall
@@ -2409,7 +2414,7 @@ definitions:
     - refund_reject
     type: string
     x-enum-comments:
-      RemarkSceneCancelReason: 退菜原因
+      RemarkSceneCancelReason: 退款原因
       RemarkSceneDiscount: 优惠原因
       RemarkSceneGift: 赠菜原因
       RemarkSceneItem: 单品备注
@@ -2508,6 +2513,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -2515,6 +2521,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -2797,11 +2804,12 @@ definitions:
       login_password:
         description: 登录密码(加密存储)
         type: string
+      merchant:
+        allOf:
+        - $ref: '#/definitions/domain.Merchant'
+        description: 关联商户信息
       merchant_id:
         description: 商户 ID
-        type: string
-      merchant_name:
-        description: 商户名称
         type: string
       shift_times:
         description: 班次时间
@@ -2965,6 +2973,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -2972,6 +2981,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -2983,6 +2993,38 @@ definitions:
         type: string
       data: {}
     type: object
+  time.Weekday:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   types.AccountListResp:
     properties:
       total:
@@ -3483,8 +3525,11 @@ definitions:
   types.DepartmentCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
+        maxLength: 50
         type: string
     required:
     - name
@@ -3492,17 +3537,22 @@ definitions:
   types.DepartmentListResp:
     properties:
       departments:
+        description: 部门列表
         items:
           $ref: '#/definitions/domain.Department'
         type: array
       total:
+        description: 部门总数
         type: integer
     type: object
   types.DepartmentUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
+        maxLength: 50
         type: string
     required:
     - name
@@ -3590,6 +3640,7 @@ definitions:
         enum:
         - inside
         - outside
+        - network
       device_stall_print_type:
         allOf:
         - $ref: '#/definitions/domain.DeviceStallPrintType'
@@ -4506,6 +4557,24 @@ definitions:
     - split_ratio
     - store_ids
     type: object
+  types.RemarkCountItem:
+    properties:
+      count:
+        description: 备注数量
+        type: integer
+      remark_scene:
+        allOf:
+        - $ref: '#/definitions/domain.RemarkScene'
+        description: 使用场景
+    type: object
+  types.RemarkCountResp:
+    properties:
+      items:
+        description: 备注数量列表
+        items:
+          $ref: '#/definitions/types.RemarkCountItem'
+        type: array
+    type: object
   types.RemarkCreateReq:
     properties:
       enabled:
@@ -4575,8 +4644,10 @@ definitions:
   types.RoleCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -4594,6 +4665,7 @@ definitions:
   types.RoleMenusResp:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -4601,8 +4673,10 @@ definitions:
   types.RoleUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -4900,6 +4974,7 @@ definitions:
   types.SetMenusReq:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -5558,13 +5633,16 @@ paths:
       - application/json
       description: 分页查询品牌部门
       parameters:
-      - in: query
+      - description: 部门编码
+        in: query
         name: code
         type: string
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 部门名称
+        in: query
         name: name
         type: string
       - description: 页码
@@ -5725,10 +5803,12 @@ paths:
       - application/json
       description: 分页查询品牌角色
       parameters:
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 角色名称
+        in: query
         name: name
         type: string
       - description: 页码
@@ -6040,7 +6120,7 @@ paths:
       summary: 更新菜单
       tags:
       - 菜单管理
-  /merchant:
+  /merchant/merchant:
     get:
       consumes:
       - application/json
@@ -6068,7 +6148,7 @@ paths:
       summary: 获取商户信息
       tags:
       - 商户管理-商户
-  /merchant/brand:
+  /merchant/merchant/brand:
     put:
       consumes:
       - application/json
@@ -6095,7 +6175,7 @@ paths:
       summary: 更新品牌商户
       tags:
       - 商户管理
-  /merchant/disable:
+  /merchant/merchant/disable:
     put:
       description: 将商户状态置为禁用
       produces:
@@ -6108,7 +6188,7 @@ paths:
       summary: 禁用商户
       tags:
       - 商户管理
-  /merchant/enable:
+  /merchant/merchant/enable:
     put:
       description: 将商户状态置为激活
       produces:
@@ -6121,7 +6201,7 @@ paths:
       summary: 启用商户
       tags:
       - 商户管理
-  /merchant/renewal:
+  /merchant/merchant/renewal:
     post:
       consumes:
       - application/json
@@ -6143,28 +6223,7 @@ paths:
       summary: 商户续期
       tags:
       - 商户管理
-  /merchant/store:
-    post:
-      consumes:
-      - application/json
-      description: 创建单个门店
-      parameters:
-      - description: 创建门店请求
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.CreateStoreReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 创建门店
-      tags:
-      - 门店管理
+  /merchant/merchant/store:
     put:
       consumes:
       - application/json
@@ -6191,6 +6250,28 @@ paths:
       summary: 更新门店商户
       tags:
       - 商户管理
+  /merchant/store:
+    post:
+      consumes:
+      - application/json
+      description: 创建单个门店
+      parameters:
+      - description: 创建门店请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateStoreReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: 创建门店
+      tags:
+      - 门店管理
   /merchant/store/{id}:
     delete:
       consumes:
@@ -7876,7 +7957,7 @@ paths:
         name: remark_scene
         type: string
         x-enum-comments:
-          RemarkSceneCancelReason: 退菜原因
+          RemarkSceneCancelReason: 退款原因
           RemarkSceneDiscount: 优惠原因
           RemarkSceneGift: 赠菜原因
           RemarkSceneItem: 单品备注
@@ -8039,6 +8120,26 @@ paths:
       security:
       - BearerAuth: []
       summary: 启用备注
+      tags:
+      - 前厅管理
+  /remark/category_count:
+    get:
+      description: 统计各备注分类下的备注数量
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/types.RemarkCountResp'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 备注分类统计
       tags:
       - 前厅管理
   /restaurant/device:

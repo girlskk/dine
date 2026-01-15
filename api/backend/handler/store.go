@@ -331,7 +331,13 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusOpen}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
+		err = h.StoreInteractor.StoreSimpleUpdate(
+			ctx,
+			domain.StoreSimpleUpdateFieldStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -365,7 +371,13 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 
 		user := domain.FromBackendUserContext(ctx)
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusClosed}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
+		err = h.StoreInteractor.StoreSimpleUpdate(
+			ctx,
+			domain.StoreSimpleUpdateFieldStatus,
+			updateParams,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -398,6 +410,8 @@ func (h *StoreHandler) checkErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.StoreShiftTimeTimeInvalid, err)
 	case errors.Is(err, domain.ErrStoreShiftTimeNameExists):
 		return errorx.New(http.StatusBadRequest, errcode.StoreShiftTimeNameExists, err)
+	case domain.IsNotFound(err):
+		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
 	case domain.IsParamsError(err):
 		return errorx.New(http.StatusBadRequest, errcode.InvalidParams, err)
 	default:

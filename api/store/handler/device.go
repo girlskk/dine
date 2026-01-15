@@ -266,7 +266,7 @@ func (h *DeviceHandler) List() gin.HandlerFunc {
 			Name:       req.Name,
 		}
 
-		devices, total, err := h.DeviceInteractor.GetDevices(ctx, pager, filter, domain.NewDeviceOrderByCreatedAt(true))
+		devices, total, err := h.DeviceInteractor.GetDevices(ctx, pager, filter)
 		if err != nil {
 			if domain.IsParamsError(err) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
@@ -306,7 +306,13 @@ func (h *DeviceHandler) Enable() gin.HandlerFunc {
 
 		user := domain.FromStoreUserContext(ctx)
 		device := &domain.Device{ID: id, Enabled: true}
-		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device, user); err != nil {
+		err = h.DeviceInteractor.DeviceSimpleUpdate(
+			ctx,
+			domain.DeviceSimpleUpdateTypeEnabled,
+			device,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -340,7 +346,13 @@ func (h *DeviceHandler) Disable() gin.HandlerFunc {
 
 		user := domain.FromStoreUserContext(ctx)
 		device := &domain.Device{ID: id, Enabled: false}
-		if err := h.DeviceInteractor.DeviceSimpleUpdate(ctx, domain.DeviceSimpleUpdateTypeEnabled, device, user); err != nil {
+		err = h.DeviceInteractor.DeviceSimpleUpdate(
+			ctx,
+			domain.DeviceSimpleUpdateTypeEnabled,
+			device,
+			user,
+		)
+		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}

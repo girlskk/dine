@@ -471,6 +471,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -478,6 +479,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -590,11 +592,12 @@ definitions:
       login_password:
         description: 登录密码(加密存储)
         type: string
+      merchant:
+        allOf:
+        - $ref: '#/definitions/domain.Merchant'
+        description: 关联商户信息
       merchant_id:
         description: 商户 ID
-        type: string
-      merchant_name:
-        description: 商户名称
         type: string
       shift_times:
         description: 班次时间
@@ -642,6 +645,7 @@ definitions:
     - admin
     - backend
     - store
+    - frontend
     - admin
     - backend
     - store
@@ -649,6 +653,7 @@ definitions:
     x-enum-comments:
       UserTypeAdmin: admin表用户
       UserTypeBackend: backend用户
+      UserTypeFrontend: frontend用户
       UserTypeStore: store用户
     x-enum-varnames:
     - RoleTypeAdmin
@@ -1054,8 +1059,10 @@ definitions:
   types.DepartmentCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
         maxLength: 50
         type: string
     required:
@@ -1064,17 +1071,21 @@ definitions:
   types.DepartmentListResp:
     properties:
       departments:
+        description: 部门列表
         items:
           $ref: '#/definitions/domain.Department'
         type: array
       total:
+        description: 部门总数
         type: integer
     type: object
   types.DepartmentUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 部门名称
         maxLength: 50
         type: string
     required:
@@ -1201,8 +1212,10 @@ definitions:
   types.RoleCreateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -1220,6 +1233,7 @@ definitions:
   types.RoleMenusResp:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -1227,8 +1241,10 @@ definitions:
   types.RoleUpdateReq:
     properties:
       enabled:
+        description: 是否启用
         type: boolean
       name:
+        description: 角色名称
         maxLength: 50
         type: string
     required:
@@ -1246,6 +1262,7 @@ definitions:
   types.SetMenusReq:
     properties:
       paths:
+        description: 菜单路径列表
         items:
           type: string
         type: array
@@ -1515,13 +1532,16 @@ paths:
       - application/json
       description: 查询部门列表
       parameters:
-      - in: query
+      - description: 部门编码
+        in: query
         name: code
         type: string
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 部门名称
+        in: query
         name: name
         type: string
       - description: 页码
@@ -1682,10 +1702,12 @@ paths:
       - application/json
       description: 分页查询角色
       parameters:
-      - in: query
+      - description: 启用状态
+        in: query
         name: enabled
         type: boolean
-      - in: query
+      - description: 角色名称
+        in: query
         name: name
         type: string
       - description: 页码
