@@ -4,6 +4,8 @@ package ent
 
 import (
 	"context"
+	stdsql "database/sql"
+	"fmt"
 	"sync"
 
 	"entgo.io/ent/dialect"
@@ -12,8 +14,90 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// AdditionalFee is the client for interacting with the AdditionalFee builders.
+	AdditionalFee *AdditionalFeeClient
 	// AdminUser is the client for interacting with the AdminUser builders.
 	AdminUser *AdminUserClient
+	// BackendUser is the client for interacting with the BackendUser builders.
+	BackendUser *BackendUserClient
+	// BusinessConfig is the client for interacting with the BusinessConfig builders.
+	BusinessConfig *BusinessConfigClient
+	// Category is the client for interacting with the Category builders.
+	Category *CategoryClient
+	// Department is the client for interacting with the Department builders.
+	Department *DepartmentClient
+	// Device is the client for interacting with the Device builders.
+	Device *DeviceClient
+	// Menu is the client for interacting with the Menu builders.
+	Menu *MenuClient
+	// MenuItem is the client for interacting with the MenuItem builders.
+	MenuItem *MenuItemClient
+	// Merchant is the client for interacting with the Merchant builders.
+	Merchant *MerchantClient
+	// MerchantBusinessType is the client for interacting with the MerchantBusinessType builders.
+	MerchantBusinessType *MerchantBusinessTypeClient
+	// MerchantRenewal is the client for interacting with the MerchantRenewal builders.
+	MerchantRenewal *MerchantRenewalClient
+	// Order is the client for interacting with the Order builders.
+	Order *OrderClient
+	// OrderProduct is the client for interacting with the OrderProduct builders.
+	OrderProduct *OrderProductClient
+	// PaymentAccount is the client for interacting with the PaymentAccount builders.
+	PaymentAccount *PaymentAccountClient
+	// PaymentMethod is the client for interacting with the PaymentMethod builders.
+	PaymentMethod *PaymentMethodClient
+	// Permission is the client for interacting with the Permission builders.
+	Permission *PermissionClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
+	// ProductAttr is the client for interacting with the ProductAttr builders.
+	ProductAttr *ProductAttrClient
+	// ProductAttrItem is the client for interacting with the ProductAttrItem builders.
+	ProductAttrItem *ProductAttrItemClient
+	// ProductAttrRelation is the client for interacting with the ProductAttrRelation builders.
+	ProductAttrRelation *ProductAttrRelationClient
+	// ProductSpec is the client for interacting with the ProductSpec builders.
+	ProductSpec *ProductSpecClient
+	// ProductSpecRelation is the client for interacting with the ProductSpecRelation builders.
+	ProductSpecRelation *ProductSpecRelationClient
+	// ProductTag is the client for interacting with the ProductTag builders.
+	ProductTag *ProductTagClient
+	// ProductUnit is the client for interacting with the ProductUnit builders.
+	ProductUnit *ProductUnitClient
+	// ProfitDistributionBill is the client for interacting with the ProfitDistributionBill builders.
+	ProfitDistributionBill *ProfitDistributionBillClient
+	// ProfitDistributionRule is the client for interacting with the ProfitDistributionRule builders.
+	ProfitDistributionRule *ProfitDistributionRuleClient
+	// RefundOrder is the client for interacting with the RefundOrder builders.
+	RefundOrder *RefundOrderClient
+	// RefundOrderProduct is the client for interacting with the RefundOrderProduct builders.
+	RefundOrderProduct *RefundOrderProductClient
+	// Remark is the client for interacting with the Remark builders.
+	Remark *RemarkClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
+	// RoleMenu is the client for interacting with the RoleMenu builders.
+	RoleMenu *RoleMenuClient
+	// RolePermission is the client for interacting with the RolePermission builders.
+	RolePermission *RolePermissionClient
+	// RouterMenu is the client for interacting with the RouterMenu builders.
+	RouterMenu *RouterMenuClient
+	// SetMealDetail is the client for interacting with the SetMealDetail builders.
+	SetMealDetail *SetMealDetailClient
+	// SetMealGroup is the client for interacting with the SetMealGroup builders.
+	SetMealGroup *SetMealGroupClient
+	// Stall is the client for interacting with the Stall builders.
+	Stall *StallClient
+	// Store is the client for interacting with the Store builders.
+	Store *StoreClient
+	// StorePaymentAccount is the client for interacting with the StorePaymentAccount builders.
+	StorePaymentAccount *StorePaymentAccountClient
+	// StoreUser is the client for interacting with the StoreUser builders.
+	StoreUser *StoreUserClient
+	// TaxFee is the client for interacting with the TaxFee builders.
+	TaxFee *TaxFeeClient
+	// UserRole is the client for interacting with the UserRole builders.
+	UserRole *UserRoleClient
 
 	// lazily loaded.
 	client     *Client
@@ -145,7 +229,48 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.AdditionalFee = NewAdditionalFeeClient(tx.config)
 	tx.AdminUser = NewAdminUserClient(tx.config)
+	tx.BackendUser = NewBackendUserClient(tx.config)
+	tx.BusinessConfig = NewBusinessConfigClient(tx.config)
+	tx.Category = NewCategoryClient(tx.config)
+	tx.Department = NewDepartmentClient(tx.config)
+	tx.Device = NewDeviceClient(tx.config)
+	tx.Menu = NewMenuClient(tx.config)
+	tx.MenuItem = NewMenuItemClient(tx.config)
+	tx.Merchant = NewMerchantClient(tx.config)
+	tx.MerchantBusinessType = NewMerchantBusinessTypeClient(tx.config)
+	tx.MerchantRenewal = NewMerchantRenewalClient(tx.config)
+	tx.Order = NewOrderClient(tx.config)
+	tx.OrderProduct = NewOrderProductClient(tx.config)
+	tx.PaymentAccount = NewPaymentAccountClient(tx.config)
+	tx.PaymentMethod = NewPaymentMethodClient(tx.config)
+	tx.Permission = NewPermissionClient(tx.config)
+	tx.Product = NewProductClient(tx.config)
+	tx.ProductAttr = NewProductAttrClient(tx.config)
+	tx.ProductAttrItem = NewProductAttrItemClient(tx.config)
+	tx.ProductAttrRelation = NewProductAttrRelationClient(tx.config)
+	tx.ProductSpec = NewProductSpecClient(tx.config)
+	tx.ProductSpecRelation = NewProductSpecRelationClient(tx.config)
+	tx.ProductTag = NewProductTagClient(tx.config)
+	tx.ProductUnit = NewProductUnitClient(tx.config)
+	tx.ProfitDistributionBill = NewProfitDistributionBillClient(tx.config)
+	tx.ProfitDistributionRule = NewProfitDistributionRuleClient(tx.config)
+	tx.RefundOrder = NewRefundOrderClient(tx.config)
+	tx.RefundOrderProduct = NewRefundOrderProductClient(tx.config)
+	tx.Remark = NewRemarkClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
+	tx.RoleMenu = NewRoleMenuClient(tx.config)
+	tx.RolePermission = NewRolePermissionClient(tx.config)
+	tx.RouterMenu = NewRouterMenuClient(tx.config)
+	tx.SetMealDetail = NewSetMealDetailClient(tx.config)
+	tx.SetMealGroup = NewSetMealGroupClient(tx.config)
+	tx.Stall = NewStallClient(tx.config)
+	tx.Store = NewStoreClient(tx.config)
+	tx.StorePaymentAccount = NewStorePaymentAccountClient(tx.config)
+	tx.StoreUser = NewStoreUserClient(tx.config)
+	tx.TaxFee = NewTaxFeeClient(tx.config)
+	tx.UserRole = NewUserRoleClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -155,7 +280,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: AdminUser.QueryXXX(), the query will be executed
+// applies a query, for example: AdditionalFee.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.
@@ -208,3 +333,27 @@ func (tx *txDriver) Query(ctx context.Context, query string, args, v any) error 
 }
 
 var _ dialect.Driver = (*txDriver)(nil)
+
+// ExecContext allows calling the underlying ExecContext method of the transaction if it is supported by it.
+// See, database/sql#Tx.ExecContext for more information.
+func (tx *txDriver) ExecContext(ctx context.Context, query string, args ...any) (stdsql.Result, error) {
+	ex, ok := tx.tx.(interface {
+		ExecContext(context.Context, string, ...any) (stdsql.Result, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("Tx.ExecContext is not supported")
+	}
+	return ex.ExecContext(ctx, query, args...)
+}
+
+// QueryContext allows calling the underlying QueryContext method of the transaction if it is supported by it.
+// See, database/sql#Tx.QueryContext for more information.
+func (tx *txDriver) QueryContext(ctx context.Context, query string, args ...any) (*stdsql.Rows, error) {
+	q, ok := tx.tx.(interface {
+		QueryContext(context.Context, string, ...any) (*stdsql.Rows, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("Tx.QueryContext is not supported")
+	}
+	return q.QueryContext(ctx, query, args...)
+}

@@ -1,0 +1,762 @@
+package repository
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
+	"gitlab.jiguang.dev/pos-dine/dine/domain"
+	"gitlab.jiguang.dev/pos-dine/dine/ent"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/schema/schematype"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
+)
+
+var _ domain.ProductRepository = (*ProductRepository)(nil)
+
+type ProductRepository struct {
+	Client *ent.Client
+}
+
+func NewProductRepository(client *ent.Client) *ProductRepository {
+	return &ProductRepository{
+		Client: client,
+	}
+}
+
+func (repo *ProductRepository) FindByID(ctx context.Context, id uuid.UUID) (res *domain.Product, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.FindByID")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	ep, err := repo.Client.Product.Get(ctx, id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrProductNotExists)
+		}
+		return nil, err
+	}
+
+	res = convertProductToDomain(ep)
+	return res, nil
+}
+
+func (repo *ProductRepository) GetDetail(ctx context.Context, id uuid.UUID) (res *domain.Product, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	ep, err := repo.Client.Product.Query().
+		Where(product.IDEQ(id)).
+		WithCategory(
+			func(query *ent.CategoryQuery) {
+				query.WithParent()
+			},
+		).
+		WithUnit().
+		WithTags().
+		WithProductSpecs(
+			func(query *ent.ProductSpecRelationQuery) {
+				query.WithSpec()
+				query.WithPackingFee()
+			},
+		).
+		WithProductAttrs(
+			func(query *ent.ProductAttrRelationQuery) {
+				query.WithAttr()
+			},
+			func(query *ent.ProductAttrRelationQuery) {
+				query.WithAttrItem()
+			},
+		).
+		WithSetMealGroups(func(query *ent.SetMealGroupQuery) {
+			query.WithDetails()
+		}).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrProductNotExists)
+		}
+		return nil, err
+	}
+
+	res = convertProductDetailToDomain(ep)
+
+	// 套餐组商品备选商品
+	if len(res.Groups) > 0 {
+		optionalProductIDs := make([]uuid.UUID, 0)
+		for _, group := range res.Groups {
+			for _, detail := range group.Details {
+				if len(detail.OptionalProductIDs) > 0 {
+					optionalProductIDs = append(optionalProductIDs, detail.OptionalProductIDs...)
+				}
+			}
+		}
+		optionalProductsMap := make(map[uuid.UUID]*domain.Product)
+		optionalProductIDs = lo.Uniq(optionalProductIDs)
+		if len(optionalProductIDs) > 0 {
+			optionalProducts, err := repo.ListByIDs(ctx, optionalProductIDs)
+			if err != nil {
+				return nil, err
+			}
+			for _, product := range optionalProducts {
+				optionalProductsMap[product.ID] = product
+			}
+		}
+
+		for _, group := range res.Groups {
+			for _, detail := range group.Details {
+				if len(detail.OptionalProductIDs) > 0 {
+					detail.OptionalProducts = make(domain.Products, 0)
+					for _, optionalProductID := range detail.OptionalProductIDs {
+						detail.OptionalProducts = append(detail.OptionalProducts, optionalProductsMap[optionalProductID])
+					}
+				}
+			}
+		}
+	}
+	return res, nil
+}
+
+func (repo *ProductRepository) Create(ctx context.Context, p *domain.Product) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.Create")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	builder := repo.Client.Product.Create().
+		SetID(p.ID).
+		SetName(p.Name).
+		SetType(p.Type).
+		SetMerchantID(p.MerchantID).
+		SetStoreID(p.StoreID).
+		SetCategoryID(p.CategoryID).
+		SetUnitID(p.UnitID).
+		SetMnemonic(p.Mnemonic).
+		SetShelfLife(p.ShelfLife).
+		SetSupportTypes(p.SupportTypes).
+		SetSaleStatus(p.SaleStatus).
+		SetSaleChannels(p.SaleChannels).
+		SetMinSaleQuantity(p.MinSaleQuantity).
+		SetAddSaleQuantity(p.AddSaleQuantity).
+		SetInheritTaxRate(p.InheritTaxRate).
+		SetInheritStall(p.InheritStall).
+		SetMainImage(p.MainImage).
+		SetDescription(p.Description)
+
+	// 套餐属性（仅套餐商品使用）
+	if p.EstimatedCostPrice != nil {
+		builder = builder.SetEstimatedCostPrice(*p.EstimatedCostPrice)
+	}
+	if p.DeliveryCostPrice != nil {
+		builder = builder.SetDeliveryCostPrice(*p.DeliveryCostPrice)
+	}
+
+	// 可选字段
+	if p.MenuID != uuid.Nil {
+		builder = builder.SetMenuID(p.MenuID)
+	}
+	if p.EffectiveDateType != "" {
+		builder = builder.SetEffectiveDateType(p.EffectiveDateType)
+	}
+	if p.EffectiveStartTime != nil {
+		builder = builder.SetEffectiveStartTime(*p.EffectiveStartTime)
+	}
+	if p.EffectiveEndTime != nil {
+		builder = builder.SetEffectiveEndTime(*p.EffectiveEndTime)
+	}
+
+	if p.TaxRateID != uuid.Nil {
+		builder = builder.SetTaxRateID(p.TaxRateID)
+	}
+	if p.StallID != uuid.Nil {
+		builder = builder.SetStallID(p.StallID)
+	}
+	if len(p.DetailImages) > 0 {
+		builder = builder.SetDetailImages(p.DetailImages)
+	}
+
+	// 设置标签（Many2Many）
+	if len(p.Tags) > 0 {
+		tagIDs := make([]uuid.UUID, 0, len(p.Tags))
+		for _, tag := range p.Tags {
+			tagIDs = append(tagIDs, tag.ID)
+		}
+		builder = builder.AddTagIDs(tagIDs...)
+	}
+
+	created, err := builder.Save(ctx)
+	if err != nil {
+		return err
+	}
+
+	p.ID = created.ID
+	p.CreatedAt = created.CreatedAt
+	p.UpdatedAt = created.UpdatedAt
+
+	return nil
+}
+
+func (repo *ProductRepository) Update(ctx context.Context, p *domain.Product) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.Update")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	// 先删除旧的规格关联和口味做法关联记录（使用 DELETE，而不是 SET NULL）
+	// 注意：这里需要在事务中执行，由 UseCase 层保证
+	skipSoftDeleteCtx := schematype.SkipSoftDelete(ctx)
+	_, err = repo.Client.ProductSpecRelation.Delete().
+		Where(productspecrelation.ProductIDEQ(p.ID)).
+		Exec(skipSoftDeleteCtx)
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.Client.ProductAttrRelation.Delete().
+		Where(productattrrelation.ProductIDEQ(p.ID)).
+		Exec(skipSoftDeleteCtx)
+	if err != nil {
+		return err
+	}
+
+	builder := repo.Client.Product.UpdateOneID(p.ID).
+		SetName(p.Name).
+		SetCategoryID(p.CategoryID).
+		SetUnitID(p.UnitID).
+		SetMnemonic(p.Mnemonic).
+		SetShelfLife(p.ShelfLife).
+		SetSupportTypes(p.SupportTypes).
+		SetSaleStatus(p.SaleStatus).
+		SetSaleChannels(p.SaleChannels).
+		SetMinSaleQuantity(p.MinSaleQuantity).
+		SetAddSaleQuantity(p.AddSaleQuantity).
+		SetInheritTaxRate(p.InheritTaxRate).
+		SetInheritStall(p.InheritStall).
+		SetMainImage(p.MainImage).
+		SetDescription(p.Description)
+
+	// 套餐属性（仅套餐商品使用）
+	if p.EstimatedCostPrice != nil {
+		builder = builder.SetEstimatedCostPrice(*p.EstimatedCostPrice)
+	} else {
+		builder = builder.ClearEstimatedCostPrice()
+	}
+	if p.DeliveryCostPrice != nil {
+		builder = builder.SetDeliveryCostPrice(*p.DeliveryCostPrice)
+	} else {
+		builder = builder.ClearDeliveryCostPrice()
+	}
+
+	// 可选字段
+	if p.MenuID != uuid.Nil {
+		builder = builder.SetMenuID(p.MenuID)
+	} else {
+		builder = builder.ClearMenuID()
+	}
+	if p.EffectiveDateType != "" {
+		builder = builder.SetEffectiveDateType(p.EffectiveDateType)
+	} else {
+		builder = builder.ClearEffectiveDateType()
+	}
+	if p.EffectiveStartTime != nil {
+		builder = builder.SetEffectiveStartTime(*p.EffectiveStartTime)
+	} else {
+		builder = builder.ClearEffectiveStartTime()
+	}
+	if p.EffectiveEndTime != nil {
+		builder = builder.SetEffectiveEndTime(*p.EffectiveEndTime)
+	} else {
+		builder = builder.ClearEffectiveEndTime()
+	}
+	if p.TaxRateID != uuid.Nil {
+		builder = builder.SetTaxRateID(p.TaxRateID)
+	} else {
+		builder = builder.ClearTaxRateID()
+	}
+	if p.StallID != uuid.Nil {
+		builder = builder.SetStallID(p.StallID)
+	} else {
+		builder = builder.ClearStallID()
+	}
+	if len(p.DetailImages) > 0 {
+		builder = builder.SetDetailImages(p.DetailImages)
+	} else {
+		builder = builder.ClearDetailImages()
+	}
+
+	// 更新标签
+	if len(p.Tags) > 0 {
+		tagIDs := make([]uuid.UUID, 0, len(p.Tags))
+		for _, tag := range p.Tags {
+			tagIDs = append(tagIDs, tag.ID)
+		}
+		builder = builder.ClearTags().AddTagIDs(tagIDs...)
+	} else {
+		builder = builder.ClearTags()
+	}
+
+	_, err = builder.Save(ctx)
+	return err
+}
+
+func (repo *ProductRepository) Delete(ctx context.Context, id uuid.UUID) (err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.Delete")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	return repo.Client.Product.DeleteOneID(id).Exec(ctx)
+}
+
+func (repo *ProductRepository) Exists(ctx context.Context, params domain.ProductExistsParams) (exists bool, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.Exists")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Product.Query().
+		Where(
+			product.MerchantID(params.MerchantID),
+			product.StoreID(params.StoreID),
+		)
+
+	if params.Name != "" {
+		query = query.Where(product.Name(params.Name))
+	}
+
+	if params.ExcludeID != uuid.Nil {
+		query = query.Where(product.IDNEQ(params.ExcludeID))
+	}
+
+	exists, err = query.Exist(ctx)
+	return exists, err
+}
+
+func (repo *ProductRepository) ListByIDs(ctx context.Context, ids []uuid.UUID) (res domain.Products, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.ListByIDs")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Product.Query().Where(product.IDIn(ids...))
+	entProducts, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res = make(domain.Products, 0, len(entProducts))
+	for _, p := range entProducts {
+		res = append(res, convertProductToDomain(p))
+	}
+	return res, nil
+}
+
+func (repo *ProductRepository) FindByNameInStore(ctx context.Context, storeID uuid.UUID, name string) (res *domain.Product, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.FindByNameInStore")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	ep, err := repo.Client.Product.Query().
+		Where(
+			product.StoreID(storeID),
+			product.Name(name),
+		).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, domain.NotFoundError(domain.ErrProductNotExists)
+		}
+		return nil, err
+	}
+
+	res = convertProductToDomain(ep)
+	return res, nil
+}
+
+func (repo *ProductRepository) PagedListBySearch(
+	ctx context.Context,
+	page *upagination.Pagination,
+	params domain.ProductSearchParams,
+) (res *domain.ProductSearchRes, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "ProductRepository.ListBySearch")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	query := repo.Client.Product.Query()
+
+	// 必填条件：品牌商ID
+	if params.MerchantID != uuid.Nil {
+		query.Where(product.MerchantID(params.MerchantID))
+	}
+
+	// 可选条件：门店ID
+	if params.OnlyMerchant {
+		query.Where(product.StoreID(uuid.Nil))
+	} else if params.StoreID != uuid.Nil {
+		query.Where(product.StoreID(params.StoreID))
+	}
+
+	// 可选条件：商品名称（模糊匹配）
+	if params.Name != "" {
+		query.Where(product.NameContains(params.Name))
+	}
+
+	// 可选条件：售卖状态
+	if params.SaleStatus != "" {
+		query.Where(product.SaleStatusEQ(params.SaleStatus))
+	}
+
+	// 可选条件：商品类型
+	if params.Type != "" {
+		query.Where(product.TypeEQ(params.Type))
+	}
+
+	// 可选条件：分类ID（支持一级分类和二级分类）
+	if params.CategoryID != uuid.Nil {
+		query.Where(product.CategoryIDEQ(params.CategoryID))
+	}
+
+	// 可选条件：出品部门ID
+	// 需要同时考虑：
+	// 1. 商品直接指定了出品部门（InheritStall = false 且 StallID = 查询的 StallID）
+	// 2. 或者商品继承了分类的出品部门（InheritStall = true），且分类的出品部门等于查询的 StallID
+	if params.StallID != uuid.Nil {
+		query.Where(product.Or(
+			// 商品直接指定了出品部门
+			product.And(
+				product.InheritStallEQ(false),
+				product.StallIDEQ(params.StallID),
+			),
+			// 商品继承了分类的出品部门
+			product.And(
+				product.InheritStallEQ(true),
+				product.HasCategoryWith(category.StallIDEQ(params.StallID)),
+			),
+		))
+	}
+
+	// 可选条件：创建时间范围
+	if params.StartAt != nil {
+		query.Where(product.CreatedAtGTE(util.DayStart(*params.StartAt)))
+	}
+	if params.EndAt != nil {
+		query.Where(product.CreatedAtLTE(util.DayEnd(*params.EndAt)))
+	}
+	// 获取总数
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 预加载关联数据
+	query = query.
+		WithCategory(). // 预加载分类信息
+		WithProductSpecs(
+			func(query *ent.ProductSpecRelationQuery) {
+				query.WithSpec()
+			},
+		) // 预加载规格信息
+
+	// 分页处理
+	query = query.
+		Offset(page.Offset()).
+		Limit(page.Size)
+
+	// 按创建时间倒序排列
+	entProducts, err := query.Order(ent.Desc(product.FieldCreatedAt)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(domain.Products, 0, len(entProducts))
+	for _, p := range entProducts {
+		items = append(items, convertProductToDomain(p))
+	}
+
+	page.SetTotal(total)
+
+	return &domain.ProductSearchRes{
+		Pagination: page,
+		Items:      items,
+	}, nil
+}
+
+func (repo *ProductRepository) CountByCategoryIDs(ctx context.Context, categoryIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	var results []struct {
+		CategoryID uuid.UUID `sql:"category_id"`
+		Count      int       `sql:"count"`
+	}
+
+	err := repo.Client.Product.Query().
+		Where(product.CategoryIDIn(categoryIDs...)).
+		GroupBy(product.FieldCategoryID).
+		Aggregate(ent.Count()).
+		Scan(ctx, &results)
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.CategoryID] = r.Count
+	}
+	return countMap, err
+}
+
+func (repo *ProductRepository) CountByUnitIDs(ctx context.Context, unitIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	var results []struct {
+		UnitID uuid.UUID `sql:"unit_id"`
+		Count  int       `sql:"count"`
+	}
+
+	err := repo.Client.Product.Query().
+		Where(product.UnitIDIn(unitIDs...)).
+		GroupBy(product.FieldUnitID).
+		Aggregate(ent.Count()).
+		Scan(ctx, &results)
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.UnitID] = r.Count
+	}
+	return countMap, err
+}
+
+func (repo *ProductRepository) CountBySpecIDs(ctx context.Context, specIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(specIDs) == 0 {
+		return make(map[uuid.UUID]int), nil
+	}
+
+	var results []struct {
+		SpecID uuid.UUID `sql:"spec_id"`
+		Count  int       `sql:"count"`
+	}
+
+	err := repo.Client.ProductSpecRelation.Query().
+		Where(productspecrelation.SpecIDIn(specIDs...)).
+		GroupBy(productspecrelation.FieldSpecID).
+		Aggregate(
+			ent.As(
+				func(s *sql.Selector) string {
+					return fmt.Sprintf("COUNT(DISTINCT %s)", s.C(productspecrelation.FieldProductID))
+				},
+				"count",
+			),
+		).
+		Scan(ctx, &results)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.SpecID] = r.Count
+	}
+
+	return countMap, nil
+}
+
+func (repo *ProductRepository) CountByAttrItemIDs(ctx context.Context, attrItemIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(attrItemIDs) == 0 {
+		return make(map[uuid.UUID]int), nil
+	}
+
+	var results []struct {
+		AttrItemID uuid.UUID `sql:"attr_item_id"`
+		Count      int       `sql:"count"`
+	}
+
+	err := repo.Client.ProductAttrRelation.Query().
+		Where(productattrrelation.AttrItemIDIn(attrItemIDs...)).
+		GroupBy(productattrrelation.FieldAttrItemID).
+		Aggregate(
+			ent.As(
+				func(s *sql.Selector) string {
+					return fmt.Sprintf("COUNT(DISTINCT %s)", s.C(productattrrelation.FieldProductID))
+				},
+				"count",
+			),
+		).
+		Scan(ctx, &results)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.AttrItemID] = r.Count
+	}
+
+	return countMap, nil
+}
+
+func (repo *ProductRepository) CountByTagIDs(ctx context.Context, tagIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(tagIDs) == 0 {
+		return make(map[uuid.UUID]int), nil
+	}
+
+	var results []struct {
+		TagID uuid.UUID `sql:"tag_id"`
+		Count int       `sql:"count"`
+	}
+
+	// 构建 IN 子句的占位符
+	placeholders := make([]string, len(tagIDs))
+	args := make([]any, len(tagIDs))
+	for i, id := range tagIDs {
+		placeholders[i] = "?"
+		args[i] = id
+	}
+
+	// 使用原生 SQL 查询 product_tag_relations 表
+	query := fmt.Sprintf(`
+		SELECT tag_id, COUNT(DISTINCT product_id) as count
+		FROM product_tag_relations
+		WHERE tag_id IN (%s)
+		GROUP BY tag_id
+	`, strings.Join(placeholders, ","))
+
+	// 使用 Ent Client 的 QueryContext 执行查询
+	rows, err := repo.Client.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r struct {
+			TagID uuid.UUID `sql:"tag_id"`
+			Count int       `sql:"count"`
+		}
+		if err := rows.Scan(&r.TagID, &r.Count); err != nil {
+			return nil, err
+		}
+		results = append(results, r)
+	}
+
+	// 转换为 map
+	countMap := make(map[uuid.UUID]int)
+	for _, r := range results {
+		countMap[r.TagID] = r.Count
+	}
+
+	return countMap, nil
+}
+
+// ============================================
+// 转换函数
+// ============================================
+
+func convertProductToDomain(ep *ent.Product) *domain.Product {
+	if ep == nil {
+		return nil
+	}
+
+	p := &domain.Product{
+		ID:                ep.ID,
+		Name:              ep.Name,
+		MerchantID:        ep.MerchantID,
+		StoreID:           ep.StoreID,
+		Type:              ep.Type,
+		CategoryID:        ep.CategoryID,
+		MenuID:            ep.MenuID,
+		Mnemonic:          ep.Mnemonic,
+		ShelfLife:         ep.ShelfLife,
+		SupportTypes:      ep.SupportTypes,
+		UnitID:            ep.UnitID,
+		SaleStatus:        ep.SaleStatus,
+		SaleChannels:      ep.SaleChannels,
+		EffectiveDateType: ep.EffectiveDateType,
+		MinSaleQuantity:   ep.MinSaleQuantity,
+		AddSaleQuantity:   ep.AddSaleQuantity,
+		InheritTaxRate:    ep.InheritTaxRate,
+		TaxRateID:         ep.TaxRateID,
+		InheritStall:      ep.InheritStall,
+		StallID:           ep.StallID,
+		MainImage:         ep.MainImage,
+		Description:       ep.Description,
+		CreatedAt:         ep.CreatedAt,
+		UpdatedAt:         ep.UpdatedAt,
+	}
+
+	// 可选字段
+	if ep.EstimatedCostPrice != nil {
+		p.EstimatedCostPrice = ep.EstimatedCostPrice
+	}
+	if ep.DeliveryCostPrice != nil {
+		p.DeliveryCostPrice = ep.DeliveryCostPrice
+	}
+	if ep.EffectiveStartTime != nil {
+		p.EffectiveStartTime = ep.EffectiveStartTime
+	}
+	if ep.EffectiveEndTime != nil {
+		p.EffectiveEndTime = ep.EffectiveEndTime
+	}
+	if len(ep.DetailImages) > 0 {
+		p.DetailImages = ep.DetailImages
+	}
+
+	// 分类信息
+	if ep.Edges.Category != nil {
+		p.Category = convertCategoryToDomain(ep.Edges.Category)
+	}
+
+	// 单位信息
+	if ep.Edges.Unit != nil {
+		p.Unit = convertProductUnitToDomain(ep.Edges.Unit)
+	}
+
+	// 规格字段
+	for _, spec := range ep.Edges.ProductSpecs {
+		p.SpecRelations = append(p.SpecRelations, convertProductSpecRelationToDomain(spec))
+	}
+
+	// 口味做法字段
+	for _, attr := range ep.Edges.ProductAttrs {
+		p.AttrRelations = append(p.AttrRelations, convertProductAttrRelationToDomain(attr))
+	}
+
+	// 标签字段
+	if len(ep.Edges.Tags) > 0 {
+		p.Tags = make(domain.ProductTags, 0, len(ep.Edges.Tags))
+		for _, tag := range ep.Edges.Tags {
+			p.Tags = append(p.Tags, convertProductTagToDomain(tag))
+		}
+	}
+
+	return p
+}
+
+// convertProductDetailToDomain 转换商品详情（包含所有关联数据）
+func convertProductDetailToDomain(ep *ent.Product) *domain.Product {
+	if ep == nil {
+		return nil
+	}
+
+	p := convertProductToDomain(ep)
+
+	// 套餐组字段（仅套餐商品）
+	if len(ep.Edges.SetMealGroups) > 0 {
+		p.Groups = make(domain.SetMealGroups, 0, len(ep.Edges.SetMealGroups))
+		for _, group := range ep.Edges.SetMealGroups {
+			p.Groups = append(p.Groups, convertSetMealGroupToDomain(group))
+		}
+	}
+
+	return p
+}

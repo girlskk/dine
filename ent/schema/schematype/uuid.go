@@ -18,3 +18,10 @@ func (UUIDMixin) Fields() []ent.Field {
 			Comment("UUID as primary key"),
 	}
 }
+
+// NilUUID 返回一个返回nil的函数
+func NilUUID() func() uuid.UUID {
+	return func() uuid.UUID {
+		return uuid.Nil
+	}
+}

@@ -1,0 +1,56 @@
+# 构建服务镜像并推送
+.build_common:
+  stage: build
+  tags:
+    - apple
+  allow_failure: false
+  script:
+    - export BUILD_TIME=$(date +"%Y-%m-%dT%H:%M:%S")
+    - export IMAGE_NAME=$REGISTRY_DOMAIN/$REGISTRY_NAMESPACE/$ENTRYPOINT_NAME:$ENV_NAME
+    - export IMAGE_SHA_NAME=$REGISTRY_DOMAIN/$REGISTRY_NAMESPACE/$ENTRYPOINT_NAME:$CI_COMMIT_SHORT_SHA
+    # 登录Harbor镜像仓库
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $REGISTRY_DOMAIN
+    # 构建 Docker 镜像
+    - docker build -f .gitlab/Dockerfile --build-arg BUILD_AT="$BUILD_TIME" --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg ENTRYPOINT_NAME=$ENTRYPOINT_NAME -t $IMAGE_NAME -t $IMAGE_SHA_NAME .
+    # 推送镜像
+    - docker image push $IMAGE_NAME
+    - docker image push $IMAGE_SHA_NAME
+    # 删除本地镜像
+    - docker image rm -f $IMAGE_NAME $IMAGE_SHA_NAME
+
+# 测试环境构建镜像并推送
+.test_build_common:
+  extends: .build_common
+  only:
+    - test
+  variables:
+    ENV_NAME: test
+
+# 迁移
+.migrate_common:
+  stage: migrate
+  tags:
+    - apple
+  allow_failure: false
+  before_script:
+    - echo "开始触发迁移"
+  script:
+    # 拉取镜像
+    - docker pull harbor.jiguang.dev/library/atlas
+    # 执行数据库迁移
+    - docker run --rm --net=host -v ./ent/migrate/migrations:/migrations harbor.jiguang.dev/library/atlas migrate apply --url "$DATABASE_URL_PATH"
+
+# 部署服务
+.deploy_compose_common:
+  stage: deploy
+  tags:
+    - apple
+  allow_failure: false
+  before_script:
+    - echo "开始部署"
+  script:
+    - |
+      ssh $SSH_USER@$SSH_HOST << EOF
+        cd $DEPLOY_DIR
+        docker compose up -d --pull always --force-recreate
+      EOF

@@ -13,11 +13,45 @@ import (
 var _ domain.DataStore = (*Repository)(nil)
 
 type Repository struct {
-	transactionActive bool
-	hooks             []func()
-	mu                sync.Mutex
-	client            *ent.Client
-	adminUserRepo     *AdminUserRepository
+	transactionActive          bool
+	hooks                      []func()
+	mu                         sync.Mutex
+	client                     *ent.Client
+	adminUserRepo              *AdminUserRepository
+	storeUserRepo              *StoreUserRepository
+	categoryRepo               *CategoryRepository
+	backendUserRepo            *BackendUserRepository
+	productUnitRepo            *ProductUnitRepository
+	productSpecRepo            *ProductSpecRepository
+	productTagRepo             *ProductTagRepository
+	productAttrRepo            *ProductAttrRepository
+	productRepo                *ProductRepository
+	productAttrRelRepo         *ProductAttrRelRepository
+	productSpecRelRepo         *ProductSpecRelRepository
+	setMealGroupRepo           *SetMealGroupRepository
+	merchantRepo               *MerchantRepository
+	storeRepo                  *StoreRepository
+	merchantRenewalRepo        *MerchantRenewalRepository
+	remarkRepo                 *RemarkRepository
+	orderRepo                  *OrderRepository
+	menuRepo                   *MenuRepository
+	stallRepo                  *StallRepository
+	additionalFeeRepo          *AdditionalFeeRepository
+	taxFeeRepo                 *TaxFeeRepository
+	deviceRepo                 *DeviceRepository
+	departmentRepo             *DepartmentRepository
+	paymentMethodRepo          *PaymentMethodRepository
+	roleRepo                   *RoleRepository
+	permissionRepo             *PermissionRepository
+	routerMenuRepo             *RouterMenuRepository
+	roleMenuRepo               *RoleMenuRepository
+	userRoleRepo               *UserRoleRepository
+	profitDistributionRuleRepo *ProfitDistributionRuleRepository
+	profitDistributionBillRepo *ProfitDistributionBillRepository
+	paymentAccountRepo         *PaymentAccountRepository
+	storePaymentAccountRepo    *StorePaymentAccountRepository
+	refundOrderRepo            *RefundOrderRepository
+	businessConfigRepo         *BusinessConfigRepository
 }
 
 func (repo *Repository) IsTransactionActive() bool {
@@ -99,4 +133,320 @@ func (repo *Repository) AdminUserRepo() domain.AdminUserRepository {
 		repo.adminUserRepo = NewAdminUserRepository(repo.client)
 	}
 	return repo.adminUserRepo
+}
+
+func (repo *Repository) CategoryRepo() domain.CategoryRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.categoryRepo == nil {
+		repo.categoryRepo = NewCategoryRepository(repo.client)
+	}
+	return repo.categoryRepo
+}
+
+func (repo *Repository) BackendUserRepo() domain.BackendUserRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.backendUserRepo == nil {
+		repo.backendUserRepo = NewBackendUserRepository(repo.client)
+	}
+	return repo.backendUserRepo
+}
+
+func (repo *Repository) ProductUnitRepo() domain.ProductUnitRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productUnitRepo == nil {
+		repo.productUnitRepo = NewProductUnitRepository(repo.client)
+	}
+	return repo.productUnitRepo
+}
+
+func (repo *Repository) ProductSpecRepo() domain.ProductSpecRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productSpecRepo == nil {
+		repo.productSpecRepo = NewProductSpecRepository(repo.client)
+	}
+	return repo.productSpecRepo
+}
+
+func (repo *Repository) ProductTagRepo() domain.ProductTagRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productTagRepo == nil {
+		repo.productTagRepo = NewProductTagRepository(repo.client)
+	}
+	return repo.productTagRepo
+}
+
+func (repo *Repository) ProductAttrRepo() domain.ProductAttrRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productAttrRepo == nil {
+		repo.productAttrRepo = NewProductAttrRepository(repo.client)
+	}
+	return repo.productAttrRepo
+}
+
+func (repo *Repository) ProductRepo() domain.ProductRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productRepo == nil {
+		repo.productRepo = NewProductRepository(repo.client)
+	}
+	return repo.productRepo
+}
+
+func (repo *Repository) ProductAttrRelRepo() domain.ProductAttrRelRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productAttrRelRepo == nil {
+		repo.productAttrRelRepo = NewProductAttrRelRepository(repo.client)
+	}
+	return repo.productAttrRelRepo
+}
+
+func (repo *Repository) ProductSpecRelRepo() domain.ProductSpecRelRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.productSpecRelRepo == nil {
+		repo.productSpecRelRepo = NewProductSpecRelRepository(repo.client)
+	}
+	return repo.productSpecRelRepo
+}
+
+func (repo *Repository) SetMealGroupRepo() domain.SetMealGroupRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.setMealGroupRepo == nil {
+		repo.setMealGroupRepo = NewSetMealGroupRepository(repo.client)
+	}
+	return repo.setMealGroupRepo
+}
+
+func (repo *Repository) MerchantRepo() domain.MerchantRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantRepo == nil {
+		repo.merchantRepo = NewMerchantRepository(repo.client)
+	}
+	return repo.merchantRepo
+}
+
+func (repo *Repository) StoreRepo() domain.StoreRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.storeRepo == nil {
+		repo.storeRepo = NewStoreRepository(repo.client)
+	}
+	return repo.storeRepo
+}
+
+func (repo *Repository) MerchantRenewalRepo() domain.MerchantRenewalRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.merchantRenewalRepo == nil {
+		repo.merchantRenewalRepo = NewMerchantRenewalRepository(repo.client)
+	}
+	return repo.merchantRenewalRepo
+}
+
+func (repo *Repository) RemarkRepo() domain.RemarkRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.remarkRepo == nil {
+		repo.remarkRepo = NewRemarkRepository(repo.client)
+	}
+	return repo.remarkRepo
+}
+
+func (repo *Repository) OrderRepo() domain.OrderRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.orderRepo == nil {
+		repo.orderRepo = NewOrderRepository(repo.client)
+	}
+	return repo.orderRepo
+}
+
+func (repo *Repository) MenuRepo() domain.MenuRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.menuRepo == nil {
+		repo.menuRepo = NewMenuRepository(repo.client)
+	}
+	return repo.menuRepo
+}
+
+func (repo *Repository) StoreUserRepo() domain.StoreUserRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.storeUserRepo == nil {
+		repo.storeUserRepo = NewStoreUserRepository(repo.client)
+	}
+	return repo.storeUserRepo
+}
+
+func (repo *Repository) ProfitDistributionRuleRepo() domain.ProfitDistributionRuleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.profitDistributionRuleRepo == nil {
+		repo.profitDistributionRuleRepo = NewProfitDistributionRuleRepository(repo.client)
+	}
+	return repo.profitDistributionRuleRepo
+}
+
+func (repo *Repository) StallRepo() domain.StallRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.stallRepo == nil {
+		repo.stallRepo = NewStallRepository(repo.client)
+	}
+	return repo.stallRepo
+}
+func (repo *Repository) AdditionalFeeRepo() domain.AdditionalFeeRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.additionalFeeRepo == nil {
+		repo.additionalFeeRepo = NewAdditionalFeeRepository(repo.client)
+	}
+	return repo.additionalFeeRepo
+}
+
+func (repo *Repository) TaxFeeRepo() domain.TaxFeeRepository {
+	{
+		repo.mu.Lock()
+		defer repo.mu.Unlock()
+
+		if repo.taxFeeRepo == nil {
+			repo.taxFeeRepo = NewTaxFeeRepository(repo.client)
+		}
+		return repo.taxFeeRepo
+	}
+}
+
+func (repo *Repository) DeviceRepo() domain.DeviceRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.deviceRepo == nil {
+		repo.deviceRepo = NewDeviceRepository(repo.client)
+	}
+	return repo.deviceRepo
+}
+
+func (repo *Repository) DepartmentRepo() domain.DepartmentRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.departmentRepo == nil {
+		repo.departmentRepo = NewDepartmentRepository(repo.client)
+	}
+	return repo.departmentRepo
+}
+
+func (repo *Repository) PaymentMethodRepo() domain.PaymentMethodRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.paymentMethodRepo == nil {
+		repo.paymentMethodRepo = NewPaymentMethodRepository(repo.client)
+	}
+	return repo.paymentMethodRepo
+}
+
+func (repo *Repository) RoleRepo() domain.RoleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.roleRepo == nil {
+		repo.roleRepo = NewRoleRepository(repo.client)
+	}
+	return repo.roleRepo
+}
+
+func (repo *Repository) PermissionRepo() domain.PermissionRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.permissionRepo == nil {
+		repo.permissionRepo = NewPermissionRepository(repo.client)
+	}
+	return repo.permissionRepo
+}
+
+func (repo *Repository) RouterMenuRepo() domain.RouterMenuRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.routerMenuRepo == nil {
+		repo.routerMenuRepo = NewRouterMenuRepository(repo.client)
+	}
+	return repo.routerMenuRepo
+}
+
+func (repo *Repository) RoleMenuRepo() domain.RoleMenuRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.roleMenuRepo == nil {
+		repo.roleMenuRepo = NewRoleMenuRepository(repo.client)
+	}
+	return repo.roleMenuRepo
+}
+
+func (repo *Repository) UserRoleRepo() domain.UserRoleRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if repo.userRoleRepo == nil {
+		repo.userRoleRepo = NewUserRoleRepository(repo.client)
+	}
+	return repo.userRoleRepo
+}
+
+func (repo *Repository) ProfitDistributionBillRepo() domain.ProfitDistributionBillRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.profitDistributionBillRepo == nil {
+		repo.profitDistributionBillRepo = NewProfitDistributionBillRepository(repo.client)
+	}
+	return repo.profitDistributionBillRepo
+}
+
+func (repo *Repository) PaymentAccountRepo() domain.PaymentAccountRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.paymentAccountRepo == nil {
+		repo.paymentAccountRepo = NewPaymentAccountRepository(repo.client)
+	}
+	return repo.paymentAccountRepo
+}
+
+func (repo *Repository) StorePaymentAccountRepo() domain.StorePaymentAccountRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.storePaymentAccountRepo == nil {
+		repo.storePaymentAccountRepo = NewStorePaymentAccountRepository(repo.client)
+	}
+	return repo.storePaymentAccountRepo
+}
+
+func (repo *Repository) RefundOrderRepo() domain.RefundOrderRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.refundOrderRepo == nil {
+		repo.refundOrderRepo = NewRefundOrderRepository(repo.client)
+	}
+	return repo.refundOrderRepo
+}
+
+func (repo *Repository) BusinessConfigRepo() domain.BusinessConfigRepository {
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+	if repo.businessConfigRepo == nil {
+		repo.businessConfigRepo = NewBusinessConfigRepository(repo.client)
+	}
+	return repo.businessConfigRepo
 }

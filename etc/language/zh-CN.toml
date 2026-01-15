@@ -24,7 +24,189 @@ other = "系统内部错误"
 other = "未知错误"
 
 # 自定义消息翻译（支持参数化）
+[CATEGORY_NAME_EXISTS]
+other = "商品分类名称已存在"
 
 [USER_NOT_FOUND]
 other = "用户 {{.Username}} 不存在"
+
+[CATEGORY_DELETE_HAS_CHILDREN]
+other = "商品分类有子分类，不能删除"
+
+[CATEGORY_DELETE_HAS_PRODUCTS]
+other = "商品分类有商品，不能删除"
+
+[PRODUCT_UNIT_NAME_EXISTS]
+other = "商品单位名称已存在"
+
+[PRODUCT_UNIT_DELETE_HAS_PRODUCTS]
+other = "商品单位有商品，不能删除"
+
+[PRODUCT_SPEC_NAME_EXISTS]
+other = "商品规格名称已存在"
+
+[PRODUCT_SPEC_DELETE_HAS_PRODUCTS]
+other = "商品规格有商品，不能删除"
+
+[PRODUCT_ATTR_NAME_EXISTS]
+other = "商品口味做法名称已存在"
+
+[PRODUCT_ATTR_DELETE_HAS_ITEMS]
+other = "商品口味做法有子项，不能删除"
+
+[PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS]
+other = "商品口味做法项有商品，不能删除"
+
+[PRODUCT_BELONG_TO_SET_MEAL]
+other = "商品属于套餐组，不能停售或删除"
+
+[MERCHANT_NAME_EXISTS]
+other = "商户名称已存在"
+
+[STORE_NAME_EXISTS]
+other = "门店名称已存在"
+
+[STORE_BUSINESS_HOURS_CONFLICT]
+other = "门店营业时间冲突"
+
+[STORE_BUSINESS_HOURS_TIME_INVALID]
+other = "门店营业时间无效（开始时间不能晚于结束时间）"
+
+[STORE_DINING_PERIOD_CONFLICT]
+other = "门店用餐时段时间冲突"
+
+[STORE_DINING_PERIOD_TIME_INVALID]
+other = "门店用餐时段时间无效（开始时间不能晚于结束时间）"
+
+[STORE_DINING_PERIOD_NAME_EXISTS]
+other = "门店用餐时段名称已存在"
+
+[STORE_SHIFT_TIME_CONFLICT]
+other = "门店班次时间冲突"
+
+[STORE_SHIFT_TIME_TIME_INVALID]
+other = "门店班次时间无效（开始时间不能晚于结束时间）"
+
+[STORE_SHIFT_TIME_NAME_EXISTS]
+other = "门店班次名称已存在"
+
+[REMARK_NAME_EXISTS]
+other = "备注名称已存在"
+
+[REMARK_UPDATE_SYSTEM]
+other = "不能修改系统内置备注"
+
+[REMARK_DELETE_SYSTEM]
+other = "不能删除系统内置备注"
+
+[STALL_NOT_EXISTS]
+other = "出品部门不存在"
+
+[STALL_NAME_EXISTS]
+other = "出品部门名称已存在"
+
+[SUPER_USER_CANNOT_DELETE]
+other = "超级管理员用户不能被删除"
+
+[SUPER_USER_CANNOT_DISABLE]
+other = "超级管理员用户不能被禁用"
+
+[SUPER_USER_CANNOT_UPDATE]
+other = "超级管理员用户信息不能编辑"
+
+[USER_DISABLED]
+other = "用户 {{.Username}} 已被禁用"
+
+[DEPARTMENT_DISABLED]
+other = "用户所属部门已被禁用"
+
+[ROLE_DISABLED]
+other = "用户所属角色已被禁用"
+
+[USER_ROLE_REQUIRED]
+other = "用户至少需要分配一个角色"
+
+[USER_DEPARTMENT_REQUIRED]
+other = "用户所属部门不能为空"
+
+[USER_ROLE_TYPE_MISMATCH]
+other = "用户角色类型不匹配"
+
+[USER_DEPARTMENT_TYPE_MISMATCH]
+other = "用户部门类型不匹配"
+
+[PASSWORD_CANNOT_BE_EMPTY]
+other = "密码不能为空"
+
+[ROLE_ASSIGNED_CANNOT_DISABLE]
+other = "角色已分配用户，无法禁用"
+
+[ROLE_ASSIGNED_CANNOT_DELETE]
+other = "角色已分配用户，无法删除"
+
+[USER_ROLE_NOT_EXISTS]
+other = "该用户未分配角色"
+
+[TIME_FORMAT_INVALID]
+other = "时间格式错误"
+
+[TIME_RANGE_EXCEED_ONE_YEAR]
+other = "时间范围不能超过一年"
+
+[REMARK_NOT_EXISTS]
+other = "备注不存在"
+
+[DEVICE_NOT_EXISTS]
+other = "设备不存在"
+
+[DEVICE_NAME_EXISTS]
+other = "设备名称已存在"
+
+[DEVICE_CODE_EXISTS]
+other = "设备编号已存在"
+
+[ADDITIONAL_FEE_NOT_EXISTS]
+other = "附加费不存在"
+
+[ADDITIONAL_NAME_EXISTS]
+other = "附加费名称已存在"
+
+[TAX_FEE_NOT_EXISTS]
+other = "税费不存在"
+
+[TAX_FEE_NAME_EXISTS]
+other = "税费名称已存在"
+
+[TAX_FEE_SYSTEM_CANNOT_UPDATE]
+other = "系统内置税费不能修改"
+
+[TAX_FEE_SYSTEM_CANNOT_DELETE]
+other = "系统内置税费不能删除"
+
+[USER_NAME_EXISTS]
+other = "用户账号已存在"
+
+[DEPARTMENT_NOT_EXISTS]
+other = "部门不存在"
+
+[DEPARTMENT_NAME_EXISTS]
+other = "部门名称已存在"
+
+[DEPARTMENT_CODE_EXISTS]
+other = "部门编码已存在"
+
+[DEPARTMENT_HAS_USER_CANNOT_DISABLE]
+other = "部门下有用户，不能禁用"
+
+[DEPARTMENT_HAS_USER_CANNOT_DELETE]
+other = "部门下有用户，不能删除"
+
+[ROLE_NOT_EXISTS]
+other = "角色不存在"
+
+[ROLE_NAME_EXISTS]
+other = "角色名称已存在"
+
+[ROLE_CODE_EXISTS]
+other = "角色编码已存在"
 

@@ -14,7 +14,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/asynq/asynqfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/db/dbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/httpserver/httpserverfx"
-	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/huifu"
+	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/i18n/i18nfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/rdb/rdbfx"
 	"gitlab.jiguang.dev/pos-dine/dine/bootstrap/tracing/tracingfx"
 	"gitlab.jiguang.dev/pos-dine/dine/buildinfo"
@@ -74,7 +74,26 @@ func main() {
 				sequence.NewDailySequence,
 				fx.As(new(domain.DailySequence)),
 			),
-			huifu.New,
+			fx.Annotate(
+				sequence.NewBackendTaxSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_tax_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewBackendDepartmentSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_department_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewBackendRoleSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_role_seq"`),
+			),
+			fx.Annotate(
+				sequence.NewBackendUserSequence,
+				fx.As(new(domain.IncrSequence)),
+				fx.ResultTags(`name:"backend_user_seq"`),
+			),
 			oss.New,
 		),
 		dbfx.Module,
@@ -89,6 +108,7 @@ func main() {
 		eventbusfx.Module,
 		domainservicefx.Module,
 		asynqfx.ClientModule,
+		i18nfx.Module,
 		fx.Invoke(func(*http.Server) {}),
 		fx.Invoke(func(tp trace.TracerProvider) {}),
 	).Run()

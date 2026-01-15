@@ -1,0 +1,45 @@
+test_migrate:
+  extends: .migrate_common
+  only:
+    - test
+  variables:
+    ENV_NAME: test
+    DATABASE_URL: $MIGRATE_DATABASE_URI
+    DATABASE_USERNAME: migrate
+    DATABASE_PASSWORD: $MIGRATE_PASSWORD
+    DATABASE_NAME: pos_dine_test
+    DATABASE_URL_PATH: mysql://$DATABASE_USERNAME:$DATABASE_PASSWORD@$DATABASE_URL/$DATABASE_NAME?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai&sql_mode='STRICT_TRANS_TABLES'
+
+# admin服务
+test_build_admin:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: admin
+
+# backend服务
+test_build_backend:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: backend
+
+# frontend服务
+test_build_frontend:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: frontend
+
+# store服务
+test_build_store:
+  extends: .test_build_common
+  variables:
+    ENTRYPOINT_NAME: store
+
+# 部署服务
+test_deploy_compose_common:
+  extends: .deploy_compose_common
+  only:
+    - test
+  variables:
+    SSH_USER: $TEST_SSH_USER
+    SSH_HOST: $TEST_SSH_HOST
+    DEPLOY_DIR: /opt/pos_dine/test/

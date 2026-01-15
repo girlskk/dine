@@ -27,6 +27,8 @@ func NewDB(lc fx.Lifecycle, c Config) (*sql.DB, error) {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+			defer cancel()
 			return db.PingContext(ctx)
 		},
 		OnStop: func(ctx context.Context) error {
@@ -51,6 +53,7 @@ func NewClient(lc fx.Lifecycle, c Config, db *sql.DB) (*ent.Client, error) {
 					ctx,
 					migrate.WithDropIndex(true),
 					migrate.WithDropColumn(true),
+					migrate.WithForeignKeys(false), // Disable foreign keys.
 				)
 			}
 

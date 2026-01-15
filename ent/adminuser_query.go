@@ -14,17 +14,19 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/predicate"
 )
 
 // AdminUserQuery is the builder for querying AdminUser entities.
 type AdminUserQuery struct {
 	config
-	ctx        *QueryContext
-	order      []adminuser.OrderOption
-	inters     []Interceptor
-	predicates []predicate.AdminUser
-	modifiers  []func(*sql.Selector)
+	ctx            *QueryContext
+	order          []adminuser.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.AdminUser
+	withDepartment *DepartmentQuery
+	modifiers      []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +61,28 @@ func (auq *AdminUserQuery) Unique(unique bool) *AdminUserQuery {
 func (auq *AdminUserQuery) Order(o ...adminuser.OrderOption) *AdminUserQuery {
 	auq.order = append(auq.order, o...)
 	return auq
+}
+
+// QueryDepartment chains the current query on the "department" edge.
+func (auq *AdminUserQuery) QueryDepartment() *DepartmentQuery {
+	query := (&DepartmentClient{config: auq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := auq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := auq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adminuser.Table, adminuser.FieldID, selector),
+			sqlgraph.To(department.Table, department.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, adminuser.DepartmentTable, adminuser.DepartmentColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(auq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first AdminUser entity from the query.
@@ -248,16 +272,28 @@ func (auq *AdminUserQuery) Clone() *AdminUserQuery {
 		return nil
 	}
 	return &AdminUserQuery{
-		config:     auq.config,
-		ctx:        auq.ctx.Clone(),
-		order:      append([]adminuser.OrderOption{}, auq.order...),
-		inters:     append([]Interceptor{}, auq.inters...),
-		predicates: append([]predicate.AdminUser{}, auq.predicates...),
+		config:         auq.config,
+		ctx:            auq.ctx.Clone(),
+		order:          append([]adminuser.OrderOption{}, auq.order...),
+		inters:         append([]Interceptor{}, auq.inters...),
+		predicates:     append([]predicate.AdminUser{}, auq.predicates...),
+		withDepartment: auq.withDepartment.Clone(),
 		// clone intermediate query.
 		sql:       auq.sql.Clone(),
 		path:      auq.path,
 		modifiers: append([]func(*sql.Selector){}, auq.modifiers...),
 	}
+}
+
+// WithDepartment tells the query-builder to eager-load the nodes that are connected to
+// the "department" edge. The optional arguments are used to configure the query builder of the edge.
+func (auq *AdminUserQuery) WithDepartment(opts ...func(*DepartmentQuery)) *AdminUserQuery {
+	query := (&DepartmentClient{config: auq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	auq.withDepartment = query
+	return auq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -336,8 +372,11 @@ func (auq *AdminUserQuery) prepareQuery(ctx context.Context) error {
 
 func (auq *AdminUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AdminUser, error) {
 	var (
-		nodes = []*AdminUser{}
-		_spec = auq.querySpec()
+		nodes       = []*AdminUser{}
+		_spec       = auq.querySpec()
+		loadedTypes = [1]bool{
+			auq.withDepartment != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*AdminUser).scanValues(nil, columns)
@@ -345,6 +384,7 @@ func (auq *AdminUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*A
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &AdminUser{config: auq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(auq.modifiers) > 0 {
@@ -359,7 +399,43 @@ func (auq *AdminUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*A
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := auq.withDepartment; query != nil {
+		if err := auq.loadDepartment(ctx, query, nodes, nil,
+			func(n *AdminUser, e *Department) { n.Edges.Department = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (auq *AdminUserQuery) loadDepartment(ctx context.Context, query *DepartmentQuery, nodes []*AdminUser, init func(*AdminUser), assign func(*AdminUser, *Department)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*AdminUser)
+	for i := range nodes {
+		fk := nodes[i].DepartmentID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(department.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "department_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (auq *AdminUserQuery) sqlCount(ctx context.Context) (int, error) {
@@ -389,6 +465,9 @@ func (auq *AdminUserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != adminuser.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if auq.withDepartment != nil {
+			_spec.Node.AddColumnOnce(adminuser.FieldDepartmentID)
 		}
 	}
 	if ps := auq.predicates; len(ps) > 0 {

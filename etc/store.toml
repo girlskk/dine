@@ -1,0 +1,55 @@
+[App]
+RunMode = "dev"
+
+[HTTP]
+Port = "8086"
+RequestTimeout = 15
+
+[Database]
+AutoMigrate = true
+Debug = true
+Host = "127.0.0.1"
+Port = "33061"
+User = "root"
+Password = "pass"
+Name = "dine"
+TimeZone = "Asia/Shanghai"
+MaxLifetime = 3600
+MaxOpenConns = 150
+MaxIdleConns = 50
+
+[Redis]
+Addr = "127.0.0.1:63791"
+Username = ""
+Password = ""
+DB = 0
+
+[Alert]
+AppName = "store"
+AccessToken = "access_token"
+Secret = "secret"
+Ats = ["123456", "7891011"]
+
+[Auth]
+Expire = 86400
+Secret = "secret"
+
+[Oss]
+Region = "cn-shanghai"
+Bucket = "bucket"
+Dir = "dine"
+AccessKeyID = "access_key_id"
+AccessKeySecret = "access_key_secret"
+RoleARN = "role_arn"
+SessionName = "dine-store"
+Expiration = 3600
+
+[Tracing]
+ServiceName = "dine-store"
+Disabled = false
+OTLPEndpoint = "localhost:4318"  # OTLP HTTP 端点
+ReporterLogSpans = true
+SamplerType = "const"
+SamplerParam = 1.0
+AppVersion = "1.0.0"
+AppBuildAt = "2024-01-01"

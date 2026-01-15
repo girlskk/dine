@@ -14,7 +14,5955 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {},
+    "paths": {
+        "/additional_fee": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "获取附加费列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "是否启用",
+                        "name": "enabled",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.AdditionalFeeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/additional_fee/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "费用管理-附加费管理"
+                ],
+                "summary": "获取附加费详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "附加费ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.AdditionalFee"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/device": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询设备列表",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "获取设备列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "cashier",
+                            "printer"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "DeviceTypeCashier": "收银机",
+                            "DeviceTypePrinter": "打印机"
+                        },
+                        "x-enum-varnames": [
+                            "DeviceTypeCashier",
+                            "DeviceTypePrinter"
+                        ],
+                        "description": "设备类型",
+                        "name": "device_type",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "online",
+                            "offline"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "DeviceStatusOffline": "离线",
+                            "DeviceStatusOnline": "在线"
+                        },
+                        "x-enum-varnames": [
+                            "DeviceStatusOnline",
+                            "DeviceStatusOffline"
+                        ],
+                        "description": "设备状态",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.DeviceListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/device/sync_store_device_status": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据设备编码列表同步门店设备在线状态",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "同步门店设备状态",
+                "parameters": [
+                    {
+                        "description": "同步门店设备状态请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.SyncStoreDeviceStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/device/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据设备ID获取详情",
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "获取设备详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Device"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/menu": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "查询所有菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.MenuSearchRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/order": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "订单"
+                ],
+                "summary": "获取订单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "订单号",
+                        "name": "order_no",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "SALE",
+                            "REFUND",
+                            "PARTIAL_REFUND"
+                        ],
+                        "type": "string",
+                        "description": "订单类型",
+                        "name": "order_type",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "PLACED",
+                            "COMPLETED",
+                            "CANCELLED"
+                        ],
+                        "type": "string",
+                        "description": "订单状态",
+                        "name": "order_status",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "UNPAID",
+                            "PAYING",
+                            "PAID",
+                            "REFUNDED"
+                        ],
+                        "type": "string",
+                        "description": "支付状态",
+                        "name": "payment_status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/types.ListOrderResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "订单"
+                ],
+                "summary": "创建订单",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateOrderReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Order"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "订单"
+                ],
+                "summary": "获取订单详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Order"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "订单"
+                ],
+                "summary": "更新订单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateOrderReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Order"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "订单"
+                ],
+                "summary": "删除订单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/payment/method": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "结算方式管理"
+                ],
+                "summary": "查询结算方式列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "门店ID（可选）",
+                        "name": "store_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PaymentMethodSearchRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/refund-order": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "退款订单"
+                ],
+                "summary": "退款订单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "原订单ID",
+                        "name": "origin_order_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日",
+                        "name": "business_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "退款单号",
+                        "name": "refund_no",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "退款类型",
+                        "name": "refund_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "退款状态",
+                        "name": "refund_status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/types.RefundOrderListResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "退款订单"
+                ],
+                "summary": "创建退款订单",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateRefundOrderReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.RefundOrder"
+                        }
+                    }
+                }
+            }
+        },
+        "/refund-order/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "退款订单"
+                ],
+                "summary": "获取退款订单详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "退款订单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.RefundOrder"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "退款订单"
+                ],
+                "summary": "更新退款订单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "退款订单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateRefundOrderReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.RefundOrder"
+                        }
+                    }
+                }
+            }
+        },
+        "/refund-order/{id}/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "退款订单"
+                ],
+                "summary": "取消退款订单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "退款订单ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/remark": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询备注列表",
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "获取备注列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "启用状态",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "whole_order",
+                            "item",
+                            "cancel_reason",
+                            "discount",
+                            "gift",
+                            "rebill",
+                            "refund_reject"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "RemarkSceneCancelReason": "退款原因",
+                            "RemarkSceneDiscount": "优惠原因",
+                            "RemarkSceneGift": "赠菜原因",
+                            "RemarkSceneItem": "单品备注",
+                            "RemarkSceneRebill": "反结账原因",
+                            "RemarkSceneRefundReject": "拒绝退款",
+                            "RemarkSceneWholeOrder": "整单备注"
+                        },
+                        "x-enum-varnames": [
+                            "RemarkSceneWholeOrder",
+                            "RemarkSceneItem",
+                            "RemarkSceneCancelReason",
+                            "RemarkSceneDiscount",
+                            "RemarkSceneGift",
+                            "RemarkSceneRebill",
+                            "RemarkSceneRefundReject"
+                        ],
+                        "description": "使用场景",
+                        "name": "remark_scene",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.RemarkListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/remark/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据备注ID获取详情",
+                "tags": [
+                    "前厅管理"
+                ],
+                "summary": "获取备注详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备注ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Remark"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/stall": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询出品部门列表",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "获取出品部门列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "启用状态",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "receipt",
+                            "label"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "StallPrintTypeLabel": "标签",
+                            "StallPrintTypeReceipt": "小票/收据"
+                        },
+                        "x-enum-varnames": [
+                            "StallPrintTypeReceipt",
+                            "StallPrintTypeLabel"
+                        ],
+                        "description": "打印类型",
+                        "name": "print_type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.StallListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/restaurant/stall/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据出品部门ID获取详情",
+                "tags": [
+                    "后厨管理"
+                ],
+                "summary": "获取出品部门详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "出品部门ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Stall"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/store/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页查询门店列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "门店列表",
+                "parameters": [
+                    {
+                        "enum": [
+                            "direct",
+                            "franchisee"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "BusinessModelDirect": "直营",
+                            "BusinessModelFranchisee": "加盟"
+                        },
+                        "x-enum-varnames": [
+                            "BusinessModelDirect",
+                            "BusinessModelFranchisee"
+                        ],
+                        "description": "直营/加盟",
+                        "name": "business_model",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "noodle",
+                            "bakery",
+                            "snack",
+                            "drink",
+                            "chinese_food"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "BusinessTypeBakery": "烘焙",
+                            "BusinessTypeChineseFood": "中餐",
+                            "BusinessTypeDrink": "饮品",
+                            "BusinessTypeNoodle": "面馆",
+                            "BusinessTypeSnack": "小吃"
+                        },
+                        "x-enum-varnames": [
+                            "BusinessTypeNoodle",
+                            "BusinessTypeBakery",
+                            "BusinessTypeSnack",
+                            "BusinessTypeDrink",
+                            "BusinessTypeChineseFood"
+                        ],
+                        "description": "业务类型",
+                        "name": "business_type_code",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "open",
+                            "closed"
+                        ],
+                        "type": "string",
+                        "x-enum-comments": {
+                            "StoreStatusClosed": "停业",
+                            "StoreStatusOpen": "营业"
+                        },
+                        "x-enum-varnames": [
+                            "StoreStatusOpen",
+                            "StoreStatusClosed"
+                        ],
+                        "description": "营业/停业",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/types.StoreListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/store/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据门店ID获取门店信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "门店管理"
+                ],
+                "summary": "获取门店",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Store"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询门店用户列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "门店用户列表",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "name": "enabled",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.AccountListResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "查询指定门店用户详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取门店用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StoreUser"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.AdditionalCategory": {
+            "type": "string",
+            "enum": [
+                "service_fee",
+                "additional_fee",
+                "packing_fee"
+            ],
+            "x-enum-comments": {
+                "AdditionalCategoryAdditional": "附加费",
+                "AdditionalCategoryPacking": "打包费",
+                "AdditionalCategoryService": "服务费"
+            },
+            "x-enum-varnames": [
+                "AdditionalCategoryService",
+                "AdditionalCategoryAdditional",
+                "AdditionalCategoryPacking"
+            ]
+        },
+        "domain.AdditionalFee": {
+            "type": "object",
+            "properties": {
+                "charge_mode": {
+                    "description": "费用类型 percent 百分比，fixed 固定金额",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeChargeMode"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dining_ways": {
+                    "description": "就餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "discount_scope": {
+                    "description": "折扣场景",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeDiscountScope"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "fee_category": {
+                    "description": "附加费类别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalCategory"
+                        }
+                    ]
+                },
+                "fee_type": {
+                    "description": "附加费类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFeeType"
+                        }
+                    ]
+                },
+                "fee_value": {
+                    "description": "fixed: 分; percent: BP",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "include_in_receivable": {
+                    "description": "是否计入实收",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "附加费名称",
+                    "type": "string"
+                },
+                "order_channels": {
+                    "description": "订单渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "taxable": {
+                    "description": "附加费是否收税",
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.AdditionalFeeChargeMode": {
+            "type": "string",
+            "enum": [
+                "percent",
+                "fixed"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeChargeModeFixed": "固定金额",
+                "AdditionalFeeChargeModePercent": "百分比"
+            },
+            "x-enum-varnames": [
+                "AdditionalFeeChargeModePercent",
+                "AdditionalFeeChargeModeFixed"
+            ]
+        },
+        "domain.AdditionalFeeDiscountScope": {
+            "type": "string",
+            "enum": [
+                "before_discount",
+                "after_discount"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeDiscountScopeAfter": "折后",
+                "AdditionalFeeDiscountScopeBefore": "折前"
+            },
+            "x-enum-varnames": [
+                "AdditionalFeeDiscountScopeBefore",
+                "AdditionalFeeDiscountScopeAfter"
+            ]
+        },
+        "domain.AdditionalFeeType": {
+            "type": "string",
+            "enum": [
+                "merchant",
+                "store"
+            ],
+            "x-enum-comments": {
+                "AdditionalFeeTypeMerchant": "商户",
+                "AdditionalFeeTypeStore": "门店"
+            },
+            "x-enum-varnames": [
+                "AdditionalFeeTypeMerchant",
+                "AdditionalFeeTypeStore"
+            ]
+        },
+        "domain.Address": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "详细地址",
+                    "type": "string"
+                },
+                "country": {
+                    "description": "国家/地区",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Country"
+                        }
+                    ]
+                },
+                "lat": {
+                    "description": "纬度",
+                    "type": "string"
+                },
+                "lng": {
+                    "description": "经度",
+                    "type": "string"
+                },
+                "province": {
+                    "description": "省份",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Province"
+                        }
+                    ]
+                }
+            }
+        },
+        "domain.BusinessHour": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "description": "结束时间，格式 HH:MM:SS",
+                    "type": "string"
+                },
+                "start_time": {
+                    "description": "开始时间，格式 HH:MM:SS",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.BusinessHours": {
+            "type": "object",
+            "properties": {
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHour"
+                    }
+                },
+                "weekdays": {
+                    "description": "适用的星期几，0=星期日，1=星期一，依此类推",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/time.Weekday"
+                    }
+                }
+            }
+        },
+        "domain.BusinessModel": {
+            "type": "string",
+            "enum": [
+                "direct",
+                "franchisee"
+            ],
+            "x-enum-comments": {
+                "BusinessModelDirect": "直营",
+                "BusinessModelFranchisee": "加盟"
+            },
+            "x-enum-varnames": [
+                "BusinessModelDirect",
+                "BusinessModelFranchisee"
+            ]
+        },
+        "domain.BusinessType": {
+            "type": "string",
+            "enum": [
+                "noodle",
+                "bakery",
+                "snack",
+                "drink",
+                "chinese_food"
+            ],
+            "x-enum-comments": {
+                "BusinessTypeBakery": "烘焙",
+                "BusinessTypeChineseFood": "中餐",
+                "BusinessTypeDrink": "饮品",
+                "BusinessTypeNoodle": "面馆",
+                "BusinessTypeSnack": "小吃"
+            },
+            "x-enum-varnames": [
+                "BusinessTypeNoodle",
+                "BusinessTypeBakery",
+                "BusinessTypeSnack",
+                "BusinessTypeDrink",
+                "BusinessTypeChineseFood"
+            ]
+        },
+        "domain.Category": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Category"
+                    }
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分类ID",
+                    "type": "string"
+                },
+                "inherit_stall": {
+                    "description": "是否继承父分类的出品部门ID",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "是否继承父分类的税率ID",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "分类名称",
+                    "type": "string"
+                },
+                "parent": {
+                    "description": "父分类",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
+                },
+                "parent_id": {
+                    "description": "父分类ID",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "description": "排序，值越小越靠前",
+                    "type": "integer"
+                },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
+                "stall_id": {
+                    "description": "出品部门ID",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Channel": {
+            "type": "string",
+            "enum": [
+                "POS",
+                "H5",
+                "APP"
+            ],
+            "x-enum-comments": {
+                "ChannelApp": "移动点餐APP",
+                "ChannelH5": "扫码点餐H5",
+                "ChannelPOS": "POS收银"
+            },
+            "x-enum-varnames": [
+                "ChannelPOS",
+                "ChannelH5",
+                "ChannelApp"
+            ]
+        },
+        "domain.Country": {
+            "type": "string",
+            "enum": [
+                "MY",
+                "SG"
+            ],
+            "x-enum-varnames": [
+                "CountryMY",
+                "CountrySG"
+            ]
+        },
+        "domain.Department": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "department_type": {
+                    "$ref": "#/definitions/domain.DepartmentType"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.DepartmentType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-varnames": [
+                "DepartmentAdmin",
+                "DepartmentBackend",
+                "DepartmentStore"
+            ]
+        },
+        "domain.Device": {
+            "type": "object",
+            "properties": {
+                "connect_type": {
+                    "description": "设备连接类型 inside内置 / outside外置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceConnectType"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "device_brand": {
+                    "description": "设备品牌",
+                    "type": "string"
+                },
+                "device_code": {
+                    "description": "设备编号/序列号",
+                    "type": "string"
+                },
+                "device_model": {
+                    "description": "设备型号",
+                    "type": "string"
+                },
+                "device_stall_print_type": {
+                    "description": "出品部门总分单",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStallPrintType"
+                        }
+                    ]
+                },
+                "device_stall_receipt_type": {
+                    "description": "打印出品部门全部票据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStallReceiptType"
+                        }
+                    ]
+                },
+                "device_type": {
+                    "description": "设备类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceType"
+                        }
+                    ]
+                },
+                "dining_ways": {
+                    "description": "订单类型/就餐方式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningWay"
+                    }
+                },
+                "enabled": {
+                    "description": "启用/停用状态",
+                    "type": "boolean"
+                },
+                "id": {
+                    "description": "设备 ID",
+                    "type": "string"
+                },
+                "ip": {
+                    "description": "设备 IP 地址",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "设备位置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceLocation"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "所属商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "设备名称",
+                    "type": "string"
+                },
+                "open_cash_drawer": {
+                    "description": "收银机 开钱箱",
+                    "type": "boolean"
+                },
+                "order_channels": {
+                    "description": "订单来源",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderChannel"
+                    }
+                },
+                "paper_size": {
+                    "description": "打印纸张尺寸",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaperSize"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
+                "stall_id": {
+                    "description": "出品部门 ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "设备状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeviceStatus"
+                        }
+                    ]
+                },
+                "store": {
+                    "description": "所属门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "所属门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.DeviceConnectType": {
+            "type": "string",
+            "enum": [
+                "inside",
+                "outside",
+                "network"
+            ],
+            "x-enum-comments": {
+                "DeviceConnectTypeInside": "内置",
+                "DeviceConnectTypeNetWork": "网络",
+                "DeviceConnectTypeOutside": "外置"
+            },
+            "x-enum-varnames": [
+                "DeviceConnectTypeInside",
+                "DeviceConnectTypeOutside",
+                "DeviceConnectTypeNetWork"
+            ]
+        },
+        "domain.DeviceLocation": {
+            "type": "string",
+            "enum": [
+                "front_hall",
+                "back_kitchen"
+            ],
+            "x-enum-comments": {
+                "DeviceLocationBackKitchen": "后厨",
+                "DeviceLocationFrontHall": "前厅"
+            },
+            "x-enum-varnames": [
+                "DeviceLocationFrontHall",
+                "DeviceLocationBackKitchen"
+            ]
+        },
+        "domain.DeviceStallPrintType": {
+            "type": "string",
+            "enum": [
+                "all",
+                "combined",
+                "separate"
+            ],
+            "x-enum-comments": {
+                "DeviceStallPrintTypeAll": "全部打印 总单+分单",
+                "DeviceStallPrintTypeCombined": "总单",
+                "DeviceStallPrintTypeSeparate": "分单"
+            },
+            "x-enum-varnames": [
+                "DeviceStallPrintTypeAll",
+                "DeviceStallPrintTypeCombined",
+                "DeviceStallPrintTypeSeparate"
+            ]
+        },
+        "domain.DeviceStallReceiptType": {
+            "type": "string",
+            "enum": [
+                "all",
+                "exclude"
+            ],
+            "x-enum-comments": {
+                "DeviceStallReceiptTypeAll": "全部打印",
+                "DeviceStallReceiptTypeExclude": "剔除部门商户"
+            },
+            "x-enum-varnames": [
+                "DeviceStallReceiptTypeAll",
+                "DeviceStallReceiptTypeExclude"
+            ]
+        },
+        "domain.DeviceStatus": {
+            "type": "string",
+            "enum": [
+                "online",
+                "offline"
+            ],
+            "x-enum-comments": {
+                "DeviceStatusOffline": "离线",
+                "DeviceStatusOnline": "在线"
+            },
+            "x-enum-varnames": [
+                "DeviceStatusOnline",
+                "DeviceStatusOffline"
+            ]
+        },
+        "domain.DeviceType": {
+            "type": "string",
+            "enum": [
+                "cashier",
+                "printer"
+            ],
+            "x-enum-comments": {
+                "DeviceTypeCashier": "收银机",
+                "DeviceTypePrinter": "打印机"
+            },
+            "x-enum-varnames": [
+                "DeviceTypeCashier",
+                "DeviceTypePrinter"
+            ]
+        },
+        "domain.DiningMode": {
+            "type": "string",
+            "enum": [
+                "DINE_IN"
+            ],
+            "x-enum-comments": {
+                "DiningModeDineIn": "堂食"
+            },
+            "x-enum-varnames": [
+                "DiningModeDineIn"
+            ]
+        },
+        "domain.DiningPeriod": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "description": "结束时间，格式 HH:MM:SS",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称，如“用餐时段1”",
+                    "type": "string"
+                },
+                "start_time": {
+                    "description": "开始时间，格式 HH:MM:SS",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.DiningWay": {
+            "type": "string",
+            "enum": [
+                "dine_in",
+                "take_out",
+                "delivery"
+            ],
+            "x-enum-comments": {
+                "DiningWayDelivery": "外送",
+                "DiningWayDineIn": "堂食",
+                "DiningWayTakeOut": "外带"
+            },
+            "x-enum-varnames": [
+                "DiningWayDineIn",
+                "DiningWayTakeOut",
+                "DiningWayDelivery"
+            ]
+        },
+        "domain.EffectiveDateType": {
+            "type": "string",
+            "enum": [
+                "daily",
+                "custom"
+            ],
+            "x-enum-comments": {
+                "EffectiveDateTypeCustom": "自定义",
+                "EffectiveDateTypeDaily": "按天"
+            },
+            "x-enum-varnames": [
+                "EffectiveDateTypeDaily",
+                "EffectiveDateTypeCustom"
+            ]
+        },
+        "domain.FeeType": {
+            "type": "string",
+            "enum": [
+                "SERVICE",
+                "PACKAGING"
+            ],
+            "x-enum-comments": {
+                "FeeTypePackaging": "打包费",
+                "FeeTypeService": "服务费"
+            },
+            "x-enum-varnames": [
+                "FeeTypeService",
+                "FeeTypePackaging"
+            ]
+        },
+        "domain.Gender": {
+            "type": "string",
+            "enum": [
+                "male",
+                "female",
+                "other",
+                "unknown"
+            ],
+            "x-enum-comments": {
+                "GenderFemale": "女性",
+                "GenderMale": "男性",
+                "GenderOther": "其他",
+                "GenderUnknown": "未知"
+            },
+            "x-enum-varnames": [
+                "GenderMale",
+                "GenderFemale",
+                "GenderOther",
+                "GenderUnknown"
+            ]
+        },
+        "domain.LoginChannel": {
+            "type": "string",
+            "enum": [
+                "pos",
+                "mobile",
+                "store"
+            ],
+            "x-enum-comments": {
+                "LoginChannelMobile": "移动点餐",
+                "LoginChannelPos": "pos",
+                "LoginChannelStore": "门店管理后台"
+            },
+            "x-enum-varnames": [
+                "LoginChannelPos",
+                "LoginChannelMobile",
+                "LoginChannelStore"
+            ]
+        },
+        "domain.Menu": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "菜单ID",
+                    "type": "string"
+                },
+                "item_count": {
+                    "description": "菜单项数量",
+                    "type": "integer"
+                },
+                "items": {
+                    "description": "菜单项列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.MenuItem"
+                    }
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "菜单名称",
+                    "type": "string"
+                },
+                "store_count": {
+                    "description": "适用门店数量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "stores": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoreSimple"
+                    }
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MenuItem": {
+            "type": "object",
+            "properties": {
+                "base_price": {
+                    "description": "基础价（可选，单位：分）",
+                    "type": "number"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "菜单项ID",
+                    "type": "string"
+                },
+                "member_price": {
+                    "description": "会员价（可选，单位：分）",
+                    "type": "number"
+                },
+                "menu_id": {
+                    "description": "菜单ID",
+                    "type": "string"
+                },
+                "product": {
+                    "description": "关联信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    ]
+                },
+                "product_id": {
+                    "description": "菜品ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MenuSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Menu"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.Merchant": {
+            "type": "object",
+            "required": [
+                "purchase_duration",
+                "purchase_duration_unit"
+            ],
+            "properties": {
+                "address": {
+                    "description": "地址",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Address"
+                        }
+                    ]
+                },
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string"
+                },
+                "brand_name": {
+                    "description": "品牌名称",
+                    "type": "string"
+                },
+                "business_type_code": {
+                    "description": "业态类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessType"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "商户描述(保留字段)",
+                    "type": "string"
+                },
+                "expire_utc": {
+                    "description": "UTC 时区的过期时间",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "login_account": {
+                    "description": "登录账号",
+                    "type": "string"
+                },
+                "login_password": {
+                    "description": "登录密码(加密存储)",
+                    "type": "string"
+                },
+                "merchant_code": {
+                    "description": "商户编号(保留字段)",
+                    "type": "string"
+                },
+                "merchant_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "商户名称,最长不得超过50个字",
+                    "type": "string"
+                },
+                "merchant_short_name": {
+                    "description": "商户简称",
+                    "type": "string"
+                },
+                "merchant_type": {
+                    "description": "商户类型: 品牌商户,门店商户",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.MerchantType"
+                        }
+                    ]
+                },
+                "purchase_duration": {
+                    "description": "购买时长",
+                    "type": "integer"
+                },
+                "purchase_duration_unit": {
+                    "description": "购买时长单位",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PurchaseDurationUnit"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "状态: 正常,停用,过期",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.MerchantStatus"
+                        }
+                    ]
+                },
+                "store_count": {
+                    "description": "关联门店数量(仅品牌商户有效)",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MerchantStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "expired",
+                "disabled"
+            ],
+            "x-enum-comments": {
+                "MerchantStatusActive": "已激活",
+                "MerchantStatusDisabled": "已禁用",
+                "MerchantStatusExpired": "已过期"
+            },
+            "x-enum-varnames": [
+                "MerchantStatusActive",
+                "MerchantStatusExpired",
+                "MerchantStatusDisabled"
+            ]
+        },
+        "domain.MerchantType": {
+            "type": "string",
+            "enum": [
+                "brand",
+                "store"
+            ],
+            "x-enum-comments": {
+                "MerchantTypeBrand": "品牌商户",
+                "MerchantTypeStore": "门店商户"
+            },
+            "x-enum-varnames": [
+                "MerchantTypeBrand",
+                "MerchantTypeStore"
+            ]
+        },
+        "domain.Order": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "金额汇总",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderAmount"
+                        }
+                    ]
+                },
+                "business_date": {
+                    "description": "营业日",
+                    "type": "string"
+                },
+                "cashier": {
+                    "description": "收银员信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderCashier"
+                        }
+                    ]
+                },
+                "channel": {
+                    "description": "下单渠道",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Channel"
+                        }
+                    ]
+                },
+                "completed_at": {
+                    "description": "完成时间",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dining_mode": {
+                    "description": "堂食/外卖",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DiningMode"
+                        }
+                    ]
+                },
+                "fees": {
+                    "description": "费用",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderFee"
+                    }
+                },
+                "guest_count": {
+                    "description": "用餐人数",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "operation_logs": {
+                    "description": "操作日志",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderOperationLog"
+                    }
+                },
+                "order_no": {
+                    "description": "订单号",
+                    "type": "string"
+                },
+                "order_products": {
+                    "description": "订单商品明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderProduct"
+                    }
+                },
+                "order_status": {
+                    "description": "订单状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderStatus"
+                        }
+                    ]
+                },
+                "order_type": {
+                    "description": "订单类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderType"
+                        }
+                    ]
+                },
+                "paid_at": {
+                    "description": "支付完成时间",
+                    "type": "string"
+                },
+                "payment_status": {
+                    "description": "支付状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentStatus"
+                        }
+                    ]
+                },
+                "payments": {
+                    "description": "支付记录",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderPayment"
+                    }
+                },
+                "placed_at": {
+                    "description": "下单时间",
+                    "type": "string"
+                },
+                "placed_by": {
+                    "description": "下单人ID",
+                    "type": "string"
+                },
+                "placed_by_name": {
+                    "description": "下单人名称",
+                    "type": "string"
+                },
+                "pos": {
+                    "description": "POS 终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderPOS"
+                        }
+                    ]
+                },
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
+                },
+                "shift_no": {
+                    "description": "班次号",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "门店信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderStore"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "table_id": {
+                    "description": "桌位ID",
+                    "type": "string"
+                },
+                "table_name": {
+                    "description": "桌位名称",
+                    "type": "string"
+                },
+                "tax_rates": {
+                    "description": "税率",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderTaxRate"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderAmount": {
+            "type": "object",
+            "properties": {
+                "amount_due": {
+                    "description": "应收",
+                    "type": "number"
+                },
+                "amount_paid": {
+                    "description": "实收",
+                    "type": "number"
+                },
+                "amount_refunded": {
+                    "description": "已退款",
+                    "type": "number"
+                },
+                "change_amount": {
+                    "description": "找零",
+                    "type": "number"
+                },
+                "delivery_fee": {
+                    "description": "配送费",
+                    "type": "number"
+                },
+                "discount_total": {
+                    "description": "折扣合计",
+                    "type": "number"
+                },
+                "fee_total": {
+                    "description": "其他费用合计",
+                    "type": "number"
+                },
+                "items_subtotal": {
+                    "description": "商品小计",
+                    "type": "number"
+                },
+                "overpay_amount": {
+                    "description": "溢收",
+                    "type": "number"
+                },
+                "rounding_amount": {
+                    "description": "舍入/抹零",
+                    "type": "number"
+                },
+                "service_fee_total": {
+                    "description": "服务费合计",
+                    "type": "number"
+                },
+                "tax_total": {
+                    "description": "税费合计",
+                    "type": "number"
+                }
+            }
+        },
+        "domain.OrderCashier": {
+            "type": "object",
+            "properties": {
+                "cashier_id": {
+                    "description": "收银员ID",
+                    "type": "string"
+                },
+                "cashier_name": {
+                    "description": "收银员名称",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderChannel": {
+            "type": "string",
+            "enum": [
+                "pos",
+                "self_order",
+                "mini_program",
+                "mobile_order",
+                "scan_order",
+                "third_delivery"
+            ],
+            "x-enum-comments": {
+                "OrderChannelMiniProgram": "小程序",
+                "OrderChannelMobileOrder": "手机点餐",
+                "OrderChannelPOS": "POS 端",
+                "OrderChannelScanOrder": "扫码点餐",
+                "OrderChannelSelfOrder": "自助点餐",
+                "OrderChannelThirdDelivery": "三方外卖"
+            },
+            "x-enum-varnames": [
+                "OrderChannelPOS",
+                "OrderChannelSelfOrder",
+                "OrderChannelMiniProgram",
+                "OrderChannelMobileOrder",
+                "OrderChannelScanOrder",
+                "OrderChannelThirdDelivery"
+            ]
+        },
+        "domain.OrderFee": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "费用金额",
+                    "type": "number"
+                },
+                "fee_id": {
+                    "description": "费用ID",
+                    "type": "string"
+                },
+                "fee_name": {
+                    "description": "费用名称",
+                    "type": "string"
+                },
+                "fee_type": {
+                    "description": "费用类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.FeeType"
+                        }
+                    ]
+                },
+                "meta": {
+                    "description": "扩展信息"
+                }
+            }
+        },
+        "domain.OrderOperationLog": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "操作内容",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "operated_at": {
+                    "description": "操作时间",
+                    "type": "string"
+                },
+                "operation_type": {
+                    "description": "操作类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderOperationType"
+                        }
+                    ]
+                },
+                "operator_id": {
+                    "description": "操作人ID",
+                    "type": "string"
+                },
+                "operator_name": {
+                    "description": "操作人名称",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "操作来源",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Channel"
+                        }
+                    ]
+                }
+            }
+        },
+        "domain.OrderOperationType": {
+            "type": "string",
+            "enum": [
+                "PLACE_ORDER",
+                "GIFT_ITEM",
+                "COUPON",
+                "DISCOUNT",
+                "CHECKOUT",
+                "REVERSE_SETTLE",
+                "REFUND",
+                "REFUND_REVIEW"
+            ],
+            "x-enum-comments": {
+                "OrderOperationTypeCheckout": "结账（支付）",
+                "OrderOperationTypeCoupon": "结账（优惠券）",
+                "OrderOperationTypeDiscount": "结账（折扣）",
+                "OrderOperationTypeGiftItem": "点餐（赠菜）",
+                "OrderOperationTypePlaceOrder": "点餐（下单）",
+                "OrderOperationTypeRefund": "退款",
+                "OrderOperationTypeRefundReview": "退款审核",
+                "OrderOperationTypeReverseSettle": "反结账"
+            },
+            "x-enum-varnames": [
+                "OrderOperationTypePlaceOrder",
+                "OrderOperationTypeGiftItem",
+                "OrderOperationTypeCoupon",
+                "OrderOperationTypeDiscount",
+                "OrderOperationTypeCheckout",
+                "OrderOperationTypeReverseSettle",
+                "OrderOperationTypeRefund",
+                "OrderOperationTypeRefundReview"
+            ]
+        },
+        "domain.OrderPOS": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "POS 设备id",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "POS 设备名称",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderPayment": {
+            "type": "object",
+            "properties": {
+                "cashier": {
+                    "description": "收银员信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderCashier"
+                        }
+                    ]
+                },
+                "change_amount": {
+                    "description": "找零",
+                    "type": "number"
+                },
+                "paid_at": {
+                    "description": "支付时间",
+                    "type": "string"
+                },
+                "payment_amount": {
+                    "description": "支付金额",
+                    "type": "number"
+                },
+                "payment_method": {
+                    "description": "支付方式",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
+                        }
+                    ]
+                },
+                "payment_no": {
+                    "description": "支付号（第三方/外部交易号）",
+                    "type": "string"
+                },
+                "payment_status": {
+                    "description": "支付状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentStatus"
+                        }
+                    ]
+                },
+                "pos": {
+                    "description": "POS 终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderPOS"
+                        }
+                    ]
+                },
+                "refund_amount": {
+                    "description": "退款金额",
+                    "type": "number"
+                }
+            }
+        },
+        "domain.OrderProduct": {
+            "type": "object",
+            "properties": {
+                "amount_after_tax": {
+                    "description": "税后金额",
+                    "type": "number"
+                },
+                "amount_before_tax": {
+                    "description": "税前金额",
+                    "type": "number"
+                },
+                "attr_amount": {
+                    "description": "做法金额与赠送金额",
+                    "type": "number"
+                },
+                "attr_relations": {
+                    "description": "口味做法信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductAttrRelation"
+                    }
+                },
+                "category": {
+                    "description": "分类信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "菜品描述",
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "description": "优惠金额",
+                    "type": "number"
+                },
+                "gift_amount": {
+                    "description": "赠送金额",
+                    "type": "number"
+                },
+                "gift_qty": {
+                    "description": "赠送数量",
+                    "type": "integer"
+                },
+                "groups": {
+                    "description": "套餐信息（仅套餐商品使用）",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SetMealGroup"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "index": {
+                    "description": "下单序号（同订单内第几次下单）",
+                    "type": "integer"
+                },
+                "is_gift": {
+                    "description": "是否赠送",
+                    "type": "boolean"
+                },
+                "main_image": {
+                    "description": "商品主图",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "其他信息",
+                    "type": "string"
+                },
+                "order_id": {
+                    "description": "订单关联",
+                    "type": "string"
+                },
+                "order_item_id": {
+                    "description": "订单内明细ID",
+                    "type": "string"
+                },
+                "price": {
+                    "description": "数量与金额",
+                    "type": "number"
+                },
+                "product_id": {
+                    "description": "商品基础信息",
+                    "type": "string"
+                },
+                "product_name": {
+                    "description": "商品名称",
+                    "type": "string"
+                },
+                "product_type": {
+                    "description": "商品类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductType"
+                        }
+                    ]
+                },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
+                "promotion_discount": {
+                    "description": "促销信息",
+                    "type": "number"
+                },
+                "qty": {
+                    "description": "数量",
+                    "type": "integer"
+                },
+                "refund_reason": {
+                    "description": "退菜原因",
+                    "type": "string"
+                },
+                "refunded_at": {
+                    "description": "退菜时间",
+                    "type": "string"
+                },
+                "refunded_by": {
+                    "description": "退菜操作人",
+                    "type": "string"
+                },
+                "spec_relations": {
+                    "description": "规格信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSpecRelation"
+                    }
+                },
+                "subtotal": {
+                    "description": "小计",
+                    "type": "number"
+                },
+                "tax": {
+                    "description": "税额",
+                    "type": "number"
+                },
+                "tax_rate": {
+                    "description": "税率（百分比，如 6.00 表示 6%）",
+                    "type": "number"
+                },
+                "total": {
+                    "description": "合计",
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "void_amount": {
+                    "description": "已退菜金额汇总",
+                    "type": "number"
+                },
+                "void_qty": {
+                    "description": "退菜信息",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "PLACED",
+                "COMPLETED",
+                "CANCELLED"
+            ],
+            "x-enum-comments": {
+                "OrderStatusCancelled": "已取消",
+                "OrderStatusCompleted": "已完成",
+                "OrderStatusPlaced": "已下单"
+            },
+            "x-enum-varnames": [
+                "OrderStatusPlaced",
+                "OrderStatusCompleted",
+                "OrderStatusCancelled"
+            ]
+        },
+        "domain.OrderStore": {
+            "type": "object",
+            "properties": {
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "商户 ID",
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "description": "商户名称",
+                    "type": "string"
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string"
+                },
+                "store_name": {
+                    "description": "门店名称",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderTaxRate": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "description": "扩展信息"
+                },
+                "rate": {
+                    "description": "税率（百分比）",
+                    "type": "number"
+                },
+                "tax_amount": {
+                    "description": "税额",
+                    "type": "number"
+                },
+                "tax_rate_id": {
+                    "description": "税率ID",
+                    "type": "string"
+                },
+                "tax_rate_name": {
+                    "description": "税率名称",
+                    "type": "string"
+                },
+                "taxable_amount": {
+                    "description": "计税金额",
+                    "type": "number"
+                }
+            }
+        },
+        "domain.OrderType": {
+            "type": "string",
+            "enum": [
+                "SALE",
+                "REFUND",
+                "PARTIAL_REFUND"
+            ],
+            "x-enum-comments": {
+                "OrderTypePartialRefund": "部分退款单",
+                "OrderTypeRefund": "退单",
+                "OrderTypeSale": "销售单"
+            },
+            "x-enum-varnames": [
+                "OrderTypeSale",
+                "OrderTypeRefund",
+                "OrderTypePartialRefund"
+            ]
+        },
+        "domain.PaperSize": {
+            "type": "string",
+            "enum": [
+                "58mm",
+                "80mm"
+            ],
+            "x-enum-varnames": [
+                "PaperSize58mm",
+                "PaperSize80mm"
+            ]
+        },
+        "domain.PaymentMethod": {
+            "type": "object",
+            "properties": {
+                "accounting_rule": {
+                    "description": "计入规则:income-计入实收,discount-计入优惠",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodAccountingRule"
+                        }
+                    ]
+                },
+                "cash_drawer_status": {
+                    "description": "开钱箱状态:false-不开钱箱, true-开钱箱（必选）",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "display_channels": {
+                    "description": "收银终端显示渠道（可选，可多选）：POS、移动点餐、扫码点餐、自助点餐、三方外卖",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fee_rate": {
+                    "description": "手续费率,百分比",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoice_rule": {
+                    "description": "实收部分开票规则:no_invoice-不开发票,actual_amount-按实收金额",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodInvoiceRule"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "结算方式名称",
+                    "type": "string"
+                },
+                "payment_type": {
+                    "description": "结算类型:other-其他,cash-现金,offline_card-线下刷卡,custom_coupon-自定义券,partner_coupon-三方合作券",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
+                        }
+                    ]
+                },
+                "source": {
+                    "description": "来源:brand-品牌,store-门店,system-系统",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodSource"
+                        }
+                    ]
+                },
+                "source_payment_method_id": {
+                    "description": "结算方式来源ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "启用/停用状态: true-启用, false-停用（必选）",
+                    "type": "boolean"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.PaymentMethodAccountingRule": {
+            "type": "string",
+            "enum": [
+                "income",
+                "discount"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodAccountingRuleDiscount": "计入优惠",
+                "PaymentMethodAccountingRuleIncome": "计入实收"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodAccountingRuleIncome",
+                "PaymentMethodAccountingRuleDiscount"
+            ]
+        },
+        "domain.PaymentMethodInvoiceRule": {
+            "type": "string",
+            "enum": [
+                "no_invoice",
+                "actual_amount"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodInvoiceRuleActualAmount": "按实收金额",
+                "PaymentMethodInvoiceRuleNotInvoice": "不开发票"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodInvoiceRuleNotInvoice",
+                "PaymentMethodInvoiceRuleActualAmount"
+            ]
+        },
+        "domain.PaymentMethodPayType": {
+            "type": "string",
+            "enum": [
+                "cash",
+                "online_payment",
+                "member_card",
+                "custom_coupon",
+                "partner_coupon",
+                "bank_card"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodPayTypeBankCard": "银行卡",
+                "PaymentMethodPayTypeCash": "现金",
+                "PaymentMethodPayTypeCustomCoupon": "系统自定义券",
+                "PaymentMethodPayTypeMemberCard": "会员卡",
+                "PaymentMethodPayTypeOnlinePayment": "在线支付",
+                "PaymentMethodPayTypePartnerCoupon": "三方合作券"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodPayTypeCash",
+                "PaymentMethodPayTypeOnlinePayment",
+                "PaymentMethodPayTypeMemberCard",
+                "PaymentMethodPayTypeCustomCoupon",
+                "PaymentMethodPayTypePartnerCoupon",
+                "PaymentMethodPayTypeBankCard"
+            ]
+        },
+        "domain.PaymentMethodSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.PaymentMethod"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.PaymentMethodSource": {
+            "type": "string",
+            "enum": [
+                "brand",
+                "store",
+                "system"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodSourceBrand": "品牌",
+                "PaymentMethodSourceStore": "门店",
+                "PaymentMethodSourceSystem": "系统"
+            },
+            "x-enum-varnames": [
+                "PaymentMethodSourceBrand",
+                "PaymentMethodSourceStore",
+                "PaymentMethodSourceSystem"
+            ]
+        },
+        "domain.PaymentStatus": {
+            "type": "string",
+            "enum": [
+                "UNPAID",
+                "PAYING",
+                "PAID",
+                "REFUNDED"
+            ],
+            "x-enum-comments": {
+                "PaymentStatusPaid": "已支付",
+                "PaymentStatusPaying": "支付中",
+                "PaymentStatusRefunded": "全额退款",
+                "PaymentStatusUnpaid": "未支付"
+            },
+            "x-enum-varnames": [
+                "PaymentStatusUnpaid",
+                "PaymentStatusPaying",
+                "PaymentStatusPaid",
+                "PaymentStatusRefunded"
+            ]
+        },
+        "domain.Product": {
+            "type": "object",
+            "properties": {
+                "add_sale_quantity": {
+                    "description": "加售份数",
+                    "type": "integer"
+                },
+                "attr_relations": {
+                    "description": "商品口味做法关联列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductAttrRelation"
+                    }
+                },
+                "category": {
+                    "description": "分类",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
+                },
+                "category_id": {
+                    "description": "基础信息",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "时间戳",
+                    "type": "string"
+                },
+                "delivery_cost_price": {
+                    "description": "外卖成本价（可选，单位：分，仅套餐商品使用）",
+                    "type": "number"
+                },
+                "description": {
+                    "description": "菜品描述",
+                    "type": "string"
+                },
+                "detail_images": {
+                    "description": "详情图片",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "effective_date_type": {
+                    "description": "生效日期类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.EffectiveDateType"
+                        }
+                    ]
+                },
+                "effective_end_time": {
+                    "description": "生效结束时间",
+                    "type": "string"
+                },
+                "effective_start_time": {
+                    "description": "生效开始时间",
+                    "type": "string"
+                },
+                "estimated_cost_price": {
+                    "description": "套餐属性（仅套餐商品使用）",
+                    "type": "number"
+                },
+                "groups": {
+                    "description": "套餐组列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SetMealGroup"
+                    }
+                },
+                "id": {
+                    "description": "商品ID",
+                    "type": "string"
+                },
+                "inherit_stall": {
+                    "description": "是否继承原出品部门",
+                    "type": "boolean"
+                },
+                "inherit_tax_rate": {
+                    "description": "其他信息",
+                    "type": "boolean"
+                },
+                "main_image": {
+                    "description": "展示信息",
+                    "type": "string"
+                },
+                "menu_id": {
+                    "description": "菜单ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "min_sale_quantity": {
+                    "description": "起售份数",
+                    "type": "integer"
+                },
+                "mnemonic": {
+                    "description": "助记词",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "商品名称",
+                    "type": "string"
+                },
+                "sale_channels": {
+                    "description": "售卖渠道",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SaleChannel"
+                    }
+                },
+                "sale_status": {
+                    "description": "售卖信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductSaleStatus"
+                        }
+                    ]
+                },
+                "shelf_life": {
+                    "description": "保质期（单位：天）",
+                    "type": "integer"
+                },
+                "spec_relations": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSpecRelation"
+                    }
+                },
+                "stall": {
+                    "description": "出品部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Stall"
+                        }
+                    ]
+                },
+                "stall_id": {
+                    "description": "指定出品部门ID",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "support_types": {
+                    "description": "支持类型（堂食、外带）",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSupportType"
+                    }
+                },
+                "tags": {
+                    "description": "商品标签列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductTag"
+                    }
+                },
+                "tax_rate": {
+                    "description": "税率",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFee"
+                        }
+                    ]
+                },
+                "tax_rate_id": {
+                    "description": "指定税率ID",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "商品类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductType"
+                        }
+                    ]
+                },
+                "unit": {
+                    "description": "单位",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
+                "unit_id": {
+                    "description": "属性关联",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductAttr": {
+            "type": "object",
+            "properties": {
+                "channels": {
+                    "description": "售卖渠道列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SaleChannel"
+                    }
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "口味做法ID",
+                    "type": "string"
+                },
+                "items": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductAttrItem"
+                    }
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "口味做法名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量（所有项的关联商品数量累加）",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductAttrItem": {
+            "type": "object",
+            "properties": {
+                "attr_id": {
+                    "description": "口味做法ID（外键）",
+                    "type": "string"
+                },
+                "base_price": {
+                    "description": "基础加价（单位：分）",
+                    "type": "number"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "口味做法项ID",
+                    "type": "string"
+                },
+                "image": {
+                    "description": "图片URL（可选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "口味做法项名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductAttrRelation": {
+            "type": "object",
+            "properties": {
+                "attr": {
+                    "description": "关联信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductAttr"
+                        }
+                    ]
+                },
+                "attr_id": {
+                    "description": "口味做法ID",
+                    "type": "string"
+                },
+                "attr_item": {
+                    "description": "口味做法项",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductAttrItem"
+                        }
+                    ]
+                },
+                "attr_item_id": {
+                    "description": "口味做法项ID",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "关联ID",
+                    "type": "string"
+                },
+                "is_default": {
+                    "description": "是否默认项",
+                    "type": "boolean"
+                },
+                "product_id": {
+                    "description": "商品ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductSaleStatus": {
+            "type": "string",
+            "enum": [
+                "on_sale",
+                "off_sale"
+            ],
+            "x-enum-comments": {
+                "ProductSaleStatusOffSale": "停售",
+                "ProductSaleStatusOnSale": "在售"
+            },
+            "x-enum-varnames": [
+                "ProductSaleStatusOnSale",
+                "ProductSaleStatusOffSale"
+            ]
+        },
+        "domain.ProductSpecRelation": {
+            "type": "object",
+            "properties": {
+                "barcode": {
+                    "description": "条形码",
+                    "type": "string"
+                },
+                "base_price": {
+                    "description": "基础价格（单位：分）",
+                    "type": "number"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "estimated_cost_price": {
+                    "description": "预估成本价（单位：分，可选）",
+                    "type": "number"
+                },
+                "id": {
+                    "description": "关联ID",
+                    "type": "string"
+                },
+                "is_default": {
+                    "description": "是否默认项",
+                    "type": "boolean"
+                },
+                "member_price": {
+                    "description": "会员价（单位：分，可选）",
+                    "type": "number"
+                },
+                "other_price1": {
+                    "description": "其他价格1（单位：分，可选）",
+                    "type": "number"
+                },
+                "other_price2": {
+                    "description": "其他价格2（单位：分，可选）",
+                    "type": "number"
+                },
+                "other_price3": {
+                    "description": "其他价格3（单位：分，可选）",
+                    "type": "number"
+                },
+                "packing_fee": {
+                    "description": "打包费",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.AdditionalFee"
+                        }
+                    ]
+                },
+                "packing_fee_id": {
+                    "description": "打包费ID（引用费用配置）",
+                    "type": "string"
+                },
+                "product_id": {
+                    "description": "商品ID",
+                    "type": "string"
+                },
+                "spec_id": {
+                    "description": "规格ID",
+                    "type": "string"
+                },
+                "spec_name": {
+                    "description": "关联信息",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductSupportType": {
+            "type": "string",
+            "enum": [
+                "dine",
+                "takeaway",
+                "delivery"
+            ],
+            "x-enum-comments": {
+                "ProductSupportTypeDelivery": "外卖",
+                "ProductSupportTypeDine": "堂食",
+                "ProductSupportTypeTakeaway": "外带"
+            },
+            "x-enum-varnames": [
+                "ProductSupportTypeDine",
+                "ProductSupportTypeTakeaway",
+                "ProductSupportTypeDelivery"
+            ]
+        },
+        "domain.ProductTag": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "标签ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "标签名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductType": {
+            "type": "string",
+            "enum": [
+                "normal",
+                "set_meal"
+            ],
+            "x-enum-comments": {
+                "ProductTypeNormal": "普通商品",
+                "ProductTypeSetMeal": "套餐商品"
+            },
+            "x-enum-varnames": [
+                "ProductTypeNormal",
+                "ProductTypeSetMeal"
+            ]
+        },
+        "domain.ProductUnit": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "单位ID",
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "单位名称",
+                    "type": "string"
+                },
+                "product_count": {
+                    "description": "关联的商品数量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "单位类型：quantity（数量单位）、weight（重量单位）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnitType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.ProductUnitType": {
+            "type": "string",
+            "enum": [
+                "quantity",
+                "weight"
+            ],
+            "x-enum-comments": {
+                "ProductUnitTypeQuantity": "数量单位",
+                "ProductUnitTypeWeight": "重量单位"
+            },
+            "x-enum-varnames": [
+                "ProductUnitTypeQuantity",
+                "ProductUnitTypeWeight"
+            ]
+        },
+        "domain.Province": {
+            "type": "string",
+            "enum": [
+                "MY-01",
+                "MY-02",
+                "MY-03",
+                "MY-04",
+                "MY-05",
+                "MY-06",
+                "MY-07",
+                "MY-08",
+                "MY-09",
+                "MY-10",
+                "MY-11",
+                "MY-12",
+                "MY-13",
+                "MY-14",
+                "MY-15",
+                "MY-16",
+                "SG-01",
+                "SG-02",
+                "SG-03",
+                "SG-04",
+                "SG-05"
+            ],
+            "x-enum-comments": {
+                "ProvinceMY01": "柔佛州",
+                "ProvinceMY02": "吉打州",
+                "ProvinceMY03": "吉兰丹州",
+                "ProvinceMY04": "马六甲州",
+                "ProvinceMY05": "森美兰州",
+                "ProvinceMY06": "彭亨州",
+                "ProvinceMY07": "槟城州",
+                "ProvinceMY08": "霹雳州",
+                "ProvinceMY09": "玻璃市州",
+                "ProvinceMY10": "雪兰莪州",
+                "ProvinceMY11": "登嘉楼州",
+                "ProvinceMY12": "沙巴州",
+                "ProvinceMY13": "砂拉越州",
+                "ProvinceMY14": "吉隆坡联邦直辖区",
+                "ProvinceMY15": "纳闽联邦直辖区",
+                "ProvinceMY16": "布城联邦直辖区",
+                "ProvinceSG01": "中区社区发展理事会",
+                "ProvinceSG02": "东北社区发展理事会",
+                "ProvinceSG03": "西北社区发展理事会",
+                "ProvinceSG04": "东南社区发展理事会",
+                "ProvinceSG05": "西南社区发展理事会"
+            },
+            "x-enum-varnames": [
+                "ProvinceMY01",
+                "ProvinceMY02",
+                "ProvinceMY03",
+                "ProvinceMY04",
+                "ProvinceMY05",
+                "ProvinceMY06",
+                "ProvinceMY07",
+                "ProvinceMY08",
+                "ProvinceMY09",
+                "ProvinceMY10",
+                "ProvinceMY11",
+                "ProvinceMY12",
+                "ProvinceMY13",
+                "ProvinceMY14",
+                "ProvinceMY15",
+                "ProvinceMY16",
+                "ProvinceSG01",
+                "ProvinceSG02",
+                "ProvinceSG03",
+                "ProvinceSG04",
+                "ProvinceSG05"
+            ]
+        },
+        "domain.PurchaseDurationUnit": {
+            "type": "string",
+            "enum": [
+                "day",
+                "month",
+                "year",
+                "week"
+            ],
+            "x-enum-comments": {
+                "PurchaseDurationUnitDay": "日",
+                "PurchaseDurationUnitMonth": "月",
+                "PurchaseDurationUnitWeek": "周",
+                "PurchaseDurationUnitYear": "年"
+            },
+            "x-enum-varnames": [
+                "PurchaseDurationUnitDay",
+                "PurchaseDurationUnitMonth",
+                "PurchaseDurationUnitYear",
+                "PurchaseDurationUnitWeek"
+            ]
+        },
+        "domain.RefundAmount": {
+            "type": "object",
+            "properties": {
+                "discount_total": {
+                    "description": "优惠退款分摊",
+                    "type": "number"
+                },
+                "fee_total": {
+                    "description": "其他费用退款",
+                    "type": "number"
+                },
+                "items_subtotal": {
+                    "description": "商品退款小计",
+                    "type": "number"
+                },
+                "refund_total": {
+                    "description": "退款总额",
+                    "type": "number"
+                },
+                "service_fee_total": {
+                    "description": "服务费退款",
+                    "type": "number"
+                },
+                "tax_total": {
+                    "description": "税费退款",
+                    "type": "number"
+                }
+            }
+        },
+        "domain.RefundChannel": {
+            "type": "string",
+            "enum": [
+                "ORIGINAL",
+                "CASH",
+                "BALANCE"
+            ],
+            "x-enum-comments": {
+                "RefundChannelBalance": "余额退款",
+                "RefundChannelCash": "现金退款",
+                "RefundChannelOriginal": "原路退回"
+            },
+            "x-enum-varnames": [
+                "RefundChannelOriginal",
+                "RefundChannelCash",
+                "RefundChannelBalance"
+            ]
+        },
+        "domain.RefundOrder": {
+            "type": "object",
+            "properties": {
+                "approved_at": {
+                    "description": "审批时间",
+                    "type": "string"
+                },
+                "approved_by": {
+                    "description": "审批人ID",
+                    "type": "string"
+                },
+                "approved_by_name": {
+                    "description": "审批人名称",
+                    "type": "string"
+                },
+                "business_date": {
+                    "description": "营业信息",
+                    "type": "string"
+                },
+                "cashier": {
+                    "description": "收银员信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderCashier"
+                        }
+                    ]
+                },
+                "channel": {
+                    "description": "退款渠道",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Channel"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "租户信息",
+                    "type": "string"
+                },
+                "origin_amount_paid": {
+                    "description": "原订单实付金额",
+                    "type": "number"
+                },
+                "origin_order_id": {
+                    "description": "原订单关联",
+                    "type": "string"
+                },
+                "origin_order_no": {
+                    "description": "原订单号",
+                    "type": "string"
+                },
+                "origin_paid_at": {
+                    "description": "原订单支付时间",
+                    "type": "string"
+                },
+                "pos": {
+                    "description": "POS终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderPOS"
+                        }
+                    ]
+                },
+                "refund_amount": {
+                    "description": "金额与支付",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundAmount"
+                        }
+                    ]
+                },
+                "refund_no": {
+                    "description": "退款单号",
+                    "type": "string"
+                },
+                "refund_payments": {
+                    "description": "退款支付记录",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RefundPayment"
+                    }
+                },
+                "refund_products": {
+                    "description": "退款商品明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RefundOrderProduct"
+                    }
+                },
+                "refund_reason": {
+                    "description": "退款原因描述",
+                    "type": "string"
+                },
+                "refund_reason_code": {
+                    "description": "退款原因",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundReasonCode"
+                        }
+                    ]
+                },
+                "refund_status": {
+                    "description": "退款状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundStatus"
+                        }
+                    ]
+                },
+                "refund_type": {
+                    "description": "退款类型与状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundType"
+                        }
+                    ]
+                },
+                "refunded_at": {
+                    "description": "时间节点",
+                    "type": "string"
+                },
+                "refunded_by": {
+                    "description": "操作人信息",
+                    "type": "string"
+                },
+                "refunded_by_name": {
+                    "description": "退款操作人名称",
+                    "type": "string"
+                },
+                "remark": {
+                    "description": "备注",
+                    "type": "string"
+                },
+                "shift_no": {
+                    "description": "班次号",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderStore"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RefundOrderProduct": {
+            "type": "object",
+            "properties": {
+                "attr_relations": {
+                    "description": "口味做法",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductAttrRelation"
+                    }
+                },
+                "category": {
+                    "description": "分类信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "菜品描述",
+                    "type": "string"
+                },
+                "groups": {
+                    "description": "规格/口味/套餐快照",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SetMealGroup"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "main_image": {
+                    "description": "商品主图",
+                    "type": "string"
+                },
+                "origin_discount": {
+                    "description": "原优惠金额",
+                    "type": "number"
+                },
+                "origin_order_item_id": {
+                    "description": "原订单内明细ID",
+                    "type": "string"
+                },
+                "origin_order_product_id": {
+                    "description": "原订单商品关联",
+                    "type": "string"
+                },
+                "origin_price": {
+                    "description": "原单价",
+                    "type": "number"
+                },
+                "origin_qty": {
+                    "description": "原订单数量与金额",
+                    "type": "integer"
+                },
+                "origin_subtotal": {
+                    "description": "原小计",
+                    "type": "number"
+                },
+                "origin_tax": {
+                    "description": "原税额",
+                    "type": "number"
+                },
+                "origin_total": {
+                    "description": "原合计",
+                    "type": "number"
+                },
+                "product_id": {
+                    "description": "商品信息快照",
+                    "type": "string"
+                },
+                "product_name": {
+                    "description": "商品名称",
+                    "type": "string"
+                },
+                "product_type": {
+                    "description": "商品类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductType"
+                        }
+                    ]
+                },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
+                "refund_discount": {
+                    "description": "退款优惠分摊",
+                    "type": "number"
+                },
+                "refund_order_id": {
+                    "description": "退款单关联",
+                    "type": "string"
+                },
+                "refund_qty": {
+                    "description": "退款数量与金额",
+                    "type": "integer"
+                },
+                "refund_reason": {
+                    "description": "退款原因",
+                    "type": "string"
+                },
+                "refund_subtotal": {
+                    "description": "退款小计",
+                    "type": "number"
+                },
+                "refund_tax": {
+                    "description": "退款税额",
+                    "type": "number"
+                },
+                "refund_total": {
+                    "description": "退款合计",
+                    "type": "number"
+                },
+                "spec_relations": {
+                    "description": "规格信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSpecRelation"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RefundPayment": {
+            "type": "object",
+            "properties": {
+                "cashier": {
+                    "description": "收银员信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderCashier"
+                        }
+                    ]
+                },
+                "failure_reason": {
+                    "description": "失败原因",
+                    "type": "string"
+                },
+                "origin_payment_no": {
+                    "description": "原支付流水号",
+                    "type": "string"
+                },
+                "payment_method": {
+                    "description": "支付方式",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.PaymentMethodPayType"
+                        }
+                    ]
+                },
+                "pos": {
+                    "description": "POS 终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderPOS"
+                        }
+                    ]
+                },
+                "refund_amount": {
+                    "description": "退款金额",
+                    "type": "number"
+                },
+                "refund_channel": {
+                    "description": "退款渠道",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundChannel"
+                        }
+                    ]
+                },
+                "refund_payment_no": {
+                    "description": "退款流水号",
+                    "type": "string"
+                },
+                "refund_status": {
+                    "description": "退款状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundPaymentStatus"
+                        }
+                    ]
+                },
+                "refunded_at": {
+                    "description": "退款完成时间",
+                    "type": "string"
+                },
+                "third_party_refund_no": {
+                    "description": "第三方退款单号",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RefundPaymentStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "PROCESSING",
+                "SUCCESS",
+                "FAILED"
+            ],
+            "x-enum-comments": {
+                "RefundPaymentStatusFailed": "退款失败",
+                "RefundPaymentStatusPending": "待退款",
+                "RefundPaymentStatusProcessing": "退款中",
+                "RefundPaymentStatusSuccess": "退款成功"
+            },
+            "x-enum-varnames": [
+                "RefundPaymentStatusPending",
+                "RefundPaymentStatusProcessing",
+                "RefundPaymentStatusSuccess",
+                "RefundPaymentStatusFailed"
+            ]
+        },
+        "domain.RefundReasonCode": {
+            "type": "string",
+            "enum": [
+                "CUSTOMER_REQUEST",
+                "QUALITY_ISSUE",
+                "WRONG_ORDER",
+                "OUT_OF_STOCK",
+                "SERVICE_ISSUE",
+                "OTHER"
+            ],
+            "x-enum-comments": {
+                "RefundReasonCustomerRequest": "顾客要求",
+                "RefundReasonOther": "其他",
+                "RefundReasonOutOfStock": "缺货",
+                "RefundReasonQualityIssue": "质量问题",
+                "RefundReasonServiceIssue": "服务问题",
+                "RefundReasonWrongOrder": "下错单"
+            },
+            "x-enum-varnames": [
+                "RefundReasonCustomerRequest",
+                "RefundReasonQualityIssue",
+                "RefundReasonWrongOrder",
+                "RefundReasonOutOfStock",
+                "RefundReasonServiceIssue",
+                "RefundReasonOther"
+            ]
+        },
+        "domain.RefundStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "PROCESSING",
+                "COMPLETED",
+                "FAILED",
+                "CANCELLED"
+            ],
+            "x-enum-comments": {
+                "RefundStatusCancelled": "已取消",
+                "RefundStatusCompleted": "已完成",
+                "RefundStatusFailed": "退款失败",
+                "RefundStatusPending": "待处理",
+                "RefundStatusProcessing": "处理中"
+            },
+            "x-enum-varnames": [
+                "RefundStatusPending",
+                "RefundStatusProcessing",
+                "RefundStatusCompleted",
+                "RefundStatusFailed",
+                "RefundStatusCancelled"
+            ]
+        },
+        "domain.RefundType": {
+            "type": "string",
+            "enum": [
+                "FULL",
+                "PARTIAL"
+            ],
+            "x-enum-comments": {
+                "RefundTypeFull": "全额退款",
+                "RefundTypePartial": "部分退款"
+            },
+            "x-enum-varnames": [
+                "RefundTypeFull",
+                "RefundTypePartial"
+            ]
+        },
+        "domain.Remark": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商ID，仅品牌备注需要",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "备注名称",
+                    "type": "string"
+                },
+                "remark_scene": {
+                    "description": "使用场景：整单备注/单品备注/退菜原因等",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkScene"
+                        }
+                    ]
+                },
+                "remark_type": {
+                    "description": "备注类型：系统/品牌",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RemarkType"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "description": "排序，值越小越靠前",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RemarkScene": {
+            "type": "string",
+            "enum": [
+                "whole_order",
+                "item",
+                "cancel_reason",
+                "discount",
+                "gift",
+                "rebill",
+                "refund_reject"
+            ],
+            "x-enum-comments": {
+                "RemarkSceneCancelReason": "退款原因",
+                "RemarkSceneDiscount": "优惠原因",
+                "RemarkSceneGift": "赠菜原因",
+                "RemarkSceneItem": "单品备注",
+                "RemarkSceneRebill": "反结账原因",
+                "RemarkSceneRefundReject": "拒绝退款",
+                "RemarkSceneWholeOrder": "整单备注"
+            },
+            "x-enum-varnames": [
+                "RemarkSceneWholeOrder",
+                "RemarkSceneItem",
+                "RemarkSceneCancelReason",
+                "RemarkSceneDiscount",
+                "RemarkSceneGift",
+                "RemarkSceneRebill",
+                "RemarkSceneRefundReject"
+            ]
+        },
+        "domain.RemarkType": {
+            "type": "string",
+            "enum": [
+                "system",
+                "brand",
+                "store"
+            ],
+            "x-enum-comments": {
+                "RemarkTypeBrand": "商户备注",
+                "RemarkTypeStore": "门店备注",
+                "RemarkTypeSystem": "系统备注"
+            },
+            "x-enum-varnames": [
+                "RemarkTypeSystem",
+                "RemarkTypeBrand",
+                "RemarkTypeStore"
+            ]
+        },
+        "domain.Role": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "角色编码",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "data_scope": {
+                    "description": "数据权限范围",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RoleDataScopeType"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "login_channels": {
+                    "description": "允许登录渠道，取自 login_channel，多选",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.LoginChannel"
+                    }
+                },
+                "merchant_id": {
+                    "description": "所属商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "paths": {
+                    "description": "前端路由菜单列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "role_type": {
+                    "description": "角色类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RoleType"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "所属门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.RoleDataScopeType": {
+            "type": "string",
+            "enum": [
+                "all",
+                "merchant",
+                "store",
+                "department",
+                "self",
+                "custom"
+            ],
+            "x-enum-comments": {
+                "RoleDataScopeAll": "全部数据权限",
+                "RoleDataScopeCustom": "自定义数据权限",
+                "RoleDataScopeDepartment": "部门数据权限",
+                "RoleDataScopeMerchant": "品牌商数据权限",
+                "RoleDataScopeSelf": "仅本人数据权限",
+                "RoleDataScopeStore": "门店数据权限"
+            },
+            "x-enum-varnames": [
+                "RoleDataScopeAll",
+                "RoleDataScopeMerchant",
+                "RoleDataScopeStore",
+                "RoleDataScopeDepartment",
+                "RoleDataScopeSelf",
+                "RoleDataScopeCustom"
+            ]
+        },
+        "domain.RoleType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "backend",
+                "store",
+                "frontend",
+                "admin",
+                "backend",
+                "store"
+            ],
+            "x-enum-comments": {
+                "UserTypeAdmin": "admin表用户",
+                "UserTypeBackend": "backend用户",
+                "UserTypeFrontend": "frontend用户",
+                "UserTypeStore": "store用户"
+            },
+            "x-enum-varnames": [
+                "RoleTypeAdmin",
+                "RoleTypeBackend",
+                "RoleTypeStore"
+            ]
+        },
+        "domain.SaleChannel": {
+            "type": "string",
+            "enum": [
+                "POS",
+                "Mobile",
+                "Scan",
+                "SelfService",
+                "ThirdParty",
+                "POS",
+                "Mobile",
+                "Scan",
+                "SelfService",
+                "ThirdParty"
+            ],
+            "x-enum-comments": {
+                "PaymentMethodDisplayChannelMobileOrdering": "移动点餐",
+                "PaymentMethodDisplayChannelPOS": "POS",
+                "PaymentMethodDisplayChannelScanOrdering": "扫码点餐",
+                "PaymentMethodDisplayChannelSelfService": "自助点餐",
+                "PaymentMethodDisplayChannelThirdPartyDelivery": "三方外卖",
+                "SaleChannelMobileOrdering": "移动点餐",
+                "SaleChannelPOS": "POS",
+                "SaleChannelScanOrdering": "扫码点餐",
+                "SaleChannelSelfService": "自助点餐",
+                "SaleChannelThirdPartyDelivery": "三方外卖"
+            },
+            "x-enum-varnames": [
+                "SaleChannelPOS",
+                "SaleChannelMobileOrdering",
+                "SaleChannelScanOrdering",
+                "SaleChannelSelfService",
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
+            ]
+        },
+        "domain.SetMealDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "group_id": {
+                    "description": "套餐组ID（外键）",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "详情ID",
+                    "type": "string"
+                },
+                "is_default": {
+                    "description": "是否默认（必选，每个套餐组中只能有一个默认项）",
+                    "type": "boolean"
+                },
+                "optional_product_ids": {
+                    "description": "备选商品ID列表（可选，多选）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "optional_products": {
+                    "description": "备选商品",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Product"
+                    }
+                },
+                "product": {
+                    "description": "关联信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    ]
+                },
+                "product_id": {
+                    "description": "商品ID（外键，引用普通商品）",
+                    "type": "string"
+                },
+                "quantity": {
+                    "description": "数量（必选，必须为正整数）",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SetMealGroup": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "details": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SetMealDetail"
+                    }
+                },
+                "id": {
+                    "description": "套餐组ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "套餐组名称",
+                    "type": "string"
+                },
+                "product_id": {
+                    "description": "套餐商品ID（外键）",
+                    "type": "string"
+                },
+                "selection_type": {
+                    "description": "点单限制：fixed（固定分组）、optional（可选套餐）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.SetMealGroupSelectionType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SetMealGroupSelectionType": {
+            "type": "string",
+            "enum": [
+                "fixed",
+                "optional"
+            ],
+            "x-enum-comments": {
+                "SetMealGroupSelectionTypeFixed": "固定分组",
+                "SetMealGroupSelectionTypeOptional": "可选套餐"
+            },
+            "x-enum-varnames": [
+                "SetMealGroupSelectionTypeFixed",
+                "SetMealGroupSelectionTypeOptional"
+            ]
+        },
+        "domain.ShiftTime": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "description": "结束时间，格式 HH:MM:SS",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称，如“班次1”",
+                    "type": "string"
+                },
+                "start_time": {
+                    "description": "开始时间，格式 HH:MM:SS",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Stall": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "使用状态",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "商户 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "出品部门名称",
+                    "type": "string"
+                },
+                "print_type": {
+                    "description": "打印类型 ：receipt/label",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallPrintType"
+                        }
+                    ]
+                },
+                "relation_product_numbers": {
+                    "description": "关联商品数量",
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "stall_type": {
+                    "description": "system/brand/store",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StallType"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StallPrintType": {
+            "type": "string",
+            "enum": [
+                "receipt",
+                "label"
+            ],
+            "x-enum-comments": {
+                "StallPrintTypeLabel": "标签",
+                "StallPrintTypeReceipt": "小票/收据"
+            },
+            "x-enum-varnames": [
+                "StallPrintTypeReceipt",
+                "StallPrintTypeLabel"
+            ]
+        },
+        "domain.StallType": {
+            "type": "string",
+            "enum": [
+                "system",
+                "brand",
+                "store"
+            ],
+            "x-enum-comments": {
+                "StallTypeBrand": "品牌出品部门",
+                "StallTypeStore": "门店出品部门",
+                "StallTypeSystem": "系统出品部门"
+            },
+            "x-enum-varnames": [
+                "StallTypeSystem",
+                "StallTypeBrand",
+                "StallTypeStore"
+            ]
+        },
+        "domain.Store": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "地址",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Address"
+                        }
+                    ]
+                },
+                "admin_phone_number": {
+                    "description": "管理员手机号",
+                    "type": "string"
+                },
+                "business_hours": {
+                    "description": "营业时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.BusinessHours"
+                    }
+                },
+                "business_license_url": {
+                    "description": "营业执照图片地址",
+                    "type": "string"
+                },
+                "business_model": {
+                    "description": "经营模式：直营 加盟",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessModel"
+                        }
+                    ]
+                },
+                "business_type_code": {
+                    "description": "业态类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.BusinessType"
+                        }
+                    ]
+                },
+                "cashier_desk_url": {
+                    "description": "收银台照片地址",
+                    "type": "string"
+                },
+                "contact_name": {
+                    "description": "联系人",
+                    "type": "string"
+                },
+                "contact_phone": {
+                    "description": "联系电话",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dining_environment_url": {
+                    "description": "就餐环境照片地址",
+                    "type": "string"
+                },
+                "dining_periods": {
+                    "description": "就餐时段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DiningPeriod"
+                    }
+                },
+                "food_operation_license_url": {
+                    "description": "食品经营许可证照片地址",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "location_number": {
+                    "description": "门店位置编号",
+                    "type": "string"
+                },
+                "login_account": {
+                    "description": "登录账号",
+                    "type": "string"
+                },
+                "login_password": {
+                    "description": "登录密码(加密存储)",
+                    "type": "string"
+                },
+                "merchant": {
+                    "description": "关联商户信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Merchant"
+                        }
+                    ]
+                },
+                "merchant_id": {
+                    "description": "商户 ID",
+                    "type": "string"
+                },
+                "shift_times": {
+                    "description": "班次时间",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ShiftTime"
+                    }
+                },
+                "status": {
+                    "description": "状态: 营业 停业",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StoreStatus"
+                        }
+                    ]
+                },
+                "store_code": {
+                    "description": "门店编码(保留字段)",
+                    "type": "string"
+                },
+                "store_logo": {
+                    "description": "logo 图片地址",
+                    "type": "string"
+                },
+                "store_name": {
+                    "description": "门店名称,长度不超过30个字",
+                    "type": "string"
+                },
+                "store_short_name": {
+                    "description": "门店简称",
+                    "type": "string"
+                },
+                "storefront_url": {
+                    "description": "门店门头照片地址",
+                    "type": "string"
+                },
+                "unified_social_credit_code": {
+                    "description": "统一社会信用代码",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StoreSimple": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "store_name": {
+                    "description": "门店名称",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StoreStatus": {
+            "type": "string",
+            "enum": [
+                "open",
+                "closed"
+            ],
+            "x-enum-comments": {
+                "StoreStatusClosed": "停业",
+                "StoreStatusOpen": "营业"
+            },
+            "x-enum-varnames": [
+                "StoreStatusOpen",
+                "StoreStatusClosed"
+            ]
+        },
+        "domain.StoreUser": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "编号",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "department": {
+                    "description": "所属部门",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Department"
+                        }
+                    ]
+                },
+                "department_id": {
+                    "description": "所属部门ID",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "电子邮箱",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "是否启用",
+                    "type": "boolean"
+                },
+                "gender": {
+                    "description": "性别",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Gender"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_superadmin": {
+                    "description": "是否为超级管理员",
+                    "type": "boolean"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "real_name": {
+                    "description": "真实姓名",
+                    "type": "string"
+                },
+                "role_ids": {
+                    "description": "关联数据",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "role_list": {
+                    "description": "角色列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Role"
+                    }
+                },
+                "store": {
+                    "description": "所属门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TaxFee": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "default_tax": {
+                    "description": "是否默认税费",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "description": "品牌商 ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "税费名称",
+                    "type": "string"
+                },
+                "store_id": {
+                    "description": "门店 ID",
+                    "type": "string"
+                },
+                "tax_code": {
+                    "description": "税费代码",
+                    "type": "string"
+                },
+                "tax_fee_type": {
+                    "description": "税费类型：商户/门店",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxFeeType"
+                        }
+                    ]
+                },
+                "tax_rate": {
+                    "description": "税率，6% -\u003e 0.06",
+                    "type": "number"
+                },
+                "tax_rate_type": {
+                    "description": "税率类型：统一比例/自定义比例",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaxRateType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TaxFeeType": {
+            "type": "string",
+            "enum": [
+                "system",
+                "merchant",
+                "store"
+            ],
+            "x-enum-comments": {
+                "TaxFeeTypeMerchant": "商户",
+                "TaxFeeTypeStore": "门店",
+                "TaxFeeTypeSystem": "系统内置"
+            },
+            "x-enum-varnames": [
+                "TaxFeeTypeSystem",
+                "TaxFeeTypeMerchant",
+                "TaxFeeTypeStore"
+            ]
+        },
+        "domain.TaxRateType": {
+            "type": "string",
+            "enum": [
+                "unified",
+                "custom"
+            ],
+            "x-enum-comments": {
+                "TaxRateTypeCustom": "自定义比例",
+                "TaxRateTypeUnified": "统一比例"
+            },
+            "x-enum-varnames": [
+                "TaxRateTypeUnified",
+                "TaxRateTypeCustom"
+            ]
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {}
+            }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
+        },
+        "types.AccountListResp": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoreUser"
+                    }
+                }
+            }
+        },
+        "types.AdditionalFeeListResp": {
+            "type": "object",
+            "properties": {
+                "additional_fees": {
+                    "description": "附加费列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.AdditionalFee"
+                    }
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.CreateOrderReq": {
+            "type": "object",
+            "required": [
+                "business_date",
+                "dining_mode",
+                "id",
+                "store_id"
+            ],
+            "properties": {
+                "amount": {
+                    "description": "金额汇总",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderAmount"
+                        }
+                    ]
+                },
+                "business_date": {
+                    "description": "营业日",
+                    "type": "string"
+                },
+                "cashier": {
+                    "description": "收银员信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderCashier"
+                        }
+                    ]
+                },
+                "channel": {
+                    "description": "下单渠道",
+                    "type": "string",
+                    "enum": [
+                        "POS",
+                        "H5",
+                        "APP"
+                    ]
+                },
+                "dining_mode": {
+                    "description": "就餐模式",
+                    "type": "string",
+                    "enum": [
+                        "DINE_IN"
+                    ]
+                },
+                "fees": {
+                    "description": "费用明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderFee"
+                    }
+                },
+                "guest_count": {
+                    "description": "用餐人数",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "订单ID",
+                    "type": "string"
+                },
+                "operation_logs": {
+                    "description": "操作日志",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderOperationLog"
+                    }
+                },
+                "order_no": {
+                    "description": "订单号",
+                    "type": "string"
+                },
+                "order_products": {
+                    "description": "订单商品明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderProduct"
+                    }
+                },
+                "order_status": {
+                    "description": "订单状态",
+                    "type": "string",
+                    "enum": [
+                        "PLACED",
+                        "COMPLETED",
+                        "CANCELLED"
+                    ]
+                },
+                "order_type": {
+                    "description": "订单类型",
+                    "type": "string",
+                    "enum": [
+                        "SALE",
+                        "REFUND",
+                        "PARTIAL_REFUND"
+                    ]
+                },
+                "payment_status": {
+                    "description": "支付状态",
+                    "type": "string",
+                    "enum": [
+                        "UNPAID",
+                        "PAYING",
+                        "PAID",
+                        "REFUNDED"
+                    ]
+                },
+                "payments": {
+                    "description": "支付记录",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderPayment"
+                    }
+                },
+                "placed_at": {
+                    "description": "下单时间",
+                    "type": "string"
+                },
+                "placed_by": {
+                    "description": "下单人",
+                    "type": "string"
+                },
+                "pos": {
+                    "description": "POS终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderPOS"
+                        }
+                    ]
+                },
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
+                },
+                "shift_no": {
+                    "description": "班次号",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "门店信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderStore"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "table_id": {
+                    "description": "桌位ID",
+                    "type": "string"
+                },
+                "table_name": {
+                    "description": "桌位名称",
+                    "type": "string"
+                },
+                "tax_rates": {
+                    "description": "税率明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderTaxRate"
+                    }
+                }
+            }
+        },
+        "types.CreateRefundOrderReq": {
+            "type": "object",
+            "required": [
+                "business_date",
+                "cashier",
+                "id",
+                "origin_order_id",
+                "pos",
+                "refund_amount",
+                "refund_products",
+                "refund_type",
+                "store",
+                "store_id"
+            ],
+            "properties": {
+                "business_date": {
+                    "description": "营业日",
+                    "type": "string"
+                },
+                "cashier": {
+                    "description": "收银员信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderCashier"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "退款订单ID",
+                    "type": "string"
+                },
+                "origin_order_id": {
+                    "description": "原订单ID",
+                    "type": "string"
+                },
+                "pos": {
+                    "description": "POS终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderPOS"
+                        }
+                    ]
+                },
+                "refund_amount": {
+                    "description": "退款金额明细",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundAmount"
+                        }
+                    ]
+                },
+                "refund_no": {
+                    "description": "退款单号（可选，不传则自动生成）",
+                    "type": "string"
+                },
+                "refund_payments": {
+                    "description": "退款支付记录",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RefundPayment"
+                    }
+                },
+                "refund_products": {
+                    "description": "退款商品明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.CreateRefundProductReq"
+                    }
+                },
+                "refund_reason": {
+                    "description": "退款原因描述",
+                    "type": "string"
+                },
+                "refund_reason_code": {
+                    "description": "退款原因代码",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundReasonCode"
+                        }
+                    ]
+                },
+                "refund_type": {
+                    "description": "退款类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundType"
+                        }
+                    ]
+                },
+                "remark": {
+                    "description": "备注",
+                    "type": "string"
+                },
+                "shift_no": {
+                    "description": "班次号",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "门店信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderStore"
+                        }
+                    ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                }
+            }
+        },
+        "types.CreateRefundProductReq": {
+            "type": "object",
+            "required": [
+                "origin_order_product_id",
+                "origin_qty",
+                "product_id",
+                "product_name",
+                "refund_qty"
+            ],
+            "properties": {
+                "attr_relations": {
+                    "description": "口味做法",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductAttrRelation"
+                    }
+                },
+                "category": {
+                    "description": "分类信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    ]
+                },
+                "description": {
+                    "description": "菜品描述",
+                    "type": "string"
+                },
+                "groups": {
+                    "description": "套餐组信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SetMealGroup"
+                    }
+                },
+                "main_image": {
+                    "description": "商品主图",
+                    "type": "string"
+                },
+                "origin_discount": {
+                    "description": "原优惠金额",
+                    "type": "number"
+                },
+                "origin_order_item_id": {
+                    "description": "原订单内明细ID",
+                    "type": "string"
+                },
+                "origin_order_product_id": {
+                    "description": "原订单商品明细ID",
+                    "type": "string"
+                },
+                "origin_price": {
+                    "description": "原单价",
+                    "type": "number"
+                },
+                "origin_qty": {
+                    "description": "原购买数量",
+                    "type": "integer"
+                },
+                "origin_subtotal": {
+                    "description": "原小计",
+                    "type": "number"
+                },
+                "origin_tax": {
+                    "description": "原税额",
+                    "type": "number"
+                },
+                "origin_total": {
+                    "description": "原合计",
+                    "type": "number"
+                },
+                "product_id": {
+                    "description": "商品ID",
+                    "type": "string"
+                },
+                "product_name": {
+                    "description": "商品名称",
+                    "type": "string"
+                },
+                "product_type": {
+                    "description": "商品类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductType"
+                        }
+                    ]
+                },
+                "product_unit": {
+                    "description": "商品单位信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ProductUnit"
+                        }
+                    ]
+                },
+                "refund_discount": {
+                    "description": "退款优惠分摊",
+                    "type": "number"
+                },
+                "refund_qty": {
+                    "description": "退款数量",
+                    "type": "integer"
+                },
+                "refund_reason": {
+                    "description": "单品退款原因",
+                    "type": "string"
+                },
+                "refund_subtotal": {
+                    "description": "退款小计",
+                    "type": "number"
+                },
+                "refund_tax": {
+                    "description": "退款税额",
+                    "type": "number"
+                },
+                "refund_total": {
+                    "description": "退款合计",
+                    "type": "number"
+                },
+                "spec_relations": {
+                    "description": "规格信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ProductSpecRelation"
+                    }
+                }
+            }
+        },
+        "types.DeviceListResp": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "description": "设备列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Device"
+                    }
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.ListOrderResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "订单列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Order"
+                    }
+                },
+                "pagination": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/upagination.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "types.RefundOrderListResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "退款订单列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RefundOrder"
+                    }
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.RemarkListResp": {
+            "type": "object",
+            "properties": {
+                "remarks": {
+                    "description": "备注列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Remark"
+                    }
+                },
+                "total": {
+                    "description": "备注总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.StallListResp": {
+            "type": "object",
+            "properties": {
+                "stalls": {
+                    "description": "出品部门列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Stall"
+                    }
+                },
+                "total": {
+                    "description": "出品部门总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.StoreListResp": {
+            "type": "object",
+            "properties": {
+                "stores": {
+                    "description": "门店列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Store"
+                    }
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "types.SyncStoreDeviceStatusReq": {
+            "type": "object",
+            "properties": {
+                "device_codes": {
+                    "description": "设备编号列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.UpdateOrderReq": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "金额汇总",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderAmount"
+                        }
+                    ]
+                },
+                "business_date": {
+                    "description": "营业日",
+                    "type": "string"
+                },
+                "cashier": {
+                    "description": "收银员信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderCashier"
+                        }
+                    ]
+                },
+                "channel": {
+                    "description": "下单渠道",
+                    "type": "string",
+                    "enum": [
+                        "POS",
+                        "H5",
+                        "APP"
+                    ]
+                },
+                "dining_mode": {
+                    "description": "就餐模式",
+                    "type": "string",
+                    "enum": [
+                        "DINE_IN"
+                    ]
+                },
+                "fees": {
+                    "description": "费用明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderFee"
+                    }
+                },
+                "guest_count": {
+                    "description": "用餐人数",
+                    "type": "integer"
+                },
+                "operation_logs": {
+                    "description": "操作日志",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderOperationLog"
+                    }
+                },
+                "order_no": {
+                    "description": "订单号",
+                    "type": "string"
+                },
+                "order_products": {
+                    "description": "订单商品明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderProduct"
+                    }
+                },
+                "order_status": {
+                    "description": "订单状态",
+                    "type": "string",
+                    "enum": [
+                        "PLACED",
+                        "COMPLETED",
+                        "CANCELLED"
+                    ]
+                },
+                "order_type": {
+                    "description": "订单类型",
+                    "type": "string",
+                    "enum": [
+                        "SALE",
+                        "REFUND",
+                        "PARTIAL_REFUND"
+                    ]
+                },
+                "paid_at": {
+                    "description": "支付完成时间",
+                    "type": "string"
+                },
+                "payment_status": {
+                    "description": "支付状态",
+                    "type": "string",
+                    "enum": [
+                        "UNPAID",
+                        "PAYING",
+                        "PAID",
+                        "REFUNDED"
+                    ]
+                },
+                "payments": {
+                    "description": "支付记录",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderPayment"
+                    }
+                },
+                "placed_at": {
+                    "description": "下单时间",
+                    "type": "string"
+                },
+                "placed_by": {
+                    "description": "下单人",
+                    "type": "string"
+                },
+                "pos": {
+                    "description": "POS终端信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderPOS"
+                        }
+                    ]
+                },
+                "remark": {
+                    "description": "整单备注",
+                    "type": "string"
+                },
+                "shift_no": {
+                    "description": "班次号",
+                    "type": "string"
+                },
+                "store": {
+                    "description": "门店信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderStore"
+                        }
+                    ]
+                },
+                "table_id": {
+                    "description": "桌位ID",
+                    "type": "string"
+                },
+                "table_name": {
+                    "description": "桌位名称",
+                    "type": "string"
+                },
+                "tax_rates": {
+                    "description": "税率明细",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderTaxRate"
+                    }
+                }
+            }
+        },
+        "types.UpdateRefundOrderReq": {
+            "type": "object",
+            "properties": {
+                "approved_at": {
+                    "description": "审批时间",
+                    "type": "string"
+                },
+                "approved_by": {
+                    "description": "审批人ID",
+                    "type": "string"
+                },
+                "approved_by_name": {
+                    "description": "审批人名称",
+                    "type": "string"
+                },
+                "refund_payments": {
+                    "description": "退款支付记录",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.RefundPayment"
+                    }
+                },
+                "refund_reason": {
+                    "description": "退款原因描述",
+                    "type": "string"
+                },
+                "refund_reason_code": {
+                    "description": "退款原因代码",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundReasonCode"
+                        }
+                    ]
+                },
+                "refund_status": {
+                    "description": "退款状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.RefundStatus"
+                        }
+                    ]
+                },
+                "refunded_at": {
+                    "description": "退款完成时间",
+                    "type": "string"
+                },
+                "remark": {
+                    "description": "备注",
+                    "type": "string"
+                }
+            }
+        },
+        "upagination.Pagination": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "BearerAuth": {
             "description": "Type \"Bearer\" followed by a space and the JWT token.",

@@ -9,4 +9,6 @@ logs/
 testdata/
 tmp/
 
-domain/mock/
+# Cursor
+.cursor/
+story/

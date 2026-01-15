@@ -12,7 +12,48 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/permission"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorder"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolepermission"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/routermenu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -73,7 +114,48 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			adminuser.Table: adminuser.ValidColumn,
+			additionalfee.Table:          additionalfee.ValidColumn,
+			adminuser.Table:              adminuser.ValidColumn,
+			backenduser.Table:            backenduser.ValidColumn,
+			businessconfig.Table:         businessconfig.ValidColumn,
+			category.Table:               category.ValidColumn,
+			department.Table:             department.ValidColumn,
+			device.Table:                 device.ValidColumn,
+			menu.Table:                   menu.ValidColumn,
+			menuitem.Table:               menuitem.ValidColumn,
+			merchant.Table:               merchant.ValidColumn,
+			merchantbusinesstype.Table:   merchantbusinesstype.ValidColumn,
+			merchantrenewal.Table:        merchantrenewal.ValidColumn,
+			order.Table:                  order.ValidColumn,
+			orderproduct.Table:           orderproduct.ValidColumn,
+			paymentaccount.Table:         paymentaccount.ValidColumn,
+			paymentmethod.Table:          paymentmethod.ValidColumn,
+			permission.Table:             permission.ValidColumn,
+			product.Table:                product.ValidColumn,
+			productattr.Table:            productattr.ValidColumn,
+			productattritem.Table:        productattritem.ValidColumn,
+			productattrrelation.Table:    productattrrelation.ValidColumn,
+			productspec.Table:            productspec.ValidColumn,
+			productspecrelation.Table:    productspecrelation.ValidColumn,
+			producttag.Table:             producttag.ValidColumn,
+			productunit.Table:            productunit.ValidColumn,
+			profitdistributionbill.Table: profitdistributionbill.ValidColumn,
+			profitdistributionrule.Table: profitdistributionrule.ValidColumn,
+			refundorder.Table:            refundorder.ValidColumn,
+			refundorderproduct.Table:     refundorderproduct.ValidColumn,
+			remark.Table:                 remark.ValidColumn,
+			role.Table:                   role.ValidColumn,
+			rolemenu.Table:               rolemenu.ValidColumn,
+			rolepermission.Table:         rolepermission.ValidColumn,
+			routermenu.Table:             routermenu.ValidColumn,
+			setmealdetail.Table:          setmealdetail.ValidColumn,
+			setmealgroup.Table:           setmealgroup.ValidColumn,
+			stall.Table:                  stall.ValidColumn,
+			store.Table:                  store.ValidColumn,
+			storepaymentaccount.Table:    storepaymentaccount.ValidColumn,
+			storeuser.Table:              storeuser.ValidColumn,
+			taxfee.Table:                 taxfee.ValidColumn,
+			userrole.Table:               userrole.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

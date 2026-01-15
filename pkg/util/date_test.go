@@ -126,3 +126,48 @@ func TestRequestDate(t *testing.T) {
 		rqe.True(time.Time(testReq.Date).IsZero())
 	})
 }
+
+func TestLastMonthStart(t *testing.T) {
+	lastMonthStart := LastMonthStart(time.Now())
+	t.Log(lastMonthStart)
+}
+
+func TestLastMonthEnd(t *testing.T) {
+	lastMonthEnd := LastMonthEnd(time.Now())
+	t.Log(lastMonthEnd)
+}
+
+func TestGetShortcutDateDeterministic(t *testing.T) {
+	// fix now to 2024-03-03 (Sunday)
+	fixed := time.Date(2024, 3, 3, 10, 15, 0, 0, time.Local)
+	nowFunc = func() time.Time { return fixed }
+	defer func() { nowFunc = time.Now }()
+
+	cases := []struct {
+		name     string
+		typeStr  string
+		reqStart string
+		reqEnd   string
+		expStart string
+		expEnd   string
+	}{
+		{"today", "today", "", "", "2024-03-03", "2024-03-03"},
+		{"yesterday", "yesterday", "", "", "2024-03-02", "2024-03-02"},
+		{"thisWeek", "thisWeek", "", "", "2024-02-26", "2024-03-03"},
+		{"prevWeek", "prevWeek", "", "", "2024-02-19", "2024-02-25"},
+		{"thisMonth", "thisMonth", "", "", "2024-03-01", "2024-03-03"},
+		{"prevMonth", "prevMonth", "", "", "2024-02-01", "2024-02-29"},
+		{"thisYear", "thisYear", "", "", "2024-01-01", "2025-01-01"},
+		{"prevYear", "prevYear", "", "", "2023-01-01", "2024-01-01"},
+		{"custom-empty", "custom", "", "", "2024-02-02", "2024-03-03"},
+		{"custom-specified", "custom", "2024-01-01", "2024-01-31", "2024-01-01", "2024-01-31"},
+		{"unknown-default", "unknown", "", "", "2024-02-19", "2024-02-25"},
+	}
+
+	for _, c := range cases {
+		start, end := GetShortcutDate(c.typeStr, c.reqStart, c.reqEnd)
+		if start != c.expStart || end != c.expEnd {
+			t.Fatalf("case %s: expected %s - %s, got %s - %s", c.name, c.expStart, c.expEnd, start, end)
+		}
+	}
+}

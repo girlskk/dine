@@ -44,11 +44,12 @@ func (m *ErrorHandling) Middleware() gin.HandlerFunc {
 			apiErr = errorx.New(http.StatusInternalServerError, errcode.UnknownError, err)
 		}
 
-		// 如果 Message 等于 Code 的字符串形式，说明需要翻译
-		if apiErr.ShouldTranslate() {
+		// 如果 Message 为空，则翻译错误码
+		if apiErr.IsMessageEmpty() {
 			ctx := c.Request.Context()
 			// 使用 i18n 翻译错误码
 			translated := i18n.Translate(ctx, apiErr.Code.String(), nil)
+
 			if translated != apiErr.Code.String() {
 				// 翻译成功，更新 Message
 				apiErr.Message = translated

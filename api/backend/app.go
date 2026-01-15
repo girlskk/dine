@@ -27,6 +27,7 @@ var middlewares = []string{
 	"Observability",
 	"Logger",
 	"ErrorHandling",
+	"Locale",
 	"Auth",
 }
 
@@ -39,9 +40,9 @@ type Params struct {
 	Handlers    []ugin.Handler    `group:"handlers"`
 }
 
-// @title 门店后台 API
+// @title 品牌商后台 API
 // @version 1.0
-// @description 供门店后台调用.
+// @description 供品牌商后台调用.
 
 // @securityDefinitions.apikey BearerAuth
 // @in header

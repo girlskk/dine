@@ -27,3 +27,186 @@ other = "Unknown error"
 
 [USER_NOT_FOUND]
 other = "User {{.Username}} does not exist"
+
+[CATEGORY_NAME_EXISTS]
+other = "Product category name already exists"
+
+[CATEGORY_DELETE_HAS_CHILDREN]
+other = "Product category has children, cannot delete"
+
+[CATEGORY_DELETE_HAS_PRODUCTS]
+other = "Product category has products, cannot delete"
+
+[PRODUCT_UNIT_NAME_EXISTS]
+other = "Product unit name already exists"
+
+[PRODUCT_UNIT_DELETE_HAS_PRODUCTS]
+other = "Product unit has products, cannot delete"
+
+[PRODUCT_SPEC_NAME_EXISTS]
+other = "Product spec name already exists"
+
+[PRODUCT_SPEC_DELETE_HAS_PRODUCTS]
+other = "Product spec has products, cannot delete"
+
+[PRODUCT_ATTR_NAME_EXISTS]
+other = "Product attr name already exists"
+
+[PRODUCT_ATTR_DELETE_HAS_ITEMS]
+other = "Product attr has items, cannot delete"
+
+[PRODUCT_ATTR_ITEM_DELETE_HAS_PRODUCTS]
+other = "Product attr item has products, cannot delete"
+
+[PRODUCT_BELONG_TO_SET_MEAL]
+other = "Product belongs to set meal, cannot off sale or delete"
+
+[MERCHANT_NAME_EXISTS]
+other = "Merchant name already exists"
+
+[STORE_NAME_EXISTS]
+other = "Store name already exists"
+
+[STORE_BUSINESS_HOURS_CONFLICT]
+other = "Store business hours conflict"
+
+[STORE_BUSINESS_HOURS_TIME_INVALID]
+other = "Store business hours time is invalid (start time must be earlier than end time)"
+
+[STORE_DINING_PERIOD_CONFLICT]
+other = "Store dining period time conflict"
+
+[STORE_DINING_PERIOD_TIME_INVALID]
+other = "Store dining period time is invalid (start time must be earlier than end time)"
+
+[STORE_DINING_PERIOD_NAME_EXISTS]
+other = "Store dining period name already exists"
+
+[STORE_SHIFT_TIME_CONFLICT]
+other = "Store shift time conflict"
+
+[STORE_SHIFT_TIME_TIME_INVALID]
+other = "Store shift time is invalid (start time must be earlier than end time)"
+
+[STORE_SHIFT_TIME_NAME_EXISTS]
+other = "Store shift time name already exists"
+
+[REMARK_NAME_EXISTS]
+other = "Remark name already exists"
+
+[REMARK_DELETE_SYSTEM]
+other = "Cannot delete system built-in remark"
+
+[REMARK_UPDATE_SYSTEM]
+other = "Cannot update system built-in remark"
+
+[STALL_NOT_EXISTS]
+other = "Stall does not exist"
+
+[STALL_NAME_EXISTS]
+other = "Stall name already exists"
+
+[SUPER_USER_CANNOT_DELETE]
+other = "Super administrator user cannot be deleted"
+
+[SUPER_USER_CANNOT_DISABLE]
+other = "Super administrator user cannot be disabled"
+
+[SUPER_USER_CANNOT_UPDATE]
+other = "Super administrator user cannot be updated"
+
+[USER_DISABLED]
+other = "User {{.Username}} has been disabled"
+
+[DEPARTMENT_DISABLED]
+other = "User's department has been disabled"
+
+[ROLE_DISABLED]
+other = "User's role has been disabled"
+
+[USER_ROLE_REQUIRED]
+other = "User must be assigned at least one role"
+
+[USER_DEPARTMENT_REQUIRED]
+other = "User's department cannot be empty"
+
+[USER_ROLE_TYPE_MISMATCH]
+other = "User role type mismatch"
+
+[USER_DEPARTMENT_TYPE_MISMATCH]
+other = "User department type mismatch"
+
+[PASSWORD_CANNOT_BE_EMPTY]
+other = "Password cannot be empty"
+
+[ROLE_ASSIGNED_CANNOT_DISABLE]
+other = "Role has assigned users, cannot disable"
+
+[ROLE_ASSIGNED_CANNOT_DELETE]
+other = "Role has assigned users, cannot delete"
+
+[USER_ROLE_NOT_EXISTS]
+other = "User has no assigned roles"
+
+[TIME_FORMAT_INVALID]
+other = "Time format is invalid"
+
+[TIME_RANGE_EXCEED_ONE_YEAR]
+other = "Time range cannot exceed one year"
+
+[REMARK_NOT_EXISTS]
+other = "Remark does not exist"
+
+[DEVICE_NOT_EXISTS]
+other = "Device does not exist"
+
+[DEVICE_NAME_EXISTS]
+other = "Device name already exists"
+
+[DEVICE_CODE_EXISTS]
+other = "Device code already exists"
+
+[ADDITIONAL_FEE_NOT_EXISTS]
+other = "Additional fee does not exist"
+
+[ADDITIONAL_NAME_EXISTS]
+other = "Additional fee name already exists"
+
+[TAX_FEE_NOT_EXISTS]
+other = "Tax fee does not exist"
+
+[TAX_FEE_NAME_EXISTS]
+other = "Tax fee name already exists"
+
+[TAX_FEE_SYSTEM_CANNOT_UPDATE]
+other = "System built-in tax fee cannot be updated"
+
+[TAX_FEE_SYSTEM_CANNOT_DELETE]
+other = "System built-in tax fee cannot be deleted"
+
+[USER_NAME_EXISTS]
+other = "User name already exists"
+
+[DEPARTMENT_NOT_EXISTS]
+other = "Department does not exist"
+
+[DEPARTMENT_NAME_EXISTS]
+other = "Department name already exists"
+
+[DEPARTMENT_CODE_EXISTS]
+other = "Department code already exists"
+
+[DEPARTMENT_HAS_USER_CANNOT_DISABLE]
+other = "Department has users, cannot disable"
+
+[DEPARTMENT_HAS_USER_CANNOT_DELETE]
+other = "Department has users, cannot delete"
+
+[ROLE_NOT_EXISTS]
+other = "Role does not exist"
+
+[ROLE_NAME_EXISTS]
+other = "Role name already exists"
+
+[ROLE_CODE_EXISTS]
+other = "Role code already exists"

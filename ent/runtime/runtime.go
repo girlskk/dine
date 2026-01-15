@@ -6,14 +6,121 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/additionalfee"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/adminuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/backenduser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/businessconfig"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/category"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/department"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/device"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/menuitem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchant"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantbusinesstype"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/merchantrenewal"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/order"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/orderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentaccount"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/paymentmethod"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/permission"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/product"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattr"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattritem"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productattrrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspec"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productspecrelation"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/producttag"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/productunit"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionbill"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/profitdistributionrule"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorder"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/refundorderproduct"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/remark"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/role"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolemenu"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/rolepermission"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/routermenu"
 	"gitlab.jiguang.dev/pos-dine/dine/ent/schema"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealdetail"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/setmealgroup"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/stall"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storepaymentaccount"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/storeuser"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/taxfee"
+	"gitlab.jiguang.dev/pos-dine/dine/ent/userrole"
 )
 
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	additionalfeeMixin := schema.AdditionalFee{}.Mixin()
+	additionalfeeMixinHooks2 := additionalfeeMixin[2].Hooks()
+	additionalfee.Hooks[0] = additionalfeeMixinHooks2[0]
+	additionalfeeMixinInters2 := additionalfeeMixin[2].Interceptors()
+	additionalfee.Interceptors[0] = additionalfeeMixinInters2[0]
+	additionalfeeMixinFields0 := additionalfeeMixin[0].Fields()
+	_ = additionalfeeMixinFields0
+	additionalfeeMixinFields1 := additionalfeeMixin[1].Fields()
+	_ = additionalfeeMixinFields1
+	additionalfeeMixinFields2 := additionalfeeMixin[2].Fields()
+	_ = additionalfeeMixinFields2
+	additionalfeeFields := schema.AdditionalFee{}.Fields()
+	_ = additionalfeeFields
+	// additionalfeeDescCreatedAt is the schema descriptor for created_at field.
+	additionalfeeDescCreatedAt := additionalfeeMixinFields1[0].Descriptor()
+	// additionalfee.DefaultCreatedAt holds the default value on creation for the created_at field.
+	additionalfee.DefaultCreatedAt = additionalfeeDescCreatedAt.Default.(func() time.Time)
+	// additionalfeeDescUpdatedAt is the schema descriptor for updated_at field.
+	additionalfeeDescUpdatedAt := additionalfeeMixinFields1[1].Descriptor()
+	// additionalfee.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	additionalfee.DefaultUpdatedAt = additionalfeeDescUpdatedAt.Default.(func() time.Time)
+	// additionalfee.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	additionalfee.UpdateDefaultUpdatedAt = additionalfeeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// additionalfeeDescDeletedAt is the schema descriptor for deleted_at field.
+	additionalfeeDescDeletedAt := additionalfeeMixinFields2[0].Descriptor()
+	// additionalfee.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	additionalfee.DefaultDeletedAt = additionalfeeDescDeletedAt.Default.(int64)
+	// additionalfeeDescName is the schema descriptor for name field.
+	additionalfeeDescName := additionalfeeFields[0].Descriptor()
+	// additionalfee.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	additionalfee.NameValidator = func() func(string) error {
+		validators := additionalfeeDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// additionalfeeDescIncludeInReceivable is the schema descriptor for include_in_receivable field.
+	additionalfeeDescIncludeInReceivable := additionalfeeFields[5].Descriptor()
+	// additionalfee.DefaultIncludeInReceivable holds the default value on creation for the include_in_receivable field.
+	additionalfee.DefaultIncludeInReceivable = additionalfeeDescIncludeInReceivable.Default.(bool)
+	// additionalfeeDescTaxable is the schema descriptor for taxable field.
+	additionalfeeDescTaxable := additionalfeeFields[6].Descriptor()
+	// additionalfee.DefaultTaxable holds the default value on creation for the taxable field.
+	additionalfee.DefaultTaxable = additionalfeeDescTaxable.Default.(bool)
+	// additionalfeeDescEnabled is the schema descriptor for enabled field.
+	additionalfeeDescEnabled := additionalfeeFields[10].Descriptor()
+	// additionalfee.DefaultEnabled holds the default value on creation for the enabled field.
+	additionalfee.DefaultEnabled = additionalfeeDescEnabled.Default.(bool)
+	// additionalfeeDescSortOrder is the schema descriptor for sort_order field.
+	additionalfeeDescSortOrder := additionalfeeFields[11].Descriptor()
+	// additionalfee.DefaultSortOrder holds the default value on creation for the sort_order field.
+	additionalfee.DefaultSortOrder = additionalfeeDescSortOrder.Default.(int)
+	// additionalfeeDescID is the schema descriptor for id field.
+	additionalfeeDescID := additionalfeeMixinFields0[0].Descriptor()
+	// additionalfee.DefaultID holds the default value on creation for the id field.
+	additionalfee.DefaultID = additionalfeeDescID.Default.(func() uuid.UUID)
 	adminuserMixin := schema.AdminUser{}.Mixin()
 	adminuserMixinHooks2 := adminuserMixin[2].Hooks()
 	adminuser.Hooks[0] = adminuserMixinHooks2[0]
@@ -63,10 +170,2462 @@ func init() {
 	adminuserDescHashedPassword := adminuserFields[1].Descriptor()
 	// adminuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
 	adminuser.HashedPasswordValidator = adminuserDescHashedPassword.Validators[0].(func(string) error)
+	// adminuserDescCode is the schema descriptor for code field.
+	adminuserDescCode := adminuserFields[4].Descriptor()
+	// adminuser.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	adminuser.CodeValidator = adminuserDescCode.Validators[0].(func(string) error)
+	// adminuserDescRealName is the schema descriptor for real_name field.
+	adminuserDescRealName := adminuserFields[5].Descriptor()
+	// adminuser.RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
+	adminuser.RealNameValidator = adminuserDescRealName.Validators[0].(func(string) error)
+	// adminuserDescEmail is the schema descriptor for email field.
+	adminuserDescEmail := adminuserFields[7].Descriptor()
+	// adminuser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	adminuser.EmailValidator = adminuserDescEmail.Validators[0].(func(string) error)
+	// adminuserDescPhoneNumber is the schema descriptor for phone_number field.
+	adminuserDescPhoneNumber := adminuserFields[8].Descriptor()
+	// adminuser.PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
+	adminuser.PhoneNumberValidator = adminuserDescPhoneNumber.Validators[0].(func(string) error)
+	// adminuserDescEnabled is the schema descriptor for enabled field.
+	adminuserDescEnabled := adminuserFields[9].Descriptor()
+	// adminuser.DefaultEnabled holds the default value on creation for the enabled field.
+	adminuser.DefaultEnabled = adminuserDescEnabled.Default.(bool)
+	// adminuserDescIsSuperadmin is the schema descriptor for is_superadmin field.
+	adminuserDescIsSuperadmin := adminuserFields[10].Descriptor()
+	// adminuser.DefaultIsSuperadmin holds the default value on creation for the is_superadmin field.
+	adminuser.DefaultIsSuperadmin = adminuserDescIsSuperadmin.Default.(bool)
 	// adminuserDescID is the schema descriptor for id field.
 	adminuserDescID := adminuserMixinFields0[0].Descriptor()
 	// adminuser.DefaultID holds the default value on creation for the id field.
 	adminuser.DefaultID = adminuserDescID.Default.(func() uuid.UUID)
+	backenduserMixin := schema.BackendUser{}.Mixin()
+	backenduserMixinHooks1 := backenduserMixin[1].Hooks()
+	backenduser.Hooks[0] = backenduserMixinHooks1[0]
+	backenduserMixinInters1 := backenduserMixin[1].Interceptors()
+	backenduser.Interceptors[0] = backenduserMixinInters1[0]
+	backenduserMixinFields0 := backenduserMixin[0].Fields()
+	_ = backenduserMixinFields0
+	backenduserMixinFields1 := backenduserMixin[1].Fields()
+	_ = backenduserMixinFields1
+	backenduserMixinFields2 := backenduserMixin[2].Fields()
+	_ = backenduserMixinFields2
+	backenduserFields := schema.BackendUser{}.Fields()
+	_ = backenduserFields
+	// backenduserDescCreatedAt is the schema descriptor for created_at field.
+	backenduserDescCreatedAt := backenduserMixinFields0[0].Descriptor()
+	// backenduser.DefaultCreatedAt holds the default value on creation for the created_at field.
+	backenduser.DefaultCreatedAt = backenduserDescCreatedAt.Default.(func() time.Time)
+	// backenduserDescUpdatedAt is the schema descriptor for updated_at field.
+	backenduserDescUpdatedAt := backenduserMixinFields0[1].Descriptor()
+	// backenduser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	backenduser.DefaultUpdatedAt = backenduserDescUpdatedAt.Default.(func() time.Time)
+	// backenduser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	backenduser.UpdateDefaultUpdatedAt = backenduserDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// backenduserDescDeletedAt is the schema descriptor for deleted_at field.
+	backenduserDescDeletedAt := backenduserMixinFields1[0].Descriptor()
+	// backenduser.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	backenduser.DefaultDeletedAt = backenduserDescDeletedAt.Default.(int64)
+	// backenduserDescUsername is the schema descriptor for username field.
+	backenduserDescUsername := backenduserFields[0].Descriptor()
+	// backenduser.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	backenduser.UsernameValidator = func() func(string) error {
+		validators := backenduserDescUsername.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(username string) error {
+			for _, fn := range fns {
+				if err := fn(username); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// backenduserDescHashedPassword is the schema descriptor for hashed_password field.
+	backenduserDescHashedPassword := backenduserFields[1].Descriptor()
+	// backenduser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
+	backenduser.HashedPasswordValidator = backenduserDescHashedPassword.Validators[0].(func(string) error)
+	// backenduserDescCode is the schema descriptor for code field.
+	backenduserDescCode := backenduserFields[5].Descriptor()
+	// backenduser.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	backenduser.CodeValidator = backenduserDescCode.Validators[0].(func(string) error)
+	// backenduserDescRealName is the schema descriptor for real_name field.
+	backenduserDescRealName := backenduserFields[6].Descriptor()
+	// backenduser.RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
+	backenduser.RealNameValidator = backenduserDescRealName.Validators[0].(func(string) error)
+	// backenduserDescEmail is the schema descriptor for email field.
+	backenduserDescEmail := backenduserFields[8].Descriptor()
+	// backenduser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	backenduser.EmailValidator = backenduserDescEmail.Validators[0].(func(string) error)
+	// backenduserDescPhoneNumber is the schema descriptor for phone_number field.
+	backenduserDescPhoneNumber := backenduserFields[9].Descriptor()
+	// backenduser.PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
+	backenduser.PhoneNumberValidator = backenduserDescPhoneNumber.Validators[0].(func(string) error)
+	// backenduserDescEnabled is the schema descriptor for enabled field.
+	backenduserDescEnabled := backenduserFields[10].Descriptor()
+	// backenduser.DefaultEnabled holds the default value on creation for the enabled field.
+	backenduser.DefaultEnabled = backenduserDescEnabled.Default.(bool)
+	// backenduserDescIsSuperadmin is the schema descriptor for is_superadmin field.
+	backenduserDescIsSuperadmin := backenduserFields[11].Descriptor()
+	// backenduser.DefaultIsSuperadmin holds the default value on creation for the is_superadmin field.
+	backenduser.DefaultIsSuperadmin = backenduserDescIsSuperadmin.Default.(bool)
+	// backenduserDescID is the schema descriptor for id field.
+	backenduserDescID := backenduserMixinFields2[0].Descriptor()
+	// backenduser.DefaultID holds the default value on creation for the id field.
+	backenduser.DefaultID = backenduserDescID.Default.(func() uuid.UUID)
+	businessconfigMixin := schema.BusinessConfig{}.Mixin()
+	businessconfigMixinHooks2 := businessconfigMixin[2].Hooks()
+	businessconfig.Hooks[0] = businessconfigMixinHooks2[0]
+	businessconfigMixinInters2 := businessconfigMixin[2].Interceptors()
+	businessconfig.Interceptors[0] = businessconfigMixinInters2[0]
+	businessconfigMixinFields0 := businessconfigMixin[0].Fields()
+	_ = businessconfigMixinFields0
+	businessconfigMixinFields1 := businessconfigMixin[1].Fields()
+	_ = businessconfigMixinFields1
+	businessconfigMixinFields2 := businessconfigMixin[2].Fields()
+	_ = businessconfigMixinFields2
+	businessconfigFields := schema.BusinessConfig{}.Fields()
+	_ = businessconfigFields
+	// businessconfigDescCreatedAt is the schema descriptor for created_at field.
+	businessconfigDescCreatedAt := businessconfigMixinFields1[0].Descriptor()
+	// businessconfig.DefaultCreatedAt holds the default value on creation for the created_at field.
+	businessconfig.DefaultCreatedAt = businessconfigDescCreatedAt.Default.(func() time.Time)
+	// businessconfigDescUpdatedAt is the schema descriptor for updated_at field.
+	businessconfigDescUpdatedAt := businessconfigMixinFields1[1].Descriptor()
+	// businessconfig.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	businessconfig.DefaultUpdatedAt = businessconfigDescUpdatedAt.Default.(func() time.Time)
+	// businessconfig.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	businessconfig.UpdateDefaultUpdatedAt = businessconfigDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// businessconfigDescDeletedAt is the schema descriptor for deleted_at field.
+	businessconfigDescDeletedAt := businessconfigMixinFields2[0].Descriptor()
+	// businessconfig.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	businessconfig.DefaultDeletedAt = businessconfigDescDeletedAt.Default.(int64)
+	// businessconfigDescStoreID is the schema descriptor for store_id field.
+	businessconfigDescStoreID := businessconfigFields[2].Descriptor()
+	// businessconfig.DefaultStoreID holds the default value on creation for the store_id field.
+	businessconfig.DefaultStoreID = businessconfigDescStoreID.Default.(string)
+	// businessconfigDescName is the schema descriptor for name field.
+	businessconfigDescName := businessconfigFields[4].Descriptor()
+	// businessconfig.DefaultName holds the default value on creation for the name field.
+	businessconfig.DefaultName = businessconfigDescName.Default.(string)
+	// businessconfigDescKey is the schema descriptor for key field.
+	businessconfigDescKey := businessconfigFields[6].Descriptor()
+	// businessconfig.DefaultKey holds the default value on creation for the key field.
+	businessconfig.DefaultKey = businessconfigDescKey.Default.(string)
+	// businessconfigDescValue is the schema descriptor for value field.
+	businessconfigDescValue := businessconfigFields[7].Descriptor()
+	// businessconfig.DefaultValue holds the default value on creation for the value field.
+	businessconfig.DefaultValue = businessconfigDescValue.Default.(string)
+	// businessconfigDescSort is the schema descriptor for sort field.
+	businessconfigDescSort := businessconfigFields[8].Descriptor()
+	// businessconfig.DefaultSort holds the default value on creation for the sort field.
+	businessconfig.DefaultSort = businessconfigDescSort.Default.(int32)
+	// businessconfigDescTip is the schema descriptor for tip field.
+	businessconfigDescTip := businessconfigFields[9].Descriptor()
+	// businessconfig.DefaultTip holds the default value on creation for the tip field.
+	businessconfig.DefaultTip = businessconfigDescTip.Default.(string)
+	// businessconfigDescIsDefault is the schema descriptor for is_default field.
+	businessconfigDescIsDefault := businessconfigFields[10].Descriptor()
+	// businessconfig.DefaultIsDefault holds the default value on creation for the is_default field.
+	businessconfig.DefaultIsDefault = businessconfigDescIsDefault.Default.(bool)
+	// businessconfigDescModifyStatus is the schema descriptor for modify_status field.
+	businessconfigDescModifyStatus := businessconfigFields[11].Descriptor()
+	// businessconfig.DefaultModifyStatus holds the default value on creation for the modify_status field.
+	businessconfig.DefaultModifyStatus = businessconfigDescModifyStatus.Default.(bool)
+	// businessconfigDescStatus is the schema descriptor for status field.
+	businessconfigDescStatus := businessconfigFields[12].Descriptor()
+	// businessconfig.DefaultStatus holds the default value on creation for the status field.
+	businessconfig.DefaultStatus = businessconfigDescStatus.Default.(bool)
+	// businessconfigDescID is the schema descriptor for id field.
+	businessconfigDescID := businessconfigMixinFields0[0].Descriptor()
+	// businessconfig.DefaultID holds the default value on creation for the id field.
+	businessconfig.DefaultID = businessconfigDescID.Default.(func() uuid.UUID)
+	categoryMixin := schema.Category{}.Mixin()
+	categoryMixinHooks2 := categoryMixin[2].Hooks()
+	category.Hooks[0] = categoryMixinHooks2[0]
+	categoryMixinInters2 := categoryMixin[2].Interceptors()
+	category.Interceptors[0] = categoryMixinInters2[0]
+	categoryMixinFields0 := categoryMixin[0].Fields()
+	_ = categoryMixinFields0
+	categoryMixinFields1 := categoryMixin[1].Fields()
+	_ = categoryMixinFields1
+	categoryMixinFields2 := categoryMixin[2].Fields()
+	_ = categoryMixinFields2
+	categoryFields := schema.Category{}.Fields()
+	_ = categoryFields
+	// categoryDescCreatedAt is the schema descriptor for created_at field.
+	categoryDescCreatedAt := categoryMixinFields1[0].Descriptor()
+	// category.DefaultCreatedAt holds the default value on creation for the created_at field.
+	category.DefaultCreatedAt = categoryDescCreatedAt.Default.(func() time.Time)
+	// categoryDescUpdatedAt is the schema descriptor for updated_at field.
+	categoryDescUpdatedAt := categoryMixinFields1[1].Descriptor()
+	// category.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	category.DefaultUpdatedAt = categoryDescUpdatedAt.Default.(func() time.Time)
+	// category.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	category.UpdateDefaultUpdatedAt = categoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// categoryDescDeletedAt is the schema descriptor for deleted_at field.
+	categoryDescDeletedAt := categoryMixinFields2[0].Descriptor()
+	// category.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	category.DefaultDeletedAt = categoryDescDeletedAt.Default.(int64)
+	// categoryDescName is the schema descriptor for name field.
+	categoryDescName := categoryFields[0].Descriptor()
+	// category.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	category.NameValidator = func() func(string) error {
+		validators := categoryDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// categoryDescStoreID is the schema descriptor for store_id field.
+	categoryDescStoreID := categoryFields[2].Descriptor()
+	// category.DefaultStoreID holds the default value on creation for the store_id field.
+	category.DefaultStoreID = categoryDescStoreID.Default.(func() uuid.UUID)
+	// categoryDescParentID is the schema descriptor for parent_id field.
+	categoryDescParentID := categoryFields[3].Descriptor()
+	// category.DefaultParentID holds the default value on creation for the parent_id field.
+	category.DefaultParentID = categoryDescParentID.Default.(func() uuid.UUID)
+	// categoryDescInheritTaxRate is the schema descriptor for inherit_tax_rate field.
+	categoryDescInheritTaxRate := categoryFields[4].Descriptor()
+	// category.DefaultInheritTaxRate holds the default value on creation for the inherit_tax_rate field.
+	category.DefaultInheritTaxRate = categoryDescInheritTaxRate.Default.(bool)
+	// categoryDescInheritStall is the schema descriptor for inherit_stall field.
+	categoryDescInheritStall := categoryFields[6].Descriptor()
+	// category.DefaultInheritStall holds the default value on creation for the inherit_stall field.
+	category.DefaultInheritStall = categoryDescInheritStall.Default.(bool)
+	// categoryDescProductCount is the schema descriptor for product_count field.
+	categoryDescProductCount := categoryFields[8].Descriptor()
+	// category.DefaultProductCount holds the default value on creation for the product_count field.
+	category.DefaultProductCount = categoryDescProductCount.Default.(int)
+	// categoryDescSortOrder is the schema descriptor for sort_order field.
+	categoryDescSortOrder := categoryFields[9].Descriptor()
+	// category.DefaultSortOrder holds the default value on creation for the sort_order field.
+	category.DefaultSortOrder = categoryDescSortOrder.Default.(int)
+	// categoryDescID is the schema descriptor for id field.
+	categoryDescID := categoryMixinFields0[0].Descriptor()
+	// category.DefaultID holds the default value on creation for the id field.
+	category.DefaultID = categoryDescID.Default.(func() uuid.UUID)
+	departmentMixin := schema.Department{}.Mixin()
+	departmentMixinHooks2 := departmentMixin[2].Hooks()
+	department.Hooks[0] = departmentMixinHooks2[0]
+	departmentMixinInters2 := departmentMixin[2].Interceptors()
+	department.Interceptors[0] = departmentMixinInters2[0]
+	departmentMixinFields0 := departmentMixin[0].Fields()
+	_ = departmentMixinFields0
+	departmentMixinFields1 := departmentMixin[1].Fields()
+	_ = departmentMixinFields1
+	departmentMixinFields2 := departmentMixin[2].Fields()
+	_ = departmentMixinFields2
+	departmentFields := schema.Department{}.Fields()
+	_ = departmentFields
+	// departmentDescCreatedAt is the schema descriptor for created_at field.
+	departmentDescCreatedAt := departmentMixinFields1[0].Descriptor()
+	// department.DefaultCreatedAt holds the default value on creation for the created_at field.
+	department.DefaultCreatedAt = departmentDescCreatedAt.Default.(func() time.Time)
+	// departmentDescUpdatedAt is the schema descriptor for updated_at field.
+	departmentDescUpdatedAt := departmentMixinFields1[1].Descriptor()
+	// department.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	department.DefaultUpdatedAt = departmentDescUpdatedAt.Default.(func() time.Time)
+	// department.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	department.UpdateDefaultUpdatedAt = departmentDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// departmentDescDeletedAt is the schema descriptor for deleted_at field.
+	departmentDescDeletedAt := departmentMixinFields2[0].Descriptor()
+	// department.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	department.DefaultDeletedAt = departmentDescDeletedAt.Default.(int64)
+	// departmentDescCode is the schema descriptor for code field.
+	departmentDescCode := departmentFields[1].Descriptor()
+	// department.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	department.CodeValidator = departmentDescCode.Validators[0].(func(string) error)
+	// departmentDescEnabled is the schema descriptor for enabled field.
+	departmentDescEnabled := departmentFields[3].Descriptor()
+	// department.DefaultEnabled holds the default value on creation for the enabled field.
+	department.DefaultEnabled = departmentDescEnabled.Default.(bool)
+	// departmentDescID is the schema descriptor for id field.
+	departmentDescID := departmentMixinFields0[0].Descriptor()
+	// department.DefaultID holds the default value on creation for the id field.
+	department.DefaultID = departmentDescID.Default.(func() uuid.UUID)
+	deviceMixin := schema.Device{}.Mixin()
+	deviceMixinHooks2 := deviceMixin[2].Hooks()
+	device.Hooks[0] = deviceMixinHooks2[0]
+	deviceMixinInters2 := deviceMixin[2].Interceptors()
+	device.Interceptors[0] = deviceMixinInters2[0]
+	deviceMixinFields0 := deviceMixin[0].Fields()
+	_ = deviceMixinFields0
+	deviceMixinFields1 := deviceMixin[1].Fields()
+	_ = deviceMixinFields1
+	deviceMixinFields2 := deviceMixin[2].Fields()
+	_ = deviceMixinFields2
+	deviceFields := schema.Device{}.Fields()
+	_ = deviceFields
+	// deviceDescCreatedAt is the schema descriptor for created_at field.
+	deviceDescCreatedAt := deviceMixinFields1[0].Descriptor()
+	// device.DefaultCreatedAt holds the default value on creation for the created_at field.
+	device.DefaultCreatedAt = deviceDescCreatedAt.Default.(func() time.Time)
+	// deviceDescUpdatedAt is the schema descriptor for updated_at field.
+	deviceDescUpdatedAt := deviceMixinFields1[1].Descriptor()
+	// device.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	device.DefaultUpdatedAt = deviceDescUpdatedAt.Default.(func() time.Time)
+	// device.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	device.UpdateDefaultUpdatedAt = deviceDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// deviceDescDeletedAt is the schema descriptor for deleted_at field.
+	deviceDescDeletedAt := deviceMixinFields2[0].Descriptor()
+	// device.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	device.DefaultDeletedAt = deviceDescDeletedAt.Default.(int64)
+	// deviceDescName is the schema descriptor for name field.
+	deviceDescName := deviceFields[0].Descriptor()
+	// device.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	device.NameValidator = func() func(string) error {
+		validators := deviceDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// deviceDescDeviceCode is the schema descriptor for device_code field.
+	deviceDescDeviceCode := deviceFields[4].Descriptor()
+	// device.DefaultDeviceCode holds the default value on creation for the device_code field.
+	device.DefaultDeviceCode = deviceDescDeviceCode.Default.(string)
+	// device.DeviceCodeValidator is a validator for the "device_code" field. It is called by the builders before save.
+	device.DeviceCodeValidator = deviceDescDeviceCode.Validators[0].(func(string) error)
+	// deviceDescEnabled is the schema descriptor for enabled field.
+	deviceDescEnabled := deviceFields[8].Descriptor()
+	// device.DefaultEnabled holds the default value on creation for the enabled field.
+	device.DefaultEnabled = deviceDescEnabled.Default.(bool)
+	// deviceDescIP is the schema descriptor for ip field.
+	deviceDescIP := deviceFields[10].Descriptor()
+	// device.DefaultIP holds the default value on creation for the ip field.
+	device.DefaultIP = deviceDescIP.Default.(string)
+	// device.IPValidator is a validator for the "ip" field. It is called by the builders before save.
+	device.IPValidator = deviceDescIP.Validators[0].(func(string) error)
+	// deviceDescSortOrder is the schema descriptor for sort_order field.
+	deviceDescSortOrder := deviceFields[11].Descriptor()
+	// device.DefaultSortOrder holds the default value on creation for the sort_order field.
+	device.DefaultSortOrder = deviceDescSortOrder.Default.(int)
+	// deviceDescID is the schema descriptor for id field.
+	deviceDescID := deviceMixinFields0[0].Descriptor()
+	// device.DefaultID holds the default value on creation for the id field.
+	device.DefaultID = deviceDescID.Default.(func() uuid.UUID)
+	menuMixin := schema.Menu{}.Mixin()
+	menuMixinHooks2 := menuMixin[2].Hooks()
+	menu.Hooks[0] = menuMixinHooks2[0]
+	menuMixinInters2 := menuMixin[2].Interceptors()
+	menu.Interceptors[0] = menuMixinInters2[0]
+	menuMixinFields0 := menuMixin[0].Fields()
+	_ = menuMixinFields0
+	menuMixinFields1 := menuMixin[1].Fields()
+	_ = menuMixinFields1
+	menuMixinFields2 := menuMixin[2].Fields()
+	_ = menuMixinFields2
+	menuFields := schema.Menu{}.Fields()
+	_ = menuFields
+	// menuDescCreatedAt is the schema descriptor for created_at field.
+	menuDescCreatedAt := menuMixinFields1[0].Descriptor()
+	// menu.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menu.DefaultCreatedAt = menuDescCreatedAt.Default.(func() time.Time)
+	// menuDescUpdatedAt is the schema descriptor for updated_at field.
+	menuDescUpdatedAt := menuMixinFields1[1].Descriptor()
+	// menu.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menu.DefaultUpdatedAt = menuDescUpdatedAt.Default.(func() time.Time)
+	// menu.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menu.UpdateDefaultUpdatedAt = menuDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menuDescDeletedAt is the schema descriptor for deleted_at field.
+	menuDescDeletedAt := menuMixinFields2[0].Descriptor()
+	// menu.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	menu.DefaultDeletedAt = menuDescDeletedAt.Default.(int64)
+	// menuDescStoreID is the schema descriptor for store_id field.
+	menuDescStoreID := menuFields[1].Descriptor()
+	// menu.DefaultStoreID holds the default value on creation for the store_id field.
+	menu.DefaultStoreID = menuDescStoreID.Default.(func() uuid.UUID)
+	// menuDescName is the schema descriptor for name field.
+	menuDescName := menuFields[2].Descriptor()
+	// menu.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	menu.NameValidator = func() func(string) error {
+		validators := menuDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// menuDescStoreCount is the schema descriptor for store_count field.
+	menuDescStoreCount := menuFields[3].Descriptor()
+	// menu.DefaultStoreCount holds the default value on creation for the store_count field.
+	menu.DefaultStoreCount = menuDescStoreCount.Default.(int)
+	// menuDescItemCount is the schema descriptor for item_count field.
+	menuDescItemCount := menuFields[4].Descriptor()
+	// menu.DefaultItemCount holds the default value on creation for the item_count field.
+	menu.DefaultItemCount = menuDescItemCount.Default.(int)
+	// menuDescID is the schema descriptor for id field.
+	menuDescID := menuMixinFields0[0].Descriptor()
+	// menu.DefaultID holds the default value on creation for the id field.
+	menu.DefaultID = menuDescID.Default.(func() uuid.UUID)
+	menuitemMixin := schema.MenuItem{}.Mixin()
+	menuitemMixinHooks2 := menuitemMixin[2].Hooks()
+	menuitem.Hooks[0] = menuitemMixinHooks2[0]
+	menuitemMixinInters2 := menuitemMixin[2].Interceptors()
+	menuitem.Interceptors[0] = menuitemMixinInters2[0]
+	menuitemMixinFields0 := menuitemMixin[0].Fields()
+	_ = menuitemMixinFields0
+	menuitemMixinFields1 := menuitemMixin[1].Fields()
+	_ = menuitemMixinFields1
+	menuitemMixinFields2 := menuitemMixin[2].Fields()
+	_ = menuitemMixinFields2
+	menuitemFields := schema.MenuItem{}.Fields()
+	_ = menuitemFields
+	// menuitemDescCreatedAt is the schema descriptor for created_at field.
+	menuitemDescCreatedAt := menuitemMixinFields1[0].Descriptor()
+	// menuitem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menuitem.DefaultCreatedAt = menuitemDescCreatedAt.Default.(func() time.Time)
+	// menuitemDescUpdatedAt is the schema descriptor for updated_at field.
+	menuitemDescUpdatedAt := menuitemMixinFields1[1].Descriptor()
+	// menuitem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menuitem.DefaultUpdatedAt = menuitemDescUpdatedAt.Default.(func() time.Time)
+	// menuitem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	menuitem.UpdateDefaultUpdatedAt = menuitemDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// menuitemDescDeletedAt is the schema descriptor for deleted_at field.
+	menuitemDescDeletedAt := menuitemMixinFields2[0].Descriptor()
+	// menuitem.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	menuitem.DefaultDeletedAt = menuitemDescDeletedAt.Default.(int64)
+	// menuitemDescID is the schema descriptor for id field.
+	menuitemDescID := menuitemMixinFields0[0].Descriptor()
+	// menuitem.DefaultID holds the default value on creation for the id field.
+	menuitem.DefaultID = menuitemDescID.Default.(func() uuid.UUID)
+	merchantMixin := schema.Merchant{}.Mixin()
+	merchantMixinHooks2 := merchantMixin[2].Hooks()
+	merchant.Hooks[0] = merchantMixinHooks2[0]
+	merchantMixinInters2 := merchantMixin[2].Interceptors()
+	merchant.Interceptors[0] = merchantMixinInters2[0]
+	merchantMixinFields0 := merchantMixin[0].Fields()
+	_ = merchantMixinFields0
+	merchantMixinFields1 := merchantMixin[1].Fields()
+	_ = merchantMixinFields1
+	merchantMixinFields2 := merchantMixin[2].Fields()
+	_ = merchantMixinFields2
+	merchantFields := schema.Merchant{}.Fields()
+	_ = merchantFields
+	// merchantDescCreatedAt is the schema descriptor for created_at field.
+	merchantDescCreatedAt := merchantMixinFields1[0].Descriptor()
+	// merchant.DefaultCreatedAt holds the default value on creation for the created_at field.
+	merchant.DefaultCreatedAt = merchantDescCreatedAt.Default.(func() time.Time)
+	// merchantDescUpdatedAt is the schema descriptor for updated_at field.
+	merchantDescUpdatedAt := merchantMixinFields1[1].Descriptor()
+	// merchant.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	merchant.DefaultUpdatedAt = merchantDescUpdatedAt.Default.(func() time.Time)
+	// merchant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	merchant.UpdateDefaultUpdatedAt = merchantDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// merchantDescDeletedAt is the schema descriptor for deleted_at field.
+	merchantDescDeletedAt := merchantMixinFields2[0].Descriptor()
+	// merchant.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	merchant.DefaultDeletedAt = merchantDescDeletedAt.Default.(int64)
+	// merchantDescMerchantCode is the schema descriptor for merchant_code field.
+	merchantDescMerchantCode := merchantFields[0].Descriptor()
+	// merchant.DefaultMerchantCode holds the default value on creation for the merchant_code field.
+	merchant.DefaultMerchantCode = merchantDescMerchantCode.Default.(string)
+	// merchant.MerchantCodeValidator is a validator for the "merchant_code" field. It is called by the builders before save.
+	merchant.MerchantCodeValidator = merchantDescMerchantCode.Validators[0].(func(string) error)
+	// merchantDescMerchantName is the schema descriptor for merchant_name field.
+	merchantDescMerchantName := merchantFields[1].Descriptor()
+	// merchant.DefaultMerchantName holds the default value on creation for the merchant_name field.
+	merchant.DefaultMerchantName = merchantDescMerchantName.Default.(string)
+	// merchant.MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
+	merchant.MerchantNameValidator = func() func(string) error {
+		validators := merchantDescMerchantName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_name string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// merchantDescMerchantShortName is the schema descriptor for merchant_short_name field.
+	merchantDescMerchantShortName := merchantFields[2].Descriptor()
+	// merchant.DefaultMerchantShortName holds the default value on creation for the merchant_short_name field.
+	merchant.DefaultMerchantShortName = merchantDescMerchantShortName.Default.(string)
+	// merchant.MerchantShortNameValidator is a validator for the "merchant_short_name" field. It is called by the builders before save.
+	merchant.MerchantShortNameValidator = merchantDescMerchantShortName.Validators[0].(func(string) error)
+	// merchantDescBrandName is the schema descriptor for brand_name field.
+	merchantDescBrandName := merchantFields[4].Descriptor()
+	// merchant.DefaultBrandName holds the default value on creation for the brand_name field.
+	merchant.DefaultBrandName = merchantDescBrandName.Default.(string)
+	// merchant.BrandNameValidator is a validator for the "brand_name" field. It is called by the builders before save.
+	merchant.BrandNameValidator = merchantDescBrandName.Validators[0].(func(string) error)
+	// merchantDescAdminPhoneNumber is the schema descriptor for admin_phone_number field.
+	merchantDescAdminPhoneNumber := merchantFields[5].Descriptor()
+	// merchant.DefaultAdminPhoneNumber holds the default value on creation for the admin_phone_number field.
+	merchant.DefaultAdminPhoneNumber = merchantDescAdminPhoneNumber.Default.(string)
+	// merchant.AdminPhoneNumberValidator is a validator for the "admin_phone_number" field. It is called by the builders before save.
+	merchant.AdminPhoneNumberValidator = func() func(string) error {
+		validators := merchantDescAdminPhoneNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(admin_phone_number string) error {
+			for _, fn := range fns {
+				if err := fn(admin_phone_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// merchantDescMerchantLogo is the schema descriptor for merchant_logo field.
+	merchantDescMerchantLogo := merchantFields[8].Descriptor()
+	// merchant.DefaultMerchantLogo holds the default value on creation for the merchant_logo field.
+	merchant.DefaultMerchantLogo = merchantDescMerchantLogo.Default.(string)
+	// merchant.MerchantLogoValidator is a validator for the "merchant_logo" field. It is called by the builders before save.
+	merchant.MerchantLogoValidator = merchantDescMerchantLogo.Validators[0].(func(string) error)
+	// merchantDescDescription is the schema descriptor for description field.
+	merchantDescDescription := merchantFields[9].Descriptor()
+	// merchant.DefaultDescription holds the default value on creation for the description field.
+	merchant.DefaultDescription = merchantDescDescription.Default.(string)
+	// merchant.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	merchant.DescriptionValidator = merchantDescDescription.Validators[0].(func(string) error)
+	// merchantDescAddress is the schema descriptor for address field.
+	merchantDescAddress := merchantFields[13].Descriptor()
+	// merchant.DefaultAddress holds the default value on creation for the address field.
+	merchant.DefaultAddress = merchantDescAddress.Default.(string)
+	// merchant.AddressValidator is a validator for the "address" field. It is called by the builders before save.
+	merchant.AddressValidator = merchantDescAddress.Validators[0].(func(string) error)
+	// merchantDescLng is the schema descriptor for lng field.
+	merchantDescLng := merchantFields[14].Descriptor()
+	// merchant.DefaultLng holds the default value on creation for the lng field.
+	merchant.DefaultLng = merchantDescLng.Default.(string)
+	// merchantDescLat is the schema descriptor for lat field.
+	merchantDescLat := merchantFields[15].Descriptor()
+	// merchant.DefaultLat holds the default value on creation for the lat field.
+	merchant.DefaultLat = merchantDescLat.Default.(string)
+	// merchantDescID is the schema descriptor for id field.
+	merchantDescID := merchantMixinFields0[0].Descriptor()
+	// merchant.DefaultID holds the default value on creation for the id field.
+	merchant.DefaultID = merchantDescID.Default.(func() uuid.UUID)
+	merchantbusinesstypeMixin := schema.MerchantBusinessType{}.Mixin()
+	merchantbusinesstypeMixinHooks2 := merchantbusinesstypeMixin[2].Hooks()
+	merchantbusinesstype.Hooks[0] = merchantbusinesstypeMixinHooks2[0]
+	merchantbusinesstypeMixinInters2 := merchantbusinesstypeMixin[2].Interceptors()
+	merchantbusinesstype.Interceptors[0] = merchantbusinesstypeMixinInters2[0]
+	merchantbusinesstypeMixinFields0 := merchantbusinesstypeMixin[0].Fields()
+	_ = merchantbusinesstypeMixinFields0
+	merchantbusinesstypeMixinFields1 := merchantbusinesstypeMixin[1].Fields()
+	_ = merchantbusinesstypeMixinFields1
+	merchantbusinesstypeMixinFields2 := merchantbusinesstypeMixin[2].Fields()
+	_ = merchantbusinesstypeMixinFields2
+	merchantbusinesstypeFields := schema.MerchantBusinessType{}.Fields()
+	_ = merchantbusinesstypeFields
+	// merchantbusinesstypeDescCreatedAt is the schema descriptor for created_at field.
+	merchantbusinesstypeDescCreatedAt := merchantbusinesstypeMixinFields1[0].Descriptor()
+	// merchantbusinesstype.DefaultCreatedAt holds the default value on creation for the created_at field.
+	merchantbusinesstype.DefaultCreatedAt = merchantbusinesstypeDescCreatedAt.Default.(func() time.Time)
+	// merchantbusinesstypeDescUpdatedAt is the schema descriptor for updated_at field.
+	merchantbusinesstypeDescUpdatedAt := merchantbusinesstypeMixinFields1[1].Descriptor()
+	// merchantbusinesstype.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	merchantbusinesstype.DefaultUpdatedAt = merchantbusinesstypeDescUpdatedAt.Default.(func() time.Time)
+	// merchantbusinesstype.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	merchantbusinesstype.UpdateDefaultUpdatedAt = merchantbusinesstypeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// merchantbusinesstypeDescDeletedAt is the schema descriptor for deleted_at field.
+	merchantbusinesstypeDescDeletedAt := merchantbusinesstypeMixinFields2[0].Descriptor()
+	// merchantbusinesstype.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	merchantbusinesstype.DefaultDeletedAt = merchantbusinesstypeDescDeletedAt.Default.(int64)
+	// merchantbusinesstypeDescTypeCode is the schema descriptor for type_code field.
+	merchantbusinesstypeDescTypeCode := merchantbusinesstypeFields[1].Descriptor()
+	// merchantbusinesstype.DefaultTypeCode holds the default value on creation for the type_code field.
+	merchantbusinesstype.DefaultTypeCode = merchantbusinesstypeDescTypeCode.Default.(string)
+	// merchantbusinesstype.TypeCodeValidator is a validator for the "type_code" field. It is called by the builders before save.
+	merchantbusinesstype.TypeCodeValidator = func() func(string) error {
+		validators := merchantbusinesstypeDescTypeCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(type_code string) error {
+			for _, fn := range fns {
+				if err := fn(type_code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// merchantbusinesstypeDescTypeName is the schema descriptor for type_name field.
+	merchantbusinesstypeDescTypeName := merchantbusinesstypeFields[2].Descriptor()
+	// merchantbusinesstype.DefaultTypeName holds the default value on creation for the type_name field.
+	merchantbusinesstype.DefaultTypeName = merchantbusinesstypeDescTypeName.Default.(string)
+	// merchantbusinesstype.TypeNameValidator is a validator for the "type_name" field. It is called by the builders before save.
+	merchantbusinesstype.TypeNameValidator = func() func(string) error {
+		validators := merchantbusinesstypeDescTypeName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(type_name string) error {
+			for _, fn := range fns {
+				if err := fn(type_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// merchantbusinesstypeDescID is the schema descriptor for id field.
+	merchantbusinesstypeDescID := merchantbusinesstypeMixinFields0[0].Descriptor()
+	// merchantbusinesstype.DefaultID holds the default value on creation for the id field.
+	merchantbusinesstype.DefaultID = merchantbusinesstypeDescID.Default.(func() uuid.UUID)
+	merchantrenewalMixin := schema.MerchantRenewal{}.Mixin()
+	merchantrenewalMixinHooks2 := merchantrenewalMixin[2].Hooks()
+	merchantrenewal.Hooks[0] = merchantrenewalMixinHooks2[0]
+	merchantrenewalMixinInters2 := merchantrenewalMixin[2].Interceptors()
+	merchantrenewal.Interceptors[0] = merchantrenewalMixinInters2[0]
+	merchantrenewalMixinFields0 := merchantrenewalMixin[0].Fields()
+	_ = merchantrenewalMixinFields0
+	merchantrenewalMixinFields1 := merchantrenewalMixin[1].Fields()
+	_ = merchantrenewalMixinFields1
+	merchantrenewalMixinFields2 := merchantrenewalMixin[2].Fields()
+	_ = merchantrenewalMixinFields2
+	merchantrenewalFields := schema.MerchantRenewal{}.Fields()
+	_ = merchantrenewalFields
+	// merchantrenewalDescCreatedAt is the schema descriptor for created_at field.
+	merchantrenewalDescCreatedAt := merchantrenewalMixinFields1[0].Descriptor()
+	// merchantrenewal.DefaultCreatedAt holds the default value on creation for the created_at field.
+	merchantrenewal.DefaultCreatedAt = merchantrenewalDescCreatedAt.Default.(func() time.Time)
+	// merchantrenewalDescUpdatedAt is the schema descriptor for updated_at field.
+	merchantrenewalDescUpdatedAt := merchantrenewalMixinFields1[1].Descriptor()
+	// merchantrenewal.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	merchantrenewal.DefaultUpdatedAt = merchantrenewalDescUpdatedAt.Default.(func() time.Time)
+	// merchantrenewal.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	merchantrenewal.UpdateDefaultUpdatedAt = merchantrenewalDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// merchantrenewalDescDeletedAt is the schema descriptor for deleted_at field.
+	merchantrenewalDescDeletedAt := merchantrenewalMixinFields2[0].Descriptor()
+	// merchantrenewal.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	merchantrenewal.DefaultDeletedAt = merchantrenewalDescDeletedAt.Default.(int64)
+	// merchantrenewalDescPurchaseDuration is the schema descriptor for purchase_duration field.
+	merchantrenewalDescPurchaseDuration := merchantrenewalFields[1].Descriptor()
+	// merchantrenewal.DefaultPurchaseDuration holds the default value on creation for the purchase_duration field.
+	merchantrenewal.DefaultPurchaseDuration = merchantrenewalDescPurchaseDuration.Default.(int)
+	// merchantrenewalDescOperatorName is the schema descriptor for operator_name field.
+	merchantrenewalDescOperatorName := merchantrenewalFields[3].Descriptor()
+	// merchantrenewal.DefaultOperatorName holds the default value on creation for the operator_name field.
+	merchantrenewal.DefaultOperatorName = merchantrenewalDescOperatorName.Default.(string)
+	// merchantrenewal.OperatorNameValidator is a validator for the "operator_name" field. It is called by the builders before save.
+	merchantrenewal.OperatorNameValidator = merchantrenewalDescOperatorName.Validators[0].(func(string) error)
+	// merchantrenewalDescOperatorAccount is the schema descriptor for operator_account field.
+	merchantrenewalDescOperatorAccount := merchantrenewalFields[4].Descriptor()
+	// merchantrenewal.DefaultOperatorAccount holds the default value on creation for the operator_account field.
+	merchantrenewal.DefaultOperatorAccount = merchantrenewalDescOperatorAccount.Default.(string)
+	// merchantrenewal.OperatorAccountValidator is a validator for the "operator_account" field. It is called by the builders before save.
+	merchantrenewal.OperatorAccountValidator = merchantrenewalDescOperatorAccount.Validators[0].(func(string) error)
+	// merchantrenewalDescID is the schema descriptor for id field.
+	merchantrenewalDescID := merchantrenewalMixinFields0[0].Descriptor()
+	// merchantrenewal.DefaultID holds the default value on creation for the id field.
+	merchantrenewal.DefaultID = merchantrenewalDescID.Default.(func() uuid.UUID)
+	orderMixin := schema.Order{}.Mixin()
+	orderMixinHooks2 := orderMixin[2].Hooks()
+	order.Hooks[0] = orderMixinHooks2[0]
+	orderMixinInters2 := orderMixin[2].Interceptors()
+	order.Interceptors[0] = orderMixinInters2[0]
+	orderMixinFields0 := orderMixin[0].Fields()
+	_ = orderMixinFields0
+	orderMixinFields1 := orderMixin[1].Fields()
+	_ = orderMixinFields1
+	orderMixinFields2 := orderMixin[2].Fields()
+	_ = orderMixinFields2
+	orderFields := schema.Order{}.Fields()
+	_ = orderFields
+	// orderDescCreatedAt is the schema descriptor for created_at field.
+	orderDescCreatedAt := orderMixinFields1[0].Descriptor()
+	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
+	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
+	// orderDescUpdatedAt is the schema descriptor for updated_at field.
+	orderDescUpdatedAt := orderMixinFields1[1].Descriptor()
+	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
+	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	order.UpdateDefaultUpdatedAt = orderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// orderDescDeletedAt is the schema descriptor for deleted_at field.
+	orderDescDeletedAt := orderMixinFields2[0].Descriptor()
+	// order.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	order.DefaultDeletedAt = orderDescDeletedAt.Default.(int64)
+	// orderDescBusinessDate is the schema descriptor for business_date field.
+	orderDescBusinessDate := orderFields[2].Descriptor()
+	// order.BusinessDateValidator is a validator for the "business_date" field. It is called by the builders before save.
+	order.BusinessDateValidator = orderDescBusinessDate.Validators[0].(func(string) error)
+	// orderDescOrderNo is the schema descriptor for order_no field.
+	orderDescOrderNo := orderFields[4].Descriptor()
+	// order.OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
+	order.OrderNoValidator = orderDescOrderNo.Validators[0].(func(string) error)
+	// orderDescRemark is the schema descriptor for remark field.
+	orderDescRemark := orderFields[25].Descriptor()
+	// order.RemarkValidator is a validator for the "remark" field. It is called by the builders before save.
+	order.RemarkValidator = orderDescRemark.Validators[0].(func(string) error)
+	// orderDescID is the schema descriptor for id field.
+	orderDescID := orderMixinFields0[0].Descriptor()
+	// order.DefaultID holds the default value on creation for the id field.
+	order.DefaultID = orderDescID.Default.(func() uuid.UUID)
+	orderproductMixin := schema.OrderProduct{}.Mixin()
+	orderproductMixinHooks2 := orderproductMixin[2].Hooks()
+	orderproduct.Hooks[0] = orderproductMixinHooks2[0]
+	orderproductMixinInters2 := orderproductMixin[2].Interceptors()
+	orderproduct.Interceptors[0] = orderproductMixinInters2[0]
+	orderproductMixinFields0 := orderproductMixin[0].Fields()
+	_ = orderproductMixinFields0
+	orderproductMixinFields1 := orderproductMixin[1].Fields()
+	_ = orderproductMixinFields1
+	orderproductMixinFields2 := orderproductMixin[2].Fields()
+	_ = orderproductMixinFields2
+	orderproductFields := schema.OrderProduct{}.Fields()
+	_ = orderproductFields
+	// orderproductDescCreatedAt is the schema descriptor for created_at field.
+	orderproductDescCreatedAt := orderproductMixinFields1[0].Descriptor()
+	// orderproduct.DefaultCreatedAt holds the default value on creation for the created_at field.
+	orderproduct.DefaultCreatedAt = orderproductDescCreatedAt.Default.(func() time.Time)
+	// orderproductDescUpdatedAt is the schema descriptor for updated_at field.
+	orderproductDescUpdatedAt := orderproductMixinFields1[1].Descriptor()
+	// orderproduct.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	orderproduct.DefaultUpdatedAt = orderproductDescUpdatedAt.Default.(func() time.Time)
+	// orderproduct.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	orderproduct.UpdateDefaultUpdatedAt = orderproductDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// orderproductDescDeletedAt is the schema descriptor for deleted_at field.
+	orderproductDescDeletedAt := orderproductMixinFields2[0].Descriptor()
+	// orderproduct.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	orderproduct.DefaultDeletedAt = orderproductDescDeletedAt.Default.(int64)
+	// orderproductDescOrderItemID is the schema descriptor for order_item_id field.
+	orderproductDescOrderItemID := orderproductFields[1].Descriptor()
+	// orderproduct.OrderItemIDValidator is a validator for the "order_item_id" field. It is called by the builders before save.
+	orderproduct.OrderItemIDValidator = orderproductDescOrderItemID.Validators[0].(func(string) error)
+	// orderproductDescIndex is the schema descriptor for index field.
+	orderproductDescIndex := orderproductFields[2].Descriptor()
+	// orderproduct.DefaultIndex holds the default value on creation for the index field.
+	orderproduct.DefaultIndex = orderproductDescIndex.Default.(int)
+	// orderproductDescProductName is the schema descriptor for product_name field.
+	orderproductDescProductName := orderproductFields[4].Descriptor()
+	// orderproduct.ProductNameValidator is a validator for the "product_name" field. It is called by the builders before save.
+	orderproduct.ProductNameValidator = orderproductDescProductName.Validators[0].(func(string) error)
+	// orderproductDescMainImage is the schema descriptor for main_image field.
+	orderproductDescMainImage := orderproductFields[8].Descriptor()
+	// orderproduct.DefaultMainImage holds the default value on creation for the main_image field.
+	orderproduct.DefaultMainImage = orderproductDescMainImage.Default.(string)
+	// orderproduct.MainImageValidator is a validator for the "main_image" field. It is called by the builders before save.
+	orderproduct.MainImageValidator = orderproductDescMainImage.Validators[0].(func(string) error)
+	// orderproductDescDescription is the schema descriptor for description field.
+	orderproductDescDescription := orderproductFields[9].Descriptor()
+	// orderproduct.DefaultDescription holds the default value on creation for the description field.
+	orderproduct.DefaultDescription = orderproductDescDescription.Default.(string)
+	// orderproduct.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	orderproduct.DescriptionValidator = orderproductDescDescription.Validators[0].(func(string) error)
+	// orderproductDescIsGift is the schema descriptor for is_gift field.
+	orderproductDescIsGift := orderproductFields[10].Descriptor()
+	// orderproduct.DefaultIsGift holds the default value on creation for the is_gift field.
+	orderproduct.DefaultIsGift = orderproductDescIsGift.Default.(bool)
+	// orderproductDescQty is the schema descriptor for qty field.
+	orderproductDescQty := orderproductFields[11].Descriptor()
+	// orderproduct.DefaultQty holds the default value on creation for the qty field.
+	orderproduct.DefaultQty = orderproductDescQty.Default.(int)
+	// orderproductDescGiftQty is the schema descriptor for gift_qty field.
+	orderproductDescGiftQty := orderproductFields[12].Descriptor()
+	// orderproduct.DefaultGiftQty holds the default value on creation for the gift_qty field.
+	orderproduct.DefaultGiftQty = orderproductDescGiftQty.Default.(int)
+	// orderproductDescVoidQty is the schema descriptor for void_qty field.
+	orderproductDescVoidQty := orderproductFields[23].Descriptor()
+	// orderproduct.DefaultVoidQty holds the default value on creation for the void_qty field.
+	orderproduct.DefaultVoidQty = orderproductDescVoidQty.Default.(int)
+	// orderproductDescID is the schema descriptor for id field.
+	orderproductDescID := orderproductMixinFields0[0].Descriptor()
+	// orderproduct.DefaultID holds the default value on creation for the id field.
+	orderproduct.DefaultID = orderproductDescID.Default.(func() uuid.UUID)
+	paymentaccountMixin := schema.PaymentAccount{}.Mixin()
+	paymentaccountMixinHooks2 := paymentaccountMixin[2].Hooks()
+	paymentaccount.Hooks[0] = paymentaccountMixinHooks2[0]
+	paymentaccountMixinInters2 := paymentaccountMixin[2].Interceptors()
+	paymentaccount.Interceptors[0] = paymentaccountMixinInters2[0]
+	paymentaccountMixinFields0 := paymentaccountMixin[0].Fields()
+	_ = paymentaccountMixinFields0
+	paymentaccountMixinFields1 := paymentaccountMixin[1].Fields()
+	_ = paymentaccountMixinFields1
+	paymentaccountMixinFields2 := paymentaccountMixin[2].Fields()
+	_ = paymentaccountMixinFields2
+	paymentaccountFields := schema.PaymentAccount{}.Fields()
+	_ = paymentaccountFields
+	// paymentaccountDescCreatedAt is the schema descriptor for created_at field.
+	paymentaccountDescCreatedAt := paymentaccountMixinFields1[0].Descriptor()
+	// paymentaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	paymentaccount.DefaultCreatedAt = paymentaccountDescCreatedAt.Default.(func() time.Time)
+	// paymentaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	paymentaccountDescUpdatedAt := paymentaccountMixinFields1[1].Descriptor()
+	// paymentaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	paymentaccount.DefaultUpdatedAt = paymentaccountDescUpdatedAt.Default.(func() time.Time)
+	// paymentaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	paymentaccount.UpdateDefaultUpdatedAt = paymentaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// paymentaccountDescDeletedAt is the schema descriptor for deleted_at field.
+	paymentaccountDescDeletedAt := paymentaccountMixinFields2[0].Descriptor()
+	// paymentaccount.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	paymentaccount.DefaultDeletedAt = paymentaccountDescDeletedAt.Default.(int64)
+	// paymentaccountDescMerchantNumber is the schema descriptor for merchant_number field.
+	paymentaccountDescMerchantNumber := paymentaccountFields[2].Descriptor()
+	// paymentaccount.MerchantNumberValidator is a validator for the "merchant_number" field. It is called by the builders before save.
+	paymentaccount.MerchantNumberValidator = func() func(string) error {
+		validators := paymentaccountDescMerchantNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_number string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// paymentaccountDescMerchantName is the schema descriptor for merchant_name field.
+	paymentaccountDescMerchantName := paymentaccountFields[3].Descriptor()
+	// paymentaccount.MerchantNameValidator is a validator for the "merchant_name" field. It is called by the builders before save.
+	paymentaccount.MerchantNameValidator = func() func(string) error {
+		validators := paymentaccountDescMerchantName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_name string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// paymentaccountDescIsDefault is the schema descriptor for is_default field.
+	paymentaccountDescIsDefault := paymentaccountFields[4].Descriptor()
+	// paymentaccount.DefaultIsDefault holds the default value on creation for the is_default field.
+	paymentaccount.DefaultIsDefault = paymentaccountDescIsDefault.Default.(bool)
+	// paymentaccountDescID is the schema descriptor for id field.
+	paymentaccountDescID := paymentaccountMixinFields0[0].Descriptor()
+	// paymentaccount.DefaultID holds the default value on creation for the id field.
+	paymentaccount.DefaultID = paymentaccountDescID.Default.(func() uuid.UUID)
+	paymentmethodMixin := schema.PaymentMethod{}.Mixin()
+	paymentmethodMixinHooks2 := paymentmethodMixin[2].Hooks()
+	paymentmethod.Hooks[0] = paymentmethodMixinHooks2[0]
+	paymentmethodMixinInters2 := paymentmethodMixin[2].Interceptors()
+	paymentmethod.Interceptors[0] = paymentmethodMixinInters2[0]
+	paymentmethodMixinFields0 := paymentmethodMixin[0].Fields()
+	_ = paymentmethodMixinFields0
+	paymentmethodMixinFields1 := paymentmethodMixin[1].Fields()
+	_ = paymentmethodMixinFields1
+	paymentmethodMixinFields2 := paymentmethodMixin[2].Fields()
+	_ = paymentmethodMixinFields2
+	paymentmethodFields := schema.PaymentMethod{}.Fields()
+	_ = paymentmethodFields
+	// paymentmethodDescCreatedAt is the schema descriptor for created_at field.
+	paymentmethodDescCreatedAt := paymentmethodMixinFields1[0].Descriptor()
+	// paymentmethod.DefaultCreatedAt holds the default value on creation for the created_at field.
+	paymentmethod.DefaultCreatedAt = paymentmethodDescCreatedAt.Default.(func() time.Time)
+	// paymentmethodDescUpdatedAt is the schema descriptor for updated_at field.
+	paymentmethodDescUpdatedAt := paymentmethodMixinFields1[1].Descriptor()
+	// paymentmethod.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	paymentmethod.DefaultUpdatedAt = paymentmethodDescUpdatedAt.Default.(func() time.Time)
+	// paymentmethod.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	paymentmethod.UpdateDefaultUpdatedAt = paymentmethodDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// paymentmethodDescDeletedAt is the schema descriptor for deleted_at field.
+	paymentmethodDescDeletedAt := paymentmethodMixinFields2[0].Descriptor()
+	// paymentmethod.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	paymentmethod.DefaultDeletedAt = paymentmethodDescDeletedAt.Default.(int64)
+	// paymentmethodDescName is the schema descriptor for name field.
+	paymentmethodDescName := paymentmethodFields[3].Descriptor()
+	// paymentmethod.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	paymentmethod.NameValidator = func() func(string) error {
+		validators := paymentmethodDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// paymentmethodDescCashDrawerStatus is the schema descriptor for cash_drawer_status field.
+	paymentmethodDescCashDrawerStatus := paymentmethodFields[8].Descriptor()
+	// paymentmethod.DefaultCashDrawerStatus holds the default value on creation for the cash_drawer_status field.
+	paymentmethod.DefaultCashDrawerStatus = paymentmethodDescCashDrawerStatus.Default.(bool)
+	// paymentmethodDescStatus is the schema descriptor for status field.
+	paymentmethodDescStatus := paymentmethodFields[11].Descriptor()
+	// paymentmethod.DefaultStatus holds the default value on creation for the status field.
+	paymentmethod.DefaultStatus = paymentmethodDescStatus.Default.(bool)
+	// paymentmethodDescID is the schema descriptor for id field.
+	paymentmethodDescID := paymentmethodMixinFields0[0].Descriptor()
+	// paymentmethod.DefaultID holds the default value on creation for the id field.
+	paymentmethod.DefaultID = paymentmethodDescID.Default.(func() uuid.UUID)
+	permissionMixin := schema.Permission{}.Mixin()
+	permissionMixinHooks2 := permissionMixin[2].Hooks()
+	permission.Hooks[0] = permissionMixinHooks2[0]
+	permissionMixinInters2 := permissionMixin[2].Interceptors()
+	permission.Interceptors[0] = permissionMixinInters2[0]
+	permissionMixinFields0 := permissionMixin[0].Fields()
+	_ = permissionMixinFields0
+	permissionMixinFields1 := permissionMixin[1].Fields()
+	_ = permissionMixinFields1
+	permissionMixinFields2 := permissionMixin[2].Fields()
+	_ = permissionMixinFields2
+	permissionFields := schema.Permission{}.Fields()
+	_ = permissionFields
+	// permissionDescCreatedAt is the schema descriptor for created_at field.
+	permissionDescCreatedAt := permissionMixinFields1[0].Descriptor()
+	// permission.DefaultCreatedAt holds the default value on creation for the created_at field.
+	permission.DefaultCreatedAt = permissionDescCreatedAt.Default.(func() time.Time)
+	// permissionDescUpdatedAt is the schema descriptor for updated_at field.
+	permissionDescUpdatedAt := permissionMixinFields1[1].Descriptor()
+	// permission.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	permission.DefaultUpdatedAt = permissionDescUpdatedAt.Default.(func() time.Time)
+	// permission.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	permission.UpdateDefaultUpdatedAt = permissionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// permissionDescDeletedAt is the schema descriptor for deleted_at field.
+	permissionDescDeletedAt := permissionMixinFields2[0].Descriptor()
+	// permission.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	permission.DefaultDeletedAt = permissionDescDeletedAt.Default.(int64)
+	// permissionDescPermCode is the schema descriptor for perm_code field.
+	permissionDescPermCode := permissionFields[1].Descriptor()
+	// permission.PermCodeValidator is a validator for the "perm_code" field. It is called by the builders before save.
+	permission.PermCodeValidator = func() func(string) error {
+		validators := permissionDescPermCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(perm_code string) error {
+			for _, fn := range fns {
+				if err := fn(perm_code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// permissionDescName is the schema descriptor for name field.
+	permissionDescName := permissionFields[2].Descriptor()
+	// permission.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	permission.NameValidator = func() func(string) error {
+		validators := permissionDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// permissionDescMethod is the schema descriptor for method field.
+	permissionDescMethod := permissionFields[3].Descriptor()
+	// permission.MethodValidator is a validator for the "method" field. It is called by the builders before save.
+	permission.MethodValidator = func() func(string) error {
+		validators := permissionDescMethod.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(method string) error {
+			for _, fn := range fns {
+				if err := fn(method); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// permissionDescPath is the schema descriptor for path field.
+	permissionDescPath := permissionFields[4].Descriptor()
+	// permission.PathValidator is a validator for the "path" field. It is called by the builders before save.
+	permission.PathValidator = func() func(string) error {
+		validators := permissionDescPath.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(_path string) error {
+			for _, fn := range fns {
+				if err := fn(_path); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// permissionDescEnabled is the schema descriptor for enabled field.
+	permissionDescEnabled := permissionFields[5].Descriptor()
+	// permission.DefaultEnabled holds the default value on creation for the enabled field.
+	permission.DefaultEnabled = permissionDescEnabled.Default.(bool)
+	// permissionDescID is the schema descriptor for id field.
+	permissionDescID := permissionMixinFields0[0].Descriptor()
+	// permission.DefaultID holds the default value on creation for the id field.
+	permission.DefaultID = permissionDescID.Default.(func() uuid.UUID)
+	productMixin := schema.Product{}.Mixin()
+	productMixinHooks2 := productMixin[2].Hooks()
+	product.Hooks[0] = productMixinHooks2[0]
+	productMixinInters2 := productMixin[2].Interceptors()
+	product.Interceptors[0] = productMixinInters2[0]
+	productMixinFields0 := productMixin[0].Fields()
+	_ = productMixinFields0
+	productMixinFields1 := productMixin[1].Fields()
+	_ = productMixinFields1
+	productMixinFields2 := productMixin[2].Fields()
+	_ = productMixinFields2
+	productFields := schema.Product{}.Fields()
+	_ = productFields
+	// productDescCreatedAt is the schema descriptor for created_at field.
+	productDescCreatedAt := productMixinFields1[0].Descriptor()
+	// product.DefaultCreatedAt holds the default value on creation for the created_at field.
+	product.DefaultCreatedAt = productDescCreatedAt.Default.(func() time.Time)
+	// productDescUpdatedAt is the schema descriptor for updated_at field.
+	productDescUpdatedAt := productMixinFields1[1].Descriptor()
+	// product.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	product.DefaultUpdatedAt = productDescUpdatedAt.Default.(func() time.Time)
+	// product.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	product.UpdateDefaultUpdatedAt = productDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productDescDeletedAt is the schema descriptor for deleted_at field.
+	productDescDeletedAt := productMixinFields2[0].Descriptor()
+	// product.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	product.DefaultDeletedAt = productDescDeletedAt.Default.(int64)
+	// productDescName is the schema descriptor for name field.
+	productDescName := productFields[1].Descriptor()
+	// product.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	product.NameValidator = func() func(string) error {
+		validators := productDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productDescMnemonic is the schema descriptor for mnemonic field.
+	productDescMnemonic := productFields[4].Descriptor()
+	// product.DefaultMnemonic holds the default value on creation for the mnemonic field.
+	product.DefaultMnemonic = productDescMnemonic.Default.(string)
+	// product.MnemonicValidator is a validator for the "mnemonic" field. It is called by the builders before save.
+	product.MnemonicValidator = productDescMnemonic.Validators[0].(func(string) error)
+	// productDescShelfLife is the schema descriptor for shelf_life field.
+	productDescShelfLife := productFields[5].Descriptor()
+	// product.DefaultShelfLife holds the default value on creation for the shelf_life field.
+	product.DefaultShelfLife = productDescShelfLife.Default.(int)
+	// productDescInheritTaxRate is the schema descriptor for inherit_tax_rate field.
+	productDescInheritTaxRate := productFields[15].Descriptor()
+	// product.DefaultInheritTaxRate holds the default value on creation for the inherit_tax_rate field.
+	product.DefaultInheritTaxRate = productDescInheritTaxRate.Default.(bool)
+	// productDescInheritStall is the schema descriptor for inherit_stall field.
+	productDescInheritStall := productFields[17].Descriptor()
+	// product.DefaultInheritStall holds the default value on creation for the inherit_stall field.
+	product.DefaultInheritStall = productDescInheritStall.Default.(bool)
+	// productDescMainImage is the schema descriptor for main_image field.
+	productDescMainImage := productFields[19].Descriptor()
+	// product.DefaultMainImage holds the default value on creation for the main_image field.
+	product.DefaultMainImage = productDescMainImage.Default.(string)
+	// product.MainImageValidator is a validator for the "main_image" field. It is called by the builders before save.
+	product.MainImageValidator = productDescMainImage.Validators[0].(func(string) error)
+	// productDescDescription is the schema descriptor for description field.
+	productDescDescription := productFields[21].Descriptor()
+	// product.DefaultDescription holds the default value on creation for the description field.
+	product.DefaultDescription = productDescDescription.Default.(string)
+	// product.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	product.DescriptionValidator = productDescDescription.Validators[0].(func(string) error)
+	// productDescStoreID is the schema descriptor for store_id field.
+	productDescStoreID := productFields[25].Descriptor()
+	// product.DefaultStoreID holds the default value on creation for the store_id field.
+	product.DefaultStoreID = productDescStoreID.Default.(func() uuid.UUID)
+	// productDescID is the schema descriptor for id field.
+	productDescID := productMixinFields0[0].Descriptor()
+	// product.DefaultID holds the default value on creation for the id field.
+	product.DefaultID = productDescID.Default.(func() uuid.UUID)
+	productattrMixin := schema.ProductAttr{}.Mixin()
+	productattrMixinHooks2 := productattrMixin[2].Hooks()
+	productattr.Hooks[0] = productattrMixinHooks2[0]
+	productattrMixinInters2 := productattrMixin[2].Interceptors()
+	productattr.Interceptors[0] = productattrMixinInters2[0]
+	productattrMixinFields0 := productattrMixin[0].Fields()
+	_ = productattrMixinFields0
+	productattrMixinFields1 := productattrMixin[1].Fields()
+	_ = productattrMixinFields1
+	productattrMixinFields2 := productattrMixin[2].Fields()
+	_ = productattrMixinFields2
+	productattrFields := schema.ProductAttr{}.Fields()
+	_ = productattrFields
+	// productattrDescCreatedAt is the schema descriptor for created_at field.
+	productattrDescCreatedAt := productattrMixinFields1[0].Descriptor()
+	// productattr.DefaultCreatedAt holds the default value on creation for the created_at field.
+	productattr.DefaultCreatedAt = productattrDescCreatedAt.Default.(func() time.Time)
+	// productattrDescUpdatedAt is the schema descriptor for updated_at field.
+	productattrDescUpdatedAt := productattrMixinFields1[1].Descriptor()
+	// productattr.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	productattr.DefaultUpdatedAt = productattrDescUpdatedAt.Default.(func() time.Time)
+	// productattr.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	productattr.UpdateDefaultUpdatedAt = productattrDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productattrDescDeletedAt is the schema descriptor for deleted_at field.
+	productattrDescDeletedAt := productattrMixinFields2[0].Descriptor()
+	// productattr.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	productattr.DefaultDeletedAt = productattrDescDeletedAt.Default.(int64)
+	// productattrDescName is the schema descriptor for name field.
+	productattrDescName := productattrFields[0].Descriptor()
+	// productattr.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	productattr.NameValidator = func() func(string) error {
+		validators := productattrDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productattrDescStoreID is the schema descriptor for store_id field.
+	productattrDescStoreID := productattrFields[3].Descriptor()
+	// productattr.DefaultStoreID holds the default value on creation for the store_id field.
+	productattr.DefaultStoreID = productattrDescStoreID.Default.(func() uuid.UUID)
+	// productattrDescProductCount is the schema descriptor for product_count field.
+	productattrDescProductCount := productattrFields[4].Descriptor()
+	// productattr.DefaultProductCount holds the default value on creation for the product_count field.
+	productattr.DefaultProductCount = productattrDescProductCount.Default.(int)
+	// productattrDescID is the schema descriptor for id field.
+	productattrDescID := productattrMixinFields0[0].Descriptor()
+	// productattr.DefaultID holds the default value on creation for the id field.
+	productattr.DefaultID = productattrDescID.Default.(func() uuid.UUID)
+	productattritemMixin := schema.ProductAttrItem{}.Mixin()
+	productattritemMixinHooks2 := productattritemMixin[2].Hooks()
+	productattritem.Hooks[0] = productattritemMixinHooks2[0]
+	productattritemMixinInters2 := productattritemMixin[2].Interceptors()
+	productattritem.Interceptors[0] = productattritemMixinInters2[0]
+	productattritemMixinFields0 := productattritemMixin[0].Fields()
+	_ = productattritemMixinFields0
+	productattritemMixinFields1 := productattritemMixin[1].Fields()
+	_ = productattritemMixinFields1
+	productattritemMixinFields2 := productattritemMixin[2].Fields()
+	_ = productattritemMixinFields2
+	productattritemFields := schema.ProductAttrItem{}.Fields()
+	_ = productattritemFields
+	// productattritemDescCreatedAt is the schema descriptor for created_at field.
+	productattritemDescCreatedAt := productattritemMixinFields1[0].Descriptor()
+	// productattritem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	productattritem.DefaultCreatedAt = productattritemDescCreatedAt.Default.(func() time.Time)
+	// productattritemDescUpdatedAt is the schema descriptor for updated_at field.
+	productattritemDescUpdatedAt := productattritemMixinFields1[1].Descriptor()
+	// productattritem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	productattritem.DefaultUpdatedAt = productattritemDescUpdatedAt.Default.(func() time.Time)
+	// productattritem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	productattritem.UpdateDefaultUpdatedAt = productattritemDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productattritemDescDeletedAt is the schema descriptor for deleted_at field.
+	productattritemDescDeletedAt := productattritemMixinFields2[0].Descriptor()
+	// productattritem.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	productattritem.DefaultDeletedAt = productattritemDescDeletedAt.Default.(int64)
+	// productattritemDescName is the schema descriptor for name field.
+	productattritemDescName := productattritemFields[1].Descriptor()
+	// productattritem.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	productattritem.NameValidator = func() func(string) error {
+		validators := productattritemDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productattritemDescImage is the schema descriptor for image field.
+	productattritemDescImage := productattritemFields[2].Descriptor()
+	// productattritem.DefaultImage holds the default value on creation for the image field.
+	productattritem.DefaultImage = productattritemDescImage.Default.(string)
+	// productattritem.ImageValidator is a validator for the "image" field. It is called by the builders before save.
+	productattritem.ImageValidator = productattritemDescImage.Validators[0].(func(string) error)
+	// productattritemDescBasePrice is the schema descriptor for base_price field.
+	productattritemDescBasePrice := productattritemFields[3].Descriptor()
+	// productattritem.DefaultBasePrice holds the default value on creation for the base_price field.
+	productattritem.DefaultBasePrice = productattritemDescBasePrice.Default.(decimal.Decimal)
+	// productattritemDescProductCount is the schema descriptor for product_count field.
+	productattritemDescProductCount := productattritemFields[4].Descriptor()
+	// productattritem.DefaultProductCount holds the default value on creation for the product_count field.
+	productattritem.DefaultProductCount = productattritemDescProductCount.Default.(int)
+	// productattritemDescID is the schema descriptor for id field.
+	productattritemDescID := productattritemMixinFields0[0].Descriptor()
+	// productattritem.DefaultID holds the default value on creation for the id field.
+	productattritem.DefaultID = productattritemDescID.Default.(func() uuid.UUID)
+	productattrrelationMixin := schema.ProductAttrRelation{}.Mixin()
+	productattrrelationMixinHooks2 := productattrrelationMixin[2].Hooks()
+	productattrrelation.Hooks[0] = productattrrelationMixinHooks2[0]
+	productattrrelationMixinInters2 := productattrrelationMixin[2].Interceptors()
+	productattrrelation.Interceptors[0] = productattrrelationMixinInters2[0]
+	productattrrelationMixinFields0 := productattrrelationMixin[0].Fields()
+	_ = productattrrelationMixinFields0
+	productattrrelationMixinFields1 := productattrrelationMixin[1].Fields()
+	_ = productattrrelationMixinFields1
+	productattrrelationMixinFields2 := productattrrelationMixin[2].Fields()
+	_ = productattrrelationMixinFields2
+	productattrrelationFields := schema.ProductAttrRelation{}.Fields()
+	_ = productattrrelationFields
+	// productattrrelationDescCreatedAt is the schema descriptor for created_at field.
+	productattrrelationDescCreatedAt := productattrrelationMixinFields1[0].Descriptor()
+	// productattrrelation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	productattrrelation.DefaultCreatedAt = productattrrelationDescCreatedAt.Default.(func() time.Time)
+	// productattrrelationDescUpdatedAt is the schema descriptor for updated_at field.
+	productattrrelationDescUpdatedAt := productattrrelationMixinFields1[1].Descriptor()
+	// productattrrelation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	productattrrelation.DefaultUpdatedAt = productattrrelationDescUpdatedAt.Default.(func() time.Time)
+	// productattrrelation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	productattrrelation.UpdateDefaultUpdatedAt = productattrrelationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productattrrelationDescDeletedAt is the schema descriptor for deleted_at field.
+	productattrrelationDescDeletedAt := productattrrelationMixinFields2[0].Descriptor()
+	// productattrrelation.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	productattrrelation.DefaultDeletedAt = productattrrelationDescDeletedAt.Default.(int64)
+	// productattrrelationDescIsDefault is the schema descriptor for is_default field.
+	productattrrelationDescIsDefault := productattrrelationFields[3].Descriptor()
+	// productattrrelation.DefaultIsDefault holds the default value on creation for the is_default field.
+	productattrrelation.DefaultIsDefault = productattrrelationDescIsDefault.Default.(bool)
+	// productattrrelationDescID is the schema descriptor for id field.
+	productattrrelationDescID := productattrrelationMixinFields0[0].Descriptor()
+	// productattrrelation.DefaultID holds the default value on creation for the id field.
+	productattrrelation.DefaultID = productattrrelationDescID.Default.(func() uuid.UUID)
+	productspecMixin := schema.ProductSpec{}.Mixin()
+	productspecMixinHooks2 := productspecMixin[2].Hooks()
+	productspec.Hooks[0] = productspecMixinHooks2[0]
+	productspecMixinInters2 := productspecMixin[2].Interceptors()
+	productspec.Interceptors[0] = productspecMixinInters2[0]
+	productspecMixinFields0 := productspecMixin[0].Fields()
+	_ = productspecMixinFields0
+	productspecMixinFields1 := productspecMixin[1].Fields()
+	_ = productspecMixinFields1
+	productspecMixinFields2 := productspecMixin[2].Fields()
+	_ = productspecMixinFields2
+	productspecFields := schema.ProductSpec{}.Fields()
+	_ = productspecFields
+	// productspecDescCreatedAt is the schema descriptor for created_at field.
+	productspecDescCreatedAt := productspecMixinFields1[0].Descriptor()
+	// productspec.DefaultCreatedAt holds the default value on creation for the created_at field.
+	productspec.DefaultCreatedAt = productspecDescCreatedAt.Default.(func() time.Time)
+	// productspecDescUpdatedAt is the schema descriptor for updated_at field.
+	productspecDescUpdatedAt := productspecMixinFields1[1].Descriptor()
+	// productspec.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	productspec.DefaultUpdatedAt = productspecDescUpdatedAt.Default.(func() time.Time)
+	// productspec.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	productspec.UpdateDefaultUpdatedAt = productspecDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productspecDescDeletedAt is the schema descriptor for deleted_at field.
+	productspecDescDeletedAt := productspecMixinFields2[0].Descriptor()
+	// productspec.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	productspec.DefaultDeletedAt = productspecDescDeletedAt.Default.(int64)
+	// productspecDescName is the schema descriptor for name field.
+	productspecDescName := productspecFields[0].Descriptor()
+	// productspec.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	productspec.NameValidator = func() func(string) error {
+		validators := productspecDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productspecDescStoreID is the schema descriptor for store_id field.
+	productspecDescStoreID := productspecFields[2].Descriptor()
+	// productspec.DefaultStoreID holds the default value on creation for the store_id field.
+	productspec.DefaultStoreID = productspecDescStoreID.Default.(func() uuid.UUID)
+	// productspecDescProductCount is the schema descriptor for product_count field.
+	productspecDescProductCount := productspecFields[3].Descriptor()
+	// productspec.DefaultProductCount holds the default value on creation for the product_count field.
+	productspec.DefaultProductCount = productspecDescProductCount.Default.(int)
+	// productspecDescID is the schema descriptor for id field.
+	productspecDescID := productspecMixinFields0[0].Descriptor()
+	// productspec.DefaultID holds the default value on creation for the id field.
+	productspec.DefaultID = productspecDescID.Default.(func() uuid.UUID)
+	productspecrelationMixin := schema.ProductSpecRelation{}.Mixin()
+	productspecrelationMixinHooks2 := productspecrelationMixin[2].Hooks()
+	productspecrelation.Hooks[0] = productspecrelationMixinHooks2[0]
+	productspecrelationMixinInters2 := productspecrelationMixin[2].Interceptors()
+	productspecrelation.Interceptors[0] = productspecrelationMixinInters2[0]
+	productspecrelationMixinFields0 := productspecrelationMixin[0].Fields()
+	_ = productspecrelationMixinFields0
+	productspecrelationMixinFields1 := productspecrelationMixin[1].Fields()
+	_ = productspecrelationMixinFields1
+	productspecrelationMixinFields2 := productspecrelationMixin[2].Fields()
+	_ = productspecrelationMixinFields2
+	productspecrelationFields := schema.ProductSpecRelation{}.Fields()
+	_ = productspecrelationFields
+	// productspecrelationDescCreatedAt is the schema descriptor for created_at field.
+	productspecrelationDescCreatedAt := productspecrelationMixinFields1[0].Descriptor()
+	// productspecrelation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	productspecrelation.DefaultCreatedAt = productspecrelationDescCreatedAt.Default.(func() time.Time)
+	// productspecrelationDescUpdatedAt is the schema descriptor for updated_at field.
+	productspecrelationDescUpdatedAt := productspecrelationMixinFields1[1].Descriptor()
+	// productspecrelation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	productspecrelation.DefaultUpdatedAt = productspecrelationDescUpdatedAt.Default.(func() time.Time)
+	// productspecrelation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	productspecrelation.UpdateDefaultUpdatedAt = productspecrelationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productspecrelationDescDeletedAt is the schema descriptor for deleted_at field.
+	productspecrelationDescDeletedAt := productspecrelationMixinFields2[0].Descriptor()
+	// productspecrelation.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	productspecrelation.DefaultDeletedAt = productspecrelationDescDeletedAt.Default.(int64)
+	// productspecrelationDescBasePrice is the schema descriptor for base_price field.
+	productspecrelationDescBasePrice := productspecrelationFields[2].Descriptor()
+	// productspecrelation.DefaultBasePrice holds the default value on creation for the base_price field.
+	productspecrelation.DefaultBasePrice = productspecrelationDescBasePrice.Default.(decimal.Decimal)
+	// productspecrelationDescBarcode is the schema descriptor for barcode field.
+	productspecrelationDescBarcode := productspecrelationFields[9].Descriptor()
+	// productspecrelation.DefaultBarcode holds the default value on creation for the barcode field.
+	productspecrelation.DefaultBarcode = productspecrelationDescBarcode.Default.(string)
+	// productspecrelation.BarcodeValidator is a validator for the "barcode" field. It is called by the builders before save.
+	productspecrelation.BarcodeValidator = productspecrelationDescBarcode.Validators[0].(func(string) error)
+	// productspecrelationDescIsDefault is the schema descriptor for is_default field.
+	productspecrelationDescIsDefault := productspecrelationFields[10].Descriptor()
+	// productspecrelation.DefaultIsDefault holds the default value on creation for the is_default field.
+	productspecrelation.DefaultIsDefault = productspecrelationDescIsDefault.Default.(bool)
+	// productspecrelationDescID is the schema descriptor for id field.
+	productspecrelationDescID := productspecrelationMixinFields0[0].Descriptor()
+	// productspecrelation.DefaultID holds the default value on creation for the id field.
+	productspecrelation.DefaultID = productspecrelationDescID.Default.(func() uuid.UUID)
+	producttagMixin := schema.ProductTag{}.Mixin()
+	producttagMixinHooks2 := producttagMixin[2].Hooks()
+	producttag.Hooks[0] = producttagMixinHooks2[0]
+	producttagMixinInters2 := producttagMixin[2].Interceptors()
+	producttag.Interceptors[0] = producttagMixinInters2[0]
+	producttagMixinFields0 := producttagMixin[0].Fields()
+	_ = producttagMixinFields0
+	producttagMixinFields1 := producttagMixin[1].Fields()
+	_ = producttagMixinFields1
+	producttagMixinFields2 := producttagMixin[2].Fields()
+	_ = producttagMixinFields2
+	producttagFields := schema.ProductTag{}.Fields()
+	_ = producttagFields
+	// producttagDescCreatedAt is the schema descriptor for created_at field.
+	producttagDescCreatedAt := producttagMixinFields1[0].Descriptor()
+	// producttag.DefaultCreatedAt holds the default value on creation for the created_at field.
+	producttag.DefaultCreatedAt = producttagDescCreatedAt.Default.(func() time.Time)
+	// producttagDescUpdatedAt is the schema descriptor for updated_at field.
+	producttagDescUpdatedAt := producttagMixinFields1[1].Descriptor()
+	// producttag.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	producttag.DefaultUpdatedAt = producttagDescUpdatedAt.Default.(func() time.Time)
+	// producttag.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	producttag.UpdateDefaultUpdatedAt = producttagDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// producttagDescDeletedAt is the schema descriptor for deleted_at field.
+	producttagDescDeletedAt := producttagMixinFields2[0].Descriptor()
+	// producttag.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	producttag.DefaultDeletedAt = producttagDescDeletedAt.Default.(int64)
+	// producttagDescName is the schema descriptor for name field.
+	producttagDescName := producttagFields[0].Descriptor()
+	// producttag.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	producttag.NameValidator = func() func(string) error {
+		validators := producttagDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// producttagDescStoreID is the schema descriptor for store_id field.
+	producttagDescStoreID := producttagFields[2].Descriptor()
+	// producttag.DefaultStoreID holds the default value on creation for the store_id field.
+	producttag.DefaultStoreID = producttagDescStoreID.Default.(func() uuid.UUID)
+	// producttagDescProductCount is the schema descriptor for product_count field.
+	producttagDescProductCount := producttagFields[3].Descriptor()
+	// producttag.DefaultProductCount holds the default value on creation for the product_count field.
+	producttag.DefaultProductCount = producttagDescProductCount.Default.(int)
+	// producttagDescID is the schema descriptor for id field.
+	producttagDescID := producttagMixinFields0[0].Descriptor()
+	// producttag.DefaultID holds the default value on creation for the id field.
+	producttag.DefaultID = producttagDescID.Default.(func() uuid.UUID)
+	productunitMixin := schema.ProductUnit{}.Mixin()
+	productunitMixinHooks2 := productunitMixin[2].Hooks()
+	productunit.Hooks[0] = productunitMixinHooks2[0]
+	productunitMixinInters2 := productunitMixin[2].Interceptors()
+	productunit.Interceptors[0] = productunitMixinInters2[0]
+	productunitMixinFields0 := productunitMixin[0].Fields()
+	_ = productunitMixinFields0
+	productunitMixinFields1 := productunitMixin[1].Fields()
+	_ = productunitMixinFields1
+	productunitMixinFields2 := productunitMixin[2].Fields()
+	_ = productunitMixinFields2
+	productunitFields := schema.ProductUnit{}.Fields()
+	_ = productunitFields
+	// productunitDescCreatedAt is the schema descriptor for created_at field.
+	productunitDescCreatedAt := productunitMixinFields1[0].Descriptor()
+	// productunit.DefaultCreatedAt holds the default value on creation for the created_at field.
+	productunit.DefaultCreatedAt = productunitDescCreatedAt.Default.(func() time.Time)
+	// productunitDescUpdatedAt is the schema descriptor for updated_at field.
+	productunitDescUpdatedAt := productunitMixinFields1[1].Descriptor()
+	// productunit.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	productunit.DefaultUpdatedAt = productunitDescUpdatedAt.Default.(func() time.Time)
+	// productunit.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	productunit.UpdateDefaultUpdatedAt = productunitDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productunitDescDeletedAt is the schema descriptor for deleted_at field.
+	productunitDescDeletedAt := productunitMixinFields2[0].Descriptor()
+	// productunit.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	productunit.DefaultDeletedAt = productunitDescDeletedAt.Default.(int64)
+	// productunitDescName is the schema descriptor for name field.
+	productunitDescName := productunitFields[0].Descriptor()
+	// productunit.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	productunit.NameValidator = func() func(string) error {
+		validators := productunitDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productunitDescStoreID is the schema descriptor for store_id field.
+	productunitDescStoreID := productunitFields[3].Descriptor()
+	// productunit.DefaultStoreID holds the default value on creation for the store_id field.
+	productunit.DefaultStoreID = productunitDescStoreID.Default.(func() uuid.UUID)
+	// productunitDescProductCount is the schema descriptor for product_count field.
+	productunitDescProductCount := productunitFields[4].Descriptor()
+	// productunit.DefaultProductCount holds the default value on creation for the product_count field.
+	productunit.DefaultProductCount = productunitDescProductCount.Default.(int)
+	// productunitDescID is the schema descriptor for id field.
+	productunitDescID := productunitMixinFields0[0].Descriptor()
+	// productunit.DefaultID holds the default value on creation for the id field.
+	productunit.DefaultID = productunitDescID.Default.(func() uuid.UUID)
+	profitdistributionbillMixin := schema.ProfitDistributionBill{}.Mixin()
+	profitdistributionbillMixinHooks2 := profitdistributionbillMixin[2].Hooks()
+	profitdistributionbill.Hooks[0] = profitdistributionbillMixinHooks2[0]
+	profitdistributionbillMixinInters2 := profitdistributionbillMixin[2].Interceptors()
+	profitdistributionbill.Interceptors[0] = profitdistributionbillMixinInters2[0]
+	profitdistributionbillMixinFields0 := profitdistributionbillMixin[0].Fields()
+	_ = profitdistributionbillMixinFields0
+	profitdistributionbillMixinFields1 := profitdistributionbillMixin[1].Fields()
+	_ = profitdistributionbillMixinFields1
+	profitdistributionbillMixinFields2 := profitdistributionbillMixin[2].Fields()
+	_ = profitdistributionbillMixinFields2
+	profitdistributionbillFields := schema.ProfitDistributionBill{}.Fields()
+	_ = profitdistributionbillFields
+	// profitdistributionbillDescCreatedAt is the schema descriptor for created_at field.
+	profitdistributionbillDescCreatedAt := profitdistributionbillMixinFields1[0].Descriptor()
+	// profitdistributionbill.DefaultCreatedAt holds the default value on creation for the created_at field.
+	profitdistributionbill.DefaultCreatedAt = profitdistributionbillDescCreatedAt.Default.(func() time.Time)
+	// profitdistributionbillDescUpdatedAt is the schema descriptor for updated_at field.
+	profitdistributionbillDescUpdatedAt := profitdistributionbillMixinFields1[1].Descriptor()
+	// profitdistributionbill.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	profitdistributionbill.DefaultUpdatedAt = profitdistributionbillDescUpdatedAt.Default.(func() time.Time)
+	// profitdistributionbill.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	profitdistributionbill.UpdateDefaultUpdatedAt = profitdistributionbillDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// profitdistributionbillDescDeletedAt is the schema descriptor for deleted_at field.
+	profitdistributionbillDescDeletedAt := profitdistributionbillMixinFields2[0].Descriptor()
+	// profitdistributionbill.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	profitdistributionbill.DefaultDeletedAt = profitdistributionbillDescDeletedAt.Default.(int64)
+	// profitdistributionbillDescNo is the schema descriptor for no field.
+	profitdistributionbillDescNo := profitdistributionbillFields[0].Descriptor()
+	// profitdistributionbill.NoValidator is a validator for the "no" field. It is called by the builders before save.
+	profitdistributionbill.NoValidator = func() func(string) error {
+		validators := profitdistributionbillDescNo.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(no string) error {
+			for _, fn := range fns {
+				if err := fn(no); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profitdistributionbillDescID is the schema descriptor for id field.
+	profitdistributionbillDescID := profitdistributionbillMixinFields0[0].Descriptor()
+	// profitdistributionbill.DefaultID holds the default value on creation for the id field.
+	profitdistributionbill.DefaultID = profitdistributionbillDescID.Default.(func() uuid.UUID)
+	profitdistributionruleMixin := schema.ProfitDistributionRule{}.Mixin()
+	profitdistributionruleMixinHooks2 := profitdistributionruleMixin[2].Hooks()
+	profitdistributionrule.Hooks[0] = profitdistributionruleMixinHooks2[0]
+	profitdistributionruleMixinInters2 := profitdistributionruleMixin[2].Interceptors()
+	profitdistributionrule.Interceptors[0] = profitdistributionruleMixinInters2[0]
+	profitdistributionruleMixinFields0 := profitdistributionruleMixin[0].Fields()
+	_ = profitdistributionruleMixinFields0
+	profitdistributionruleMixinFields1 := profitdistributionruleMixin[1].Fields()
+	_ = profitdistributionruleMixinFields1
+	profitdistributionruleMixinFields2 := profitdistributionruleMixin[2].Fields()
+	_ = profitdistributionruleMixinFields2
+	profitdistributionruleFields := schema.ProfitDistributionRule{}.Fields()
+	_ = profitdistributionruleFields
+	// profitdistributionruleDescCreatedAt is the schema descriptor for created_at field.
+	profitdistributionruleDescCreatedAt := profitdistributionruleMixinFields1[0].Descriptor()
+	// profitdistributionrule.DefaultCreatedAt holds the default value on creation for the created_at field.
+	profitdistributionrule.DefaultCreatedAt = profitdistributionruleDescCreatedAt.Default.(func() time.Time)
+	// profitdistributionruleDescUpdatedAt is the schema descriptor for updated_at field.
+	profitdistributionruleDescUpdatedAt := profitdistributionruleMixinFields1[1].Descriptor()
+	// profitdistributionrule.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	profitdistributionrule.DefaultUpdatedAt = profitdistributionruleDescUpdatedAt.Default.(func() time.Time)
+	// profitdistributionrule.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	profitdistributionrule.UpdateDefaultUpdatedAt = profitdistributionruleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// profitdistributionruleDescDeletedAt is the schema descriptor for deleted_at field.
+	profitdistributionruleDescDeletedAt := profitdistributionruleMixinFields2[0].Descriptor()
+	// profitdistributionrule.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	profitdistributionrule.DefaultDeletedAt = profitdistributionruleDescDeletedAt.Default.(int64)
+	// profitdistributionruleDescName is the schema descriptor for name field.
+	profitdistributionruleDescName := profitdistributionruleFields[1].Descriptor()
+	// profitdistributionrule.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	profitdistributionrule.NameValidator = func() func(string) error {
+		validators := profitdistributionruleDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// profitdistributionruleDescBillGenerationDay is the schema descriptor for bill_generation_day field.
+	profitdistributionruleDescBillGenerationDay := profitdistributionruleFields[6].Descriptor()
+	// profitdistributionrule.DefaultBillGenerationDay holds the default value on creation for the bill_generation_day field.
+	profitdistributionrule.DefaultBillGenerationDay = profitdistributionruleDescBillGenerationDay.Default.(int)
+	// profitdistributionruleDescStoreCount is the schema descriptor for store_count field.
+	profitdistributionruleDescStoreCount := profitdistributionruleFields[8].Descriptor()
+	// profitdistributionrule.DefaultStoreCount holds the default value on creation for the store_count field.
+	profitdistributionrule.DefaultStoreCount = profitdistributionruleDescStoreCount.Default.(int)
+	// profitdistributionruleDescID is the schema descriptor for id field.
+	profitdistributionruleDescID := profitdistributionruleMixinFields0[0].Descriptor()
+	// profitdistributionrule.DefaultID holds the default value on creation for the id field.
+	profitdistributionrule.DefaultID = profitdistributionruleDescID.Default.(func() uuid.UUID)
+	refundorderMixin := schema.RefundOrder{}.Mixin()
+	refundorderMixinHooks2 := refundorderMixin[2].Hooks()
+	refundorder.Hooks[0] = refundorderMixinHooks2[0]
+	refundorderMixinInters2 := refundorderMixin[2].Interceptors()
+	refundorder.Interceptors[0] = refundorderMixinInters2[0]
+	refundorderMixinFields0 := refundorderMixin[0].Fields()
+	_ = refundorderMixinFields0
+	refundorderMixinFields1 := refundorderMixin[1].Fields()
+	_ = refundorderMixinFields1
+	refundorderMixinFields2 := refundorderMixin[2].Fields()
+	_ = refundorderMixinFields2
+	refundorderFields := schema.RefundOrder{}.Fields()
+	_ = refundorderFields
+	// refundorderDescCreatedAt is the schema descriptor for created_at field.
+	refundorderDescCreatedAt := refundorderMixinFields1[0].Descriptor()
+	// refundorder.DefaultCreatedAt holds the default value on creation for the created_at field.
+	refundorder.DefaultCreatedAt = refundorderDescCreatedAt.Default.(func() time.Time)
+	// refundorderDescUpdatedAt is the schema descriptor for updated_at field.
+	refundorderDescUpdatedAt := refundorderMixinFields1[1].Descriptor()
+	// refundorder.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	refundorder.DefaultUpdatedAt = refundorderDescUpdatedAt.Default.(func() time.Time)
+	// refundorder.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	refundorder.UpdateDefaultUpdatedAt = refundorderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// refundorderDescDeletedAt is the schema descriptor for deleted_at field.
+	refundorderDescDeletedAt := refundorderMixinFields2[0].Descriptor()
+	// refundorder.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	refundorder.DefaultDeletedAt = refundorderDescDeletedAt.Default.(int64)
+	// refundorderDescBusinessDate is the schema descriptor for business_date field.
+	refundorderDescBusinessDate := refundorderFields[2].Descriptor()
+	// refundorder.BusinessDateValidator is a validator for the "business_date" field. It is called by the builders before save.
+	refundorder.BusinessDateValidator = refundorderDescBusinessDate.Validators[0].(func(string) error)
+	// refundorderDescRefundNo is the schema descriptor for refund_no field.
+	refundorderDescRefundNo := refundorderFields[4].Descriptor()
+	// refundorder.RefundNoValidator is a validator for the "refund_no" field. It is called by the builders before save.
+	refundorder.RefundNoValidator = refundorderDescRefundNo.Validators[0].(func(string) error)
+	// refundorderDescOriginOrderNo is the schema descriptor for origin_order_no field.
+	refundorderDescOriginOrderNo := refundorderFields[6].Descriptor()
+	// refundorder.OriginOrderNoValidator is a validator for the "origin_order_no" field. It is called by the builders before save.
+	refundorder.OriginOrderNoValidator = refundorderDescOriginOrderNo.Validators[0].(func(string) error)
+	// refundorderDescRemark is the schema descriptor for remark field.
+	refundorderDescRemark := refundorderFields[25].Descriptor()
+	// refundorder.RemarkValidator is a validator for the "remark" field. It is called by the builders before save.
+	refundorder.RemarkValidator = refundorderDescRemark.Validators[0].(func(string) error)
+	// refundorderDescID is the schema descriptor for id field.
+	refundorderDescID := refundorderMixinFields0[0].Descriptor()
+	// refundorder.DefaultID holds the default value on creation for the id field.
+	refundorder.DefaultID = refundorderDescID.Default.(func() uuid.UUID)
+	refundorderproductMixin := schema.RefundOrderProduct{}.Mixin()
+	refundorderproductMixinHooks2 := refundorderproductMixin[2].Hooks()
+	refundorderproduct.Hooks[0] = refundorderproductMixinHooks2[0]
+	refundorderproductMixinInters2 := refundorderproductMixin[2].Interceptors()
+	refundorderproduct.Interceptors[0] = refundorderproductMixinInters2[0]
+	refundorderproductMixinFields0 := refundorderproductMixin[0].Fields()
+	_ = refundorderproductMixinFields0
+	refundorderproductMixinFields1 := refundorderproductMixin[1].Fields()
+	_ = refundorderproductMixinFields1
+	refundorderproductMixinFields2 := refundorderproductMixin[2].Fields()
+	_ = refundorderproductMixinFields2
+	refundorderproductFields := schema.RefundOrderProduct{}.Fields()
+	_ = refundorderproductFields
+	// refundorderproductDescCreatedAt is the schema descriptor for created_at field.
+	refundorderproductDescCreatedAt := refundorderproductMixinFields1[0].Descriptor()
+	// refundorderproduct.DefaultCreatedAt holds the default value on creation for the created_at field.
+	refundorderproduct.DefaultCreatedAt = refundorderproductDescCreatedAt.Default.(func() time.Time)
+	// refundorderproductDescUpdatedAt is the schema descriptor for updated_at field.
+	refundorderproductDescUpdatedAt := refundorderproductMixinFields1[1].Descriptor()
+	// refundorderproduct.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	refundorderproduct.DefaultUpdatedAt = refundorderproductDescUpdatedAt.Default.(func() time.Time)
+	// refundorderproduct.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	refundorderproduct.UpdateDefaultUpdatedAt = refundorderproductDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// refundorderproductDescDeletedAt is the schema descriptor for deleted_at field.
+	refundorderproductDescDeletedAt := refundorderproductMixinFields2[0].Descriptor()
+	// refundorderproduct.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	refundorderproduct.DefaultDeletedAt = refundorderproductDescDeletedAt.Default.(int64)
+	// refundorderproductDescProductName is the schema descriptor for product_name field.
+	refundorderproductDescProductName := refundorderproductFields[4].Descriptor()
+	// refundorderproduct.ProductNameValidator is a validator for the "product_name" field. It is called by the builders before save.
+	refundorderproduct.ProductNameValidator = refundorderproductDescProductName.Validators[0].(func(string) error)
+	// refundorderproductDescMainImage is the schema descriptor for main_image field.
+	refundorderproductDescMainImage := refundorderproductFields[8].Descriptor()
+	// refundorderproduct.DefaultMainImage holds the default value on creation for the main_image field.
+	refundorderproduct.DefaultMainImage = refundorderproductDescMainImage.Default.(string)
+	// refundorderproduct.MainImageValidator is a validator for the "main_image" field. It is called by the builders before save.
+	refundorderproduct.MainImageValidator = refundorderproductDescMainImage.Validators[0].(func(string) error)
+	// refundorderproductDescDescription is the schema descriptor for description field.
+	refundorderproductDescDescription := refundorderproductFields[9].Descriptor()
+	// refundorderproduct.DefaultDescription holds the default value on creation for the description field.
+	refundorderproduct.DefaultDescription = refundorderproductDescDescription.Default.(string)
+	// refundorderproduct.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	refundorderproduct.DescriptionValidator = refundorderproductDescDescription.Validators[0].(func(string) error)
+	// refundorderproductDescID is the schema descriptor for id field.
+	refundorderproductDescID := refundorderproductMixinFields0[0].Descriptor()
+	// refundorderproduct.DefaultID holds the default value on creation for the id field.
+	refundorderproduct.DefaultID = refundorderproductDescID.Default.(func() uuid.UUID)
+	remarkMixin := schema.Remark{}.Mixin()
+	remarkMixinHooks2 := remarkMixin[2].Hooks()
+	remark.Hooks[0] = remarkMixinHooks2[0]
+	remarkMixinInters2 := remarkMixin[2].Interceptors()
+	remark.Interceptors[0] = remarkMixinInters2[0]
+	remarkMixinFields0 := remarkMixin[0].Fields()
+	_ = remarkMixinFields0
+	remarkMixinFields1 := remarkMixin[1].Fields()
+	_ = remarkMixinFields1
+	remarkMixinFields2 := remarkMixin[2].Fields()
+	_ = remarkMixinFields2
+	remarkFields := schema.Remark{}.Fields()
+	_ = remarkFields
+	// remarkDescCreatedAt is the schema descriptor for created_at field.
+	remarkDescCreatedAt := remarkMixinFields1[0].Descriptor()
+	// remark.DefaultCreatedAt holds the default value on creation for the created_at field.
+	remark.DefaultCreatedAt = remarkDescCreatedAt.Default.(func() time.Time)
+	// remarkDescUpdatedAt is the schema descriptor for updated_at field.
+	remarkDescUpdatedAt := remarkMixinFields1[1].Descriptor()
+	// remark.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	remark.DefaultUpdatedAt = remarkDescUpdatedAt.Default.(func() time.Time)
+	// remark.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	remark.UpdateDefaultUpdatedAt = remarkDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// remarkDescDeletedAt is the schema descriptor for deleted_at field.
+	remarkDescDeletedAt := remarkMixinFields2[0].Descriptor()
+	// remark.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	remark.DefaultDeletedAt = remarkDescDeletedAt.Default.(int64)
+	// remarkDescName is the schema descriptor for name field.
+	remarkDescName := remarkFields[0].Descriptor()
+	// remark.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	remark.NameValidator = func() func(string) error {
+		validators := remarkDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// remarkDescEnabled is the schema descriptor for enabled field.
+	remarkDescEnabled := remarkFields[2].Descriptor()
+	// remark.DefaultEnabled holds the default value on creation for the enabled field.
+	remark.DefaultEnabled = remarkDescEnabled.Default.(bool)
+	// remarkDescSortOrder is the schema descriptor for sort_order field.
+	remarkDescSortOrder := remarkFields[3].Descriptor()
+	// remark.DefaultSortOrder holds the default value on creation for the sort_order field.
+	remark.DefaultSortOrder = remarkDescSortOrder.Default.(int)
+	// remarkDescID is the schema descriptor for id field.
+	remarkDescID := remarkMixinFields0[0].Descriptor()
+	// remark.DefaultID holds the default value on creation for the id field.
+	remark.DefaultID = remarkDescID.Default.(func() uuid.UUID)
+	roleMixin := schema.Role{}.Mixin()
+	roleMixinHooks2 := roleMixin[2].Hooks()
+	role.Hooks[0] = roleMixinHooks2[0]
+	roleMixinInters2 := roleMixin[2].Interceptors()
+	role.Interceptors[0] = roleMixinInters2[0]
+	roleMixinFields0 := roleMixin[0].Fields()
+	_ = roleMixinFields0
+	roleMixinFields1 := roleMixin[1].Fields()
+	_ = roleMixinFields1
+	roleMixinFields2 := roleMixin[2].Fields()
+	_ = roleMixinFields2
+	roleFields := schema.Role{}.Fields()
+	_ = roleFields
+	// roleDescCreatedAt is the schema descriptor for created_at field.
+	roleDescCreatedAt := roleMixinFields1[0].Descriptor()
+	// role.DefaultCreatedAt holds the default value on creation for the created_at field.
+	role.DefaultCreatedAt = roleDescCreatedAt.Default.(func() time.Time)
+	// roleDescUpdatedAt is the schema descriptor for updated_at field.
+	roleDescUpdatedAt := roleMixinFields1[1].Descriptor()
+	// role.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	role.DefaultUpdatedAt = roleDescUpdatedAt.Default.(func() time.Time)
+	// role.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	role.UpdateDefaultUpdatedAt = roleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// roleDescDeletedAt is the schema descriptor for deleted_at field.
+	roleDescDeletedAt := roleMixinFields2[0].Descriptor()
+	// role.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	role.DefaultDeletedAt = roleDescDeletedAt.Default.(int64)
+	// roleDescCode is the schema descriptor for code field.
+	roleDescCode := roleFields[1].Descriptor()
+	// role.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	role.CodeValidator = roleDescCode.Validators[0].(func(string) error)
+	// roleDescEnabled is the schema descriptor for enabled field.
+	roleDescEnabled := roleFields[3].Descriptor()
+	// role.DefaultEnabled holds the default value on creation for the enabled field.
+	role.DefaultEnabled = roleDescEnabled.Default.(bool)
+	// roleDescID is the schema descriptor for id field.
+	roleDescID := roleMixinFields0[0].Descriptor()
+	// role.DefaultID holds the default value on creation for the id field.
+	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
+	rolemenuMixin := schema.RoleMenu{}.Mixin()
+	rolemenuMixinHooks2 := rolemenuMixin[2].Hooks()
+	rolemenu.Hooks[0] = rolemenuMixinHooks2[0]
+	rolemenuMixinInters2 := rolemenuMixin[2].Interceptors()
+	rolemenu.Interceptors[0] = rolemenuMixinInters2[0]
+	rolemenuMixinFields0 := rolemenuMixin[0].Fields()
+	_ = rolemenuMixinFields0
+	rolemenuMixinFields1 := rolemenuMixin[1].Fields()
+	_ = rolemenuMixinFields1
+	rolemenuMixinFields2 := rolemenuMixin[2].Fields()
+	_ = rolemenuMixinFields2
+	rolemenuFields := schema.RoleMenu{}.Fields()
+	_ = rolemenuFields
+	// rolemenuDescCreatedAt is the schema descriptor for created_at field.
+	rolemenuDescCreatedAt := rolemenuMixinFields1[0].Descriptor()
+	// rolemenu.DefaultCreatedAt holds the default value on creation for the created_at field.
+	rolemenu.DefaultCreatedAt = rolemenuDescCreatedAt.Default.(func() time.Time)
+	// rolemenuDescUpdatedAt is the schema descriptor for updated_at field.
+	rolemenuDescUpdatedAt := rolemenuMixinFields1[1].Descriptor()
+	// rolemenu.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	rolemenu.DefaultUpdatedAt = rolemenuDescUpdatedAt.Default.(func() time.Time)
+	// rolemenu.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	rolemenu.UpdateDefaultUpdatedAt = rolemenuDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// rolemenuDescDeletedAt is the schema descriptor for deleted_at field.
+	rolemenuDescDeletedAt := rolemenuMixinFields2[0].Descriptor()
+	// rolemenu.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	rolemenu.DefaultDeletedAt = rolemenuDescDeletedAt.Default.(int64)
+	// rolemenuDescID is the schema descriptor for id field.
+	rolemenuDescID := rolemenuMixinFields0[0].Descriptor()
+	// rolemenu.DefaultID holds the default value on creation for the id field.
+	rolemenu.DefaultID = rolemenuDescID.Default.(func() uuid.UUID)
+	rolepermissionMixin := schema.RolePermission{}.Mixin()
+	rolepermissionMixinHooks2 := rolepermissionMixin[2].Hooks()
+	rolepermission.Hooks[0] = rolepermissionMixinHooks2[0]
+	rolepermissionMixinInters2 := rolepermissionMixin[2].Interceptors()
+	rolepermission.Interceptors[0] = rolepermissionMixinInters2[0]
+	rolepermissionMixinFields0 := rolepermissionMixin[0].Fields()
+	_ = rolepermissionMixinFields0
+	rolepermissionMixinFields1 := rolepermissionMixin[1].Fields()
+	_ = rolepermissionMixinFields1
+	rolepermissionMixinFields2 := rolepermissionMixin[2].Fields()
+	_ = rolepermissionMixinFields2
+	rolepermissionFields := schema.RolePermission{}.Fields()
+	_ = rolepermissionFields
+	// rolepermissionDescCreatedAt is the schema descriptor for created_at field.
+	rolepermissionDescCreatedAt := rolepermissionMixinFields1[0].Descriptor()
+	// rolepermission.DefaultCreatedAt holds the default value on creation for the created_at field.
+	rolepermission.DefaultCreatedAt = rolepermissionDescCreatedAt.Default.(func() time.Time)
+	// rolepermissionDescUpdatedAt is the schema descriptor for updated_at field.
+	rolepermissionDescUpdatedAt := rolepermissionMixinFields1[1].Descriptor()
+	// rolepermission.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	rolepermission.DefaultUpdatedAt = rolepermissionDescUpdatedAt.Default.(func() time.Time)
+	// rolepermission.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	rolepermission.UpdateDefaultUpdatedAt = rolepermissionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// rolepermissionDescDeletedAt is the schema descriptor for deleted_at field.
+	rolepermissionDescDeletedAt := rolepermissionMixinFields2[0].Descriptor()
+	// rolepermission.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	rolepermission.DefaultDeletedAt = rolepermissionDescDeletedAt.Default.(int64)
+	// rolepermissionDescID is the schema descriptor for id field.
+	rolepermissionDescID := rolepermissionMixinFields0[0].Descriptor()
+	// rolepermission.DefaultID holds the default value on creation for the id field.
+	rolepermission.DefaultID = rolepermissionDescID.Default.(func() uuid.UUID)
+	routermenuMixin := schema.RouterMenu{}.Mixin()
+	routermenuMixinHooks2 := routermenuMixin[2].Hooks()
+	routermenu.Hooks[0] = routermenuMixinHooks2[0]
+	routermenuMixinInters2 := routermenuMixin[2].Interceptors()
+	routermenu.Interceptors[0] = routermenuMixinInters2[0]
+	routermenuMixinFields0 := routermenuMixin[0].Fields()
+	_ = routermenuMixinFields0
+	routermenuMixinFields1 := routermenuMixin[1].Fields()
+	_ = routermenuMixinFields1
+	routermenuMixinFields2 := routermenuMixin[2].Fields()
+	_ = routermenuMixinFields2
+	routermenuFields := schema.RouterMenu{}.Fields()
+	_ = routermenuFields
+	// routermenuDescCreatedAt is the schema descriptor for created_at field.
+	routermenuDescCreatedAt := routermenuMixinFields1[0].Descriptor()
+	// routermenu.DefaultCreatedAt holds the default value on creation for the created_at field.
+	routermenu.DefaultCreatedAt = routermenuDescCreatedAt.Default.(func() time.Time)
+	// routermenuDescUpdatedAt is the schema descriptor for updated_at field.
+	routermenuDescUpdatedAt := routermenuMixinFields1[1].Descriptor()
+	// routermenu.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	routermenu.DefaultUpdatedAt = routermenuDescUpdatedAt.Default.(func() time.Time)
+	// routermenu.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	routermenu.UpdateDefaultUpdatedAt = routermenuDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// routermenuDescDeletedAt is the schema descriptor for deleted_at field.
+	routermenuDescDeletedAt := routermenuMixinFields2[0].Descriptor()
+	// routermenu.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	routermenu.DefaultDeletedAt = routermenuDescDeletedAt.Default.(int64)
+	// routermenuDescName is the schema descriptor for name field.
+	routermenuDescName := routermenuFields[2].Descriptor()
+	// routermenu.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	routermenu.NameValidator = func() func(string) error {
+		validators := routermenuDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// routermenuDescPath is the schema descriptor for path field.
+	routermenuDescPath := routermenuFields[3].Descriptor()
+	// routermenu.PathValidator is a validator for the "path" field. It is called by the builders before save.
+	routermenu.PathValidator = routermenuDescPath.Validators[0].(func(string) error)
+	// routermenuDescLayer is the schema descriptor for layer field.
+	routermenuDescLayer := routermenuFields[4].Descriptor()
+	// routermenu.DefaultLayer holds the default value on creation for the layer field.
+	routermenu.DefaultLayer = routermenuDescLayer.Default.(int)
+	// routermenuDescComponent is the schema descriptor for component field.
+	routermenuDescComponent := routermenuFields[5].Descriptor()
+	// routermenu.ComponentValidator is a validator for the "component" field. It is called by the builders before save.
+	routermenu.ComponentValidator = routermenuDescComponent.Validators[0].(func(string) error)
+	// routermenuDescIcon is the schema descriptor for icon field.
+	routermenuDescIcon := routermenuFields[6].Descriptor()
+	// routermenu.IconValidator is a validator for the "icon" field. It is called by the builders before save.
+	routermenu.IconValidator = routermenuDescIcon.Validators[0].(func(string) error)
+	// routermenuDescSort is the schema descriptor for sort field.
+	routermenuDescSort := routermenuFields[7].Descriptor()
+	// routermenu.DefaultSort holds the default value on creation for the sort field.
+	routermenu.DefaultSort = routermenuDescSort.Default.(int)
+	// routermenuDescEnabled is the schema descriptor for enabled field.
+	routermenuDescEnabled := routermenuFields[8].Descriptor()
+	// routermenu.DefaultEnabled holds the default value on creation for the enabled field.
+	routermenu.DefaultEnabled = routermenuDescEnabled.Default.(bool)
+	// routermenuDescID is the schema descriptor for id field.
+	routermenuDescID := routermenuMixinFields0[0].Descriptor()
+	// routermenu.DefaultID holds the default value on creation for the id field.
+	routermenu.DefaultID = routermenuDescID.Default.(func() uuid.UUID)
+	setmealdetailMixin := schema.SetMealDetail{}.Mixin()
+	setmealdetailMixinHooks2 := setmealdetailMixin[2].Hooks()
+	setmealdetail.Hooks[0] = setmealdetailMixinHooks2[0]
+	setmealdetailMixinInters2 := setmealdetailMixin[2].Interceptors()
+	setmealdetail.Interceptors[0] = setmealdetailMixinInters2[0]
+	setmealdetailMixinFields0 := setmealdetailMixin[0].Fields()
+	_ = setmealdetailMixinFields0
+	setmealdetailMixinFields1 := setmealdetailMixin[1].Fields()
+	_ = setmealdetailMixinFields1
+	setmealdetailMixinFields2 := setmealdetailMixin[2].Fields()
+	_ = setmealdetailMixinFields2
+	setmealdetailFields := schema.SetMealDetail{}.Fields()
+	_ = setmealdetailFields
+	// setmealdetailDescCreatedAt is the schema descriptor for created_at field.
+	setmealdetailDescCreatedAt := setmealdetailMixinFields1[0].Descriptor()
+	// setmealdetail.DefaultCreatedAt holds the default value on creation for the created_at field.
+	setmealdetail.DefaultCreatedAt = setmealdetailDescCreatedAt.Default.(func() time.Time)
+	// setmealdetailDescUpdatedAt is the schema descriptor for updated_at field.
+	setmealdetailDescUpdatedAt := setmealdetailMixinFields1[1].Descriptor()
+	// setmealdetail.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	setmealdetail.DefaultUpdatedAt = setmealdetailDescUpdatedAt.Default.(func() time.Time)
+	// setmealdetail.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	setmealdetail.UpdateDefaultUpdatedAt = setmealdetailDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// setmealdetailDescDeletedAt is the schema descriptor for deleted_at field.
+	setmealdetailDescDeletedAt := setmealdetailMixinFields2[0].Descriptor()
+	// setmealdetail.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	setmealdetail.DefaultDeletedAt = setmealdetailDescDeletedAt.Default.(int64)
+	// setmealdetailDescQuantity is the schema descriptor for quantity field.
+	setmealdetailDescQuantity := setmealdetailFields[2].Descriptor()
+	// setmealdetail.DefaultQuantity holds the default value on creation for the quantity field.
+	setmealdetail.DefaultQuantity = setmealdetailDescQuantity.Default.(int)
+	// setmealdetailDescIsDefault is the schema descriptor for is_default field.
+	setmealdetailDescIsDefault := setmealdetailFields[3].Descriptor()
+	// setmealdetail.DefaultIsDefault holds the default value on creation for the is_default field.
+	setmealdetail.DefaultIsDefault = setmealdetailDescIsDefault.Default.(bool)
+	// setmealdetailDescID is the schema descriptor for id field.
+	setmealdetailDescID := setmealdetailMixinFields0[0].Descriptor()
+	// setmealdetail.DefaultID holds the default value on creation for the id field.
+	setmealdetail.DefaultID = setmealdetailDescID.Default.(func() uuid.UUID)
+	setmealgroupMixin := schema.SetMealGroup{}.Mixin()
+	setmealgroupMixinHooks2 := setmealgroupMixin[2].Hooks()
+	setmealgroup.Hooks[0] = setmealgroupMixinHooks2[0]
+	setmealgroupMixinInters2 := setmealgroupMixin[2].Interceptors()
+	setmealgroup.Interceptors[0] = setmealgroupMixinInters2[0]
+	setmealgroupMixinFields0 := setmealgroupMixin[0].Fields()
+	_ = setmealgroupMixinFields0
+	setmealgroupMixinFields1 := setmealgroupMixin[1].Fields()
+	_ = setmealgroupMixinFields1
+	setmealgroupMixinFields2 := setmealgroupMixin[2].Fields()
+	_ = setmealgroupMixinFields2
+	setmealgroupFields := schema.SetMealGroup{}.Fields()
+	_ = setmealgroupFields
+	// setmealgroupDescCreatedAt is the schema descriptor for created_at field.
+	setmealgroupDescCreatedAt := setmealgroupMixinFields1[0].Descriptor()
+	// setmealgroup.DefaultCreatedAt holds the default value on creation for the created_at field.
+	setmealgroup.DefaultCreatedAt = setmealgroupDescCreatedAt.Default.(func() time.Time)
+	// setmealgroupDescUpdatedAt is the schema descriptor for updated_at field.
+	setmealgroupDescUpdatedAt := setmealgroupMixinFields1[1].Descriptor()
+	// setmealgroup.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	setmealgroup.DefaultUpdatedAt = setmealgroupDescUpdatedAt.Default.(func() time.Time)
+	// setmealgroup.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	setmealgroup.UpdateDefaultUpdatedAt = setmealgroupDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// setmealgroupDescDeletedAt is the schema descriptor for deleted_at field.
+	setmealgroupDescDeletedAt := setmealgroupMixinFields2[0].Descriptor()
+	// setmealgroup.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	setmealgroup.DefaultDeletedAt = setmealgroupDescDeletedAt.Default.(int64)
+	// setmealgroupDescName is the schema descriptor for name field.
+	setmealgroupDescName := setmealgroupFields[1].Descriptor()
+	// setmealgroup.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	setmealgroup.NameValidator = func() func(string) error {
+		validators := setmealgroupDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// setmealgroupDescID is the schema descriptor for id field.
+	setmealgroupDescID := setmealgroupMixinFields0[0].Descriptor()
+	// setmealgroup.DefaultID holds the default value on creation for the id field.
+	setmealgroup.DefaultID = setmealgroupDescID.Default.(func() uuid.UUID)
+	stallMixin := schema.Stall{}.Mixin()
+	stallMixinHooks2 := stallMixin[2].Hooks()
+	stall.Hooks[0] = stallMixinHooks2[0]
+	stallMixinInters2 := stallMixin[2].Interceptors()
+	stall.Interceptors[0] = stallMixinInters2[0]
+	stallMixinFields0 := stallMixin[0].Fields()
+	_ = stallMixinFields0
+	stallMixinFields1 := stallMixin[1].Fields()
+	_ = stallMixinFields1
+	stallMixinFields2 := stallMixin[2].Fields()
+	_ = stallMixinFields2
+	stallFields := schema.Stall{}.Fields()
+	_ = stallFields
+	// stallDescCreatedAt is the schema descriptor for created_at field.
+	stallDescCreatedAt := stallMixinFields1[0].Descriptor()
+	// stall.DefaultCreatedAt holds the default value on creation for the created_at field.
+	stall.DefaultCreatedAt = stallDescCreatedAt.Default.(func() time.Time)
+	// stallDescUpdatedAt is the schema descriptor for updated_at field.
+	stallDescUpdatedAt := stallMixinFields1[1].Descriptor()
+	// stall.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	stall.DefaultUpdatedAt = stallDescUpdatedAt.Default.(func() time.Time)
+	// stall.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	stall.UpdateDefaultUpdatedAt = stallDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// stallDescDeletedAt is the schema descriptor for deleted_at field.
+	stallDescDeletedAt := stallMixinFields2[0].Descriptor()
+	// stall.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	stall.DefaultDeletedAt = stallDescDeletedAt.Default.(int64)
+	// stallDescName is the schema descriptor for name field.
+	stallDescName := stallFields[0].Descriptor()
+	// stall.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	stall.NameValidator = func() func(string) error {
+		validators := stallDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// stallDescEnabled is the schema descriptor for enabled field.
+	stallDescEnabled := stallFields[3].Descriptor()
+	// stall.DefaultEnabled holds the default value on creation for the enabled field.
+	stall.DefaultEnabled = stallDescEnabled.Default.(bool)
+	// stallDescSortOrder is the schema descriptor for sort_order field.
+	stallDescSortOrder := stallFields[4].Descriptor()
+	// stall.DefaultSortOrder holds the default value on creation for the sort_order field.
+	stall.DefaultSortOrder = stallDescSortOrder.Default.(int)
+	// stallDescID is the schema descriptor for id field.
+	stallDescID := stallMixinFields0[0].Descriptor()
+	// stall.DefaultID holds the default value on creation for the id field.
+	stall.DefaultID = stallDescID.Default.(func() uuid.UUID)
+	storeMixin := schema.Store{}.Mixin()
+	storeMixinHooks2 := storeMixin[2].Hooks()
+	store.Hooks[0] = storeMixinHooks2[0]
+	storeMixinInters2 := storeMixin[2].Interceptors()
+	store.Interceptors[0] = storeMixinInters2[0]
+	storeMixinFields0 := storeMixin[0].Fields()
+	_ = storeMixinFields0
+	storeMixinFields1 := storeMixin[1].Fields()
+	_ = storeMixinFields1
+	storeMixinFields2 := storeMixin[2].Fields()
+	_ = storeMixinFields2
+	storeFields := schema.Store{}.Fields()
+	_ = storeFields
+	// storeDescCreatedAt is the schema descriptor for created_at field.
+	storeDescCreatedAt := storeMixinFields1[0].Descriptor()
+	// store.DefaultCreatedAt holds the default value on creation for the created_at field.
+	store.DefaultCreatedAt = storeDescCreatedAt.Default.(func() time.Time)
+	// storeDescUpdatedAt is the schema descriptor for updated_at field.
+	storeDescUpdatedAt := storeMixinFields1[1].Descriptor()
+	// store.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	store.DefaultUpdatedAt = storeDescUpdatedAt.Default.(func() time.Time)
+	// store.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	store.UpdateDefaultUpdatedAt = storeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// storeDescDeletedAt is the schema descriptor for deleted_at field.
+	storeDescDeletedAt := storeMixinFields2[0].Descriptor()
+	// store.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	store.DefaultDeletedAt = storeDescDeletedAt.Default.(int64)
+	// storeDescAdminPhoneNumber is the schema descriptor for admin_phone_number field.
+	storeDescAdminPhoneNumber := storeFields[1].Descriptor()
+	// store.DefaultAdminPhoneNumber holds the default value on creation for the admin_phone_number field.
+	store.DefaultAdminPhoneNumber = storeDescAdminPhoneNumber.Default.(string)
+	// store.AdminPhoneNumberValidator is a validator for the "admin_phone_number" field. It is called by the builders before save.
+	store.AdminPhoneNumberValidator = func() func(string) error {
+		validators := storeDescAdminPhoneNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(admin_phone_number string) error {
+			for _, fn := range fns {
+				if err := fn(admin_phone_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storeDescStoreName is the schema descriptor for store_name field.
+	storeDescStoreName := storeFields[2].Descriptor()
+	// store.DefaultStoreName holds the default value on creation for the store_name field.
+	store.DefaultStoreName = storeDescStoreName.Default.(string)
+	// store.StoreNameValidator is a validator for the "store_name" field. It is called by the builders before save.
+	store.StoreNameValidator = func() func(string) error {
+		validators := storeDescStoreName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(store_name string) error {
+			for _, fn := range fns {
+				if err := fn(store_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storeDescStoreShortName is the schema descriptor for store_short_name field.
+	storeDescStoreShortName := storeFields[3].Descriptor()
+	// store.DefaultStoreShortName holds the default value on creation for the store_short_name field.
+	store.DefaultStoreShortName = storeDescStoreShortName.Default.(string)
+	// store.StoreShortNameValidator is a validator for the "store_short_name" field. It is called by the builders before save.
+	store.StoreShortNameValidator = storeDescStoreShortName.Validators[0].(func(string) error)
+	// storeDescStoreCode is the schema descriptor for store_code field.
+	storeDescStoreCode := storeFields[4].Descriptor()
+	// store.DefaultStoreCode holds the default value on creation for the store_code field.
+	store.DefaultStoreCode = storeDescStoreCode.Default.(string)
+	// storeDescLocationNumber is the schema descriptor for location_number field.
+	storeDescLocationNumber := storeFields[8].Descriptor()
+	// store.LocationNumberValidator is a validator for the "location_number" field. It is called by the builders before save.
+	store.LocationNumberValidator = func() func(string) error {
+		validators := storeDescLocationNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(location_number string) error {
+			for _, fn := range fns {
+				if err := fn(location_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storeDescContactName is the schema descriptor for contact_name field.
+	storeDescContactName := storeFields[9].Descriptor()
+	// store.DefaultContactName holds the default value on creation for the contact_name field.
+	store.DefaultContactName = storeDescContactName.Default.(string)
+	// store.ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
+	store.ContactNameValidator = storeDescContactName.Validators[0].(func(string) error)
+	// storeDescContactPhone is the schema descriptor for contact_phone field.
+	storeDescContactPhone := storeFields[10].Descriptor()
+	// store.DefaultContactPhone holds the default value on creation for the contact_phone field.
+	store.DefaultContactPhone = storeDescContactPhone.Default.(string)
+	// store.ContactPhoneValidator is a validator for the "contact_phone" field. It is called by the builders before save.
+	store.ContactPhoneValidator = storeDescContactPhone.Validators[0].(func(string) error)
+	// storeDescUnifiedSocialCreditCode is the schema descriptor for unified_social_credit_code field.
+	storeDescUnifiedSocialCreditCode := storeFields[11].Descriptor()
+	// store.DefaultUnifiedSocialCreditCode holds the default value on creation for the unified_social_credit_code field.
+	store.DefaultUnifiedSocialCreditCode = storeDescUnifiedSocialCreditCode.Default.(string)
+	// store.UnifiedSocialCreditCodeValidator is a validator for the "unified_social_credit_code" field. It is called by the builders before save.
+	store.UnifiedSocialCreditCodeValidator = storeDescUnifiedSocialCreditCode.Validators[0].(func(string) error)
+	// storeDescStoreLogo is the schema descriptor for store_logo field.
+	storeDescStoreLogo := storeFields[12].Descriptor()
+	// store.DefaultStoreLogo holds the default value on creation for the store_logo field.
+	store.DefaultStoreLogo = storeDescStoreLogo.Default.(string)
+	// store.StoreLogoValidator is a validator for the "store_logo" field. It is called by the builders before save.
+	store.StoreLogoValidator = storeDescStoreLogo.Validators[0].(func(string) error)
+	// storeDescBusinessLicenseURL is the schema descriptor for business_license_url field.
+	storeDescBusinessLicenseURL := storeFields[13].Descriptor()
+	// store.DefaultBusinessLicenseURL holds the default value on creation for the business_license_url field.
+	store.DefaultBusinessLicenseURL = storeDescBusinessLicenseURL.Default.(string)
+	// store.BusinessLicenseURLValidator is a validator for the "business_license_url" field. It is called by the builders before save.
+	store.BusinessLicenseURLValidator = storeDescBusinessLicenseURL.Validators[0].(func(string) error)
+	// storeDescStorefrontURL is the schema descriptor for storefront_url field.
+	storeDescStorefrontURL := storeFields[14].Descriptor()
+	// store.DefaultStorefrontURL holds the default value on creation for the storefront_url field.
+	store.DefaultStorefrontURL = storeDescStorefrontURL.Default.(string)
+	// store.StorefrontURLValidator is a validator for the "storefront_url" field. It is called by the builders before save.
+	store.StorefrontURLValidator = storeDescStorefrontURL.Validators[0].(func(string) error)
+	// storeDescCashierDeskURL is the schema descriptor for cashier_desk_url field.
+	storeDescCashierDeskURL := storeFields[15].Descriptor()
+	// store.DefaultCashierDeskURL holds the default value on creation for the cashier_desk_url field.
+	store.DefaultCashierDeskURL = storeDescCashierDeskURL.Default.(string)
+	// store.CashierDeskURLValidator is a validator for the "cashier_desk_url" field. It is called by the builders before save.
+	store.CashierDeskURLValidator = storeDescCashierDeskURL.Validators[0].(func(string) error)
+	// storeDescDiningEnvironmentURL is the schema descriptor for dining_environment_url field.
+	storeDescDiningEnvironmentURL := storeFields[16].Descriptor()
+	// store.DefaultDiningEnvironmentURL holds the default value on creation for the dining_environment_url field.
+	store.DefaultDiningEnvironmentURL = storeDescDiningEnvironmentURL.Default.(string)
+	// store.DiningEnvironmentURLValidator is a validator for the "dining_environment_url" field. It is called by the builders before save.
+	store.DiningEnvironmentURLValidator = storeDescDiningEnvironmentURL.Validators[0].(func(string) error)
+	// storeDescFoodOperationLicenseURL is the schema descriptor for food_operation_license_url field.
+	storeDescFoodOperationLicenseURL := storeFields[17].Descriptor()
+	// store.DefaultFoodOperationLicenseURL holds the default value on creation for the food_operation_license_url field.
+	store.DefaultFoodOperationLicenseURL = storeDescFoodOperationLicenseURL.Default.(string)
+	// store.FoodOperationLicenseURLValidator is a validator for the "food_operation_license_url" field. It is called by the builders before save.
+	store.FoodOperationLicenseURLValidator = storeDescFoodOperationLicenseURL.Validators[0].(func(string) error)
+	// storeDescAddress is the schema descriptor for address field.
+	storeDescAddress := storeFields[23].Descriptor()
+	// store.DefaultAddress holds the default value on creation for the address field.
+	store.DefaultAddress = storeDescAddress.Default.(string)
+	// store.AddressValidator is a validator for the "address" field. It is called by the builders before save.
+	store.AddressValidator = storeDescAddress.Validators[0].(func(string) error)
+	// storeDescLng is the schema descriptor for lng field.
+	storeDescLng := storeFields[24].Descriptor()
+	// store.DefaultLng holds the default value on creation for the lng field.
+	store.DefaultLng = storeDescLng.Default.(string)
+	// store.LngValidator is a validator for the "lng" field. It is called by the builders before save.
+	store.LngValidator = storeDescLng.Validators[0].(func(string) error)
+	// storeDescLat is the schema descriptor for lat field.
+	storeDescLat := storeFields[25].Descriptor()
+	// store.DefaultLat holds the default value on creation for the lat field.
+	store.DefaultLat = storeDescLat.Default.(string)
+	// store.LatValidator is a validator for the "lat" field. It is called by the builders before save.
+	store.LatValidator = storeDescLat.Validators[0].(func(string) error)
+	// storeDescID is the schema descriptor for id field.
+	storeDescID := storeMixinFields0[0].Descriptor()
+	// store.DefaultID holds the default value on creation for the id field.
+	store.DefaultID = storeDescID.Default.(func() uuid.UUID)
+	storepaymentaccountMixin := schema.StorePaymentAccount{}.Mixin()
+	storepaymentaccountMixinHooks2 := storepaymentaccountMixin[2].Hooks()
+	storepaymentaccount.Hooks[0] = storepaymentaccountMixinHooks2[0]
+	storepaymentaccountMixinInters2 := storepaymentaccountMixin[2].Interceptors()
+	storepaymentaccount.Interceptors[0] = storepaymentaccountMixinInters2[0]
+	storepaymentaccountMixinFields0 := storepaymentaccountMixin[0].Fields()
+	_ = storepaymentaccountMixinFields0
+	storepaymentaccountMixinFields1 := storepaymentaccountMixin[1].Fields()
+	_ = storepaymentaccountMixinFields1
+	storepaymentaccountMixinFields2 := storepaymentaccountMixin[2].Fields()
+	_ = storepaymentaccountMixinFields2
+	storepaymentaccountFields := schema.StorePaymentAccount{}.Fields()
+	_ = storepaymentaccountFields
+	// storepaymentaccountDescCreatedAt is the schema descriptor for created_at field.
+	storepaymentaccountDescCreatedAt := storepaymentaccountMixinFields1[0].Descriptor()
+	// storepaymentaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	storepaymentaccount.DefaultCreatedAt = storepaymentaccountDescCreatedAt.Default.(func() time.Time)
+	// storepaymentaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	storepaymentaccountDescUpdatedAt := storepaymentaccountMixinFields1[1].Descriptor()
+	// storepaymentaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	storepaymentaccount.DefaultUpdatedAt = storepaymentaccountDescUpdatedAt.Default.(func() time.Time)
+	// storepaymentaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	storepaymentaccount.UpdateDefaultUpdatedAt = storepaymentaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// storepaymentaccountDescDeletedAt is the schema descriptor for deleted_at field.
+	storepaymentaccountDescDeletedAt := storepaymentaccountMixinFields2[0].Descriptor()
+	// storepaymentaccount.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	storepaymentaccount.DefaultDeletedAt = storepaymentaccountDescDeletedAt.Default.(int64)
+	// storepaymentaccountDescMerchantNumber is the schema descriptor for merchant_number field.
+	storepaymentaccountDescMerchantNumber := storepaymentaccountFields[3].Descriptor()
+	// storepaymentaccount.MerchantNumberValidator is a validator for the "merchant_number" field. It is called by the builders before save.
+	storepaymentaccount.MerchantNumberValidator = func() func(string) error {
+		validators := storepaymentaccountDescMerchantNumber.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(merchant_number string) error {
+			for _, fn := range fns {
+				if err := fn(merchant_number); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storepaymentaccountDescID is the schema descriptor for id field.
+	storepaymentaccountDescID := storepaymentaccountMixinFields0[0].Descriptor()
+	// storepaymentaccount.DefaultID holds the default value on creation for the id field.
+	storepaymentaccount.DefaultID = storepaymentaccountDescID.Default.(func() uuid.UUID)
+	storeuserMixin := schema.StoreUser{}.Mixin()
+	storeuserMixinHooks1 := storeuserMixin[1].Hooks()
+	storeuser.Hooks[0] = storeuserMixinHooks1[0]
+	storeuserMixinInters1 := storeuserMixin[1].Interceptors()
+	storeuser.Interceptors[0] = storeuserMixinInters1[0]
+	storeuserMixinFields0 := storeuserMixin[0].Fields()
+	_ = storeuserMixinFields0
+	storeuserMixinFields1 := storeuserMixin[1].Fields()
+	_ = storeuserMixinFields1
+	storeuserMixinFields2 := storeuserMixin[2].Fields()
+	_ = storeuserMixinFields2
+	storeuserFields := schema.StoreUser{}.Fields()
+	_ = storeuserFields
+	// storeuserDescCreatedAt is the schema descriptor for created_at field.
+	storeuserDescCreatedAt := storeuserMixinFields0[0].Descriptor()
+	// storeuser.DefaultCreatedAt holds the default value on creation for the created_at field.
+	storeuser.DefaultCreatedAt = storeuserDescCreatedAt.Default.(func() time.Time)
+	// storeuserDescUpdatedAt is the schema descriptor for updated_at field.
+	storeuserDescUpdatedAt := storeuserMixinFields0[1].Descriptor()
+	// storeuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	storeuser.DefaultUpdatedAt = storeuserDescUpdatedAt.Default.(func() time.Time)
+	// storeuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	storeuser.UpdateDefaultUpdatedAt = storeuserDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// storeuserDescDeletedAt is the schema descriptor for deleted_at field.
+	storeuserDescDeletedAt := storeuserMixinFields1[0].Descriptor()
+	// storeuser.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	storeuser.DefaultDeletedAt = storeuserDescDeletedAt.Default.(int64)
+	// storeuserDescUsername is the schema descriptor for username field.
+	storeuserDescUsername := storeuserFields[0].Descriptor()
+	// storeuser.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	storeuser.UsernameValidator = func() func(string) error {
+		validators := storeuserDescUsername.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(username string) error {
+			for _, fn := range fns {
+				if err := fn(username); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// storeuserDescHashedPassword is the schema descriptor for hashed_password field.
+	storeuserDescHashedPassword := storeuserFields[1].Descriptor()
+	// storeuser.HashedPasswordValidator is a validator for the "hashed_password" field. It is called by the builders before save.
+	storeuser.HashedPasswordValidator = storeuserDescHashedPassword.Validators[0].(func(string) error)
+	// storeuserDescCode is the schema descriptor for code field.
+	storeuserDescCode := storeuserFields[6].Descriptor()
+	// storeuser.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	storeuser.CodeValidator = storeuserDescCode.Validators[0].(func(string) error)
+	// storeuserDescRealName is the schema descriptor for real_name field.
+	storeuserDescRealName := storeuserFields[7].Descriptor()
+	// storeuser.RealNameValidator is a validator for the "real_name" field. It is called by the builders before save.
+	storeuser.RealNameValidator = storeuserDescRealName.Validators[0].(func(string) error)
+	// storeuserDescEmail is the schema descriptor for email field.
+	storeuserDescEmail := storeuserFields[9].Descriptor()
+	// storeuser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	storeuser.EmailValidator = storeuserDescEmail.Validators[0].(func(string) error)
+	// storeuserDescPhoneNumber is the schema descriptor for phone_number field.
+	storeuserDescPhoneNumber := storeuserFields[10].Descriptor()
+	// storeuser.PhoneNumberValidator is a validator for the "phone_number" field. It is called by the builders before save.
+	storeuser.PhoneNumberValidator = storeuserDescPhoneNumber.Validators[0].(func(string) error)
+	// storeuserDescEnabled is the schema descriptor for enabled field.
+	storeuserDescEnabled := storeuserFields[11].Descriptor()
+	// storeuser.DefaultEnabled holds the default value on creation for the enabled field.
+	storeuser.DefaultEnabled = storeuserDescEnabled.Default.(bool)
+	// storeuserDescIsSuperadmin is the schema descriptor for is_superadmin field.
+	storeuserDescIsSuperadmin := storeuserFields[12].Descriptor()
+	// storeuser.DefaultIsSuperadmin holds the default value on creation for the is_superadmin field.
+	storeuser.DefaultIsSuperadmin = storeuserDescIsSuperadmin.Default.(bool)
+	// storeuserDescID is the schema descriptor for id field.
+	storeuserDescID := storeuserMixinFields2[0].Descriptor()
+	// storeuser.DefaultID holds the default value on creation for the id field.
+	storeuser.DefaultID = storeuserDescID.Default.(func() uuid.UUID)
+	taxfeeMixin := schema.TaxFee{}.Mixin()
+	taxfeeMixinHooks2 := taxfeeMixin[2].Hooks()
+	taxfee.Hooks[0] = taxfeeMixinHooks2[0]
+	taxfeeMixinInters2 := taxfeeMixin[2].Interceptors()
+	taxfee.Interceptors[0] = taxfeeMixinInters2[0]
+	taxfeeMixinFields0 := taxfeeMixin[0].Fields()
+	_ = taxfeeMixinFields0
+	taxfeeMixinFields1 := taxfeeMixin[1].Fields()
+	_ = taxfeeMixinFields1
+	taxfeeMixinFields2 := taxfeeMixin[2].Fields()
+	_ = taxfeeMixinFields2
+	taxfeeFields := schema.TaxFee{}.Fields()
+	_ = taxfeeFields
+	// taxfeeDescCreatedAt is the schema descriptor for created_at field.
+	taxfeeDescCreatedAt := taxfeeMixinFields1[0].Descriptor()
+	// taxfee.DefaultCreatedAt holds the default value on creation for the created_at field.
+	taxfee.DefaultCreatedAt = taxfeeDescCreatedAt.Default.(func() time.Time)
+	// taxfeeDescUpdatedAt is the schema descriptor for updated_at field.
+	taxfeeDescUpdatedAt := taxfeeMixinFields1[1].Descriptor()
+	// taxfee.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	taxfee.DefaultUpdatedAt = taxfeeDescUpdatedAt.Default.(func() time.Time)
+	// taxfee.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	taxfee.UpdateDefaultUpdatedAt = taxfeeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// taxfeeDescDeletedAt is the schema descriptor for deleted_at field.
+	taxfeeDescDeletedAt := taxfeeMixinFields2[0].Descriptor()
+	// taxfee.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	taxfee.DefaultDeletedAt = taxfeeDescDeletedAt.Default.(int64)
+	// taxfeeDescName is the schema descriptor for name field.
+	taxfeeDescName := taxfeeFields[0].Descriptor()
+	// taxfee.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	taxfee.NameValidator = func() func(string) error {
+		validators := taxfeeDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// taxfeeDescTaxCode is the schema descriptor for tax_code field.
+	taxfeeDescTaxCode := taxfeeFields[2].Descriptor()
+	// taxfee.TaxCodeValidator is a validator for the "tax_code" field. It is called by the builders before save.
+	taxfee.TaxCodeValidator = func() func(string) error {
+		validators := taxfeeDescTaxCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(tax_code string) error {
+			for _, fn := range fns {
+				if err := fn(tax_code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// taxfeeDescDefaultTax is the schema descriptor for default_tax field.
+	taxfeeDescDefaultTax := taxfeeFields[5].Descriptor()
+	// taxfee.DefaultDefaultTax holds the default value on creation for the default_tax field.
+	taxfee.DefaultDefaultTax = taxfeeDescDefaultTax.Default.(bool)
+	// taxfeeDescID is the schema descriptor for id field.
+	taxfeeDescID := taxfeeMixinFields0[0].Descriptor()
+	// taxfee.DefaultID holds the default value on creation for the id field.
+	taxfee.DefaultID = taxfeeDescID.Default.(func() uuid.UUID)
+	userroleMixin := schema.UserRole{}.Mixin()
+	userroleMixinHooks2 := userroleMixin[2].Hooks()
+	userrole.Hooks[0] = userroleMixinHooks2[0]
+	userroleMixinInters2 := userroleMixin[2].Interceptors()
+	userrole.Interceptors[0] = userroleMixinInters2[0]
+	userroleMixinFields0 := userroleMixin[0].Fields()
+	_ = userroleMixinFields0
+	userroleMixinFields1 := userroleMixin[1].Fields()
+	_ = userroleMixinFields1
+	userroleMixinFields2 := userroleMixin[2].Fields()
+	_ = userroleMixinFields2
+	userroleFields := schema.UserRole{}.Fields()
+	_ = userroleFields
+	// userroleDescCreatedAt is the schema descriptor for created_at field.
+	userroleDescCreatedAt := userroleMixinFields1[0].Descriptor()
+	// userrole.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userrole.DefaultCreatedAt = userroleDescCreatedAt.Default.(func() time.Time)
+	// userroleDescUpdatedAt is the schema descriptor for updated_at field.
+	userroleDescUpdatedAt := userroleMixinFields1[1].Descriptor()
+	// userrole.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userrole.DefaultUpdatedAt = userroleDescUpdatedAt.Default.(func() time.Time)
+	// userrole.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userrole.UpdateDefaultUpdatedAt = userroleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userroleDescDeletedAt is the schema descriptor for deleted_at field.
+	userroleDescDeletedAt := userroleMixinFields2[0].Descriptor()
+	// userrole.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	userrole.DefaultDeletedAt = userroleDescDeletedAt.Default.(int64)
+	// userroleDescID is the schema descriptor for id field.
+	userroleDescID := userroleMixinFields0[0].Descriptor()
+	// userrole.DefaultID holds the default value on creation for the id field.
+	userrole.DefaultID = userroleDescID.Default.(func() uuid.UUID)
 }
 
 const (
