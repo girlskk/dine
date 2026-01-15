@@ -67,6 +67,7 @@ var Module = fx.Module(
 		asHandler(handler.NewRemarkHandler),
 		asHandler(handler.NewStallHandler),
 		asHandler(handler.NewOrderHandler),
+		asHandler(handler.NewOrderHandler),
 	),
 )
 

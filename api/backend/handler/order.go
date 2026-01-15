@@ -66,7 +66,7 @@ func (h *OrderHandler) SalesReport() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromStoreUserContext(ctx)
+		user := domain.FromBackendUserContext(ctx)
 		var storeIDs []uuid.UUID
 		if req.StoreIDs != "" {
 			for _, s := range strings.Split(req.StoreIDs, ",") {
@@ -140,7 +140,7 @@ func (h *OrderHandler) ProductSalesSummary() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromStoreUserContext(ctx)
+		user := domain.FromBackendUserContext(ctx)
 
 		var storeIDs []uuid.UUID
 		if req.StoreIDs != "" {
@@ -242,14 +242,15 @@ func (h *OrderHandler) Get() gin.HandlerFunc {
 //	@Summary	获取订单列表
 //	@Accept		json
 //	@Produce	json
-//	@Param		business_date	query		string				false	"营业日"
-//	@Param		order_no		query		string				false	"订单号"
-//	@Param		order_type		query		string				false	"订单类型"	Enums(SALE,REFUND,PARTIAL_REFUND)
-//	@Param		order_status	query		string				false	"订单状态"	Enums(PLACED,COMPLETED,CANCELLED)
-//	@Param		payment_status	query		string				false	"支付状态"	Enums(UNPAID,PAYING,PAID,REFUNDED)
-//	@Param		page			query		int					false	"页码"
-//	@Param		size			query		int					false	"每页数量"
-//	@Success	200				{object}	types.ListOrderResp	"成功"
+//	@Param		business_date_start	query		string				true	"营业日开始"
+//	@Param		business_date_end	query		string				true	"营业日结束"
+//	@Param		order_no			query		string				false	"订单号"
+//	@Param		order_type			query		string				false	"订单类型"	Enums(SALE,REFUND,PARTIAL_REFUND)
+//	@Param		order_status		query		string				false	"订单状态"	Enums(PLACED,COMPLETED,CANCELLED)
+//	@Param		payment_status		query		string				false	"支付状态"	Enums(UNPAID,PAYING,PAID,REFUNDED)
+//	@Param		page				query		int					false	"页码"
+//	@Param		size				query		int					false	"每页数量"
+//	@Success	200					{object}	types.ListOrderResp	"成功"
 //	@Router		/order [get]
 func (h *OrderHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -267,14 +268,15 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 		user := domain.FromBackendUserContext(ctx)
 
 		params := domain.OrderListParams{
-			MerchantID:    user.MerchantID,
-			BusinessDate:  req.BusinessDate,
-			OrderNo:       req.OrderNo,
-			OrderType:     domain.OrderType(req.OrderType),
-			OrderStatus:   domain.OrderStatus(req.OrderStatus),
-			PaymentStatus: domain.PaymentStatus(req.PaymentStatus),
-			Page:          req.Page,
-			Size:          req.Size,
+			MerchantID:        user.MerchantID,
+			BusinessDateStart: req.BusinessDateStart,
+			BusinessDateEnd:   req.BusinessDateEnd,
+			OrderNo:           req.OrderNo,
+			OrderType:         domain.OrderType(req.OrderType),
+			OrderStatus:       domain.OrderStatus(req.OrderStatus),
+			PaymentStatus:     domain.PaymentStatus(req.PaymentStatus),
+			Page:              req.Page,
+			Size:              req.Size,
 		}
 
 		items, total, err := h.OrderInteractor.List(ctx, params)

@@ -98,11 +98,6 @@ func ProductName(v string) predicate.RefundOrderProduct {
 	return predicate.RefundOrderProduct(sql.FieldEQ(FieldProductName, v))
 }
 
-// UnitID applies equality check predicate on the "unit_id" field. It's identical to UnitIDEQ.
-func UnitID(v uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldEQ(FieldUnitID, v))
-}
-
 // MainImage applies equality check predicate on the "main_image" field. It's identical to MainImageEQ.
 func MainImage(v string) predicate.RefundOrderProduct {
 	return predicate.RefundOrderProduct(sql.FieldEQ(FieldMainImage, v))
@@ -573,54 +568,14 @@ func CategoryNotNil() predicate.RefundOrderProduct {
 	return predicate.RefundOrderProduct(sql.FieldNotNull(FieldCategory))
 }
 
-// UnitIDEQ applies the EQ predicate on the "unit_id" field.
-func UnitIDEQ(v uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldEQ(FieldUnitID, v))
+// ProductUnitIsNil applies the IsNil predicate on the "product_unit" field.
+func ProductUnitIsNil() predicate.RefundOrderProduct {
+	return predicate.RefundOrderProduct(sql.FieldIsNull(FieldProductUnit))
 }
 
-// UnitIDNEQ applies the NEQ predicate on the "unit_id" field.
-func UnitIDNEQ(v uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldNEQ(FieldUnitID, v))
-}
-
-// UnitIDIn applies the In predicate on the "unit_id" field.
-func UnitIDIn(vs ...uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldIn(FieldUnitID, vs...))
-}
-
-// UnitIDNotIn applies the NotIn predicate on the "unit_id" field.
-func UnitIDNotIn(vs ...uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldNotIn(FieldUnitID, vs...))
-}
-
-// UnitIDGT applies the GT predicate on the "unit_id" field.
-func UnitIDGT(v uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldGT(FieldUnitID, v))
-}
-
-// UnitIDGTE applies the GTE predicate on the "unit_id" field.
-func UnitIDGTE(v uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldGTE(FieldUnitID, v))
-}
-
-// UnitIDLT applies the LT predicate on the "unit_id" field.
-func UnitIDLT(v uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldLT(FieldUnitID, v))
-}
-
-// UnitIDLTE applies the LTE predicate on the "unit_id" field.
-func UnitIDLTE(v uuid.UUID) predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldLTE(FieldUnitID, v))
-}
-
-// UnitIDIsNil applies the IsNil predicate on the "unit_id" field.
-func UnitIDIsNil() predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldIsNull(FieldUnitID))
-}
-
-// UnitIDNotNil applies the NotNil predicate on the "unit_id" field.
-func UnitIDNotNil() predicate.RefundOrderProduct {
-	return predicate.RefundOrderProduct(sql.FieldNotNull(FieldUnitID))
+// ProductUnitNotNil applies the NotNil predicate on the "product_unit" field.
+func ProductUnitNotNil() predicate.RefundOrderProduct {
+	return predicate.RefundOrderProduct(sql.FieldNotNull(FieldProductUnit))
 }
 
 // MainImageEQ applies the EQ predicate on the "main_image" field.

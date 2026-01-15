@@ -38,8 +38,8 @@ const (
 	FieldProductType = "product_type"
 	// FieldCategory holds the string denoting the category field in the database.
 	FieldCategory = "category"
-	// FieldUnitID holds the string denoting the unit_id field in the database.
-	FieldUnitID = "unit_id"
+	// FieldProductUnit holds the string denoting the product_unit field in the database.
+	FieldProductUnit = "product_unit"
 	// FieldMainImage holds the string denoting the main_image field in the database.
 	FieldMainImage = "main_image"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -116,7 +116,7 @@ var Columns = []string{
 	FieldProductName,
 	FieldProductType,
 	FieldCategory,
-	FieldUnitID,
+	FieldProductUnit,
 	FieldMainImage,
 	FieldDescription,
 	FieldIsGift,
@@ -259,11 +259,6 @@ func ByProductName(opts ...sql.OrderTermOption) OrderOption {
 // ByProductType orders the results by the product_type field.
 func ByProductType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProductType, opts...).ToFunc()
-}
-
-// ByUnitID orders the results by the unit_id field.
-func ByUnitID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUnitID, opts...).ToFunc()
 }
 
 // ByMainImage orders the results by the main_image field.

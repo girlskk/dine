@@ -344,6 +344,12 @@ func (oc *OrderCreate) SetNillableRemark(s *string) *OrderCreate {
 	return oc
 }
 
+// SetOperationLogs sets the "operation_logs" field.
+func (oc *OrderCreate) SetOperationLogs(dol []domain.OrderOperationLog) *OrderCreate {
+	oc.mutation.SetOperationLogs(dol)
+	return oc
+}
+
 // SetID sets the "id" field.
 func (oc *OrderCreate) SetID(u uuid.UUID) *OrderCreate {
 	oc.mutation.SetID(u)
@@ -699,6 +705,10 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.Remark(); ok {
 		_spec.SetField(order.FieldRemark, field.TypeString, value)
 		_node.Remark = value
+	}
+	if value, ok := oc.mutation.OperationLogs(); ok {
+		_spec.SetField(order.FieldOperationLogs, field.TypeJSON, value)
+		_node.OperationLogs = value
 	}
 	if nodes := oc.mutation.OrderProductsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1167,6 +1177,24 @@ func (u *OrderUpsert) UpdateRemark() *OrderUpsert {
 // ClearRemark clears the value of the "remark" field.
 func (u *OrderUpsert) ClearRemark() *OrderUpsert {
 	u.SetNull(order.FieldRemark)
+	return u
+}
+
+// SetOperationLogs sets the "operation_logs" field.
+func (u *OrderUpsert) SetOperationLogs(v []domain.OrderOperationLog) *OrderUpsert {
+	u.Set(order.FieldOperationLogs, v)
+	return u
+}
+
+// UpdateOperationLogs sets the "operation_logs" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateOperationLogs() *OrderUpsert {
+	u.SetExcluded(order.FieldOperationLogs)
+	return u
+}
+
+// ClearOperationLogs clears the value of the "operation_logs" field.
+func (u *OrderUpsert) ClearOperationLogs() *OrderUpsert {
+	u.SetNull(order.FieldOperationLogs)
 	return u
 }
 
@@ -1693,6 +1721,27 @@ func (u *OrderUpsertOne) UpdateRemark() *OrderUpsertOne {
 func (u *OrderUpsertOne) ClearRemark() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearRemark()
+	})
+}
+
+// SetOperationLogs sets the "operation_logs" field.
+func (u *OrderUpsertOne) SetOperationLogs(v []domain.OrderOperationLog) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetOperationLogs(v)
+	})
+}
+
+// UpdateOperationLogs sets the "operation_logs" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateOperationLogs() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateOperationLogs()
+	})
+}
+
+// ClearOperationLogs clears the value of the "operation_logs" field.
+func (u *OrderUpsertOne) ClearOperationLogs() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearOperationLogs()
 	})
 }
 
@@ -2386,6 +2435,27 @@ func (u *OrderUpsertBulk) UpdateRemark() *OrderUpsertBulk {
 func (u *OrderUpsertBulk) ClearRemark() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.ClearRemark()
+	})
+}
+
+// SetOperationLogs sets the "operation_logs" field.
+func (u *OrderUpsertBulk) SetOperationLogs(v []domain.OrderOperationLog) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetOperationLogs(v)
+	})
+}
+
+// UpdateOperationLogs sets the "operation_logs" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateOperationLogs() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateOperationLogs()
+	})
+}
+
+// ClearOperationLogs clears the value of the "operation_logs" field.
+func (u *OrderUpsertBulk) ClearOperationLogs() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.ClearOperationLogs()
 	})
 }
 

@@ -475,6 +475,24 @@ func (ou *OrderUpdate) ClearRemark() *OrderUpdate {
 	return ou
 }
 
+// SetOperationLogs sets the "operation_logs" field.
+func (ou *OrderUpdate) SetOperationLogs(dol []domain.OrderOperationLog) *OrderUpdate {
+	ou.mutation.SetOperationLogs(dol)
+	return ou
+}
+
+// AppendOperationLogs appends dol to the "operation_logs" field.
+func (ou *OrderUpdate) AppendOperationLogs(dol []domain.OrderOperationLog) *OrderUpdate {
+	ou.mutation.AppendOperationLogs(dol)
+	return ou
+}
+
+// ClearOperationLogs clears the value of the "operation_logs" field.
+func (ou *OrderUpdate) ClearOperationLogs() *OrderUpdate {
+	ou.mutation.ClearOperationLogs()
+	return ou
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
 func (ou *OrderUpdate) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdate {
 	ou.mutation.AddOrderProductIDs(ids...)
@@ -758,6 +776,17 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.RemarkCleared() {
 		_spec.ClearField(order.FieldRemark, field.TypeString)
+	}
+	if value, ok := ou.mutation.OperationLogs(); ok {
+		_spec.SetField(order.FieldOperationLogs, field.TypeJSON, value)
+	}
+	if value, ok := ou.mutation.AppendedOperationLogs(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, order.FieldOperationLogs, value)
+		})
+	}
+	if ou.mutation.OperationLogsCleared() {
+		_spec.ClearField(order.FieldOperationLogs, field.TypeJSON)
 	}
 	if ou.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1268,6 +1297,24 @@ func (ouo *OrderUpdateOne) ClearRemark() *OrderUpdateOne {
 	return ouo
 }
 
+// SetOperationLogs sets the "operation_logs" field.
+func (ouo *OrderUpdateOne) SetOperationLogs(dol []domain.OrderOperationLog) *OrderUpdateOne {
+	ouo.mutation.SetOperationLogs(dol)
+	return ouo
+}
+
+// AppendOperationLogs appends dol to the "operation_logs" field.
+func (ouo *OrderUpdateOne) AppendOperationLogs(dol []domain.OrderOperationLog) *OrderUpdateOne {
+	ouo.mutation.AppendOperationLogs(dol)
+	return ouo
+}
+
+// ClearOperationLogs clears the value of the "operation_logs" field.
+func (ouo *OrderUpdateOne) ClearOperationLogs() *OrderUpdateOne {
+	ouo.mutation.ClearOperationLogs()
+	return ouo
+}
+
 // AddOrderProductIDs adds the "order_products" edge to the OrderProduct entity by IDs.
 func (ouo *OrderUpdateOne) AddOrderProductIDs(ids ...uuid.UUID) *OrderUpdateOne {
 	ouo.mutation.AddOrderProductIDs(ids...)
@@ -1581,6 +1628,17 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if ouo.mutation.RemarkCleared() {
 		_spec.ClearField(order.FieldRemark, field.TypeString)
+	}
+	if value, ok := ouo.mutation.OperationLogs(); ok {
+		_spec.SetField(order.FieldOperationLogs, field.TypeJSON, value)
+	}
+	if value, ok := ouo.mutation.AppendedOperationLogs(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, order.FieldOperationLogs, value)
+		})
+	}
+	if ouo.mutation.OperationLogsCleared() {
+		_spec.ClearField(order.FieldOperationLogs, field.TypeJSON)
 	}
 	if ouo.mutation.OrderProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{

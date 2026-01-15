@@ -38,7 +38,7 @@ func (OrderProduct) Fields() []ent.Field {
 		field.String("product_name").NotEmpty().Comment("商品名称"),
 		field.Enum("product_type").GoType(domain.ProductType("")).Default(string(domain.ProductTypeNormal)).Comment("商品类型：normal（普通商品）、set_meal（套餐商品）"),
 		field.JSON("category", domain.Category{}).Optional().Comment("分类信息"),
-		field.UUID("unit_id", uuid.UUID{}).Optional().Comment("单位ID"),
+		field.JSON("product_unit", domain.ProductUnit{}).Optional().Comment("商品单位信息"),
 		field.String("main_image").MaxLen(512).Default("").Comment("商品主图"),
 		field.String("description").MaxLen(2000).Default("").Comment("菜品描述"),
 		field.Bool("is_gift").Default(false).Comment("是否赠送"),

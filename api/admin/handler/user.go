@@ -506,7 +506,6 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 			c.Error(h.checkErr(err))
 			return
 		}
-		
 		response.Ok(c, nil)
 	}
 }

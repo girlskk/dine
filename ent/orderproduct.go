@@ -43,8 +43,8 @@ type OrderProduct struct {
 	ProductType domain.ProductType `json:"product_type,omitempty"`
 	// 分类信息
 	Category domain.Category `json:"category,omitempty"`
-	// 单位ID
-	UnitID uuid.UUID `json:"unit_id,omitempty"`
+	// 商品单位信息
+	ProductUnit domain.ProductUnit `json:"product_unit,omitempty"`
 	// 商品主图
 	MainImage string `json:"main_image,omitempty"`
 	// 菜品描述
@@ -128,7 +128,7 @@ func (*OrderProduct) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case orderproduct.FieldSubtotal, orderproduct.FieldDiscountAmount, orderproduct.FieldAmountBeforeTax, orderproduct.FieldTaxRate, orderproduct.FieldTax, orderproduct.FieldAmountAfterTax, orderproduct.FieldTotal, orderproduct.FieldPromotionDiscount, orderproduct.FieldAttrAmount, orderproduct.FieldGiftAmount, orderproduct.FieldVoidAmount, orderproduct.FieldPrice:
 			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
-		case orderproduct.FieldCategory, orderproduct.FieldGroups, orderproduct.FieldSpecRelations, orderproduct.FieldAttrRelations:
+		case orderproduct.FieldCategory, orderproduct.FieldProductUnit, orderproduct.FieldGroups, orderproduct.FieldSpecRelations, orderproduct.FieldAttrRelations:
 			values[i] = new([]byte)
 		case orderproduct.FieldIsGift:
 			values[i] = new(sql.NullBool)
@@ -138,7 +138,7 @@ func (*OrderProduct) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case orderproduct.FieldCreatedAt, orderproduct.FieldUpdatedAt, orderproduct.FieldRefundedAt:
 			values[i] = new(sql.NullTime)
-		case orderproduct.FieldID, orderproduct.FieldOrderID, orderproduct.FieldProductID, orderproduct.FieldUnitID, orderproduct.FieldRefundedBy:
+		case orderproduct.FieldID, orderproduct.FieldOrderID, orderproduct.FieldProductID, orderproduct.FieldRefundedBy:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -223,11 +223,13 @@ func (op *OrderProduct) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field category: %w", err)
 				}
 			}
-		case orderproduct.FieldUnitID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field unit_id", values[i])
-			} else if value != nil {
-				op.UnitID = *value
+		case orderproduct.FieldProductUnit:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field product_unit", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &op.ProductUnit); err != nil {
+					return fmt.Errorf("unmarshal field product_unit: %w", err)
+				}
 			}
 		case orderproduct.FieldMainImage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -469,8 +471,8 @@ func (op *OrderProduct) String() string {
 	builder.WriteString("category=")
 	builder.WriteString(fmt.Sprintf("%v", op.Category))
 	builder.WriteString(", ")
-	builder.WriteString("unit_id=")
-	builder.WriteString(fmt.Sprintf("%v", op.UnitID))
+	builder.WriteString("product_unit=")
+	builder.WriteString(fmt.Sprintf("%v", op.ProductUnit))
 	builder.WriteString(", ")
 	builder.WriteString("main_image=")
 	builder.WriteString(op.MainImage)
