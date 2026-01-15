@@ -46,6 +46,7 @@ func (interactor *BackendUserInteractor) Login(ctx context.Context, username, pa
 
 	if !user.Enabled {
 		err = domain.ErrUserDisabled
+		return
 	}
 	expAt = time.Now().Add(time.Duration(interactor.AuthConfig.Expire) * time.Second)
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, AuthToken{
@@ -127,9 +128,12 @@ func (interactor *BackendUserInteractor) Create(ctx context.Context, user *domai
 		}
 		department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrDepartmentNotExists
+			}
 			return err
 		}
-		if !department.Enable {
+		if !department.Enabled {
 			return domain.ErrDepartmentDisabled
 		}
 		if string(department.DepartmentType) != string(domain.UserTypeBackend) {
@@ -141,9 +145,12 @@ func (interactor *BackendUserInteractor) Create(ctx context.Context, user *domai
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
-		if !role.Enable {
+		if !role.Enabled {
 			return domain.ErrRoleDisabled
 		}
 		if string(role.RoleType) != string(domain.UserTypeBackend) {
@@ -199,9 +206,12 @@ func (interactor *BackendUserInteractor) Update(ctx context.Context, user *domai
 		if user.DepartmentID != oldUser.DepartmentID {
 			department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
 			if err != nil {
+				if domain.IsNotFound(err) {
+					return domain.ErrDepartmentNotExists
+				}
 				return err
 			}
-			if !department.Enable {
+			if !department.Enabled {
 				return domain.ErrDepartmentDisabled
 			}
 			if string(department.DepartmentType) != string(domain.UserTypeBackend) {
@@ -214,9 +224,12 @@ func (interactor *BackendUserInteractor) Update(ctx context.Context, user *domai
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
-		if !role.Enable {
+		if !role.Enabled {
 			return domain.ErrRoleDisabled
 		}
 		if string(role.RoleType) != string(domain.UserTypeBackend) {
@@ -313,6 +326,9 @@ func (interactor *BackendUserInteractor) GetUser(ctx context.Context, id uuid.UU
 	} else {
 		role, err = interactor.DS.RoleRepo().FindByID(ctx, userRole.RoleID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return nil, domain.ErrRoleNotExists
+			}
 			return
 		}
 	}
@@ -397,7 +413,7 @@ func (interactor *BackendUserInteractor) GetUsers(ctx context.Context, pager *up
 	return
 }
 
-// SimpleUpdate implements toggling simple fields for BackendUser (e.g., enabled)
+// SimpleUpdate implements toggling simple fields for BackendUser (e.g., Enabled)
 func (interactor *BackendUserInteractor) SimpleUpdate(ctx context.Context, updateField domain.BackendUserSimpleUpdateField, params domain.BackendUserSimpleUpdateParams) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "BackendUserInteractor.SimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
@@ -411,7 +427,7 @@ func (interactor *BackendUserInteractor) SimpleUpdate(ctx context.Context, updat
 			return err
 		}
 		switch updateField {
-		case domain.BackendUserSimpleUpdateFieldEnable:
+		case domain.BackendUserSimpleUpdateFieldEnabled:
 			if user.Enabled == params.Enabled {
 				return nil
 			}

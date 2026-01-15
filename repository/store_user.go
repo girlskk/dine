@@ -40,7 +40,6 @@ func (repo *StoreUserRepository) Create(ctx context.Context, user *domain.StoreU
 		SetStoreID(user.StoreID).
 		SetCode(user.Code).
 		SetRealName(user.RealName).
-		SetGender(user.Gender).
 		SetEmail(user.Email).
 		SetPhoneNumber(user.PhoneNumber).
 		SetEnabled(user.Enabled).
@@ -49,7 +48,11 @@ func (repo *StoreUserRepository) Create(ctx context.Context, user *domain.StoreU
 	if user.DepartmentID != uuid.Nil {
 		builder = builder.SetDepartmentID(user.DepartmentID)
 	}
-
+	if user.Gender != "" {
+		builder = builder.SetGender(user.Gender)
+	} else {
+		builder = builder.SetGender(domain.GenderUnknown)
+	}
 	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
@@ -133,7 +136,6 @@ func (repo *StoreUserRepository) Update(ctx context.Context, user *domain.StoreU
 		SetNickname(user.Nickname).
 		SetHashedPassword(user.HashedPassword).
 		SetRealName(user.RealName).
-		SetGender(user.Gender).
 		SetEmail(user.Email).
 		SetPhoneNumber(user.PhoneNumber).
 		SetEnabled(user.Enabled).
@@ -141,6 +143,11 @@ func (repo *StoreUserRepository) Update(ctx context.Context, user *domain.StoreU
 
 	if user.DepartmentID != uuid.Nil {
 		builder = builder.SetDepartmentID(user.DepartmentID)
+	}
+	if user.Gender != "" {
+		builder = builder.SetGender(user.Gender)
+	} else {
+		builder = builder.SetGender(domain.GenderUnknown)
 	}
 	_, err = builder.Save(ctx)
 	if err != nil {
@@ -233,6 +240,12 @@ func (repo *StoreUserRepository) buildFilterQuery(filter *domain.StoreUserListFi
 	}
 	if filter.Enabled != nil {
 		query = query.Where(storeuser.EnabledEQ(*filter.Enabled))
+	}
+	if filter.MerchantID != uuid.Nil {
+		query = query.Where(storeuser.MerchantIDEQ(filter.MerchantID))
+	}
+	if filter.StoreID != uuid.Nil {
+		query = query.Where(storeuser.StoreIDEQ(filter.StoreID))
 	}
 
 	return query

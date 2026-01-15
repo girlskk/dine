@@ -30,8 +30,8 @@ const (
 	FieldCode = "code"
 	// FieldRoleType holds the string denoting the role_type field in the database.
 	FieldRoleType = "role_type"
-	// FieldEnable holds the string denoting the enable field in the database.
-	FieldEnable = "enable"
+	// FieldEnabled holds the string denoting the enabled field in the database.
+	FieldEnabled = "enabled"
 	// FieldMerchantID holds the string denoting the merchant_id field in the database.
 	FieldMerchantID = "merchant_id"
 	// FieldStoreID holds the string denoting the store_id field in the database.
@@ -80,7 +80,7 @@ var Columns = []string{
 	FieldName,
 	FieldCode,
 	FieldRoleType,
-	FieldEnable,
+	FieldEnabled,
 	FieldMerchantID,
 	FieldStoreID,
 	FieldLoginChannels,
@@ -115,8 +115,8 @@ var (
 	DefaultDeletedAt int64
 	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
 	CodeValidator func(string) error
-	// DefaultEnable holds the default value on creation for the "enable" field.
-	DefaultEnable bool
+	// DefaultEnabled holds the default value on creation for the "enabled" field.
+	DefaultEnabled bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -181,9 +181,9 @@ func ByRoleType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRoleType, opts...).ToFunc()
 }
 
-// ByEnable orders the results by the enable field.
-func ByEnable(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEnable, opts...).ToFunc()
+// ByEnabled orders the results by the enabled field.
+func ByEnabled(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEnabled, opts...).ToFunc()
 }
 
 // ByMerchantID orders the results by the merchant_id field.

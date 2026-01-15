@@ -417,7 +417,7 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnable, domain.AdminUserSimpleUpdateParams{
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, domain.AdminUserSimpleUpdateParams{
 			ID:      id,
 			Enabled: true,
 		})
@@ -454,7 +454,7 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnable, domain.AdminUserSimpleUpdateParams{
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.AdminUserSimpleUpdateFieldEnabled, domain.AdminUserSimpleUpdateParams{
 			ID:      id,
 			Enabled: false,
 		})

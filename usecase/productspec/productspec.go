@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -145,7 +146,21 @@ func (i *ProductSpecInteractor) PagedListBySearch(
 		util.SpanErrFinish(span, err)
 	}()
 
-	return i.DS.ProductSpecRepo().PagedListBySearch(ctx, page, params)
+	specs, err := i.DS.ProductSpecRepo().PagedListBySearch(ctx, page, params)
+	if err != nil {
+		return nil, err
+	}
+	specIDs := lo.Map(specs.Items, func(spec *domain.ProductSpec, _ int) uuid.UUID {
+		return spec.ID
+	})
+	productCountMap, err := i.DS.ProductRepo().CountBySpecIDs(ctx, specIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, spec := range specs.Items {
+		spec.ProductCount = productCountMap[spec.ID]
+	}
+	return specs, nil
 }
 
 func verifyProductSpecOwnership(user domain.User, spec *domain.ProductSpec) error {

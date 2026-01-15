@@ -302,6 +302,10 @@ func init() {
 	businessconfigDescDeletedAt := businessconfigMixinFields2[0].Descriptor()
 	// businessconfig.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	businessconfig.DefaultDeletedAt = businessconfigDescDeletedAt.Default.(int64)
+	// businessconfigDescStoreID is the schema descriptor for store_id field.
+	businessconfigDescStoreID := businessconfigFields[2].Descriptor()
+	// businessconfig.DefaultStoreID holds the default value on creation for the store_id field.
+	businessconfig.DefaultStoreID = businessconfigDescStoreID.Default.(string)
 	// businessconfigDescName is the schema descriptor for name field.
 	businessconfigDescName := businessconfigFields[4].Descriptor()
 	// businessconfig.DefaultName holds the default value on creation for the name field.
@@ -326,8 +330,12 @@ func init() {
 	businessconfigDescIsDefault := businessconfigFields[10].Descriptor()
 	// businessconfig.DefaultIsDefault holds the default value on creation for the is_default field.
 	businessconfig.DefaultIsDefault = businessconfigDescIsDefault.Default.(bool)
+	// businessconfigDescModifyStatus is the schema descriptor for modify_status field.
+	businessconfigDescModifyStatus := businessconfigFields[11].Descriptor()
+	// businessconfig.DefaultModifyStatus holds the default value on creation for the modify_status field.
+	businessconfig.DefaultModifyStatus = businessconfigDescModifyStatus.Default.(bool)
 	// businessconfigDescStatus is the schema descriptor for status field.
-	businessconfigDescStatus := businessconfigFields[11].Descriptor()
+	businessconfigDescStatus := businessconfigFields[12].Descriptor()
 	// businessconfig.DefaultStatus holds the default value on creation for the status field.
 	businessconfig.DefaultStatus = businessconfigDescStatus.Default.(bool)
 	// businessconfigDescID is the schema descriptor for id field.
@@ -438,10 +446,10 @@ func init() {
 	departmentDescCode := departmentFields[1].Descriptor()
 	// department.CodeValidator is a validator for the "code" field. It is called by the builders before save.
 	department.CodeValidator = departmentDescCode.Validators[0].(func(string) error)
-	// departmentDescEnable is the schema descriptor for enable field.
-	departmentDescEnable := departmentFields[3].Descriptor()
-	// department.DefaultEnable holds the default value on creation for the enable field.
-	department.DefaultEnable = departmentDescEnable.Default.(bool)
+	// departmentDescEnabled is the schema descriptor for enabled field.
+	departmentDescEnabled := departmentFields[3].Descriptor()
+	// department.DefaultEnabled holds the default value on creation for the enabled field.
+	department.DefaultEnabled = departmentDescEnabled.Default.(bool)
 	// departmentDescID is the schema descriptor for id field.
 	departmentDescID := departmentMixinFields0[0].Descriptor()
 	// department.DefaultID holds the default value on creation for the id field.
@@ -1931,10 +1939,10 @@ func init() {
 	roleDescCode := roleFields[1].Descriptor()
 	// role.CodeValidator is a validator for the "code" field. It is called by the builders before save.
 	role.CodeValidator = roleDescCode.Validators[0].(func(string) error)
-	// roleDescEnable is the schema descriptor for enable field.
-	roleDescEnable := roleFields[3].Descriptor()
-	// role.DefaultEnable holds the default value on creation for the enable field.
-	role.DefaultEnable = roleDescEnable.Default.(bool)
+	// roleDescEnabled is the schema descriptor for enabled field.
+	roleDescEnabled := roleFields[3].Descriptor()
+	// role.DefaultEnabled holds the default value on creation for the enabled field.
+	role.DefaultEnabled = roleDescEnabled.Default.(bool)
 	// roleDescID is the schema descriptor for id field.
 	roleDescID := roleMixinFields0[0].Descriptor()
 	// role.DefaultID holds the default value on creation for the id field.

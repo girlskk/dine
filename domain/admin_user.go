@@ -155,7 +155,7 @@ type AdminUserExistsParams struct {
 type AdminUserSimpleUpdateField string
 
 const (
-	AdminUserSimpleUpdateFieldEnable   AdminUserSimpleUpdateField = "enable"   // 启用/禁用
+	AdminUserSimpleUpdateFieldEnabled  AdminUserSimpleUpdateField = "enabled"  // 启用/禁用
 	AdminUserSimpleUpdateFieldPassword AdminUserSimpleUpdateField = "password" // 密码
 )
 

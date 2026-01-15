@@ -93,7 +93,7 @@ definitions:
       weekdays:
         description: 适用的星期几，0=星期日，1=星期一，依此类推
         items:
-          $ref: '#/definitions/time.Weekday'
+          type: integer
         type: array
     type: object
   domain.BusinessModel:
@@ -143,7 +143,7 @@ definitions:
         type: string
       department_type:
         $ref: '#/definitions/domain.DepartmentType'
-      enable:
+      enabled:
         type: boolean
       id:
         type: string
@@ -412,7 +412,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.RoleDataScopeType'
         description: 数据权限范围
-      enable:
+      enabled:
         description: 是否启用
         type: boolean
       id:
@@ -660,24 +660,6 @@ definitions:
         type: string
       data: {}
     type: object
-  time.Weekday:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
   types.Address:
     properties:
       address:
@@ -1071,7 +1053,7 @@ definitions:
     type: object
   types.DepartmentCreateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
@@ -1090,7 +1072,7 @@ definitions:
     type: object
   types.DepartmentUpdateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
@@ -1218,7 +1200,7 @@ definitions:
     type: object
   types.RoleCreateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
@@ -1244,41 +1226,11 @@ definitions:
     type: object
   types.RoleUpdateReq:
     properties:
-      enable:
+      enabled:
         type: boolean
       name:
         maxLength: 50
         type: string
-    required:
-    - name
-    type: object
-  types.RouterMenuCreateReq:
-    properties:
-      component:
-        description: 组件路径
-        maxLength: 255
-        type: string
-      enabled:
-        description: 是否启用
-        type: boolean
-      icon:
-        description: 菜单图标
-        maxLength: 500
-        type: string
-      name:
-        description: 菜单名称
-        maxLength: 100
-        type: string
-      parent_id:
-        description: 父级菜单ID
-        type: string
-      path:
-        description: 路由路径
-        maxLength: 255
-        type: string
-      sort:
-        description: 排序
-        type: integer
     required:
     - name
     type: object
@@ -1290,36 +1242,6 @@ definitions:
         type: array
       total:
         type: integer
-    type: object
-  types.RouterMenuUpdateReq:
-    properties:
-      component:
-        description: 组件路径
-        maxLength: 255
-        type: string
-      enabled:
-        description: 是否启用
-        type: boolean
-      icon:
-        description: 菜单图标
-        maxLength: 500
-        type: string
-      name:
-        description: 菜单名称
-        maxLength: 100
-        type: string
-      parent_id:
-        description: 父级菜单ID
-        type: string
-      path:
-        description: 路由路径
-        maxLength: 255
-        type: string
-      sort:
-        description: 排序
-        type: integer
-    required:
-    - name
     type: object
   types.SetMenusReq:
     properties:
@@ -1597,7 +1519,7 @@ paths:
         name: code
         type: string
       - in: query
-        name: enable
+        name: enabled
         type: boolean
       - in: query
         name: name
@@ -1761,7 +1683,7 @@ paths:
       description: 分页查询角色
       parameters:
       - in: query
-        name: enable
+        name: enabled
         type: boolean
       - in: query
         name: name
@@ -1980,130 +1902,6 @@ paths:
       security:
       - BearerAuth: []
       summary: 菜单列表
-      tags:
-      - 菜单管理
-    post:
-      consumes:
-      - application/json
-      description: 新建一个菜单
-      parameters:
-      - description: 创建菜单请求
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.RouterMenuCreateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 创建菜单
-      tags:
-      - 菜单管理
-  /common/router_menu/{id}:
-    delete:
-      description: 删除指定菜单
-      parameters:
-      - description: 菜单ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 删除菜单
-      tags:
-      - 菜单管理
-    get:
-      description: 查询指定菜单
-      parameters:
-      - description: 菜单ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.RouterMenu'
-      security:
-      - BearerAuth: []
-      summary: 获取菜单详情
-      tags:
-      - 菜单管理
-    put:
-      consumes:
-      - application/json
-      description: 修改指定菜单
-      parameters:
-      - description: 菜单ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: 更新菜单请求
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/types.RouterMenuUpdateReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 更新菜单
-      tags:
-      - 菜单管理
-  /common/router_menu/{id}/disable:
-    put:
-      description: 禁用指定菜单
-      parameters:
-      - description: 菜单ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 禁用菜单
-      tags:
-      - 菜单管理
-  /common/router_menu/{id}/enable:
-    put:
-      description: 启用指定菜单
-      parameters:
-      - description: 菜单ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: No Content
-      security:
-      - BearerAuth: []
-      summary: 启用菜单
       tags:
       - 菜单管理
   /merchant/merchant/{id}:

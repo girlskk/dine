@@ -15,6 +15,35 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/menu": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "查询所有菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.MenuSearchRes"
+                        }
+                    }
+                }
+            }
+        },
         "/order": {
             "get": {
                 "security": [
@@ -853,6 +882,121 @@ const docTemplate = `{
                 "FeeTypeService",
                 "FeeTypePackaging"
             ]
+        },
+        "domain.Menu": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "菜单ID",
+                    "type": "string"
+                },
+                "item_count": {
+                    "description": "菜单项数量",
+                    "type": "integer"
+                },
+                "items": {
+                    "description": "菜单项列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.MenuItem"
+                    }
+                },
+                "merchant_id": {
+                    "description": "品牌商ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "菜单名称",
+                    "type": "string"
+                },
+                "store_count": {
+                    "description": "适用门店数量",
+                    "type": "integer"
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
+                "stores": {
+                    "description": "关联信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoreSimple"
+                    }
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MenuItem": {
+            "type": "object",
+            "properties": {
+                "base_price": {
+                    "description": "基础价（可选，单位：分）",
+                    "type": "number"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "菜单项ID",
+                    "type": "string"
+                },
+                "member_price": {
+                    "description": "会员价（可选，单位：分）",
+                    "type": "number"
+                },
+                "menu_id": {
+                    "description": "菜单ID",
+                    "type": "string"
+                },
+                "product": {
+                    "description": "关联信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Product"
+                        }
+                    ]
+                },
+                "product_id": {
+                    "description": "菜品ID",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MenuSearchRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Menu"
+                    }
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总页数",
+                    "type": "integer"
+                }
+            }
         },
         "domain.Order": {
             "type": "object",
@@ -1821,11 +1965,10 @@ const docTemplate = `{
                 },
                 "groups": {
                     "description": "套餐组列表",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.SetMealGroups"
-                        }
-                    ]
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SetMealGroup"
+                    }
                 },
                 "id": {
                     "description": "商品ID",
@@ -2947,12 +3090,6 @@ const docTemplate = `{
                 "SetMealGroupSelectionTypeOptional"
             ]
         },
-        "domain.SetMealGroups": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/domain.SetMealGroup"
-            }
-        },
         "domain.Stall": {
             "type": "object",
             "properties": {
@@ -3038,6 +3175,18 @@ const docTemplate = `{
                 "StallTypeStore"
             ]
         },
+        "domain.StoreSimple": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "store_name": {
+                    "description": "门店名称",
+                    "type": "string"
+                }
+            }
+        },
         "domain.TaxFee": {
             "type": "object",
             "properties": {
@@ -3095,14 +3244,17 @@ const docTemplate = `{
         "domain.TaxFeeType": {
             "type": "string",
             "enum": [
+                "system",
                 "merchant",
                 "store"
             ],
             "x-enum-comments": {
                 "TaxFeeTypeMerchant": "商户",
-                "TaxFeeTypeStore": "门店"
+                "TaxFeeTypeStore": "门店",
+                "TaxFeeTypeSystem": "系统内置"
             },
             "x-enum-varnames": [
+                "TaxFeeTypeSystem",
                 "TaxFeeTypeMerchant",
                 "TaxFeeTypeStore"
             ]

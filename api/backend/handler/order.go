@@ -30,7 +30,8 @@ func (h *OrderHandler) Routes(r gin.IRouter) {
 	r = r.Group("/order")
 	r.GET("/sales-report", h.SalesReport())
 	r.GET("/product-sales-summary", h.ProductSalesSummary())
-	r.GET("/product-sales-detail", h.ProductSalesDetail())
+	r.GET("/:id", h.Get())
+	r.GET("", h.List())
 }
 
 func (h *OrderHandler) NoAuths() []string {
@@ -197,91 +198,100 @@ func (h *OrderHandler) ProductSalesSummary() gin.HandlerFunc {
 	}
 }
 
-// ProductSalesDetail 商品销售明细
+// Get
 //
-//	@Tags		数据分析
+//	@Tags		订单
 //	@Security	BearerAuth
-//	@Summary	商品销售明细表
+//	@Summary	获取订单详情
 //	@Accept		json
 //	@Produce	json
-//	@Param		store_ids			query		string							false	"门店ID列表（逗号分隔）"
-//	@Param		business_date_start	query		string							true	"营业日开始"
-//	@Param		business_date_end	query		string							true	"营业日结束"
-//	@Param		order_channel		query		string							false	"订单来源"
-//	@Param		category_id			query		string							false	"商品分类ID"
-//	@Param		product_name		query		string							false	"商品名称（模糊搜索）"
-//	@Param		product_type		query		string							false	"商品类型：normal/set_meal"
-//	@Param		order_no			query		string							false	"订单号"
-//	@Param		page				query		int								false	"页码"
-//	@Param		size				query		int								false	"每页数量"
-//	@Success	200					{object}	types.ProductSalesDetailResp	"成功"
-//	@Router		/order/product-sales-detail [get]
-func (h *OrderHandler) ProductSalesDetail() gin.HandlerFunc {
+//	@Param		id	path		string			true	"订单ID"
+//	@Success	200	{object}	domain.Order	"成功"
+//	@Router		/order/{id} [get]
+func (h *OrderHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		logger := logging.FromContext(ctx).Named("OrderHandler.ProductSalesDetail")
+		logger := logging.FromContext(ctx).Named("OrderHandler.Get")
 		ctx = logging.NewContext(ctx, logger)
 		c.Request = c.Request.Clone(ctx)
 
-		var req types.ProductSalesDetailReq
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		o, err := h.OrderInteractor.Get(ctx, id)
+		if err != nil {
+			if domain.IsNotFound(err) {
+				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
+				return
+			}
+			c.Error(fmt.Errorf("failed to get order: %w", err))
+			return
+		}
+
+		response.Ok(c, o)
+	}
+}
+
+// List
+//
+//	@Tags		订单
+//	@Security	BearerAuth
+//	@Summary	获取订单列表
+//	@Accept		json
+//	@Produce	json
+//	@Param		business_date	query		string				false	"营业日"
+//	@Param		order_no		query		string				false	"订单号"
+//	@Param		order_type		query		string				false	"订单类型"	Enums(SALE,REFUND,PARTIAL_REFUND)
+//	@Param		order_status	query		string				false	"订单状态"	Enums(PLACED,COMPLETED,CANCELLED)
+//	@Param		payment_status	query		string				false	"支付状态"	Enums(UNPAID,PAYING,PAID,REFUNDED)
+//	@Param		page			query		int					false	"页码"
+//	@Param		size			query		int					false	"每页数量"
+//	@Success	200				{object}	types.ListOrderResp	"成功"
+//	@Router		/order [get]
+func (h *OrderHandler) List() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("OrderHandler.List")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.ListOrderReq
 		if err := c.ShouldBindQuery(&req); err != nil {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
 
-		user := domain.FromStoreUserContext(ctx)
+		user := domain.FromBackendUserContext(ctx)
 
-		var storeIDs []uuid.UUID
-		if req.StoreIDs != "" {
-			for _, s := range strings.Split(req.StoreIDs, ",") {
-				s = strings.TrimSpace(s)
-				if s == "" {
-					continue
-				}
-				id, err := uuid.Parse(s)
-				if err != nil {
-					c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams,
-						fmt.Errorf("invalid store_id: %w", err)))
-					return
-				}
-				storeIDs = append(storeIDs, id)
-			}
-		}
-
-		var categoryID uuid.UUID
-		if req.CategoryID != "" {
-			var err error
-			categoryID, err = uuid.Parse(req.CategoryID)
-			if err != nil {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams,
-					fmt.Errorf("invalid category_id: %w", err)))
-				return
-			}
-		}
-		params := domain.ProductSalesDetailParams{
+		params := domain.OrderListParams{
 			MerchantID:        user.MerchantID,
-			StoreIDs:          []uuid.UUID{user.StoreID},
 			BusinessDateStart: req.BusinessDateStart,
 			BusinessDateEnd:   req.BusinessDateEnd,
-			OrderChannel:      domain.Channel(req.OrderChannel),
-			CategoryID:        categoryID,
-			ProductName:       req.ProductName,
-			ProductType:       domain.ProductType(req.ProductType),
 			OrderNo:           req.OrderNo,
+			OrderType:         domain.OrderType(req.OrderType),
+			OrderStatus:       domain.OrderStatus(req.OrderStatus),
+			PaymentStatus:     domain.PaymentStatus(req.PaymentStatus),
 			Page:              req.Page,
 			Size:              req.Size,
 		}
 
-		items, total, err := h.OrderInteractor.ProductSalesDetail(ctx, params)
+		items, total, err := h.OrderInteractor.List(ctx, params)
 		if err != nil {
-			c.Error(fmt.Errorf("failed to get product sales detail: %w", err))
+			if domain.IsParamsError(err) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+				return
+			}
+			c.Error(fmt.Errorf("failed to list orders: %w", err))
 			return
 		}
 
 		p := req.ToPagination()
 		p.SetTotal(total)
 
-		response.Ok(c, &types.ProductSalesDetailResp{
+		response.Ok(c, &types.ListOrderResp{
 			Items:      items,
 			Pagination: p,
 		})

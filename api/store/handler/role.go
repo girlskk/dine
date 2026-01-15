@@ -18,18 +18,20 @@ import (
 )
 
 type RoleHandler struct {
-	Interactor   domain.RoleInteractor
-	RoleSequence domain.IncrSequence
+	Interactor         domain.RoleInteractor
+	RoleMenuInteractor domain.RoleMenuInteractor
+	RoleSequence       domain.IncrSequence
 }
 
 type RoleHandlerParams struct {
 	fx.In
-	Interactor   domain.RoleInteractor
-	RoleSequence domain.IncrSequence `name:"store_role_seq"`
+	Interactor         domain.RoleInteractor
+	RoleMenuInteractor domain.RoleMenuInteractor
+	RoleSequence       domain.IncrSequence `name:"store_role_seq"`
 }
 
 func NewRoleHandler(p RoleHandlerParams) *RoleHandler {
-	return &RoleHandler{Interactor: p.Interactor, RoleSequence: p.RoleSequence}
+	return &RoleHandler{Interactor: p.Interactor, RoleMenuInteractor: p.RoleMenuInteractor, RoleSequence: p.RoleSequence}
 }
 
 func (h *RoleHandler) Routes(r gin.IRouter) {
@@ -78,14 +80,14 @@ func (h *RoleHandler) Create() gin.HandlerFunc {
 		params := &domain.CreateRoleParams{
 			Name:       req.Name,
 			Code:       roleCode,
-			RoleType:   domain.RoleTypeAdmin,
+			RoleType:   domain.RoleTypeStore,
 			DataScope:  domain.RoleDataScopeAll,
-			Enable:     req.Enable,
+			Enabled:    req.Enabled,
 			MerchantID: user.MerchantID,
 			StoreID:    user.StoreID,
 		}
 
-		if err := h.Interactor.CreateRole(ctx, params); err != nil {
+		if err := h.Interactor.CreateRole(ctx, params, user); err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -125,15 +127,16 @@ func (h *RoleHandler) Update() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromStoreUserContext(ctx)
 		params := &domain.UpdateRoleParams{
 			ID:        id,
 			Name:      req.Name,
-			RoleType:  domain.RoleTypeAdmin,
+			RoleType:  domain.RoleTypeStore,
 			DataScope: domain.RoleDataScopeAll,
-			Enable:    req.Enable,
+			Enabled:   req.Enabled,
 		}
 
-		if err := h.Interactor.UpdateRole(ctx, params); err != nil {
+		if err := h.Interactor.UpdateRole(ctx, params, user); err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -165,7 +168,8 @@ func (h *RoleHandler) Delete() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.Interactor.DeleteRole(ctx, id); err != nil {
+		user := domain.FromStoreUserContext(ctx)
+		if err := h.Interactor.DeleteRole(ctx, id, user); err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
@@ -197,7 +201,8 @@ func (h *RoleHandler) Get() gin.HandlerFunc {
 			return
 		}
 
-		role, err := h.Interactor.GetRole(ctx, id)
+		user := domain.FromStoreUserContext(ctx)
+		role, err := h.Interactor.GetRole(ctx, id, user)
 		if err != nil {
 			if domain.IsNotFound(err) {
 				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
@@ -241,8 +246,8 @@ func (h *RoleHandler) List() gin.HandlerFunc {
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.RoleListFilter{
 			Name:       req.Name,
-			RoleType:   domain.RoleTypeAdmin,
-			Enable:     req.Enable,
+			RoleType:   domain.RoleTypeStore,
+			Enabled:    req.Enabled,
 			MerchantID: user.MerchantID,
 			StoreID:    user.StoreID,
 		}
@@ -282,10 +287,11 @@ func (h *RoleHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnable, domain.RoleSimpleUpdateParams{
-			ID:     id,
-			Enable: true,
-		})
+		user := domain.FromStoreUserContext(ctx)
+		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnabled, domain.RoleSimpleUpdateParams{
+			ID:      id,
+			Enabled: true,
+		}, user)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -319,16 +325,91 @@ func (h *RoleHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnable, domain.RoleSimpleUpdateParams{
-			ID:     id,
-			Enable: false,
-		})
+		user := domain.FromStoreUserContext(ctx)
+		err = h.Interactor.SimpleUpdate(ctx, domain.RoleSimpleUpdateFieldEnabled, domain.RoleSimpleUpdateParams{
+			ID:      id,
+			Enabled: false,
+		}, user)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
 		}
 
 		response.Ok(c, nil)
+	}
+}
+
+// SetMenus 设置角色菜单
+//
+//	@Tags			角色管理
+//	@Summary		设置角色菜单
+//	@Description	为指定角色设置菜单路径（交集保留，新增/删除按 paths 调整）
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string				true	"角色ID"
+//	@Param			data	body	types.SetMenusReq	true	"设置菜单请求"
+//	@Success		200		"No Content"
+//	@Router			/common/role/{id}/menus [post]
+func (h *RoleHandler) SetMenus() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("RoleHandler.SetMenus")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		var req types.SetMenusReq
+		if err := c.ShouldBind(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		if err := h.RoleMenuInteractor.SetRoleMenu(ctx, id, req.Paths); err != nil {
+			c.Error(h.checkErr(err))
+			return
+		}
+
+		response.Ok(c, nil)
+	}
+}
+
+// RoleMenuList 角色菜单列表
+//
+//	@Tags			角色管理
+//	@Summary		角色菜单列表
+//	@Description	分页或非分页获取指定角色的菜单路径列表
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"角色ID"
+//	@Success		200	{object}	types.RoleMenusResp
+//	@Router			/common/role/{id}/menus [get]
+func (h *RoleHandler) RoleMenuList() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("RoleHandler.RoleMenuList")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		paths, err := h.RoleMenuInteractor.RoleMenuList(ctx, id)
+		if err != nil {
+			c.Error(h.checkErr(err))
+			return
+		}
+
+		response.Ok(c, types.RoleMenusResp{Paths: paths})
 	}
 }
 
@@ -345,14 +426,14 @@ func (h *RoleHandler) generateRoleCode(ctx context.Context) (string, error) {
 
 func (h *RoleHandler) checkErr(err error) error {
 	switch {
-	case errors.Is(err, domain.ErrRoleAssignedCannotDisable):
-		return errorx.New(http.StatusBadRequest, errcode.RoleAssignedCannotDisable, err)
-	case errors.Is(err, domain.ErrRoleAssignedCannotDelete):
-		return errorx.New(http.StatusBadRequest, errcode.RoleAssignedCannotDelete, err)
 	case errors.Is(err, domain.ErrUserRoleNotExists):
 		return errorx.New(http.StatusBadRequest, errcode.UserRoleNotExists, err)
 	case errors.Is(err, domain.ErrRoleNameExists), errors.Is(err, domain.ErrRoleCodeExists):
 		return errorx.New(http.StatusConflict, errcode.Conflict, err)
+	case errors.Is(err, domain.ErrRoleAssignedCannotDisable):
+		return errorx.New(http.StatusForbidden, errcode.RoleAssignedCannotDisable, err)
+	case errors.Is(err, domain.ErrRoleAssignedCannotDelete):
+		return errorx.New(http.StatusForbidden, errcode.RoleAssignedCannotDelete, err)
 	case domain.IsNotFound(err):
 		return errorx.New(http.StatusNotFound, errcode.NotFound, err)
 	case domain.IsParamsError(err):

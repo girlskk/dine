@@ -26,7 +26,7 @@ func NewStoreHandler(storeInteractor domain.StoreInteractor) *StoreHandler {
 }
 
 func (h *StoreHandler) Routes(r gin.IRouter) {
-	r = r.Group("store")
+	r = r.Group("merchant/store")
 	r.POST("", h.CreateStore())
 	r.PUT("/:id", h.UpdateStore())
 	r.DELETE("/:id", h.DeleteStore())
@@ -46,7 +46,7 @@ func (h *StoreHandler) Routes(r gin.IRouter) {
 //	@Produce		json
 //	@Param			data	body	types.CreateStoreReq	true	"创建门店请求"
 //	@Success		200		"No Content"
-//	@Router			/store [post]
+//	@Router			/merchant/store [post]
 func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -95,8 +95,8 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 			Lat:      req.Address.Lat,
 		}
 
-		if err := h.StoreInteractor.CreateStore(ctx, domainStore); err != nil {
-			c.Error(h.checkEditErr(err))
+		if err := h.StoreInteractor.CreateStore(ctx, domainStore, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -115,7 +115,7 @@ func (h *StoreHandler) CreateStore() gin.HandlerFunc {
 //	@Param			id		path	string					true	"门店ID"
 //	@Param			data	body	types.UpdateStoreReq	true	"更新门店请求"
 //	@Success		200		"No Content"
-//	@Router			/store/{id} [put]
+//	@Router			/merchant/store/{id} [put]
 func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -135,6 +135,7 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		domainStore := &domain.UpdateStoreParams{
 			ID:                      storeID,
 			AdminPhoneNumber:        req.AdminPhoneNumber,
@@ -166,12 +167,8 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 			Lat:      req.Address.Lat,
 		}
 
-		if err := h.StoreInteractor.UpdateStore(ctx, domainStore); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			c.Error(h.checkEditErr(err))
+		if err := h.StoreInteractor.UpdateStore(ctx, domainStore, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -190,7 +187,7 @@ func (h *StoreHandler) UpdateStore() gin.HandlerFunc {
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
 //	@Success		204	"No Content"
-//	@Router			/store/{id} [delete]
+//	@Router			/merchant/store/{id} [delete]
 func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -204,12 +201,9 @@ func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 			return
 		}
 
-		if err := h.StoreInteractor.DeleteStore(ctx, storeID); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNoContent, errcode.NotFound, err))
-				return
-			}
-			c.Error(fmt.Errorf("failed to delete store: %w", err))
+		user := domain.FromBackendUserContext(ctx)
+		if err := h.StoreInteractor.DeleteStore(ctx, storeID, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -227,7 +221,7 @@ func (h *StoreHandler) DeleteStore() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path		string	true	"门店ID"
 //	@Success		200	{object}	response.Response{data=domain.Store}
-//	@Router			/store/{id} [get]
+//	@Router			/merchant/store/{id} [get]
 func (h *StoreHandler) GetStore() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -241,13 +235,10 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 			return
 		}
 
-		domainStore, err := h.StoreInteractor.GetStore(ctx, storeID)
+		user := domain.FromBackendUserContext(ctx)
+		domainStore, err := h.StoreInteractor.GetStore(ctx, storeID, user)
 		if err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			c.Error(fmt.Errorf("failed to get store: %w", err))
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -264,7 +255,7 @@ func (h *StoreHandler) GetStore() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			data	query		types.StoreListReq	true	"门店列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.StoreListResp}
-//	@Router			/store/list [get]
+//	@Router			/merchant/store/list [get]
 func (h *StoreHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -288,15 +279,6 @@ func (h *StoreHandler) List() gin.HandlerFunc {
 			AdminPhoneNumber: req.AdminPhoneNumber,
 			Status:           req.Status,
 			BusinessModel:    req.BusinessModel,
-		}
-		// parse MerchantID if provided
-		if req.MerchantID != "" {
-			mid, err := uuid.Parse(req.MerchantID)
-			if err != nil {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
-				return
-			}
-			filter.MerchantID = mid
 		}
 
 		if req.CreatedAtGte != "" || req.CreatedAtLte != "" {
@@ -333,7 +315,7 @@ func (h *StoreHandler) List() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Router			/store/{id}/enable [put]
+//	@Router			/merchant/store/{id}/enable [put]
 func (h *StoreHandler) Enable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -347,13 +329,10 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusOpen}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			c.Error(fmt.Errorf("failed to simple update store: %w", err))
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -370,7 +349,7 @@ func (h *StoreHandler) Enable() gin.HandlerFunc {
 //	@Produce		json
 //	@Param			id	path	string	true	"门店ID"
 //	@Success		200	"No Content"
-//	@Router			/store/{id}/disable [put]
+//	@Router			/merchant/store/{id}/disable [put]
 func (h *StoreHandler) Disable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -384,13 +363,10 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
+		user := domain.FromBackendUserContext(ctx)
 		updateParams := &domain.UpdateStoreParams{ID: storeID, Status: domain.StoreStatusClosed}
-		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams); err != nil {
-			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusNotFound, errcode.NotFound, err))
-				return
-			}
-			c.Error(fmt.Errorf("failed to simple update store: %w", err))
+		if err := h.StoreInteractor.StoreSimpleUpdate(ctx, domain.StoreSimpleUpdateFieldStatus, updateParams, user); err != nil {
+			c.Error(h.checkErr(err))
 			return
 		}
 
@@ -398,12 +374,14 @@ func (h *StoreHandler) Disable() gin.HandlerFunc {
 	}
 }
 
-func (h *StoreHandler) checkEditErr(err error) error {
+func (h *StoreHandler) checkErr(err error) error {
 	switch {
-	case errors.Is(err, domain.ErrUserExists):
-		return errorx.New(http.StatusConflict, errcode.UserNameExists, err)
+	case errors.Is(err, domain.ErrStoreNotExists):
+		return errorx.New(http.StatusBadRequest, errcode.StoreNotExists, err)
 	case errors.Is(err, domain.ErrStoreNameExists):
 		return errorx.New(http.StatusConflict, errcode.StoreNameExists, err)
+	case errors.Is(err, domain.ErrUserExists):
+		return errorx.New(http.StatusConflict, errcode.UserNameExists, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursConflict):
 		return errorx.New(http.StatusBadRequest, errcode.StoreBusinessHoursConflict, err)
 	case errors.Is(err, domain.ErrStoreBusinessHoursTimeInvalid):

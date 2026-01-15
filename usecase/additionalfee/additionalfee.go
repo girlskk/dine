@@ -21,9 +21,13 @@ func NewAdditionalFeeInteractor(ds domain.DataStore) *AdditionalFeeInteractor {
 	return &AdditionalFeeInteractor{DS: ds}
 }
 
-func (interactor *AdditionalFeeInteractor) Create(ctx context.Context, fee *domain.AdditionalFee) (err error) {
+func (interactor *AdditionalFeeInteractor) Create(ctx context.Context, fee *domain.AdditionalFee, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.Create")
 	defer func() { util.SpanErrFinish(span, err) }()
+
+	if err = verifyAdditionalFeeOwnership(user, fee); err != nil {
+		return err
+	}
 
 	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
 		exists, err := ds.AdditionalFeeRepo().Exists(ctx, domain.AdditionalFeeExistsParams{
@@ -36,7 +40,7 @@ func (interactor *AdditionalFeeInteractor) Create(ctx context.Context, fee *doma
 			return err
 		}
 		if exists {
-			return domain.ErrRemarkNameExists
+			return domain.ErrAdditionalFeeNameExists
 		}
 		fee.ID = uuid.New()
 		err = ds.AdditionalFeeRepo().Create(ctx, fee)
@@ -52,7 +56,7 @@ func (interactor *AdditionalFeeInteractor) Create(ctx context.Context, fee *doma
 	return nil
 }
 
-func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *domain.AdditionalFee) (err error) {
+func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *domain.AdditionalFee, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.Update")
 	defer func() { util.SpanErrFinish(span, err) }()
 
@@ -62,6 +66,11 @@ func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *doma
 			if domain.IsNotFound(err) {
 				return domain.ErrAdditionalFeeNotExists
 			}
+			return err
+		}
+
+		// ownership check based on old record
+		if err = verifyAdditionalFeeOwnership(user, oldFee); err != nil {
 			return err
 		}
 
@@ -93,7 +102,7 @@ func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *doma
 			return err
 		}
 		if exists {
-			return domain.ErrRemarkNameExists
+			return domain.ErrAdditionalFeeNameExists
 		}
 		err = ds.AdditionalFeeRepo().Update(ctx, updatedFee)
 		if err != nil {
@@ -107,18 +116,39 @@ func (interactor *AdditionalFeeInteractor) Update(ctx context.Context, fee *doma
 	return nil
 }
 
-func (interactor *AdditionalFeeInteractor) Delete(ctx context.Context, id uuid.UUID) (err error) {
+func (interactor *AdditionalFeeInteractor) Delete(ctx context.Context, id uuid.UUID, user domain.User) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.Delete")
 	defer func() { util.SpanErrFinish(span, err) }()
+
+	fee, err := interactor.DS.AdditionalFeeRepo().FindByID(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return domain.ErrAdditionalFeeNotExists
+		}
+		return err
+	}
+	if err = verifyAdditionalFeeOwnership(user, fee); err != nil {
+		return err
+	}
 
 	return interactor.DS.AdditionalFeeRepo().Delete(ctx, id)
 }
 
-func (interactor *AdditionalFeeInteractor) GetAdditionalFee(ctx context.Context, id uuid.UUID) (fee *domain.AdditionalFee, err error) {
+func (interactor *AdditionalFeeInteractor) GetAdditionalFee(ctx context.Context, id uuid.UUID, user domain.User) (fee *domain.AdditionalFee, err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.GetAdditionalFee")
 	defer func() { util.SpanErrFinish(span, err) }()
 
-	return interactor.DS.AdditionalFeeRepo().FindByID(ctx, id)
+	fee, err = interactor.DS.AdditionalFeeRepo().FindByID(ctx, id)
+	if err != nil {
+		if domain.IsNotFound(err) {
+			return nil, domain.ErrAdditionalFeeNotExists
+		}
+		return nil, err
+	}
+	if err = verifyAdditionalFeeOwnership(user, fee); err != nil {
+		return nil, err
+	}
+	return fee, nil
 }
 
 func (interactor *AdditionalFeeInteractor) GetAdditionalFees(ctx context.Context,
@@ -135,6 +165,7 @@ func (interactor *AdditionalFeeInteractor) GetAdditionalFees(ctx context.Context
 func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context.Context,
 	updateField domain.AdditionalFeeSimpleUpdateType,
 	fee *domain.AdditionalFee,
+	user domain.User,
 ) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "AdditionalFeeInteractor.AdditionalFeeSimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
@@ -145,6 +176,10 @@ func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context
 			if domain.IsNotFound(err) {
 				return domain.ErrAdditionalFeeNotExists
 			}
+			return err
+		}
+
+		if err = verifyAdditionalFeeOwnership(user, oldFee); err != nil {
 			return err
 		}
 
@@ -166,6 +201,21 @@ func (interactor *AdditionalFeeInteractor) AdditionalFeeSimpleUpdate(ctx context
 	})
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func verifyAdditionalFeeOwnership(user domain.User, fee *domain.AdditionalFee) error {
+	switch user.GetUserType() {
+	case domain.UserTypeAdmin:
+	case domain.UserTypeBackend:
+		if !domain.VerifyOwnerMerchant(user, fee.MerchantID) {
+			return domain.ErrAdditionalFeeNotExists
+		}
+	case domain.UserTypeStore:
+		if !domain.VerifyOwnerShip(user, fee.MerchantID, fee.StoreID) {
+			return domain.ErrAdditionalFeeNotExists
+		}
 	}
 	return nil
 }

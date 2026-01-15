@@ -223,6 +223,87 @@ definitions:
     x-enum-varnames:
     - FeeTypeService
     - FeeTypePackaging
+  domain.Menu:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 菜单ID
+        type: string
+      item_count:
+        description: 菜单项数量
+        type: integer
+      items:
+        description: 菜单项列表
+        items:
+          $ref: '#/definitions/domain.MenuItem'
+        type: array
+      merchant_id:
+        description: 品牌商ID
+        type: string
+      name:
+        description: 菜单名称
+        type: string
+      store_count:
+        description: 适用门店数量
+        type: integer
+      store_id:
+        description: 门店ID
+        type: string
+      stores:
+        description: 关联信息
+        items:
+          $ref: '#/definitions/domain.StoreSimple'
+        type: array
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.MenuItem:
+    properties:
+      base_price:
+        description: 基础价（可选，单位：分）
+        type: number
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 菜单项ID
+        type: string
+      member_price:
+        description: 会员价（可选，单位：分）
+        type: number
+      menu_id:
+        description: 菜单ID
+        type: string
+      product:
+        allOf:
+        - $ref: '#/definitions/domain.Product'
+        description: 关联信息
+      product_id:
+        description: 菜品ID
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+  domain.MenuSearchRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/domain.Menu'
+        type: array
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总页数
+        type: integer
+    type: object
   domain.Order:
     properties:
       amount:
@@ -895,9 +976,10 @@ definitions:
         description: 套餐属性（仅套餐商品使用）
         type: number
       groups:
-        allOf:
-        - $ref: '#/definitions/domain.SetMealGroups'
         description: 套餐组列表
+        items:
+          $ref: '#/definitions/domain.SetMealGroup'
+        type: array
       id:
         description: 商品ID
         type: string
@@ -1681,10 +1763,6 @@ definitions:
     x-enum-varnames:
     - SetMealGroupSelectionTypeFixed
     - SetMealGroupSelectionTypeOptional
-  domain.SetMealGroups:
-    items:
-      $ref: '#/definitions/domain.SetMealGroup'
-    type: array
   domain.Stall:
     properties:
       created_at:
@@ -1744,6 +1822,14 @@ definitions:
     - StallTypeSystem
     - StallTypeBrand
     - StallTypeStore
+  domain.StoreSimple:
+    properties:
+      id:
+        type: string
+      store_name:
+        description: 门店名称
+        type: string
+    type: object
   domain.TaxFee:
     properties:
       created_at:
@@ -1781,13 +1867,16 @@ definitions:
     type: object
   domain.TaxFeeType:
     enum:
+    - system
     - merchant
     - store
     type: string
     x-enum-comments:
       TaxFeeTypeMerchant: 商户
       TaxFeeTypeStore: 门店
+      TaxFeeTypeSystem: 系统内置
     x-enum-varnames:
+    - TaxFeeTypeSystem
     - TaxFeeTypeMerchant
     - TaxFeeTypeStore
   domain.TaxRateType:
@@ -2268,6 +2357,23 @@ info:
   title: 前台 API
   version: "1.0"
 paths:
+  /menu:
+    get:
+      parameters:
+      - description: 门店ID
+        in: query
+        name: store_id
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/domain.MenuSearchRes'
+      security:
+      - BearerAuth: []
+      summary: 查询所有菜单
+      tags:
+      - 菜单管理
   /order:
     get:
       consumes:

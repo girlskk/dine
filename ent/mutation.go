@@ -4115,7 +4115,7 @@ type BusinessConfigMutation struct {
 	adddeleted_at    *int64
 	source_config_id *uuid.UUID
 	merchant_id      *uuid.UUID
-	store_id         *uuid.UUID
+	store_id         *string
 	group            *domain.BusinessConfigGroup
 	name             *string
 	config_type      *domain.BusinessConfigConfigType
@@ -4125,6 +4125,7 @@ type BusinessConfigMutation struct {
 	addsort          *int32
 	tip              *string
 	is_default       *bool
+	modify_status    *bool
 	status           *bool
 	clearedFields    map[string]struct{}
 	done             bool
@@ -4463,12 +4464,12 @@ func (m *BusinessConfigMutation) ResetMerchantID() {
 }
 
 // SetStoreID sets the "store_id" field.
-func (m *BusinessConfigMutation) SetStoreID(u uuid.UUID) {
-	m.store_id = &u
+func (m *BusinessConfigMutation) SetStoreID(s string) {
+	m.store_id = &s
 }
 
 // StoreID returns the value of the "store_id" field in the mutation.
-func (m *BusinessConfigMutation) StoreID() (r uuid.UUID, exists bool) {
+func (m *BusinessConfigMutation) StoreID() (r string, exists bool) {
 	v := m.store_id
 	if v == nil {
 		return
@@ -4479,7 +4480,7 @@ func (m *BusinessConfigMutation) StoreID() (r uuid.UUID, exists bool) {
 // OldStoreID returns the old "store_id" field's value of the BusinessConfig entity.
 // If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BusinessConfigMutation) OldStoreID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *BusinessConfigMutation) OldStoreID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStoreID is only allowed on UpdateOne operations")
 	}
@@ -4493,22 +4494,9 @@ func (m *BusinessConfigMutation) OldStoreID(ctx context.Context) (v uuid.UUID, e
 	return oldValue.StoreID, nil
 }
 
-// ClearStoreID clears the value of the "store_id" field.
-func (m *BusinessConfigMutation) ClearStoreID() {
-	m.store_id = nil
-	m.clearedFields[businessconfig.FieldStoreID] = struct{}{}
-}
-
-// StoreIDCleared returns if the "store_id" field was cleared in this mutation.
-func (m *BusinessConfigMutation) StoreIDCleared() bool {
-	_, ok := m.clearedFields[businessconfig.FieldStoreID]
-	return ok
-}
-
 // ResetStoreID resets all changes to the "store_id" field.
 func (m *BusinessConfigMutation) ResetStoreID() {
 	m.store_id = nil
-	delete(m.clearedFields, businessconfig.FieldStoreID)
 }
 
 // SetGroup sets the "group" field.
@@ -4897,6 +4885,42 @@ func (m *BusinessConfigMutation) ResetIsDefault() {
 	m.is_default = nil
 }
 
+// SetModifyStatus sets the "modify_status" field.
+func (m *BusinessConfigMutation) SetModifyStatus(b bool) {
+	m.modify_status = &b
+}
+
+// ModifyStatus returns the value of the "modify_status" field in the mutation.
+func (m *BusinessConfigMutation) ModifyStatus() (r bool, exists bool) {
+	v := m.modify_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldModifyStatus returns the old "modify_status" field's value of the BusinessConfig entity.
+// If the BusinessConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BusinessConfigMutation) OldModifyStatus(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldModifyStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldModifyStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldModifyStatus: %w", err)
+	}
+	return oldValue.ModifyStatus, nil
+}
+
+// ResetModifyStatus resets all changes to the "modify_status" field.
+func (m *BusinessConfigMutation) ResetModifyStatus() {
+	m.modify_status = nil
+}
+
 // SetStatus sets the "status" field.
 func (m *BusinessConfigMutation) SetStatus(b bool) {
 	m.status = &b
@@ -4967,7 +4991,7 @@ func (m *BusinessConfigMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BusinessConfigMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 16)
 	if m.created_at != nil {
 		fields = append(fields, businessconfig.FieldCreatedAt)
 	}
@@ -5010,6 +5034,9 @@ func (m *BusinessConfigMutation) Fields() []string {
 	if m.is_default != nil {
 		fields = append(fields, businessconfig.FieldIsDefault)
 	}
+	if m.modify_status != nil {
+		fields = append(fields, businessconfig.FieldModifyStatus)
+	}
 	if m.status != nil {
 		fields = append(fields, businessconfig.FieldStatus)
 	}
@@ -5049,6 +5076,8 @@ func (m *BusinessConfigMutation) Field(name string) (ent.Value, bool) {
 		return m.Tip()
 	case businessconfig.FieldIsDefault:
 		return m.IsDefault()
+	case businessconfig.FieldModifyStatus:
+		return m.ModifyStatus()
 	case businessconfig.FieldStatus:
 		return m.Status()
 	}
@@ -5088,6 +5117,8 @@ func (m *BusinessConfigMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldTip(ctx)
 	case businessconfig.FieldIsDefault:
 		return m.OldIsDefault(ctx)
+	case businessconfig.FieldModifyStatus:
+		return m.OldModifyStatus(ctx)
 	case businessconfig.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -5135,7 +5166,7 @@ func (m *BusinessConfigMutation) SetField(name string, value ent.Value) error {
 		m.SetMerchantID(v)
 		return nil
 	case businessconfig.FieldStoreID:
-		v, ok := value.(uuid.UUID)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5196,6 +5227,13 @@ func (m *BusinessConfigMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsDefault(v)
+		return nil
+	case businessconfig.FieldModifyStatus:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModifyStatus(v)
 		return nil
 	case businessconfig.FieldStatus:
 		v, ok := value.(bool)
@@ -5267,9 +5305,6 @@ func (m *BusinessConfigMutation) ClearedFields() []string {
 	if m.FieldCleared(businessconfig.FieldMerchantID) {
 		fields = append(fields, businessconfig.FieldMerchantID)
 	}
-	if m.FieldCleared(businessconfig.FieldStoreID) {
-		fields = append(fields, businessconfig.FieldStoreID)
-	}
 	if m.FieldCleared(businessconfig.FieldGroup) {
 		fields = append(fields, businessconfig.FieldGroup)
 	}
@@ -5307,9 +5342,6 @@ func (m *BusinessConfigMutation) ClearField(name string) error {
 		return nil
 	case businessconfig.FieldMerchantID:
 		m.ClearMerchantID()
-		return nil
-	case businessconfig.FieldStoreID:
-		m.ClearStoreID()
 		return nil
 	case businessconfig.FieldGroup:
 		m.ClearGroup()
@@ -5378,6 +5410,9 @@ func (m *BusinessConfigMutation) ResetField(name string) error {
 		return nil
 	case businessconfig.FieldIsDefault:
 		m.ResetIsDefault()
+		return nil
+	case businessconfig.FieldModifyStatus:
+		m.ResetModifyStatus()
 		return nil
 	case businessconfig.FieldStatus:
 		m.ResetStatus()
@@ -6884,7 +6919,7 @@ type DepartmentMutation struct {
 	name                 *string
 	code                 *string
 	department_type      *domain.DepartmentType
-	enable               *bool
+	enabled              *bool
 	clearedFields        map[string]struct{}
 	merchant             *uuid.UUID
 	clearedmerchant      bool
@@ -7244,40 +7279,40 @@ func (m *DepartmentMutation) ResetDepartmentType() {
 	m.department_type = nil
 }
 
-// SetEnable sets the "enable" field.
-func (m *DepartmentMutation) SetEnable(b bool) {
-	m.enable = &b
+// SetEnabled sets the "enabled" field.
+func (m *DepartmentMutation) SetEnabled(b bool) {
+	m.enabled = &b
 }
 
-// Enable returns the value of the "enable" field in the mutation.
-func (m *DepartmentMutation) Enable() (r bool, exists bool) {
-	v := m.enable
+// Enabled returns the value of the "enabled" field in the mutation.
+func (m *DepartmentMutation) Enabled() (r bool, exists bool) {
+	v := m.enabled
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldEnable returns the old "enable" field's value of the Department entity.
+// OldEnabled returns the old "enabled" field's value of the Department entity.
 // If the Department object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DepartmentMutation) OldEnable(ctx context.Context) (v bool, err error) {
+func (m *DepartmentMutation) OldEnabled(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEnable is only allowed on UpdateOne operations")
+		return v, errors.New("OldEnabled is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEnable requires an ID field in the mutation")
+		return v, errors.New("OldEnabled requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEnable: %w", err)
+		return v, fmt.Errorf("querying old value for OldEnabled: %w", err)
 	}
-	return oldValue.Enable, nil
+	return oldValue.Enabled, nil
 }
 
-// ResetEnable resets all changes to the "enable" field.
-func (m *DepartmentMutation) ResetEnable() {
-	m.enable = nil
+// ResetEnabled resets all changes to the "enabled" field.
+func (m *DepartmentMutation) ResetEnabled() {
+	m.enabled = nil
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -7647,8 +7682,8 @@ func (m *DepartmentMutation) Fields() []string {
 	if m.department_type != nil {
 		fields = append(fields, department.FieldDepartmentType)
 	}
-	if m.enable != nil {
-		fields = append(fields, department.FieldEnable)
+	if m.enabled != nil {
+		fields = append(fields, department.FieldEnabled)
 	}
 	if m.merchant != nil {
 		fields = append(fields, department.FieldMerchantID)
@@ -7676,8 +7711,8 @@ func (m *DepartmentMutation) Field(name string) (ent.Value, bool) {
 		return m.Code()
 	case department.FieldDepartmentType:
 		return m.DepartmentType()
-	case department.FieldEnable:
-		return m.Enable()
+	case department.FieldEnabled:
+		return m.Enabled()
 	case department.FieldMerchantID:
 		return m.MerchantID()
 	case department.FieldStoreID:
@@ -7703,8 +7738,8 @@ func (m *DepartmentMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldCode(ctx)
 	case department.FieldDepartmentType:
 		return m.OldDepartmentType(ctx)
-	case department.FieldEnable:
-		return m.OldEnable(ctx)
+	case department.FieldEnabled:
+		return m.OldEnabled(ctx)
 	case department.FieldMerchantID:
 		return m.OldMerchantID(ctx)
 	case department.FieldStoreID:
@@ -7760,12 +7795,12 @@ func (m *DepartmentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDepartmentType(v)
 		return nil
-	case department.FieldEnable:
+	case department.FieldEnabled:
 		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetEnable(v)
+		m.SetEnabled(v)
 		return nil
 	case department.FieldMerchantID:
 		v, ok := value.(uuid.UUID)
@@ -7878,8 +7913,8 @@ func (m *DepartmentMutation) ResetField(name string) error {
 	case department.FieldDepartmentType:
 		m.ResetDepartmentType()
 		return nil
-	case department.FieldEnable:
-		m.ResetEnable()
+	case department.FieldEnabled:
+		m.ResetEnabled()
 		return nil
 	case department.FieldMerchantID:
 		m.ResetMerchantID()
@@ -41601,7 +41636,7 @@ type RoleMutation struct {
 	name                 *string
 	code                 *string
 	role_type            *domain.RoleType
-	enable               *bool
+	enabled              *bool
 	login_channels       *[]domain.LoginChannel
 	appendlogin_channels []domain.LoginChannel
 	data_scope           *domain.RoleDataScopeType
@@ -41958,40 +41993,40 @@ func (m *RoleMutation) ResetRoleType() {
 	m.role_type = nil
 }
 
-// SetEnable sets the "enable" field.
-func (m *RoleMutation) SetEnable(b bool) {
-	m.enable = &b
+// SetEnabled sets the "enabled" field.
+func (m *RoleMutation) SetEnabled(b bool) {
+	m.enabled = &b
 }
 
-// Enable returns the value of the "enable" field in the mutation.
-func (m *RoleMutation) Enable() (r bool, exists bool) {
-	v := m.enable
+// Enabled returns the value of the "enabled" field in the mutation.
+func (m *RoleMutation) Enabled() (r bool, exists bool) {
+	v := m.enabled
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldEnable returns the old "enable" field's value of the Role entity.
+// OldEnabled returns the old "enabled" field's value of the Role entity.
 // If the Role object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleMutation) OldEnable(ctx context.Context) (v bool, err error) {
+func (m *RoleMutation) OldEnabled(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEnable is only allowed on UpdateOne operations")
+		return v, errors.New("OldEnabled is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEnable requires an ID field in the mutation")
+		return v, errors.New("OldEnabled requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEnable: %w", err)
+		return v, fmt.Errorf("querying old value for OldEnabled: %w", err)
 	}
-	return oldValue.Enable, nil
+	return oldValue.Enabled, nil
 }
 
-// ResetEnable resets all changes to the "enable" field.
-func (m *RoleMutation) ResetEnable() {
-	m.enable = nil
+// ResetEnabled resets all changes to the "enabled" field.
+func (m *RoleMutation) ResetEnabled() {
+	m.enabled = nil
 }
 
 // SetMerchantID sets the "merchant_id" field.
@@ -42367,8 +42402,8 @@ func (m *RoleMutation) Fields() []string {
 	if m.role_type != nil {
 		fields = append(fields, role.FieldRoleType)
 	}
-	if m.enable != nil {
-		fields = append(fields, role.FieldEnable)
+	if m.enabled != nil {
+		fields = append(fields, role.FieldEnabled)
 	}
 	if m.merchant != nil {
 		fields = append(fields, role.FieldMerchantID)
@@ -42402,8 +42437,8 @@ func (m *RoleMutation) Field(name string) (ent.Value, bool) {
 		return m.Code()
 	case role.FieldRoleType:
 		return m.RoleType()
-	case role.FieldEnable:
-		return m.Enable()
+	case role.FieldEnabled:
+		return m.Enabled()
 	case role.FieldMerchantID:
 		return m.MerchantID()
 	case role.FieldStoreID:
@@ -42433,8 +42468,8 @@ func (m *RoleMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCode(ctx)
 	case role.FieldRoleType:
 		return m.OldRoleType(ctx)
-	case role.FieldEnable:
-		return m.OldEnable(ctx)
+	case role.FieldEnabled:
+		return m.OldEnabled(ctx)
 	case role.FieldMerchantID:
 		return m.OldMerchantID(ctx)
 	case role.FieldStoreID:
@@ -42494,12 +42529,12 @@ func (m *RoleMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRoleType(v)
 		return nil
-	case role.FieldEnable:
+	case role.FieldEnabled:
 		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetEnable(v)
+		m.SetEnabled(v)
 		return nil
 	case role.FieldMerchantID:
 		v, ok := value.(uuid.UUID)
@@ -42638,8 +42673,8 @@ func (m *RoleMutation) ResetField(name string) error {
 	case role.FieldRoleType:
 		m.ResetRoleType()
 		return nil
-	case role.FieldEnable:
-		m.ResetEnable()
+	case role.FieldEnabled:
+		m.ResetEnabled()
 		return nil
 	case role.FieldMerchantID:
 		m.ResetMerchantID()

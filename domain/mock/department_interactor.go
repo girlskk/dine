@@ -38,46 +38,46 @@ func (m *MockDepartmentInteractor) EXPECT() *MockDepartmentInteractorMockRecorde
 }
 
 // CreateDepartment mocks base method.
-func (m *MockDepartmentInteractor) CreateDepartment(arg0 context.Context, arg1 *domain.CreateDepartmentParams) error {
+func (m *MockDepartmentInteractor) CreateDepartment(arg0 context.Context, arg1 *domain.CreateDepartmentParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateDepartment", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateDepartment", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateDepartment indicates an expected call of CreateDepartment.
-func (mr *MockDepartmentInteractorMockRecorder) CreateDepartment(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockDepartmentInteractorMockRecorder) CreateDepartment(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).CreateDepartment), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).CreateDepartment), arg0, arg1, arg2)
 }
 
 // DeleteDepartment mocks base method.
-func (m *MockDepartmentInteractor) DeleteDepartment(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockDepartmentInteractor) DeleteDepartment(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteDepartment", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteDepartment", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteDepartment indicates an expected call of DeleteDepartment.
-func (mr *MockDepartmentInteractorMockRecorder) DeleteDepartment(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockDepartmentInteractorMockRecorder) DeleteDepartment(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).DeleteDepartment), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).DeleteDepartment), arg0, arg1, arg2)
 }
 
 // GetDepartment mocks base method.
-func (m *MockDepartmentInteractor) GetDepartment(arg0 context.Context, arg1 uuid.UUID) (*domain.Department, error) {
+func (m *MockDepartmentInteractor) GetDepartment(arg0 context.Context, arg1 uuid.UUID, arg2 domain.User) (*domain.Department, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDepartment", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetDepartment", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*domain.Department)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDepartment indicates an expected call of GetDepartment.
-func (mr *MockDepartmentInteractorMockRecorder) GetDepartment(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockDepartmentInteractorMockRecorder) GetDepartment(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).GetDepartment), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).GetDepartment), arg0, arg1, arg2)
 }
 
 // GetDepartments mocks base method.
@@ -102,29 +102,29 @@ func (mr *MockDepartmentInteractorMockRecorder) GetDepartments(arg0, arg1, arg2 
 }
 
 // SimpleUpdate mocks base method.
-func (m *MockDepartmentInteractor) SimpleUpdate(arg0 context.Context, arg1 domain.DepartmentSimpleUpdateField, arg2 domain.DepartmentSimpleUpdateParams) error {
+func (m *MockDepartmentInteractor) SimpleUpdate(arg0 context.Context, arg1 domain.DepartmentSimpleUpdateField, arg2 domain.DepartmentSimpleUpdateParams, arg3 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SimpleUpdate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SimpleUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SimpleUpdate indicates an expected call of SimpleUpdate.
-func (mr *MockDepartmentInteractorMockRecorder) SimpleUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockDepartmentInteractorMockRecorder) SimpleUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SimpleUpdate", reflect.TypeOf((*MockDepartmentInteractor)(nil).SimpleUpdate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SimpleUpdate", reflect.TypeOf((*MockDepartmentInteractor)(nil).SimpleUpdate), arg0, arg1, arg2, arg3)
 }
 
 // UpdateDepartment mocks base method.
-func (m *MockDepartmentInteractor) UpdateDepartment(arg0 context.Context, arg1 *domain.UpdateDepartmentParams) error {
+func (m *MockDepartmentInteractor) UpdateDepartment(arg0 context.Context, arg1 *domain.UpdateDepartmentParams, arg2 domain.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateDepartment", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateDepartment", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateDepartment indicates an expected call of UpdateDepartment.
-func (mr *MockDepartmentInteractorMockRecorder) UpdateDepartment(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockDepartmentInteractorMockRecorder) UpdateDepartment(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).UpdateDepartment), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDepartment", reflect.TypeOf((*MockDepartmentInteractor)(nil).UpdateDepartment), arg0, arg1, arg2)
 }

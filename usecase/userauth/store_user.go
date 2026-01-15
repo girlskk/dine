@@ -45,6 +45,7 @@ func (interactor *StoreUserInteractor) Login(ctx context.Context, username, pass
 	}
 	if !user.Enabled {
 		err = domain.ErrUserDisabled
+		return
 	}
 
 	expAt = time.Now().Add(time.Duration(interactor.AuthConfig.Expire) * time.Second)
@@ -116,7 +117,7 @@ func (interactor *StoreUserInteractor) Create(ctx context.Context, user *domain.
 			return err
 		}
 		if exists {
-			return fmt.Errorf("%w", domain.ErrUsernameExist)
+			return domain.ErrUsernameExist
 		}
 
 		// check department assigned
@@ -125,9 +126,12 @@ func (interactor *StoreUserInteractor) Create(ctx context.Context, user *domain.
 		}
 		department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrDepartmentNotExists
+			}
 			return err
 		}
-		if !department.Enable {
+		if !department.Enabled {
 			return domain.ErrDepartmentDisabled
 		}
 		if string(department.DepartmentType) != string(domain.UserTypeStore) {
@@ -139,9 +143,12 @@ func (interactor *StoreUserInteractor) Create(ctx context.Context, user *domain.
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
-		if !role.Enable {
+		if !role.Enabled {
 			return domain.ErrRoleDisabled
 		}
 		if string(role.RoleType) != string(domain.UserTypeStore) {
@@ -196,9 +203,12 @@ func (interactor *StoreUserInteractor) Update(ctx context.Context, user *domain.
 		if user.DepartmentID != oldUser.DepartmentID {
 			department, err := ds.DepartmentRepo().FindByID(ctx, user.DepartmentID)
 			if err != nil {
+				if domain.IsNotFound(err) {
+					return domain.ErrDepartmentNotExists
+				}
 				return err
 			}
-			if !department.Enable {
+			if !department.Enabled {
 				return domain.ErrDepartmentDisabled
 			}
 			if string(department.DepartmentType) != string(domain.UserTypeStore) {
@@ -211,9 +221,12 @@ func (interactor *StoreUserInteractor) Update(ctx context.Context, user *domain.
 		}
 		role, err := ds.RoleRepo().FindByID(ctx, user.RoleIDs[0])
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return domain.ErrRoleNotExists
+			}
 			return err
 		}
-		if !role.Enable {
+		if !role.Enabled {
 			return domain.ErrRoleDisabled
 		}
 		if string(role.RoleType) != string(domain.UserTypeStore) {
@@ -307,6 +320,9 @@ func (interactor *StoreUserInteractor) GetUser(ctx context.Context, id uuid.UUID
 	} else {
 		role, err = interactor.DS.RoleRepo().FindByID(ctx, userRole.RoleID)
 		if err != nil {
+			if domain.IsNotFound(err) {
+				return nil, domain.ErrRoleNotExists
+			}
 			return
 		}
 	}
@@ -391,7 +407,7 @@ func (interactor *StoreUserInteractor) GetUsers(ctx context.Context, pager *upag
 	return
 }
 
-// SimpleUpdate implements toggling simple fields for StoreUser (e.g., enabled)
+// SimpleUpdate implements toggling simple fields for StoreUser (e.g., Enabled)
 func (interactor *StoreUserInteractor) SimpleUpdate(ctx context.Context, updateField domain.StoreUserSimpleUpdateField, params domain.StoreUserSimpleUpdateParams) (err error) {
 	span, ctx := util.StartSpan(ctx, "usecase", "StoreUserInteractor.SimpleUpdate")
 	defer func() { util.SpanErrFinish(span, err) }()
@@ -405,7 +421,7 @@ func (interactor *StoreUserInteractor) SimpleUpdate(ctx context.Context, updateF
 			return err
 		}
 		switch updateField {
-		case domain.StoreUserSimpleUpdateFieldEnable:
+		case domain.StoreUserSimpleUpdateFieldEnabled:
 			if user.Enabled == params.Enabled {
 				return nil
 			}

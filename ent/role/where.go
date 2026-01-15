@@ -82,9 +82,9 @@ func Code(v string) predicate.Role {
 	return predicate.Role(sql.FieldEQ(FieldCode, v))
 }
 
-// Enable applies equality check predicate on the "enable" field. It's identical to EnableEQ.
-func Enable(v bool) predicate.Role {
-	return predicate.Role(sql.FieldEQ(FieldEnable, v))
+// Enabled applies equality check predicate on the "enabled" field. It's identical to EnabledEQ.
+func Enabled(v bool) predicate.Role {
+	return predicate.Role(sql.FieldEQ(FieldEnabled, v))
 }
 
 // MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
@@ -377,14 +377,14 @@ func RoleTypeNotIn(vs ...domain.RoleType) predicate.Role {
 	return predicate.Role(sql.FieldNotIn(FieldRoleType, v...))
 }
 
-// EnableEQ applies the EQ predicate on the "enable" field.
-func EnableEQ(v bool) predicate.Role {
-	return predicate.Role(sql.FieldEQ(FieldEnable, v))
+// EnabledEQ applies the EQ predicate on the "enabled" field.
+func EnabledEQ(v bool) predicate.Role {
+	return predicate.Role(sql.FieldEQ(FieldEnabled, v))
 }
 
-// EnableNEQ applies the NEQ predicate on the "enable" field.
-func EnableNEQ(v bool) predicate.Role {
-	return predicate.Role(sql.FieldNEQ(FieldEnable, v))
+// EnabledNEQ applies the NEQ predicate on the "enabled" field.
+func EnabledNEQ(v bool) predicate.Role {
+	return predicate.Role(sql.FieldNEQ(FieldEnabled, v))
 }
 
 // MerchantIDEQ applies the EQ predicate on the "merchant_id" field.

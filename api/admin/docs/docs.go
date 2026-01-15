@@ -41,7 +41,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -305,7 +305,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "boolean",
-                        "name": "enable",
+                        "name": "enabled",
                         "in": "query"
                     },
                     {
@@ -647,206 +647,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.RouterMenuListResp"
                         }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "新建一个菜单",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "创建菜单",
-                "parameters": [
-                    {
-                        "description": "创建菜单请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.RouterMenuCreateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "查询指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "获取菜单详情",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.RouterMenu"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "修改指定菜单",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "更新菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "更新菜单请求",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.RouterMenuUpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "删除指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "删除菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}/disable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "禁用指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "禁用菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/common/router_menu/{id}/enable": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "启用指定菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "菜单管理"
-                ],
-                "summary": "启用菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "菜单ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "No Content"
                     }
                 }
             }
@@ -2482,7 +2282,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/time.Weekday"
+                        "type": "integer"
                     }
                 }
             }
@@ -2549,7 +2349,7 @@ const docTemplate = `{
                 "department_type": {
                     "$ref": "#/definitions/domain.DepartmentType"
                 },
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "id": {
@@ -2906,7 +2706,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "enable": {
+                "enabled": {
                     "description": "是否启用",
                     "type": "boolean"
                 },
@@ -3254,27 +3054,6 @@ const docTemplate = `{
                 },
                 "data": {}
             }
-        },
-        "time.Weekday": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ]
         },
         "types.Address": {
             "type": "object",
@@ -3831,7 +3610,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -3860,7 +3639,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -4057,7 +3836,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
@@ -4097,52 +3876,12 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 50
-                }
-            }
-        },
-        "types.RouterMenuCreateReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "component": {
-                    "description": "组件路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "enabled": {
-                    "description": "是否启用",
-                    "type": "boolean"
-                },
-                "icon": {
-                    "description": "菜单图标",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "name": {
-                    "description": "菜单名称",
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "parent_id": {
-                    "description": "父级菜单ID",
-                    "type": "string"
-                },
-                "path": {
-                    "description": "路由路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "sort": {
-                    "description": "排序",
-                    "type": "integer"
                 }
             }
         },
@@ -4156,46 +3895,6 @@ const docTemplate = `{
                     }
                 },
                 "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "types.RouterMenuUpdateReq": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "component": {
-                    "description": "组件路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "enabled": {
-                    "description": "是否启用",
-                    "type": "boolean"
-                },
-                "icon": {
-                    "description": "菜单图标",
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "name": {
-                    "description": "菜单名称",
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "parent_id": {
-                    "description": "父级菜单ID",
-                    "type": "string"
-                },
-                "path": {
-                    "description": "路由路径",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "sort": {
-                    "description": "排序",
                     "type": "integer"
                 }
             }

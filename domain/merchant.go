@@ -31,16 +31,16 @@ type MerchantRepository interface {
 //
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_interactor.go -package=mock . MerchantInteractor
 type MerchantInteractor interface {
-	CreateMerchant(ctx context.Context, domainCMerchant *CreateMerchantParams) (err error)
-	CreateMerchantAndStore(ctx context.Context, domainMerchant *CreateMerchantParams, domainCStore *CreateStoreParams) (err error)
-	UpdateMerchant(ctx context.Context, domainUMerchant *UpdateMerchantParams) (err error)
-	UpdateMerchantAndStore(ctx context.Context, domainMerchant *UpdateMerchantParams, domainUStore *UpdateStoreParams) (err error)
-	DeleteMerchant(ctx context.Context, id uuid.UUID) (err error)
-	GetMerchant(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
+	CreateMerchant(ctx context.Context, domainCMerchant *CreateMerchantParams, user User) (err error)
+	CreateMerchantAndStore(ctx context.Context, domainMerchant *CreateMerchantParams, domainCStore *CreateStoreParams, user User) (err error)
+	UpdateMerchant(ctx context.Context, domainUMerchant *UpdateMerchantParams, user User) (err error)
+	UpdateMerchantAndStore(ctx context.Context, domainMerchant *UpdateMerchantParams, domainUStore *UpdateStoreParams, user User) (err error)
+	DeleteMerchant(ctx context.Context, id uuid.UUID, user User) (err error)
+	GetMerchant(ctx context.Context, id uuid.UUID, user User) (domainMerchant *Merchant, err error)
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
 	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
-	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal) (err error)
-	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateField, domainMerchant *Merchant) (err error)
+	MerchantRenewal(ctx context.Context, merchantRenewal *MerchantRenewal, user User) (err error)
+	MerchantSimpleUpdate(ctx context.Context, updateField MerchantSimpleUpdateField, domainMerchant *Merchant, user User) (err error)
 }
 type MerchantListOrderByType int
 

@@ -74,16 +74,16 @@ func (ru *RoleUpdate) SetNillableName(s *string) *RoleUpdate {
 	return ru
 }
 
-// SetEnable sets the "enable" field.
-func (ru *RoleUpdate) SetEnable(b bool) *RoleUpdate {
-	ru.mutation.SetEnable(b)
+// SetEnabled sets the "enabled" field.
+func (ru *RoleUpdate) SetEnabled(b bool) *RoleUpdate {
+	ru.mutation.SetEnabled(b)
 	return ru
 }
 
-// SetNillableEnable sets the "enable" field if the given value is not nil.
-func (ru *RoleUpdate) SetNillableEnable(b *bool) *RoleUpdate {
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (ru *RoleUpdate) SetNillableEnabled(b *bool) *RoleUpdate {
 	if b != nil {
-		ru.SetEnable(*b)
+		ru.SetEnabled(*b)
 	}
 	return ru
 }
@@ -249,8 +249,8 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.Name(); ok {
 		_spec.SetField(role.FieldName, field.TypeString, value)
 	}
-	if value, ok := ru.mutation.Enable(); ok {
-		_spec.SetField(role.FieldEnable, field.TypeBool, value)
+	if value, ok := ru.mutation.Enabled(); ok {
+		_spec.SetField(role.FieldEnabled, field.TypeBool, value)
 	}
 	if value, ok := ru.mutation.LoginChannels(); ok {
 		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
@@ -377,16 +377,16 @@ func (ruo *RoleUpdateOne) SetNillableName(s *string) *RoleUpdateOne {
 	return ruo
 }
 
-// SetEnable sets the "enable" field.
-func (ruo *RoleUpdateOne) SetEnable(b bool) *RoleUpdateOne {
-	ruo.mutation.SetEnable(b)
+// SetEnabled sets the "enabled" field.
+func (ruo *RoleUpdateOne) SetEnabled(b bool) *RoleUpdateOne {
+	ruo.mutation.SetEnabled(b)
 	return ruo
 }
 
-// SetNillableEnable sets the "enable" field if the given value is not nil.
-func (ruo *RoleUpdateOne) SetNillableEnable(b *bool) *RoleUpdateOne {
+// SetNillableEnabled sets the "enabled" field if the given value is not nil.
+func (ruo *RoleUpdateOne) SetNillableEnabled(b *bool) *RoleUpdateOne {
 	if b != nil {
-		ruo.SetEnable(*b)
+		ruo.SetEnabled(*b)
 	}
 	return ruo
 }
@@ -582,8 +582,8 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 	if value, ok := ruo.mutation.Name(); ok {
 		_spec.SetField(role.FieldName, field.TypeString, value)
 	}
-	if value, ok := ruo.mutation.Enable(); ok {
-		_spec.SetField(role.FieldEnable, field.TypeBool, value)
+	if value, ok := ruo.mutation.Enabled(); ok {
+		_spec.SetField(role.FieldEnabled, field.TypeBool, value)
 	}
 	if value, ok := ruo.mutation.LoginChannels(); ok {
 		_spec.SetField(role.FieldLoginChannels, field.TypeJSON, value)
