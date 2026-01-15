@@ -281,19 +281,19 @@ func (repo *BackendUserRepository) buildFilterQuery(filter *domain.BackendUserLi
 		query = query.Where(backenduser.IDIn(filter.UserIDs...))
 	}
 	if filter.Code != "" {
-		query = query.Where(backenduser.CodeEQ(filter.Code))
+		query = query.Where(backenduser.CodeContains(filter.Code))
 	}
 	if filter.RealName != "" {
-		query = query.Where(backenduser.RealNameEQ(filter.RealName))
+		query = query.Where(backenduser.RealNameContains(filter.RealName))
 	}
 	if filter.Gender != "" {
 		query = query.Where(backenduser.GenderEQ(filter.Gender))
 	}
 	if filter.Email != "" {
-		query = query.Where(backenduser.EmailEQ(filter.Email))
+		query = query.Where(backenduser.EmailContains(filter.Email))
 	}
 	if filter.PhoneNumber != "" {
-		query = query.Where(backenduser.PhoneNumberEQ(filter.PhoneNumber))
+		query = query.Where(backenduser.PhoneNumberContains(filter.PhoneNumber))
 	}
 	if filter.Enabled != nil {
 		query = query.Where(backenduser.EnabledEQ(*filter.Enabled))

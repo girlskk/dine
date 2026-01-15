@@ -63,6 +63,7 @@ type UpdateStoreReq struct {
 type StoreListReq struct {
 	upagination.RequestPagination
 	MerchantID       string               `form:"merchant_id" binding:"omitempty"`        // 商户 ID (as string, parsed in handler)
+	MerchantName     string               `form:"merchant_name" binding:"omitempty"`      // 商户名称
 	AdminPhoneNumber string               `form:"admin_phone_number" binding:"omitempty"` // 管理员手机号
 	StoreName        string               `form:"store_name" binding:"omitempty"`         // 门店名称
 	Status           domain.StoreStatus   `form:"status" binding:"omitempty"`             // 营业/停业

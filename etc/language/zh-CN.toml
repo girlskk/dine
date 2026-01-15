@@ -150,6 +150,9 @@ other = "该用户未分配角色"
 [TIME_FORMAT_INVALID]
 other = "时间格式错误"
 
+[TIME_RANGE_EXCEED_ONE_YEAR]
+other = "时间范围不能超过一年"
+
 [REMARK_NOT_EXISTS]
 other = "备注不存在"
 
