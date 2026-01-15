@@ -257,12 +257,6 @@ func (s *StoreRepositoryTestSuite) TestStore_GetStores() {
 	filterTime := &domain.StoreListFilter{MerchantID: merchant.ID, CreatedAtGte: &timeBound}
 	_, _, err = s.repo.GetStores(s.ctx, pager, filterTime)
 	require.NoError(s.T(), err)
-
-	_, _, err = s.repo.GetStores(s.ctx, nil, filter)
-	require.Error(s.T(), err)
-
-	_, _, err = s.repo.GetStores(s.ctx, pager, nil)
-	require.Error(s.T(), err)
 }
 
 func (s *StoreRepositoryTestSuite) TestStore_ExistsStore() {

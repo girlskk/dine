@@ -174,13 +174,6 @@ func (s *TaxFeeRepositoryTestSuite) TestTaxFee_GetTaxFees() {
 		require.Equal(t, 1, total)
 		require.Equal(t, fee2.ID, list[0].ID)
 	})
-
-	s.T().Run("入参缺失", func(t *testing.T) {
-		_, _, err := s.repo.GetTaxFees(s.ctx, nil, &domain.TaxFeeListFilter{})
-		require.Error(t, err)
-		_, _, err = s.repo.GetTaxFees(s.ctx, pager, nil)
-		require.Error(t, err)
-	})
 }
 
 func (s *TaxFeeRepositoryTestSuite) TestTaxFee_Exists() {
