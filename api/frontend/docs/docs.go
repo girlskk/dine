@@ -35,6 +35,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "营业日开始",
                         "name": "business_date_start",
                         "in": "query"
@@ -313,6 +320,13 @@ const docTemplate = `{
                 ],
                 "summary": "退款订单列表",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "门店ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "原订单ID",
@@ -765,13 +779,19 @@ const docTemplate = `{
         "domain.Channel": {
             "type": "string",
             "enum": [
-                "POS"
+                "POS",
+                "H5",
+                "APP"
             ],
             "x-enum-comments": {
-                "ChannelPOS": "POS终端"
+                "ChannelApp": "移动点餐APP",
+                "ChannelH5": "扫码点餐H5",
+                "ChannelPOS": "POS收银"
             },
             "x-enum-varnames": [
-                "ChannelPOS"
+                "ChannelPOS",
+                "ChannelH5",
+                "ChannelApp"
             ]
         },
         "domain.DiningMode": {
@@ -897,6 +917,13 @@ const docTemplate = `{
                 "merchant_id": {
                     "description": "品牌商ID",
                     "type": "string"
+                },
+                "operation_logs": {
+                    "description": "操作日志",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderOperationLog"
+                    }
                 },
                 "order_no": {
                     "description": "订单号",
@@ -1125,6 +1152,77 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.OrderOperationLog": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "操作内容",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "operated_at": {
+                    "description": "操作时间",
+                    "type": "string"
+                },
+                "operation_type": {
+                    "description": "操作类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.OrderOperationType"
+                        }
+                    ]
+                },
+                "operator_id": {
+                    "description": "操作人ID",
+                    "type": "string"
+                },
+                "operator_name": {
+                    "description": "操作人名称",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "操作来源",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Channel"
+                        }
+                    ]
+                }
+            }
+        },
+        "domain.OrderOperationType": {
+            "type": "string",
+            "enum": [
+                "PLACE_ORDER",
+                "GIFT_ITEM",
+                "COUPON",
+                "DISCOUNT",
+                "CHECKOUT",
+                "REVERSE_SETTLE",
+                "REFUND",
+                "REFUND_REVIEW"
+            ],
+            "x-enum-comments": {
+                "OrderOperationTypeCheckout": "结账（支付）",
+                "OrderOperationTypeCoupon": "结账（优惠券）",
+                "OrderOperationTypeDiscount": "结账（折扣）",
+                "OrderOperationTypeGiftItem": "点餐（赠菜）",
+                "OrderOperationTypePlaceOrder": "点餐（下单）",
+                "OrderOperationTypeRefund": "退款",
+                "OrderOperationTypeRefundReview": "退款审核",
+                "OrderOperationTypeReverseSettle": "反结账"
+            },
+            "x-enum-varnames": [
+                "OrderOperationTypePlaceOrder",
+                "OrderOperationTypeGiftItem",
+                "OrderOperationTypeCoupon",
+                "OrderOperationTypeDiscount",
+                "OrderOperationTypeCheckout",
+                "OrderOperationTypeReverseSettle",
+                "OrderOperationTypeRefund",
+                "OrderOperationTypeRefundReview"
+            ]
+        },
         "domain.OrderPOS": {
             "type": "object",
             "properties": {
@@ -1148,6 +1246,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/domain.OrderCashier"
                         }
                     ]
+                },
+                "change_amount": {
+                    "description": "找零",
+                    "type": "number"
                 },
                 "paid_at": {
                     "description": "支付时间",
@@ -2723,16 +2825,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "PaymentMethodDisplayChannelPOS",
-                "PaymentMethodDisplayChannelMobileOrdering",
-                "PaymentMethodDisplayChannelScanOrdering",
-                "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery",
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",
                 "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery"
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -3033,7 +3135,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "business_date",
-                "dining_mode"
+                "dining_mode",
+                "id",
+                "store_id"
             ],
             "properties": {
                 "amount": {
@@ -3060,7 +3164,9 @@ const docTemplate = `{
                     "description": "下单渠道",
                     "type": "string",
                     "enum": [
-                        "POS"
+                        "POS",
+                        "H5",
+                        "APP"
                     ]
                 },
                 "dining_mode": {
@@ -3080,6 +3186,17 @@ const docTemplate = `{
                 "guest_count": {
                     "description": "用餐人数",
                     "type": "integer"
+                },
+                "id": {
+                    "description": "订单ID",
+                    "type": "string"
+                },
+                "operation_logs": {
+                    "description": "操作日志",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderOperationLog"
+                    }
                 },
                 "order_no": {
                     "description": "订单号",
@@ -3159,6 +3276,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
+                },
                 "table_id": {
                     "description": "桌位ID",
                     "type": "string"
@@ -3181,12 +3302,14 @@ const docTemplate = `{
             "required": [
                 "business_date",
                 "cashier",
+                "id",
                 "origin_order_id",
                 "pos",
                 "refund_amount",
                 "refund_products",
                 "refund_type",
-                "store"
+                "store",
+                "store_id"
             ],
             "properties": {
                 "business_date": {
@@ -3200,6 +3323,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/domain.OrderCashier"
                         }
                     ]
+                },
+                "id": {
+                    "description": "退款订单ID",
+                    "type": "string"
                 },
                 "origin_order_id": {
                     "description": "原订单ID",
@@ -3274,6 +3401,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/domain.OrderStore"
                         }
                     ]
+                },
+                "store_id": {
+                    "description": "门店ID",
+                    "type": "string"
                 }
             }
         },
@@ -3469,7 +3600,9 @@ const docTemplate = `{
                     "description": "下单渠道",
                     "type": "string",
                     "enum": [
-                        "POS"
+                        "POS",
+                        "H5",
+                        "APP"
                     ]
                 },
                 "dining_mode": {
@@ -3489,6 +3622,13 @@ const docTemplate = `{
                 "guest_count": {
                     "description": "用餐人数",
                     "type": "integer"
+                },
+                "operation_logs": {
+                    "description": "操作日志",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderOperationLog"
+                    }
                 },
                 "order_no": {
                     "description": "订单号",

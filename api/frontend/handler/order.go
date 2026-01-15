@@ -63,11 +63,11 @@ func (h *OrderHandler) Create() gin.HandlerFunc {
 			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
 			return
 		}
-		user := domain.FromFrontendUserContext(ctx)
+		user := domain.FromFrontendContext(ctx)
 		o := &domain.Order{
 			ID:            req.ID,
 			MerchantID:    user.MerchantID,
-			StoreID:       user.StoreID,
+			StoreID:       req.StoreID,
 			BusinessDate:  req.BusinessDate,
 			ShiftNo:       req.ShiftNo,
 			OrderNo:       req.OrderNo,
@@ -297,6 +297,7 @@ func (h *OrderHandler) Delete() gin.HandlerFunc {
 //	@Summary	获取订单列表
 //	@Accept		json
 //	@Produce	json
+//	@Param		store_id			query		string				true	"门店ID"
 //	@Param		business_date_start	query		string				false	"营业日开始"
 //	@Param		business_date_end	query		string				false	"营业日结束"
 //	@Param		order_no			query		string				false	"订单号"
@@ -320,11 +321,11 @@ func (h *OrderHandler) List() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromFrontendUserContext(ctx)
+		user := domain.FromFrontendContext(ctx)
 
 		params := domain.OrderListParams{
 			MerchantID:        user.MerchantID,
-			StoreID:           user.StoreID,
+			StoreID:           req.StoreID,
 			BusinessDateStart: req.BusinessDateStart,
 			BusinessDateEnd:   req.BusinessDateEnd,
 			OrderNo:           req.OrderNo,

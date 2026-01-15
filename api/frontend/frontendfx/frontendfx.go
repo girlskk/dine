@@ -33,7 +33,7 @@ var Module = fx.Module(
 			fx.ResultTags(`group:"middlewares"`),
 		),
 		asMiddleware(middleware.NewLogger),
-		asMiddleware(frontendmiddleware.NewTenant),
+		asMiddleware(frontendmiddleware.NewAuth),
 	),
 	// handler
 	fx.Provide(
