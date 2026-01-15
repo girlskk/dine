@@ -66,7 +66,7 @@ func (h *OrderHandler) SalesReport() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromStoreUserContext(ctx)
+		user := domain.FromBackendUserContext(ctx)
 		var storeIDs []uuid.UUID
 		if req.StoreIDs != "" {
 			for _, s := range strings.Split(req.StoreIDs, ",") {
@@ -140,7 +140,7 @@ func (h *OrderHandler) ProductSalesSummary() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromStoreUserContext(ctx)
+		user := domain.FromBackendUserContext(ctx)
 
 		var storeIDs []uuid.UUID
 		if req.StoreIDs != "" {
