@@ -61,6 +61,8 @@ func (Order) Fields() []ent.Field {
 		field.JSON("amount", domain.OrderAmount{}).Comment("金额汇总"),
 
 		field.String("remark").MaxLen(255).Optional().Comment("整单备注"),
+
+		field.JSON("operation_logs", []domain.OrderOperationLog{}).Optional().Comment("操作日志"),
 	}
 }
 

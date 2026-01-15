@@ -188,7 +188,7 @@ const DefaultChannel domain.Channel = "POS"
 // ChannelValidator is a validator for the "channel" field enum values. It is called by the builders before save.
 func ChannelValidator(c domain.Channel) error {
 	switch c {
-	case "POS":
+	case "POS", "H5", "APP":
 		return nil
 	default:
 		return fmt.Errorf("refundorder: invalid enum value for channel field: %q", c)

@@ -343,11 +343,17 @@ definitions:
   domain.Channel:
     enum:
     - POS
+    - H5
+    - APP
     type: string
     x-enum-comments:
-      ChannelPOS: POS终端
+      ChannelApp: 移动点餐APP
+      ChannelH5: 扫码点餐H5
+      ChannelPOS: POS收银
     x-enum-varnames:
     - ChannelPOS
+    - ChannelH5
+    - ChannelApp
   domain.Country:
     enum:
     - MY
@@ -872,6 +878,11 @@ definitions:
       merchant_id:
         description: 品牌商ID
         type: string
+      operation_logs:
+        description: 操作日志
+        items:
+          $ref: '#/definitions/domain.OrderOperationLog'
+        type: array
       order_no:
         description: 订单号
         type: string
@@ -1029,6 +1040,59 @@ definitions:
       meta:
         description: 扩展信息
     type: object
+  domain.OrderOperationLog:
+    properties:
+      content:
+        additionalProperties: true
+        description: 操作内容
+        type: object
+      operated_at:
+        description: 操作时间
+        type: string
+      operation_type:
+        allOf:
+        - $ref: '#/definitions/domain.OrderOperationType'
+        description: 操作类型
+      operator_id:
+        description: 操作人ID
+        type: string
+      operator_name:
+        description: 操作人名称
+        type: string
+      source:
+        allOf:
+        - $ref: '#/definitions/domain.Channel'
+        description: 操作来源
+    type: object
+  domain.OrderOperationType:
+    enum:
+    - PLACE_ORDER
+    - GIFT_ITEM
+    - COUPON
+    - DISCOUNT
+    - CHECKOUT
+    - REVERSE_SETTLE
+    - REFUND
+    - REFUND_REVIEW
+    type: string
+    x-enum-comments:
+      OrderOperationTypeCheckout: 结账（支付）
+      OrderOperationTypeCoupon: 结账（优惠券）
+      OrderOperationTypeDiscount: 结账（折扣）
+      OrderOperationTypeGiftItem: 点餐（赠菜）
+      OrderOperationTypePlaceOrder: 点餐（下单）
+      OrderOperationTypeRefund: 退款
+      OrderOperationTypeRefundReview: 退款审核
+      OrderOperationTypeReverseSettle: 反结账
+    x-enum-varnames:
+    - OrderOperationTypePlaceOrder
+    - OrderOperationTypeGiftItem
+    - OrderOperationTypeCoupon
+    - OrderOperationTypeDiscount
+    - OrderOperationTypeCheckout
+    - OrderOperationTypeReverseSettle
+    - OrderOperationTypeRefund
+    - OrderOperationTypeRefundReview
   domain.OrderPOS:
     properties:
       id:
@@ -1044,6 +1108,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.OrderCashier'
         description: 收银员信息
+      change_amount:
+        description: 找零
+        type: number
       paid_at:
         description: 支付时间
         type: string
@@ -1141,6 +1208,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.ProductType'
         description: 商品类型
+      product_unit:
+        allOf:
+        - $ref: '#/definitions/domain.ProductUnit'
+        description: 商品单位信息
       promotion_discount:
         description: 促销信息
         type: number
@@ -1173,9 +1244,6 @@ definitions:
       total:
         description: 合计
         type: number
-      unit_id:
-        description: 单位ID
-        type: string
       updated_at:
         type: string
       void_amount:
@@ -1717,6 +1785,65 @@ definitions:
     x-enum-varnames:
     - ProductSaleStatusOnSale
     - ProductSaleStatusOffSale
+  domain.ProductSalesDetailItem:
+    properties:
+      amount_due:
+        description: 应收金额
+        type: number
+      attr_amount:
+        description: 做法金额
+        type: number
+      business_date:
+        description: 营业日期
+        type: string
+      category_name:
+        description: 一级分类名称
+        type: string
+      category_name_2:
+        description: 二级分类名称
+        type: string
+      discount_amount:
+        description: 优惠金额
+        type: number
+      order_no:
+        description: 订单号
+        type: string
+      order_type:
+        allOf:
+        - $ref: '#/definitions/domain.OrderType'
+        description: 订单类型
+      paid_at:
+        description: 支付时间
+        type: string
+      placed_at:
+        description: 下单时间
+        type: string
+      product_name:
+        description: 商品名称
+        type: string
+      product_type:
+        allOf:
+        - $ref: '#/definitions/domain.ProductType'
+        description: 商品类型
+      refund_amount:
+        description: 退款金额
+        type: number
+      refund_qty:
+        description: 退款数量
+        type: integer
+      sales_amount:
+        description: 销售金额
+        type: number
+      sales_qty:
+        description: 销售数量
+        type: integer
+      store_name:
+        description: 门店名称
+        type: string
+      subtotal:
+        description: 商品金额
+        type: number
+    type: object
   domain.ProductSalesSummaryItem:
     properties:
       amount_due:
@@ -2394,16 +2521,16 @@ definitions:
       SaleChannelSelfService: 自助点餐
       SaleChannelThirdPartyDelivery: 三方外卖
     x-enum-varnames:
-    - PaymentMethodDisplayChannelPOS
-    - PaymentMethodDisplayChannelMobileOrdering
-    - PaymentMethodDisplayChannelScanOrdering
-    - PaymentMethodDisplayChannelSelfService
-    - PaymentMethodDisplayChannelThirdPartyDelivery
     - SaleChannelPOS
     - SaleChannelMobileOrdering
     - SaleChannelScanOrdering
     - SaleChannelSelfService
     - SaleChannelThirdPartyDelivery
+    - PaymentMethodDisplayChannelPOS
+    - PaymentMethodDisplayChannelMobileOrdering
+    - PaymentMethodDisplayChannelScanOrdering
+    - PaymentMethodDisplayChannelSelfService
+    - PaymentMethodDisplayChannelThirdPartyDelivery
   domain.SetMealDetail:
     properties:
       created_at:
@@ -3743,6 +3870,18 @@ definitions:
     - sale_status
     - spec_relations
     - unit_id
+    type: object
+  types.ProductSalesDetailResp:
+    properties:
+      items:
+        description: 明细数据
+        items:
+          $ref: '#/definitions/domain.ProductSalesDetailItem'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/upagination.Pagination'
+        description: 分页信息
     type: object
   types.ProductSalesSummaryResp:
     properties:
@@ -5434,9 +5573,13 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 营业日
+      - description: 营业日开始
         in: query
-        name: business_date
+        name: business_date_start
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
         type: string
       - description: 订单号
         in: query
@@ -5509,6 +5652,59 @@ paths:
       summary: 获取订单详情
       tags:
       - 订单
+  /order/product-sales-detail:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 营业日开始
+        in: query
+        name: business_date_start
+        required: true
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
+        required: true
+        type: string
+      - description: 订单来源
+        in: query
+        name: order_channel
+        type: string
+      - description: 商品分类ID
+        in: query
+        name: category_id
+        type: string
+      - description: 商品名称（模糊搜索）
+        in: query
+        name: product_name
+        type: string
+      - description: 商品类型：normal/set_meal
+        in: query
+        name: product_type
+        type: string
+      - description: 订单号
+        in: query
+        name: order_no
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/types.ProductSalesDetailResp'
+      summary: 商品销售明细表
+      tags:
+      - 数据分析
   /order/product-sales-summary:
     get:
       consumes:

@@ -23,7 +23,7 @@ type OrderProduct struct {
 	ProductName string      `json:"product_name"` // 商品名称
 	ProductType ProductType `json:"product_type"` // 商品类型
 	Category    Category    `json:"category"`     // 分类信息
-	UnitID      uuid.UUID   `json:"unit_id"`      // 单位ID
+	ProductUnit ProductUnit `json:"product_unit"` // 商品单位信息
 	MainImage   string      `json:"main_image"`   // 商品主图
 	Description string      `json:"description"`  // 菜品描述
 

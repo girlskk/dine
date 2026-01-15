@@ -172,23 +172,23 @@ func (opu *OrderProductUpdate) ClearCategory() *OrderProductUpdate {
 	return opu
 }
 
-// SetUnitID sets the "unit_id" field.
-func (opu *OrderProductUpdate) SetUnitID(u uuid.UUID) *OrderProductUpdate {
-	opu.mutation.SetUnitID(u)
+// SetProductUnit sets the "product_unit" field.
+func (opu *OrderProductUpdate) SetProductUnit(du domain.ProductUnit) *OrderProductUpdate {
+	opu.mutation.SetProductUnit(du)
 	return opu
 }
 
-// SetNillableUnitID sets the "unit_id" field if the given value is not nil.
-func (opu *OrderProductUpdate) SetNillableUnitID(u *uuid.UUID) *OrderProductUpdate {
-	if u != nil {
-		opu.SetUnitID(*u)
+// SetNillableProductUnit sets the "product_unit" field if the given value is not nil.
+func (opu *OrderProductUpdate) SetNillableProductUnit(du *domain.ProductUnit) *OrderProductUpdate {
+	if du != nil {
+		opu.SetProductUnit(*du)
 	}
 	return opu
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (opu *OrderProductUpdate) ClearUnitID() *OrderProductUpdate {
-	opu.mutation.ClearUnitID()
+// ClearProductUnit clears the value of the "product_unit" field.
+func (opu *OrderProductUpdate) ClearProductUnit() *OrderProductUpdate {
+	opu.mutation.ClearProductUnit()
 	return opu
 }
 
@@ -813,11 +813,11 @@ func (opu *OrderProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if opu.mutation.CategoryCleared() {
 		_spec.ClearField(orderproduct.FieldCategory, field.TypeJSON)
 	}
-	if value, ok := opu.mutation.UnitID(); ok {
-		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
+	if value, ok := opu.mutation.ProductUnit(); ok {
+		_spec.SetField(orderproduct.FieldProductUnit, field.TypeJSON, value)
 	}
-	if opu.mutation.UnitIDCleared() {
-		_spec.ClearField(orderproduct.FieldUnitID, field.TypeUUID)
+	if opu.mutation.ProductUnitCleared() {
+		_spec.ClearField(orderproduct.FieldProductUnit, field.TypeJSON)
 	}
 	if value, ok := opu.mutation.MainImage(); ok {
 		_spec.SetField(orderproduct.FieldMainImage, field.TypeString, value)
@@ -1164,23 +1164,23 @@ func (opuo *OrderProductUpdateOne) ClearCategory() *OrderProductUpdateOne {
 	return opuo
 }
 
-// SetUnitID sets the "unit_id" field.
-func (opuo *OrderProductUpdateOne) SetUnitID(u uuid.UUID) *OrderProductUpdateOne {
-	opuo.mutation.SetUnitID(u)
+// SetProductUnit sets the "product_unit" field.
+func (opuo *OrderProductUpdateOne) SetProductUnit(du domain.ProductUnit) *OrderProductUpdateOne {
+	opuo.mutation.SetProductUnit(du)
 	return opuo
 }
 
-// SetNillableUnitID sets the "unit_id" field if the given value is not nil.
-func (opuo *OrderProductUpdateOne) SetNillableUnitID(u *uuid.UUID) *OrderProductUpdateOne {
-	if u != nil {
-		opuo.SetUnitID(*u)
+// SetNillableProductUnit sets the "product_unit" field if the given value is not nil.
+func (opuo *OrderProductUpdateOne) SetNillableProductUnit(du *domain.ProductUnit) *OrderProductUpdateOne {
+	if du != nil {
+		opuo.SetProductUnit(*du)
 	}
 	return opuo
 }
 
-// ClearUnitID clears the value of the "unit_id" field.
-func (opuo *OrderProductUpdateOne) ClearUnitID() *OrderProductUpdateOne {
-	opuo.mutation.ClearUnitID()
+// ClearProductUnit clears the value of the "product_unit" field.
+func (opuo *OrderProductUpdateOne) ClearProductUnit() *OrderProductUpdateOne {
+	opuo.mutation.ClearProductUnit()
 	return opuo
 }
 
@@ -1835,11 +1835,11 @@ func (opuo *OrderProductUpdateOne) sqlSave(ctx context.Context) (_node *OrderPro
 	if opuo.mutation.CategoryCleared() {
 		_spec.ClearField(orderproduct.FieldCategory, field.TypeJSON)
 	}
-	if value, ok := opuo.mutation.UnitID(); ok {
-		_spec.SetField(orderproduct.FieldUnitID, field.TypeUUID, value)
+	if value, ok := opuo.mutation.ProductUnit(); ok {
+		_spec.SetField(orderproduct.FieldProductUnit, field.TypeJSON, value)
 	}
-	if opuo.mutation.UnitIDCleared() {
-		_spec.ClearField(orderproduct.FieldUnitID, field.TypeUUID)
+	if opuo.mutation.ProductUnitCleared() {
+		_spec.ClearField(orderproduct.FieldProductUnit, field.TypeJSON)
 	}
 	if value, ok := opuo.mutation.MainImage(); ok {
 		_spec.SetField(orderproduct.FieldMainImage, field.TypeString, value)

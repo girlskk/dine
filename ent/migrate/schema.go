@@ -633,7 +633,7 @@ var (
 		{Name: "table_name", Type: field.TypeString, Nullable: true},
 		{Name: "guest_count", Type: field.TypeInt, Nullable: true},
 		{Name: "store", Type: field.TypeJSON},
-		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS"}, Default: "POS"},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS", "H5", "APP"}, Default: "POS"},
 		{Name: "pos", Type: field.TypeJSON},
 		{Name: "cashier", Type: field.TypeJSON},
 		{Name: "tax_rates", Type: field.TypeJSON, Nullable: true},
@@ -641,6 +641,7 @@ var (
 		{Name: "payments", Type: field.TypeJSON, Nullable: true},
 		{Name: "amount", Type: field.TypeJSON},
 		{Name: "remark", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "operation_logs", Type: field.TypeJSON, Nullable: true},
 	}
 	// OrdersTable holds the schema information for the "orders" table.
 	OrdersTable = &schema.Table{
@@ -697,7 +698,7 @@ var (
 		{Name: "product_name", Type: field.TypeString},
 		{Name: "product_type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
 		{Name: "category", Type: field.TypeJSON, Nullable: true},
-		{Name: "unit_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_unit", Type: field.TypeJSON, Nullable: true},
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
 		{Name: "is_gift", Type: field.TypeBool, Default: false},
@@ -1424,7 +1425,7 @@ var (
 		{Name: "approved_at", Type: field.TypeTime, Nullable: true},
 		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
 		{Name: "store", Type: field.TypeJSON},
-		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS"}, Default: "POS"},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"POS", "H5", "APP"}, Default: "POS"},
 		{Name: "pos", Type: field.TypeJSON},
 		{Name: "cashier", Type: field.TypeJSON},
 		{Name: "refund_amount", Type: field.TypeJSON},
@@ -1486,7 +1487,7 @@ var (
 		{Name: "product_name", Type: field.TypeString},
 		{Name: "product_type", Type: field.TypeEnum, Enums: []string{"normal", "set_meal"}, Default: "normal"},
 		{Name: "category", Type: field.TypeJSON, Nullable: true},
-		{Name: "unit_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "product_unit", Type: field.TypeJSON, Nullable: true},
 		{Name: "main_image", Type: field.TypeString, Size: 512, Default: ""},
 		{Name: "description", Type: field.TypeString, Size: 2000, Default: ""},
 		{Name: "origin_qty", Type: field.TypeInt},

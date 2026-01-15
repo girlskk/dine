@@ -64,7 +64,7 @@ func (h *RefundOrderHandler) Create() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromFrontendUserContext(ctx)
+		user := domain.FromFrontendContext(ctx)
 
 		// 构建退款商品明细
 		refundProducts := make([]domain.RefundOrderProduct, len(req.RefundProducts))
@@ -76,6 +76,7 @@ func (h *RefundOrderHandler) Create() gin.HandlerFunc {
 				ProductName:          rp.ProductName,
 				ProductType:          rp.ProductType,
 				Category:             rp.Category,
+				ProductUnit:          rp.ProductUnit,
 				MainImage:            rp.MainImage,
 				Description:          rp.Description,
 				OriginQty:            rp.OriginQty,
@@ -97,9 +98,9 @@ func (h *RefundOrderHandler) Create() gin.HandlerFunc {
 		}
 
 		ro := &domain.RefundOrder{
-			ID:               uuid.New(),
+			ID:               req.ID,
 			MerchantID:       user.MerchantID,
-			StoreID:          user.StoreID,
+			StoreID:          req.StoreID,
 			BusinessDate:     req.BusinessDate,
 			ShiftNo:          req.ShiftNo,
 			RefundNo:         req.RefundNo,
@@ -312,6 +313,7 @@ func (h *RefundOrderHandler) Cancel() gin.HandlerFunc {
 //	@Summary	退款订单列表
 //	@Accept		json
 //	@Produce	json
+//	@Param		store_id		query		string						true	"门店ID"
 //	@Param		origin_order_id	query		string						false	"原订单ID"
 //	@Param		business_date	query		string						false	"营业日"
 //	@Param		refund_no		query		string						false	"退款单号"
@@ -334,14 +336,16 @@ func (h *RefundOrderHandler) List() gin.HandlerFunc {
 			return
 		}
 
-		user := domain.FromFrontendUserContext(ctx)
+		user := domain.FromFrontendContext(ctx)
 		params := domain.RefundOrderListParams{
-			MerchantID:    user.MerchantID,
-			StoreID:       user.StoreID,
-			OriginOrderID: req.OriginOrderID,
-			RefundNo:      req.RefundNo,
-			Page:          req.Page,
-			Size:          req.Size,
+			MerchantID:        user.MerchantID,
+			StoreID:           req.StoreID,
+			OriginOrderID:     req.OriginOrderID,
+			BusinessDateStart: req.BusinessDateStart,
+			BusinessDateEnd:   req.BusinessDateEnd,
+			RefundNo:          req.RefundNo,
+			Page:              req.Page,
+			Size:              req.Size,
 		}
 		if req.RefundType != "" {
 			params.RefundType = domain.RefundType(req.RefundType)

@@ -10,9 +10,11 @@ import (
 
 // CreateRefundOrderReq 创建退款订单请求
 type CreateRefundOrderReq struct {
-	BusinessDate string `json:"business_date" binding:"required"` // 营业日
-	ShiftNo      string `json:"shift_no"`                         // 班次号
-	RefundNo     string `json:"refund_no"`                        // 退款单号（可选，不传则自动生成）
+	ID           uuid.UUID `json:"id" binding:"required"`            // 退款订单ID
+	StoreID      uuid.UUID `json:"store_id" binding:"required"`      // 门店ID
+	BusinessDate string    `json:"business_date" binding:"required"` // 营业日
+	ShiftNo      string    `json:"shift_no"`                         // 班次号
+	RefundNo     string    `json:"refund_no"`                        // 退款单号（可选，不传则自动生成）
 
 	OriginOrderID uuid.UUID `json:"origin_order_id" binding:"required"` // 原订单ID
 
@@ -41,7 +43,7 @@ type CreateRefundProductReq struct {
 	ProductName string             `json:"product_name" binding:"required"` // 商品名称
 	ProductType domain.ProductType `json:"product_type"`                    // 商品类型
 	Category    domain.Category    `json:"category"`                        // 分类信息
-	UnitID      uuid.UUID          `json:"unit_id"`                         // 单位ID
+	ProductUnit domain.ProductUnit `json:"product_unit"`                    // 商品单位信息
 	MainImage   string             `json:"main_image"`                      // 商品主图
 	Description string             `json:"description"`                     // 菜品描述
 
@@ -84,11 +86,13 @@ type UpdateRefundOrderReq struct {
 
 // RefundOrderListReq 退款订单列表请求
 type RefundOrderListReq struct {
-	OriginOrderID uuid.UUID `form:"origin_order_id"` // 原订单ID
-	BusinessDate  string    `form:"business_date"`   // 营业日
-	RefundNo      string    `form:"refund_no"`       // 退款单号
-	RefundType    string    `form:"refund_type"`     // 退款类型
-	RefundStatus  string    `form:"refund_status"`   // 退款状态
+	StoreID           uuid.UUID `form:"store_id" binding:"required"` // 门店ID
+	OriginOrderID     uuid.UUID `form:"origin_order_id"`             // 原订单ID
+	BusinessDateStart string    `form:"business_date_start"`         // 营业日开始
+	BusinessDateEnd   string    `form:"business_date_end"`           // 营业日结束
+	RefundNo          string    `form:"refund_no"`                   // 退款单号
+	RefundType        string    `form:"refund_type"`                 // 退款类型
+	RefundStatus      string    `form:"refund_status"`               // 退款状态
 
 	Page int `form:"page" binding:"omitempty,min=1"` // 页码
 	Size int `form:"size" binding:"omitempty,min=1"` // 每页数量

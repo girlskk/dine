@@ -79,6 +79,8 @@ type Order struct {
 	Amount domain.OrderAmount `json:"amount,omitempty"`
 	// 整单备注
 	Remark string `json:"remark,omitempty"`
+	// 操作日志
+	OperationLogs []domain.OrderOperationLog `json:"operation_logs,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrderQuery when eager-loading is set.
 	Edges        OrderEdges `json:"edges"`
@@ -108,7 +110,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case order.FieldStore, order.FieldPos, order.FieldCashier, order.FieldTaxRates, order.FieldFees, order.FieldPayments, order.FieldAmount:
+		case order.FieldStore, order.FieldPos, order.FieldCashier, order.FieldTaxRates, order.FieldFees, order.FieldPayments, order.FieldAmount, order.FieldOperationLogs:
 			values[i] = new([]byte)
 		case order.FieldDeletedAt, order.FieldGuestCount:
 			values[i] = new(sql.NullInt64)
@@ -330,6 +332,14 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.Remark = value.String
 			}
+		case order.FieldOperationLogs:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field operation_logs", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &o.OperationLogs); err != nil {
+					return fmt.Errorf("unmarshal field operation_logs: %w", err)
+				}
+			}
 		default:
 			o.selectValues.Set(columns[i], values[i])
 		}
@@ -463,6 +473,9 @@ func (o *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("remark=")
 	builder.WriteString(o.Remark)
+	builder.WriteString(", ")
+	builder.WriteString("operation_logs=")
+	builder.WriteString(fmt.Sprintf("%v", o.OperationLogs))
 	builder.WriteByte(')')
 	return builder.String()
 }

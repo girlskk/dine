@@ -1252,6 +1252,16 @@ func RemarkContainsFold(v string) predicate.Order {
 	return predicate.Order(sql.FieldContainsFold(FieldRemark, v))
 }
 
+// OperationLogsIsNil applies the IsNil predicate on the "operation_logs" field.
+func OperationLogsIsNil() predicate.Order {
+	return predicate.Order(sql.FieldIsNull(FieldOperationLogs))
+}
+
+// OperationLogsNotNil applies the NotNil predicate on the "operation_logs" field.
+func OperationLogsNotNil() predicate.Order {
+	return predicate.Order(sql.FieldNotNull(FieldOperationLogs))
+}
+
 // HasOrderProducts applies the HasEdge predicate on the "order_products" edge.
 func HasOrderProducts() predicate.Order {
 	return predicate.Order(func(s *sql.Selector) {

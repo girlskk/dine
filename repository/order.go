@@ -130,6 +130,11 @@ func (repo *OrderRepository) Create(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetRemark(o.Remark)
 	}
 
+	// OperationLogs
+	if len(o.OperationLogs) > 0 {
+		builder = builder.SetOperationLogs(o.OperationLogs)
+	}
+
 	created, err := builder.Save(ctx)
 	if err != nil {
 		if ent.IsValidationError(err) {
@@ -239,6 +244,11 @@ func (repo *OrderRepository) Update(ctx context.Context, o *domain.Order) (err e
 		builder = builder.SetRemark(o.Remark)
 	}
 
+	// OperationLogs
+	if len(o.OperationLogs) > 0 {
+		builder = builder.SetOperationLogs(o.OperationLogs)
+	}
+
 	_, err = builder.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -305,8 +315,11 @@ func (repo *OrderRepository) List(ctx context.Context, params domain.OrderListPa
 	if params.StoreID != uuid.Nil {
 		query.Where(entorder.StoreID(params.StoreID))
 	}
-	if params.BusinessDate != "" {
-		query.Where(entorder.BusinessDate(params.BusinessDate))
+	if params.BusinessDateStart != "" {
+		query.Where(entorder.BusinessDateGTE(params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		query.Where(entorder.BusinessDateLTE(params.BusinessDateEnd))
 	}
 	if params.OrderNo != "" {
 		query.Where(entorder.OrderNo(params.OrderNo))
@@ -362,8 +375,8 @@ func (repo *OrderRepository) createOrderProduct(ctx context.Context, op *domain.
 	if op.Category.ID != uuid.Nil {
 		builder = builder.SetCategory(op.Category)
 	}
-	if op.UnitID != uuid.Nil {
-		builder = builder.SetUnitID(op.UnitID)
+	if op.ProductUnit.ID != uuid.Nil {
+		builder = builder.SetProductUnit(op.ProductUnit)
 	}
 	if op.MainImage != "" {
 		builder = builder.SetMainImage(op.MainImage)
@@ -521,6 +534,8 @@ func convertOrderToDomain(eo *ent.Order) *domain.Order {
 
 		Remark: eo.Remark,
 
+		OperationLogs: eo.OperationLogs,
+
 		OrderProducts: orderProducts,
 	}
 }
@@ -584,7 +599,7 @@ func convertOrderProductToDomain(eop *ent.OrderProduct) domain.OrderProduct {
 		ProductName: eop.ProductName,
 		ProductType: eop.ProductType,
 		Category:    eop.Category,
-		UnitID:      eop.UnitID,
+		ProductUnit: eop.ProductUnit,
 		MainImage:   eop.MainImage,
 		Description: eop.Description,
 
@@ -917,6 +932,122 @@ func (repo *OrderRepository) ProductSalesSummary(ctx context.Context, params dom
 	res = make([]*domain.ProductSalesSummaryItem, len(rows))
 	for i := range rows {
 		res[i] = &rows[i].ProductSalesSummaryItem
+	}
+	return res, total, nil
+}
+
+func (repo *OrderRepository) ProductSalesDetail(ctx context.Context, params domain.ProductSalesDetailParams) (res []*domain.ProductSalesDetailItem, total int, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "OrderRepository.ProductSalesDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	type productSalesDetailRow struct {
+		domain.ProductSalesDetailItem
+		Total int `json:"total"`
+	}
+
+	// 构建订单条件
+	orderPredicates := []predicate.Order{
+		entorder.MerchantID(params.MerchantID),
+		entorder.OrderTypeEQ(domain.OrderTypeSale),
+		entorder.PaymentStatusEQ(domain.PaymentStatusPaid),
+	}
+	if len(params.StoreIDs) > 0 {
+		orderPredicates = append(orderPredicates, entorder.StoreIDIn(params.StoreIDs...))
+	}
+	if params.BusinessDateStart != "" {
+		orderPredicates = append(orderPredicates, entorder.BusinessDateGTE(params.BusinessDateStart))
+	}
+	if params.BusinessDateEnd != "" {
+		orderPredicates = append(orderPredicates, entorder.BusinessDateLTE(params.BusinessDateEnd))
+	}
+	if params.OrderChannel != "" {
+		orderPredicates = append(orderPredicates, entorder.ChannelEQ(params.OrderChannel))
+	}
+	if params.OrderNo != "" {
+		orderPredicates = append(orderPredicates, entorder.OrderNoContains(params.OrderNo))
+	}
+
+	// 构建商品条件
+	productPredicates := []predicate.OrderProduct{}
+	if params.ProductName != "" {
+		productPredicates = append(productPredicates, entorderproduct.ProductNameContains(params.ProductName))
+	}
+	if params.ProductType != "" {
+		productPredicates = append(productPredicates, entorderproduct.ProductTypeEQ(params.ProductType))
+	}
+
+	pageInfo := upagination.New(params.Page, params.Size)
+	categoryID := params.CategoryID.String()
+
+	var rows []productSalesDetailRow
+	err = repo.Client.OrderProduct.Query().
+		Where(entorderproduct.HasOrderWith(orderPredicates...)).
+		Where(productPredicates...).
+		Modify(func(s *entsql.Selector) {
+			// 关联订单表获取订单信息
+			orderTable := entsql.Table(entorder.Table).As("o")
+			s.Join(orderTable).On(s.C(entorderproduct.FieldOrderID), orderTable.C(entorder.FieldID))
+
+			// 添加分类过滤条件
+			if params.CategoryID != uuid.Nil {
+				s.Where(entsql.P(func(b *entsql.Builder) {
+					b.WriteString("(JSON_UNQUOTE(JSON_EXTRACT(`order_products`.`category`, '$.id')) = ")
+					b.Arg(categoryID)
+					b.WriteString(" OR JSON_UNQUOTE(JSON_EXTRACT(`order_products`.`category`, '$.parent_id')) = ")
+					b.Arg(categoryID)
+					b.WriteString(")")
+				}))
+			}
+
+			s.Select().
+				AppendSelectExprAs(entsql.Raw("`o`.`business_date`"), "business_date").
+				AppendSelectExprAs(entsql.Raw("JSON_UNQUOTE(JSON_EXTRACT(`o`.`store`, '$.store_name'))"), "store_name").
+				AppendSelectExprAs(entsql.Raw("`order_products`.`product_name`"), "product_name").
+				// 一级分类名称
+				AppendSelectExprAs(entsql.Raw(`CASE 
+					WHEN JSON_EXTRACT(order_products.category, '$.parent') IS NOT NULL
+					THEN COALESCE(JSON_UNQUOTE(JSON_EXTRACT(order_products.category, '$.parent.name')), '')
+					ELSE COALESCE(JSON_UNQUOTE(JSON_EXTRACT(order_products.category, '$.name')), '')
+				END`), "category_name").
+				// 二级分类名称
+				AppendSelectExprAs(entsql.Raw(`CASE 
+					WHEN JSON_EXTRACT(order_products.category, '$.parent') IS NOT NULL
+					THEN COALESCE(JSON_UNQUOTE(JSON_EXTRACT(order_products.category, '$.name')), '')
+					ELSE '' 
+				END`), "category_name_2").
+				AppendSelectExprAs(entsql.Raw("`order_products`.`product_type`"), "product_type").
+				AppendSelectExprAs(entsql.Raw("`o`.`order_no`"), "order_no").
+				AppendSelectExprAs(entsql.Raw("`o`.`order_type`"), "order_type").
+				AppendSelectExprAs(entsql.Raw("`o`.`placed_at`"), "placed_at").
+				AppendSelectExprAs(entsql.Raw("`o`.`paid_at`"), "paid_at").
+				AppendSelectExprAs(entsql.Raw("`order_products`.`qty`"), "sales_qty").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(`order_products`.`subtotal`, 0) * 100) / 100"), "sales_amount").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(`order_products`.`amount_after_tax`, 0) * 100) / 100"), "amount_due").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(`order_products`.`subtotal`, 0) * 100) / 100"), "subtotal").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(`order_products`.`discount_amount`, 0) * 100) / 100"), "discount_amount").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(`order_products`.`attr_amount`, 0) * 100) / 100"), "attr_amount").
+				AppendSelectExprAs(entsql.Raw("`order_products`.`void_qty`"), "refund_qty").
+				AppendSelectExprAs(entsql.Raw("CEILING(COALESCE(`order_products`.`void_amount`, 0) * 100) / 100"), "refund_amount").
+				AppendSelectExprAs(entsql.Raw("COUNT(*) OVER()"), "total").
+				OrderBy(entsql.Desc("`o`.`business_date`"), entsql.Desc("`o`.`placed_at`")).
+				Limit(pageInfo.Size).
+				Offset(pageInfo.Offset())
+		}).
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query product sales detail: %w", err)
+	}
+
+	if len(rows) == 0 {
+		return []*domain.ProductSalesDetailItem{}, 0, nil
+	}
+
+	total = rows[0].Total
+	res = make([]*domain.ProductSalesDetailItem, len(rows))
+	for i := range rows {
+		res[i] = &rows[i].ProductSalesDetailItem
 	}
 	return res, total, nil
 }
