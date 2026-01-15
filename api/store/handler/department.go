@@ -274,7 +274,13 @@ func (h *DepartmentHandler) Enable() gin.HandlerFunc {
 		}
 
 		user := domain.FromStoreUserContext(ctx)
-		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, domain.DepartmentSimpleUpdateParams{ID: id, Enabled: true}, user)
+		params := domain.DepartmentSimpleUpdateParams{ID: id, Enabled: true}
+		err = h.Interactor.SimpleUpdate(
+			ctx,
+			domain.DepartmentSimpleUpdateFieldEnabled,
+			params,
+			user,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -309,7 +315,13 @@ func (h *DepartmentHandler) Disable() gin.HandlerFunc {
 		}
 
 		user := domain.FromStoreUserContext(ctx)
-		err = h.Interactor.SimpleUpdate(ctx, domain.DepartmentSimpleUpdateFieldEnabled, domain.DepartmentSimpleUpdateParams{ID: id, Enabled: false}, user)
+		params := domain.DepartmentSimpleUpdateParams{ID: id, Enabled: false}
+		err = h.Interactor.SimpleUpdate(
+			ctx,
+			domain.DepartmentSimpleUpdateFieldEnabled,
+			params,
+			user,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return

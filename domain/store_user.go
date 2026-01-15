@@ -14,6 +14,7 @@ type StoreUserRepository interface {
 	Create(ctx context.Context, user *StoreUser) error
 	FindByUsername(ctx context.Context, username string) (*StoreUser, error)
 	Find(ctx context.Context, id uuid.UUID) (*StoreUser, error)
+	GetDetail(ctx context.Context, id uuid.UUID) (*StoreUser, error)
 	Update(ctx context.Context, user *StoreUser) error
 	Exists(ctx context.Context, params StoreUserExistsParams) (bool, error)
 	Delete(ctx context.Context, id uuid.UUID) error

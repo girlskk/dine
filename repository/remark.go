@@ -159,28 +159,19 @@ func (repo *RemarkRepository) CountRemarkByScene(ctx context.Context, params dom
 		return countRemark, nil
 	}
 
+	query := repo.filterBuildQuery(&domain.RemarkListFilter{
+		RemarkType: params.RemarkType,
+		MerchantID: params.MerchantID,
+		StoreID:    params.StoreID,
+	})
+	query = query.Where(remark.RemarkSceneIn(params.RemarkScenes...))
+
 	type result struct {
 		RemarkScene domain.RemarkScene `json:"remark_scene"`
 		Count       int                `json:"count"`
 	}
 	var results []result
-	builder := repo.Client.Remark.Query().
-		Where(remark.RemarkSceneIn(params.RemarkScenes...))
-	if params.RemarkType != "" {
-		if params.MerchantID != uuid.Nil && params.StoreID != uuid.Nil {
-		}
-		if params.MerchantID != uuid.Nil && params.StoreID == uuid.Nil {
-		}
-		if params.MerchantID == uuid.Nil && params.StoreID == uuid.Nil {
-			builder = builder.Where(remark.RemarkTypeEQ(params.RemarkType))
-		}
-	}
-
-	builder = repo.convertMerchantIDFilter(params.RemarkType, params.MerchantID, builder)
-	builder = repo.convertStoreIDFilter(params.RemarkType, params.StoreID, builder)
-
-	err = builder.
-		GroupBy(remark.FieldRemarkScene).
+	err = query.GroupBy(remark.FieldRemarkScene).
 		Aggregate(ent.Count()).
 		Scan(ctx, &results)
 	if err != nil {
@@ -245,9 +236,6 @@ func convertRemarkToDomain(er *ent.Remark) *domain.Remark {
 func (repo *RemarkRepository) filterBuildQuery(filter *domain.RemarkListFilter) *ent.RemarkQuery {
 	query := repo.Client.Remark.Query()
 
-	query = repo.convertMerchantIDFilter(filter.RemarkType, filter.MerchantID, query)
-	query = repo.convertStoreIDFilter(filter.RemarkType, filter.StoreID, query)
-
 	if filter.Name != "" {
 		query = query.Where(remark.NameContains(filter.Name))
 	}
@@ -257,67 +245,53 @@ func (repo *RemarkRepository) filterBuildQuery(filter *domain.RemarkListFilter) 
 	if filter.Enabled != nil {
 		query = query.Where(remark.EnabledEQ(*filter.Enabled))
 	}
-	if filter.RemarkType != "" {
-		if filter.MerchantID != uuid.Nil && filter.StoreID != uuid.Nil {
+
+	switch filter.RemarkType {
+	case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
+		query = query.Where(remark.Or(remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
+		query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
+		query = query.Where(remark.RemarkTypeEQ(domain.RemarkTypeSystem))
+	case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
+		query = query.Where(remark.Or(
+			remark.MerchantID(filter.MerchantID),
+			remark.MerchantIDIsNil(),
+			remark.MerchantID(uuid.Nil),
+		))
+		query = query.Where(remark.Or(
+			remark.StoreIDIsNil(),
+			remark.StoreID(uuid.Nil),
+		))
+		query = query.Where(remark.Or(
+			remark.RemarkTypeEQ(domain.RemarkTypeSystem),
+			remark.RemarkTypeEQ(domain.RemarkTypeBrand),
+		))
+	case domain.RemarkTypeStore: // 门店备注查询门店所属品牌和系统级别的备注
+		query = query.Where(remark.Or(
+			remark.MerchantID(filter.MerchantID),
+			remark.MerchantIDIsNil(),
+			remark.MerchantID(uuid.Nil),
+		))
+		query = query.Where(remark.Or(
+			remark.StoreID(filter.StoreID),
+			remark.StoreIDIsNil(),
+			remark.StoreID(uuid.Nil),
+		))
+		query = query.Where(remark.Or(
+			remark.RemarkTypeEQ(domain.RemarkTypeSystem),
+			remark.RemarkTypeEQ(domain.RemarkTypeBrand),
+			remark.RemarkTypeEQ(domain.RemarkTypeStore),
+		))
+	default:
+		if filter.MerchantID != uuid.Nil {
+			query = query.Where(remark.MerchantIDEQ(filter.MerchantID))
 		}
-		if filter.MerchantID != uuid.Nil && filter.StoreID == uuid.Nil {
-		}
-		if filter.MerchantID == uuid.Nil && filter.StoreID == uuid.Nil {
-			query = query.Where(remark.RemarkTypeEQ(filter.RemarkType))
+		if filter.StoreID != uuid.Nil {
+			query = query.Where(remark.StoreIDEQ(filter.StoreID))
 		}
 	}
 	return query
 }
 
-// 根据merchant ID的查询时 可查询出系统的备注
-// 系统备注只查询系统级别的备注
-// 品牌备注查询品牌和系统级别的备注
-// 门店备注查询门店所属品牌和系统级别的备注
-// Remark Type为空时只查询当前商户的备注
-// convertMerchantIDFilter 系统备注只查询系统级别的备注
-func (repo *RemarkRepository) convertMerchantIDFilter(remarkType domain.RemarkType, merchantID uuid.UUID, query *ent.RemarkQuery) *ent.RemarkQuery {
-	if merchantID != uuid.Nil {
-		switch remarkType {
-		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
-			query = query.Where(remark.Or(remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
-			query = query.Where(remark.RemarkTypeEQ(domain.RemarkTypeSystem))
-		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
-			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
-			query = query.Where(remark.RemarkTypeIn(domain.RemarkTypeSystem, domain.RemarkTypeBrand))
-		case domain.RemarkTypeStore: // 门店备注查询门店所属品牌和系统级别的备注
-			query = query.Where(remark.Or(remark.MerchantID(merchantID), remark.MerchantIDIsNil(), remark.MerchantID(uuid.Nil)))
-		default:
-			// Remark Type为空时只查询当前商户的备注
-			query = query.Where(remark.MerchantID(merchantID))
-
-		}
-	}
-	return query
-}
-
-// 根据store ID的查询时 可查询出系统和品牌的备注
-// 系统备注只查询系统级别的备注
-// 品牌备注查询品牌和系统级别的备注
-// 门店备注查询门店和系统级别的备注
-// Remark Type为空时只查询当前门店的备注
-// convertStoreIDFilter 系统备注只查询系统级别的备注
-func (repo *RemarkRepository) convertStoreIDFilter(remarkType domain.RemarkType, storeID uuid.UUID, query *ent.RemarkQuery) *ent.RemarkQuery {
-	if storeID != uuid.Nil {
-		switch remarkType {
-		case domain.RemarkTypeSystem: // 系统备注只查询系统级别的备注
-			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
-			query = query.Where(remark.RemarkTypeEQ(domain.RemarkTypeSystem))
-		case domain.RemarkTypeBrand: // 品牌备注查询品牌和系统级别的备注
-			query = query.Where(remark.Or(remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
-			query = query.Where(remark.RemarkTypeIn(domain.RemarkTypeSystem, domain.RemarkTypeBrand))
-		case domain.RemarkTypeStore: // 门店备注查询门店和系统级别的备注
-			query = query.Where(remark.Or(remark.StoreID(storeID), remark.StoreIDIsNil(), remark.StoreID(uuid.Nil)))
-		default: // Remark Type为空时只查询当前门店的备注
-			query = query.Where(remark.StoreID(storeID))
-		}
-	}
-	return query
-}
 func (repo *RemarkRepository) orderBy(orderBys ...domain.RemarkOrderBy) []remark.OrderOption {
 	var opts []remark.OrderOption
 	for _, orderBy := range orderBys {

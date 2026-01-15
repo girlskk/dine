@@ -19,6 +19,7 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/merchant_repository.go -package=mock . MerchantRepository
 type MerchantRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
+	GetDetail(ctx context.Context, id uuid.UUID) (domainMerchant *Merchant, err error)
 	Create(ctx context.Context, domainMerchant *Merchant) (err error)
 	Update(ctx context.Context, domainMerchant *Merchant) (err error)
 	Delete(ctx context.Context, id uuid.UUID) error

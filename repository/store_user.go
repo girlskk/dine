@@ -93,6 +93,26 @@ func (repo *StoreUserRepository) Find(ctx context.Context, id uuid.UUID) (u *dom
 
 	eu, err := repo.Client.StoreUser.Query().
 		Where(storeuser.ID(id)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = domain.NotFoundError(err)
+		}
+		return
+	}
+
+	u = convertStoreUser(eu)
+	return
+}
+
+func (repo *StoreUserRepository) GetDetail(ctx context.Context, id uuid.UUID) (u *domain.StoreUser, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "StoreUserRepository.GetDetail")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+
+	eu, err := repo.Client.StoreUser.Query().
+		Where(storeuser.ID(id)).
 		WithDepartment().
 		Only(ctx)
 	if err != nil {

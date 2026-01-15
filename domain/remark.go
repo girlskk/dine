@@ -41,7 +41,9 @@ type RemarkInteractor interface {
 	GetRemark(ctx context.Context, id uuid.UUID, user User) (remark *Remark, err error)
 	GetRemarks(ctx context.Context, pager *upagination.Pagination, filter *RemarkListFilter, orderBys ...RemarkOrderBy) (remarks Remarks, total int, err error)
 	RemarkSimpleUpdate(ctx context.Context, updateField RemarkSimpleUpdateField, remark *Remark, user User) (err error)
+	CountRemarkByScene(ctx context.Context, params CountRemarkParams) (countRemark map[RemarkScene]int, err error)
 }
+
 type RemarkType string // 备注归属方
 
 const (
@@ -59,12 +61,22 @@ type RemarkScene string
 const (
 	RemarkSceneWholeOrder   RemarkScene = "whole_order"   // 整单备注
 	RemarkSceneItem         RemarkScene = "item"          // 单品备注
-	RemarkSceneCancelReason RemarkScene = "cancel_reason" // 退菜原因
+	RemarkSceneCancelReason RemarkScene = "cancel_reason" // 退款原因
 	RemarkSceneDiscount     RemarkScene = "discount"      // 优惠原因
 	RemarkSceneGift         RemarkScene = "gift"          // 赠菜原因
 	RemarkSceneRebill       RemarkScene = "rebill"        // 反结账原因
 	RemarkSceneRefundReject RemarkScene = "refund_reject" // 拒绝退款
 )
+
+var RemarkScenesList = []RemarkScene{
+	RemarkSceneWholeOrder,
+	RemarkSceneItem,
+	RemarkSceneCancelReason,
+	RemarkSceneDiscount,
+	RemarkSceneGift,
+	RemarkSceneRebill,
+	RemarkSceneRefundReject,
+}
 
 func (RemarkScene) Values() []string {
 	return []string{

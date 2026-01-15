@@ -20,11 +20,15 @@ var (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -destination=mock/device_repository.go -package=mock . DeviceRepository
 type DeviceRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (device *Device, err error)
+	GetDetail(ctx context.Context, id uuid.UUID) (device *Device, err error)
 	Create(ctx context.Context, device *Device) (err error)
 	Update(ctx context.Context, device *Device) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetDevices(ctx context.Context, pager *upagination.Pagination, filter *DeviceListFilter, orderBys ...DeviceOrderBy) (devices []*Device, total int, err error)
+	ListBySearch(ctx context.Context, filter *DeviceListFilter) (devices []*Device, err error)
 	Exists(ctx context.Context, params DeviceExistsParams) (exists bool, err error)
+	OnLine(ctx context.Context, ids ...uuid.UUID) (err error)
+	OffLine(ctx context.Context, ids ...uuid.UUID) (err error)
 }
 
 // DeviceInteractor 设备用例接口
@@ -37,6 +41,7 @@ type DeviceInteractor interface {
 	GetDevice(ctx context.Context, id uuid.UUID, user User) (*Device, error)
 	GetDevices(ctx context.Context, pager *upagination.Pagination, filter *DeviceListFilter, orderBys ...DeviceOrderBy) (devices []*Device, total int, err error)
 	DeviceSimpleUpdate(ctx context.Context, updateField DeviceSimpleUpdateType, device *Device, user User) (err error)
+	SyncStoreDeviceStatus(ctx context.Context, merchantID, storeID uuid.UUID, deviceCodes ...string) (err error)
 }
 
 // DeviceType 设备类型
@@ -127,12 +132,14 @@ type DeviceConnectType string
 const (
 	DeviceConnectTypeInside  DeviceConnectType = "inside"  // 内置
 	DeviceConnectTypeOutside DeviceConnectType = "outside" // 外置
+	DeviceConnectTypeNetWork DeviceConnectType = "network" // 网络
 )
 
 func (DeviceConnectType) Values() []string {
 	return []string{
 		string(DeviceConnectTypeInside),
 		string(DeviceConnectTypeOutside),
+		string(DeviceConnectTypeNetWork),
 	}
 }
 
@@ -141,7 +148,6 @@ type Device struct {
 	ID                     uuid.UUID              `json:"id"`                        // 设备 ID
 	MerchantID             uuid.UUID              `json:"merchant_id"`               // 所属商户 ID
 	StoreID                uuid.UUID              `json:"store_id"`                  // 所属门店 ID
-	StoreName              string                 `json:"store_name"`                // 门店名称
 	Name                   string                 `json:"name"`                      // 设备名称
 	DeviceType             DeviceType             `json:"device_type"`               // 设备类型
 	DeviceCode             string                 `json:"device_code"`               // 设备编号/序列号
@@ -154,7 +160,6 @@ type Device struct {
 	PaperSize              PaperSize              `json:"paper_size"`                // 打印纸张尺寸
 	ConnectType            DeviceConnectType      `json:"connect_type"`              // 设备连接类型 inside内置 / outside外置
 	StallID                uuid.UUID              `json:"stall_id"`                  // 出品部门 ID
-	StallName              string                 `json:"stall_name"`                // 出品部门名称
 	OrderChannels          []OrderChannel         `json:"order_channels"`            // 订单来源
 	DiningWays             []DiningWay            `json:"dining_ways"`               // 订单类型/就餐方式
 	DeviceStallPrintType   DeviceStallPrintType   `json:"device_stall_print_type"`   // 出品部门总分单
@@ -163,6 +168,9 @@ type Device struct {
 	SortOrder              int                    `json:"sort_order"`                // 排序
 	CreatedAt              time.Time              `json:"created_at"`                // 创建时间
 	UpdatedAt              time.Time              `json:"updated_at"`                // 更新时间
+
+	Store *Store `json:"store,omitempty"` // 所属门店
+	Stall *Stall `json:"stall,omitempty"` // 出品部门
 }
 
 // DeviceExistsParams 存在性检查参数

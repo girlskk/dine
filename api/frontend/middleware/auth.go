@@ -37,3 +37,13 @@ func (u *Auth) Middleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// 检查 full path 是否在允许 store_id 为空的白名单中
+func isStoreIDOptional(fullPath string) bool {
+	optionalPaths := map[string]struct{}{
+		"/store/list": {}, // 获取门店列表接口路由
+	}
+
+	_, exists := optionalPaths[fullPath]
+	return exists
+}

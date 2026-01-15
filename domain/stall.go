@@ -115,6 +115,8 @@ type Stall struct {
 	StoreID    uuid.UUID      `json:"store_id"`    // 门店 ID
 	CreatedAt  time.Time      `json:"created_at"`  // 创建时间
 	UpdatedAt  time.Time      `json:"updated_at"`  // 更新时间
+
+	RelationProductNumbers int `json:"relation_product_numbers"` // 关联商品数量
 }
 
 // StallExistsParams 存在性检查参数

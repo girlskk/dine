@@ -56,17 +56,22 @@ type MerchantRenewal struct {
 }
 
 func CalculateExpireTime(oldTime time.Time, d int, durationUnit PurchaseDurationUnit) *time.Time {
-	newTime := oldTime
+	oldExpireTime := oldTime
+
+	newTime := time.Now().UTC()
+	if oldExpireTime.Before(newTime) {
+		oldExpireTime = newTime
+	}
 	switch durationUnit {
 	case PurchaseDurationUnitDay:
-		newTime = oldTime.AddDate(0, 0, d)
+		oldExpireTime = oldTime.AddDate(0, 0, d)
 	case PurchaseDurationUnitMonth:
-		newTime = oldTime.AddDate(0, d, 0)
+		oldExpireTime = oldTime.AddDate(0, d, 0)
 	case PurchaseDurationUnitYear:
-		newTime = oldTime.AddDate(d, 0, 0)
+		oldExpireTime = oldTime.AddDate(d, 0, 0)
 	case PurchaseDurationUnitWeek:
-		newTime = oldTime.AddDate(0, 0, d*7)
+		oldExpireTime = oldTime.AddDate(0, 0, d*7)
 	default:
 	}
-	return &newTime
+	return &oldExpireTime
 }

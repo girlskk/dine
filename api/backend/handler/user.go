@@ -13,6 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
 	"go.uber.org/fx"
@@ -80,7 +81,11 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 		token, expAt, err := h.UserInteractor.Login(ctx, req.Username, req.Password)
 		if err != nil {
 			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err))
+				// 自定义错误，手动翻译
+				translated := i18n.Translate(ctx, errcode.UserNotFound.String(), map[string]any{
+					"Username": req.Username,
+				})
+				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err).WithMessage(translated))
 				return
 			}
 
@@ -147,7 +152,13 @@ func (h *UserHandler) Info() gin.HandlerFunc {
 		c.Request = c.Request.Clone(ctx)
 
 		user := domain.FromBackendUserContext(ctx)
-		response.Ok(c, user)
+
+		userDetail, err := h.UserInteractor.GetUser(ctx, user.ID)
+		if err != nil {
+			c.Error(h.checkErr(err))
+			return
+		}
+		response.Ok(c, userDetail)
 	}
 }
 
@@ -415,10 +426,12 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldPassword, domain.BackendUserSimpleUpdateParams{
+		params := domain.BackendUserSimpleUpdateParams{
 			ID:       id,
 			Password: req.NewPassword,
-		})
+		}
+
+		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldPassword, params)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -426,14 +439,6 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
-}
-
-func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
-	seq, err := h.UserSeq.Next(ctx)
-	if err != nil {
-		return "", err
-	}
-	return seq, nil
 }
 
 // Enable 启用后台用户
@@ -462,7 +467,16 @@ func (h *UserHandler) Enable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldEnabled, domain.BackendUserSimpleUpdateParams{ID: id, Enabled: true})
+		params := domain.BackendUserSimpleUpdateParams{
+			ID:      id,
+			Enabled: true,
+		}
+
+		err = h.UserInteractor.SimpleUpdate(
+			ctx,
+			domain.BackendUserSimpleUpdateFieldEnabled,
+			params,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -498,7 +512,16 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 			return
 		}
 
-		err = h.UserInteractor.SimpleUpdate(ctx, domain.BackendUserSimpleUpdateFieldEnabled, domain.BackendUserSimpleUpdateParams{ID: id, Enabled: false})
+		params := domain.BackendUserSimpleUpdateParams{
+			ID:      id,
+			Enabled: false,
+		}
+
+		err = h.UserInteractor.SimpleUpdate(
+			ctx,
+			domain.BackendUserSimpleUpdateFieldEnabled,
+			params,
+		)
 		if err != nil {
 			c.Error(h.checkErr(err))
 			return
@@ -506,6 +529,14 @@ func (h *UserHandler) Disable() gin.HandlerFunc {
 
 		response.Ok(c, nil)
 	}
+}
+
+func (h *UserHandler) generateUserCode(ctx context.Context) (string, error) {
+	seq, err := h.UserSeq.Next(ctx)
+	if err != nil {
+		return "", err
+	}
+	return seq, nil
 }
 
 func (h *UserHandler) checkErr(err error) error {

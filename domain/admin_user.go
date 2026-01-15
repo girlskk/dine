@@ -13,6 +13,7 @@ import (
 type AdminUserRepository interface {
 	FindByUsername(ctx context.Context, username string) (*AdminUser, error)
 	Find(ctx context.Context, id uuid.UUID) (*AdminUser, error)
+	GetDetail(ctx context.Context, id uuid.UUID) (*AdminUser, error)
 	Create(ctx context.Context, user *AdminUser) error
 	Update(ctx context.Context, user *AdminUser) error
 	Delete(ctx context.Context, id uuid.UUID) error
