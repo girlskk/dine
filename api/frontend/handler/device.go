@@ -39,7 +39,7 @@ func (h *DeviceHandler) Routes(r gin.IRouter) {
 //	@Description	根据设备ID获取详情
 //	@Param			id	path		string	true	"设备ID"
 //	@Success		200	{object}	response.Response{data=domain.Device}
-//	@Router			/restaurant/device/{id} [get]
+//	@Router			/device/{id} [get]
 func (h *DeviceHandler) Get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -77,7 +77,7 @@ func (h *DeviceHandler) Get() gin.HandlerFunc {
 //	@Description	分页查询设备列表
 //	@Param			data	query		types.DeviceListReq	true	"设备列表查询参数"
 //	@Success		200		{object}	response.Response{data=types.DeviceListResp}
-//	@Router			/restaurant/device [get]
+//	@Router			/device [get]
 func (h *DeviceHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -113,5 +113,40 @@ func (h *DeviceHandler) List() gin.HandlerFunc {
 		}
 
 		response.Ok(c, types.DeviceListResp{Devices: devices, Total: total})
+	}
+}
+
+// SyncStoreDeviceStatus 同步门店设备状态
+//
+//	@Tags			设备管理
+//	@Security		BearerAuth
+//	@Summary		同步门店设备状态
+//	@Description	根据设备编码列表同步门店设备在线状态
+//	@Param			data	body		types.SyncStoreDeviceStatusReq	true	"同步门店设备状态请求参数"
+//	@Success		200		{object}	response.Response{data=object}
+//	@Router			/device/sync_store_device_status [post]
+func (h *DeviceHandler) SyncStoreDeviceStatus() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		logger := logging.FromContext(ctx).Named("DeviceHandler.SyncStoreDeviceStatus")
+		ctx = logging.NewContext(ctx, logger)
+		c.Request = c.Request.Clone(ctx)
+
+		var req types.SyncStoreDeviceStatusReq
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.Error(errorx.New(http.StatusBadRequest, errcode.InvalidParams, err))
+			return
+		}
+
+		user := domain.FromFrontendUserContext(ctx)
+
+		err := h.DeviceInteractor.SyncStoreDeviceStatus(ctx, user.MerchantID, user.StoreID, req.DeviceCodes...)
+		if err != nil {
+			err = fmt.Errorf("failed to sync store device status: %w", err)
+			c.Error(err)
+			return
+		}
+
+		response.Ok(c, nil)
 	}
 }

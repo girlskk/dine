@@ -13,6 +13,7 @@ import (
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx/errcode"
+	"gitlab.jiguang.dev/pos-dine/dine/pkg/i18n"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/logging"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/ugin/response"
 	"go.uber.org/fx"
@@ -57,7 +58,7 @@ func (h *UserHandler) NoAuths() []string {
 //	@Tags		用户管理
 //	@Security	BearerAuth
 //	@Summary	用户登录
-
+//
 // @Produce	json
 // @Param		data	body		types.LoginReq	true	"请求信息"
 // @Success	200		{object}	types.LoginResp	"成功"
@@ -78,7 +79,11 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 		token, expAt, err := h.UserInteractor.Login(ctx, req.Username, req.Password)
 		if err != nil {
 			if domain.IsNotFound(err) {
-				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err))
+				// 自定义错误，手动翻译
+				translated := i18n.Translate(ctx, errcode.UserNotFound.String(), map[string]any{
+					"Username": req.Username,
+				})
+				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err).WithMessage(translated))
 				return
 			}
 
@@ -104,7 +109,7 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 //	@Tags		用户管理
 //	@Security	BearerAuth
 //	@Summary	用户登出
-
+//
 // @Produce	json
 // @Success	200	"No Content"
 // @Router		/user/logout [post]

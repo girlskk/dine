@@ -2512,6 +2512,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/domain.StallPrintType'
         description: 打印类型 ：receipt/label
+      relation_product_numbers:
+        description: 关联商品数量
+        type: integer
       sort_order:
         description: 排序
         type: integer
@@ -2820,22 +2823,8 @@ definitions:
     - 4
     - 5
     - 6
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
     type: integer
     x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
     - Sunday
     - Monday
     - Tuesday
@@ -7525,6 +7514,11 @@ paths:
           description: 成功
           schema:
             $ref: '#/definitions/types.LoginResp'
+      security:
+      - BearerAuth: []
+      summary: 用户登录
+      tags:
+      - 用户管理
   /user/logout:
     post:
       produces:
@@ -7532,6 +7526,11 @@ paths:
       responses:
         "200":
           description: No Content
+      security:
+      - BearerAuth: []
+      summary: 用户登出
+      tags:
+      - 用户管理
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT token.

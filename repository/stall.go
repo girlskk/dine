@@ -129,6 +129,8 @@ func (repo *StallRepository) GetStalls(ctx context.Context, pager *upagination.P
 
 	stalls, err := query.
 		Order(repo.orderBy(orderBys...)...).
+		WithCategories().
+		WithProducts().
 		Offset(pager.Offset()).
 		Limit(pager.Size).
 		All(ctx)
@@ -219,7 +221,7 @@ func convertStallToDomain(es *ent.Stall) *domain.Stall {
 	if es == nil {
 		return nil
 	}
-	return &domain.Stall{
+	ds := &domain.Stall{
 		ID:         es.ID,
 		Name:       es.Name,
 		StallType:  es.StallType,
@@ -231,4 +233,13 @@ func convertStallToDomain(es *ent.Stall) *domain.Stall {
 		CreatedAt:  es.CreatedAt,
 		UpdatedAt:  es.UpdatedAt,
 	}
+	if len(es.Edges.Products) > 0 {
+		ds.RelationProductNumbers += len(es.Edges.Products)
+	}
+	if len(es.Edges.Categories) > 0 {
+		ds.RelationProductNumbers += lo.SumBy(es.Edges.Categories, func(c *ent.Category) int {
+			return c.ProductCount
+		})
+	}
+	return ds
 }

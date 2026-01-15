@@ -37,10 +37,7 @@ func (interactor *AdminUserInteractor) Login(ctx context.Context, username, pass
 
 	user, err := interactor.DS.AdminUserRepo().FindByUsername(ctx, username)
 	if err != nil {
-		if domain.IsNotFound(err) {
-			err = domain.ErrUserNotExists
-			return
-		}
+		return
 	}
 	if err = user.CheckPassword(password); err != nil {
 		return

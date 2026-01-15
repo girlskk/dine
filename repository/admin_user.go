@@ -38,7 +38,7 @@ func (repo *AdminUserRepository) FindByUsername(ctx context.Context, username st
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			err = domain.NotFoundError(err)
+			err = domain.NotFoundError(domain.ErrUserNotFound)
 		}
 		return
 	}

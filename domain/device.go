@@ -25,7 +25,10 @@ type DeviceRepository interface {
 	Update(ctx context.Context, device *Device) (err error)
 	Delete(ctx context.Context, id uuid.UUID) (err error)
 	GetDevices(ctx context.Context, pager *upagination.Pagination, filter *DeviceListFilter, orderBys ...DeviceOrderBy) (devices []*Device, total int, err error)
+	ListBySearch(ctx context.Context, filter *DeviceListFilter) (devices []*Device, err error)
 	Exists(ctx context.Context, params DeviceExistsParams) (exists bool, err error)
+	OnLine(ctx context.Context, ids ...uuid.UUID) (err error)
+	OffLine(ctx context.Context, ids ...uuid.UUID) (err error)
 }
 
 // DeviceInteractor 设备用例接口
@@ -38,6 +41,7 @@ type DeviceInteractor interface {
 	GetDevice(ctx context.Context, id uuid.UUID, user User) (*Device, error)
 	GetDevices(ctx context.Context, pager *upagination.Pagination, filter *DeviceListFilter, orderBys ...DeviceOrderBy) (devices []*Device, total int, err error)
 	DeviceSimpleUpdate(ctx context.Context, updateField DeviceSimpleUpdateType, device *Device, user User) (err error)
+	SyncStoreDeviceStatus(ctx context.Context, merchantID, storeID uuid.UUID, deviceCodes ...string) (err error)
 }
 
 // DeviceType 设备类型

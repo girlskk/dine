@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -231,6 +232,50 @@ func (interactor *DeviceInteractor) GetDevices(ctx context.Context,
 		return
 	}
 	return domainDevices, total, nil
+}
+
+func (interactor *DeviceInteractor) SyncStoreDeviceStatus(ctx context.Context, merchantID, storeID uuid.UUID, deviceCodes ...string) (err error) {
+	span, ctx := util.StartSpan(ctx, "usecase", "DeviceInteractor.SyncStoreDeviceStatus")
+	defer func() { util.SpanErrFinish(span, err) }()
+	err = interactor.DS.Atomic(ctx, func(ctx context.Context, ds domain.DataStore) error {
+		deviceList, err := ds.DeviceRepo().ListBySearch(ctx, &domain.DeviceListFilter{
+			MerchantID: merchantID,
+			StoreID:    storeID,
+		})
+		if err != nil {
+			return err
+		}
+
+		// 根据deviceCode进行匹配，在deviceCodes列表中的设备视为在线，其他视为离线，对比device List进行状态更新
+		needOnListIDs := make([]uuid.UUID, 0)
+		needOffListIDs := make([]uuid.UUID, 0)
+		onlineDeviceCodeMap := lo.SliceToMap(deviceCodes, func(code string) (string, struct{}) {
+			return code, struct{}{}
+		})
+		for _, device := range deviceList {
+			_, isOnline := onlineDeviceCodeMap[device.DeviceCode]
+			if isOnline && device.Status != domain.DeviceStatusOnline {
+				needOnListIDs = append(needOnListIDs, device.ID)
+			} else if !isOnline && device.Status != domain.DeviceStatusOffline {
+				needOffListIDs = append(needOffListIDs, device.ID)
+			}
+		}
+		if len(needOnListIDs) > 0 {
+			if err = ds.DeviceRepo().OnLine(ctx, needOnListIDs...); err != nil {
+				return err
+			}
+		}
+		if len(needOffListIDs) > 0 {
+			if err = ds.DeviceRepo().OffLine(ctx, needOffListIDs...); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return
 }
 
 func verifyDeviceOwnership(user domain.User, device *domain.Device) error {

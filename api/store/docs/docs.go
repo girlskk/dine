@@ -4303,9 +4303,18 @@ const docTemplate = `{
         },
         "/user/login": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "用户登录",
                 "parameters": [
                     {
                         "description": "请求信息",
@@ -4329,9 +4338,18 @@ const docTemplate = `{
         },
         "/user/logout": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "用户登出",
                 "responses": {
                     "200": {
                         "description": "No Content"
@@ -8119,6 +8137,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "relation_product_numbers": {
+                    "description": "关联商品数量",
+                    "type": "integer"
+                },
                 "sort_order": {
                     "description": "排序",
                     "type": "integer"
@@ -8565,23 +8587,9 @@ const docTemplate = `{
                 3,
                 4,
                 5,
-                6,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
                 6
             ],
             "x-enum-varnames": [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
                 "Sunday",
                 "Monday",
                 "Tuesday",

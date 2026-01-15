@@ -15,3 +15,7 @@ type DeviceListResp struct {
 	Devices []*domain.Device `json:"devices"` // 设备列表
 	Total   int              `json:"total"`   // 总数
 }
+
+type SyncStoreDeviceStatusReq struct {
+	DeviceCodes []string `json:"device_codes"` // 设备编号列表
+}
