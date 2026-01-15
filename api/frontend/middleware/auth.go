@@ -22,7 +22,7 @@ func NewAuth(handlers []ugin.Handler) *Auth {
 func (u *Auth) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		merchantIDStr := c.GetHeader("Merchant-ID")
+		merchantIDStr := c.GetHeader("X-Merchant-ID")
 		merchantID, err := uuid.Parse(merchantIDStr)
 		if err != nil {
 			err = fmt.Errorf("failed to get header Merchant-ID: %w", err)
