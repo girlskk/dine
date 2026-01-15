@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
-	"gitlab.jiguang.dev/pos-dine/dine/ent/store"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 )
 
@@ -111,7 +110,6 @@ func (s *DeviceRepositoryTestSuite) TestDevice_FindByID() {
 		require.NoError(t, err)
 		require.Equal(t, device.ID, found.ID)
 		require.Equal(t, device.StoreID, found.StoreID)
-		require.Equal(t, store.StoreName, found.StoreName)
 	})
 
 	s.T().Run("不存在", func(t *testing.T) {

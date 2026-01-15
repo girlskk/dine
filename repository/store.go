@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
@@ -400,7 +401,11 @@ func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *e
 		query = query.Where(store.BusinessTypeCodeEQ(filter.BusinessTypeCode))
 	}
 	if filter.AdminPhoneNumber != "" {
-		query = query.Where(store.AdminPhoneNumberEQ(filter.AdminPhoneNumber))
+		adminPhoneNumber := strings.TrimSpace(filter.AdminPhoneNumber)
+		query = query.Where(store.Or(
+			store.AdminPhoneNumberEQ(adminPhoneNumber),
+			store.AdminPhoneNumberEQ("+"+adminPhoneNumber),
+		))
 	}
 	if filter.Status != "" {
 		query = query.Where(store.StatusEQ(filter.Status))
@@ -416,6 +421,9 @@ func (repo *StoreRepository) filterBuildQuery(filter *domain.StoreListFilter) *e
 	}
 	if filter.Province != "" {
 		query = query.Where(store.ProvinceEQ(filter.Province))
+	}
+	if len(filter.MerchantIDs) > 0 {
+		query = query.Where(store.MerchantIDIn(filter.MerchantIDs...))
 	}
 
 	return query

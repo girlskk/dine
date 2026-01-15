@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/upagination"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/util"
@@ -184,7 +185,22 @@ func (interactor *StoreInteractor) GetStores(ctx context.Context,
 	defer func() {
 		util.SpanErrFinish(span, err)
 	}()
+	if len(filter.MerchantName) > 0 {
+		merchantList, err := interactor.DS.MerchantRepo().ListBySearch(ctx, &domain.MerchantListFilter{
+			MerchantName: filter.MerchantName,
+		})
+		if err != nil {
+			return
+		}
 
+		merchantIDs := lo.Map(merchantList, func(item *domain.Merchant, _ int) uuid.UUID {
+			return item.ID
+		})
+		if len(merchantIDs) == 0 {
+			return []*domain.Store{}, 0, nil
+		}
+		filter.MerchantIDs = merchantIDs
+	}
 	return interactor.DS.StoreRepo().GetStores(ctx, pager, filter, orderBys...)
 }
 

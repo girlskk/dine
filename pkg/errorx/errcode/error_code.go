@@ -113,4 +113,6 @@ const (
 
 	// 时间相关
 	TimeFormatInvalid ErrCode = "TIME_FORMAT_INVALID" // 时间格式错误
+	// 时间跨度超过一年
+	TimeRangeExceedOneYear ErrCode = "TIME_RANGE_EXCEED_ONE_YEAR"
 )

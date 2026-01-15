@@ -86,7 +86,14 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err).WithMessage(translated))
 				return
 			}
-
+			if errors.Is(err, domain.ErrUserDisabled) {
+				// 自定义错误，手动翻译
+				translated := i18n.Translate(ctx, errcode.UserDisabled.String(), map[string]any{
+					"Username": req.Username,
+				})
+				c.Error(errorx.New(http.StatusBadRequest, errcode.UserDisabled, err).WithMessage(translated))
+				return
+			}
 			if errors.Is(err, domain.ErrMismatchedHashAndPassword) {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.UserNotFound, err))
 				return
@@ -534,8 +541,6 @@ func (h *UserHandler) checkErr(err error) error {
 		return errorx.New(http.StatusBadRequest, errcode.SuperUserCannotDisable, err)
 	case errors.Is(err, domain.ErrSuperUserCannotUpdate):
 		return errorx.New(http.StatusBadRequest, errcode.SuperUserCannotUpdate, err)
-	case errors.Is(err, domain.ErrUserDisabled):
-		return errorx.New(http.StatusBadRequest, errcode.UserDisabled, err)
 	case errors.Is(err, domain.ErrDepartmentDisabled):
 		return errorx.New(http.StatusBadRequest, errcode.DepartmentDisabled, err)
 	case errors.Is(err, domain.ErrRoleDisabled):

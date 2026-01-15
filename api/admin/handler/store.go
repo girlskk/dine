@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gitlab.jiguang.dev/pos-dine/dine/api/admin/types"
 	"gitlab.jiguang.dev/pos-dine/dine/domain"
 	"gitlab.jiguang.dev/pos-dine/dine/pkg/errorx"
@@ -281,6 +282,7 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 		}
 		pager := req.RequestPagination.ToPagination()
 		filter := &domain.StoreListFilter{
+			MerchantName:     req.MerchantName,
 			StoreName:        req.StoreName,
 			BusinessTypeCode: req.BusinessTypeCode,
 			AdminPhoneNumber: req.AdminPhoneNumber,
@@ -307,9 +309,15 @@ func (h *StoreHandler) GetStores() gin.HandlerFunc {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtGte: %w", err)))
 				return
 			}
-			filter.CreatedAtLte, err = util.ParseDateToPtr(endTime)
+			endTimePtr, err := util.ParseDateToPtr(endTime)
 			if err != nil {
 				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeFormatInvalid, fmt.Errorf("invalid CreatedAtLte: %w", err)))
+				return
+			}
+			filter.CreatedAtLte = lo.ToPtr(util.DayEnd(lo.FromPtr(endTimePtr)))
+
+			if filter.CreatedAtLte.After(filter.CreatedAtGte.AddDate(1, 0, 0)) {
+				c.Error(errorx.New(http.StatusBadRequest, errcode.TimeRangeExceedOneYear, errors.New("created_at range cannot exceed one year")))
 				return
 			}
 		}

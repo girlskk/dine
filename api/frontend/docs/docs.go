@@ -1476,7 +1476,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -4581,16 +4581,16 @@ const docTemplate = `{
                 "SaleChannelThirdPartyDelivery": "三方外卖"
             },
             "x-enum-varnames": [
-                "PaymentMethodDisplayChannelPOS",
-                "PaymentMethodDisplayChannelMobileOrdering",
-                "PaymentMethodDisplayChannelScanOrdering",
-                "PaymentMethodDisplayChannelSelfService",
-                "PaymentMethodDisplayChannelThirdPartyDelivery",
                 "SaleChannelPOS",
                 "SaleChannelMobileOrdering",
                 "SaleChannelScanOrdering",
                 "SaleChannelSelfService",
-                "SaleChannelThirdPartyDelivery"
+                "SaleChannelThirdPartyDelivery",
+                "PaymentMethodDisplayChannelPOS",
+                "PaymentMethodDisplayChannelMobileOrdering",
+                "PaymentMethodDisplayChannelScanOrdering",
+                "PaymentMethodDisplayChannelSelfService",
+                "PaymentMethodDisplayChannelThirdPartyDelivery"
             ]
         },
         "domain.SetMealDetail": {
@@ -5167,6 +5167,27 @@ const docTemplate = `{
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.AccountListResp": {
             "type": "object",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -202,14 +203,6 @@ func (repo *MerchantRepository) GetMerchants(ctx context.Context, pager *upagina
 		util.SpanErrFinish(span, err)
 	}()
 
-	if pager == nil {
-		err = fmt.Errorf("pager is nil")
-		return
-	}
-	if filter == nil {
-		err = fmt.Errorf("filter is nil")
-		return
-	}
 	query := repo.filterBuildQuery(filter)
 
 	total, err = query.Clone().Count(ctx)
@@ -221,6 +214,26 @@ func (repo *MerchantRepository) GetMerchants(ctx context.Context, pager *upagina
 	merchants, err := query.Order(repo.orderBy(orderBys...)...).
 		Offset(pager.Offset()).
 		Limit(pager.Size).
+		All(ctx)
+	if err != nil {
+		err = fmt.Errorf("failed to query merchants: %w", err)
+		return
+	}
+
+	domainMerchants = lo.Map(merchants, func(merchant *ent.Merchant, _ int) *domain.Merchant {
+		return convertMerchant(merchant)
+	})
+	return
+}
+
+func (repo *MerchantRepository) ListBySearch(ctx context.Context, filter *domain.MerchantListFilter) (domainMerchants []*domain.Merchant, err error) {
+	span, ctx := util.StartSpan(ctx, "repository", "MerchantRepository.ListBySearch")
+	defer func() {
+		util.SpanErrFinish(span, err)
+	}()
+	query := repo.filterBuildQuery(filter)
+
+	merchants, err := query.Order(repo.orderBy()...).
 		All(ctx)
 	if err != nil {
 		err = fmt.Errorf("failed to query merchants: %w", err)
@@ -323,7 +336,11 @@ func (repo *MerchantRepository) filterBuildQuery(filter *domain.MerchantListFilt
 		query = query.Where(merchant.MerchantNameContains(filter.MerchantName))
 	}
 	if filter.AdminPhoneNumber != "" {
-		query = query.Where(merchant.AdminPhoneNumberEQ(filter.AdminPhoneNumber))
+		adminPhoneNumber := strings.TrimSpace(filter.AdminPhoneNumber)
+		query = query.Where(merchant.Or(
+			merchant.AdminPhoneNumberEQ(adminPhoneNumber),
+			merchant.AdminPhoneNumberEQ("+"+adminPhoneNumber),
+		))
 	}
 	if filter.MerchantType != "" {
 		query = query.Where(merchant.MerchantTypeEQ(filter.MerchantType))

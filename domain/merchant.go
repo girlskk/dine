@@ -24,6 +24,7 @@ type MerchantRepository interface {
 	Update(ctx context.Context, domainMerchant *Merchant) (err error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetMerchants(ctx context.Context, pager *upagination.Pagination, filter *MerchantListFilter, orderBys ...MerchantListOrderBy) (domainMerchants []*Merchant, total int, err error)
+	ListBySearch(ctx context.Context, filter *MerchantListFilter) (domainMerchants []*Merchant, err error)
 	CountMerchant(ctx context.Context) (merchantCount *MerchantCount, err error)
 	ExistMerchant(ctx context.Context, merchantExistsParams *MerchantExistsParams) (exist bool, err error)
 }

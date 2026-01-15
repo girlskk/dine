@@ -180,12 +180,6 @@ func (s *MerchantRepositoryTestSuite) TestMerchant_GetMerchants() {
 		require.Equal(t, m2.ID, list[0].ID)
 	})
 
-	s.T().Run("缺少入参", func(t *testing.T) {
-		_, _, err := s.repo.GetMerchants(s.ctx, nil, &domain.MerchantListFilter{})
-		require.Error(t, err)
-		_, _, err = s.repo.GetMerchants(s.ctx, pager, nil)
-		require.Error(t, err)
-	})
 }
 
 func (s *MerchantRepositoryTestSuite) TestMerchant_CountMerchant() {

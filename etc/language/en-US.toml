@@ -116,7 +116,7 @@ other = "Super administrator user cannot be disabled"
 other = "Super administrator user cannot be updated"
 
 [USER_DISABLED]
-other = "User has been disabled"
+other = "User {{.Username}} has been disabled"
 
 [DEPARTMENT_DISABLED]
 other = "User's department has been disabled"
@@ -150,6 +150,9 @@ other = "User has no assigned roles"
 
 [TIME_FORMAT_INVALID]
 other = "Time format is invalid"
+
+[TIME_RANGE_EXCEED_ONE_YEAR]
+other = "Time range cannot exceed one year"
 
 [REMARK_NOT_EXISTS]
 other = "Remark does not exist"

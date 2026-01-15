@@ -172,8 +172,10 @@ type StoreSimple struct {
 }
 
 type StoreListFilter struct {
+	MerchantName     string        `json:"merchant_name"`      // 商户名称
 	StoreName        string        `json:"store_name"`         // 门店名称
 	MerchantID       uuid.UUID     `json:"merchant_id"`        // 商户 ID
+	MerchantIDs      []uuid.UUID   `json:"merchant_ids"`       // 商户 IDs
 	BusinessTypeCode BusinessType  `json:"business_type_code"` // 业态类型
 	AdminPhoneNumber string        `json:"admin_phone_number"` // 管理员手机号
 	Status           StoreStatus   `json:"status"`             // 状态: 营业 停业
