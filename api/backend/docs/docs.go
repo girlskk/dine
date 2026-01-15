@@ -1865,9 +1865,17 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "营业日",
-                        "name": "business_date",
-                        "in": "query"
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
+                        "in": "query",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -6154,7 +6162,7 @@ const docTemplate = `{
                     "description": "适用的星期几，0=星期日，1=星期一，依此类推",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/time.Weekday"
                     }
                 }
             }
@@ -10043,6 +10051,27 @@ const docTemplate = `{
                 },
                 "data": {}
             }
+        },
+        "time.Weekday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
         },
         "types.AccountListResp": {
             "type": "object",

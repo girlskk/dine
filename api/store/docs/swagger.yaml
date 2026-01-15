@@ -5426,9 +5426,13 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 营业日
+      - description: 营业日开始
         in: query
-        name: business_date
+        name: business_date_start
+        type: string
+      - description: 营业日结束
+        in: query
+        name: business_date_end
         type: string
       - description: 订单号
         in: query

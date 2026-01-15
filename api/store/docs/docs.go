@@ -1184,8 +1184,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "营业日",
-                        "name": "business_date",
+                        "description": "营业日开始",
+                        "name": "business_date_start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "营业日结束",
+                        "name": "business_date_end",
                         "in": "query"
                     },
                     {
